@@ -289,16 +289,16 @@ export default function AboutPage() {
             Take the first step toward an exceptional education. Contact us today to schedule a campus tour.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/admission">
-              <Button size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 shadow-xl min-h-[52px] px-8 font-semibold">
+            <Button asChild size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 shadow-xl min-h-[52px] px-8 font-semibold">
+              <Link href="/admission">
                 Apply Now
-              </Button>
-            </Link>
-            <Link href="/contact">
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 min-h-[52px] px-8">
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 min-h-[52px] px-8">
+              <Link href="/contact">
                 Contact Us
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

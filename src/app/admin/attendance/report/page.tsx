@@ -206,11 +206,11 @@ function AttendanceReportModule() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Link href="/admin/attendance">
-            <Button variant="outline" size="icon" className="min-h-[44px] min-w-[44px]">
+          <Button asChild variant="outline" size="icon" className="min-h-[44px] min-w-[44px]">
+            <Link href="/admin/attendance">
               <ArrowLeft className="w-4 h-4" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Attendance Reports</h1>
             <p className="text-sm text-slate-500 mt-1">View attendance summaries and analytics</p>

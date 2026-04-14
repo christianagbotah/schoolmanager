@@ -210,12 +210,12 @@ function ExamsModule() {
               <CardDescription>{filteredExams.length} exam{filteredExams.length !== 1 ? 's' : ''} found</CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Link href="/admin/marks">
-                <Button variant="outline" className="min-h-[44px]">
+              <Button asChild variant="outline" className="min-h-[44px]">
+                <Link href="/admin/marks">
                   <GraduationCap className="w-4 h-4 mr-2" />
                   Mark Entry
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
         </CardHeader>

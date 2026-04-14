@@ -134,22 +134,22 @@ function BroadsheetModule() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Link href="/admin/exams">
-            <Button variant="outline" size="icon" className="min-h-[44px] min-w-[44px] print:hidden">
+          <Button asChild variant="outline" size="icon" className="min-h-[44px] min-w-[44px] print:hidden">
+            <Link href="/admin/exams">
               <ArrowLeft className="w-4 h-4" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Broadsheet / Tabulation</h1>
             <p className="text-sm text-slate-500 mt-1">Class-wide mark summary with statistics</p>
           </div>
         </div>
         <div className="flex items-center gap-2 print:hidden">
-          <Link href="/admin/reports/terminal">
-            <Button variant="outline" className="min-h-[44px]">
+          <Button asChild variant="outline" className="min-h-[44px]">
+            <Link href="/admin/reports/terminal">
               <FileBarChart className="w-4 h-4 mr-2" /> Terminal Reports
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           {students.length > 0 && (
             <>
               <Button onClick={exportCSV} variant="outline" className="min-h-[44px]">

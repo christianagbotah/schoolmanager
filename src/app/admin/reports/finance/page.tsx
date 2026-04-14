@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import DashboardLayout from '@/components/layout/dashboard-layout';
+import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,9 +25,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
   Bar,
   BarChart,
   Line,
@@ -40,6 +37,9 @@ import {
   PieChart,
 } from 'recharts';
 import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
 import {

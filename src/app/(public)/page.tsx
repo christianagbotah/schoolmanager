@@ -37,7 +37,7 @@ interface News {
 // ===== Animated Counter =====
 function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0)
-  const ref = useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLSpanElement>(null)
   const [started, setStarted] = useState(false)
 
   useEffect(() => {
@@ -69,7 +69,7 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
     return () => clearInterval(timer)
   }, [started, target])
 
-  return <div ref={ref}>{count.toLocaleString()}{suffix}</div>
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>
 }
 
 // ===== Hero Section =====
@@ -104,16 +104,16 @@ function HeroSection() {
               At Greenfield Academy, we cultivate curiosity, character, and creativity in every student. Join a community where excellence is a tradition.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link href="/admission">
-                <Button size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 shadow-xl hover:shadow-2xl transition-all min-h-[52px] text-base font-semibold px-8">
+              <Button asChild size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 shadow-xl hover:shadow-2xl transition-all min-h-[52px] text-base font-semibold px-8">
+                <Link href="/admission">
                   Apply Now <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-              <Link href="/about">
-                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 min-h-[52px] text-base px-8">
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 min-h-[52px] text-base px-8">
+                <Link href="/about">
                   Learn More
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
 
             {/* Quick stats on hero */}
@@ -295,11 +295,11 @@ function AboutSection() {
               ))}
             </div>
 
-            <Link href="/about">
-              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
+            <Button asChild className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Link href="/about">
                 Discover More <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -379,11 +379,11 @@ function EventsSection() {
               What&apos;s <span className="text-emerald-600">Happening</span>
             </h2>
           </div>
-          <Link href="/events" className="mt-4 sm:mt-0">
-            <Button variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+          <Button asChild variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 mt-4 sm:mt-0">
+            <Link href="/events">
               View All Events <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
 
         {loading ? (
@@ -463,11 +463,11 @@ function NewsSection() {
               School <span className="text-emerald-600">News & Updates</span>
             </h2>
           </div>
-          <Link href="/noticeboard" className="mt-4 sm:mt-0">
-            <Button variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+          <Button asChild variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 mt-4 sm:mt-0">
+            <Link href="/noticeboard">
               All Updates <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
 
         {loading ? (
@@ -735,16 +735,16 @@ function CTASection() {
           Give your child the gift of quality education. Admissions are now open for the 2025-2026 academic year. Apply today!
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/admission">
-            <Button size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 shadow-xl min-h-[52px] text-base font-semibold px-8">
+          <Button asChild size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 shadow-xl min-h-[52px] text-base font-semibold px-8">
+            <Link href="/admission">
               Apply for Admission <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </Link>
-          <Link href="/contact">
-            <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 min-h-[52px] text-base px-8">
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 min-h-[52px] text-base px-8">
+            <Link href="/contact">
               Schedule a Visit
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

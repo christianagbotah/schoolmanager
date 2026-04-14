@@ -96,16 +96,16 @@ function Navbar() {
 
             {/* Desktop CTA */}
             <div className="hidden lg:flex items-center gap-3">
-              <Link href="/login">
-                <Button variant="outline" size="sm" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+              <Button asChild variant="outline" size="sm" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                <Link href="/login">
                   Login
-                </Button>
-              </Link>
-              <Link href="/admission">
-                <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover:shadow-lg transition-all">
+                </Link>
+              </Button>
+              <Button asChild className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover:shadow-lg transition-all">
+                <Link href="/admission">
                   Apply Now
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
 
             {/* Mobile hamburger */}
@@ -154,16 +154,16 @@ function Navbar() {
 
                   {/* Mobile CTA */}
                   <div className="p-4 border-t border-slate-100 space-y-3">
-                    <Link href="/login" className="block">
-                      <Button variant="outline" className="w-full border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                    <Button asChild variant="outline" className="w-full border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                      <Link href="/login">
                         Login Portal
-                      </Button>
-                    </Link>
-                    <Link href="/admission" className="block">
-                      <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                      </Link>
+                    </Button>
+                    <Button asChild className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                      <Link href="/admission">
                         Apply Now
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               </SheetContent>

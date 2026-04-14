@@ -287,12 +287,12 @@ function AttendanceModule() {
           <p className="text-sm text-slate-500 mt-1">Mark and track daily student attendance</p>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/admin/attendance/report">
-            <Button variant="outline" className="min-h-[44px]">
+          <Button asChild variant="outline" className="min-h-[44px]">
+            <Link href="/admin/attendance/report">
               <FileBarChart className="w-4 h-4 mr-2" />
               Reports
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
 

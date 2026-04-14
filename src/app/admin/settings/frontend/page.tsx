@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Globe, Plus, Pencil, Trash2, Calendar, Image, Newspaper, PartyPopper, Eye,

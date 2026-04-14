@@ -229,22 +229,22 @@ function MarkEntryModule() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Link href="/admin/exams">
-            <Button variant="outline" size="icon" className="min-h-[44px] min-w-[44px]">
+          <Button asChild variant="outline" size="icon" className="min-h-[44px] min-w-[44px]">
+            <Link href="/admin/exams">
               <ArrowLeft className="w-4 h-4" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Mark Entry</h1>
             <p className="text-sm text-slate-500 mt-1">Enter and manage student examination marks</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/admin/grades">
-            <Button variant="outline" className="min-h-[44px]">
+          <Button asChild variant="outline" className="min-h-[44px]">
+            <Link href="/admin/grades">
               <FileText className="w-4 h-4 mr-2" /> Grades
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]" disabled={students.length === 0 || saving}>
             {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
             Save Marks
