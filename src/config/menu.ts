@@ -1,43 +1,62 @@
 import {
   LayoutDashboard,
-  Users,
+  ScanBarcode,
+  UserCog,
   GraduationCap,
-  BookOpen,
+  UserPlus,
+  Users,
   ClipboardList,
+  ListChecks,
+  ArrowUpCircle,
   FileText,
-  Receipt,
   CreditCard,
-  DollarSign,
-  Bus,
-  BarChart3,
-  Settings,
-  MessageSquare,
-  CheckSquare,
+  BookOpen,
+  Layers,
+  BookMarked,
   Calendar,
-  User,
-  Library as LibraryIcon,
-  BookCheck,
+  FileClock,
+  PenLine,
+  Table2,
+  Trophy,
+  Globe,
+  DollarSign,
+  Receipt,
+  Banknote,
+  PiggyBank,
+  Percent,
+  TrendingUp,
+  TrendingDown,
+  HandCoins,
+  Scale,
+  Megaphone,
+  MessageSquare,
+  Smartphone,
+  BellRing,
+  Settings,
+  Shield,
+  Mail,
+  Bus,
   Package,
   BedDouble,
-  Bell,
-  Megaphone,
-  Mail,
-  UserCog,
-  Banknote,
-  Palette,
-  Globe,
   Award,
   Star,
-  Table2,
-  TrendingUp,
+  BarChart3,
+  CheckSquare,
+  Library as LibraryIcon,
+  BookCheck,
+  Palette,
+  User,
+  Menu,
 } from "lucide-react";
 import type { UserRole } from "@/lib/auth";
 
+// ─── Types ──────────────────────────────────────────────────
 export interface MenuItem {
   label: string;
   href: string;
   icon: React.ElementType;
   badge?: number;
+  permission?: string | null;
   children?: MenuItem[];
 }
 
@@ -46,71 +65,105 @@ export interface MenuSection {
   items: MenuItem[];
 }
 
+// ─── Full Admin Menu (CI3-matching, with permissions) ───────
 const adminMenus: MenuSection[] = [
   {
     title: "Main",
     items: [
-      { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-      { label: "Students", href: "/admin/students", icon: Users },
-      { label: "Teachers", href: "/admin/teachers", icon: GraduationCap },
-      { label: "Classes", href: "/admin/classes", icon: BookOpen },
-      { label: "Subjects", href: "/admin/subjects", icon: ClipboardList },
+      { label: "Dashboard", href: "/admin", icon: LayoutDashboard, permission: null },
+      { label: "Barcode Scanner", href: "/admin/barcode", icon: ScanBarcode, permission: "can_use_barcode_scanner" },
     ],
   },
   {
-    title: "Academic",
+    title: "User Management",
     items: [
-      { label: "Attendance", href: "/admin/attendance", icon: CheckSquare },
-      { label: "Exams", href: "/admin/exams", icon: FileText },
-      { label: "Mark Entry", href: "/admin/marks", icon: Award },
-      { label: "Grades", href: "/admin/grades", icon: Star },
-      { label: "Class Routine", href: "/admin/routine", icon: Calendar },
+      { label: "Administrators", href: "/admin/admins", icon: UserCog, permission: "can_view_admins_list" },
+      {
+        label: "Students", href: "/admin/students", icon: GraduationCap, permission: "can_view_students_list",
+        children: [
+          { label: "Admit Student", href: "/admin/students/new", icon: UserPlus, permission: "can_admit_students" },
+          { label: "Bulk Upload", href: "/admin/students/bulk", icon: Users, permission: "can_admit_students" },
+          { label: "Attendance", href: "/admin/attendance", icon: ClipboardList, permission: "can_manage_attendance" },
+          { label: "Lists by Class", href: "/admin/students/lists", icon: ListChecks, permission: "can_view_students_list" },
+          { label: "Promotion", href: "/admin/students/promotion", icon: ArrowUpCircle, permission: "can_edit_students" },
+          { label: "Marksheets", href: "/admin/students/marksheets", icon: FileText, permission: "can_view_marks" },
+          { label: "ID Cards", href: "/admin/students/id-cards", icon: CreditCard, permission: "can_view_students_list" },
+        ],
+      },
+      { label: "Teachers", href: "/admin/teachers", icon: User, permission: "can_view_teachers_list" },
+      { label: "Parents", href: "/admin/parents", icon: Users, permission: "can_view_parents_list" },
+      { label: "Librarians", href: "/admin/librarians", icon: LibraryIcon, permission: "can_manage_books" },
     ],
   },
   {
-    title: "Modules",
+    title: "Academics",
     items: [
-      { label: "Library", href: "/admin/library", icon: LibraryIcon },
-      { label: "Transport", href: "/admin/transport", icon: Bus },
-      { label: "Inventory", href: "/admin/inventory", icon: Package },
-      { label: "Boarding", href: "/admin/boarding", icon: BedDouble },
+      { label: "Classes", href: "/admin/classes", icon: BookOpen, permission: "can_manage_classes",
+        children: [
+          { label: "Manage Classes", href: "/admin/classes", icon: BookOpen, permission: "can_manage_classes" },
+          { label: "Sections", href: "/admin/classes/sections", icon: Layers, permission: "can_manage_sections" },
+          { label: "Syllabus", href: "/admin/classes/syllabus", icon: BookMarked, permission: "can_manage_classes" },
+        ],
+      },
+      { label: "Subjects", href: "/admin/subjects", icon: Globe, permission: "can_manage_subjects" },
+      { label: "Timetable", href: "/admin/routine", icon: Calendar, permission: "can_manage_class_routine" },
+      { label: "Study Material", href: "/admin/study-material", icon: FileClock, permission: "can_manage_subjects" },
+      {
+        label: "Examination", href: "/admin/exams", icon: FileText, permission: "can_manage_exams",
+        children: [
+          { label: "Exam Dashboard", href: "/admin/exams", icon: LayoutDashboard, permission: "can_manage_exams" },
+          { label: "Exam List", href: "/admin/exams/list", icon: ListChecks, permission: "can_manage_exams" },
+          { label: "Grades", href: "/admin/grades", icon: Star, permission: "can_manage_grades" },
+          { label: "Manage Marks", href: "/admin/marks", icon: PenLine, permission: "can_enter_marks" },
+          { label: "Tabulation", href: "/admin/exams/tabulation", icon: Table2, permission: "can_view_broadsheet" },
+          { label: "Online Exams", href: "/admin/exams/online", icon: Trophy, permission: "can_manage_exams" },
+        ],
+      },
     ],
   },
   {
-    title: "HR & Payroll",
+    title: "Financial",
     items: [
-      { label: "Employees", href: "/admin/employees", icon: UserCog },
-      { label: "Payroll", href: "/admin/payroll", icon: Banknote },
-    ],
-  },
-  {
-    title: "Finance",
-    items: [
-      { label: "Invoices & Billing", href: "/admin/invoices", icon: Receipt },
-      { label: "Payments", href: "/admin/payments", icon: CreditCard },
-      { label: "Daily Fees", href: "/admin/daily-fees", icon: DollarSign },
+      {
+        label: "Daily Fees", href: "/admin/daily-fees", icon: DollarSign, permission: "can_receive_daily_fees",
+        children: [
+          { label: "Cashier Dashboard", href: "/admin/daily-fees", icon: LayoutDashboard, permission: "can_receive_daily_fees" },
+          { label: "Collections", href: "/admin/daily-fees/collections", icon: Receipt, permission: "can_receive_daily_fees" },
+          { label: "Summary", href: "/admin/daily-fees/summary", icon: BarChart3, permission: "can_view_daily_fee_reports" },
+          { label: "Handover", href: "/admin/daily-fees/handover", icon: HandCoins, permission: "can_receive_daily_fees" },
+        ],
+      },
+      { label: "Student Billing", href: "/admin/invoices", icon: Receipt, permission: "can_bill_students" },
+      { label: "Credits", href: "/admin/credits", icon: Banknote, permission: "can_receive_payment" },
+      { label: "Discounts", href: "/admin/discounts", icon: Percent, permission: "can_manage_discounts" },
+      { label: "Income", href: "/admin/income", icon: TrendingUp, permission: "can_view_financial_reports" },
+      { label: "Expenditure", href: "/admin/expenses", icon: TrendingDown, permission: "can_enter_expenses" },
+      { label: "Payroll", href: "/admin/payroll", icon: Banknote, permission: "can_manage_payroll" },
+      { label: "Receivables", href: "/admin/receivables", icon: Scale, permission: "can_view_invoices" },
+      { label: "Student Ledger", href: "/admin/ledger", icon: BookCheck, permission: "can_view_invoices" },
     ],
   },
   {
     title: "Communication",
     items: [
-      { label: "Notices", href: "/admin/notices", icon: Megaphone },
-      { label: "Messages", href: "/admin/messages", icon: MessageSquare },
-    ],
-  },
-  {
-    title: "Reports",
-    items: [
-      { label: "Terminal Reports", href: "/admin/reports/terminal", icon: BarChart3 },
-      { label: "Broadsheet", href: "/admin/reports/broadsheet", icon: Table2 },
-      { label: "Attendance Reports", href: "/admin/attendance/report", icon: TrendingUp },
+      { label: "Noticeboard", href: "/admin/notices", icon: Megaphone, permission: "can_manage_notices" },
+      { label: "Messages", href: "/admin/messages", icon: MessageSquare, permission: "can_send_messages" },
+      { label: "SMS Automation", href: "/admin/sms", icon: Smartphone, permission: "can_send_sms" },
+      { label: "Bill Reminders", href: "/admin/bill-reminders", icon: BellRing, permission: "can_send_sms" },
     ],
   },
   {
     title: "System",
     items: [
-      { label: "Settings", href: "/admin/settings", icon: Settings },
-      { label: "Frontend CMS", href: "/admin/settings/frontend", icon: Globe },
+      { label: "Settings", href: "/admin/settings", icon: Settings, permission: "can_manage_settings" },
+      { label: "SMS Settings", href: "/admin/settings/sms", icon: Smartphone, permission: "can_manage_settings" },
+      { label: "Permissions", href: "/admin/settings/permissions", icon: Shield, permission: "can_manage_roles_permissions", adminOnly: true },
+      { label: "Frontend CMS", href: "/admin/settings/frontend", icon: Palette, permission: "can_manage_frontend_cms" },
+      { label: "Transport", href: "/admin/transport", icon: Bus, permission: "can_manage_transport" },
+      { label: "Inventory", href: "/admin/inventory", icon: Package, permission: "can_manage_inventory" },
+      { label: "Boarding", href: "/admin/boarding", icon: BedDouble, permission: "can_mark_boarding_attendance" },
+      { label: "Library", href: "/admin/library", icon: LibraryIcon, permission: "can_manage_books" },
+      { label: "Employees", href: "/admin/employees", icon: UserCog, permission: "can_manage_employees" },
     ],
   },
 ];
@@ -119,22 +172,22 @@ const teacherMenus: MenuSection[] = [
   {
     title: "Main",
     items: [
-      { label: "Dashboard", href: "/teacher", icon: LayoutDashboard },
-      { label: "My Classes", href: "/teacher/classes", icon: BookOpen },
-      { label: "Attendance", href: "/teacher/attendance", icon: CheckSquare },
+      { label: "Dashboard", href: "/teacher", icon: LayoutDashboard, permission: null },
+      { label: "My Classes", href: "/teacher/classes", icon: BookOpen, permission: "can_view_class_routine" },
+      { label: "Attendance", href: "/teacher/attendance", icon: CheckSquare, permission: "can_manage_attendance" },
     ],
   },
   {
     title: "Academic",
     items: [
-      { label: "Mark Entry", href: "/teacher/marks", icon: FileText },
-      { label: "Class Routine", href: "/teacher/routine", icon: Calendar },
+      { label: "Mark Entry", href: "/teacher/marks", icon: FileText, permission: "can_enter_marks" },
+      { label: "Class Routine", href: "/teacher/routine", icon: Calendar, permission: "can_view_class_routine" },
     ],
   },
   {
     title: "Profile",
     items: [
-      { label: "My Profile", href: "/teacher/profile", icon: User },
+      { label: "My Profile", href: "/teacher/profile", icon: User, permission: null },
     ],
   },
 ];
@@ -143,16 +196,16 @@ const studentMenus: MenuSection[] = [
   {
     title: "Main",
     items: [
-      { label: "Dashboard", href: "/student", icon: LayoutDashboard },
-      { label: "My Results", href: "/student/results", icon: FileText },
-      { label: "My Invoices", href: "/student/invoices", icon: Receipt },
+      { label: "Dashboard", href: "/student", icon: LayoutDashboard, permission: null },
+      { label: "My Results", href: "/student/results", icon: FileText, permission: "can_view_own_results" },
+      { label: "My Invoices", href: "/student/invoices", icon: Receipt, permission: "can_view_own_invoices" },
     ],
   },
   {
     title: "Academic",
     items: [
-      { label: "Class Routine", href: "/student/routine", icon: Calendar },
-      { label: "Library", href: "/student/library", icon: LibraryIcon },
+      { label: "Class Routine", href: "/student/routine", icon: Calendar, permission: "can_view_own_routine" },
+      { label: "Library", href: "/student/library", icon: LibraryIcon, permission: "can_request_books" },
     ],
   },
 ];
@@ -161,24 +214,20 @@ const parentMenus: MenuSection[] = [
   {
     title: "Main",
     items: [
-      { label: "Dashboard", href: "/parent", icon: LayoutDashboard },
-      {
-        label: "Children's Results",
-        href: "/parent/results",
-        icon: FileText,
-      },
+      { label: "Dashboard", href: "/parent", icon: LayoutDashboard, permission: null },
+      { label: "Children's Results", href: "/parent/results", icon: FileText, permission: "can_view_children_results" },
     ],
   },
   {
     title: "Finance",
     items: [
-      { label: "Fee Payments", href: "/parent/payments", icon: CreditCard },
+      { label: "Fee Payments", href: "/parent/payments", icon: CreditCard, permission: "can_view_children_invoices" },
     ],
   },
   {
     title: "Academic",
     items: [
-      { label: "Attendance", href: "/parent/attendance", icon: CheckSquare },
+      { label: "Attendance", href: "/parent/attendance", icon: CheckSquare, permission: "can_view_children_attendance" },
     ],
   },
 ];
@@ -187,16 +236,16 @@ const accountantMenus: MenuSection[] = [
   {
     title: "Main",
     items: [
-      { label: "Dashboard", href: "/accountant", icon: LayoutDashboard },
-      { label: "Invoices", href: "/accountant/invoices", icon: Receipt },
-      { label: "Payments", href: "/accountant/payments", icon: CreditCard },
+      { label: "Dashboard", href: "/accountant", icon: LayoutDashboard, permission: null },
+      { label: "Invoices", href: "/accountant/invoices", icon: Receipt, permission: "can_view_invoices" },
+      { label: "Payments", href: "/accountant/payments", icon: CreditCard, permission: "can_view_payments" },
     ],
   },
   {
     title: "Finance",
     items: [
-      { label: "Expenses", href: "/accountant/expenses", icon: DollarSign },
-      { label: "Reports", href: "/accountant/reports", icon: BarChart3 },
+      { label: "Expenses", href: "/accountant/expenses", icon: DollarSign, permission: "can_enter_expenses" },
+      { label: "Reports", href: "/accountant/reports", icon: BarChart3, permission: "can_view_financial_reports" },
     ],
   },
 ];
@@ -205,39 +254,147 @@ const librarianMenus: MenuSection[] = [
   {
     title: "Main",
     items: [
-      { label: "Dashboard", href: "/librarian", icon: LayoutDashboard },
-      { label: "Books", href: "/librarian/books", icon: BookCheck },
-      { label: "Book Requests", href: "/librarian/requests", icon: BookOpen },
+      { label: "Dashboard", href: "/librarian", icon: LayoutDashboard, permission: null },
+      { label: "Books", href: "/librarian/books", icon: BookCheck, permission: "can_manage_books" },
+      { label: "Book Requests", href: "/librarian/requests", icon: BookOpen, permission: "can_issue_books" },
     ],
   },
 ];
 
-export function getMenuByRole(role: UserRole): MenuSection[] {
-  const menuMap: Record<UserRole, MenuSection[]> = {
+// ─── Get menus by role ──────────────────────────────────────
+export function getMenuByRole(role: string): MenuSection[] {
+  const menuMap: Record<string, MenuSection[]> = {
+    "super-admin": adminMenus,
     admin: adminMenus,
     teacher: teacherMenus,
     student: studentMenus,
     parent: parentMenus,
     accountant: accountantMenus,
     librarian: librarianMenus,
+    cashier: accountantMenus,
+    conductor: adminMenus,
+    receptionist: adminMenus,
   };
   return menuMap[role] || [];
 }
 
-export const roleLabels: Record<UserRole, string> = {
+// ─── Role labels & colors ───────────────────────────────────
+export const roleLabels: Record<string, string> = {
+  "super-admin": "Super Admin",
   admin: "Administrator",
   teacher: "Teacher",
   student: "Student",
   parent: "Parent",
   accountant: "Accountant",
   librarian: "Librarian",
+  cashier: "Cashier",
+  conductor: "Conductor",
+  receptionist: "Receptionist",
 };
 
-export const roleColors: Record<UserRole, string> = {
+export const roleColors: Record<string, string> = {
+  "super-admin": "bg-red-100 text-red-700",
   admin: "bg-emerald-100 text-emerald-700",
-  teacher: "bg-blue-100 text-blue-700",
+  teacher: "bg-sky-100 text-sky-700",
   student: "bg-amber-100 text-amber-700",
   parent: "bg-purple-100 text-purple-700",
   accountant: "bg-orange-100 text-orange-700",
   librarian: "bg-rose-100 text-rose-700",
+  cashier: "bg-teal-100 text-teal-700",
+  conductor: "bg-cyan-100 text-cyan-700",
+  receptionist: "bg-indigo-100 text-indigo-700",
 };
+
+// ─── Metro Menu Tile Groups ─────────────────────────────────
+export interface MetroTile {
+  label: string;
+  href: string;
+  icon: React.ElementType;
+  color: string;
+  wide?: boolean;
+  permission?: string | null;
+  adminOnly?: boolean;
+}
+
+export interface MetroGroup {
+  title: string;
+  tiles: MetroTile[];
+}
+
+export const metroGroups: MetroGroup[] = [
+  {
+    title: "Dashboard",
+    tiles: [
+      { label: "Dashboard", href: "/admin", icon: LayoutDashboard, color: "#0078d4", wide: true, permission: null },
+      { label: "Barcode Scanner", href: "/admin/barcode", icon: ScanBarcode, color: "#5d5a58", permission: "can_use_barcode_scanner" },
+    ],
+  },
+  {
+    title: "People",
+    tiles: [
+      { label: "Students", href: "/admin/students", icon: GraduationCap, color: "#107c10", wide: true, permission: "can_view_students_list" },
+      { label: "Admit Student", href: "/admin/students/new", icon: UserPlus, color: "#00b294", permission: "can_admit_students" },
+      { label: "Teachers", href: "/admin/teachers", icon: User, color: "#d83b01", permission: "can_view_teachers_list" },
+      { label: "Parents", href: "/admin/parents", icon: Users, color: "#5c2d91", permission: "can_view_parents_list" },
+      { label: "Administrators", href: "/admin/admins", icon: UserCog, color: "#008272", permission: "can_view_admins_list" },
+      { label: "Employees", href: "/admin/employees", icon: UserCog, color: "#881798", permission: "can_manage_employees" },
+    ],
+  },
+  {
+    title: "Academics",
+    tiles: [
+      { label: "Classes", href: "/admin/classes", icon: BookOpen, color: "#0078d4", permission: "can_manage_classes" },
+      { label: "Subjects", href: "/admin/subjects", icon: Globe, color: "#00bcf2", permission: "can_manage_subjects" },
+      { label: "Timetable", href: "/admin/routine", icon: Calendar, color: "#ff8c00", permission: "can_manage_class_routine" },
+      { label: "Attendance", href: "/admin/attendance", icon: CheckSquare, color: "#107c10", wide: true, permission: "can_manage_attendance" },
+      { label: "Exams", href: "/admin/exams", icon: FileText, color: "#e81123", permission: "can_manage_exams" },
+      { label: "Marks", href: "/admin/marks", icon: PenLine, color: "#5c2d91", permission: "can_enter_marks" },
+      { label: "Grades", href: "/admin/grades", icon: Star, color: "#008272", permission: "can_manage_grades" },
+      { label: "Reports", href: "/admin/reports/terminal", icon: BarChart3, color: "#00b294", wide: true, permission: "can_view_academic_reports" },
+    ],
+  },
+  {
+    title: "Finance",
+    tiles: [
+      { label: "Daily Fees", href: "/admin/daily-fees", icon: DollarSign, color: "#00b294", wide: true, permission: "can_receive_daily_fees" },
+      { label: "Student Billing", href: "/admin/invoices", icon: Receipt, color: "#0078d4", permission: "can_bill_students" },
+      { label: "Payments", href: "/admin/payments", icon: CreditCard, color: "#107c10", permission: "can_view_payments" },
+      { label: "Expenses", href: "/admin/expenses", icon: TrendingDown, color: "#e81123", permission: "can_enter_expenses" },
+      { label: "Payroll", href: "/admin/payroll", icon: Banknote, color: "#d83b01", permission: "can_manage_payroll" },
+      { label: "Financial Reports", href: "/admin/reports/finance", icon: BarChart3, color: "#5c2d91", permission: "can_view_financial_reports" },
+    ],
+  },
+  {
+    title: "Communication",
+    tiles: [
+      { label: "Noticeboard", href: "/admin/notices", icon: Megaphone, color: "#0078d4", wide: true, permission: "can_manage_notices" },
+      { label: "Messages", href: "/admin/messages", icon: MessageSquare, color: "#008272", permission: "can_send_messages" },
+      { label: "SMS", href: "/admin/sms", icon: Smartphone, color: "#00bcf2", permission: "can_send_sms" },
+      { label: "Bill Reminders", href: "/admin/bill-reminders", icon: BellRing, color: "#ff8c00", permission: "can_send_sms" },
+    ],
+  },
+  {
+    title: "Modules",
+    tiles: [
+      { label: "Transport", href: "/admin/transport", icon: Bus, color: "#ff8c00", permission: "can_manage_transport" },
+      { label: "Library", href: "/admin/library", icon: LibraryIcon, color: "#5c2d91", permission: "can_manage_books" },
+      { label: "Inventory", href: "/admin/inventory", icon: Package, color: "#008272", permission: "can_manage_inventory" },
+      { label: "Boarding", href: "/admin/boarding", icon: BedDouble, color: "#107c10", permission: "can_mark_boarding_attendance" },
+    ],
+  },
+  {
+    title: "System",
+    tiles: [
+      { label: "Settings", href: "/admin/settings", icon: Settings, color: "#5d5a58", wide: true, permission: "can_manage_settings" },
+      { label: "Frontend CMS", href: "/admin/settings/frontend", icon: Palette, color: "#ec008c", permission: "can_manage_frontend_cms" },
+      { label: "Permissions", href: "/admin/settings/permissions", icon: Shield, color: "#e81123", permission: "can_manage_roles_permissions", adminOnly: true },
+    ],
+  },
+];
+
+// Extend MenuItem to include adminOnly
+declare module "./menu" {
+  interface MenuItem {
+    adminOnly?: boolean;
+  }
+}

@@ -5,32 +5,30 @@ import { useRouter } from "next/navigation";
 import {
   GraduationCap,
   Users,
-  School,
+  ClipboardCheck,
   DollarSign,
   AlertTriangle,
-  ClipboardCheck,
+  CreditCard,
+  Receipt,
+  MessageSquare,
+  Bell,
+  TrendingUp,
+  TrendingDown,
+  ArrowUpRight,
+  Loader2,
+  CalendarDays,
+  Search,
+  BarChart3,
   UserPlus,
   FileText,
   CheckSquare,
-  BarChart3,
-  TrendingUp,
-  ArrowUpRight,
-  ArrowDownRight,
-  Loader2,
-  CalendarDays,
+  Activity,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -54,19 +52,30 @@ import {
   Pie,
   PieChart,
   Cell,
+  Line,
+  LineChart,
+  ResponsiveContainer,
 } from "recharts";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
+import { PERMISSIONS } from "@/lib/permissions";
 
 // ─── Types ───────────────────────────────────────────────────
 interface DashboardStats {
   totalStudents: number;
   totalTeachers: number;
   totalClasses: number;
-  revenueThisTerm: number;
-  outstandingFees: number;
+  activeParents: number;
   attendanceToday: number;
+}
+
+interface FinancialStats {
+  totalRevenue: number;
+  collectionRate: number;
+  collectionLabel: string;
+  collectionColor: string;
+  totalOutstanding: number;
 }
 
 interface RecentPayment {
@@ -79,23 +88,16 @@ interface RecentPayment {
   invoiceCode: string;
 }
 
-interface MonthlyRevenueItem {
-  month: string;
-  revenue: number;
-}
-
-interface FeeOverviewItem {
-  name: string;
-  value: number;
-  fill: string;
+interface ChartData {
+  classDistribution: { name: string; students: number }[];
+  genderDistribution: { name: string; value: number; fill: string }[];
+  attendanceTrend: { day: string; date: string; present: number }[];
 }
 
 interface DashboardData {
   stats: DashboardStats;
-  charts: {
-    monthlyRevenue: MonthlyRevenueItem[];
-    feeOverview: FeeOverviewItem[];
-  };
+  financial: FinancialStats;
+  charts: ChartData;
   recentPayments: RecentPayment[];
   academicTerm: {
     year: string;
@@ -104,120 +106,28 @@ interface DashboardData {
 }
 
 // ─── Chart Configs ───────────────────────────────────────────
-const revenueChartConfig = {
-  revenue: {
-    label: "Revenue",
-    color: "var(--chart-1)",
-  },
+const classChartConfig = {
+  students: { label: "Students", color: "#667eea" },
 };
 
-const feeChartConfig = {
-  paid: {
-    label: "Paid",
-    color: "#10b981",
-  },
-  outstanding: {
-    label: "Outstanding",
-    color: "#f59e0b",
-  },
-  overdue: {
-    label: "Overdue",
-    color: "#ef4444",
-  },
+const genderChartConfig = {
+  male: { label: "Male", color: "#6366f1" },
+  female: { label: "Female", color: "#ec4899" },
 };
 
-const PIE_COLORS = ["#10b981", "#f59e0b", "#ef4444"];
+const attendanceChartConfig = {
+  present: { label: "Present", color: "#00f2fe" },
+};
 
-// ─── Stat Card Config ────────────────────────────────────────
-const statCards = [
-  {
-    key: "totalStudents" as const,
-    label: "Total Students",
-    icon: GraduationCap,
-    color: "text-emerald-600",
-    bgColor: "bg-emerald-50",
-    iconBg: "bg-emerald-100",
-    borderColor: "border-emerald-200",
-  },
-  {
-    key: "totalTeachers" as const,
-    label: "Total Teachers",
-    icon: Users,
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
-    iconBg: "bg-blue-100",
-    borderColor: "border-blue-200",
-  },
-  {
-    key: "totalClasses" as const,
-    label: "Total Classes",
-    icon: School,
-    color: "text-purple-600",
-    bgColor: "bg-purple-50",
-    iconBg: "bg-purple-100",
-    borderColor: "border-purple-200",
-  },
-  {
-    key: "revenueThisTerm" as const,
-    label: "Revenue (This Term)",
-    icon: DollarSign,
-    color: "text-green-600",
-    bgColor: "bg-green-50",
-    iconBg: "bg-green-100",
-    borderColor: "border-green-200",
-    isCurrency: true,
-  },
-  {
-    key: "outstandingFees" as const,
-    label: "Outstanding Fees",
-    icon: AlertTriangle,
-    color: "text-amber-600",
-    bgColor: "bg-amber-50",
-    iconBg: "bg-amber-100",
-    borderColor: "border-amber-200",
-    isCurrency: true,
-    isNegative: true,
-  },
-  {
-    key: "attendanceToday" as const,
-    label: "Attendance Today",
-    icon: ClipboardCheck,
-    color: "text-cyan-600",
-    bgColor: "bg-cyan-50",
-    iconBg: "bg-cyan-100",
-    borderColor: "border-cyan-200",
-  },
+const GENDER_COLORS = ["#6366f1", "#ec4899"];
+const ATTENDANCE_LINE_COLOR = "#00f2fe";
+const BAR_COLORS = [
+  "#667eea", "#f5576c", "#00f2fe", "#fee140",
+  "#a78bfa", "#34d399", "#fb923c", "#f472b6",
+  "#38bdf8", "#fbbf24",
 ];
 
-// ─── Quick Actions ───────────────────────────────────────────
-const quickActions = [
-  {
-    label: "Add New Student",
-    icon: UserPlus,
-    href: "/admin/students/new",
-    variant: "default" as const,
-  },
-  {
-    label: "Create Invoice",
-    icon: FileText,
-    href: "/admin/invoices/new",
-    variant: "outline" as const,
-  },
-  {
-    label: "Mark Attendance",
-    icon: CheckSquare,
-    href: "/admin/attendance",
-    variant: "outline" as const,
-  },
-  {
-    label: "View Reports",
-    icon: BarChart3,
-    href: "/admin/reports",
-    variant: "outline" as const,
-  },
-];
-
-// ─── Helper: Format currency ─────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -233,7 +143,6 @@ function formatCompactNumber(num: number): string {
   return num.toLocaleString();
 }
 
-// ─── Status Badge ────────────────────────────────────────────
 function PaymentStatusBadge({ status }: { status: string }) {
   const variant =
     status === "approved" || status === "paid"
@@ -241,41 +150,175 @@ function PaymentStatusBadge({ status }: { status: string }) {
       : status === "pending"
         ? "secondary"
         : "destructive";
-
   const label =
     status === "approved" || status === "paid"
       ? "Completed"
       : status.charAt(0).toUpperCase() + status.slice(1);
-
   return <Badge variant={variant}>{label}</Badge>;
 }
 
-// ─── Stat Card Skeleton ──────────────────────────────────────
+// ─── Stat Card Component ─────────────────────────────────────
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  gradientFrom,
+  gradientTo,
+  borderColor,
+  subtext,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string | number;
+  gradientFrom: string;
+  gradientTo: string;
+  borderColor: string;
+  subtext?: string;
+}) {
+  return (
+    <div
+      className="dashboard-card bg-white rounded-2xl shadow-sm p-7 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl transition-all duration-300"
+      style={{ borderLeft: `5px solid ${borderColor}` }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-slate-500 mb-1">{label}</p>
+          <p className="text-3xl font-bold text-slate-900 tabular-nums">
+            {value}
+          </p>
+          {subtext && (
+            <p className="text-xs text-slate-400 mt-1">{subtext}</p>
+          )}
+        </div>
+        <div
+          className={`stat-icon w-16 h-16 rounded-2xl flex items-center justify-center text-3xl text-white bg-gradient-to-br ${gradientFrom} ${gradientTo} flex-shrink-0 ml-4`}
+        >
+          <Icon className="w-8 h-8" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Skeleton Loading ────────────────────────────────────────
 function StatCardSkeleton() {
   return (
-    <Card className="gap-4 py-4">
-      <CardContent className="px-4 pb-0 pt-0">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2 flex-1">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-8 w-16" />
-          </div>
-          <Skeleton className="h-10 w-10 rounded-xl" />
+    <div className="bg-white rounded-2xl shadow-sm p-7 border-l-5 border-slate-200">
+      <div className="flex items-center justify-between">
+        <div className="flex-1 space-y-3">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-9 w-20" />
         </div>
-      </CardContent>
-    </Card>
+        <Skeleton className="w-16 h-16 rounded-2xl flex-shrink-0 ml-4" />
+      </div>
+    </div>
+  );
+}
+
+function ChartSkeleton() {
+  return (
+    <div className="bg-white rounded-2xl shadow-sm p-6">
+      <div className="flex items-center gap-2 mb-6">
+        <Skeleton className="w-6 h-6 rounded" />
+        <Skeleton className="h-5 w-48" />
+      </div>
+      <Skeleton className="h-[260px] w-full rounded-xl" />
+    </div>
+  );
+}
+
+// ─── Quick Action Button ─────────────────────────────────────
+function QuickAction({
+  icon: Icon,
+  label,
+  href,
+  color,
+  onClick,
+}: {
+  icon: React.ElementType;
+  label: string;
+  href: string;
+  color: string;
+  onClick: (href: string) => void;
+}) {
+  const colorMap: Record<string, { bg: string; hoverBg: string; hoverBorder: string; iconColor: string }> = {
+    emerald: {
+      bg: "bg-emerald-50",
+      hoverBg: "group-hover:bg-emerald-100",
+      hoverBorder: "group-hover:border-emerald-400",
+      iconColor: "text-emerald-600",
+    },
+    blue: {
+      bg: "bg-blue-50",
+      hoverBg: "group-hover:bg-blue-100",
+      hoverBorder: "group-hover:border-blue-400",
+      iconColor: "text-blue-600",
+    },
+    violet: {
+      bg: "bg-violet-50",
+      hoverBg: "group-hover:bg-violet-100",
+      hoverBorder: "group-hover:border-violet-400",
+      iconColor: "text-violet-600",
+    },
+    amber: {
+      bg: "bg-amber-50",
+      hoverBg: "group-hover:bg-amber-100",
+      hoverBorder: "group-hover:border-amber-400",
+      iconColor: "text-amber-600",
+    },
+    cyan: {
+      bg: "bg-cyan-50",
+      hoverBg: "group-hover:bg-cyan-100",
+      hoverBorder: "group-hover:border-cyan-400",
+      iconColor: "text-cyan-600",
+    },
+    rose: {
+      bg: "bg-rose-50",
+      hoverBg: "group-hover:bg-rose-100",
+      hoverBorder: "group-hover:border-rose-400",
+      iconColor: "text-rose-600",
+    },
+  };
+
+  const colors = colorMap[color] || colorMap.blue;
+
+  return (
+    <button
+      onClick={() => onClick(href)}
+      className={`group flex flex-col items-center gap-3 p-5 rounded-xl bg-white border-2 border-slate-100 ${colors.hoverBorder} hover:${colors.hoverBg.replace("group-hover:", "")} hover:-translate-y-1 transition-all duration-300 cursor-pointer w-full`}
+    >
+      <div
+        className={`w-12 h-12 rounded-xl ${colors.bg} ${colors.hoverBg} flex items-center justify-center transition-colors duration-300`}
+      >
+        <Icon className={`w-6 h-6 ${colors.iconColor}`} />
+      </div>
+      <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">
+        {label}
+      </span>
+    </button>
   );
 }
 
 // ─── Main Component ──────────────────────────────────────────
 export default function AdminDashboard() {
   const router = useRouter();
-  const { isLoading: authLoading, role } = useAuth();
+  const { isLoading: authLoading, role, isSuperAdmin, hasPermission } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState("");
-  const [selectedTerm, setSelectedTerm] = useState("");
+
+  // Filter state
+  const [filterDate, setFilterDate] = useState("");
+  const [filterTerm, setFilterTerm] = useState("");
+  const [filterYear, setFilterYear] = useState("");
+  const [filterSearch, setFilterSearch] = useState("");
+
+  // Permission checks
+  const canViewFinance =
+    isSuperAdmin ||
+    hasPermission(PERMISSIONS.CAN_VIEW_PAYMENTS) ||
+    hasPermission(PERMISSIONS.CAN_VIEW_INVOICES) ||
+    hasPermission(PERMISSIONS.CAN_VIEW_FINANCIAL_REPORTS);
 
   const fetchDashboardData = useCallback(async () => {
     setIsLoading(true);
@@ -285,8 +328,8 @@ export default function AdminDashboard() {
       if (!res.ok) throw new Error("Failed to fetch dashboard data");
       const json = await res.json();
       setData(json);
-      setSelectedYear(json.academicTerm.year);
-      setSelectedTerm(json.academicTerm.term);
+      setFilterYear(json.academicTerm.year);
+      setFilterTerm(json.academicTerm.term);
     } catch (err) {
       console.error(err);
       setError("Unable to load dashboard data. Please try again later.");
@@ -301,42 +344,55 @@ export default function AdminDashboard() {
     }
   }, [authLoading, role, fetchDashboardData]);
 
+  const today = format(new Date(), "EEEE, MMMM d, yyyy");
+
   // ─── Loading State ─────────────────────────────────────────
   if (authLoading || isLoading || !data) {
     return (
       <DashboardLayout>
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Title skeleton */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="space-y-1">
-              <Skeleton className="h-8 w-48" />
-              <Skeleton className="h-4 w-64" />
-            </div>
-            <div className="flex gap-2">
-              <Skeleton className="h-10 w-32" />
-              <Skeleton className="h-10 w-32" />
-            </div>
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-56" />
+            <Skeleton className="h-4 w-72" />
           </div>
 
+          {/* Filter skeleton (super admin) */}
+          {isSuperAdmin && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full rounded-lg" />
+              ))}
+            </div>
+          )}
+
           {/* Stat cards skeleton */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
               <StatCardSkeleton key={i} />
             ))}
           </div>
 
+          {/* Financial skeleton */}
+          {canViewFinance && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <StatCardSkeleton key={i} />
+              ))}
+            </div>
+          )}
+
           {/* Charts skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            <div className="lg:col-span-3">
-              <Skeleton className="h-80 w-full rounded-xl" />
-            </div>
-            <div className="lg:col-span-2">
-              <Skeleton className="h-80 w-full rounded-xl" />
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartSkeleton />
+            <ChartSkeleton />
           </div>
 
-          {/* Table skeleton */}
-          <Skeleton className="h-96 w-full rounded-xl" />
+          {/* Gender + Residential skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartSkeleton />
+            <ChartSkeleton />
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -362,22 +418,21 @@ export default function AdminDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* ─── Page Header ─────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="space-y-8">
+        {/* ─── Page Header ───────────────────────────────────── */}
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-              Admin Dashboard
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+              Dashboard Overview
             </h1>
-            <p className="text-sm text-slate-500 mt-1">
-              Overview of your school&apos;s performance and activity
+            <p className="text-slate-500 mt-1">
+              Welcome back! Here&apos;s what&apos;s happening at your school today.
             </p>
+            <p className="text-sm text-slate-400 mt-0.5">{today}</p>
           </div>
-
-          {/* Academic Term Selector */}
           <div className="flex items-center gap-2">
             <CalendarDays className="w-4 h-4 text-slate-400" />
-            <Select value={selectedYear} onValueChange={setSelectedYear}>
+            <Select value={filterYear} onValueChange={setFilterYear}>
               <SelectTrigger className="w-[110px]" size="sm">
                 <SelectValue placeholder="Year" />
               </SelectTrigger>
@@ -390,7 +445,7 @@ export default function AdminDashboard() {
                 </SelectItem>
               </SelectContent>
             </Select>
-            <Select value={selectedTerm} onValueChange={setSelectedTerm}>
+            <Select value={filterTerm} onValueChange={setFilterTerm}>
               <SelectTrigger className="w-[120px]" size="sm">
                 <SelectValue placeholder="Term" />
               </SelectTrigger>
@@ -403,170 +458,411 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* ─── Stat Cards ──────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {statCards.map((card) => {
-            const value = data.stats[card.key];
-            const Icon = card.icon;
-            return (
-              <Card
-                key={card.key}
-                className={`gap-4 py-4 border-l-4 ${card.borderColor} hover:shadow-md transition-shadow duration-200`}
-              >
-                <CardContent className="px-4 pb-0 pt-0">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1 min-w-0">
-                      <p className="text-xs font-medium text-slate-500 truncate">
-                        {card.label}
-                      </p>
-                      <p className={`text-xl font-bold ${card.color} tabular-nums`}>
-                        {card.isCurrency
-                          ? formatCurrency(value)
-                          : formatCompactNumber(value)}
-                      </p>
-                    </div>
-                    <div
-                      className={`w-10 h-10 rounded-xl ${card.iconBg} flex items-center justify-center flex-shrink-0`}
+        {/* ─── Filter Section (Super Admin Only) ─────────────── */}
+        {isSuperAdmin && (
+          <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  Date
+                </label>
+                <Input
+                  type="date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  className="h-9"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  Term
+                </label>
+                <Select value={filterTerm} onValueChange={setFilterTerm}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Select Term" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Term 1">Term 1</SelectItem>
+                    <SelectItem value="Term 2">Term 2</SelectItem>
+                    <SelectItem value="Term 3">Term 3</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  Year
+                </label>
+                <Select value={filterYear} onValueChange={setFilterYear}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Select Year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={data.academicTerm.year}>
+                      {data.academicTerm.year}
+                    </SelectItem>
+                    <SelectItem value={String(Number(data.academicTerm.year) - 1)}>
+                      {Number(data.academicTerm.year) - 1}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  Search
+                </label>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input
+                    type="text"
+                    placeholder="Search students..."
+                    value={filterSearch}
+                    onChange={(e) => setFilterSearch(e.target.value)}
+                    className="h-9 pl-8"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ─── Row 1: Key Metric Cards (4 columns) ──────────── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard
+            icon={GraduationCap}
+            label="Total Students"
+            value={formatCompactNumber(data.stats.totalStudents)}
+            gradientFrom="from-indigo-500"
+            gradientTo="to-purple-600"
+            borderColor="#667eea"
+            subtext={`Across ${data.stats.totalClasses} classes`}
+          />
+          <StatCard
+            icon={Users}
+            label="Active Teachers"
+            value={formatCompactNumber(data.stats.totalTeachers)}
+            gradientFrom="from-pink-400"
+            gradientTo="to-rose-500"
+            borderColor="#f5576c"
+          />
+          <StatCard
+            icon={Users}
+            label="Active Parents"
+            value={formatCompactNumber(data.stats.activeParents)}
+            gradientFrom="from-blue-400"
+            gradientTo="to-cyan-400"
+            borderColor="#00f2fe"
+          />
+          <StatCard
+            icon={ClipboardCheck}
+            label="Attendance Today"
+            value={formatCompactNumber(data.stats.attendanceToday)}
+            gradientFrom="from-pink-400"
+            gradientTo="to-amber-400"
+            borderColor="#fee140"
+          />
+        </div>
+
+        {/* ─── Row 2: Financial Overview (3 columns, admin only) ── */}
+        {canViewFinance && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Total Revenue */}
+            <div
+              className="dashboard-card bg-white rounded-2xl shadow-sm p-7 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl transition-all duration-300"
+              style={{ borderLeft: "5px solid #10b981" }}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-500 mb-1">
+                    Total Revenue
+                  </p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">
+                    {formatCurrency(data.financial.totalRevenue)}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    This term ({data.academicTerm.term})
+                  </p>
+                </div>
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl text-white bg-gradient-to-br from-emerald-400 to-teal-400 flex-shrink-0 ml-4">
+                  <DollarSign className="w-8 h-8" />
+                </div>
+              </div>
+            </div>
+
+            {/* Collection Rate */}
+            <div
+              className="dashboard-card bg-white rounded-2xl shadow-sm p-7 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl transition-all duration-300"
+              style={{ borderLeft: "5px solid #3b82f6" }}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-500 mb-1">
+                    Collection Rate
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-2xl font-bold text-slate-900 tabular-nums">
+                      {data.financial.collectionRate}%
+                    </p>
+                    <Badge
+                      variant="outline"
+                      className={`text-xs font-semibold border ${data.financial.collectionColor}`}
                     >
-                      <Icon className={`w-5 h-5 ${card.color}`} />
-                    </div>
+                      {data.financial.collectionLabel}
+                    </Badge>
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* ─── Charts Section ──────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Monthly Revenue Bar Chart */}
-          <Card className="lg:col-span-3 gap-4">
-            <CardHeader className="pb-0">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                    <TrendingUp className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  <CardTitle className="text-base font-semibold">
-                    Monthly Revenue
-                  </CardTitle>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Academic year {data.academicTerm.year}
+                  </p>
                 </div>
-                <span className="text-xs text-slate-400">Last 6 months</span>
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl text-white bg-gradient-to-br from-blue-400 to-indigo-500 flex-shrink-0 ml-4">
+                  <TrendingUp className="w-8 h-8" />
+                </div>
               </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <ChartContainer
-                config={revenueChartConfig}
-                className="h-[280px] w-full"
+            </div>
+
+            {/* Pending Payments */}
+            <div
+              className="dashboard-card bg-white rounded-2xl shadow-sm p-7 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl transition-all duration-300"
+              style={{ borderLeft: "5px solid #ec4899" }}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-500 mb-1">
+                    Pending Payments
+                  </p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">
+                    {formatCurrency(data.financial.totalOutstanding)}
+                  </p>
+                  <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
+                    <TrendingDown className="w-3 h-3" />
+                    Outstanding invoices
+                  </p>
+                </div>
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl text-white bg-gradient-to-br from-pink-400 to-rose-500 flex-shrink-0 ml-4">
+                  <AlertTriangle className="w-8 h-8" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ─── Row 3: Charts (2 columns) ─────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Student Distribution by Class */}
+          <div className="bg-white rounded-2xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                  <BarChart3 className="w-4 h-4 text-indigo-600" />
+                </div>
+                <h3 className="text-base font-semibold text-slate-900">
+                  Student Distribution by Class
+                </h3>
+              </div>
+            </div>
+            <ChartContainer
+              config={classChartConfig}
+              className="h-[300px] w-full"
+            >
+              <BarChart
+                data={data.charts.classDistribution}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
               >
-                <BarChart
-                  data={data.charts.monthlyRevenue}
-                  margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  className="stroke-slate-100"
+                />
+                <XAxis
+                  dataKey="name"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 11, fill: "#94a3b8" }}
+                  interval={0}
+                  angle={-20}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 12, fill: "#94a3b8" }}
+                />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar
+                  dataKey="students"
+                  fill="#667eea"
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={40}
                 >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    vertical={false}
-                    className="stroke-slate-200"
-                  />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fontSize: 12, fill: "#94a3b8" }}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fontSize: 12, fill: "#94a3b8" }}
-                    tickFormatter={(v) =>
-                      v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)
-                    }
-                  />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        formatter={(value) => formatCurrency(value as number)}
-                      />
-                    }
-                  />
-                  <Bar
-                    dataKey="revenue"
-                    fill="var(--chart-1)"
-                    radius={[6, 6, 0, 0]}
-                    maxBarSize={48}
-                  />
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
+                  {data.charts.classDistribution.map((_, index) => (
+                    <Cell
+                      key={`class-${index}`}
+                      fill={BAR_COLORS[index % BAR_COLORS.length]}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ChartContainer>
+          </div>
 
-          {/* Fee Collection Doughnut Chart */}
-          <Card className="lg:col-span-2 gap-4">
-            <CardHeader className="pb-0">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                    <DollarSign className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  <CardTitle className="text-base font-semibold">
-                    Fee Collection
-                  </CardTitle>
+          {/* Attendance Trend - Last 7 Days */}
+          <div className="bg-white rounded-2xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-cyan-100 flex items-center justify-center">
+                  <Activity className="w-4 h-4 text-cyan-600" />
                 </div>
-                <span className="text-xs text-slate-400">This year</span>
+                <h3 className="text-base font-semibold text-slate-900">
+                  Attendance Trend
+                </h3>
               </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <ChartContainer
-                config={feeChartConfig}
-                className="h-[280px] w-full"
+              <span className="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
+                Last 7 days
+              </span>
+            </div>
+            <ChartContainer
+              config={attendanceChartConfig}
+              className="h-[300px] w-full"
+            >
+              <LineChart
+                data={data.charts.attendanceTrend}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
               >
-                <PieChart>
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        formatter={(value) => formatCurrency(value as number)}
-                      />
-                    }
-                  />
-                  <Pie
-                    data={data.charts.feeOverview}
-                    cx="50%"
-                    cy="45%"
-                    innerRadius={55}
-                    outerRadius={85}
-                    paddingAngle={3}
-                    dataKey="value"
-                    nameKey="name"
-                    stroke="none"
-                  >
-                    {data.charts.feeOverview.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={PIE_COLORS[index % PIE_COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <ChartLegend
-                    content={<ChartLegendContent />}
-                    verticalAlign="bottom"
-                  />
-                </PieChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  className="stroke-slate-100"
+                />
+                <XAxis
+                  dataKey="day"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 12, fill: "#94a3b8" }}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 12, fill: "#94a3b8" }}
+                />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Line
+                  type="monotone"
+                  dataKey="present"
+                  stroke={ATTENDANCE_LINE_COLOR}
+                  strokeWidth={3}
+                  dot={{ r: 5, fill: ATTENDANCE_LINE_COLOR, strokeWidth: 2, stroke: "#fff" }}
+                  activeDot={{ r: 7, fill: ATTENDANCE_LINE_COLOR, strokeWidth: 2, stroke: "#fff" }}
+                />
+              </LineChart>
+            </ChartContainer>
+          </div>
         </div>
 
-        {/* ─── Recent Activity Table ───────────────────────── */}
-        <Card className="gap-4">
-          <CardHeader>
-            <div className="flex items-center justify-between">
+        {/* ─── Row 4: Gender + Residential (2 columns) ───────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Gender Distribution */}
+          <div className="bg-white rounded-2xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                  <Users className="w-4 h-4 text-purple-600" />
+                </div>
+                <h3 className="text-base font-semibold text-slate-900">
+                  Gender Distribution
+                </h3>
+              </div>
+              <span className="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
+                Active students
+              </span>
+            </div>
+            <ChartContainer
+              config={genderChartConfig}
+              className="h-[280px] w-full"
+            >
+              <PieChart>
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Pie
+                  data={data.charts.genderDistribution}
+                  cx="50%"
+                  cy="45%"
+                  innerRadius={60}
+                  outerRadius={95}
+                  paddingAngle={4}
+                  dataKey="value"
+                  nameKey="name"
+                  stroke="none"
+                >
+                  {data.charts.genderDistribution.map((_, index) => (
+                    <Cell
+                      key={`gender-${index}`}
+                      fill={GENDER_COLORS[index % GENDER_COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <ChartLegend
+                  content={<ChartLegendContent />}
+                  verticalAlign="bottom"
+                />
+              </PieChart>
+            </ChartContainer>
+          </div>
+
+          {/* Residential / Boarding Overview */}
+          <div className="bg-white rounded-2xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                  <BarChart3 className="w-4 h-4 text-amber-600" />
+                </div>
+                <h3 className="text-base font-semibold text-slate-900">
+                  Student Overview
+                </h3>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 h-[280px] content-center">
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 text-center hover:shadow-md transition-shadow">
+                <GraduationCap className="w-10 h-10 text-indigo-500 mx-auto mb-2" />
+                <p className="text-3xl font-bold text-slate-900">
+                  {data.stats.totalClasses}
+                </p>
+                <p className="text-sm text-slate-500 mt-1">Total Classes</p>
+              </div>
+              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 text-center hover:shadow-md transition-shadow">
+                <Users className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
+                <p className="text-3xl font-bold text-slate-900">
+                  {data.stats.totalStudents}
+                </p>
+                <p className="text-sm text-slate-500 mt-1">Total Students</p>
+              </div>
+              <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-6 text-center hover:shadow-md transition-shadow">
+                <Users className="w-10 h-10 text-pink-500 mx-auto mb-2" />
+                <p className="text-3xl font-bold text-slate-900">
+                  {data.stats.totalTeachers}
+                </p>
+                <p className="text-sm text-slate-500 mt-1">Total Teachers</p>
+              </div>
+              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 text-center hover:shadow-md transition-shadow">
+                <DollarSign className="w-10 h-10 text-amber-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-slate-900">
+                  {formatCompactNumber(data.financial.totalRevenue)}
+                </p>
+                <p className="text-sm text-slate-500 mt-1">Term Revenue</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ─── Recent Payments Table ─────────────────────────── */}
+        {canViewFinance && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between p-6 pb-0">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
                   <DollarSign className="w-4 h-4 text-emerald-600" />
                 </div>
-                <CardTitle className="text-base font-semibold">
+                <h3 className="text-base font-semibold text-slate-900">
                   Recent Payments
-                </CardTitle>
+                </h3>
               </div>
               <Button
                 variant="ghost"
@@ -578,110 +874,130 @@ export default function AdminDashboard() {
                 <ArrowUpRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="max-h-96 overflow-y-auto rounded-lg border border-slate-200 custom-scrollbar">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-slate-50 hover:bg-slate-50">
-                    <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      Student
-                    </TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      Invoice
-                    </TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider text-right">
-                      Amount
-                    </TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell">
-                      Method
-                    </TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider hidden md:table-cell">
-                      Date
-                    </TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider text-right">
-                      Status
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.recentPayments.length === 0 ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={6}
-                        className="text-center text-slate-400 py-12"
-                      >
-                        No recent payments found
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    data.recentPayments.map((payment) => (
-                      <TableRow
-                        key={payment.id}
-                        className="cursor-pointer hover:bg-slate-50 transition-colors"
-                      >
-                        <TableCell className="font-medium text-slate-900 text-sm">
-                          {payment.studentName || "Unknown"}
-                        </TableCell>
-                        <TableCell className="text-slate-500 text-sm font-mono">
-                          {payment.invoiceCode || "—"}
-                        </TableCell>
-                        <TableCell className="text-right font-semibold text-slate-900 text-sm tabular-nums">
-                          {formatCurrency(payment.amount)}
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell text-slate-500 text-sm capitalize">
-                          {payment.method.replace(/_/g, " ")}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell text-slate-500 text-sm">
-                          {payment.date
-                            ? format(new Date(payment.date), "MMM d, yyyy")
-                            : "—"}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <PaymentStatusBadge status={payment.status} />
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* ─── Quick Actions ───────────────────────────────── */}
-        <Card className="gap-4">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <ArrowUpRight className="w-4 h-4 text-emerald-600" />
+            <div className="p-6 pt-4">
+              <div className="max-h-96 overflow-y-auto rounded-xl border border-slate-100 custom-scrollbar">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-100">
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        Student
+                      </th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">
+                        Invoice
+                      </th>
+                      <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        Amount
+                      </th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">
+                        Method
+                      </th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">
+                        Date
+                      </th>
+                      <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.recentPayments.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="text-center text-slate-400 py-12">
+                          No recent payments found
+                        </td>
+                      </tr>
+                    ) : (
+                      data.recentPayments.map((payment) => (
+                        <tr
+                          key={payment.id}
+                          className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors cursor-pointer"
+                          onClick={() => router.push("/admin/payments")}
+                        >
+                          <td className="px-4 py-3 font-medium text-slate-900">
+                            {payment.studentName || "Unknown"}
+                          </td>
+                          <td className="px-4 py-3 text-slate-500 font-mono hidden sm:table-cell">
+                            {payment.invoiceCode || "—"}
+                          </td>
+                          <td className="px-4 py-3 text-right font-semibold text-slate-900 tabular-nums">
+                            {formatCurrency(payment.amount)}
+                          </td>
+                          <td className="px-4 py-3 text-slate-500 capitalize hidden md:table-cell">
+                            {payment.method.replace(/_/g, " ")}
+                          </td>
+                          <td className="px-4 py-3 text-slate-500 hidden lg:table-cell">
+                            {payment.date
+                              ? format(new Date(payment.date), "MMM d, yyyy")
+                              : "—"}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <PaymentStatusBadge status={payment.status} />
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
-              <CardTitle className="text-base font-semibold">
-                Quick Actions
-              </CardTitle>
             </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {quickActions.map((action) => {
-                const Icon = action.icon;
-                return (
-                  <Button
-                    key={action.label}
-                    variant={action.variant}
-                    className="h-auto py-4 flex flex-col items-center gap-2.5 rounded-xl border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 transition-all duration-200 group"
-                    onClick={() => router.push(action.href)}
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 group-hover:bg-emerald-100 flex items-center justify-center transition-colors duration-200">
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <span className="text-xs font-medium">{action.label}</span>
-                  </Button>
-                );
-              })}
+          </div>
+        )}
+
+        {/* ─── Quick Actions (6 columns) ─────────────────────── */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+              <ArrowUpRight className="w-4 h-4 text-slate-600" />
             </div>
-          </CardContent>
-        </Card>
+            <h3 className="text-base font-semibold text-slate-900">
+              Quick Actions
+            </h3>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <QuickAction
+              icon={GraduationCap}
+              label="Add Student"
+              href="/admin/students"
+              color="emerald"
+              onClick={(href) => router.push(href)}
+            />
+            <QuickAction
+              icon={CheckSquare}
+              label="Mark Attendance"
+              href="/admin/attendance"
+              color="blue"
+              onClick={(href) => router.push(href)}
+            />
+            <QuickAction
+              icon={Receipt}
+              label="Student Billing"
+              href="/admin/invoices"
+              color="violet"
+              onClick={(href) => router.push(href)}
+            />
+            <QuickAction
+              icon={CreditCard}
+              label="Take Payment"
+              href="/admin/payments"
+              color="amber"
+              onClick={(href) => router.push(href)}
+            />
+            <QuickAction
+              icon={MessageSquare}
+              label="Send Message"
+              href="/admin/messages"
+              color="cyan"
+              onClick={(href) => router.push(href)}
+            />
+            <QuickAction
+              icon={Bell}
+              label="Bill Reminders"
+              href="/admin/invoices"
+              color="rose"
+              onClick={(href) => router.push(href)}
+            />
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   );

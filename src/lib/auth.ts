@@ -2,6 +2,7 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { getLegacyUserPermissionNames } from "@/lib/permissions";
 
 export type UserRole =
   | "admin"
@@ -9,13 +10,19 @@ export type UserRole =
   | "student"
   | "parent"
   | "accountant"
-  | "librarian";
+  | "librarian"
+  | "super-admin"
+  | "cashier"
+  | "conductor"
+  | "receptionist";
 
 export interface AuthUser {
   id: string;
   role: UserRole;
+  roleSlug: string;
   email: string;
   name: string;
+  permissions: string[];
 }
 
 const MAX_LOGIN_ATTEMPTS = 3;
@@ -28,120 +35,172 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email or Username", type: "text" },
         password: { label: "Password", type: "password" },
+        authKey: { label: "Authentication Key", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Please provide email and password");
         }
 
-        const { email, password } = credentials;
+        const { email, password, authKey } = credentials as {
+          email: string;
+          password: string;
+          authKey?: string;
+        };
         const identifier = email.trim().toLowerCase();
 
         // Determine which user table to query
         // Students can login with email OR username
-        let user: {
-          id: number | string;
-          email: string;
-          name: string;
-          password: string;
-          active_status: number;
-        } | null = null;
+        let userId: number | string | null = null;
+        let userEmail = "";
+        let userName = "";
+        let userPassword = "";
+        let userActiveStatus = 0;
+        let userAuthKey = "";
         let role: UserRole = "admin";
-        let updateFn: (id: number | string, data: Record<string, unknown>) => Promise<unknown>;
 
         // Try admin
         const admin = await db.admin.findUnique({
           where: identifier.includes("@") ? { email: identifier } : { email: identifier },
         });
         if (admin) {
-          user = admin;
-          role = "admin";
-          updateFn = (id, data) => db.admin.update({ where: { admin_id: id as number }, data });
+          userId = admin.admin_id;
+          userEmail = admin.email;
+          userName = admin.name;
+          userPassword = admin.password;
+          userActiveStatus = admin.active_status;
+          userAuthKey = admin.authentication_key;
+          // Admin level 1 = super-admin, level 2+ = admin
+          const adminLevel = parseInt(admin.level || "2", 10);
+          role = adminLevel === 1 ? "super-admin" : "admin";
         }
 
         // Try teacher
-        if (!user) {
+        if (!userId) {
           const teacher = await db.teacher.findUnique({
             where: identifier.includes("@") ? { email: identifier } : { email: identifier },
           });
           if (teacher) {
-            user = teacher;
+            userId = teacher.teacher_id;
+            userEmail = teacher.email;
+            userName = teacher.name;
+            userPassword = teacher.password;
+            userActiveStatus = teacher.active_status;
+            userAuthKey = teacher.authentication_key;
             role = "teacher";
-            updateFn = (id, data) => db.teacher.update({ where: { teacher_id: id as number }, data });
           }
         }
 
         // Try student (email OR username)
-        if (!user) {
+        if (!userId) {
           const student = await db.student.findFirst({
             where: identifier.includes("@")
               ? { email: identifier }
               : { username: identifier },
           });
           if (student) {
-            user = student;
+            userId = student.student_id;
+            userEmail = student.email;
+            userName = student.name;
+            userPassword = student.password;
+            userActiveStatus = student.active_status;
+            userAuthKey = student.authentication_key;
             role = "student";
-            updateFn = (id, data) => db.student.update({ where: { student_id: id as number }, data });
           }
         }
 
         // Try parent
-        if (!user) {
+        if (!userId) {
           const parent = await db.parent.findUnique({
             where: identifier.includes("@") ? { email: identifier } : { email: identifier },
           });
           if (parent) {
-            user = parent;
+            userId = parent.parent_id;
+            userEmail = parent.email;
+            userName = parent.name;
+            userPassword = parent.password;
+            userActiveStatus = parent.active_status;
+            userAuthKey = parent.authentication_key;
             role = "parent";
-            updateFn = (id, data) => db.parent.update({ where: { parent_id: id as number }, data });
           }
         }
 
         // Try accountant
-        if (!user) {
+        if (!userId) {
           const accountant = await db.accountant.findUnique({
             where: identifier.includes("@") ? { email: identifier } : { email: identifier },
           });
           if (accountant) {
-            user = accountant;
+            userId = accountant.accountant_id;
+            userEmail = accountant.email;
+            userName = accountant.name;
+            userPassword = accountant.password;
+            userActiveStatus = accountant.active_status;
+            userAuthKey = accountant.authentication_key;
             role = "accountant";
-            updateFn = (id, data) => db.accountant.update({ where: { accountant_id: id as number }, data });
           }
         }
 
         // Try librarian
-        if (!user) {
+        if (!userId) {
           const librarian = await db.librarian.findUnique({
             where: identifier.includes("@") ? { email: identifier } : { email: identifier },
           });
           if (librarian) {
-            user = librarian;
+            userId = librarian.librarian_id;
+            userEmail = librarian.email;
+            userName = librarian.name;
+            userPassword = librarian.password;
+            userActiveStatus = librarian.active_status;
+            userAuthKey = librarian.authentication_key;
             role = "librarian";
-            updateFn = (id, data) => db.librarian.update({ where: { librarian_id: id as number }, data });
           }
         }
 
-        if (!user) {
+        if (!userId) {
           throw new Error("Invalid credentials. No account found.");
         }
 
         // Check if account is inactive
-        if (user.active_status !== 1) {
+        if (userActiveStatus !== 1) {
           throw new Error("Your account has been deactivated. Please contact the administrator.");
         }
 
+        // If auth key is provided, verify it matches the user
+        if (authKey && authKey.trim().length > 0) {
+          if (userAuthKey !== authKey.trim()) {
+            throw new Error("Authentication key does not match. Please verify your key.");
+          }
+        }
+
         // Verify password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await bcrypt.compare(password, userPassword);
 
         if (!isPasswordValid) {
           throw new Error("Invalid email or password.");
         }
 
+        // Determine admin level for permission lookup
+        let adminLevel: number | undefined;
+        if (role === "super-admin") {
+          adminLevel = 1;
+        } else if (role === "admin") {
+          adminLevel = 2;
+        }
+
+        // Fetch user permissions from RBAC system
+        const permissionNames = await getLegacyUserPermissionNames(role === "super-admin" ? "admin" : role, adminLevel);
+
+        // Determine the role slug for RBAC mapping
+        const roleSlug = role === "super-admin" ? "super-admin" : role;
+
         return {
-          id: String(user.id),
+          id: String(userId),
           role,
-          email: user.email || "",
-          name: user.name,
+          roleSlug,
+          email: userEmail || "",
+          name: userName,
+          permissions: permissionNames,
         };
       },
     }),
@@ -158,8 +217,10 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.userId = user.id;
         token.role = (user as AuthUser).role;
+        token.roleSlug = (user as AuthUser).roleSlug;
         token.email = user.email;
         token.name = user.name;
+        token.permissions = (user as AuthUser).permissions;
       }
       return token;
     },
@@ -167,8 +228,10 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.userId as string;
         session.user.role = token.role as UserRole;
+        session.user.roleSlug = (token.roleSlug as string) || (token.role as string);
         session.user.email = token.email as string;
         session.user.name = token.name as string;
+        session.user.permissions = (token.permissions as string[]) || [];
       }
       return session;
     },

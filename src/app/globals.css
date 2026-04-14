@@ -120,3 +120,104 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ─── Custom Animations ─────────────────────────────── */
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.25s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+/* ─── Custom Scrollbar ─────────────────────────────── */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Login Page Styles ─────────────────────────────── */
+
+/* Shimmer animation on input focus */
+@keyframes input-shimmer {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(102, 126, 234, 0.2);
+  }
+}
+
+.form-input:focus {
+  animation: input-shimmer 2s ease-in-out infinite;
+}
+
+/* Button hover effect */
+.btn-login:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.btn-login:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Login right panel scrollbar */
+.login-right::-webkit-scrollbar {
+  display: none;
+}
+.login-right {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Auth status transitions */
+.auth-status {
+  animation: fade-in 0.3s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Alert box close animation */
+.alert-box {
+  animation: fade-in 0.25s ease-out;
+}

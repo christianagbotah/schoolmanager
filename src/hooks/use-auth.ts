@@ -3,6 +3,7 @@
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import type { UserRole } from "@/lib/auth";
+import { hasPermission as checkPermission, hasAnyPermission as checkAnyPermission } from "@/lib/permissions";
 
 export function useAuth() {
   const { data: session, status } = useSession();
@@ -10,8 +11,10 @@ export function useAuth() {
 
   const user = session?.user ?? null;
   const role = (user?.role as UserRole) ?? null;
+  const roleSlug = user?.roleSlug ?? null;
   const isAuthenticated = !!session;
   const isLoading = status === "loading";
+  const permissions: string[] = (user?.permissions as string[]) ?? [];
 
   const isRole = (checkRole: UserRole | UserRole[]): boolean => {
     if (!role) return false;
@@ -21,14 +24,23 @@ export function useAuth() {
     return role === checkRole;
   };
 
-  const isAdmin = isRole("admin");
+  const isAdmin = isRole("admin") || isRole("super-admin");
   const isTeacher = isRole("teacher");
   const isStudent = isRole("student");
   const isParent = isRole("parent");
   const isAccountant = isRole("accountant");
   const isLibrarian = isRole("librarian");
+  const isSuperAdmin = isRole("super-admin");
 
-  const hasPermission = (requiredRoles: UserRole[]): boolean => {
+  const hasPermission = (permissionName: string): boolean => {
+    return checkPermission(permissions, permissionName);
+  };
+
+  const hasAnyPermission = (requiredPermissions: string[]): boolean => {
+    return checkAnyPermission(permissions, requiredPermissions);
+  };
+
+  const hasRole = (requiredRoles: UserRole[]): boolean => {
     return isRole(requiredRoles);
   };
 
@@ -39,22 +51,28 @@ export function useAuth() {
   };
 
   const getDashboardPath = (): string => {
-    const dashboardPaths: Record<UserRole, string> = {
+    const dashboardPaths: Record<string, string> = {
+      "super-admin": "/admin",
       admin: "/admin",
       teacher: "/teacher",
       student: "/student",
       parent: "/parent",
       accountant: "/accountant",
       librarian: "/librarian",
+      cashier: "/accountant",
+      conductor: "/admin",
+      receptionist: "/admin",
     };
-    return role ? dashboardPaths[role] : "/login";
+    return role ? (dashboardPaths[role] || "/login") : "/login";
   };
 
   return {
     user,
     role,
+    roleSlug,
     isAuthenticated,
     isLoading,
+    permissions,
     isRole,
     isAdmin,
     isTeacher,
@@ -62,7 +80,10 @@ export function useAuth() {
     isParent,
     isAccountant,
     isLibrarian,
+    isSuperAdmin,
     hasPermission,
+    hasAnyPermission,
+    hasRole,
     logout,
     getDashboardPath,
     session,

@@ -3,13 +3,17 @@ import { NextResponse } from "next/server";
 import type { UserRole } from "@/lib/auth";
 
 // Role-based route mapping
-const roleRoutes: Record<UserRole, string> = {
+const roleRoutes: Record<string, string> = {
+  "super-admin": "/admin",
   admin: "/admin",
   teacher: "/teacher",
   student: "/student",
   parent: "/parent",
   accountant: "/accountant",
   librarian: "/librarian",
+  cashier: "/accountant",
+  conductor: "/admin",
+  receptionist: "/admin",
 };
 
 // Role-protected route prefixes
@@ -52,11 +56,11 @@ export default withAuth(
       return NextResponse.redirect(loginUrl);
     }
 
-    const userRole = token.role as UserRole;
+    const userRole = (token.role as string) || "student";
 
     // Handle /dashboard redirect to role-specific dashboard
     if (pathname === "/dashboard") {
-      const dashboardPath = roleRoutes[userRole];
+      const dashboardPath = roleRoutes[userRole] || "/login";
       return NextResponse.redirect(new URL(dashboardPath, req.url));
     }
 
@@ -66,9 +70,11 @@ export default withAuth(
     );
 
     if (matchedRoute) {
-      if (!matchedRoute.roles.includes(userRole)) {
+      // Super-admin has access to all routes
+      const effectiveRole = userRole === "super-admin" ? "admin" : userRole;
+      if (!matchedRoute.roles.includes(effectiveRole as UserRole)) {
         // Redirect to the user's own dashboard
-        const dashboardPath = roleRoutes[userRole];
+        const dashboardPath = roleRoutes[userRole] || "/login";
         return NextResponse.redirect(new URL(dashboardPath, req.url));
       }
     }

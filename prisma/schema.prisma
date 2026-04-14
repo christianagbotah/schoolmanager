@@ -54,19 +54,20 @@ model admin {
 }
 
 model teacher {
-  teacher_id     Int       @id @default(autoincrement())
-  name           String    @default("")
-  designation_id Int?
-  department_id  Int?
-  email          String    @unique @default("")
-  phone          String    @default("")
-  password       String    @default("")
-  blood_group    String    @default("")
-  gender         String    @default("")
-  birthday       DateTime?
-  address        String    @default("")
-  active_status  Int       @default(1)
-  joining_date   DateTime?
+  teacher_id          Int       @id @default(autoincrement())
+  name                String    @default("")
+  designation_id      Int?
+  department_id       Int?
+  email               String    @unique @default("")
+  phone               String    @default("")
+  password            String    @default("")
+  blood_group         String    @default("")
+  gender              String    @default("")
+  birthday            DateTime?
+  address             String    @default("")
+  active_status       Int       @default(1)
+  joining_date        DateTime?
+  authentication_key  String    @default("")
 
   designation    designation? @relation("TeacherDesignation", fields: [designation_id], references: [id])
   department     department?  @relation("TeacherDepartment", fields: [department_id], references: [id])
@@ -80,27 +81,28 @@ model teacher {
 }
 
 model student {
-  student_id     Int       @id @default(autoincrement())
-  student_code   String    @unique @default("")
-  name           String    @default("")
-  first_name     String    @default("")
-  middle_name    String    @default("")
-  last_name      String    @default("")
-  birthday       DateTime?
-  sex            String    @default("")
-  religion       String    @default("")
-  blood_group    String    @default("")
-  nationality    String    @default("")
-  address        String    @default("")
-  admission_date DateTime?
-  parent_id      Int?
-  phone          String    @default("")
-  email          String    @default("")
-  username       String    @unique @default("")
-  password       String    @default("")
-  active_status  Int       @default(1)
-  special_needs  String    @default("")
-  class_reached  String    @default("")
+  student_id          Int       @id @default(autoincrement())
+  student_code        String    @unique @default("")
+  name                String    @default("")
+  first_name          String    @default("")
+  middle_name         String    @default("")
+  last_name           String    @default("")
+  birthday            DateTime?
+  sex                 String    @default("")
+  religion            String    @default("")
+  blood_group         String    @default("")
+  nationality         String    @default("")
+  address             String    @default("")
+  admission_date      DateTime?
+  parent_id           Int?
+  phone               String    @default("")
+  email               String    @default("")
+  username            String    @unique @default("")
+  password            String    @default("")
+  active_status       Int       @default(1)
+  special_needs       String    @default("")
+  class_reached       String    @default("")
+  authentication_key  String    @default("")
 
   parent         parent?   @relation(fields: [parent_id], references: [parent_id])
 
@@ -127,40 +129,43 @@ model student {
 }
 
 model parent {
-  parent_id       Int    @id @default(autoincrement())
-  name            String @default("")
-  guardian_gender String @default("")
-  email           String @unique @default("")
-  password        String @default("")
-  phone           String @default("")
-  address         String @default("")
-  profession      String @default("")
-  father_name     String @default("")
-  father_phone    String @default("")
-  mother_name     String @default("")
-  mother_phone    String @default("")
-  active_status   Int    @default(1)
+  parent_id           Int    @id @default(autoincrement())
+  name                String @default("")
+  guardian_gender     String @default("")
+  email               String @unique @default("")
+  password            String @default("")
+  phone               String @default("")
+  address             String @default("")
+  profession          String @default("")
+  father_name         String @default("")
+  father_phone        String @default("")
+  mother_name         String @default("")
+  mother_phone        String @default("")
+  active_status       Int    @default(1)
+  authentication_key  String @default("")
 
   students        student[]
   receipts        receipts[]
 }
 
 model accountant {
-  accountant_id Int    @id @default(autoincrement())
-  name          String @default("")
-  phone         String @default("")
-  email         String @unique @default("")
-  password      String @default("")
-  active_status Int    @default(1)
+  accountant_id       Int    @id @default(autoincrement())
+  name                String @default("")
+  phone               String @default("")
+  email               String @unique @default("")
+  password            String @default("")
+  active_status       Int    @default(1)
+  authentication_key  String @default("")
 }
 
 model librarian {
-  librarian_id  Int    @id @default(autoincrement())
-  name          String @default("")
-  email         String @unique @default("")
-  phone         String @default("")
-  password      String @default("")
-  active_status Int    @default(1)
+  librarian_id        Int    @id @default(autoincrement())
+  name                String @default("")
+  email               String @unique @default("")
+  phone               String @default("")
+  password            String @default("")
+  active_status       Int    @default(1)
+  authentication_key  String @default("")
 }
 
 // ============================================================
@@ -1085,4 +1090,65 @@ model frontend_general_settings {
   phone                         String @default("")
   email                         String @default("")
   address                       String @default("")
+}
+
+// ============================================================
+// UNIFIED USER (for RBAC-based auth)
+// ============================================================
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique @default("")
+  password     String   @default("")
+  name         String   @default("")
+  phone        String   @default("")
+  image        String   @default("")
+  active       Boolean  @default(true)
+  emailVerified DateTime?
+  roleId       Int?
+  role         Role?    @relation(fields: [roleId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([roleId])
+}
+
+// ============================================================
+// RBAC (Role-Based Access Control)
+// ============================================================
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  level       Int      @default(0)
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users            User[]
+  rolePermissions  RolePermission[]
+}
+
+model Permission {
+  id          Int               @id @default(autoincrement())
+  name        String            @unique
+  displayName String
+  module      String
+  description String?
+  createdAt   DateTime          @default(now())
+  rolePermissions RolePermission[]
+}
+
+model RolePermission {
+  id           Int         @id @default(autoincrement())
+  roleId       Int
+  permissionId Int
+  isGranted    Boolean     @default(false)
+  role         Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission  @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
 }
