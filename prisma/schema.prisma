@@ -1,0 +1,1088 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+
+model settings {
+  settings_id Int    @id @default(autoincrement())
+  type        String
+  description String @default("")
+  value       String @default("")
+}
+
+model language {
+  phrase_id Int    @id @default(autoincrement())
+  phrase    String @default("")
+  language  String @default("")
+}
+
+model terms {
+  term_id Int    @id @default(autoincrement())
+  name    String @default("")
+}
+
+// ============================================================
+// CORE USER ROLES
+// ============================================================
+
+model admin {
+  admin_id               Int    @id @default(autoincrement())
+  admin_code             String @default("")
+  name                   String @default("")
+  first_name             String @default("")
+  other_name             String @default("")
+  last_name              String @default("")
+  phone                  String @default("")
+  email                  String @unique @default("")
+  password               String @default("")
+  gender                 String @default("")
+  level                  String @default("")
+  active_status          Int    @default(1)
+  authentication_key     String @default("")
+  account_number         String @default("")
+  can_collect_daily_fees Int    @default(0)
+  collection_point       String @default("")
+  transport_only         Int    @default(0)
+}
+
+model teacher {
+  teacher_id     Int       @id @default(autoincrement())
+  name           String    @default("")
+  designation_id Int?
+  department_id  Int?
+  email          String    @unique @default("")
+  phone          String    @default("")
+  password       String    @default("")
+  blood_group    String    @default("")
+  gender         String    @default("")
+  birthday       DateTime?
+  address        String    @default("")
+  active_status  Int       @default(1)
+  joining_date   DateTime?
+
+  designation    designation? @relation("TeacherDesignation", fields: [designation_id], references: [id])
+  department     department?  @relation("TeacherDepartment", fields: [department_id], references: [id])
+
+  classes        school_class[]
+  sections       section[]
+  subjects       subject[]
+
+  @@index([designation_id])
+  @@index([department_id])
+}
+
+model student {
+  student_id     Int       @id @default(autoincrement())
+  student_code   String    @unique @default("")
+  name           String    @default("")
+  first_name     String    @default("")
+  middle_name    String    @default("")
+  last_name      String    @default("")
+  birthday       DateTime?
+  sex            String    @default("")
+  religion       String    @default("")
+  blood_group    String    @default("")
+  nationality    String    @default("")
+  address        String    @default("")
+  admission_date DateTime?
+  parent_id      Int?
+  phone          String    @default("")
+  email          String    @default("")
+  username       String    @unique @default("")
+  password       String    @default("")
+  active_status  Int       @default(1)
+  special_needs  String    @default("")
+  class_reached  String    @default("")
+
+  parent         parent?   @relation(fields: [parent_id], references: [parent_id])
+
+  enrolls                enroll[]
+  exam_marks_list        exam_marks[]
+  marks_list             mark[]
+  terminal_reports       terminal_reports[]
+  invoices               invoice[]
+  payments               payment[]
+  receipts               receipts[]
+  attendances            attendance[]
+  bus_attendances        bus_attendance[]
+  book_requests          book_request[]
+  inventory_sales        inventory_sales[]
+  daily_fee_wallet        daily_fee_wallet?
+  daily_fee_transactions daily_fee_transactions[]
+  online_exam_results    online_exam_result[]
+  discount_assignments   student_discount_assignments[]
+  portfolio_scores       portfolio_scores[]
+
+  @@index([parent_id])
+  @@index([student_code])
+  @@index([username])
+}
+
+model parent {
+  parent_id       Int    @id @default(autoincrement())
+  name            String @default("")
+  guardian_gender String @default("")
+  email           String @unique @default("")
+  password        String @default("")
+  phone           String @default("")
+  address         String @default("")
+  profession      String @default("")
+  father_name     String @default("")
+  father_phone    String @default("")
+  mother_name     String @default("")
+  mother_phone    String @default("")
+  active_status   Int    @default(1)
+
+  students        student[]
+  receipts        receipts[]
+}
+
+model accountant {
+  accountant_id Int    @id @default(autoincrement())
+  name          String @default("")
+  phone         String @default("")
+  email         String @unique @default("")
+  password      String @default("")
+  active_status Int    @default(1)
+}
+
+model librarian {
+  librarian_id  Int    @id @default(autoincrement())
+  name          String @default("")
+  email         String @unique @default("")
+  phone         String @default("")
+  password      String @default("")
+  active_status Int    @default(1)
+}
+
+// ============================================================
+// ACADEMIC
+// ============================================================
+
+model school_class {
+  class_id         Int      @id @default(autoincrement())
+  name             String   @default("")
+  name_numeric     Int      @default(0)
+  teacher_id       Int?
+  section_id       Int?
+  category         String   @default("")
+  student_capacity Int      @default(0)
+  digit            String   @default("")
+  note             String   @default("")
+
+  teacher          teacher?  @relation(fields: [teacher_id], references: [teacher_id])
+  section          section?  @relation("ClassSection", fields: [section_id], references: [section_id])
+  sections         section[] @relation("SectionToClass")
+
+  subjects         subject[]
+  enrolls          enroll[]
+  exams            exam[]
+  marks_list       mark[]
+  terminal_reports terminal_reports[]
+  portfolio_headers portfolio_headers[]
+  daily_fee_rates  daily_fee_rates[]
+  invoices         invoice[]
+  online_exams     online_exam[]
+
+  @@index([teacher_id])
+  @@index([section_id])
+  @@map("class")
+}
+
+model section {
+  section_id   Int    @id @default(autoincrement())
+  name         String @default("")
+  numeric_name Int    @default(0)
+  teacher_id   Int?
+  class_id     Int?
+
+  teacher      teacher?      @relation(fields: [teacher_id], references: [teacher_id])
+  class        school_class? @relation("SectionToClass", fields: [class_id], references: [class_id])
+  classes      school_class[] @relation("ClassSection")
+
+  subjects       subject[]
+  enrolls        enroll[]
+  class_routines class_routine[]
+
+  @@index([teacher_id])
+  @@index([class_id])
+}
+
+model subject {
+  subject_id Int    @id @default(autoincrement())
+  name       String @default("")
+  class_id   Int?
+  teacher_id Int?
+  section_id Int?
+  year       String @default("")
+
+  class      school_class? @relation(fields: [class_id], references: [class_id])
+  teacher    teacher?      @relation(fields: [teacher_id], references: [teacher_id])
+  section    section?      @relation(fields: [section_id], references: [section_id])
+
+  exam_marks         exam_marks[]
+  marks_list         mark[]
+  curriculum_strands curriculum_strands[]
+  portfolio_headers  portfolio_headers[]
+  online_exams       online_exam[]
+
+  @@index([class_id])
+  @@index([teacher_id])
+  @@index([section_id])
+}
+
+model enroll {
+  enroll_id  Int    @id @default(autoincrement())
+  student_id Int
+  class_id   Int
+  section_id Int
+  year       String @default("")
+  term       String @default("")
+  roll       String @default("")
+
+  student    student      @relation(fields: [student_id], references: [student_id])
+  class      school_class @relation(fields: [class_id], references: [class_id])
+  section    section      @relation(fields: [section_id], references: [section_id])
+
+  @@index([student_id])
+  @@index([class_id])
+  @@index([section_id])
+  @@unique([student_id, class_id, section_id, year, term])
+}
+
+model exam {
+  exam_id    Int       @id @default(autoincrement())
+  name       String    @default("")
+  date       DateTime?
+  comment    String    @default("")
+  year       String    @default("")
+  class_id   Int?
+  section_id Int?
+  type       String    @default("")
+
+  class      school_class? @relation(fields: [class_id], references: [class_id])
+
+  exam_marks exam_marks[]
+  marks_list mark[]
+
+  @@index([class_id])
+  @@index([section_id])
+}
+
+model exam_marks {
+  mark_id       Int    @id @default(autoincrement())
+  student_id    Int
+  subject_id    Int
+  year          String @default("")
+  term          String @default("")
+  exam_id       Int?
+  mark_obtained Float  @default(0)
+  comment       String @default("")
+
+  student       student @relation(fields: [student_id], references: [student_id])
+  subject       subject @relation(fields: [subject_id], references: [subject_id])
+  exam          exam?   @relation(fields: [exam_id], references: [exam_id])
+
+  @@index([student_id])
+  @@index([subject_id])
+  @@index([exam_id])
+}
+
+model mark {
+  mark_id       Int    @id @default(autoincrement())
+  student_id    Int
+  subject_id    Int
+  class_id      Int?
+  section_id    Int?
+  exam_id       Int?
+  mark_obtained Float  @default(0)
+  comment       String @default("")
+
+  student       student      @relation(fields: [student_id], references: [student_id])
+  subject       subject      @relation(fields: [subject_id], references: [subject_id])
+  class         school_class? @relation(fields: [class_id], references: [class_id])
+  exam          exam?        @relation(fields: [exam_id], references: [exam_id])
+
+  @@index([student_id])
+  @@index([subject_id])
+  @@index([class_id])
+  @@index([exam_id])
+}
+
+model grade {
+  grade_id   Int    @id @default(autoincrement())
+  name       String @default("")
+  comment    String @default("")
+  grade_from Float  @default(0)
+  grade_to   Float  @default(0)
+}
+
+model class_routine {
+  class_routine_id Int    @id @default(autoincrement())
+  section_id       Int
+  subject_id       Int
+  time_start       String @default("")
+  time_end         String @default("")
+  day              String @default("")
+  room             String @default("")
+
+  section          section @relation(fields: [section_id], references: [section_id])
+
+  @@index([section_id])
+  @@index([day])
+}
+
+model terminal_reports {
+  report_id       Int    @id @default(autoincrement())
+  student_id      Int
+  class_id        Int?
+  year            String @default("")
+  term            String @default("")
+  total_score     Float  @default(0)
+  grade           String @default("")
+  rank            Int    @default(0)
+  position        String @default("")
+  teacher_comment String @default("")
+  head_comment    String @default("")
+
+  student         student      @relation(fields: [student_id], references: [student_id])
+  class           school_class? @relation(fields: [class_id], references: [class_id])
+
+  @@index([student_id])
+  @@index([class_id])
+}
+
+// ============================================================
+// CURRICULUM / PORTFOLIO
+// ============================================================
+
+model curriculum_strands {
+  strand_id      Int    @id @default(autoincrement())
+  strand_code    String @default("")
+  strand_name    String @default("")
+  subject_id     Int?
+  class_category String @default("")
+
+  subject        subject?              @relation(fields: [subject_id], references: [subject_id])
+
+  sub_strands    curriculum_sub_strands[]
+  portfolio_headers portfolio_headers[]
+
+  @@index([subject_id])
+}
+
+model curriculum_sub_strands {
+  sub_strand_id   Int    @id @default(autoincrement())
+  sub_strand_code String @default("")
+  sub_strand_name String @default("")
+  strand_id       Int
+
+  strand          curriculum_strands @relation(fields: [strand_id], references: [strand_id])
+
+  indicators      curriculum_indicator[]
+  portfolio_headers portfolio_headers[]
+
+  @@index([strand_id])
+}
+
+model curriculum_indicator {
+  indicator_id    Int    @id @default(autoincrement())
+  indicator_code  String @default("")
+  indicator_text  String @default("")
+  sub_strand_id   Int
+
+  sub_strand      curriculum_sub_strands @relation(fields: [sub_strand_id], references: [sub_strand_id])
+
+  portfolio_headers portfolio_headers[]
+
+  @@index([sub_strand_id])
+}
+
+model portfolio_headers {
+  header_id       Int       @id @default(autoincrement())
+  class_id        Int?
+  subject_id      Int?
+  teacher_id      Int?
+  year            String    @default("")
+  term            String    @default("")
+  week_number     Int       @default(0)
+  strand_id       Int?
+  sub_strand_id   Int?
+  indicator_id    Int?
+  assessment_date DateTime?
+  max_score       Float     @default(100)
+
+  class           school_class?           @relation(fields: [class_id], references: [class_id])
+  subject         subject?                @relation(fields: [subject_id], references: [subject_id])
+  strand          curriculum_strands?     @relation(fields: [strand_id], references: [strand_id])
+  sub_strand      curriculum_sub_strands? @relation(fields: [sub_strand_id], references: [sub_strand_id])
+  indicator       curriculum_indicator?   @relation(fields: [indicator_id], references: [indicator_id])
+
+  scores          portfolio_scores[]
+
+  @@index([class_id])
+  @@index([subject_id])
+  @@index([strand_id])
+  @@index([sub_strand_id])
+}
+
+model portfolio_scores {
+  score_id   Int    @id @default(autoincrement())
+  header_id  Int
+  student_id Int
+  score      Float  @default(0)
+  remarks    String @default("")
+
+  header     portfolio_headers @relation(fields: [header_id], references: [header_id])
+  student    student           @relation(fields: [student_id], references: [student_id])
+
+  @@index([header_id])
+  @@index([student_id])
+}
+
+// ============================================================
+// ONLINE EXAM
+// ============================================================
+
+model online_exam {
+  online_exam_id     Int       @id @default(autoincrement())
+  title              String    @default("")
+  subject_id         Int?
+  class_id           Int?
+  instructions       String    @default("")
+  minimum_percentage Float     @default(0)
+  start_date         DateTime?
+  end_date           DateTime?
+  duration           Int       @default(0)
+  status             String    @default("")
+
+  subject            subject?      @relation(fields: [subject_id], references: [subject_id])
+  class              school_class? @relation(fields: [class_id], references: [class_id])
+
+  results            online_exam_result[]
+
+  @@index([subject_id])
+  @@index([class_id])
+}
+
+model online_exam_result {
+  online_exam_result_id Int    @id @default(autoincrement())
+  exam_id               Int
+  student_id            Int
+  obtained_mark         Float  @default(0)
+  total_mark            Float  @default(0)
+  status                String @default("")
+
+  exam                  online_exam @relation(fields: [exam_id], references: [online_exam_id])
+  student               student     @relation(fields: [student_id], references: [student_id])
+
+  @@index([exam_id])
+  @@index([student_id])
+}
+
+// ============================================================
+// FINANCIAL
+// ============================================================
+
+model invoice {
+  invoice_id         Int       @id @default(autoincrement())
+  student_id         Int
+  title              String    @default("")
+  description        String    @default("")
+  amount             Float     @default(0)
+  amount_paid        Float     @default(0)
+  due                Float     @default(0)
+  discount           Float     @default(0)
+  creation_timestamp DateTime?
+  payment_timestamp  DateTime?
+  method             String    @default("")
+  status             String    @default("")
+  year               String    @default("")
+  term               String    @default("")
+  class_id           Int?
+  invoice_code       String    @default("")
+  class_name         String    @default("")
+
+  student            student      @relation(fields: [student_id], references: [student_id])
+  class              school_class? @relation(fields: [class_id], references: [class_id])
+
+  payments           payment[]
+
+  @@index([student_id])
+  @@index([class_id])
+  @@index([invoice_code])
+}
+
+model payment {
+  payment_id      Int       @id @default(autoincrement())
+  student_id      Int
+  invoice_id      Int?
+  invoice_code    String    @default("")
+  receipt_code    String    @default("")
+  title           String    @default("")
+  amount          Float     @default(0)
+  due             Float     @default(0)
+  payment_type    String    @default("")
+  payment_method  String    @default("")
+  year            String    @default("")
+  term            String    @default("")
+  timestamp       DateTime?
+  approval_status String    @default("")
+
+  student         student   @relation(fields: [student_id], references: [student_id])
+  invoice         invoice?  @relation(fields: [invoice_id], references: [invoice_id])
+
+  receipts        receipts[]
+
+  @@index([student_id])
+  @@index([invoice_id])
+}
+
+model receipts {
+  receipt_id     Int       @id @default(autoincrement())
+  receipt_number String    @default("")
+  student_id     Int
+  parent_id      Int?
+  invoice_code   String    @default("")
+  payment_id     Int?
+  amount         Float     @default(0)
+  payment_method String    @default("")
+  receipt_type   String    @default("")
+  generated_at   DateTime?
+  generated_by   String    @default("")
+
+  student        student   @relation(fields: [student_id], references: [student_id])
+  parent         parent?   @relation(fields: [parent_id], references: [parent_id])
+  payment        payment?  @relation(fields: [payment_id], references: [payment_id])
+
+  @@index([student_id])
+  @@index([parent_id])
+  @@index([payment_id])
+}
+
+model bill_category {
+  bill_category_id   Int    @id @default(autoincrement())
+  bill_category_name String @default("")
+
+  bill_items         bill_item[]
+}
+
+model bill_item {
+  id               Int    @id @default(autoincrement())
+  title            String @default("")
+  description      String @default("")
+  bill_category_id Int?
+  amount           Float  @default(0)
+
+  bill_category    bill_category? @relation(fields: [bill_category_id], references: [bill_category_id])
+
+  @@index([bill_category_id])
+}
+
+model chart_of_accounts {
+  account_id       Int    @id @default(autoincrement())
+  account_code     String @default("")
+  account_name     String @default("")
+  account_type     String @default("")
+  account_category String @default("")
+  opening_balance  Float  @default(0)
+  current_balance  Float  @default(0)
+
+  journal_lines    journal_entry_lines[]
+}
+
+model journal_entries {
+  entry_id      Int       @id @default(autoincrement())
+  entry_number  String    @default("")
+  entry_date    DateTime?
+  narration     String    @default("")
+  reference_type String   @default("")
+  status        String    @default("")
+  total_debit   Float     @default(0)
+  total_credit  Float     @default(0)
+
+  lines         journal_entry_lines[]
+}
+
+model journal_entry_lines {
+  line_id     Int    @id @default(autoincrement())
+  entry_id    Int
+  account_id  Int
+  description String @default("")
+  debit       Float  @default(0)
+  credit      Float  @default(0)
+
+  entry       journal_entries   @relation(fields: [entry_id], references: [entry_id])
+  account     chart_of_accounts @relation(fields: [account_id], references: [account_id])
+
+  @@index([entry_id])
+  @@index([account_id])
+}
+
+model daily_fee_rates {
+  id              Int    @id @default(autoincrement())
+  class_id        Int
+  feeding_rate    Float  @default(0)
+  breakfast_rate  Float  @default(0)
+  classes_rate    Float  @default(0)
+  water_rate      Float  @default(0)
+  year            String @default("")
+  term            String @default("")
+
+  class           school_class @relation(fields: [class_id], references: [class_id])
+
+  @@index([class_id])
+}
+
+model daily_fee_wallet {
+  id                 Int    @id @default(autoincrement())
+  student_id         Int    @unique
+  feeding_balance    Float  @default(0)
+  breakfast_balance  Float  @default(0)
+  classes_balance    Float  @default(0)
+  water_balance      Float  @default(0)
+  transport_balance  Float  @default(0)
+
+  student            student @relation(fields: [student_id], references: [student_id])
+
+  @@index([student_id])
+}
+
+model daily_fee_transactions {
+  id                Int       @id @default(autoincrement())
+  transaction_code  String    @default("")
+  student_id        Int
+  payment_date      DateTime?
+  feeding_amount    Float     @default(0)
+  breakfast_amount  Float     @default(0)
+  classes_amount    Float     @default(0)
+  water_amount      Float     @default(0)
+  transport_amount  Float     @default(0)
+  total_amount      Float     @default(0)
+  payment_type      String    @default("")
+  payment_method    String    @default("")
+  collected_by      String    @default("")
+  year              String    @default("")
+  term              String    @default("")
+
+  student           student   @relation(fields: [student_id], references: [student_id])
+
+  @@index([student_id])
+  @@index([transaction_code])
+}
+
+model expense_category {
+  expense_category_id   Int    @id @default(autoincrement())
+  expense_category_name String @default("")
+
+  expenses              expense[]
+}
+
+model expense {
+  id             Int       @id @default(autoincrement())
+  title          String    @default("")
+  description    String    @default("")
+  category_id    Int?
+  amount         Float     @default(0)
+  expense_date   DateTime?
+  payment_method String    @default("")
+  status         String    @default("")
+
+  expense_category expense_category? @relation(fields: [category_id], references: [expense_category_id])
+
+  @@index([category_id])
+}
+
+model bank_accounts {
+  bank_account_id Int    @id @default(autoincrement())
+  account_name    String @default("")
+  bank_name       String @default("")
+  account_number  String @default("")
+  opening_balance Float  @default(0)
+  current_balance Float  @default(0)
+}
+
+// ============================================================
+// DISCOUNT
+// ============================================================
+
+model discount_categories {
+  category_id   Int    @id @default(autoincrement())
+  code          String @default("")
+  name          String @default("")
+  discount_type String @default("")
+  description   String @default("")
+  is_active     Int    @default(1)
+
+}
+
+model discount_profiles {
+  profile_id        Int    @id @default(autoincrement())
+  profile_name      String @default("")
+  discount_category String @default("")
+  description       String @default("")
+  flat_amount       Float  @default(0)
+  flat_percentage   Float  @default(0)
+  is_active         Int    @default(1)
+
+  assignments       student_discount_assignments[]
+}
+
+model student_discount_assignments {
+  assignment_id     Int    @id @default(autoincrement())
+  student_id        Int
+  profile_id        Int?
+  discount_category String @default("")
+  year              String @default("")
+  term              String @default("")
+  is_active         Int    @default(1)
+
+  student           student            @relation(fields: [student_id], references: [student_id])
+  profile           discount_profiles? @relation(fields: [profile_id], references: [profile_id])
+
+  @@index([student_id])
+  @@index([profile_id])
+}
+
+// ============================================================
+// ATTENDANCE
+// ============================================================
+
+model attendance {
+  attendance_id     Int       @id @default(autoincrement())
+  timestamp         DateTime?
+  year              String    @default("")
+  term              String    @default("")
+  class_id          Int?
+  section_id        Int?
+  student_id        Int
+  status            String    @default("")
+  checked_in        DateTime?
+  checked_out       DateTime?
+  feeding_charged   Int       @default(0)
+  transport_charged Int       @default(0)
+  marked_by         String    @default("")
+
+  student           student   @relation(fields: [student_id], references: [student_id])
+
+  @@index([student_id])
+  @@index([class_id])
+  @@index([section_id])
+}
+
+// ============================================================
+// TRANSPORT
+// ============================================================
+
+model transport {
+  transport_id   Int    @id @default(autoincrement())
+  route_name     String @default("")
+  description    String @default("")
+  vehicle_number String @default("")
+  driver_id      Int?
+  fare           Float  @default(0)
+  facilities     String @default("")
+
+  bus_attendances bus_attendance[]
+
+  @@index([driver_id])
+}
+
+model bus_attendance {
+  id                  Int       @id @default(autoincrement())
+  student_id          Int
+  route_id            Int?
+  attendance_date     DateTime?
+  transport_direction String    @default("")
+  boarded_in          DateTime?
+  boarded_out         DateTime?
+  total_fare          Float     @default(0)
+
+  student             student   @relation(fields: [student_id], references: [student_id])
+  transport           transport? @relation(fields: [route_id], references: [transport_id])
+
+  @@index([student_id])
+  @@index([route_id])
+}
+
+// ============================================================
+// LIBRARY
+// ============================================================
+
+model book {
+  book_id       Int    @id @default(autoincrement())
+  name          String @default("")
+  description   String @default("")
+  author        String @default("")
+  class_id      Int?
+  price         Float  @default(0)
+  total_copies  Int    @default(0)
+  issued_copies Int    @default(0)
+  status        String @default("")
+
+  book_requests  book_request[]
+
+  @@index([class_id])
+}
+
+model book_request {
+  book_request_id  Int       @id @default(autoincrement())
+  book_id         Int
+  student_id      Int
+  issue_start_date DateTime?
+  issue_end_date   DateTime?
+  status          String    @default("")
+
+  book            book      @relation(fields: [book_id], references: [book_id])
+  student         student   @relation(fields: [student_id], references: [student_id])
+
+  @@index([book_id])
+  @@index([student_id])
+}
+
+// ============================================================
+// COMMUNICATION
+// ============================================================
+
+model message {
+  message_id        Int       @id @default(autoincrement())
+  message_thread_id Int
+  sender_id         Int
+  message           String    @default("")
+  file              String    @default("")
+  sent_on           DateTime?
+
+  message_thread    message_thread @relation(fields: [message_thread_id], references: [message_thread_id])
+
+  @@index([message_thread_id])
+  @@index([sender_id])
+}
+
+model message_thread {
+  message_thread_id      Int       @id @default(autoincrement())
+  hash                   String    @default("")
+  subject                String    @default("")
+  last_message_timestamp DateTime?
+  participant_ids        String    @default("")
+
+  messages               message[]
+}
+
+model notice {
+  id        Int       @id @default(autoincrement())
+  title     String    @default("")
+  notice    String    @default("")
+  timestamp DateTime?
+}
+
+model notifications {
+  notification_id Int       @id @default(autoincrement())
+  user_id         Int
+  user_type       String    @default("")
+  type            String    @default("")
+  title           String    @default("")
+  message         String    @default("")
+  url             String    @default("")
+  is_read         Int       @default(0)
+  createdAt       DateTime?
+
+  @@index([user_id])
+  @@index([user_type])
+}
+
+// ============================================================
+// INVENTORY
+// ============================================================
+
+model inventory_categories {
+  id          Int    @id @default(autoincrement())
+  name        String @default("")
+  description String @default("")
+  is_active   Int    @default(1)
+
+  products    inventory_products[]
+}
+
+model inventory_products {
+  id            Int    @id @default(autoincrement())
+  name          String @default("")
+  sku           String @default("")
+  description   String @default("")
+  category_id   Int?
+  cost_price    Float  @default(0)
+  selling_price Float  @default(0)
+  quantity      Int    @default(0)
+  unit          String @default("")
+
+  category      inventory_categories? @relation(fields: [category_id], references: [id])
+
+  sale_items    inventory_sale_items[]
+
+  @@index([category_id])
+}
+
+model inventory_sales {
+  id             Int       @id @default(autoincrement())
+  student_id     Int?
+  sale_date      DateTime?
+  total_amount   Float     @default(0)
+  payment_method String    @default("")
+  status         String    @default("")
+
+  student        student?  @relation(fields: [student_id], references: [student_id])
+
+  sale_items     inventory_sale_items[]
+
+  @@index([student_id])
+}
+
+model inventory_sale_items {
+  id         Int    @id @default(autoincrement())
+  sale_id    Int
+  product_id Int
+  quantity   Int    @default(0)
+  unit_price Float  @default(0)
+  subtotal   Float  @default(0)
+
+  sale       inventory_sales   @relation(fields: [sale_id], references: [id])
+  product    inventory_products @relation(fields: [product_id], references: [id])
+
+  @@index([sale_id])
+  @@index([product_id])
+}
+
+// ============================================================
+// BOARDING
+// ============================================================
+
+model boarding_house {
+  house_id          Int    @id @default(autoincrement())
+  house_name        String @default("")
+  house_description String @default("")
+  house_capacity    Int    @default(0)
+}
+
+model dormitory {
+  dormitory_id          Int    @id @default(autoincrement())
+  dormitory_name        String @default("")
+  dormitory_description String @default("")
+  number_of_rooms       Int    @default(0)
+  number_of_beds        Int    @default(0)
+}
+
+// ============================================================
+// EMPLOYEE / PAYROLL
+// ============================================================
+
+model department {
+  id       Int    @id @default(autoincrement())
+  dep_name String @default("")
+
+  teachers  teacher[]  @relation("TeacherDepartment")
+  employees employee[] @relation("EmployeeDepartment")
+}
+
+model designation {
+  id       Int    @id @default(autoincrement())
+  des_name String @default("")
+
+  teachers  teacher[]  @relation("TeacherDesignation")
+  employees employee[] @relation("EmployeeDesignation")
+}
+
+model employee {
+  id             Int       @id @default(autoincrement())
+  emp_id         String    @unique @default("")
+  name           String    @default("")
+  designation_id Int?
+  department_id  Int?
+  email          String    @default("")
+  phone          String    @default("")
+  birthday       DateTime?
+  sex            String    @default("")
+  hire_date      DateTime?
+  salary         Float     @default(0)
+  active_status  Int       @default(1)
+
+  designation    designation? @relation("EmployeeDesignation", fields: [designation_id], references: [id])
+  department     department?  @relation("EmployeeDepartment", fields: [department_id], references: [id])
+
+  salaries       pay_salary[]
+
+  @@index([designation_id])
+  @@index([department_id])
+}
+
+model pay_salary {
+  pay_id        Int    @id @default(autoincrement())
+  employee_code String @default("")
+  month         String @default("")
+  year          String @default("")
+  basic_salary  Float  @default(0)
+  gross_salary  Float  @default(0)
+  net_salary    Float  @default(0)
+  status        String @default("")
+
+  employee      employee @relation(fields: [employee_code], references: [emp_id])
+
+  @@index([employee_code])
+}
+
+// ============================================================
+// FRONTEND CMS
+// ============================================================
+
+model frontend_events {
+  frontend_events_id Int       @id @default(autoincrement())
+  title              String    @default("")
+  description        String    @default("")
+  date               DateTime?
+  timestamp          DateTime?
+}
+
+model frontend_gallery {
+  frontend_gallery_id Int       @id @default(autoincrement())
+  title               String    @default("")
+  description         String    @default("")
+  date                DateTime?
+  timestamp           DateTime?
+
+  images              frontend_gallery_image[]
+}
+
+model frontend_gallery_image {
+  frontend_gallery_image_id Int       @id @default(autoincrement())
+  gallery_id                 Int
+  image_name                 String    @default("")
+  caption                    String    @default("")
+  date                       DateTime?
+
+  gallery                    frontend_gallery @relation(fields: [gallery_id], references: [frontend_gallery_id])
+
+  @@index([gallery_id])
+}
+
+model frontend_news {
+  frontend_news_id Int       @id @default(autoincrement())
+  title            String    @default("")
+  description      String    @default("")
+  date             DateTime?
+  timestamp        DateTime?
+}
+
+model frontend_general_settings {
+  frontend_general_settings_id Int    @id @default(autoincrement())
+  title                         String @default("")
+  description                   String @default("")
+  phone                         String @default("")
+  email                         String @default("")
+  address                       String @default("")
+}
