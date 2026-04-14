@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
@@ -15,14 +15,23 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, className }: DashboardLayoutProps) {
-  const { role, isLoading } = useAuth();
+  const { role, isLoading, isAuthenticated } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [metroOpen, setMetroOpen] = useState(false);
 
   const closeMobileSidebar = useCallback(() => {
     setMobileSidebarOpen(false);
   }, []);
+
+  // Redirect unauthenticated users to login
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      const loginUrl = `/login?callbackUrl=${encodeURIComponent(pathname)}`;
+      router.replace(loginUrl);
+    }
+  }, [isLoading, isAuthenticated, pathname, router]);
 
   // Auto-open metro menu on root dashboard after 1 second
   const metroAutoOpened = useRef(false);
@@ -36,7 +45,8 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
     }
   }, [pathname, metroOpen]);
 
-  if (isLoading || !role) {
+  // Show loading spinner only while session is being checked (not forever)
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-3">
@@ -45,6 +55,11 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
         </div>
       </div>
     );
+  }
+
+  // Don't render dashboard content if not authenticated (redirect will happen)
+  if (!isAuthenticated || !role) {
+    return null;
   }
 
   return (
