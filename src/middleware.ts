@@ -32,15 +32,7 @@ const publicRoutes = [
   "/events",
   "/noticeboard",
   "/admission",
-  "/api/auth",
-  "/api/students",
-  "/api/classes",
-  "/api/sections",
-  "/api/parents",
-  "/api/frontend",
-  "/api/notices",
-  "/api/teachers",
-  "/api/stats",
+  "/api/",
 ];
 
 export default withAuth(
