@@ -6,7 +6,10 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
-  allowedDevOrigins: ["https://preview-chat-a2ce6c38-0f36-44a2-a783-81549334b7f3.space.z.ai"],
+  allowedDevOrigins: [
+    "https://preview-chat-a2ce6c38-0f36-44a2-a783-81549334b7f3.space.z.ai",
+    "https://preview-chat-a2ce6c38-0f36-44a2-a783-81549334b7f3.space.chatglm.site",
+  ],
   serverExternalPackages: ["bcryptjs"],
 };
 
