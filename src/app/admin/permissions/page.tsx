@@ -405,10 +405,15 @@ export default function PermissionsPage() {
 
   const togglePermission = (permissionId: number, currentState: boolean) => {
     const key = String(permissionId);
-    setPermissionChanges((prev) => ({
-      ...prev,
-      [key]: !prev.hasOwnProperty(key) ? !currentState : undefined,
-    }));
+    setPermissionChanges((prev) => {
+      const next = { ...prev };
+      if (prev.hasOwnProperty(key)) {
+        delete next[key];
+      } else {
+        next[key] = !currentState;
+      }
+      return next;
+    });
   };
 
   const getEffectivePermissionState = (

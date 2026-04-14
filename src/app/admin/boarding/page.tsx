@@ -47,25 +47,24 @@ export default function BoardingPage() {
   const [houseForm, setHouseForm] = useState({ house_name: "", house_description: "", house_capacity: "" });
   const [dormForm, setDormForm] = useState({ dormitory_name: "", dormitory_description: "", number_of_rooms: "", number_of_beds: "" });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch("/api/boarding/houses/route");
-        const data = await res.json();
-        setHouses(data.houses || []);
-        setDormitories(data.dormitories || []);
-      } catch { /* empty */ }
-      setLoading(false);
-    };
-    fetchData();
-  }, []);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/boarding/houses/route");
+      const data = await res.json();
+      setHouses(data.houses || []);
+      setDormitories(data.dormitories || []);
+    } catch { /* empty */ }
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchData(); }, []);
 
   const handleSaveHouse = async () => {
     try {
-      const body = { type: "house", ...houseForm };
+      const body: Record<string, string> = { type: "house", ...houseForm };
       if (selectedHouse) {
-        body.house_id = selectedHouse.house_id;
+        body.house_id = String(selectedHouse.house_id);
         await fetch("/api/boarding/houses/route", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       } else {
         await fetch("/api/boarding/houses/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -78,9 +77,9 @@ export default function BoardingPage() {
 
   const handleSaveDorm = async () => {
     try {
-      const body = { type: "dormitory", ...dormForm };
+      const body: Record<string, string> = { type: "dormitory", ...dormForm };
       if (selectedDorm) {
-        body.dormitory_id = selectedDorm.dormitory_id;
+        body.dormitory_id = String(selectedDorm.dormitory_id);
         await fetch("/api/boarding/houses/route", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       } else {
         await fetch("/api/boarding/houses/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });

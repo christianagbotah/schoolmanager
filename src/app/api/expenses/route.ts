@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
     }, {} as Record<number, string>);
 
     const breakdown = categoryBreakdown.map(cb => ({
-      category: categoryMap[cb.category_id] || 'Unknown',
+      category: categoryMap[cb.category_id!] || 'Unknown',
       amount: cb._sum.amount || 0,
     }));
 

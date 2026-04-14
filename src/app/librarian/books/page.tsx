@@ -51,6 +51,7 @@ interface BookItem {
   total_copies: number;
   issued_copies: number;
   status: string;
+  class_id?: number | null;
 }
 
 interface ClassItem {

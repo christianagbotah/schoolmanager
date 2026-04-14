@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
-    let invoice = null;
+    let invoice: { invoice_code: string; title: string; due: number; amount_paid: number; amount: number; discount: number; year: string; term: string } | null = null;
     if (invoiceId) {
       invoice = await db.invoice.findUnique({ where: { invoice_id: invoiceId } });
     }
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
     const receiptCode = `RCP-${String(Date.now()).slice(-6)}`;
     const invoiceCode = invoice?.invoice_code || '';
 
-    const payment = await db.payment.create({
+    const payment = await (db.payment as any).create({
       data: {
         student_id: studentId,
         invoice_id: invoiceId || null,

@@ -4,7 +4,7 @@
  */
 
 import { db } from "./db";
-import type { MenuItem } from "@/config/menu";
+import type { MenuItem, MenuSection } from "@/config/menu";
 
 /**
  * Check if a user has a specific permission.
@@ -48,29 +48,46 @@ export function hasAllPermissions(
 /**
  * Extended MenuItem that supports permission-based visibility.
  */
-export interface PermissionMenuItem extends MenuItem {
-  /** Permission name(s) required to see this menu item */
-  permission?: string | string[];
-  /** If true, ANY matching permission is sufficient. If false, ALL are required. */
+export interface PermissionMenuItem {
+  label: string;
+  href: string;
+  icon: React.ElementType;
+  badge?: number;
+  permission?: string | string[] | null;
   permissionMode?: "any" | "all";
-  /** Sub-menu items (also support permissions) */
   children?: PermissionMenuItem[];
 }
 
 /**
- * Filter menu items based on user permissions.
+ * Filter menu sections based on user permissions.
  * Removes items the user doesn't have permission to see.
  * If a parent item has children, it's only shown if at least one child is visible.
  * 
- * @param menuItems - Array of menu items (sections or items)
+ * @param menuSections - Array of menu sections
  * @param userPermissions - Array of permission names the user has
- * @returns Filtered array of menu items the user can access
+ * @returns Filtered array of menu sections the user can access
  */
-export function filterMenuByPermissions<T extends MenuItem>(
-  menuItems: T[],
+export function filterMenuByPermissions(
+  menuSections: MenuSection[],
   userPermissions: string[]
-): T[] {
-  return menuItems
+): MenuSection[] {
+  return menuSections
+    .map((section) => {
+      const filteredItems = filterMenuItems(section.items, userPermissions);
+      if (filteredItems.length === 0) return null;
+      return { ...section, items: filteredItems };
+    })
+    .filter((section): section is MenuSection => section !== null);
+}
+
+/**
+ * Filter menu items (flat list) based on user permissions.
+ */
+export function filterMenuItems(
+  items: MenuItem[],
+  userPermissions: string[]
+): MenuItem[] {
+  return items
     .map((item) => {
       // Cast to PermissionMenuItem to check for permission field
       const permItem = item as unknown as PermissionMenuItem;
@@ -92,17 +109,17 @@ export function filterMenuByPermissions<T extends MenuItem>(
 
       // Recursively filter children
       if (item.children && item.children.length > 0) {
-        const filteredChildren = filterMenuByPermissions(
+        const filteredChildren = filterMenuItems(
           item.children,
           userPermissions
         );
         if (filteredChildren.length === 0) return null;
-        return { ...item, children: filteredChildren } as T;
+        return { ...item, children: filteredChildren } as MenuItem;
       }
 
       return item;
     })
-    .filter((item): item is T => item !== null);
+    .filter((item): item is MenuItem => item !== null);
 }
 
 /**

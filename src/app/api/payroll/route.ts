@@ -75,14 +75,14 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'month, year, and employees are required' }, { status: 400 })
   }
 
-  const results = []
+  const results: any[] = []
   for (const emp of employees) {
     const existing = await db.pay_salary.findFirst({
       where: { employee_code: emp.emp_id, month, year },
     })
 
     if (existing) {
-      const updated = await db.pay_salary.update({
+      const updated = await (db.pay_salary as any).update({
         where: { pay_id: existing.pay_id },
         data: {
           basic_salary: emp.salary,
@@ -93,7 +93,7 @@ export async function PATCH(req: NextRequest) {
       })
       results.push(updated)
     } else {
-      const created = await db.pay_salary.create({
+      const created = await (db.pay_salary as any).create({
         data: {
           employee_code: emp.emp_id,
           month,

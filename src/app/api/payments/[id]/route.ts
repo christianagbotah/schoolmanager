@@ -7,7 +7,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const payment = await db.payment.findUnique({
       where: { payment_id: parseInt(id) },
       include: {
-        student: { select: { student_id: true, name: true, first_name: true, last_name: true, student_code: true, class_id: true } },
+        student: true,
         invoice: true,
       },
     });

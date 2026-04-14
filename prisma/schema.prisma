@@ -1152,3 +1152,2511 @@ model RolePermission {
   @@index([roleId])
   @@index([permissionId])
 }
+
+// ============================================================
+// SETTINGS & SYSTEM (Extended)
+// ============================================================
+
+model sems {
+  sems_id    Int    @id @default(autoincrement())
+  name       String @default("")
+  year       String @default("")
+  session_id Int?
+  start_date DateTime?
+  end_date   DateTime?
+  is_active  Int    @default(1)
+
+  @@index([session_id])
+  @@index([year])
+}
+
+model sch_settings {
+  sch_settings_id Int    @id @default(autoincrement())
+  school_name     String @default("")
+  address         String @default("")
+  phone           String @default("")
+  email           String @default("")
+  logo            String @default("")
+  currency        String @default("")
+  language        String @default("")
+  timezone        String @default("")
+  session_id      Int?
+  running_year    String @default("")
+  system_name     String @default("")
+  text_align      String @default("")
+  is_active       Int    @default(1)
+
+  @@index([session_id])
+  @@map("sch_settings")
+}
+
+model sessions {
+  session_id Int    @id @default(autoincrement())
+  name       String @default("")
+  year       String @default("")
+  start_date DateTime?
+  end_date   DateTime?
+  is_active  Int    @default(1)
+
+  @@map("sessions")
+}
+
+// ============================================================
+// ACADEMIC (Extended)
+// ============================================================
+
+model grade_2 {
+  grade_2_id Int    @id @default(autoincrement())
+  name       String @default("")
+  grade_from Float  @default(0)
+  grade_to   Float  @default(0)
+  comment    String @default("")
+  point      Float  @default(0)
+
+  @@map("grade_2")
+}
+
+model grade_creche {
+  grade_creche_id Int    @id @default(autoincrement())
+  name            String @default("")
+  grade_from      Float  @default(0)
+  grade_to        Float  @default(0)
+  comment         String @default("")
+
+  @@map("grade_creche")
+}
+
+model raw_score_grade {
+  raw_score_grade_id Int    @id @default(autoincrement())
+  name               String @default("")
+  score_from         Float  @default(0)
+  score_to           Float  @default(0)
+  grade              String @default("")
+  remark             String @default("")
+
+  @@map("raw_score_grade")
+}
+
+model addition {
+  addition_id Int    @id @default(autoincrement())
+  name        String @default("")
+  type        String @default("")
+  input_type  String @default("")
+  status      Int    @default(1)
+
+  @@map("addition")
+}
+
+model aggregation {
+  aggregation_id Int    @id @default(autoincrement())
+  student_id     Int
+  class_id       Int?
+  year           String @default("")
+  term           String @default("")
+  total_score    Float  @default(0)
+  average_score  Float  @default(0)
+  position       Int    @default(0)
+  grade          String @default("")
+
+  @@index([student_id])
+  @@index([class_id])
+  @@index([year])
+  @@map("aggregation")
+}
+
+model exam_category {
+  exam_category_id Int    @id @default(autoincrement())
+  name             String @default("")
+  description      String @default("")
+  weight           Float  @default(1)
+  is_active        Int    @default(1)
+
+  @@map("exam_category")
+}
+
+model academic_syllabus {
+  syllabus_id Int    @id @default(autoincrement())
+  title       String @default("")
+  description String @default("")
+  subject_id  Int?
+  class_id    Int?
+  section_id  Int?
+  year        String @default("")
+  term        String @default("")
+  file_path   String @default("")
+  upload_date DateTime?
+  uploaded_by String @default("")
+
+  @@index([subject_id])
+  @@index([class_id])
+  @@index([section_id])
+  @@map("academic_syllabus")
+}
+
+model document {
+  document_id  Int    @id @default(autoincrement())
+  title        String @default("")
+  description  String @default("")
+  file_name    String @default("")
+  file_path    String @default("")
+  file_type    String @default("")
+  subject_id   Int?
+  class_id     Int?
+  teacher_id   Int?
+  year         String @default("")
+  term         String @default("")
+  upload_date  DateTime?
+  uploaded_by  String @default("")
+  is_visible   Int    @default(1)
+
+  @@index([subject_id])
+  @@index([class_id])
+  @@index([teacher_id])
+  @@map("document")
+}
+
+model question_paper {
+  question_paper_id Int    @id @default(autoincrement())
+  title             String @default("")
+  subject_id        Int?
+  class_id          Int?
+  exam_id           Int?
+  year              String @default("")
+  term              String @default("")
+  file_path         String @default("")
+  upload_date       DateTime?
+  uploaded_by       String @default("")
+
+  @@index([subject_id])
+  @@index([class_id])
+  @@index([exam_id])
+  @@map("question_paper")
+}
+
+model question_bank {
+  question_bank_id  Int    @id @default(autoincrement())
+  question_type     String @default("")
+  question_text     String @default("")
+  option_a          String @default("")
+  option_b          String @default("")
+  option_c          String @default("")
+  option_d          String @default("")
+  correct_answer    String @default("")
+  marks             Float  @default(1)
+  subject_id        Int?
+  class_id          Int?
+  difficulty_level  String @default("")
+  upload_date       DateTime?
+  uploaded_by       String @default("")
+
+  @@index([subject_id])
+  @@index([class_id])
+  @@map("question_bank")
+}
+
+model enterprise_exams {
+  enterprise_exam_id Int    @id @default(autoincrement())
+  name               String @default("")
+  description        String @default("")
+  year               String @default("")
+  term               String @default("")
+  start_date         DateTime?
+  end_date           DateTime?
+  status             String @default("")
+  created_by         String @default("")
+
+  @@index([year])
+  @@map("enterprise_exams")
+}
+
+model enterprise_exam_subjects {
+  enterprise_exam_subject_id Int    @id @default(autoincrement())
+  enterprise_exam_id         Int
+  subject_id                 Int?
+  class_id                   Int?
+  total_marks                Float  @default(100)
+  passing_marks              Float  @default(50)
+
+  @@index([enterprise_exam_id])
+  @@index([subject_id])
+  @@index([class_id])
+  @@map("enterprise_exam_subjects")
+}
+
+model enterprise_student_marks {
+  enterprise_mark_id    Int    @id @default(autoincrement())
+  enterprise_exam_id    Int
+  exam_subject_id       Int?
+  student_id            Int
+  mark_obtained         Float  @default(0)
+  grade                 String @default("")
+  remarks               String @default("")
+
+  @@index([enterprise_exam_id])
+  @@index([exam_subject_id])
+  @@index([student_id])
+  @@map("enterprise_student_marks")
+}
+
+model enterprise_terminal_reports {
+  enterprise_report_id Int    @id @default(autoincrement())
+  student_id           Int
+  enterprise_exam_id   Int
+  year                 String @default("")
+  term                 String @default("")
+  total_score          Float  @default(0)
+  average_score        Float  @default(0)
+  grade                String @default("")
+  position             Int    @default(0)
+  class_position       String @default("")
+
+  @@index([student_id])
+  @@index([enterprise_exam_id])
+  @@map("enterprise_terminal_reports")
+}
+
+model waec_grading_scale {
+  waec_grade_id Int    @id @default(autoincrement())
+  grade         String @default("")
+  interpretation String @default("")
+  range_from    Float  @default(0)
+  range_to      Float  @default(0)
+
+  @@map("waec_grading_scale")
+}
+
+// ============================================================
+// STUDENT (Extended)
+// ============================================================
+
+model admission_category {
+  admission_category_id Int    @id @default(autoincrement())
+  name                  String @default("")
+  description           String @default("")
+  fee_modifier          Float  @default(1)
+  is_active             Int    @default(1)
+
+  @@map("admission_category")
+}
+
+model admission_logs {
+  admission_log_id Int       @id @default(autoincrement())
+  student_id       Int
+  class_id         Int?
+  section_id       Int?
+  session_id       Int?
+  admission_date   DateTime?
+  status           String    @default("")
+  remarks          String    @default("")
+  processed_by     String    @default("")
+
+  @@index([student_id])
+  @@index([class_id])
+  @@index([session_id])
+  @@map("admission_logs")
+}
+
+model blood_group {
+  blood_group_id Int    @id @default(autoincrement())
+  name           String @default("")
+  is_active      Int    @default(1)
+
+  @@map("blood_group")
+}
+
+model religion {
+  religion_id Int    @id @default(autoincrement())
+  name        String @default("")
+  is_active   Int    @default(1)
+
+  @@map("religion")
+}
+
+model education {
+  education_id Int    @id @default(autoincrement())
+  name        String @default("")
+  level       String @default("")
+  is_active   Int    @default(1)
+
+  @@map("education")
+}
+
+model disciplinary {
+  disciplinary_id Int       @id @default(autoincrement())
+  student_id      Int
+  offense         String    @default("")
+  description     String    @default("")
+  action_taken    String    @default("")
+  severity        String    @default("")
+  reported_by     String    @default("")
+  incident_date   DateTime?
+  created_at      DateTime?
+
+  @@index([student_id])
+  @@index([incident_date])
+  @@map("disciplinary")
+}
+
+// ============================================================
+// EMPLOYEE (Extended)
+// ============================================================
+
+model salary_type {
+  salary_type_id Int    @id @default(autoincrement())
+  name           String @default("")
+  description    String @default("")
+  is_active      Int    @default(1)
+
+  @@map("salary_type")
+}
+
+model emp_address {
+  emp_address_id Int    @id @default(autoincrement())
+  employee_code  String @default("")
+  address_type   String @default("")
+  address_line_1 String @default("")
+  address_line_2 String @default("")
+  city           String @default("")
+  state          String @default("")
+  postal_code    String @default("")
+  country        String @default("")
+
+  @@index([employee_code])
+  @@map("emp_address")
+}
+
+model emp_bank_info {
+  emp_bank_info_id Int    @id @default(autoincrement())
+  employee_code    String @default("")
+  bank_name        String @default("")
+  branch_name      String @default("")
+  account_number   String @default("")
+  account_type     String @default("")
+  routing_number   String @default("")
+  is_primary       Int    @default(0)
+
+  @@index([employee_code])
+  @@map("emp_bank_info")
+}
+
+model emp_salary {
+  emp_salary_id  Int    @id @default(autoincrement())
+  employee_code  String @default("")
+  salary_type_id Int?
+  basic_salary   Float  @default(0)
+  housing_allowance  Float @default(0)
+  transport_allowance Float @default(0)
+  medical_allowance   Float @default(0)
+  other_allowance     Float @default(0)
+  tax_rate        Float  @default(0)
+  pension_rate    Float  @default(0)
+  effective_date  DateTime?
+  status          String @default("active")
+
+  @@index([employee_code])
+  @@index([salary_type_id])
+  @@map("emp_salary")
+}
+
+model emp_leave {
+  emp_leave_id   Int       @id @default(autoincrement())
+  employee_code  String    @default("")
+  leave_type_id  Int?
+  start_date     DateTime?
+  end_date       DateTime?
+  total_days     Float     @default(0)
+  reason         String    @default("")
+  status         String    @default("pending")
+  approved_by    String    @default("")
+  approved_date  DateTime?
+  created_at     DateTime?
+
+  @@index([employee_code])
+  @@index([leave_type_id])
+  @@index([status])
+  @@map("emp_leave")
+}
+
+model emp_attendance {
+  emp_attendance_id Int       @id @default(autoincrement())
+  employee_code     String    @default("")
+  attendance_date   DateTime?
+  check_in          DateTime?
+  check_out         DateTime?
+  status            String    @default("")
+  hours_worked      Float     @default(0)
+  overtime_hours    Float     @default(0)
+  remarks           String    @default("")
+
+  @@index([employee_code])
+  @@index([attendance_date])
+  @@map("emp_attendance")
+}
+
+model emp_experience {
+  emp_experience_id Int    @id @default(autoincrement())
+  employee_code     String @default("")
+  company_name      String @default("")
+  position          String @default("")
+  start_date        DateTime?
+  end_date          DateTime?
+  responsibilities  String @default("")
+
+  @@index([employee_code])
+  @@map("emp_experience")
+}
+
+model emp_training {
+  emp_training_id Int    @id @default(autoincrement())
+  employee_code   String @default("")
+  training_name   String @default("")
+  institution     String @default("")
+  start_date      DateTime?
+  end_date        DateTime?
+  certificate     String @default("")
+  description     String @default("")
+
+  @@index([employee_code])
+  @@map("emp_training")
+}
+
+model emp_assets {
+  emp_asset_id   Int    @id @default(autoincrement())
+  employee_code  String @default("")
+  asset_name     String @default("")
+  asset_type     String @default("")
+  serial_number  String @default("")
+  condition      String @default("")
+  issued_date    DateTime?
+  return_date    DateTime?
+  status         String @default("")
+
+  @@index([employee_code])
+  @@map("emp_assets")
+}
+
+model emp_penalty {
+  emp_penalty_id Int    @id @default(autoincrement())
+  employee_code String @default("")
+  penalty_type  String @default("")
+  amount        Float  @default(0)
+  reason        String @default("")
+  penalty_date  DateTime?
+  status        String @default("active")
+  applied_by    String @default("")
+
+  @@index([employee_code])
+  @@map("emp_penalty")
+}
+
+model employee_file {
+  employee_file_id Int    @id @default(autoincrement())
+  employee_code    String @default("")
+  file_name        String @default("")
+  file_path        String @default("")
+  file_type        String @default("")
+  upload_date      DateTime?
+  uploaded_by      String @default("")
+
+  @@index([employee_code])
+  @@map("employee_file")
+}
+
+model earned_leave {
+  earned_leave_id Int    @id @default(autoincrement())
+  employee_code   String @default("")
+  leave_type_id   Int?
+  year            String @default("")
+  total_earned    Float  @default(0)
+  total_used      Float  @default(0)
+  total_balance   Float  @default(0)
+
+  @@index([employee_code])
+  @@index([leave_type_id])
+  @@map("earned_leave")
+}
+
+model leave_types {
+  leave_type_id  Int    @id @default(autoincrement())
+  name           String @default("")
+  description    String @default("")
+  days_allowed   Float  @default(0)
+  is_paid        Int    @default(1)
+  is_active      Int    @default(1)
+
+  @@map("leave_types")
+}
+
+model holiday {
+  holiday_id   Int       @id @default(autoincrement())
+  name         String    @default("")
+  description  String    @default("")
+  date         DateTime?
+  end_date     DateTime?
+  is_recurring Int       @default(0)
+  is_active    Int       @default(1)
+
+  @@map("holiday")
+}
+
+model assign_leave {
+  assign_leave_id Int    @id @default(autoincrement())
+  employee_code   String @default("")
+  leave_type_id   Int?
+  total_days      Float  @default(0)
+  year            String @default("")
+  effective_date  DateTime?
+  status          String @default("active")
+
+  @@index([employee_code])
+  @@index([leave_type_id])
+  @@map("assign_leave")
+}
+
+model assign_task {
+  assign_task_id Int       @id @default(autoincrement())
+  title          String    @default("")
+  description    String    @default("")
+  employee_code  String    @default("")
+  assigned_by    String    @default("")
+  due_date       DateTime?
+  priority       String    @default("medium")
+  status         String    @default("pending")
+  created_at     DateTime?
+
+  @@index([employee_code])
+  @@index([status])
+  @@map("assign_task")
+}
+
+// ============================================================
+// TRANSPORT (Extended)
+// ============================================================
+
+model vehicles {
+  vehicle_id     Int    @id @default(autoincrement())
+  vehicle_number String @default("")
+  vehicle_type   String @default("")
+  brand          String @default("")
+  model          String @default("")
+  year           Int    @default(0)
+  capacity       Int    @default(0)
+  fuel_type      String @default("")
+  registration   String @default("")
+  is_active      Int    @default(1)
+
+  @@index([vehicle_number])
+  @@map("vehicles")
+}
+
+model drivers {
+  driver_id    Int    @id @default(autoincrement())
+  name         String @default("")
+  phone        String @default("")
+  license_no   String @default("")
+  address      String @default("")
+  emergency_contact String @default("")
+  is_active    Int    @default(1)
+
+  @@map("drivers")
+}
+
+model vehicle_assignments {
+  vehicle_assignment_id Int       @id @default(autoincrement())
+  vehicle_id            Int?
+  driver_id             Int?
+  route_id              Int?
+  assigned_date         DateTime?
+  end_date              DateTime?
+  status                String    @default("active")
+  notes                 String    @default("")
+
+  @@index([vehicle_id])
+  @@index([driver_id])
+  @@index([route_id])
+  @@map("vehicle_assignments")
+}
+
+model vehicle_insurance {
+  vehicle_insurance_id Int       @id @default(autoincrement())
+  vehicle_id           Int?
+  policy_number        String    @default("")
+  insurance_provider   String    @default("")
+  coverage_type        String    @default("")
+  start_date           DateTime?
+  end_date             DateTime?
+  premium_amount       Float     @default(0)
+  status               String    @default("active")
+
+  @@index([vehicle_id])
+  @@map("vehicle_insurance")
+}
+
+model vehicle_maintenance {
+  vehicle_maintenance_id Int       @id @default(autoincrement())
+  vehicle_id             Int?
+  maintenance_type       String    @default("")
+  description            String    @default("")
+  cost                   Float     @default(0)
+  maintenance_date       DateTime?
+  next_maintenance_date  DateTime?
+  vendor                 String    @default("")
+  status                 String    @default("completed")
+
+  @@index([vehicle_id])
+  @@map("vehicle_maintenance")
+}
+
+model transport_auto_billing {
+  transport_auto_billing_id Int    @id @default(autoincrement())
+  route_id                  Int?
+  student_id                Int?
+  amount                    Float  @default(0)
+  billing_cycle             String @default("monthly")
+  is_active                 Int    @default(1)
+
+  @@index([route_id])
+  @@index([student_id])
+  @@map("transport_auto_billing")
+}
+
+model transport_daily_log {
+  transport_daily_log_id Int       @id @default(autoincrement())
+  route_id               Int?
+  vehicle_id             Int?
+  driver_id              Int?
+  log_date               DateTime?
+  start_km               Float     @default(0)
+  end_km                 Float     @default(0)
+  fuel_consumed          Float     @default(0)
+  total_students         Int       @default(0)
+  remarks                String    @default("")
+
+  @@index([route_id])
+  @@index([vehicle_id])
+  @@index([driver_id])
+  @@map("transport_daily_log")
+}
+
+model daily_transport_choices {
+  daily_transport_choice_id Int       @id @default(autoincrement())
+  student_id                 Int?
+  route_id                   Int?
+  choice_date                DateTime?
+  transport_direction        String   @default("")
+  status                     String   @default("")
+
+  @@index([student_id])
+  @@index([route_id])
+  @@map("daily_transport_choices")
+}
+
+model loading {
+  loading_id    Int       @id @default(autoincrement())
+  vehicle_id    Int?
+  route_id      Int?
+  loading_date  DateTime?
+  item_type     String    @default("")
+  quantity      Float     @default(0)
+  weight        Float     @default(0)
+  notes         String    @default("")
+
+  @@index([vehicle_id])
+  @@index([route_id])
+  @@map("loading")
+}
+
+model logistic_asset {
+  logistic_asset_id Int    @id @default(autoincrement())
+  name              String @default("")
+  asset_type        String @default("")
+  description       String @default("")
+  quantity          Int    @default(1)
+  condition         String @default("")
+  location          String @default("")
+  is_available      Int    @default(1)
+
+  @@map("logistic_asset")
+}
+
+model logistic_assign {
+  logistic_assign_id Int       @id @default(autoincrement())
+  asset_id           Int?
+  vehicle_id         Int?
+  route_id           Int?
+  assigned_date      DateTime?
+  return_date        DateTime?
+  assigned_by        String    @default("")
+  status             String    @default("assigned")
+  notes              String    @default("")
+
+  @@index([asset_id])
+  @@index([vehicle_id])
+  @@index([route_id])
+  @@map("logistic_assign")
+}
+
+// ============================================================
+// FINANCIAL (Extended) - Core Accounting
+// ============================================================
+
+model accounts_payable {
+  accounts_payable_id Int       @id @default(autoincrement())
+  vendor_name         String    @default("")
+  description         String    @default("")
+  amount_due          Float     @default(0)
+  amount_paid         Float     @default(0)
+  due_date            DateTime?
+  payment_date        DateTime?
+  status              String    @default("pending")
+  reference_number    String    @default("")
+
+  @@map("accounts_payable")
+}
+
+model account_type {
+  account_type_id   Int    @id @default(autoincrement())
+  name              String @default("")
+  description       String @default("")
+  normal_balance    String @default("debit")
+  is_active         Int    @default(1)
+
+  @@map("account_type")
+}
+
+model assets {
+  asset_id       Int    @id @default(autoincrement())
+  asset_name     String @default("")
+  asset_code     String @default("")
+  category_id    Int?
+  purchase_date  DateTime?
+  purchase_price Float  @default(0)
+  current_value  Float  @default(0)
+  depreciation   Float  @default(0)
+  location       String @default("")
+  status         String @default("active")
+  description    String @default("")
+
+  @@index([category_id])
+  @@map("assets")
+}
+
+model assets_category {
+  assets_category_id Int    @id @default(autoincrement())
+  name               String @default("")
+  description        String @default("")
+  depreciation_rate  Float  @default(0)
+  useful_life_years  Int    @default(0)
+  is_active          Int    @default(1)
+
+  @@map("assets_category")
+}
+
+model fiscal_years {
+  fiscal_year_id Int    @id @default(autoincrement())
+  name          String @default("")
+  start_date    DateTime?
+  end_date      DateTime?
+  is_active     Int    @default(0)
+  status        String @default("draft")
+
+  @@map("fiscal_years")
+}
+
+model fiscal_periods {
+  fiscal_period_id Int    @id @default(autoincrement())
+  fiscal_year_id   Int?
+  name             String @default("")
+  period_number    Int    @default(0)
+  start_date       DateTime?
+  end_date         DateTime?
+  is_closed        Int    @default(0)
+
+  @@index([fiscal_year_id])
+  @@map("fiscal_periods")
+}
+
+model budgets {
+  budget_id      Int    @id @default(autoincrement())
+  name           String @default("")
+  fiscal_year_id Int?
+  department_id  Int?
+  total_amount   Float  @default(0)
+  status         String @default("draft")
+  description    String @default("")
+  created_by     String @default("")
+
+  @@index([fiscal_year_id])
+  @@index([department_id])
+  @@map("budgets")
+}
+
+model budget_lines {
+  budget_line_id   Int    @id @default(autoincrement())
+  budget_id        Int?
+  account_id       Int?
+  category         String @default("")
+  description      String @default("")
+  budgeted_amount  Float  @default(0)
+  actual_amount    Float  @default(0)
+  variance         Float  @default(0)
+
+  @@index([budget_id])
+  @@index([account_id])
+  @@map("budget_lines")
+}
+
+model budget_utilization_log {
+  budget_utilization_log_id Int       @id @default(autoincrement())
+  budget_line_id            Int?
+  transaction_type          String    @default("")
+  amount                    Float     @default(0)
+  description               String    @default("")
+  created_at                DateTime?
+  created_by                String    @default("")
+
+  @@index([budget_line_id])
+  @@map("budget_utilization_log")
+}
+
+model bank_transactions {
+  bank_transaction_id Int       @id @default(autoincrement())
+  bank_account_id     Int?
+  transaction_type    String    @default("")
+  amount              Float     @default(0)
+  transaction_date    DateTime?
+  reference           String    @default("")
+  description         String    @default("")
+  balance_after       Float     @default(0)
+  status              String    @default("")
+
+  @@index([bank_account_id])
+  @@index([transaction_date])
+  @@map("bank_transactions")
+}
+
+model bank_reconciliations {
+  bank_reconciliation_id Int       @id @default(autoincrement())
+  bank_account_id        Int?
+  statement_date         DateTime?
+  statement_balance      Float     @default(0)
+  calculated_balance     Float     @default(0)
+  difference             Float     @default(0)
+  status                 String    @default("pending")
+  reconciled_by          String    @default("")
+  reconciled_date        DateTime?
+
+  @@index([bank_account_id])
+  @@map("bank_reconciliations")
+}
+
+model reconciliation_items {
+  reconciliation_item_id     Int    @id @default(autoincrement())
+  bank_reconciliation_id     Int?
+  bank_transaction_id        Int?
+  transaction_type           String @default("")
+  amount                     Float  @default(0)
+  description                String @default("")
+  match_status               String @default("")
+
+  @@index([bank_reconciliation_id])
+  @@index([bank_transaction_id])
+  @@map("reconciliation_items")
+}
+
+// ============================================================
+// FINANCIAL (Extended) - Enhanced Expenses
+// ============================================================
+
+model expenses_enhanced {
+  expense_enhanced_id Int       @id @default(autoincrement())
+  title               String    @default("")
+  description         String    @default("")
+  category_id         Int?
+  amount              Float     @default(0)
+  expense_date        DateTime?
+  payment_method      String    @default("")
+  vendor              String    @default("")
+  reference_number    String    @default("")
+  status              String    @default("")
+  approved_by         String    @default("")
+  approved_date       DateTime?
+  created_at          DateTime?
+
+  @@index([category_id])
+  @@index([expense_date])
+  @@map("expenses_enhanced")
+}
+
+model expense_categories_enhanced {
+  expense_category_enhanced_id Int    @id @default(autoincrement())
+  name                         String @default("")
+  description                  String @default("")
+  budget_amount                Float  @default(0)
+  parent_category_id           Int?
+  is_active                    Int    @default(1)
+
+  @@index([parent_category_id])
+  @@map("expense_categories_enhanced")
+}
+
+// ============================================================
+// FINANCIAL (Extended) - Project / Pro Expenses
+// ============================================================
+
+model pro_expenses {
+  pro_expense_id Int       @id @default(autoincrement())
+  pro_id         Int?
+  title          String    @default("")
+  description    String    @default("")
+  amount         Float     @default(0)
+  expense_date   DateTime?
+  category       String    @default("")
+  vendor         String    @default("")
+  status         String    @default("")
+
+  project         project? @relation(fields: [pro_id], references: [project_id])
+
+  @@index([pro_id])
+  @@map("pro_expenses")
+}
+
+model pro_notes {
+  pro_note_id Int    @id @default(autoincrement())
+  pro_id      Int?
+  title       String @default("")
+  note        String @default("")
+  created_by  String @default("")
+  created_at  DateTime?
+
+  project         project? @relation(fields: [pro_id], references: [project_id])
+
+  @@index([pro_id])
+  @@map("pro_notes")
+}
+
+model pro_task {
+  pro_task_id Int       @id @default(autoincrement())
+  pro_id      Int?
+  title       String    @default("")
+  description String    @default("")
+  assigned_to String    @default("")
+  due_date    DateTime?
+  status      String    @default("pending")
+  priority    String    @default("medium")
+  created_at  DateTime?
+
+  project         project? @relation(fields: [pro_id], references: [project_id])
+
+  @@index([pro_id])
+  @@index([assigned_to])
+  @@map("pro_task")
+}
+
+model pro_task_assets {
+  pro_task_asset_id Int    @id @default(autoincrement())
+  pro_task_id       Int?
+  asset_name        String @default("")
+  asset_type        String @default("")
+  quantity          Int    @default(1)
+  status            String @default("")
+
+  @@index([pro_task_id])
+  @@map("pro_task_assets")
+}
+
+model project {
+  project_id   Int       @id @default(autoincrement())
+  name         String    @default("")
+  description  String    @default("")
+  start_date   DateTime?
+  end_date     DateTime?
+  budget       Float     @default(0)
+  status       String    @default("planning")
+  manager      String    @default("")
+  created_at   DateTime?
+
+  proExpenses  pro_expenses[]
+  proNotes     pro_notes[]
+  proTasks     pro_task[]
+  projectFiles project_file[]
+
+  @@map("project")
+}
+
+model project_file {
+  project_file_id Int    @id @default(autoincrement())
+  project_id      Int?
+  file_name       String @default("")
+  file_path       String @default("")
+  file_type       String @default("")
+  upload_date     DateTime?
+  uploaded_by     String @default("")
+
+  project         project? @relation(fields: [project_id], references: [project_id])
+
+  @@index([project_id])
+  @@map("project_file")
+}
+
+// ============================================================
+// FINANCIAL (Extended) - Payment Gateway & Methods
+// ============================================================
+
+model payment_transactions {
+  payment_transaction_id Int       @id @default(autoincrement())
+  transaction_code       String    @default("")
+  student_id             Int?
+  invoice_id             Int?
+  amount                 Float     @default(0)
+  payment_method         String    @default("")
+  gateway                String    @default("")
+  gateway_transaction_id String    @default("")
+  status                 String    @default("pending")
+  created_at             DateTime?
+  completed_at           DateTime?
+
+  @@index([student_id])
+  @@index([invoice_id])
+  @@index([transaction_code])
+  @@index([status])
+  @@map("payment_transactions")
+}
+
+model payment_methods {
+  payment_method_id Int    @id @default(autoincrement())
+  name              String @default("")
+  code              String @default("")
+  description       String @default("")
+  is_active         Int    @default(1)
+  is_online         Int    @default(0)
+
+  @@map("payment_methods")
+}
+
+model payment_plans {
+  payment_plan_id   Int    @id @default(autoincrement())
+  name              String @default("")
+  description       String @default("")
+  number_of_payments Int   @default(1)
+  frequency         String @default("monthly")
+  is_active         Int    @default(1)
+
+  @@map("payment_plans")
+}
+
+model payment_installments {
+  installment_id    Int       @id @default(autoincrement())
+  payment_plan_id   Int?
+  student_id        Int?
+  invoice_id        Int?
+  amount            Float     @default(0)
+  due_date          DateTime?
+  paid_amount       Float     @default(0)
+  status            String    @default("pending")
+  payment_date      DateTime?
+
+  @@index([payment_plan_id])
+  @@index([student_id])
+  @@index([invoice_id])
+  @@map("payment_installments")
+}
+
+model mobile_money_payment {
+  mobile_money_payment_id Int       @id @default(autoincrement())
+  transaction_id          String    @default("")
+  phone_number            String    @default("")
+  network                 String    @default("")
+  amount                  Float     @default(0)
+  status                  String    @default("pending")
+  student_id              Int?
+  invoice_id              Int?
+  created_at              DateTime?
+  completed_at            DateTime?
+
+  @@index([transaction_id])
+  @@index([student_id])
+  @@map("mobile_money_payment")
+}
+
+model hubtel_transaction_logs {
+  hubtel_log_id   Int       @id @default(autoincrement())
+  transaction_id  String    @default("")
+  request_payload String    @default("")
+  response_payload String   @default("")
+  status_code     Int       @default(0)
+  status          String    @default("")
+  created_at      DateTime?
+
+  @@index([transaction_id])
+  @@map("hubtel_transaction_logs")
+}
+
+model incomplete_fee_transactions {
+  incomplete_transaction_id Int       @id @default(autoincrement())
+  student_id                Int?
+  amount                    Float     @default(0)
+  payment_method            String    @default("")
+  attempted_at              DateTime?
+  failure_reason            String    @default("")
+  retry_count               Int       @default(0)
+  status                    String    @default("failed")
+
+  @@index([student_id])
+  @@map("incomplete_fee_transactions")
+}
+
+// ============================================================
+// FINANCIAL (Extended) - Student Ledger & Credits
+// ============================================================
+
+model student_ledger {
+  student_ledger_id Int       @id @default(autoincrement())
+  student_id        Int?
+  transaction_type  String    @default("")
+  description       String    @default("")
+  debit             Float     @default(0)
+  credit            Float     @default(0)
+  balance           Float     @default(0)
+  reference_id      String    @default("")
+  transaction_date  DateTime?
+  year              String    @default("")
+  term              String    @default("")
+
+  @@index([student_id])
+  @@index([transaction_date])
+  @@map("student_ledger")
+}
+
+model student_credits {
+  student_credit_id Int       @id @default(autoincrement())
+  student_id        Int?
+  amount            Float     @default(0)
+  reason            String    @default("")
+  credit_date       DateTime?
+  applied_by        String    @default("")
+  status            String    @default("active")
+
+  @@index([student_id])
+  @@map("student_credits")
+}
+
+model credit_applications {
+  credit_application_id Int       @id @default(autoincrement())
+  student_id            Int?
+  amount_requested      Float     @default(0)
+  reason                String    @default("")
+  status                String    @default("pending")
+  applied_date          DateTime?
+  approved_by           String    @default("")
+  approved_date         DateTime?
+  notes                 String    @default("")
+
+  @@index([student_id])
+  @@index([status])
+  @@map("credit_applications")
+}
+
+model credit_notes {
+  credit_note_id   Int       @id @default(autoincrement())
+  credit_number    String    @default("")
+  student_id       Int?
+  invoice_id       Int?
+  amount           Float     @default(0)
+  reason           String    @default("")
+  created_by       String    @default("")
+  created_at       DateTime?
+  status           String    @default("active")
+
+  @@index([student_id])
+  @@index([invoice_id])
+  @@map("credit_notes")
+}
+
+model credit_system_logs {
+  credit_system_log_id Int       @id @default(autoincrement())
+  student_id           Int?
+  action               String    @default("")
+  amount               Float     @default(0)
+  previous_balance     Float     @default(0)
+  new_balance          Float     @default(0)
+  description          String    @default("")
+  performed_by         String    @default("")
+  created_at           DateTime?
+
+  @@index([student_id])
+  @@map("credit_system_logs")
+}
+
+model student_credit_summary {
+  student_credit_summary_id Int    @id @default(autoincrement())
+  student_id                Int?
+  year                      String @default("")
+  term                      String @default("")
+  total_credits             Float  @default(0)
+  total_used                Float  @default(0)
+  available_balance         Float  @default(0)
+
+  @@index([student_id])
+  @@map("student_credit_summary")
+}
+
+model student_account_summary {
+  student_account_summary_id Int       @id @default(autoincrement())
+  student_id                 Int?
+  year                       String    @default("")
+  term                       String    @default("")
+  total_invoiced             Float     @default(0)
+  total_paid                 Float     @default(0)
+  total_discount             Float     @default(0)
+  total_outstanding          Float     @default(0)
+  last_payment_date          DateTime?
+
+  @@index([student_id])
+  @@map("student_account_summary")
+}
+
+model student_daily_fee_preferences {
+  student_daily_fee_preference_id Int    @id @default(autoincrement())
+  student_id                      Int?
+  feeding_enabled                 Int    @default(1)
+  breakfast_enabled               Int    @default(1)
+  water_enabled                   Int    @default(1)
+  year                            String @default("")
+  term                            String @default("")
+
+  @@index([student_id])
+  @@map("student_daily_fee_preferences")
+}
+
+model daily_charge_log {
+  daily_charge_log_id Int       @id @default(autoincrement())
+  student_id          Int?
+  charge_type         String    @default("")
+  amount              Float     @default(0)
+  charge_date         DateTime?
+  attendance_id       Int?
+  created_at          DateTime?
+
+  @@index([student_id])
+  @@index([charge_date])
+  @@map("daily_charge_log")
+}
+
+model daily_fee_audit_log {
+  daily_fee_audit_log_id Int       @id @default(autoincrement())
+  transaction_id        Int?
+  student_id            Int?
+  action                String    @default("")
+  previous_value        String    @default("")
+  new_value             String    @default("")
+  performed_by          String    @default("")
+  created_at            DateTime?
+  notes                 String    @default("")
+
+  @@index([student_id])
+  @@index([transaction_id])
+  @@map("daily_fee_audit_log")
+}
+
+// ============================================================
+// FINANCIAL (Extended) - Billing & Invoice
+// ============================================================
+
+model billing_history {
+  billing_history_id Int       @id @default(autoincrement())
+  student_id         Int?
+  invoice_id         Int?
+  amount             Float     @default(0)
+  billing_type       String    @default("")
+  billing_date       DateTime?
+  status             String    @default("")
+  reference          String    @default("")
+
+  @@index([student_id])
+  @@index([invoice_id])
+  @@map("billing_history")
+}
+
+model invoice_discounts {
+  invoice_discount_id Int       @id @default(autoincrement())
+  invoice_id          Int?
+  discount_profile_id Int?
+  discount_amount     Float     @default(0)
+  discount_percentage Float     @default(0)
+  applied_by          String    @default("")
+  applied_date        DateTime?
+  notes               String    @default("")
+
+  @@index([invoice_id])
+  @@map("invoice_discounts")
+}
+
+model invoice_discount_items {
+  invoice_discount_item_id Int    @id @default(autoincrement())
+  invoice_discount_id      Int?
+  fee_type                 String @default("")
+  original_amount          Float  @default(0)
+  discount_amount          Float  @default(0)
+  discounted_amount        Float  @default(0)
+
+  @@index([invoice_discount_id])
+  @@map("invoice_discount_items")
+}
+
+model invoice_access_tokens {
+  invoice_access_token_id Int       @id @default(autoincrement())
+  invoice_id              Int?
+  token                   String    @unique @default("")
+  access_code             String    @default("")
+  expires_at              DateTime?
+  max_uses                Int       @default(1)
+  use_count               Int       @default(0)
+  is_active               Int       @default(1)
+  created_at              DateTime?
+
+  @@index([invoice_id])
+  @@index([token])
+  @@map("invoice_access_tokens")
+}
+
+model invoice_modification_requests {
+  invoice_modification_request_id Int       @id @default(autoincrement())
+  invoice_id                      Int?
+  requested_by                    String    @default("")
+  modification_type               String    @default("")
+  original_amount                 Float     @default(0)
+  proposed_amount                 Float     @default(0)
+  reason                          String    @default("")
+  status                          String    @default("pending")
+  reviewed_by                     String    @default("")
+  reviewed_at                     DateTime?
+  created_at                      DateTime?
+
+  @@index([invoice_id])
+  @@index([status])
+  @@map("invoice_modification_requests")
+}
+
+model invoice_payment_audit_log {
+  invoice_payment_audit_log_id Int       @id @default(autoincrement())
+  invoice_id                   Int?
+  payment_id                   Int?
+  action                       String    @default("")
+  amount                       Float     @default(0)
+  previous_status              String    @default("")
+  new_status                   String    @default("")
+  performed_by                 String    @default("")
+  created_at                   DateTime?
+
+  @@index([invoice_id])
+  @@index([payment_id])
+  @@map("invoice_payment_audit_log")
+}
+
+model invoice_payment_links {
+  invoice_payment_link_id Int       @id @default(autoincrement())
+  invoice_id              Int?
+  link_url                String    @default("")
+  link_token              String    @unique @default("")
+  expires_at              DateTime?
+  is_active               Int       @default(1)
+  created_at              DateTime?
+  total_visits            Int       @default(0)
+
+  @@index([invoice_id])
+  @@index([link_token])
+  @@map("invoice_payment_links")
+}
+
+model invoice_sms_log {
+  invoice_sms_log_id Int       @id @default(autoincrement())
+  invoice_id         Int?
+  phone_number       String    @default("")
+  message            String    @default("")
+  sms_provider       String    @default("")
+  sms_status         String    @default("")
+  sent_at            DateTime?
+  delivered_at       DateTime?
+
+  @@index([invoice_id])
+  @@map("invoice_sms_log")
+}
+
+model invoice_summary {
+  invoice_summary_id Int       @id @default(autoincrement())
+  year               String    @default("")
+  term               String    @default("")
+  class_id           Int?
+  total_invoices     Int       @default(0)
+  total_amount       Float     @default(0)
+  total_paid         Float     @default(0)
+  total_outstanding  Float     @default(0)
+  generated_at       DateTime?
+
+  @@index([year])
+  @@index([class_id])
+  @@map("invoice_summary")
+}
+
+model receipt_modification_audit {
+  receipt_modification_audit_id Int       @id @default(autoincrement())
+  receipt_id                     Int?
+  action                         String    @default("")
+  previous_data                  String    @default("")
+  new_data                       String    @default("")
+  performed_by                   String    @default("")
+  created_at                     DateTime?
+
+  @@index([receipt_id])
+  @@map("receipt_modification_audit")
+}
+
+model receipt_modification_requests {
+  receipt_modification_request_id Int       @id @default(autoincrement())
+  receipt_id                      Int?
+  requested_by                    String    @default("")
+  modification_type               String    @default("")
+  reason                          String    @default("")
+  status                          String    @default("pending")
+  reviewed_by                     String    @default("")
+  reviewed_at                     DateTime?
+  created_at                      DateTime?
+
+  @@index([receipt_id])
+  @@index([status])
+  @@map("receipt_modification_requests")
+}
+
+model aging_report_snapshots {
+  aging_report_snapshot_id Int       @id @default(autoincrement())
+  report_name              String    @default("")
+  year                     String    @default("")
+  term                     String    @default("")
+  snapshot_date            DateTime?
+  data_json                String    @default("")
+  generated_by             String    @default("")
+
+  @@index([year])
+  @@map("aging_report_snapshots")
+}
+
+model late_payment_settings {
+  late_payment_setting_id Int    @id @default(autoincrement())
+  grace_period_days       Int    @default(0)
+  penalty_type            String @default("")
+  penalty_percentage      Float  @default(0)
+  flat_penalty_amount     Float  @default(0)
+  max_penalty_percentage  Float  @default(100)
+  is_active               Int    @default(1)
+
+  @@map("late_payment_settings")
+}
+
+// ============================================================
+// FINANCIAL (Extended) - Discount System
+// ============================================================
+
+model discount_applications {
+  discount_application_id Int    @id @default(autoincrement())
+  student_id             Int?
+  profile_id             Int?
+  category_id            Int?
+  invoice_id             Int?
+  amount                 Float  @default(0)
+  percentage             Float  @default(0)
+  year                   String @default("")
+  term                   String @default("")
+  status                 String @default("pending")
+
+  @@index([student_id])
+  @@index([profile_id])
+  @@index([invoice_id])
+  @@map("discount_applications")
+}
+
+model discount_approvals {
+  discount_approval_id Int       @id @default(autoincrement())
+  application_id       Int?
+  approved_by          String    @default("")
+  approval_status      String    @default("pending")
+  approved_amount      Float     @default(0)
+  notes                String    @default("")
+  approved_at          DateTime?
+
+  @@index([application_id])
+  @@map("discount_approvals")
+}
+
+model discount_audit_log {
+  discount_audit_log_id Int       @id @default(autoincrement())
+  discount_id           Int?
+  action                String    @default("")
+  previous_value        String    @default("")
+  new_value             String    @default("")
+  performed_by          String    @default("")
+  created_at            DateTime?
+
+  @@index([discount_id])
+  @@map("discount_audit_log")
+}
+
+model discount_audit_trail {
+  discount_audit_trail_id Int       @id @default(autoincrement())
+  entity_type             String    @default("")
+  entity_id               Int?
+  action                  String    @default("")
+  old_values              String    @default("")
+  new_values              String    @default("")
+  performed_by            String    @default("")
+  created_at              DateTime?
+
+  @@index([entity_type])
+  @@index([entity_id])
+  @@map("discount_audit_trail")
+}
+
+model discount_profile_rules {
+  discount_profile_rule_id Int    @id @default(autoincrement())
+  profile_id               Int?
+  rule_type                String @default("")
+  rule_value               String @default("")
+  priority                 Int    @default(0)
+  is_active                Int    @default(1)
+
+  @@index([profile_id])
+  @@map("discount_profile_rules")
+}
+
+model discount_summary_cache {
+  discount_summary_cache_id Int    @id @default(autoincrement())
+  year                      String @default("")
+  term                      String @default("")
+  total_discounts           Float  @default(0)
+  total_applications        Int    @default(0)
+  cache_date                DateTime?
+
+  @@index([year])
+  @@map("discount_summary_cache")
+}
+
+model discount_types {
+  discount_type_id Int    @id @default(autoincrement())
+  name             String @default("")
+  code             String @default("")
+  description      String @default("")
+  is_active        Int    @default(1)
+
+  @@map("discount_types")
+}
+
+// ============================================================
+// FINANCIAL (Extended) - Benefits & Alerts
+// ============================================================
+
+model benefit_category {
+  benefit_category_id Int    @id @default(autoincrement())
+  name                String @default("")
+  description         String @default("")
+  is_active           Int    @default(1)
+
+  @@map("benefit_category")
+}
+
+model beneficiary_list {
+  beneficiary_list_id Int    @id @default(autoincrement())
+  student_id          Int?
+  benefit_category_id Int?
+  year                String @default("")
+  term                String @default("")
+  status              String @default("active")
+  notes               String @default("")
+
+  @@index([student_id])
+  @@index([benefit_category_id])
+  @@map("beneficiary_list")
+}
+
+model daily_fee_alerts {
+  daily_fee_alert_id   Int       @id @default(autoincrement())
+  student_id           Int?
+  alert_type           String    @default("")
+  message              String    @default("")
+  threshold_amount     Float     @default(0)
+  current_balance      Float     @default(0)
+  is_read              Int       @default(0)
+  created_at           DateTime?
+
+  @@index([student_id])
+  @@index([is_read])
+  @@map("daily_fee_alerts")
+}
+
+model financial_alert_resolutions {
+  financial_alert_resolution_id Int       @id @default(autoincrement())
+  alert_id                      Int?
+  resolved_by                   String    @default("")
+  resolution_notes              String    @default("")
+  resolved_at                   DateTime?
+
+  @@index([alert_id])
+  @@map("financial_alert_resolutions")
+}
+
+model finance_audit_trail {
+  finance_audit_trail_id Int       @id @default(autoincrement())
+  table_name             String    @default("")
+  record_id              Int?
+  action                 String    @default("")
+  old_values             String    @default("")
+  new_values             String    @default("")
+  performed_by           String    @default("")
+  created_at             DateTime?
+
+  @@index([table_name])
+  @@index([record_id])
+  @@map("finance_audit_trail")
+}
+
+model finance_dashboard_cache {
+  finance_dashboard_cache_id Int       @id @default(autoincrement())
+  cache_key                   String    @default("")
+  cache_data                  String    @default("")
+  cache_date                  DateTime?
+  expires_at                  DateTime?
+
+  @@index([cache_key])
+  @@map("finance_dashboard_cache")
+}
+
+model financial_analytics_cache {
+  financial_analytics_cache_id Int       @id @default(autoincrement())
+  report_type                  String    @default("")
+  year                         String    @default("")
+  term                         String    @default("")
+  data_json                    String    @default("")
+  generated_at                 DateTime?
+  expires_at                   DateTime?
+
+  @@index([report_type])
+  @@index([year])
+  @@map("financial_analytics_cache")
+}
+
+model financial_audit_trail {
+  financial_audit_trail_id Int       @id @default(autoincrement())
+  entity_type               String    @default("")
+  entity_id                 Int?
+  action                    String    @default("")
+  description               String    @default("")
+  old_values                String    @default("")
+  new_values                String    @default("")
+  performed_by              String    @default("")
+  created_at                DateTime?
+
+  @@index([entity_type])
+  @@index([entity_id])
+  @@map("financial_audit_trail")
+}
+
+model financial_integration_log {
+  financial_integration_log_id Int       @id @default(autoincrement())
+  service_name                 String    @default("")
+  request_payload              String    @default("")
+  response_payload             String    @default("")
+  status                       String    @default("")
+  error_message                String    @default("")
+  created_at                   DateTime?
+
+  @@index([service_name])
+  @@index([status])
+  @@map("financial_integration_log")
+}
+
+model financial_reports_cache {
+  financial_reports_cache_id Int       @id @default(autoincrement())
+  report_name                 String    @default("")
+  year                        String    @default("")
+  term                        String    @default("")
+  data_json                   String    @default("")
+  generated_at                DateTime?
+  generated_by                String    @default("")
+
+  @@index([report_name])
+  @@index([year])
+  @@map("financial_reports_cache")
+}
+
+// ============================================================
+// COMMUNICATION (Extended)
+// ============================================================
+
+model group_message {
+  group_message_id   Int       @id @default(autoincrement())
+  title              String    @default("")
+  message            String    @default("")
+  sender_id          Int?
+  sender_type        String    @default("")
+  target_group       String    @default("")
+  recipient_ids      String    @default("")
+  send_date          DateTime?
+  status             String    @default("draft")
+  created_at         DateTime?
+
+  group_message_threads group_message_thread[]
+
+  @@index([sender_id])
+  @@index([send_date])
+  @@map("group_message")
+}
+
+model group_message_thread {
+  group_message_thread_id Int       @id @default(autoincrement())
+  group_message_id        Int?
+  recipient_id            Int?
+  recipient_type          String    @default("")
+  status                  String    @default("pending")
+  sent_at                 DateTime?
+  read_at                 DateTime?
+
+  group_message           group_message? @relation(fields: [group_message_id], references: [group_message_id])
+
+  @@index([group_message_id])
+  @@index([recipient_id])
+  @@map("group_message_thread")
+}
+
+model group_message_other {
+  group_message_other_id Int       @id @default(autoincrement())
+  group_message_id       Int?
+  contact_number         String    @default("")
+  contact_name           String    @default("")
+  status                 String    @default("pending")
+  sent_at                DateTime?
+
+  @@index([group_message_id])
+  @@map("group_message_other")
+}
+
+model sms_log {
+  sms_log_id    Int       @id @default(autoincrement())
+  phone_number  String    @default("")
+  message       String    @default("")
+  status        String    @default("")
+  sent_at       DateTime?
+  delivered_at  DateTime?
+  gateway       String    @default("")
+  cost          Float     @default(0)
+
+  @@index([phone_number])
+  @@index([status])
+  @@map("sms_log")
+}
+
+model sms_logs {
+  sms_logs_id   Int       @id @default(autoincrement())
+  recipient     String    @default("")
+  message       String    @default("")
+  sender        String    @default("")
+  status        String    @default("")
+  sent_at       DateTime?
+  delivered_at  DateTime?
+  error_message String    @default("")
+  gateway       String    @default("")
+
+  @@index([recipient])
+  @@map("sms_logs")
+}
+
+model sms_schedules {
+  sms_schedule_id Int       @id @default(autoincrement())
+  title           String    @default("")
+  message         String    @default("")
+  recipient_group String    @default("")
+  recipient_ids   String    @default("")
+  scheduled_at    DateTime?
+  status          String    @default("pending")
+  sent_at         DateTime?
+  created_by      String    @default("")
+
+  @@index([scheduled_at])
+  @@index([status])
+  @@map("sms_schedules")
+}
+
+model sms_templates {
+  sms_template_id Int    @id @default(autoincrement())
+  name            String @default("")
+  content         String @default("")
+  category        String @default("")
+  variables       String @default("")
+  is_active       Int    @default(1)
+
+  @@map("sms_templates")
+}
+
+model sms_automations {
+  sms_automation_id Int    @id @default(autoincrement())
+  name              String @default("")
+  trigger_event     String @default("")
+  template_id       Int?
+  recipient_group   String @default("")
+  is_active         Int    @default(1)
+  cooldown_minutes  Int    @default(60)
+
+  @@index([template_id])
+  @@map("sms_automations")
+}
+
+model sms_automation_logs {
+  sms_automation_log_id Int       @id @default(autoincrement())
+  automation_id         Int?
+  recipient             String    @default("")
+  message               String    @default("")
+  trigger_data          String    @default("")
+  status                String    @default("")
+  sent_at               DateTime?
+  error_message         String    @default("")
+
+  @@index([automation_id])
+  @@map("sms_automation_logs")
+}
+
+model email_log {
+  email_log_id  Int       @id @default(autoincrement())
+  recipient     String    @default("")
+  subject       String    @default("")
+  body          String    @default("")
+  status        String    @default("")
+  sent_at       DateTime?
+  error_message String    @default("")
+
+  @@index([recipient])
+  @@map("email_log")
+}
+
+model email_logs {
+  email_logs_id Int       @id @default(autoincrement())
+  to_email      String    @default("")
+  subject       String    @default("")
+  body          String    @default("")
+  cc            String    @default("")
+  bcc           String    @default("")
+  status        String    @default("")
+  sent_at       DateTime?
+  delivered_at  DateTime?
+  opened_at     DateTime?
+  error_message String    @default("")
+
+  @@index([to_email])
+  @@map("email_logs")
+}
+
+// ============================================================
+// NOTIFICATION & AUDIT
+// ============================================================
+
+model audit_trail {
+  audit_trail_id Int       @id @default(autoincrement())
+  user_id        Int?
+  user_type      String    @default("")
+  action         String    @default("")
+  table_name     String    @default("")
+  record_id      Int?
+  old_values     String    @default("")
+  new_values     String    @default("")
+  ip_address     String    @default("")
+  user_agent     String    @default("")
+  created_at     DateTime?
+
+  @@index([user_id])
+  @@index([table_name])
+  @@map("audit_trail")
+}
+
+model result_approval_audit {
+  result_approval_audit_id Int       @id @default(autoincrement())
+  report_id                Int?
+  action                   String    @default("")
+  previous_status          String    @default("")
+  new_status               String    @default("")
+  comments                 String    @default("")
+  performed_by             String    @default("")
+  created_at               DateTime?
+
+  @@index([report_id])
+  @@map("result_approval_audit")
+}
+
+model result_approval_status {
+  result_approval_status_id Int    @id @default(autoincrement())
+  report_id                 Int?
+  student_id                Int?
+  year                      String @default("")
+  term                      String @default("")
+  status                    String @default("pending")
+  approved_by               String @default("")
+  approved_at               DateTime?
+
+  @@index([report_id])
+  @@index([student_id])
+  @@index([status])
+  @@map("result_approval_status")
+}
+
+model approval_requests {
+  approval_request_id Int       @id @default(autoincrement())
+  request_type        String    @default("")
+  title               String    @default("")
+  description         String    @default("")
+  requested_by        String    @default("")
+  request_data        String    @default("")
+  status              String    @default("pending")
+  reviewed_by         String    @default("")
+  reviewed_at         DateTime?
+  created_at          DateTime?
+
+  @@index([request_type])
+  @@index([status])
+  @@map("approval_requests")
+}
+
+// ============================================================
+// SBA / PORTFOLIO (Extended)
+// ============================================================
+
+model sba_components {
+  sba_component_id Int    @id @default(autoincrement())
+  name             String @default("")
+  code             String @default("")
+  description      String @default("")
+  weight           Float  @default(0)
+  max_score        Float  @default(100)
+  is_active        Int    @default(1)
+
+  @@map("sba_components")
+}
+
+model sba_score_sources {
+  sba_score_source_id Int    @id @default(autoincrement())
+  component_id        Int?
+  source_name         String @default("")
+  source_type         String @default("")
+  weight              Float  @default(0)
+  max_score           Float  @default(100)
+
+  @@index([component_id])
+  @@map("sba_score_sources")
+}
+
+model sba_weight_config {
+  sba_weight_config_id Int    @id @default(autoincrement())
+  class_id            Int?
+  subject_id          Int?
+  year                String @default("")
+  term                String @default("")
+  component_id        Int?
+  weight              Float  @default(0)
+
+  @@index([class_id])
+  @@index([subject_id])
+  @@index([component_id])
+  @@map("sba_weight_config")
+}
+
+model portfolio_aggregates {
+  portfolio_aggregate_id Int    @id @default(autoincrement())
+  student_id             Int?
+  class_id               Int?
+  subject_id             Int?
+  year                   String @default("")
+  term                   String @default("")
+  total_score            Float  @default(0)
+  weighted_score         Float  @default(0)
+  grade                  String @default("")
+  calculated_at          DateTime?
+
+  @@index([student_id])
+  @@index([class_id])
+  @@index([subject_id])
+  @@map("portfolio_aggregates")
+}
+
+model portfolio_audit_trail {
+  portfolio_audit_trail_id Int       @id @default(autoincrement())
+  header_id                 Int?
+  action                    String    @default("")
+  previous_value            String    @default("")
+  new_value                 String    @default("")
+  performed_by              String    @default("")
+  created_at                DateTime?
+
+  @@index([header_id])
+  @@map("portfolio_audit_trail")
+}
+
+// ============================================================
+// SYNC
+// ============================================================
+
+model sync_config {
+  sync_config_id  Int    @id @default(autoincrement())
+  config_name     String @default("")
+  sync_direction  String @default("pull")
+  source_url      String @default("")
+  api_key         String @default("")
+  interval_minutes Int   @default(60)
+  is_active       Int    @default(1)
+  last_sync       DateTime?
+
+  @@map("sync_config")
+}
+
+model sync_devices {
+  sync_device_id Int    @id @default(autoincrement())
+  device_name    String @default("")
+  device_type    String @default("")
+  device_token   String @unique @default("")
+  last_sync      DateTime?
+  is_active      Int    @default(1)
+
+  @@index([device_token])
+  @@map("sync_devices")
+}
+
+model sync_log {
+  sync_log_id  Int       @id @default(autoincrement())
+  device_id    Int?
+  config_id    Int?
+  table_name   String    @default("")
+  action       String    @default("")
+  records_sync Int       @default(0)
+  status       String    @default("")
+  error_message String   @default("")
+  started_at   DateTime?
+  completed_at DateTime?
+
+  @@index([device_id])
+  @@index([config_id])
+  @@map("sync_log")
+}
+
+model sync_metadata {
+  sync_metadata_id Int    @id @default(autoincrement())
+  device_id        Int?
+  table_name       String @default("")
+  last_synced_id   Int    @default(0)
+  last_synced_at   DateTime?
+  checksum         String @default("")
+
+  @@index([device_id])
+  @@index([table_name])
+  @@map("sync_metadata")
+}
+
+model sync_queue {
+  sync_queue_id Int       @id @default(autoincrement())
+  device_id     Int?
+  table_name    String    @default("")
+  action        String    @default("")
+  record_id     Int?
+  record_data   String    @default("")
+  status        String    @default("pending")
+  created_at    DateTime?
+  processed_at  DateTime?
+
+  @@index([device_id])
+  @@index([status])
+  @@map("sync_queue")
+}
+
+model sync_conflicts {
+  sync_conflict_id Int       @id @default(autoincrement())
+  device_id        Int?
+  table_name       String    @default("")
+  record_id        Int?
+  local_data       String    @default("")
+  remote_data      String    @default("")
+  resolution       String    @default("")
+  resolved_by      String    @default("")
+  created_at       DateTime?
+  resolved_at      DateTime?
+
+  @@index([device_id])
+  @@index([table_name])
+  @@map("sync_conflicts")
+}
+
+// ============================================================
+// INVENTORY (Extended)
+// ============================================================
+
+model inventory_stock_movements {
+  stock_movement_id Int       @id @default(autoincrement())
+  product_id        Int?
+  movement_type     String    @default("")
+  quantity          Float     @default(0)
+  previous_stock    Float     @default(0)
+  new_stock         Float     @default(0)
+  unit_cost         Float     @default(0)
+  reference         String    @default("")
+  performed_by      String    @default("")
+  movement_date     DateTime?
+  notes             String    @default("")
+
+  @@index([product_id])
+  @@index([movement_date])
+  @@map("inventory_stock_movements")
+}
+
+model inventory_suppliers {
+  supplier_id  Int    @id @default(autoincrement())
+  name         String @default("")
+  contact_name String @default("")
+  phone        String @default("")
+  email        String @default("")
+  address      String @default("")
+  is_active    Int    @default(1)
+
+  @@map("inventory_suppliers")
+}
+
+model inventory_locations {
+  location_id  Int    @id @default(autoincrement())
+  name         String @default("")
+  description  String @default("")
+  address      String @default("")
+  is_active    Int    @default(1)
+
+  @@map("inventory_locations")
+}
+
+model inventory_audit_log {
+  inventory_audit_log_id Int       @id @default(autoincrement())
+  product_id             Int?
+  action                 String    @default("")
+  quantity               Float     @default(0)
+  previous_quantity      Float     @default(0)
+  new_quantity           Float     @default(0)
+  performed_by           String    @default("")
+  created_at             DateTime?
+  notes                  String    @default("")
+
+  @@index([product_id])
+  @@map("inventory_audit_log")
+}
+
+// ============================================================
+// BOARDING (Extended)
+// ============================================================
+
+model boarding_bed {
+  boarding_bed_id  Int    @id @default(autoincrement())
+  dormitory_id     Int?
+  bed_number       String @default("")
+  room_number      String @default("")
+  bed_type         String @default("")
+  is_occupied      Int    @default(0)
+  student_id       Int?
+  condition        String @default("good")
+
+  @@index([dormitory_id])
+  @@index([student_id])
+  @@map("boarding_bed")
+}
+
+model boarding_dormitory {
+  boarding_dormitory_id Int    @id @default(autoincrement())
+  name                  String @default("")
+  description           String @default("")
+  house_id              Int?
+  number_of_rooms       Int    @default(0)
+  number_of_beds        Int    @default(0)
+  occupied_beds         Int    @default(0)
+  house_master          String @default("")
+  is_active             Int    @default(1)
+
+  @@index([house_id])
+  @@map("boarding_dormitory")
+}
+
+// ============================================================
+// FRONTEND (Extended)
+// ============================================================
+
+model social_media {
+  social_media_id Int    @id @default(autoincrement())
+  platform        String @default("")
+  url             String @default("")
+  icon            String @default("")
+  is_active       Int    @default(1)
+
+  @@map("social_media")
+}
+
+model request {
+  request_id  Int       @id @default(autoincrement())
+  name        String    @default("")
+  email       String    @default("")
+  phone       String    @default("")
+  subject     String    @default("")
+  message     String    @default("")
+  status      String    @default("pending")
+  created_at  DateTime?
+
+  @@map("request")
+}
+
+// ============================================================
+// OTHER TABLES
+// ============================================================
+
+model alumni {
+  alumni_id    Int       @id @default(autoincrement())
+  student_id   Int?
+  name         String    @default("")
+  email        String    @default("")
+  phone        String    @default("")
+  graduation_year String @default("")
+  current_occupation String @default("")
+  address      String    @default("")
+  is_active    Int       @default(1)
+  created_at   DateTime?
+
+  @@index([student_id])
+  @@index([graduation_year])
+  @@map("alumni")
+}
+
+model ci_sessions {
+  session_id   String @id
+  ip_address   String @default("")
+  timestamp    Int    @default(0)
+  data         String @default("")
+
+  @@map("ci_sessions")
+}
+
+model flutter_user {
+  flutter_user_id Int    @id @default(autoincrement())
+  user_id         Int?
+  user_type       String @default("")
+  device_token    String @default("")
+  device_type     String @default("")
+  app_version     String @default("")
+  last_login      DateTime?
+  is_active       Int    @default(1)
+
+  @@index([user_id])
+  @@map("flutter_user")
+}
+
+model owner {
+  owner_id    Int    @id @default(autoincrement())
+  name        String @default("")
+  email       String @default("")
+  phone       String @default("")
+  address     String @default("")
+  is_active   Int    @default(1)
+
+  @@map("owner")
+}
+
+model visitor_tracker {
+  visitor_id    Int       @id @default(autoincrement())
+  visitor_name  String    @default("")
+  visitor_phone String    @default("")
+  visitor_email String    @default("")
+  purpose       String    @default("")
+  person_to_see String    @default("")
+  check_in      DateTime?
+  check_out     DateTime?
+  badge_number  String    @default("")
+  notes         String    @default("")
+
+  @@index([check_in])
+  @@map("visitor_tracker")
+}
+
+model form_field_preferences {
+  preference_id Int    @id @default(autoincrement())
+  form_name     String @default("")
+  field_name    String @default("")
+  is_visible    Int    @default(1)
+  is_required   Int    @default(0)
+  sort_order    Int    @default(0)
+
+  @@index([form_name])
+  @@map("form_field_preferences")
+}
+
+model to_do_list {
+  to_do_list_id Int       @id @default(autoincrement())
+  title         String    @default("")
+  description   String    @default("")
+  assigned_to   String    @default("")
+  due_date      DateTime?
+  priority      String    @default("medium")
+  status        String    @default("pending")
+  created_by    String    @default("")
+  created_at    DateTime?
+
+  @@index([assigned_to])
+  @@index([status])
+  @@map("to_do_list")
+}
+
+model loan {
+  loan_id       Int       @id @default(autoincrement())
+  borrower_type String    @default("")
+  borrower_id   Int?
+  amount        Float     @default(0)
+  interest_rate Float     @default(0)
+  duration_months Int     @default(0)
+  start_date    DateTime?
+  end_date      DateTime?
+  total_repayable Float    @default(0)
+  status        String    @default("active")
+  notes         String    @default("")
+
+  @@index([borrower_id])
+  @@map("loan")
+}
+
+model loan_installment {
+  loan_installment_id Int       @id @default(autoincrement())
+  loan_id            Int?
+  installment_number Int       @default(1)
+  amount             Float     @default(0)
+  due_date           DateTime?
+  paid_date          DateTime?
+  paid_amount        Float     @default(0)
+  status             String    @default("pending")
+
+  @@index([loan_id])
+  @@map("loan_installment")
+}
+
+model fee_collection_assignments {
+  fee_collection_assignment_id Int    @id @default(autoincrement())
+  collector_id                  Int?
+  class_id                      Int?
+  section_id                    Int?
+  year                          String @default("")
+  term                          String @default("")
+  is_active                     Int    @default(1)
+
+  @@index([collector_id])
+  @@index([class_id])
+  @@map("fee_collection_assignments")
+}
+
+model fee_structures {
+  fee_structure_id   Int    @id @default(autoincrement())
+  name               String @default("")
+  class_id           Int?
+  section_id         Int?
+  year               String @default("")
+  term               String @default("")
+  total_amount       Float  @default(0)
+  description        String @default("")
+  is_active          Int    @default(1)
+
+  @@index([class_id])
+  @@map("fee_structures")
+}
+
+model attendance_billing_log {
+  attendance_billing_log_id Int       @id @default(autoincrement())
+  attendance_id             Int?
+  student_id                Int?
+  charge_type               String    @default("")
+  amount                    Float     @default(0)
+  billing_date              DateTime?
+  status                    String    @default("")
+
+  @@index([attendance_id])
+  @@index([student_id])
+  @@map("attendance_billing_log")
+}
+
+model field_visit {
+  field_visit_id   Int       @id @default(autoincrement())
+  title           String    @default("")
+  description     String    @default("")
+  destination     String    @default("")
+  class_id        Int?
+  visitor_ids     String    @default("")
+  visit_date      DateTime?
+  return_date     DateTime?
+  status          String    @default("planned")
+  notes           String    @default("")
+  created_by      String    @default("")
+
+  @@index([class_id])
+  @@index([visit_date])
+  @@map("field_visit")
+}
+
+model penalty {
+  penalty_id   Int       @id @default(autoincrement())
+  student_id   Int?
+  type        String    @default("")
+  description String    @default("")
+  amount      Float     @default(0)
+  penalty_date DateTime?
+  status      String    @default("active")
+  applied_by  String    @default("")
+
+  @@index([student_id])
+  @@map("penalty")
+}
+
+model water_charge_log {
+  water_charge_log_id Int       @id @default(autoincrement())
+  student_id          Int?
+  charge_date         DateTime?
+  amount              Float     @default(0)
+  status              String    @default("")
+  collected_by        String    @default("")
+
+  @@index([student_id])
+  @@index([charge_date])
+  @@map("water_charge_log")
+}
+
+model user_permission {
+  user_permission_id Int    @id @default(autoincrement())
+  user_id            Int?
+  user_type          String @default("")
+  module             String @default("")
+  can_view           Int    @default(0)
+  can_add            Int    @default(0)
+  can_edit           Int    @default(0)
+  can_delete         Int    @default(0)
+
+  @@index([user_id])
+  @@index([user_type])
+  @@index([module])
+  @@map("user_permission")
+}
+
+model noticeboard {
+  noticeboard_id Int       @id @default(autoincrement())
+  title          String    @default("")
+  content        String    @default("")
+  category       String    @default("")
+  priority       String    @default("normal")
+  is_pinned      Int       @default(0)
+  target_audience String   @default("")
+  attachments    String    @default("")
+  created_by     String    @default("")
+  created_at     DateTime?
+  updated_at     DateTime?
+  expires_at     DateTime?
+  is_active      Int       @default(1)
+
+  @@index([category])
+  @@index([created_at])
+  @@map("noticeboard")
+}

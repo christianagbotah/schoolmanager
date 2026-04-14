@@ -82,9 +82,9 @@ export async function POST(req: NextRequest) {
     const totalAmount = items.reduce((sum: number, item: { amount: number }) => sum + item.amount, 0);
     const invoiceCode = `INV-${new Date().getFullYear().toString().slice(2)}-${String(Date.now()).slice(-4)}`;
 
-    const results = [];
+    const results: any[] = [];
     for (const studentId of studentIds) {
-      const invoice = await db.invoice.create({
+      const invoice = await (db.invoice as any).create({
         data: {
           student_id: studentId,
           title: `${term} Fees - ${year}`,

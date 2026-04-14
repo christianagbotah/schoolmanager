@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
       where: { student_id: studentIdNum },
       include: {
         daily_fee_wallet: true,
-        enroll: { where: { year: '2026', term: 'Term 1' }, take: 1, include: { class: true } },
+        enrolls: { where: { year: '2026', term: 'Term 1' }, take: 1, include: { class: true } },
       },
     });
 
@@ -24,8 +24,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
-    const enroll = student.enroll[0];
-    let rates = null;
+    const enroll = student.enrolls[0];
+    let rates: { class_id: number; year: string; id: number; term: string; feeding_rate: number; breakfast_rate: number; classes_rate: number; water_rate: number } | null = null;
     if (enroll) {
       rates = await db.daily_fee_rates.findFirst({
         where: { class_id: enroll.class_id, year: '2026', term: 'Term 1' },

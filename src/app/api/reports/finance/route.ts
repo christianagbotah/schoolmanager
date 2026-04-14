@@ -62,11 +62,10 @@ export async function GET(req: NextRequest) {
 
     // Outstanding by class
     const outstandingByClass = await db.invoice.groupBy({
-      by: ['class_name'],
+      by: ['class_name', 'due'],
       where: { status: { in: ['unpaid', 'partial', 'overdue'] }, year },
       _sum: { due: true },
-      having: { due: { gt: 0 } },
-    });
+    }).then(results => results.filter(r => (r._sum.due ?? 0) > 0));
 
     // Payment method distribution
     const methodDistribution = await db.payment.groupBy({

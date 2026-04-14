@@ -101,6 +101,7 @@ export async function GET(request: NextRequest) {
         grade_comment: grade?.comment || '',
         subjects_count: subjects.length,
         marks_entered: marksArray.filter(m => m > 0).length,
+        rank: 0,
       }
     })
 

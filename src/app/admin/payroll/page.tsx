@@ -18,7 +18,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 interface Employee {
-  id: number; emp_id: string; name: string; salary: number;
+  id: number; emp_id: string; name: string; salary: number; active_status: number;
   department: { dep_name: string } | null;
   designation: { des_name: string } | null;
 }
@@ -36,7 +36,7 @@ export default function PayrollPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1).toString();
+  const [selectedMonth, setSelectedMonth] = useState(String(new Date().getMonth() + 1));
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
   const [filterStatus, setFilterStatus] = useState("all");
   const [processing, setProcessing] = useState(false);
@@ -119,11 +119,11 @@ export default function PayrollPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div className="flex items-center gap-2 flex-shrink-0">
                 <CalendarDays className="w-5 h-5 text-slate-500" />
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <Select value={selectedMonth} onValueChange={(v) => setSelectedMonth(v)}>
                   <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
                   <SelectContent>{months.map((m, i) => <SelectItem key={i} value={(i + 1).toString()}>{m}</SelectItem>)}</SelectContent>
                 </Select>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <Select value={selectedYear} onValueChange={(v) => setSelectedYear(v)}>
                   <SelectTrigger className="w-[100px]"><SelectValue /></SelectTrigger>
                   <SelectContent><SelectItem value="2025">2025</SelectItem><SelectItem value="2024">2024</SelectItem></SelectContent>
                 </Select>

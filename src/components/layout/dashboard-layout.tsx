@@ -6,8 +6,10 @@ import { cn } from "@/lib/utils";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
 import { MetroMenu } from "./metro-menu";
+import { BottomNav } from "./bottom-nav";
 import { Footer } from "./footer";
 import { useAuth } from "@/hooks/use-auth";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -33,7 +35,7 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
     }
   }, [isLoading, isAuthenticated, pathname, router]);
 
-  // Auto-open metro menu on root dashboard after 1 second
+  // Auto-open metro menu on root dashboard after 1 second (desktop only)
   const metroAutoOpened = useRef(false);
   useEffect(() => {
     if (pathname === "/" && !metroAutoOpened.current && !metroOpen) {
@@ -45,13 +47,27 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
     }
   }, [pathname, metroOpen]);
 
-  // Show loading spinner only while session is being checked (not forever)
+  // Loading skeleton
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-slate-500">Loading...</p>
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        {/* Skeleton header */}
+        <div className="h-14 md:h-16 bg-[#0a0069] border-b-4 border-red-500 flex items-center px-4 gap-4">
+          <Skeleton className="h-10 w-10 rounded-lg bg-white/10" />
+          <Skeleton className="h-6 w-32 rounded bg-white/10" />
+          <div className="flex-1" />
+          <Skeleton className="h-10 w-10 rounded-lg bg-white/10" />
+          <Skeleton className="h-10 w-10 rounded-lg bg-white/10" />
+        </div>
+        {/* Skeleton content */}
+        <div className="flex-1 p-4 md:p-8 space-y-4">
+          <Skeleton className="h-8 w-64 rounded-lg" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-28 rounded-xl" />
+            ))}
+          </div>
+          <Skeleton className="h-64 rounded-xl" />
         </div>
       </div>
     );
@@ -63,34 +79,44 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-50" key={pathname}>
-      {/* Desktop Sidebar */}
+    <div className="min-h-screen flex bg-gray-50">
+      {/* Desktop & Tablet Sidebar */}
       <Sidebar
         mobileOpen={mobileSidebarOpen}
         onCloseMobile={closeMobileSidebar}
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         {/* Header */}
         <Header
           onMenuClick={() => setMobileSidebarOpen(true)}
           onMetroToggle={() => setMetroOpen((prev) => !prev)}
         />
 
-        {/* Content */}
+        {/* Content with CSS-based page transition */}
         <main
+          key={pathname}
           className={cn(
-            "flex-1 p-4 pt-6 md:p-8 md:pt-8 lg:p-10 lg:pt-10",
+            "flex-1 p-4 pt-5 md:p-6 md:pt-8 lg:p-8 lg:pt-10",
+            "animate-fade-in",
             className
           )}
         >
           {children}
         </main>
 
-        {/* Footer */}
-        <Footer />
+        {/* Footer - hidden on mobile to make room for bottom nav */}
+        <div className="hidden md:block">
+          <Footer />
+        </div>
+
+        {/* Bottom padding for mobile bottom nav */}
+        <div className="md:hidden h-16 flex-shrink-0" />
       </div>
+
+      {/* Bottom Navigation - mobile only */}
+      <BottomNav />
 
       {/* Metro Menu Overlay */}
       <MetroMenu

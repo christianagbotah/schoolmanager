@@ -19,9 +19,9 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const { rates } = body;
 
-    const results = [];
+    const results: any[] = [];
     for (const rate of rates) {
-      const updated = await db.daily_fee_rates.upsert({
+      const updated = await (db.daily_fee_rates as any).upsert({
         where: { id: rate.id || 0 },
         update: {
           feeding_rate: rate.feeding_rate,

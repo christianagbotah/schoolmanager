@@ -1,0 +1,269 @@
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import {
+  MessageSquare,
+  Send,
+  Inbox,
+  Plus,
+  Loader2,
+  AlertTriangle,
+  Search,
+  User,
+  Clock,
+  Reply,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import { useAuth } from "@/hooks/use-auth";
+import { format } from "date-fns";
+
+// ─── Types ───────────────────────────────────────────────────
+interface Message {
+  id: number;
+  sender_id: number;
+  receiver_id: number;
+  subject: string;
+  body: string;
+  is_read: boolean;
+  created_at: string;
+  sender: { name: string; role?: string };
+  receiver: { name: string; role?: string };
+}
+
+// ─── Main Component ──────────────────────────────────────────
+export default function TeacherMessagesPage() {
+  const { user, isLoading: authLoading } = useAuth();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [selectedMsg, setSelectedMsg] = useState<Message | null>(null);
+
+  // Compose form
+  const [composeTo, setComposeTo] = useState("");
+  const [composeSubject, setComposeSubject] = useState("");
+  const [composeBody, setComposeBody] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  const fetchMessages = useCallback(async () => {
+    if (!user?.id) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/messages?userId=${user.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setMessages(Array.isArray(data) ? data : []);
+      }
+    } catch {
+      setError("Failed to load messages");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!authLoading) fetchMessages();
+  }, [authLoading, fetchMessages]);
+
+  const handleSend = async () => {
+    if (!composeTo || !composeSubject || !composeBody) return;
+    setIsSending(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sender_id: user?.id,
+          receiver_id: parseInt(composeTo),
+          subject: composeSubject,
+          body: composeBody,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to send");
+      setSuccessMsg("Message sent successfully");
+      setComposeOpen(false);
+      setComposeTo(""); setComposeSubject(""); setComposeBody("");
+      fetchMessages();
+    } catch {
+      setError("Failed to send message");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const unreadCount = messages.filter((m) => !m.is_read && m.receiver_id === parseInt(user?.id || "0")).length;
+
+  const filteredMessages = messages.filter((m) => {
+    const q = search.toLowerCase();
+    return m.subject?.toLowerCase().includes(q) || m.body?.toLowerCase().includes(q) || m.sender?.name?.toLowerCase().includes(q);
+  });
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-6">
+          <Skeleton className="h-8 w-48" />
+          <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Messages</h1>
+              <p className="text-sm text-slate-500 mt-1">Communication with parents and staff</p>
+            </div>
+            {unreadCount > 0 && (
+              <Badge className="bg-red-500 text-white">{unreadCount} unread</Badge>
+            )}
+          </div>
+          <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-emerald-600 hover:bg-emerald-700 min-w-[44px] min-h-[44px]">
+                <Plus className="w-4 h-4 mr-2" />Compose
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>New Message</DialogTitle></DialogHeader>
+              <div className="space-y-4 mt-4">
+                {error && <div className="flex items-center gap-2 p-3 rounded-lg text-sm bg-red-50 text-red-700 border border-red-200"><AlertTriangle className="w-4 h-4" />{error}</div>}
+                {successMsg && <div className="flex items-center gap-2 p-3 rounded-lg text-sm bg-emerald-50 text-emerald-700 border border-emerald-200"><AlertTriangle className="w-4 h-4" />{successMsg}</div>}
+                <div className="space-y-2">
+                  <Label>To (User ID)</Label>
+                  <Input value={composeTo} onChange={(e) => setComposeTo(e.target.value)} placeholder="Enter recipient ID" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Subject</Label>
+                  <Input value={composeSubject} onChange={(e) => setComposeSubject(e.target.value)} placeholder="Message subject" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Message</Label>
+                  <Textarea value={composeBody} onChange={(e) => setComposeBody(e.target.value)} rows={4} placeholder="Type your message..." />
+                </div>
+                <Button onClick={handleSend} disabled={isSending} className="w-full bg-emerald-600 hover:bg-emerald-700 min-h-[44px]">
+                  {isSending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}Send Message
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* ─── Search ──────────────────────────────────────── */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Input placeholder="Search messages..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+        </div>
+
+        {/* ─── Messages List ───────────────────────────────── */}
+        <Card className="gap-4">
+          <CardContent className="pt-6">
+            {filteredMessages.length === 0 ? (
+              <div className="text-center py-12">
+                <Inbox className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-400 text-sm">No messages yet</p>
+              </div>
+            ) : (
+              <ScrollArea className="max-h-[500px]">
+                <div className="space-y-2">
+                  {filteredMessages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                        selectedMsg?.id === msg.id ? "border-emerald-300 bg-emerald-50" :
+                        !msg.is_read && msg.receiver_id === parseInt(user?.id || "0") ? "bg-slate-50 border-slate-200" :
+                        "border-slate-100 hover:bg-slate-50"
+                      }`}
+                      onClick={() => setSelectedMsg(msg)}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3 min-w-0">
+                          <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
+                            <User className="w-4 h-4 text-slate-500" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className={`text-sm ${!msg.is_read && msg.receiver_id === parseInt(user?.id || "0") ? "font-bold text-slate-900" : "font-medium text-slate-700"}`}>
+                                {msg.sender?.name || "Unknown"}
+                              </p>
+                              {!msg.is_read && msg.receiver_id === parseInt(user?.id || "0") && (
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
+                              )}
+                            </div>
+                            <p className="text-sm font-medium text-slate-900 truncate">{msg.subject}</p>
+                            <p className="text-xs text-slate-400 line-clamp-1 mt-0.5">{msg.body}</p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-slate-400 whitespace-nowrap flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {msg.created_at ? format(new Date(msg.created_at), "MMM d, HH:mm") : ""}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* ─── Message Detail ──────────────────────────────── */}
+        {selectedMsg && (
+          <Card className="gap-4">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold">{selectedMsg.subject}</CardTitle>
+                <Button variant="outline" size="sm" onClick={() => { setComposeOpen(true); setComposeSubject(`Re: ${selectedMsg.subject}`); }} className="min-w-[44px] min-h-[44px]">
+                  <Reply className="w-4 h-4 mr-1" />Reply
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex items-center gap-3 mb-4 text-sm">
+                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center">
+                  <User className="w-4 h-4 text-slate-500" />
+                </div>
+                <div>
+                  <p className="font-medium text-slate-900">{selectedMsg.sender?.name || "Unknown"}</p>
+                  <p className="text-xs text-slate-400">{selectedMsg.created_at ? format(new Date(selectedMsg.created_at), "EEEE, MMMM d, yyyy 'at' HH:mm") : ""}</p>
+                </div>
+              </div>
+              <div className="bg-slate-50 rounded-lg p-4 text-sm text-slate-700 whitespace-pre-wrap">
+                {selectedMsg.body}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </DashboardLayout>
+  );
+}

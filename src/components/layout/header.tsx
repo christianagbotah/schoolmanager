@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Menu,
   Bell,
@@ -9,6 +9,8 @@ import {
   Settings,
   User,
   LayoutGrid,
+  Search,
+  X,
   FileText,
   CreditCard,
   DollarSign,
@@ -33,6 +35,8 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/use-auth";
 import { roleLabels, roleColors } from "@/config/menu";
+import { usePathname } from "next/navigation";
+import { BackButton } from "./back-button";
 import type { UserRole } from "@/lib/auth";
 
 interface HeaderProps {
@@ -42,7 +46,11 @@ interface HeaderProps {
 
 export function Header({ onMenuClick, onMetroToggle }: HeaderProps) {
   const { user, role, logout } = useAuth();
+  const pathname = usePathname();
   const [notifications] = useState(3);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const getInitials = (name: string) => {
     return name
@@ -57,41 +65,102 @@ export function Header({ onMenuClick, onMetroToggle }: HeaderProps) {
     ? roleColors[role as UserRole] || "bg-slate-100 text-slate-700"
     : "bg-slate-100 text-slate-700";
 
+  // Auto-close search on Escape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && searchOpen) {
+        setSearchOpen(false);
+        setSearchQuery("");
+      }
+      // Ctrl/Cmd+K to open search
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+        setTimeout(() => searchInputRef.current?.focus(), 100);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [searchOpen]);
+
+  // Focus search input when opened
+  useEffect(() => {
+    if (searchOpen) {
+      setTimeout(() => searchInputRef.current?.focus(), 150);
+    }
+  }, [searchOpen]);
+
+  const handleSearchSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (searchQuery.trim()) {
+        // Navigate to students page with search query
+        const basePath = role === "admin" ? "/admin/students" : `/${role}`;
+        window.location.href = `${basePath}?search=${encodeURIComponent(searchQuery.trim())}`;
+        setSearchOpen(false);
+        setSearchQuery("");
+      }
+    },
+    [searchQuery, role]
+  );
+
   return (
     <header className="sticky top-0 z-30 bg-[#0a0069] border-b-4 border-red-500">
       <div className="flex items-center justify-between h-14 md:h-16 px-3 md:px-6">
         {/* Left Section */}
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-2 md:gap-3 min-w-0">
           {/* Mobile Menu Button */}
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden h-9 w-9 text-white hover:bg-white/10 hover:text-white"
+            className="md:hidden h-10 w-10 text-white hover:bg-white/10 hover:text-white flex-shrink-0"
             onClick={onMenuClick}
+            aria-label="Open menu"
           >
             <Menu className="w-5 h-5" />
           </Button>
 
-          {/* School Name */}
-          <h1 className="text-white font-extrabold text-sm md:text-2xl lg:text-4xl truncate">
+          {/* Back Button (deep navigation) */}
+          <BackButton className="text-white/80 hover:text-white hover:bg-white/10" label="Back" showLabelMobile={false} />
+
+          {/* School Name - adaptive sizing */}
+          <h1 className="text-white font-extrabold text-sm sm:text-lg md:text-2xl lg:text-4xl truncate">
             School Manager
           </h1>
 
-          {/* Metro Menu Trigger */}
+          {/* Metro Menu Trigger - hidden on mobile */}
           <button
             onClick={onMetroToggle}
-            className="w-10 h-10 md:w-[60px] md:h-[60px] bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-colors flex-shrink-0"
+            className="hidden md:flex w-10 h-10 md:w-[60px] md:h-[60px] bg-white/10 backdrop-blur-sm rounded-lg items-center justify-center text-white hover:bg-white/20 transition-colors flex-shrink-0"
             aria-label="Open start menu"
           >
             <LayoutGrid className="w-5 h-5 md:w-7 md:h-7" />
           </button>
         </div>
 
-        {/* Center: Quick Actions (desktop) */}
+        {/* Center: Search (desktop) */}
+        <div className="hidden lg:flex items-center flex-1 max-w-md mx-6">
+          <form onSubmit={handleSearchSubmit} className="w-full relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search students, teachers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-9 bg-white/10 border border-white/20 rounded-lg pl-10 pr-16 text-sm text-white placeholder-white/50 outline-none focus:ring-1 focus:ring-white/30 focus:bg-white/15 transition-all"
+            />
+            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/40 bg-white/10 px-1.5 py-0.5 rounded border border-white/10 font-mono">
+              ⌘K
+            </kbd>
+          </form>
+        </div>
+
+        {/* Center: Quick Actions (desktop xl) */}
         <div className="hidden xl:flex items-center gap-2">
           <Button
             size="sm"
-            className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 py-2 text-xs font-semibold shadow-md"
+            className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 py-2 text-xs font-semibold shadow-md active:scale-95 transition-transform"
             onClick={() => {}}
           >
             <FileText className="w-4 h-4 mr-1.5" />
@@ -99,7 +168,7 @@ export function Header({ onMenuClick, onMetroToggle }: HeaderProps) {
           </Button>
           <Button
             size="sm"
-            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg px-4 py-2 text-xs font-semibold shadow-md"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg px-4 py-2 text-xs font-semibold shadow-md active:scale-95 transition-transform"
             onClick={() => {}}
           >
             <CreditCard className="w-4 h-4 mr-1.5" />
@@ -107,7 +176,7 @@ export function Header({ onMenuClick, onMetroToggle }: HeaderProps) {
           </Button>
           <Button
             size="sm"
-            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg px-4 py-2 text-xs font-semibold shadow-md"
+            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg px-4 py-2 text-xs font-semibold shadow-md active:scale-95 transition-transform"
             onClick={() => {}}
           >
             <DollarSign className="w-4 h-4 mr-1.5" />
@@ -116,9 +185,20 @@ export function Header({ onMenuClick, onMetroToggle }: HeaderProps) {
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-2 md:gap-3">
-          {/* Year/Term Selectors (desktop) */}
-          <div className="hidden lg:flex items-center gap-2">
+        <div className="flex items-center gap-1.5 md:gap-3">
+          {/* Mobile Search Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden h-10 w-10 text-white hover:bg-white/10 hover:text-white"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search"
+          >
+            <Search className="w-5 h-5" />
+          </Button>
+
+          {/* Year/Term Selectors (desktop/tablet) */}
+          <div className="hidden md:flex items-center gap-2">
             <Select defaultValue="2024-2025">
               <SelectTrigger className="w-[120px] md:w-[150px] h-9 text-xs bg-cyan-600 border-cyan-600 text-white hover:bg-cyan-700 rounded-lg">
                 <SelectValue placeholder="Year" />
@@ -146,7 +226,8 @@ export function Header({ onMenuClick, onMetroToggle }: HeaderProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative h-9 w-9 text-white hover:bg-white/10 hover:text-white"
+                className="relative h-10 w-10 text-white hover:bg-white/10 hover:text-white"
+                aria-label="Notifications"
               >
                 <Bell className="w-5 h-5" />
                 {notifications > 0 && (
@@ -202,7 +283,7 @@ export function Header({ onMenuClick, onMetroToggle }: HeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="h-9 gap-2 px-2 lg:px-3 text-white hover:bg-white/10 hover:text-white"
+                className="h-10 gap-2 px-2 lg:px-3 text-white hover:bg-white/10 hover:text-white"
               >
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white text-xs font-semibold">
@@ -254,6 +335,35 @@ export function Header({ onMenuClick, onMetroToggle }: HeaderProps) {
           </DropdownMenu>
         </div>
       </div>
+
+      {/* Mobile Search Overlay */}
+      {searchOpen && (
+        <div className="lg:hidden absolute top-full left-0 right-0 bg-[#0a0069]/95 backdrop-blur-lg border-b border-white/10 p-3 animate-fade-in z-30">
+          <form onSubmit={handleSearchSubmit} className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search students, teachers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-12 bg-white/10 border border-white/20 rounded-xl pl-10 pr-10 text-sm text-white placeholder-white/50 outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/15 transition-all"
+              autoComplete="off"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setSearchOpen(false);
+                setSearchQuery("");
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-white/50 hover:text-white rounded-full hover:bg-white/10 transition-colors"
+              aria-label="Close search"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </form>
+        </div>
+      )}
     </header>
   );
 }

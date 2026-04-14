@@ -182,6 +182,25 @@ const teacherMenus: MenuSection[] = [
     items: [
       { label: "Mark Entry", href: "/teacher/marks", icon: FileText, permission: "can_enter_marks" },
       { label: "Class Routine", href: "/teacher/routine", icon: Calendar, permission: "can_view_class_routine" },
+      { label: "Students", href: "/teacher/students", icon: GraduationCap, permission: "can_view_students_list" },
+      { label: "Syllabus", href: "/teacher/syllabus", icon: BookMarked, permission: "can_manage_classes" },
+      { label: "Study Materials", href: "/teacher/study-material", icon: FileClock, permission: "can_manage_subjects" },
+      { label: "Online Exams", href: "/teacher/online-exams", icon: Trophy, permission: "can_manage_exams" },
+    ],
+  },
+  {
+    title: "Communication",
+    items: [
+      { label: "Messages", href: "/teacher/messages", icon: MessageSquare, permission: "can_send_messages" },
+      { label: "Noticeboard", href: "/teacher/notices", icon: Megaphone, permission: null },
+    ],
+  },
+  {
+    title: "Resources",
+    items: [
+      { label: "Library", href: "/teacher/library", icon: LibraryIcon, permission: "can_manage_books" },
+      { label: "Transport", href: "/teacher/transport", icon: Bus, permission: null },
+      { label: "My Payslips", href: "/teacher/payslips", icon: Banknote, permission: null },
     ],
   },
   {
@@ -204,8 +223,23 @@ const studentMenus: MenuSection[] = [
   {
     title: "Academic",
     items: [
+      { label: "Attendance", href: "/student/attendance", icon: CheckSquare, permission: null },
       { label: "Class Routine", href: "/student/routine", icon: Calendar, permission: "can_view_own_routine" },
+      { label: "Online Exams", href: "/student/online-exams", icon: Trophy, permission: null },
+    ],
+  },
+  {
+    title: "Resources",
+    items: [
       { label: "Library", href: "/student/library", icon: LibraryIcon, permission: "can_request_books" },
+      { label: "Transport", href: "/student/transport", icon: Bus, permission: null },
+    ],
+  },
+  {
+    title: "Communication",
+    items: [
+      { label: "Messages", href: "/student/messages", icon: MessageSquare, permission: null },
+      { label: "Noticeboard", href: "/student/notices", icon: Megaphone, permission: null },
     ],
   },
 ];
@@ -215,6 +249,7 @@ const parentMenus: MenuSection[] = [
     title: "Main",
     items: [
       { label: "Dashboard", href: "/parent", icon: LayoutDashboard, permission: null },
+      { label: "My Children", href: "/parent/children", icon: Users, permission: null },
       { label: "Children's Results", href: "/parent/results", icon: FileText, permission: "can_view_children_results" },
     ],
   },
@@ -228,6 +263,23 @@ const parentMenus: MenuSection[] = [
     title: "Academic",
     items: [
       { label: "Attendance", href: "/parent/attendance", icon: CheckSquare, permission: "can_view_children_attendance" },
+      { label: "Teachers", href: "/parent/teachers", icon: User, permission: null },
+      { label: "Syllabus", href: "/parent/syllabus", icon: BookMarked, permission: null },
+      { label: "Class Routine", href: "/parent/routine", icon: Calendar, permission: null },
+    ],
+  },
+  {
+    title: "Resources",
+    items: [
+      { label: "Library", href: "/parent/library", icon: LibraryIcon, permission: null },
+      { label: "Transport", href: "/parent/transport", icon: Bus, permission: null },
+    ],
+  },
+  {
+    title: "Communication",
+    items: [
+      { label: "Messages", href: "/parent/messages", icon: MessageSquare, permission: null },
+      { label: "Noticeboard", href: "/parent/notices", icon: Megaphone, permission: null },
     ],
   },
 ];

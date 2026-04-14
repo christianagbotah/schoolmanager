@@ -31,10 +31,10 @@ export async function POST(req: NextRequest) {
     const activeStudents = enrolls.filter(e => e.student.active_status === 1);
     const totalAmount = items.reduce((sum: number, item: { amount: number }) => sum + item.amount, 0);
 
-    const results = [];
+    const results: any[] = [];
     for (const enroll of activeStudents) {
       const invoiceCode = `INV-${new Date().getFullYear().toString().slice(2)}-${String(Date.now()).slice(-4)}-${String(enroll.student_id).slice(-3)}`;
-      const invoice = await db.invoice.create({
+      const invoice = await (db.invoice as any).create({
         data: {
           student_id: enroll.student_id,
           title: `${term} Fees - ${year}`,

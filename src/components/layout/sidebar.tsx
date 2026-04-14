@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -11,10 +11,11 @@ import {
   Menu,
   X,
   GraduationCap,
+  LogOut,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Tooltip,
   TooltipContent,
@@ -22,6 +23,8 @@ import {
 } from "@/components/ui/tooltip";
 import {
   getMenuByRole,
+  roleLabels,
+  roleColors,
   type MenuSection,
   type MenuItem,
 } from "@/config/menu";
@@ -60,7 +63,7 @@ function SubMenuLink({
       href={item.href}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 py-2 pr-3 rounded-lg text-sm transition-all duration-150",
+        "flex items-center gap-3 py-2.5 pr-3 rounded-lg text-sm transition-all duration-150 min-h-[40px]",
         depth > 0 && "pl-12",
         depth === 0 && "pl-11",
         isActive
@@ -111,7 +114,7 @@ function MenuItemComponent({
     <button
       onClick={toggleExpand}
       className={cn(
-        "flex items-center w-full gap-3 py-3 px-4 rounded-lg text-sm transition-all duration-150 group relative",
+        "flex items-center w-full gap-3 py-3 px-4 rounded-lg text-sm transition-all duration-150 group relative min-h-[44px]",
         collapsed && "justify-center px-2",
         isActive
           ? "bg-gradient-to-r from-blue-500/20 to-blue-600/10 font-semibold text-white"
@@ -204,6 +207,59 @@ function MenuItemComponent({
   );
 }
 
+// ─── User Profile Card ──────────────────────────────────────
+function UserProfileCard({ collapsed, onClick }: { collapsed: boolean; onClick?: () => void }) {
+  const { user, role, logout } = useAuth();
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const roleColor = role
+    ? roleColors[role as UserRole] || "bg-slate-100 text-slate-700"
+    : "bg-slate-100 text-slate-700";
+
+  if (collapsed) {
+    return (
+      <div className="flex flex-col items-center gap-2 py-3 px-2">
+        <Avatar className="h-9 w-9">
+          <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white text-xs font-semibold">
+            {user?.name ? getInitials(user.name) : "U"}
+          </AvatarFallback>
+        </Avatar>
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-4 py-3 flex items-center gap-3 border-b border-white/10">
+      <Avatar className="h-10 w-10 flex-shrink-0">
+        <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white text-sm font-semibold">
+          {user?.name ? getInitials(user.name) : "U"}
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-white truncate">
+          {user?.name || "User"}
+        </p>
+        <span
+          className={cn(
+            "text-[10px] font-medium px-1.5 py-0.5 rounded inline-block mt-0.5",
+            roleColor
+          )}
+        >
+          {role ? roleLabels[role as UserRole] || role : "User"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 // ─── Sidebar ────────────────────────────────────────────────
 export function Sidebar({
   collapsed: collapsedProp,
@@ -211,8 +267,11 @@ export function Sidebar({
   mobileOpen,
   onCloseMobile,
 }: SidebarProps) {
-  const { role, permissions, isSuperAdmin } = useAuth();
+  const { role, permissions, logout } = useAuth();
   const pathname = usePathname();
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef(0);
+  const isSwipeClose = useRef(false);
 
   // Internal collapsed state (persisted in localStorage)
   const [internalCollapsed, setInternalCollapsed] = useState(() => {
@@ -243,6 +302,42 @@ export function Sidebar({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [mobileOpen, onCloseMobile]);
 
+  // Prevent body scroll when mobile drawer is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  // Swipe to close on mobile
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    isSwipeClose.current = false;
+  }, []);
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!sidebarRef.current) return;
+      const diff = e.touches[0].clientX - touchStartX.current;
+      if (diff > 60) {
+        isSwipeClose.current = true;
+      }
+    },
+    []
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    if (isSwipeClose.current) {
+      onCloseMobile?.();
+    }
+    isSwipeClose.current = false;
+  }, [onCloseMobile]);
+
   // Get filtered menus
   const rawMenus = role ? getMenuByRole(role) : [];
   const menus = filterMenuByPermissions(rawMenus, permissions);
@@ -266,10 +361,13 @@ export function Sidebar({
         collapsed ? "w-[72px]" : "w-[280px]"
       )}
     >
+      {/* User Profile Card */}
+      <UserProfileCard collapsed={collapsed} onClick={onCloseMobile} />
+
       {/* Logo Section */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 flex-shrink-0">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
-          <GraduationCap className="w-6 h-6 text-white" />
+      <div className="flex items-center gap-3 px-4 py-2.5 border-b border-white/10 flex-shrink-0">
+        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
+          <GraduationCap className="w-5 h-5 text-white" />
         </div>
         {!collapsed && (
           <div className="overflow-hidden">
@@ -285,7 +383,7 @@ export function Sidebar({
 
       {/* Search Bar */}
       {!collapsed && (
-        <div className="px-4 pt-4 pb-2 flex-shrink-0">
+        <div className="px-4 pt-3 pb-1 flex-shrink-0">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
             <input
@@ -293,7 +391,7 @@ export function Sidebar({
               placeholder="Search menu..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-lg px-4 py-2.5 pl-10 text-sm outline-none focus:ring-1 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+              className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-lg px-4 py-2 pl-10 text-sm outline-none focus:ring-1 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all min-h-[40px]"
             />
           </div>
         </div>
@@ -328,13 +426,14 @@ export function Sidebar({
         </nav>
       </ScrollArea>
 
-      {/* Collapse Toggle */}
-      <div className="flex-shrink-0 border-t border-white/10 p-2">
+      {/* Bottom section: Collapse toggle + Logout */}
+      <div className="flex-shrink-0 border-t border-white/10 p-2 space-y-1">
+        {/* Collapse Toggle - desktop/tablet only */}
         <button
           onClick={toggleCollapse}
           className={cn(
-            "flex items-center justify-center w-full rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors",
-            collapsed ? "h-10" : "gap-3 py-2.5 px-4"
+            "hidden md:flex items-center justify-center w-full rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors",
+            collapsed ? "h-10" : "gap-3 py-2.5 px-4 min-h-[40px]"
           )}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
@@ -347,36 +446,58 @@ export function Sidebar({
             </>
           )}
         </button>
+
+        {/* Logout */}
+        <button
+          onClick={() => {
+            onCloseMobile?.();
+            logout();
+          }}
+          className={cn(
+            "flex items-center justify-center w-full rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors",
+            collapsed ? "h-10" : "gap-3 py-2.5 px-4 min-h-[44px]"
+          )}
+          aria-label="Sign out"
+        >
+          <LogOut className="w-5 h-5 flex-shrink-0" />
+          {!collapsed && <span className="text-sm">Sign Out</span>}
+        </button>
       </div>
     </div>
   );
 
-  // Desktop sidebar
   return (
     <>
-      {/* Desktop */}
+      {/* Desktop & Tablet sidebar */}
       <aside
         className={cn(
-          "hidden lg:flex flex-col h-screen sticky top-0 flex-shrink-0 transition-all duration-300 z-40",
+          "hidden md:flex flex-col h-screen sticky top-0 flex-shrink-0 transition-all duration-300 z-40",
           collapsed ? "w-[72px]" : "w-[280px]"
         )}
       >
         {sidebarContent}
       </aside>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer with swipe-to-close */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50 md:hidden">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
             onClick={onCloseMobile}
           />
           {/* Sidebar drawer */}
-          <div className="absolute inset-y-0 left-0 w-[280px] z-50 animate-slide-in-left">
+          <div
+            ref={sidebarRef}
+            className="absolute inset-y-0 left-0 w-[280px] z-50 animate-slide-in-left"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             <button
               onClick={onCloseMobile}
               className="absolute top-3 right-3 z-10 p-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
+              aria-label="Close sidebar"
             >
               <X className="w-4 h-4" />
             </button>
