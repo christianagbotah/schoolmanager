@@ -52,3 +52,10 @@ prompt
 server.log
 # Skills directory
 /skills/
+# Database
+db/
+*.db
+
+# Submodules with large files
+ci3-source/
+original-schoolmanager/
