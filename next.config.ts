@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   },
   reactStrictMode: false,
   allowedDevOrigins: ["https://preview-chat-a2ce6c38-0f36-44a2-a783-81549334b7f3.space.z.ai"],
+  serverExternalPackages: ["bcryptjs"],
 };
 
 export default nextConfig;
