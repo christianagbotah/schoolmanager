@@ -2,22 +2,19 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import {
-  ArrowLeft, Save, UserPlus, GraduationCap, Users, Heart, Camera,
-  Loader2, AlertCircle, CheckCircle2,
+  ArrowLeft, UserPlus, GraduationCap, Users, Heart, Camera,
+  Loader2, ShieldCheck, RotateCcw, AlertTriangle,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -28,24 +25,12 @@ const CLASS_GROUPS = ['CRECHE', 'NURSERY', 'KG', 'BASIC', 'JHS'];
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const;
 
-const RELIGIONS = [
-  { value: 'Christianity', label: 'Christianity' },
-  { value: 'Islam', label: 'Islam' },
-  { value: 'Traditional', label: 'Traditional' },
-  { value: 'Others', label: 'Others' },
-] as const;
-
-const NHIS_STATUSES = [
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
-  { value: 'pending', label: 'Pending' },
-] as const;
-
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface ClassItem {
   class_id: number;
   name: string;
+  name_numeric: number;
   category: string;
 }
 
@@ -60,6 +45,12 @@ interface ParentItem {
   name: string;
   phone: string;
   email: string;
+  profession: string;
+  address: string;
+  father_name: string;
+  father_phone: string;
+  mother_name: string;
+  mother_phone: string;
 }
 
 // ─── Helper: generate student code ───────────────────────────────────────────
@@ -68,6 +59,41 @@ function generateStudentCode(): string {
   const year = new Date().getFullYear();
   const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
   return `STU${year}${random}`;
+}
+
+// ─── Section Card Wrapper ────────────────────────────────────────────────────
+
+function SectionCard({
+  icon,
+  title,
+  children,
+  accentColor = 'cyan',
+}: {
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+  accentColor?: string;
+}) {
+  const gradientMap: Record<string, string> = {
+    cyan: 'bg-gradient-to-r from-cyan-500 to-sky-400',
+    emerald: 'bg-gradient-to-r from-emerald-500 to-teal-400',
+    amber: 'bg-gradient-to-r from-amber-500 to-yellow-400',
+    purple: 'bg-gradient-to-r from-purple-500 to-fuchsia-400',
+    rose: 'bg-gradient-to-r from-rose-500 to-pink-400',
+    slate: 'bg-gradient-to-r from-slate-600 to-slate-500',
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div
+        className={`${gradientMap[accentColor] || gradientMap.cyan} px-5 py-3 flex items-center gap-2.5`}
+      >
+        <span className="text-white">{icon}</span>
+        <h3 className="text-white font-bold text-base">{title}</h3>
+      </div>
+      <div className="p-5 md:p-6">{children}</div>
+    </div>
+  );
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -79,7 +105,6 @@ export default function AdmitStudentPage() {
   // ── Loading / saving state ──
   const [saving, setSaving] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
-  const [activeTab, setActiveTab] = useState('personal');
 
   // ── Reference data ──
   const [classes, setClasses] = useState<ClassItem[]>([]);
@@ -88,76 +113,85 @@ export default function AdmitStudentPage() {
   const [filteredSections, setFilteredSections] = useState<SectionItem[]>([]);
 
   // ── Filters ──
-  const [group, setGroup] = useState('');
-  const [searchParent, setSearchParent] = useState('');
+  const [classGroup, setClassGroup] = useState('');
 
   // ── Photo ──
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
 
-  // ── Section 1: Personal Information ──
-  const [formData, setFormData] = useState({
+  // ── Personal Information ──
+  const [form, setForm] = useState({
     first_name: '',
     middle_name: '',
     last_name: '',
     name: '',
+    sex: '',
     birthday: '',
-    sex: 'male',
-    religion: '',
-    custom_religion: '',
     blood_group: '',
     nationality: 'Ghanaian',
     ghana_card_id: '',
     place_of_birth: '',
     hometown: '',
     tribe: '',
-    phone: '',
+    religion: '',
+    custom_religion: '',
     student_phone: '',
     email: '',
     address: '',
     emergency_contact: '',
   });
 
-  // ── Section 2: Academic Information ──
-  const [academicData, setAcademicData] = useState({
+  // ── Academic Information ──
+  const [academic, setAcademic] = useState({
+    student_code: generateStudentCode(),
     class_id: '',
     section_id: '',
-    residence_type: 'Day',
     admission_date: new Date().toISOString().split('T')[0],
     former_school: '',
     class_reached: '',
-    student_code: generateStudentCode(),
-    parent_id: '',
+    residence_type: 'Day',
+    username: '',
+    password: '123456',
   });
 
-  // ── Section 3: Parent / Guardian Information ──
-  const [parentData, setParentData] = useState({
-    name: '',
+  // ── Parent / Guardian ──
+  const [parentMode, setParentMode] = useState<'none' | 'existing' | 'new'>('none');
+  const [selectedParentId, setSelectedParentId] = useState('');
+  const [guardianType, setGuardianType] = useState('');
+  const [guardianFields, setGuardianFields] = useState({
     phone: '',
     email: '',
-    profession: '',
-    guardian_gender: 'Male',
+    occupation: '',
     address: '',
-    father_name: '',
-    father_phone: '',
-    father_occupation: '',
-    mother_name: '',
-    mother_phone: '',
-    mother_occupation: '',
-    parent_email: '',
+  });
+  const [fatherFields, setFatherFields] = useState({
+    name: '',
+    phone: '',
+    occupation: '',
+  });
+  const [motherFields, setMotherFields] = useState({
+    name: '',
+    phone: '',
+    occupation: '',
   });
 
-  // ── Section 4: Medical & Special Needs ──
-  const [medicalData, setMedicalData] = useState({
+  // ── Medical ──
+  const [medical, setMedical] = useState({
     allergies: '',
     medical_conditions: '',
     nhis_number: '',
-    nhis_status: '',
-    disability_status: false,
+    nhis_status: 'pending',
+    disability_status: 0,
     special_needs: '',
-    special_diet: false,
+    learning_support: '',
+    digital_literacy: 'beginner',
+    home_technology_access: 0,
+    special_diet: 0,
     student_special_diet_details: '',
   });
+
+  // ── Password visibility ──
+  const [showPassword, setShowPassword] = useState(false);
 
   // ── Fetch reference data ──
   useEffect(() => {
@@ -166,7 +200,7 @@ export default function AdmitStudentPage() {
         const [classesRes, sectionsRes, parentsRes] = await Promise.all([
           fetch('/api/classes?limit=200'),
           fetch('/api/sections'),
-          fetch('/api/parents?limit=200'),
+          fetch('/api/parents?limit=500'),
         ]);
         const [classesData, sectionsData, parentsData] = await Promise.all([
           classesRes.json(),
@@ -187,26 +221,31 @@ export default function AdmitStudentPage() {
 
   // ── Auto-generate full name (uppercase) ──
   useEffect(() => {
-    const fn = formData.first_name || '';
-    const mn = formData.middle_name || '';
-    const ln = formData.last_name || '';
+    const fn = form.first_name || '';
+    const mn = form.middle_name || '';
+    const ln = form.last_name || '';
     const fullName = `${fn} ${mn} ${ln}`.replace(/\s+/g, ' ').trim().toUpperCase();
-    setFormData(prev => ({ ...prev, name: fullName }));
-  }, [formData.first_name, formData.middle_name, formData.last_name]);
+    setForm(prev => ({ ...prev, name: fullName }));
+  }, [form.first_name, form.middle_name, form.last_name]);
+
+  // ── Sync username with student_code ──
+  useEffect(() => {
+    setAcademic(prev => ({ ...prev, username: prev.student_code }));
+  }, [academic.student_code]);
 
   // ── Filter sections when class changes ──
   useEffect(() => {
-    if (academicData.class_id) {
+    if (academic.class_id) {
       setFilteredSections(
-        sections.filter(s => s.class_id === parseInt(academicData.class_id))
+        sections.filter(s => s.class_id === parseInt(academic.class_id))
       );
     } else {
       setFilteredSections([]);
     }
-  }, [academicData.class_id, sections]);
+  }, [academic.class_id, sections]);
 
-  const filteredClasses = group
-    ? classes.filter(c => c.category === group)
+  const filteredClasses = classGroup
+    ? classes.filter(c => c.category === classGroup)
     : classes;
 
   // ── Photo handler ──
@@ -214,130 +253,200 @@ export default function AdmitStudentPage() {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
-
       if (!file.type.startsWith('image/')) {
         toast.error('Please select an image file');
         return;
       }
-
       if (file.size > 5 * 1024 * 1024) {
         toast.error('Image must be less than 5 MB');
         return;
       }
-
       setPhotoFile(file);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoPreview(reader.result as string);
-      };
+      reader.onloadend = () => setPhotoPreview(reader.result as string);
       reader.readAsDataURL(file);
     },
     []
   );
 
+  // ── When parent selected + guardian type changed, auto-populate ──
+  const handleParentSelect = (parentId: string) => {
+    if (parentId === '__new__') {
+      setParentMode('new');
+      setSelectedParentId('');
+      setGuardianType('');
+      clearAllParentFields();
+      return;
+    }
+    if (parentId) {
+      setParentMode('existing');
+      setSelectedParentId(parentId);
+    } else {
+      setParentMode('none');
+      setSelectedParentId('');
+      setGuardianType('');
+      clearAllParentFields();
+    }
+  };
+
+  const handleGuardianTypeChange = (type: string) => {
+    setGuardianType(type);
+    const parent = parents.find(p => String(p.parent_id) === selectedParentId);
+    if (!parent) {
+      clearAllParentFields();
+      return;
+    }
+
+    if (type === 'father') {
+      setFatherFields({ name: parent.father_name || parent.name, phone: parent.father_phone || parent.phone, occupation: '' });
+      setMotherFields({ name: '', phone: '', occupation: '' });
+      setGuardianFields({ phone: '', email: parent.email || '', occupation: parent.profession || '', address: parent.address || '' });
+    } else if (type === 'mother') {
+      setMotherFields({ name: parent.mother_name || parent.name, phone: parent.mother_phone || parent.phone, occupation: '' });
+      setFatherFields({ name: '', phone: '', occupation: '' });
+      setGuardianFields({ phone: '', email: parent.email || '', occupation: parent.profession || '', address: parent.address || '' });
+    } else if (type === 'other') {
+      setGuardianFields({ phone: parent.phone || '', email: parent.email || '', occupation: parent.profession || '', address: parent.address || '' });
+      setFatherFields({ name: '', phone: '', occupation: '' });
+      setMotherFields({ name: '', phone: '', occupation: '' });
+    }
+  };
+
+  const clearAllParentFields = () => {
+    setFatherFields({ name: '', phone: '', occupation: '' });
+    setMotherFields({ name: '', phone: '', occupation: '' });
+    setGuardianFields({ phone: '', email: '', occupation: '', address: '' });
+  };
+
   // ── Validation ──
   const validate = (): boolean => {
-    if (!formData.first_name.trim() || !formData.last_name.trim()) {
-      toast.error('First name and Last name are required');
-      setActiveTab('personal');
+    if (!form.first_name.trim()) {
+      toast.error('First Name is required');
       return false;
     }
-    if (!academicData.class_id) {
+    if (!form.last_name.trim()) {
+      toast.error('Last Name is required');
+      return false;
+    }
+    if (!form.sex) {
+      toast.error('Gender is required');
+      return false;
+    }
+    if (!academic.class_id) {
       toast.error('Class selection is required');
-      setActiveTab('academic');
       return false;
     }
-    if (!academicData.section_id) {
+    if (!academic.section_id) {
       toast.error('Section selection is required');
-      setActiveTab('academic');
       return false;
     }
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (parentMode === 'none') {
+      toast.error('Please select a guardian or register a new one');
+      return false;
+    }
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       toast.error('Please enter a valid email address');
-      setActiveTab('personal');
       return false;
     }
     return true;
   };
 
   // ── Submit handler ──
-  const handleSave = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!validate()) return;
 
-    const hasExistingParent = academicData.parent_id && academicData.parent_id !== '0';
-    const isCreatingParent = !hasExistingParent && parentData.name.trim();
-
     setSaving(true);
-
     try {
-      // ── Step 1: Create parent if needed ──
       let parentId: number | null = null;
 
-      if (hasExistingParent) {
-        parentId = parseInt(academicData.parent_id);
-      } else if (isCreatingParent) {
+      // Step 1: Create new parent if needed
+      if (parentMode === 'new') {
         const parentRes = await fetch('/api/parents', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(parentData),
+          body: JSON.stringify({
+            name: guardianFields.phone ? `Guardian of ${form.name}` : form.name,
+            phone: guardianFields.phone,
+            email: guardianFields.email,
+            profession: guardianFields.occupation,
+            address: guardianFields.address,
+            father_name: fatherFields.name,
+            father_phone: fatherFields.phone,
+            mother_name: motherFields.name,
+            mother_phone: motherFields.phone,
+          }),
         });
         const parentJson = await parentRes.json();
         if (parentJson.error) {
-          toast.error(`Failed to create parent: ${parentJson.error}`);
+          toast.error(`Failed to create guardian: ${parentJson.error}`);
           return;
         }
-        parentId = parentJson.parent_id || parentJson.id || null;
+        parentId = parentJson.parent_id || null;
+      } else if (parentMode === 'existing') {
+        parentId = parseInt(selectedParentId);
       }
 
-      // ── Step 2: Create student ──
-      const studentPayload = {
+      // Step 2: Create student
+      const payload = {
         // Personal
-        first_name: formData.first_name,
-        middle_name: formData.middle_name,
-        last_name: formData.last_name,
-        name: formData.name,
-        birthday: formData.birthday,
-        sex: formData.sex,
-        religion: formData.religion === 'Others' ? formData.custom_religion : formData.religion,
-        blood_group: formData.blood_group,
-        nationality: formData.nationality,
-        ghana_card_id: formData.ghana_card_id,
-        place_of_birth: formData.place_of_birth,
-        hometown: formData.hometown,
-        tribe: formData.tribe,
-        phone: formData.phone,
-        student_phone: formData.student_phone,
-        email: formData.email.toLowerCase().trim(),
-        address: formData.address,
-        emergency_contact: formData.emergency_contact,
+        first_name: form.first_name,
+        middle_name: form.middle_name,
+        last_name: form.last_name,
+        name: form.name,
+        sex: form.sex,
+        birthday: form.birthday || null,
+        religion: form.religion === 'Others' ? form.custom_religion : form.religion,
+        blood_group: form.blood_group,
+        nationality: form.nationality,
+        ghana_card_id: form.ghana_card_id,
+        place_of_birth: form.place_of_birth,
+        hometown: form.hometown,
+        tribe: form.tribe,
+        student_phone: form.student_phone,
+        email: form.email.toLowerCase().trim(),
+        address: form.address,
+        emergency_contact: form.emergency_contact,
 
         // Academic
-        class_id: academicData.class_id,
-        section_id: academicData.section_id,
-        residence_type: academicData.residence_type,
-        admission_date: academicData.admission_date,
-        former_school: academicData.former_school,
-        class_reached: academicData.class_reached,
-        student_code: academicData.student_code,
+        student_code: academic.student_code,
+        class_id: academic.class_id,
+        section_id: academic.section_id,
+        admission_date: academic.admission_date,
+        former_school: academic.former_school,
+        class_reached: academic.class_reached,
+        residence_type: academic.residence_type,
+
+        // Login
+        username: academic.student_code,
+        password: academic.password,
 
         // Medical
-        allergies: medicalData.allergies,
-        medical_conditions: medicalData.medical_conditions,
-        nhis_number: medicalData.nhis_number,
-        nhis_status: medicalData.nhis_status,
-        disability_status: medicalData.disability_status ? 1 : 0,
-        special_needs: medicalData.special_needs,
-        special_diet: medicalData.special_diet ? 1 : 0,
-        student_special_diet_details: medicalData.student_special_diet_details,
+        allergies: medical.allergies,
+        medical_conditions: medical.medical_conditions,
+        nhis_number: medical.nhis_number,
+        nhis_status: medical.nhis_status,
+        disability_status: medical.disability_status,
+        special_needs: medical.special_needs,
+        special_diet: medical.special_diet,
+        student_special_diet_details: medical.student_special_diet_details,
 
-        parent_id: parentId ? String(parentId) : '',
-        username: formData.email ? formData.email.toLowerCase().trim() : '',
+        // Parent
+        parent_id: parentId ? String(parentId) : null,
+
+        // Parent details for update
+        father_name: fatherFields.name,
+        father_phone: fatherFields.phone,
+        mother_name: motherFields.name,
+        mother_phone: motherFields.phone,
+        phone: guardianFields.phone,
+        parent_email: guardianFields.email,
       };
 
       const res = await fetch('/api/students', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(studentPayload),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
 
@@ -345,27 +454,10 @@ export default function AdmitStudentPage() {
         throw new Error(data.error);
       }
 
-      // ── Step 3: Upload photo if provided ──
-      if (photoFile && data.student?.student_id) {
-        const formDataUpload = new FormData();
-        formDataUpload.append('photo', photoFile);
-        try {
-          await fetch(
-            `/api/students/${data.student.student_id}/photo`,
-            {
-              method: 'POST',
-              body: formDataUpload,
-            }
-          );
-        } catch {
-          toast.warning('Student created but photo upload failed');
-        }
-      }
-
-      toast.success('Student enrolled successfully!');
+      toast.success('Student admitted successfully!');
       router.push('/admin/students');
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to enroll student';
+      const message = err instanceof Error ? err.message : 'Failed to admit student';
       toast.error(message);
     } finally {
       setSaving(false);
@@ -376,7 +468,7 @@ export default function AdmitStudentPage() {
   if (loadingData) {
     return (
       <DashboardLayout>
-        <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="space-y-6 max-w-5xl mx-auto px-4 md:px-6">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-slate-200 animate-pulse" />
             <div className="space-y-2">
@@ -390,1399 +482,567 @@ export default function AdmitStudentPage() {
     );
   }
 
+  // ── Helpers for updating nested state ──
+  const sf = (field: string, value: string) =>
+    setForm(prev => ({ ...prev, [field]: value }));
+  const sa = (field: string, value: string) =>
+    setAcademic(prev => ({ ...prev, [field]: value }));
+  const sm = (field: string, value: string | number) =>
+    setMedical(prev => ({ ...prev, [field]: value }));
+
   // ── Render ──
   return (
     <DashboardLayout>
-      <div className="space-y-6 max-w-4xl mx-auto">
-        {/* ── Page header ── */}
-        <div className="flex items-center gap-3">
+      <div className="max-w-5xl mx-auto px-4 md:px-6 pb-24">
+        {/* ── Header ── */}
+        <div className="flex items-center gap-3 mb-6">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/admin/students">
               <ArrowLeft className="w-5 h-5" />
             </Link>
           </Button>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-              Admit New Student
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <GraduationCap className="w-6 h-6 text-cyan-600" />
+              Student Admission Form
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
-              Enroll a new student into the school system
+              Complete all required fields to admit a new student
             </p>
           </div>
         </div>
 
-        {/* ── Tabbed form ── */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full grid grid-cols-5 mb-2">
-            <TabsTrigger value="personal" className="gap-1.5 text-xs sm:text-sm">
-              <UserPlus className="w-4 h-4 hidden sm:block" />
-              Personal
-            </TabsTrigger>
-            <TabsTrigger value="academic" className="gap-1.5 text-xs sm:text-sm">
-              <GraduationCap className="w-4 h-4 hidden sm:block" />
-              Academic
-            </TabsTrigger>
-            <TabsTrigger value="guardian" className="gap-1.5 text-xs sm:text-sm">
-              <Users className="w-4 h-4 hidden sm:block" />
-              Guardian
-            </TabsTrigger>
-            <TabsTrigger value="medical" className="gap-1.5 text-xs sm:text-sm">
-              <Heart className="w-4 h-4 hidden sm:block" />
-              Medical
-            </TabsTrigger>
-            <TabsTrigger value="photo" className="gap-1.5 text-xs sm:text-sm">
-              <Camera className="w-4 h-4 hidden sm:block" />
-              Photo
-            </TabsTrigger>
-          </TabsList>
-
-          {/* ═══════════════════════════════════════════════════════════════════
-              TAB 1 — PERSONAL INFORMATION
-              ═══════════════════════════════════════════════════════════════════ */}
-          <TabsContent value="personal">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <UserPlus className="w-5 h-5 text-emerald-600" />
-                  Personal Information
-                </CardTitle>
-                <CardDescription>
-                  Enter the student&apos;s basic personal details. Name fields are
-                  auto-capitalised.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* ── Full Name Preview ── */}
-                <div className="rounded-lg bg-slate-50 border border-slate-200 p-3">
-                  <p className="text-xs font-medium text-slate-500 mb-0.5">
-                    Generated Full Name
-                  </p>
-                  <p className="text-sm font-semibold text-slate-800 uppercase tracking-wide">
-                    {formData.name || '—'}
-                  </p>
-                </div>
-
-                {/* ── Name Row ── */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="first_name">
-                      First Name <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="first_name"
-                      placeholder="First name"
-                      value={formData.first_name}
-                      onChange={e =>
-                        setFormData(prev => ({
-                          ...prev,
-                          first_name: e.target.value,
-                        }))
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="middle_name">Middle Name</Label>
-                    <Input
-                      id="middle_name"
-                      placeholder="Middle name"
-                      value={formData.middle_name}
-                      onChange={e =>
-                        setFormData(prev => ({
-                          ...prev,
-                          middle_name: e.target.value,
-                        }))
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="last_name">
-                      Last Name <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="last_name"
-                      placeholder="Last name"
-                      value={formData.last_name}
-                      onChange={e =>
-                        setFormData(prev => ({
-                          ...prev,
-                          last_name: e.target.value,
-                        }))
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* ── Birthday / Sex / Blood Group ── */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="birthday">Date of Birth</Label>
-                    <Input
-                      id="birthday"
-                      type="date"
-                      value={formData.birthday}
-                      onChange={e =>
-                        setFormData(prev => ({
-                          ...prev,
-                          birthday: e.target.value,
-                        }))
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="sex">Gender</Label>
-                    <Select
-                      value={formData.sex}
-                      onValueChange={v =>
-                        setFormData(prev => ({ ...prev, sex: v }))
-                      }
-                    >
-                      <SelectTrigger id="sex" className="mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="blood_group">Blood Group</Label>
-                    <Select
-                      value={formData.blood_group}
-                      onValueChange={v =>
-                        setFormData(prev => ({ ...prev, blood_group: v }))
-                      }
-                    >
-                      <SelectTrigger id="blood_group" className="mt-1">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {BLOOD_GROUPS.map(bg => (
-                          <SelectItem key={bg} value={bg}>
-                            {bg}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {/* ── Religion ── */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="religion">Religion</Label>
-                    <Select
-                      value={formData.religion}
-                      onValueChange={v =>
-                        setFormData(prev => ({ ...prev, religion: v }))
-                      }
-                    >
-                      <SelectTrigger id="religion" className="mt-1">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {RELIGIONS.map(r => (
-                          <SelectItem key={r.value} value={r.value}>
-                            {r.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {formData.religion === 'Others' && (
-                    <div className="sm:col-span-2">
-                      <Label htmlFor="custom_religion">
-                        Specify Religion
-                      </Label>
-                      <Input
-                        id="custom_religion"
-                        placeholder="Enter religion"
-                        value={formData.custom_religion}
-                        onChange={e =>
-                          setFormData(prev => ({
-                            ...prev,
-                            custom_religion: e.target.value,
-                          }))
-                        }
-                        className="mt-1"
-                      />
-                    </div>
-                  )}
-                  <div>
-                    <Label htmlFor="nationality">Nationality</Label>
-                    <Input
-                      id="nationality"
-                      placeholder="Nationality"
-                      value={formData.nationality}
-                      onChange={e =>
-                        setFormData(prev => ({
-                          ...prev,
-                          nationality: e.target.value,
-                        }))
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* ── Ghana Card / Place of Birth / Hometown / Tribe ── */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="ghana_card_id">Ghana Card ID</Label>
-                    <Input
-                      id="ghana_card_id"
-                      placeholder="National ID number"
-                      value={formData.ghana_card_id}
-                      onChange={e =>
-                        setFormData(prev => ({
-                          ...prev,
-                          ghana_card_id: e.target.value,
-                        }))
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="place_of_birth">Place of Birth</Label>
-                    <Input
-                      id="place_of_birth"
-                      placeholder="Place of birth"
-                      value={formData.place_of_birth}
-                      onChange={e =>
-                        setFormData(prev => ({
-                          ...prev,
-                          place_of_birth: e.target.value,
-                        }))
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="hometown">Hometown</Label>
-                    <Input
-                      id="hometown"
-                      placeholder="Hometown"
-                      value={formData.hometown}
-                      onChange={e =>
-                        setFormData(prev => ({
-                          ...prev,
-                          hometown: e.target.value,
-                        }))
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="tribe">Tribe / Ethnicity</Label>
-                    <Input
-                      id="tribe"
-                      placeholder="Tribe"
-                      value={formData.tribe}
-                      onChange={e =>
-                        setFormData(prev => ({
-                          ...prev,
-                          tribe: e.target.value,
-                        }))
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* ── Contact Information ── */}
-                <div>
-                  <h4 className="text-sm font-semibold text-slate-700 mb-3">
-                    Contact Information
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="phone">Guardian&apos;s Phone</Label>
-                      <Input
-                        id="phone"
-                        placeholder="Guardian contact number"
-                        value={formData.phone}
-                        onChange={e =>
-                          setFormData(prev => ({
-                            ...prev,
-                            phone: e.target.value,
-                          }))
-                        }
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="student_phone">Student&apos;s Phone</Label>
-                      <Input
-                        id="student_phone"
-                        placeholder="Student's own number"
-                        value={formData.student_phone}
-                        onChange={e =>
-                          setFormData(prev => ({
-                            ...prev,
-                            student_phone: e.target.value,
-                          }))
-                        }
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Student Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="Used for student login (lowercase)"
-                        value={formData.email}
-                        onChange={e =>
-                          setFormData(prev => ({
-                            ...prev,
-                            email: e.target.value.toLowerCase(),
-                          }))
-                        }
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="emergency_contact">
-                        Emergency Contact
-                      </Label>
-                      <Input
-                        id="emergency_contact"
-                        placeholder="Emergency contact number"
-                        value={formData.emergency_contact}
-                        onChange={e =>
-                          setFormData(prev => ({
-                            ...prev,
-                            emergency_contact: e.target.value,
-                          }))
-                        }
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* ── Address ── */}
-                <div>
-                  <Label htmlFor="address">Home Address</Label>
-                  <Textarea
-                    id="address"
-                    placeholder="Full residential address"
-                    value={formData.address}
-                    onChange={e =>
-                      setFormData(prev => ({ ...prev, address: e.target.value }))
-                    }
-                    className="mt-1"
-                    rows={2}
-                  />
-                </div>
-
-                {/* ── Navigation ── */}
-                <div className="flex justify-end pt-4 border-t">
-                  <Button onClick={() => setActiveTab('academic')}>
-                    Next: Academic Info
-                    <GraduationCap className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* ═══════════════════════════════════════════════════════════════════
-              TAB 2 — ACADEMIC INFORMATION
-              ═══════════════════════════════════════════════════════════════════ */}
-          <TabsContent value="academic">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <GraduationCap className="w-5 h-5 text-emerald-600" />
-                  Academic Information
-                </CardTitle>
-                <CardDescription>
-                  Assign the student to a class and provide academic background.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* ── Class / Section / Residence ── */}
-                <div>
-                  <h4 className="text-sm font-semibold text-slate-700 mb-3">
-                    Class Enrollment
-                    <span className="text-red-500 ml-1">*</span>
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="classGroup">Class Group</Label>
-                      <Select
-                        value={group}
-                        onValueChange={v => {
-                          setGroup(v === '__all__' ? '' : v);
-                          setAcademicData(prev => ({
-                            ...prev,
-                            class_id: '',
-                            section_id: '',
-                          }));
-                        }}
-                      >
-                        <SelectTrigger id="classGroup" className="mt-1">
-                          <SelectValue placeholder="Filter by group" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="__all__">All Groups</SelectItem>
-                          {CLASS_GROUPS.map(g => (
-                            <SelectItem key={g} value={g}>
-                              {g}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="class_id">
-                        Class <span className="text-red-500">*</span>
-                      </Label>
-                      <Select
-                        value={academicData.class_id}
-                        onValueChange={v =>
-                          setAcademicData(prev => ({
-                            ...prev,
-                            class_id: v,
-                            section_id: '',
-                          }))
-                        }
-                      >
-                        <SelectTrigger id="class_id" className="mt-1">
-                          <SelectValue placeholder="Select class" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {filteredClasses.map(c => (
-                            <SelectItem
-                              key={c.class_id}
-                              value={String(c.class_id)}
-                            >
-                              {c.name}
-                              <Badge variant="outline" className="ml-2 text-[10px]">
-                                {c.category}
-                              </Badge>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="section_id">
-                        Section <span className="text-red-500">*</span>
-                      </Label>
-                      <Select
-                        value={academicData.section_id}
-                        onValueChange={v =>
-                          setAcademicData(prev => ({
-                            ...prev,
-                            section_id: v,
-                          }))
-                        }
-                      >
-                        <SelectTrigger id="section_id" className="mt-1">
-                          <SelectValue placeholder="Select section" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="0">No Section</SelectItem>
-                          {filteredSections.map(s => (
-                            <SelectItem
-                              key={s.section_id}
-                              value={String(s.section_id)}
-                            >
-                              {s.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* ── Residence / Admission Date / Student Code ── */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="residence_type">Residence Type</Label>
-                    <Select
-                      value={academicData.residence_type}
-                      onValueChange={v =>
-                        setAcademicData(prev => ({
-                          ...prev,
-                          residence_type: v,
-                        }))
-                      }
-                    >
-                      <SelectTrigger id="residence_type" className="mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Day">Day</SelectItem>
-                        <SelectItem value="Boarding">Boarding</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="admission_date">Admission Date</Label>
-                    <Input
-                      id="admission_date"
-                      type="date"
-                      value={academicData.admission_date}
-                      onChange={e =>
-                        setAcademicData(prev => ({
-                          ...prev,
-                          admission_date: e.target.value,
-                        }))
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="student_code">Student Code</Label>
-                    <Input
-                      id="student_code"
-                      placeholder="Auto-generated"
-                      value={academicData.student_code}
-                      onChange={e =>
-                        setAcademicData(prev => ({
-                          ...prev,
-                          student_code: e.target.value,
-                        }))
-                      }
-                      className="mt-1 font-mono text-sm"
-                    />
-                    <p className="text-[11px] text-slate-400 mt-1">
-                      Auto-generated but editable
-                    </p>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* ── Former School / Class Reached ── */}
-                <div>
-                  <h4 className="text-sm font-semibold text-slate-700 mb-3">
-                    Previous Education
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="former_school">Former School</Label>
-                      <Input
-                        id="former_school"
-                        placeholder="Previous school attended"
-                        value={academicData.former_school}
-                        onChange={e =>
-                          setAcademicData(prev => ({
-                            ...prev,
-                            former_school: e.target.value,
-                          }))
-                        }
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="class_reached">Class Reached</Label>
-                      <Input
-                        id="class_reached"
-                        placeholder="Last class completed"
-                        value={academicData.class_reached}
-                        onChange={e =>
-                          setAcademicData(prev => ({
-                            ...prev,
-                            class_reached: e.target.value,
-                          }))
-                        }
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* ── Navigation ── */}
-                <div className="flex justify-between pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={() => setActiveTab('personal')}
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Personal Info
-                  </Button>
-                  <Button onClick={() => setActiveTab('guardian')}>
-                    Next: Guardian Info
-                    <Users className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* ═══════════════════════════════════════════════════════════════════
-              TAB 3 — PARENT / GUARDIAN INFORMATION
-              ═══════════════════════════════════════════════════════════════════ */}
-          <TabsContent value="guardian">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Users className="w-5 h-5 text-emerald-600" />
-                  Parent / Guardian Information
-                </CardTitle>
-                <CardDescription>
-                  Link to an existing guardian or create a new one. Provide
-                  father and mother details separately.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* ── Select Existing Parent ── */}
-                <div>
-                  <Label htmlFor="parent_select">Select Existing Guardian</Label>
-                  <div className="flex gap-2 mt-1">
-                    <div className="flex-1">
-                      <Select
-                        value={academicData.parent_id}
-                        onValueChange={v => {
-                          setAcademicData(prev => ({
-                            ...prev,
-                            parent_id: v,
-                          }));
-                          if (v && v !== '0') {
-                            const p = parents.find(
-                              x => String(x.parent_id) === v
-                            );
-                            if (p) {
-                              setParentData(prev => ({
-                                ...prev,
-                                name: p.name,
-                                phone: p.phone,
-                                email: p.email,
-                              }));
-                            }
-                          } else {
-                            setParentData({
-                              name: '',
-                              phone: '',
-                              email: '',
-                              profession: '',
-                              guardian_gender: 'Male',
-                              address: '',
-                              father_name: '',
-                              father_phone: '',
-                              father_occupation: '',
-                              mother_name: '',
-                              mother_phone: '',
-                              mother_occupation: '',
-                              parent_email: '',
-                            });
-                          }
-                        }}
-                      >
-                        <SelectTrigger id="parent_select">
-                          <SelectValue placeholder="Search or select parent" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="0">
-                            — Create New Parent —
-                          </SelectItem>
-                          {parents
-                            .filter(
-                              p =>
-                                !searchParent ||
-                                p.name
-                                  .toLowerCase()
-                                  .includes(searchParent.toLowerCase())
-                            )
-                            .map(p => (
-                              <SelectItem
-                                key={p.parent_id}
-                                value={String(p.parent_id)}
-                              >
-                                {p.name} ({p.phone})
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Input
-                      placeholder="Filter parents..."
-                      value={searchParent}
-                      onChange={e => setSearchParent(e.target.value)}
-                      className="w-48"
-                    />
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* ── New Parent Details ── */}
-                {!academicData.parent_id || academicData.parent_id === '0' ? (
-                  <>
-                    {/* Parent / Guardian */}
-                    <div>
-                      <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                        Guardian Details
-                        {!parentData.name && (
-                          <Badge
-                            variant="outline"
-                            className="text-amber-600 border-amber-300 text-[10px]"
-                          >
-                            Required to create new
-                          </Badge>
-                        )}
-                      </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div>
-                          <Label htmlFor="guardian_name">
-                            Guardian Name{' '}
-                            <span className="text-red-500">*</span>
-                          </Label>
-                          <Input
-                            id="guardian_name"
-                            placeholder="Full name"
-                            value={parentData.name}
-                            onChange={e =>
-                              setParentData(prev => ({
-                                ...prev,
-                                name: e.target.value,
-                              }))
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="guardian_phone">Phone</Label>
-                          <Input
-                            id="guardian_phone"
-                            placeholder="Phone number"
-                            value={parentData.phone}
-                            onChange={e =>
-                              setParentData(prev => ({
-                                ...prev,
-                                phone: e.target.value,
-                              }))
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="guardian_email">Email</Label>
-                          <Input
-                            id="guardian_email"
-                            type="email"
-                            placeholder="Email address"
-                            value={parentData.email}
-                            onChange={e =>
-                              setParentData(prev => ({
-                                ...prev,
-                                email: e.target.value,
-                              }))
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="guardian_profession">Profession</Label>
-                          <Input
-                            id="guardian_profession"
-                            placeholder="Profession / Occupation"
-                            value={parentData.profession}
-                            onChange={e =>
-                              setParentData(prev => ({
-                                ...prev,
-                                profession: e.target.value,
-                              }))
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="guardian_gender">Gender</Label>
-                          <Select
-                            value={parentData.guardian_gender}
-                            onValueChange={v =>
-                              setParentData(prev => ({
-                                ...prev,
-                                guardian_gender: v,
-                              }))
-                            }
-                          >
-                            <SelectTrigger id="guardian_gender" className="mt-1">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Male">Male</SelectItem>
-                              <SelectItem value="Female">Female</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label htmlFor="guardian_address">Address</Label>
-                          <Input
-                            id="guardian_address"
-                            placeholder="Residential address"
-                            value={parentData.address}
-                            onChange={e =>
-                              setParentData(prev => ({
-                                ...prev,
-                                address: e.target.value,
-                              }))
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Father Details */}
-                    <div>
-                      <h4 className="text-sm font-semibold text-slate-700 mb-3">
-                        Father&apos;s Details
-                      </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                          <Label htmlFor="father_name">Father&apos;s Name</Label>
-                          <Input
-                            id="father_name"
-                            placeholder="Father's full name"
-                            value={parentData.father_name}
-                            onChange={e =>
-                              setParentData(prev => ({
-                                ...prev,
-                                father_name: e.target.value,
-                              }))
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="father_phone">Father&apos;s Phone</Label>
-                          <Input
-                            id="father_phone"
-                            placeholder="Phone number"
-                            value={parentData.father_phone}
-                            onChange={e =>
-                              setParentData(prev => ({
-                                ...prev,
-                                father_phone: e.target.value,
-                              }))
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="father_occupation">
-                            Father&apos;s Occupation
-                          </Label>
-                          <Input
-                            id="father_occupation"
-                            placeholder="Occupation"
-                            value={parentData.father_occupation}
-                            onChange={e =>
-                              setParentData(prev => ({
-                                ...prev,
-                                father_occupation: e.target.value,
-                              }))
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Mother Details */}
-                    <div>
-                      <h4 className="text-sm font-semibold text-slate-700 mb-3">
-                        Mother&apos;s Details
-                      </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                          <Label htmlFor="mother_name">Mother&apos;s Name</Label>
-                          <Input
-                            id="mother_name"
-                            placeholder="Mother's full name"
-                            value={parentData.mother_name}
-                            onChange={e =>
-                              setParentData(prev => ({
-                                ...prev,
-                                mother_name: e.target.value,
-                              }))
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="mother_phone">Mother&apos;s Phone</Label>
-                          <Input
-                            id="mother_phone"
-                            placeholder="Phone number"
-                            value={parentData.mother_phone}
-                            onChange={e =>
-                              setParentData(prev => ({
-                                ...prev,
-                                mother_phone: e.target.value,
-                              }))
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="mother_occupation">
-                            Mother&apos;s Occupation
-                          </Label>
-                          <Input
-                            id="mother_occupation"
-                            placeholder="Occupation"
-                            value={parentData.mother_occupation}
-                            onChange={e =>
-                              setParentData(prev => ({
-                                ...prev,
-                                mother_occupation: e.target.value,
-                              }))
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Alternative Parent Email */}
-                    <div>
-                      <Label htmlFor="parent_email">
-                        Alternative Parent Email
-                      </Label>
-                      <Input
-                        id="parent_email"
-                        type="email"
-                        placeholder="Additional email for parent communications"
-                        value={parentData.parent_email}
-                        onChange={e =>
-                          setParentData(prev => ({
-                            ...prev,
-                            parent_email: e.target.value,
-                          }))
-                        }
-                        className="mt-1 max-w-md"
-                      />
-                    </div>
-                  </>
-                ) : (
-                  /* Existing parent selected */
-                  <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-4">
-                    <div className="flex items-center gap-2 text-emerald-700">
-                      <CheckCircle2 className="w-5 h-5" />
-                      <span className="font-medium">
-                        Linked to existing guardian
-                      </span>
-                    </div>
-                    <p className="text-sm text-emerald-600 mt-1">
-                      {parentData.name} — {parentData.phone}
-                      {parentData.email ? ` — ${parentData.email}` : ''}
-                    </p>
-                    <p className="text-xs text-emerald-500 mt-2">
-                      Select &quot;Create New Parent&quot; to enter new guardian
-                      details.
-                    </p>
-                  </div>
-                )}
-
-                {/* ── Navigation ── */}
-                <div className="flex justify-between pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={() => setActiveTab('academic')}
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Academic Info
-                  </Button>
-                  <Button onClick={() => setActiveTab('medical')}>
-                    Next: Medical Info
-                    <Heart className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* ═══════════════════════════════════════════════════════════════════
-              TAB 4 — MEDICAL & SPECIAL NEEDS
-              ═══════════════════════════════════════════════════════════════════ */}
-          <TabsContent value="medical">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Heart className="w-5 h-5 text-emerald-600" />
-                  Medical &amp; Special Needs
-                </CardTitle>
-                <CardDescription>
-                  Record health information, allergies, and any special
-                  requirements for the student.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* ── Health Insurance (NHIS) ── */}
-                <div>
-                  <h4 className="text-sm font-semibold text-slate-700 mb-3">
-                    Health Insurance
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="nhis_number">NHIS Number</Label>
-                      <Input
-                        id="nhis_number"
-                        placeholder="National Health Insurance number"
-                        value={medicalData.nhis_number}
-                        onChange={e =>
-                          setMedicalData(prev => ({
-                            ...prev,
-                            nhis_number: e.target.value,
-                          }))
-                        }
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="nhis_status">NHIS Status</Label>
-                      <Select
-                        value={medicalData.nhis_status}
-                        onValueChange={v =>
-                          setMedicalData(prev => ({
-                            ...prev,
-                            nhis_status: v,
-                          }))
-                        }
-                      >
-                        <SelectTrigger id="nhis_status" className="mt-1">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {NHIS_STATUSES.map(s => (
-                            <SelectItem key={s.value} value={s.value}>
-                              {s.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* ── Allergies & Medical Conditions ── */}
-                <div>
-                  <h4 className="text-sm font-semibold text-slate-700 mb-3">
-                    Medical History
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="allergies">Allergies</Label>
-                      <Textarea
-                        id="allergies"
-                        placeholder="List any known allergies (food, medication, environmental)"
-                        value={medicalData.allergies}
-                        onChange={e =>
-                          setMedicalData(prev => ({
-                            ...prev,
-                            allergies: e.target.value,
-                          }))
-                        }
-                        className="mt-1"
-                        rows={2}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="medical_conditions">
-                        Medical Conditions
-                      </Label>
-                      <Textarea
-                        id="medical_conditions"
-                        placeholder="List any chronic conditions or ongoing treatments"
-                        value={medicalData.medical_conditions}
-                        onChange={e =>
-                          setMedicalData(prev => ({
-                            ...prev,
-                            medical_conditions: e.target.value,
-                          }))
-                        }
-                        className="mt-1"
-                        rows={2}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* ── Toggles: Disability & Special Diet ── */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="flex items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <Label
-                        htmlFor="disability_status"
-                        className="text-sm font-medium"
-                      >
-                        Disability
-                      </Label>
-                      <p className="text-xs text-slate-500">
-                        Does the student have any disability?
-                      </p>
-                    </div>
-                    <Switch
-                      id="disability_status"
-                      checked={medicalData.disability_status}
-                      onCheckedChange={checked =>
-                        setMedicalData(prev => ({
-                          ...prev,
-                          disability_status: checked,
-                        }))
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <Label
-                        htmlFor="special_diet"
-                        className="text-sm font-medium"
-                      >
-                        Special Diet
-                      </Label>
-                      <p className="text-xs text-slate-500">
-                        Does the student require a special diet?
-                      </p>
-                    </div>
-                    <Switch
-                      id="special_diet"
-                      checked={medicalData.special_diet}
-                      onCheckedChange={checked =>
-                        setMedicalData(prev => ({
-                          ...prev,
-                          special_diet: checked,
-                        }))
-                      }
-                    />
-                  </div>
-                </div>
-
-                {/* ── Special Diet Details ── */}
-                {medicalData.special_diet && (
-                  <div>
-                    <Label htmlFor="student_special_diet_details">
-                      Special Diet Details
-                    </Label>
-                    <Textarea
-                      id="student_special_diet_details"
-                      placeholder="Describe the special dietary requirements"
-                      value={medicalData.student_special_diet_details}
-                      onChange={e =>
-                        setMedicalData(prev => ({
-                          ...prev,
-                          student_special_diet_details: e.target.value,
-                        }))
-                      }
-                      className="mt-1"
-                      rows={2}
-                    />
-                  </div>
-                )}
-
-                {/* ── Special Needs ── */}
-                <div>
-                  <Label htmlFor="special_needs">Special Needs</Label>
-                  <Textarea
-                    id="special_needs"
-                    placeholder="Describe any special needs, learning support requirements, or accommodations"
-                    value={medicalData.special_needs}
-                    onChange={e =>
-                      setMedicalData(prev => ({
-                        ...prev,
-                        special_needs: e.target.value,
-                      }))
-                    }
-                    className="mt-1"
-                    rows={3}
-                  />
-                </div>
-
-                {/* ── Navigation ── */}
-                <div className="flex justify-between pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={() => setActiveTab('guardian')}
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Guardian Info
-                  </Button>
-                  <Button onClick={() => setActiveTab('photo')}>
-                    Next: Photo
-                    <Camera className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* ═══════════════════════════════════════════════════════════════════
-              TAB 5 — PHOTO UPLOAD
-              ═══════════════════════════════════════════════════════════════════ */}
-          <TabsContent value="photo">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Camera className="w-5 h-5 text-emerald-600" />
-                  Student Photo
-                </CardTitle>
-                <CardDescription>
-                  Upload a passport-size photo for the student. JPG, PNG, or
-                  WEBP up to 5 MB.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* ── Photo Upload Area ── */}
-                <div
-                  className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-emerald-400 hover:bg-emerald-50/30 transition-colors cursor-pointer"
-                  onClick={() => fileInputRef.current?.click()}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      fileInputRef.current?.click();
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  aria-label="Upload student photo"
-                >
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="hidden"
-                    onChange={handlePhotoChange}
-                  />
-
-                  {photoPreview ? (
-                    <div className="space-y-4">
-                      <div className="mx-auto w-40 h-40 rounded-xl overflow-hidden border-4 border-slate-200 shadow-sm">
-                        <img
-                          src={photoPreview}
-                          alt="Student photo preview"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-slate-700">
-                          {photoFile?.name}
-                        </p>
-                        <p className="text-xs text-slate-400 mt-0.5">
-                          Click to change photo
-                        </p>
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={e => {
-                          e.stopPropagation();
-                          setPhotoPreview(null);
-                          setPhotoFile(null);
-                          if (fileInputRef.current) {
-                            fileInputRef.current.value = '';
-                          }
-                        }}
-                      >
-                        Remove Photo
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div className="mx-auto w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
-                        <Camera className="w-7 h-7 text-slate-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-slate-600">
-                          Click to upload student photo
-                        </p>
-                        <p className="text-xs text-slate-400 mt-1">
-                          JPG, PNG or WEBP (max 5 MB)
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* ── Info Note ── */}
-                <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-                  <p className="text-xs text-amber-700">
-                    Photo upload is optional. You can add or update the photo
-                    later from the student&apos;s profile. The photo will be
-                    saved and linked to the student record after enrollment.
-                  </p>
-                </div>
-
-                {/* ── Navigation ── */}
-                <div className="flex justify-between pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={() => setActiveTab('medical')}
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Medical Info
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-
-        {/* ═══════════════════════════════════════════════════════════════════
-            SUBMIT BAR
-            ═══════════════════════════════════════════════════════════════════ */}
-        <div className="sticky bottom-0 bg-white/80 backdrop-blur-sm border-t rounded-b-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-slate-400">
-            Sections marked with <span className="text-red-500">*</span> are
-            required. Review all tabs before submitting.
+        {/* ── Important Note ── */}
+        <div className="bg-amber-50 border border-amber-200 border-l-4 border-l-amber-500 rounded-lg px-4 py-3 mb-6">
+          <p className="text-sm text-amber-800">
+            <AlertTriangle className="inline w-4 h-4 mr-1 -mt-0.5" />
+            <strong>Important:</strong> Admitting new students will automatically create an enrollment
+            to the selected class in the running session. Please verify all information before submission.
           </p>
-          <div className="flex gap-3">
-            <Button variant="outline" asChild>
-              <Link href="/admin/students">Cancel</Link>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* ═══════════════════════════════════════════════════════════════════
+              SECTION 1 — PERSONAL INFORMATION
+              ═══════════════════════════════════════════════════════════════════ */}
+          <SectionCard
+            icon={<UserPlus className="w-5 h-5" />}
+            title="Personal Information"
+            accentColor="cyan"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Name fields */}
+              <div>
+                <Label htmlFor="first_name">First Name <span className="text-red-500">*</span></Label>
+                <Input id="first_name" placeholder="Enter first name" value={form.first_name} onChange={e => sf('first_name', e.target.value)} className="mt-1" required />
+              </div>
+              <div>
+                <Label htmlFor="middle_name">Middle Name</Label>
+                <Input id="middle_name" placeholder="Enter middle name" value={form.middle_name} onChange={e => sf('middle_name', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="last_name">Last Name <span className="text-red-500">*</span></Label>
+                <Input id="last_name" placeholder="Enter last name" value={form.last_name} onChange={e => sf('last_name', e.target.value)} className="mt-1" required />
+              </div>
+
+              {/* Generated name preview */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <div className="rounded-lg bg-slate-50 border border-slate-200 px-3 py-2">
+                  <p className="text-xs text-slate-500 mb-0.5">Generated Full Name</p>
+                  <p className="text-sm font-bold text-slate-800 uppercase tracking-wide">{form.name || '—'}</p>
+                </div>
+              </div>
+
+              {/* Gender / DOB / Blood Group */}
+              <div>
+                <Label htmlFor="sex">Gender <span className="text-red-500">*</span></Label>
+                <Select value={form.sex} onValueChange={v => sf('sex', v)}>
+                  <SelectTrigger id="sex" className="mt-1"><SelectValue placeholder="Select Gender" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="birthday">Date of Birth</Label>
+                <Input id="birthday" type="date" value={form.birthday} onChange={e => sf('birthday', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="blood_group">Blood Group</Label>
+                <Select value={form.blood_group} onValueChange={v => sf('blood_group', v)}>
+                  <SelectTrigger id="blood_group" className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {BLOOD_GROUPS.map(bg => (
+                      <SelectItem key={bg} value={bg}>{bg}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Nationality / Ghana Card / Place of Birth */}
+              <div>
+                <Label htmlFor="nationality">Nationality</Label>
+                <Input id="nationality" placeholder="Nationality" value={form.nationality} onChange={e => sf('nationality', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="ghana_card_id">Ghana Card ID</Label>
+                <Input id="ghana_card_id" placeholder="GHA-XXXXXXXXX-X" value={form.ghana_card_id} onChange={e => sf('ghana_card_id', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="place_of_birth">Place of Birth</Label>
+                <Input id="place_of_birth" placeholder="Enter place of birth" value={form.place_of_birth} onChange={e => sf('place_of_birth', e.target.value)} className="mt-1" />
+              </div>
+
+              {/* Hometown / Tribe / Religion */}
+              <div>
+                <Label htmlFor="hometown">Hometown</Label>
+                <Input id="hometown" placeholder="Enter hometown" value={form.hometown} onChange={e => sf('hometown', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="tribe">Tribe</Label>
+                <Input id="tribe" placeholder="Enter tribe" value={form.tribe} onChange={e => sf('tribe', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="religion">Religion</Label>
+                <Select value={form.religion} onValueChange={v => sf('religion', v)}>
+                  <SelectTrigger id="religion" className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Christianity">Christianity</SelectItem>
+                    <SelectItem value="Islam">Islam</SelectItem>
+                    <SelectItem value="Traditional">Traditional</SelectItem>
+                    <SelectItem value="Others">Others</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {form.religion === 'Others' && (
+                <div className="sm:col-span-2 lg:col-span-3">
+                  <Label htmlFor="custom_religion">Specify Religion</Label>
+                  <Input id="custom_religion" placeholder="Please specify..." value={form.custom_religion} onChange={e => sf('custom_religion', e.target.value)} className="mt-1" />
+                </div>
+              )}
+
+              {/* Contact info */}
+              <div>
+                <Label htmlFor="student_phone">Student Phone</Label>
+                <Input id="student_phone" type="tel" placeholder="Student phone" value={form.student_phone} onChange={e => sf('student_phone', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="email">Email Address</Label>
+                <Input id="email" type="email" placeholder="student@example.com" value={form.email} onChange={e => sf('email', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="address">Residential Address</Label>
+                <Input id="address" placeholder="Enter address" value={form.address} onChange={e => sf('address', e.target.value)} className="mt-1" />
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* ═══════════════════════════════════════════════════════════════════
+              SECTION 2 — STUDENT PHOTO
+              ═══════════════════════════════════════════════════════════════════ */}
+          <SectionCard
+            icon={<Camera className="w-5 h-5" />}
+            title="Student Photo"
+            accentColor="emerald"
+          >
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative w-36 h-36 rounded-xl border-3 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden">
+                {photoPreview ? (
+                  <img src={photoPreview} alt="Student" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="text-center text-slate-400">
+                    <UserPlus className="w-10 h-10 mx-auto mb-1 opacity-40" />
+                    <p className="text-xs">No photo</p>
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                  <Camera className="w-4 h-4 mr-1.5" />
+                  {photoPreview ? 'Change Photo' : 'Select Photo'}
+                </Button>
+                {photoPreview && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => { setPhotoPreview(null); setPhotoFile(null); }}>
+                    Remove
+                  </Button>
+                )}
+              </div>
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+              <p className="text-xs text-slate-400">Accepted formats: JPG, PNG. Max size: 5 MB</p>
+            </div>
+          </SectionCard>
+
+          {/* ═══════════════════════════════════════════════════════════════════
+              SECTION 3 — ACADEMIC INFORMATION
+              ═══════════════════════════════════════════════════════════════════ */}
+          <SectionCard
+            icon={<GraduationCap className="w-5 h-5" />}
+            title="Academic Information"
+            accentColor="amber"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Student Code */}
+              <div>
+                <Label htmlFor="student_code">Student ID <span className="text-red-500">*</span></Label>
+                <Input id="student_code" value={academic.student_code} onChange={e => sa('student_code', e.target.value)} className="mt-1 font-mono text-sm" readOnly />
+              </div>
+
+              {/* Class Group / Class / Section */}
+              <div>
+                <Label htmlFor="classGroup">Class Group</Label>
+                <Select value={classGroup || '__all__'} onValueChange={v => {
+                  setClassGroup(v === '__all__' ? '' : v);
+                  sa('class_id', '');
+                  sa('section_id', '');
+                }}>
+                  <SelectTrigger id="classGroup" className="mt-1"><SelectValue placeholder="All Groups" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">All Groups</SelectItem>
+                    {CLASS_GROUPS.map(g => (
+                      <SelectItem key={g} value={g}>{g}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="class_id">Class to Enroll <span className="text-red-500">*</span></Label>
+                <Select value={academic.class_id} onValueChange={v => { sa('class_id', v); sa('section_id', ''); }}>
+                  <SelectTrigger id="class_id" className="mt-1"><SelectValue placeholder="Select Class" /></SelectTrigger>
+                  <SelectContent>
+                    {filteredClasses.map(c => (
+                      <SelectItem key={c.class_id} value={String(c.class_id)}>
+                        {c.name}
+                        <span className="ml-1.5 text-[10px] text-muted-foreground">({c.category})</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="section_id">Section <span className="text-red-500">*</span></Label>
+                <Select value={academic.section_id} onValueChange={v => sa('section_id', v)}>
+                  <SelectTrigger id="section_id" className="mt-1"><SelectValue placeholder={academic.class_id ? 'Select Section' : 'Select Class First'} /></SelectTrigger>
+                  <SelectContent>
+                    {filteredSections.map(s => (
+                      <SelectItem key={s.section_id} value={String(s.section_id)}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Admission Date */}
+              <div>
+                <Label htmlFor="admission_date">Admission Date</Label>
+                <Input id="admission_date" type="date" value={academic.admission_date} onChange={e => sa('admission_date', e.target.value)} className="mt-1" />
+              </div>
+
+              {/* Previous Education */}
+              <div>
+                <Label htmlFor="former_school">Former School</Label>
+                <Input id="former_school" placeholder="Previous school" value={academic.former_school} onChange={e => sa('former_school', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="class_reached">Class Reached</Label>
+                <Input id="class_reached" placeholder="Last class completed" value={academic.class_reached} onChange={e => sa('class_reached', e.target.value)} className="mt-1" />
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* ═══════════════════════════════════════════════════════════════════
+              SECTION 4 — PARENT / GUARDIAN INFORMATION
+              ═══════════════════════════════════════════════════════════════════ */}
+          <SectionCard
+            icon={<Users className="w-5 h-5" />}
+            title="Parent / Guardian Information"
+            accentColor="purple"
+          >
+            <div className="space-y-5">
+              {/* Guardian Selection */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="parent_id">Primary Guardian <span className="text-red-500">*</span></Label>
+                  <Select value={parentMode === 'none' ? '' : parentMode === 'new' ? '__new__' : selectedParentId} onValueChange={handleParentSelect}>
+                    <SelectTrigger id="parent_id" className="mt-1"><SelectValue placeholder="Search or select guardian..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">— Select Guardian —</SelectItem>
+                      <SelectItem value="__new__">➕ Register New Guardian</SelectItem>
+                      {parents.map(p => (
+                        <SelectItem key={p.parent_id} value={String(p.parent_id)}>
+                          {p.name}
+                          {p.phone ? ` • ${p.phone}` : ''}
+                          {p.profession ? ` • ${p.profession}` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {parentMode === 'existing' && (
+                  <div>
+                    <Label htmlFor="guardian_type">Guardian is the <span className="text-red-500">*</span></Label>
+                    <Select value={guardianType} onValueChange={handleGuardianTypeChange}>
+                      <SelectTrigger id="guardian_type" className="mt-1"><SelectValue placeholder="Select relationship..." /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="father">👨 Father</SelectItem>
+                        <SelectItem value="mother">👩 Mother</SelectItem>
+                        <SelectItem value="other">👤 Other Person</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+
+              {/* Father's Information */}
+              <div className="rounded-xl bg-blue-50 border border-blue-200 border-l-4 border-l-blue-500 p-4">
+                <h4 className="text-sm font-bold text-blue-800 mb-3">👨 Father&apos;s Information</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="father_name">Father&apos;s Name</Label>
+                    <Input id="father_name" placeholder="Enter father's name" value={fatherFields.name} onChange={e => setFatherFields(prev => ({ ...prev, name: e.target.value }))} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label htmlFor="father_phone">Father&apos;s Phone</Label>
+                    <Input id="father_phone" type="tel" placeholder="Enter father's phone" value={fatherFields.phone} onChange={e => setFatherFields(prev => ({ ...prev, phone: e.target.value }))} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label htmlFor="father_occupation">Father&apos;s Occupation</Label>
+                    <Input id="father_occupation" placeholder="Enter occupation" value={fatherFields.occupation} onChange={e => setFatherFields(prev => ({ ...prev, occupation: e.target.value }))} className="mt-1" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Mother's Information */}
+              <div className="rounded-xl bg-amber-50 border border-amber-200 border-l-4 border-l-amber-500 p-4">
+                <h4 className="text-sm font-bold text-amber-800 mb-3">👩 Mother&apos;s Information</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="mother_name">Mother&apos;s Name</Label>
+                    <Input id="mother_name" placeholder="Enter mother's name" value={motherFields.name} onChange={e => setMotherFields(prev => ({ ...prev, name: e.target.value }))} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label htmlFor="mother_phone">Mother&apos;s Phone</Label>
+                    <Input id="mother_phone" type="tel" placeholder="Enter mother's phone" value={motherFields.phone} onChange={e => setMotherFields(prev => ({ ...prev, phone: e.target.value }))} className="mt-1" />
+                  </div>
+                  <div>
+                    <Label htmlFor="mother_occupation">Mother&apos;s Occupation</Label>
+                    <Input id="mother_occupation" placeholder="Enter occupation" value={motherFields.occupation} onChange={e => setMotherFields(prev => ({ ...prev, occupation: e.target.value }))} className="mt-1" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Other Guardian Details (shown when guardian_type=other or parentMode=new) */}
+              {(guardianType === 'other' || parentMode === 'new') && (
+                <div className="rounded-xl bg-purple-50 border border-purple-200 border-l-4 border-l-purple-500 p-4">
+                  <h4 className="text-sm font-bold text-purple-800 mb-3">👤 Guardian Details</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="guardian_phone">Guardian Phone</Label>
+                      <Input id="guardian_phone" type="tel" placeholder="Enter guardian phone" value={guardianFields.phone} onChange={e => setGuardianFields(prev => ({ ...prev, phone: e.target.value }))} className="mt-1" />
+                    </div>
+                    <div>
+                      <Label htmlFor="guardian_email">Guardian Email</Label>
+                      <Input id="guardian_email" type="email" placeholder="guardian@example.com" value={guardianFields.email} onChange={e => setGuardianFields(prev => ({ ...prev, email: e.target.value }))} className="mt-1" />
+                    </div>
+                    <div>
+                      <Label htmlFor="guardian_occupation">Guardian Occupation</Label>
+                      <Input id="guardian_occupation" placeholder="Enter occupation" value={guardianFields.occupation} onChange={e => setGuardianFields(prev => ({ ...prev, occupation: e.target.value }))} className="mt-1" />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <Label htmlFor="guardian_address">Guardian Address</Label>
+                      <Input id="guardian_address" placeholder="Enter address" value={guardianFields.address} onChange={e => setGuardianFields(prev => ({ ...prev, address: e.target.value }))} className="mt-1" />
+                    </div>
+                    <div>
+                      <Label htmlFor="emergency_contact">Emergency Contact</Label>
+                      <Input id="emergency_contact" type="tel" placeholder="Emergency contact" value={form.emergency_contact} onChange={e => sf('emergency_contact', e.target.value)} className="mt-1" />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </SectionCard>
+
+          {/* ═══════════════════════════════════════════════════════════════════
+              SECTION 5 — MEDICAL & SPECIAL NEEDS
+              ═══════════════════════════════════════════════════════════════════ */}
+          <SectionCard
+            icon={<Heart className="w-5 h-5" />}
+            title="Medical & Special Needs"
+            accentColor="rose"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="allergies">Allergies</Label>
+                <Textarea id="allergies" rows={2} placeholder="List any allergies..." value={medical.allergies} onChange={e => sm('allergies', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="medical_conditions">Medical Conditions</Label>
+                <Textarea id="medical_conditions" rows={2} placeholder="List any medical conditions..." value={medical.medical_conditions} onChange={e => sm('medical_conditions', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="nhis_number">NHIS Number</Label>
+                <Input id="nhis_number" placeholder="Enter NHIS number" value={medical.nhis_number} onChange={e => sm('nhis_number', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="nhis_status">NHIS Status</Label>
+                <Select value={medical.nhis_status} onValueChange={v => sm('nhis_status', v)}>
+                  <SelectTrigger id="nhis_status" className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="disability_status">Disability Status</Label>
+                <Select value={String(medical.disability_status)} onValueChange={v => sm('disability_status', parseInt(v))}>
+                  <SelectTrigger id="disability_status" className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">No Disability</SelectItem>
+                    <SelectItem value="1">Has Disability</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="special_needs">Special Needs</Label>
+                <Textarea id="special_needs" rows={2} placeholder="Describe any special needs..." value={medical.special_needs} onChange={e => sm('special_needs', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="learning_support">Learning Support</Label>
+                <Textarea id="learning_support" rows={2} placeholder="Describe learning support needs..." value={medical.learning_support} onChange={e => sm('learning_support', e.target.value)} className="mt-1" />
+              </div>
+              <div>
+                <Label htmlFor="digital_literacy">Digital Literacy Level</Label>
+                <Select value={medical.digital_literacy} onValueChange={v => sm('digital_literacy', v)}>
+                  <SelectTrigger id="digital_literacy" className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="home_technology_access">Home Technology Access</Label>
+                <Select value={String(medical.home_technology_access)} onValueChange={v => sm('home_technology_access', parseInt(v))}>
+                  <SelectTrigger id="home_technology_access" className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">No Access</SelectItem>
+                    <SelectItem value="1">Has Access</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Special Diet */}
+              <div className="flex items-center gap-3 py-2">
+                <Switch checked={medical.special_diet === 1} onCheckedChange={checked => sm('special_diet', checked ? 1 : 0)} />
+                <Label htmlFor="special_diet" className="cursor-pointer">On Special Diet</Label>
+              </div>
+              {medical.special_diet === 1 && (
+                <div className="sm:col-span-2 lg:col-span-3">
+                  <Label htmlFor="student_special_diet_details">Special Diet Details</Label>
+                  <Textarea id="student_special_diet_details" rows={2} placeholder="Provide special diet details..." value={medical.student_special_diet_details} onChange={e => sm('student_special_diet_details', e.target.value)} className="mt-1" />
+                </div>
+              )}
+            </div>
+          </SectionCard>
+
+          {/* ═══════════════════════════════════════════════════════════════════
+              SECTION 6 — RESIDENCE TYPE
+              ═══════════════════════════════════════════════════════════════════ */}
+          <SectionCard
+            icon={<svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>}
+            title="Residence Type"
+            accentColor="slate"
+          >
+            <div className="max-w-xs">
+              <Label htmlFor="residence_type">Residence Type <span className="text-red-500">*</span></Label>
+              <Select value={academic.residence_type} onValueChange={v => sa('residence_type', v)}>
+                <SelectTrigger id="residence_type" className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Day">Day Student</SelectItem>
+                  <SelectItem value="Boarding">Boarding Student</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </SectionCard>
+
+          {/* ═══════════════════════════════════════════════════════════════════
+              SECTION 7 — LOGIN CREDENTIALS
+              ═══════════════════════════════════════════════════════════════════ */}
+          <SectionCard
+            icon={<ShieldCheck className="w-5 h-5" />}
+            title="Login Credentials"
+            accentColor="cyan"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="username">Username</Label>
+                <Input id="username" value={academic.username} readOnly className="mt-1 bg-slate-50 font-mono text-sm" />
+                <p className="text-xs text-slate-400 mt-1">Auto-generated from Student ID</p>
+              </div>
+              <div>
+                <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
+                <div className="flex gap-1 mt-1">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={academic.password}
+                    onChange={e => sa('password', e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="shrink-0"
+                  >
+                    {showPassword ? <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg> : <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>}
+                  </Button>
+                </div>
+                <p className="text-xs text-slate-400 mt-1">Default: 123456</p>
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* ═══════════════════════════════════════════════════════════════════
+              ACTION BUTTONS
+              ═══════════════════════════════════════════════════════════════════ */}
+          <div className="flex items-center justify-between pt-2">
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                if (window.confirm('Are you sure you want to reset the form? All unsaved data will be lost.')) {
+                  window.location.reload();
+                }
+              }}
+            >
+              <RotateCcw className="w-4 h-4 mr-1.5" />
+              Reset Form
             </Button>
             <Button
-              onClick={handleSave}
-              disabled={
-                saving ||
-                !formData.first_name ||
-                !formData.last_name ||
-                !academicData.class_id
-              }
-              className="bg-emerald-600 hover:bg-emerald-700 min-w-[160px]"
+              type="submit"
+              disabled={saving}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-8"
             >
               {saving ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Enrolling...
+                  <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                  Processing...
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4 mr-2" />
-                  Enroll Student
+                  <UserPlus className="w-4 h-4 mr-1.5" />
+                  Admit Student
                 </>
               )}
             </Button>
           </div>
-        </div>
+        </form>
       </div>
     </DashboardLayout>
   );

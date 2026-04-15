@@ -56,6 +56,10 @@ model admin {
 model teacher {
   teacher_id          Int       @id @default(autoincrement())
   name                String    @default("")
+  first_name          String    @default("")
+  other_name          String    @default("")
+  last_name           String    @default("")
+  teacher_code        String    @unique @default("")
   designation_id      Int?
   department_id       Int?
   email               String    @unique @default("")
@@ -68,6 +72,13 @@ model teacher {
   active_status       Int       @default(1)
   joining_date        DateTime?
   authentication_key  String    @default("")
+  block_limit         Int       @default(0)
+  ghana_card_id       String    @default("")
+  ssnit_id            String    @default("")
+  petra_id            String    @default("")
+  account_number      String    @default("")
+  account_details     String    @default("")
+  social_links        String    @default("")
 
   designation    designation? @relation("TeacherDesignation", fields: [designation_id], references: [id])
   department     department?  @relation("TeacherDepartment", fields: [department_id], references: [id])
@@ -78,6 +89,7 @@ model teacher {
 
   @@index([designation_id])
   @@index([department_id])
+  @@index([teacher_code])
 }
 
 model student {
@@ -103,6 +115,21 @@ model student {
   special_needs       String    @default("")
   class_reached       String    @default("")
   authentication_key  String    @default("")
+  student_phone       String    @default("")
+  ghana_card_id       String    @default("")
+  place_of_birth      String    @default("")
+  hometown            String    @default("")
+  tribe               String    @default("")
+  emergency_contact   String    @default("")
+  allergies           String    @default("")
+  medical_conditions  String    @default("")
+  nhis_number         String    @default("")
+  nhis_status         String    @default("pending")
+  disability_status   Int       @default(0)
+  special_diet        Int       @default(0)
+  student_special_diet_details String @default("")
+  former_school       String    @default("")
+  mute                Int       @default(0)
 
   parent         parent?   @relation(fields: [parent_id], references: [parent_id])
 

@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
     const {
       first_name, middle_name, last_name, sex, religion, blood_group, birthday,
       nationality, address, phone, student_phone, email, admission_date,
-      parent_id, class_id, section_id, year, term, roll,
+      parent_id, class_id, section_id, year, term, roll, residence_type,
       username, password, special_needs, ghana_card_id, place_of_birth,
       hometown, tribe, emergency_contact, allergies, medical_conditions,
       nhis_number, nhis_status, disability_status, special_diet, student_special_diet_details,
@@ -231,7 +231,7 @@ export async function POST(request: NextRequest) {
         email: email || "",
         admission_date: admission_date ? new Date(admission_date) : new Date(),
         parent_id: parent_id || null,
-        username: username || "",
+        username: username || student_code || generateStudentCode(),
         password: password || "",
         special_needs: special_needs || "",
         student_code: student_code || generateStudentCode(),
@@ -255,8 +255,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create enrollment record (matches original CI3)
+    // Create enrollment record (matches original CI3 Admin::student('create'))
     if (class_id && section_id) {
+      const residenceType = body.residence_type || "Day";
       await db.enroll.create({
         data: {
           student_id: student.student_id,
@@ -265,9 +266,30 @@ export async function POST(request: NextRequest) {
           year: year || new Date().getFullYear().toString(),
           term: term || "",
           roll: roll || "",
+          residence_type: residenceType,
+          parent_id: parent_id ? parseInt(parent_id as string) : null,
           enroll_code: crypto.randomBytes(4).toString("hex").substring(0, 7),
+          mute: 0,
         },
       });
+    }
+
+    // Update parent record with father/mother info (matches CI3 parent_data update)
+    if (parent_id) {
+      const parentUpdate: Record<string, string> = {};
+      if (body.father_name) parentUpdate.father_name = body.father_name;
+      if (body.father_phone) parentUpdate.father_phone = body.father_phone;
+      if (body.mother_name) parentUpdate.mother_name = body.mother_name;
+      if (body.mother_phone) parentUpdate.mother_phone = body.mother_phone;
+      if (body.phone) parentUpdate.phone = body.phone;
+      if (body.parent_email) parentUpdate.email = body.parent_email;
+
+      if (Object.keys(parentUpdate).length > 0) {
+        await db.parent.update({
+          where: { parent_id: parseInt(parent_id as string) },
+          data: parentUpdate,
+        });
+      }
     }
 
     return NextResponse.json({ student }, { status: 201 });
