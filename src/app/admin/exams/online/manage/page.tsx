@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import {
@@ -39,6 +40,9 @@ export default function ManageOnlineExamsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [resultsOpen, setResultsOpen] = useState(false);
+  const [results, setResults] = useState<Array<{ student: { name: string }; score: number; total_marks: number; percentage: number; submitted_at: string }>>([]);
+  const [loadingResults, setLoadingResults] = useState(false);
   const [selectedExam, setSelectedExam] = useState<OnlineExam | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -79,6 +83,32 @@ export default function ManageOnlineExamsPage() {
   const totalExams = exams.length;
   const activeExams = exams.filter(e => getExamStatus(e).label === 'Active').length;
   const upcomingExams = exams.filter(e => getExamStatus(e).label === 'Upcoming').length;
+
+  const fetchResults = useCallback(async (examId: number) => {
+    setLoadingResults(true);
+    try {
+      const res = await fetch(`/api/online-exams?type=results&examId=${examId}`);
+      const data = await res.json();
+      setResults(Array.isArray(data) ? data : []);
+    } catch {
+      setResults([]);
+    }
+    setLoadingResults(false);
+  }, []);
+
+  useEffect(() => {
+    if (resultsOpen && selectedExam) {
+      fetchResults(selectedExam.online_exam_id);
+    }
+  }, [resultsOpen, selectedExam, fetchResults]);
+
+  const getGrade = (pct: number): { grade: string; color: string } => {
+    if (pct >= 80) return { grade: 'A', color: 'text-emerald-600' };
+    if (pct >= 70) return { grade: 'B', color: 'text-sky-600' };
+    if (pct >= 60) return { grade: 'C', color: 'text-amber-600' };
+    if (pct >= 50) return { grade: 'D', color: 'text-orange-600' };
+    return { grade: 'F', color: 'text-red-600' };
+  };
 
   const handleDelete = async () => {
     if (!selectedExam) return;
@@ -181,7 +211,10 @@ export default function ManageOnlineExamsPage() {
                       <TableCell className="text-sm">{exam._count?.results || 0}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
-                          <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => toast.info('View results coming soon')}><BarChart3 className="w-3 h-3" /></Button>
+                          <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => {
+                            setSelectedExam(exam);
+                            setResultsOpen(true);
+                          }}><BarChart3 className="w-3 h-3" /></Button>
                           <Button size="sm" variant="ghost" className="h-7 text-xs text-red-600" onClick={() => { setSelectedExam(exam); setDeleteOpen(true); }}><Trash2 className="w-3 h-3" /></Button>
                         </div>
                       </TableCell>
@@ -200,6 +233,74 @@ export default function ManageOnlineExamsPage() {
           <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-red-600 hover:bg-red-700">{deleting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Delete</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* Results Dialog */}
+      <Dialog open={resultsOpen} onOpenChange={setResultsOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Exam Results: {selectedExam?.title}</DialogTitle>
+            <DialogDescription>
+              {selectedExam?.subject?.name || ''} — {selectedExam?.class?.name || ''}
+            </DialogDescription>
+          </DialogHeader>
+          {loadingResults ? (
+            <div className="space-y-3 py-4">
+              {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10" />)}
+            </div>
+          ) : results.length === 0 ? (
+            <div className="text-center py-12 text-slate-400">
+              <BarChart3 className="w-10 h-10 mx-auto mb-2 opacity-50" />
+              <p className="font-medium">No results yet</p>
+              <p className="text-sm">Students have not submitted any answers for this exam.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 bg-emerald-50 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-emerald-700">{results.length}</p>
+                  <p className="text-xs text-emerald-600">Submissions</p>
+                </div>
+                <div className="p-3 bg-sky-50 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-sky-700">
+                    {results.length > 0 ? Math.round(results.reduce((a, r) => a + r.percentage, 0) / results.length) : 0}%
+                  </p>
+                  <p className="text-xs text-sky-600">Avg Score</p>
+                </div>
+                <div className="p-3 bg-amber-50 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-amber-700">
+                    {results.filter(r => r.percentage >= (selectedExam?.minimum_percentage || 50)).length}
+                  </p>
+                  <p className="text-xs text-amber-600">Passed</p>
+                </div>
+              </div>
+              <Table>
+                <TableHeader><TableRow className="bg-slate-50">
+                  <TableHead>#</TableHead>
+                  <TableHead>Student</TableHead>
+                  <TableHead>Score</TableHead>
+                  <TableHead>Percentage</TableHead>
+                  <TableHead>Grade</TableHead>
+                  <TableHead>Submitted</TableHead>
+                </TableRow></TableHeader>
+                <TableBody>
+                  {results.map((r, i) => {
+                    const { grade, color } = getGrade(r.percentage);
+                    return (
+                      <TableRow key={i}>
+                        <TableCell className="text-xs text-slate-400">{i + 1}</TableCell>
+                        <TableCell className="text-sm font-medium">{r.student?.name || 'Unknown'}</TableCell>
+                        <TableCell className="text-sm">{r.score}/{r.total_marks}</TableCell>
+                        <TableCell className="text-sm font-medium">{r.percentage.toFixed(1)}%</TableCell>
+                        <TableCell><span className={`font-bold ${color}`}>{grade}</span></TableCell>
+                        <TableCell className="text-xs text-slate-500">{r.submitted_at ? format(new Date(r.submitted_at), 'MMM d, yyyy HH:mm') : '—'}</TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }
