@@ -47,6 +47,7 @@ import {
   Palette,
   User,
   Menu,
+  Database,
 } from "lucide-react";
 import type { UserRole } from "@/lib/auth";
 
@@ -200,6 +201,8 @@ const adminMenus: MenuSection[] = [
     title: "System",
     items: [
       { label: "Approvals", href: "/admin/approvals", icon: CheckSquare, permission: "can_manage_settings", adminOnly: true },
+      { label: "Audit Log", href: "/admin/audit-log", icon: Shield, permission: "can_manage_settings", adminOnly: true },
+      { label: "Backup", href: "/admin/backup", icon: Database, permission: "can_manage_settings", adminOnly: true },
       {
         label: "Settings", href: "/admin/settings", icon: Settings, permission: "can_manage_settings",
         children: [
@@ -208,13 +211,23 @@ const adminMenus: MenuSection[] = [
           { label: "SMS Settings", href: "/admin/settings/sms", icon: Smartphone, permission: "can_manage_settings" },
           { label: "Communication", href: "/admin/settings/communication", icon: MessageSquare, permission: "can_manage_settings" },
           { label: "Permissions", href: "/admin/permissions", icon: Shield, permission: "can_manage_roles_permissions", adminOnly: true },
-          { label: "Frontend CMS", href: "/admin/settings/frontend", icon: Palette, permission: "can_manage_frontend_cms" },
+          { label: "Frontend CMS", href: "/admin/frontend", icon: Palette, permission: "can_manage_frontend_cms" },
         ],
       },
       { label: "My Profile", href: "/admin/profile", icon: User, permission: null },
-      { label: "Transport", href: "/admin/transport", icon: Bus, permission: "can_manage_transport" },
+      {
+        label: "Transport", href: "/admin/transport", icon: Bus, permission: "can_manage_transport",
+        children: [
+          { label: "Routes", href: "/admin/transport", icon: Bus, permission: "can_manage_transport" },
+          { label: "Vehicles", href: "/admin/transport/vehicles", icon: Bus, permission: "can_manage_transport" },
+          { label: "Drivers", href: "/admin/transport/drivers", icon: User, permission: "can_manage_transport" },
+        ],
+      },
       { label: "Inventory", href: "/admin/inventory", icon: Package, permission: "can_manage_inventory" },
-      { label: "Boarding", href: "/admin/boarding", icon: BedDouble, permission: "can_mark_boarding_attendance" },
+      { label: "Dormitory", href: "/admin/dormitory", icon: BedDouble, permission: "can_manage_boarding" },
+      { label: "Insurance", href: "/admin/insurance", icon: Shield, permission: "can_manage_settings" },
+      { label: "Maintenance", href: "/admin/maintenance", icon: Settings, permission: "can_manage_settings" },
+      { label: "Frontend CMS", href: "/admin/frontend", icon: Palette, permission: "can_manage_frontend_cms" },
       { label: "Library", href: "/admin/library", icon: LibraryIcon, permission: "can_manage_books" },
       { label: "Employees", href: "/admin/employees", icon: UserCog, permission: "can_manage_employees" },
       { label: "Reconciliation", href: "/admin/reconciliation", icon: Scale, permission: "can_view_financial_reports" },

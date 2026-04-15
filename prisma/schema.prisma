@@ -868,6 +868,38 @@ model bus_attendance {
   @@index([route_id])
 }
 
+model transport_vehicle {
+  vehicle_id    Int      @id @default(autoincrement())
+  vehicle_name  String   @default("")
+  plate_number  String   @default("")
+  vehicle_type  String   @default("Bus")
+  capacity      Int      @default(0)
+  driver_id     Int?
+  status        String   @default("Active")
+  created_at    DateTime @default(now())
+
+  driver        driver?  @relation("VehicleDriver", fields: [driver_id], references: [driver_id])
+
+  @@index([driver_id])
+}
+
+model driver {
+  driver_id      Int       @id @default(autoincrement())
+  name           String    @default("")
+  phone          String    @default("")
+  email          String    @default("")
+  license_number String    @default("")
+  license_expiry DateTime?
+  address        String    @default("")
+  vehicle_id     Int?
+  status         String    @default("Active")
+  created_at     DateTime  @default(now())
+
+  vehicles       transport_vehicle[] @relation("VehicleDriver")
+
+  @@index([vehicle_id])
+}
+
 // ============================================================
 // LIBRARY
 // ============================================================
@@ -1452,6 +1484,84 @@ model academic_syllabus {
   @@index([section_id])
   @@index([academic_syllabus_code])
   @@map("academic_syllabus")
+}
+
+// ============================================================
+// DORMITORY ROOMS
+// ============================================================
+
+model dormitory_room {
+  id          Int    @id @default(autoincrement())
+  room_name   String @default("")
+  room_number String @default("")
+  room_type   String @default("Single")
+  capacity    Int    @default(1)
+  floor       Int    @default(1)
+  facilities  String @default("")
+  status      String @default("Available")
+  created_at  DateTime @default(now())
+
+  occupants   dormitory_room_student[]
+
+  @@index([status])
+  @@index([floor])
+}
+
+model dormitory_room_student {
+  id          Int      @id @default(autoincrement())
+  room_id     Int
+  student_id  Int
+  assigned_at DateTime @default(now())
+  is_active   Int      @default(1)
+
+  room        dormitory_room @relation(fields: [room_id], references: [id])
+
+  @@unique([student_id, room_id])
+  @@index([room_id])
+  @@index([student_id])
+}
+
+// ============================================================
+// STUDENT INSURANCE
+// ============================================================
+
+model insurance {
+  id              Int      @id @default(autoincrement())
+  student_id      Int
+  provider_name   String   @default("")
+  policy_number   String   @default("")
+  coverage_amount Float    @default(0)
+  premium         Float    @default(0)
+  start_date      DateTime?
+  end_date        DateTime?
+  status          String   @default("Active")
+  auto_renewal    Int      @default(0)
+  created_at      DateTime @default(now())
+
+  @@index([student_id])
+  @@index([status])
+  @@index([end_date])
+}
+
+// ============================================================
+// MAINTENANCE REQUESTS
+// ============================================================
+
+model maintenance_request {
+  id          Int      @id @default(autoincrement())
+  title       String   @default("")
+  description String   @default("")
+  priority    String   @default("Medium")
+  category    String   @default("Other")
+  location    String   @default("")
+  reported_by String   @default("")
+  status      String   @default("Open")
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([status])
+  @@index([priority])
+  @@index([category])
 }
 
 model document {
