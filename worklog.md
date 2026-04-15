@@ -1,4 +1,67 @@
 ---
+Task ID: 20
+Agent: Main Agent
+Task: Build Conductor Collection Portal and Advanced Reports pages
+
+Work Log:
+- Read reference file /admin/daily-fees/collection/page.tsx for collection patterns (search, student select, fee types, payment method, receipt dialog, print)
+- Analyzed existing conductor page (352 lines): basic bus boarding page with route/direction selection, student search, boarding/exit, daily log
+- Analyzed existing Prisma schema: transport, bus_attendance, transport_vehicle, driver models
+- Added new `transport_collection` model to Prisma schema with fields: collection_code, student_id, route_id, direction, amount, payment_method, collected_by, collection_date, created_at
+- Added `transport_collections` relation to student model and `collections` relation to transport model
+- Ran `bun run db:push` successfully to sync schema
+- Created /api/admin/transport/conductor/route.ts (GET/POST):
+  - GET: returns stats (total_collections, total_amount, cash_amount, momo_amount, morning_count, afternoon_count, unique_students), all transport routes, search students by name/code, today's collections with student/transport relations, optional route_id filter
+  - POST: records collection with auto-generated collection_code (TC-XXXXXX), validates student_id and amount > 0, returns receipt data
+- Completely rebuilt /admin/transport/conductor/page.tsx (~580 lines):
+  - Indigo/violet gradient header with Bus icon, title, date display
+  - 5 stat cards: Today's Collections (indigo), Cash Collected (emerald), Mobile Money (violet), Morning pickups (amber), Afternoon drop-offs (orange)
+  - Route selector dropdown (All Routes + individual routes with vehicle numbers)
+  - Student search with debounced API calls (300ms), avatar initials with gender colors, code display
+  - Selected student info card with gradient background
+  - Quick collection form: route dropdown, direction selector (Morning/Afternoon/Both), amount input (auto-fills from route fare), payment method toggle (Cash/MoMo)
+  - Collect button with loading state and indigo-violet gradient
+  - Today's collections table with student name/code, route, direction badges (AM with Sun icon, PM with Moon icon), amount, method badge, time
+  - Daily summary card with total/cash/momo/students breakdown
+  - Receipt success dialog with amount, collection code, student/route/direction/method details, print button
+  - Print receipt opens formatted receipt in new window
+  - Loading skeletons, empty states, responsive design
+- Created /api/admin/reports/advanced/route.ts (GET):
+  - Supports 4 report types: students, teachers, finance, attendance
+  - Date range filtering (from/to params)
+  - Students: gender distribution (pie), enrollment by class (bar), age analysis (bar), admission trends (line chart, last 12 months)
+  - Teachers: qualification/designation distribution (bar), department distribution (bar), subjects per teacher (horizontal bar, top 15), gender distribution (pie)
+  - Finance: revenue trends (line chart), expense breakdown by category (pie), collection efficiency by class (grouped bar with billed/collected), payment method distribution (pie)
+  - Attendance: daily trends last 30 days (line with present/absent/late), class comparison (horizontal bar), gender comparison (grouped bar), monthly trends (line)
+- Created /admin/reports/advanced/page.tsx (~520 lines):
+  - Emerald/teal/cyan gradient header with FileBarChart icon, Export CSV and Print buttons
+  - Date range selector (from/to date pickers)
+  - Global chart/table view toggle button
+  - 4-tab layout using shadcn/ui Tabs: Students, Teachers, Finance, Attendance (each with icon and color)
+  - Reusable ReportSection component: renders either chart or table view with per-section toggle button
+  - Charts use recharts directly (BarChart, LineChart, PieChart with Pie, Bar, Line, Cell, ResponsiveContainer, CartesianGrid, Tooltip, Legend)
+  - 10-color palette for charts
+  - Students tab: gender pie chart, age bar chart, enrollment by class horizontal bar, admission trend line
+  - Teachers tab: designation bar chart, gender pie chart, department bar chart, subjects per teacher horizontal bar
+  - Finance tab: revenue trend line, expense breakdown pie, collection efficiency grouped bar (billed vs collected with efficiency % badges), payment method pie
+  - Attendance tab: daily trend multi-line (present/absent/late), class comparison horizontal bar, gender comparison grouped bar, monthly trend line
+  - Each section has both chart and table views
+  - CSV export: generates CSV from all data arrays in report
+  - Print support via window.print()
+  - Loading skeletons for each tab, responsive design
+- Fixed Moonrise icon (not in lucide-react) → replaced with Moon
+- Build verified: compiled successfully with 0 errors
+- No existing files modified (except Prisma schema additions and conductor page replacement)
+
+Stage Summary:
+- Conductor Collection Portal: indigo/violet gradient header, 5 stat cards, route selector, student search with debounced API, quick collection form (route/direction/amount/payment method), today's collections table with direction badges, daily summary, receipt dialog with print
+- Advanced Reports Dashboard: emerald/teal gradient header, date range selector, 4 tabs (Students/Teachers/Finance/Attendance), 12+ chart types using recharts (pie, bar, line, grouped bar, horizontal bar), per-section chart/table toggle, CSV export, print support
+- 1 new Prisma model (transport_collection), 2 new API routes, 2 new pages
+- No existing files modified
+- Build passes, pages accessible at /admin/transport/conductor and /admin/reports/advanced
+
+---
+
 Task ID: 19
 Agent: Main Agent
 Task: Build Audit Trail and Backup Management pages for admin

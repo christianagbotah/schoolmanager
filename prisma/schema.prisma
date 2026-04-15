@@ -143,6 +143,7 @@ model student {
   receipts               receipts[]
   attendances            attendance[]
   bus_attendances        bus_attendance[]
+  transport_collections  transport_collection[]
   book_requests          book_request[]
   inventory_sales        inventory_sales[]
   daily_fee_wallet        daily_fee_wallet?
@@ -846,7 +847,8 @@ model transport {
   fare           Float  @default(0)
   facilities     String @default("")
 
-  bus_attendances bus_attendance[]
+  bus_attendances    bus_attendance[]
+  collections        transport_collection[]
 
   @@index([driver_id])
 }
@@ -898,6 +900,27 @@ model driver {
   vehicles       transport_vehicle[] @relation("VehicleDriver")
 
   @@index([vehicle_id])
+}
+
+model transport_collection {
+  id              Int       @id @default(autoincrement())
+  collection_code String    @default("")
+  student_id      Int
+  route_id        Int?
+  direction       String    @default("")
+  amount          Float     @default(0)
+  payment_method  String    @default("cash")
+  collected_by    String    @default("")
+  collection_date DateTime  @default(now())
+  created_at      DateTime  @default(now())
+
+  student         student   @relation(fields: [student_id], references: [student_id])
+  transport       transport? @relation(fields: [route_id], references: [transport_id])
+
+  @@index([student_id])
+  @@index([route_id])
+  @@index([collection_date])
+  @@index([collection_code])
 }
 
 // ============================================================
