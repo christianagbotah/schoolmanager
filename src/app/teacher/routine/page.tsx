@@ -2,14 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  Calendar,
-  Clock,
-  Printer,
-  Loader2,
-  AlertTriangle,
-  ChevronLeft,
-  ChevronRight,
-  GripVertical,
+  Calendar, Clock, Printer, Loader2, AlertTriangle,
+  ChevronLeft, ChevronRight, Star,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,19 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
@@ -40,11 +25,7 @@ interface ClassItem {
   class_id: number;
   name: string;
   sections: { section_id: number; name: string }[];
-}
-
-interface SectionItem {
-  section_id: number;
-  name: string;
+  is_class_teacher?: boolean;
 }
 
 interface RoutineItem {
@@ -55,8 +36,9 @@ interface RoutineItem {
   time_end: string;
   day: string;
   room: string;
-  section: { section_id: number; name: string };
-  subject?: { subject_id: number; name: string };
+  section?: { section_id: number; name: string };
+  subject?: { subject_id: number; name: string; teacher_id?: number };
+  is_mine?: boolean;
 }
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -78,16 +60,17 @@ export default function TeacherRoutinePage() {
   const [selectedClassId, setSelectedClassId] = useState("");
   const [selectedSectionId, setSelectedSectionId] = useState("");
   const [routines, setRoutines] = useState<RoutineItem[]>([]);
-  const [viewDay, setViewDay] = useState("");
+  const [viewDay, setViewDay] = useState(DAYS[new Date().getDay() - 1] || "Monday");
   const [viewMode, setViewMode] = useState<"week" | "day">("week");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingRoutine, setIsLoadingRoutine] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ─── Fetch classes ─────────────────────────────────────────
+  // ─── Fetch classes (teacher API) ──────────────────────────
   const fetchClasses = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/classes");
+      const res = await fetch("/api/teacher/classes");
       if (!res.ok) throw new Error("Failed to fetch classes");
       const data = await res.json();
       setClasses(data || []);
@@ -102,20 +85,23 @@ export default function TeacherRoutinePage() {
     if (!authLoading) fetchClasses();
   }, [authLoading, fetchClasses]);
 
-  // ─── Fetch routine ─────────────────────────────────────────
+  // ─── Fetch routine (teacher API) ───────────────────────────
   const fetchRoutine = useCallback(async () => {
     if (!selectedSectionId) {
       setRoutines([]);
       return;
     }
+    setIsLoadingRoutine(true);
     setError(null);
     try {
-      const res = await fetch(`/api/routine?section_id=${selectedSectionId}`);
+      const res = await fetch(`/api/teacher/routine?section_id=${selectedSectionId}`);
       if (!res.ok) throw new Error("Failed to load routine");
       const data = await res.json();
       setRoutines(data.routines || []);
     } catch {
       setError("Failed to load routine");
+    } finally {
+      setIsLoadingRoutine(false);
     }
   }, [selectedSectionId]);
 
@@ -130,6 +116,8 @@ export default function TeacherRoutinePage() {
     routines.filter((r) => r.day === day).sort((a, b) => (a.time_start || "").localeCompare(b.time_start || ""));
 
   const handlePrint = () => window.print();
+
+  const myRoutines = routines.filter(r => r.is_mine);
 
   if (isLoading) {
     return (
@@ -173,7 +161,7 @@ export default function TeacherRoutinePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Class</Label>
-                <Select value={selectedClassId} onValueChange={(v) => { setSelectedClassId(v); setSelectedSectionId(""); }}>
+                <Select value={selectedClassId} onValueChange={(v) => { setSelectedClassId(v); setSelectedSectionId(""); setRoutines([]); }}>
                   <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                   <SelectContent>
                     {classes.map((c) => (
@@ -203,18 +191,47 @@ export default function TeacherRoutinePage() {
           </div>
         )}
 
+        {/* ─── Stats ──────────────────────────────────────── */}
+        {routines.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Card className="py-4 border-l-4 border-l-emerald-500">
+              <CardContent className="px-4 pb-0 pt-0">
+                <p className="text-xs font-medium text-slate-500">My Periods</p>
+                <p className="text-2xl font-bold text-emerald-600">{myRoutines.length}</p>
+              </CardContent>
+            </Card>
+            <Card className="py-4 border-l-4 border-l-amber-500">
+              <CardContent className="px-4 pb-0 pt-0">
+                <p className="text-xs font-medium text-slate-500">Other Periods</p>
+                <p className="text-2xl font-bold text-amber-600">{routines.length - myRoutines.length}</p>
+              </CardContent>
+            </Card>
+            <Card className="py-4 border-l-4 border-l-violet-500">
+              <CardContent className="px-4 pb-0 pt-0">
+                <p className="text-xs font-medium text-slate-500">Today&apos;s Periods</p>
+                <p className="text-2xl font-bold text-violet-600">{getRoutinesForDay(viewDay).length}</p>
+              </CardContent>
+            </Card>
+            <Card className="py-4 border-l-4 border-l-rose-500">
+              <CardContent className="px-4 pb-0 pt-0">
+                <p className="text-xs font-medium text-slate-500">Total/Week</p>
+                <p className="text-2xl font-bold text-rose-600">{routines.length}</p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* ─── Day View ────────────────────────────────────── */}
         {viewMode === "day" && selectedSectionId && (
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={() => {
-                const idx = DAYS.indexOf(viewDay || "Monday");
-                const prev = DAYS[(idx - 1 + DAYS.length) % DAYS.length];
-                setViewDay(prev);
+                const idx = DAYS.indexOf(viewDay);
+                setViewDay(DAYS[(idx - 1 + DAYS.length) % DAYS.length]);
               }}>
                 <ChevronLeft className="w-4 h-4" />
               </Button>
-              <Select value={viewDay || "Monday"} onValueChange={setViewDay}>
+              <Select value={viewDay} onValueChange={setViewDay}>
                 <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {DAYS.map((d) => (
@@ -223,14 +240,15 @@ export default function TeacherRoutinePage() {
                 </SelectContent>
               </Select>
               <Button variant="outline" size="sm" onClick={() => {
-                const idx = DAYS.indexOf(viewDay || "Monday");
-                const next = DAYS[(idx + 1) % DAYS.length];
-                setViewDay(next);
+                const idx = DAYS.indexOf(viewDay);
+                setViewDay(DAYS[(idx + 1) % DAYS.length]);
               }}>
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
-            {getRoutinesForDay(viewDay || "Monday").length === 0 ? (
+            {isLoadingRoutine ? (
+              <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}</div>
+            ) : getRoutinesForDay(viewDay).length === 0 ? (
               <Card className="gap-4">
                 <CardContent className="py-16">
                   <div className="text-center">
@@ -241,20 +259,22 @@ export default function TeacherRoutinePage() {
               </Card>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {getRoutinesForDay(viewDay || "Monday").map((r, i) => (
+                {getRoutinesForDay(viewDay).map((r, i) => (
                   <Card key={r.class_routine_id} className={`gap-0 ${COLORS[i % COLORS.length]} border`}>
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
                         <Badge variant="secondary" className="text-xs">Period {i + 1}</Badge>
+                        {r.is_mine && <Star className="w-4 h-4 fill-current" />}
                         <Clock className="w-4 h-4 opacity-60" />
                       </div>
-                      {r.subject?.name && (
-                        <p className="text-sm font-bold">{r.subject.name}</p>
-                      )}
+                      <p className="text-sm font-bold">{r.subject?.name || "N/A"}</p>
                       <p className="text-sm mt-1">
                         {r.time_start?.substring(0, 5)} — {r.time_end?.substring(0, 5)}
                       </p>
                       <p className="text-xs mt-1 opacity-75">Room: {r.room || "TBD"}</p>
+                      {r.is_mine && (
+                        <Badge className="mt-2 bg-emerald-200/50 text-emerald-800 text-[10px]">My Period</Badge>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -303,7 +323,10 @@ export default function TeacherRoutinePage() {
                             <div key={r.class_routine_id} className={`p-3 rounded-lg border ${COLORS[i % COLORS.length]}`}>
                               <div className="flex items-center justify-between mb-1">
                                 <span className="text-xs font-bold">Period {i + 1}</span>
-                                <Clock className="w-3.5 h-3.5 opacity-60" />
+                                <div className="flex items-center gap-1">
+                                  {r.is_mine && <Star className="w-3 h-3" />}
+                                  <Clock className="w-3.5 h-3.5 opacity-60" />
+                                </div>
                               </div>
                               {r.subject?.name && <p className="text-sm font-semibold">{r.subject.name}</p>}
                               <p className="text-sm">{r.time_start?.substring(0, 5)} — {r.time_end?.substring(0, 5)}</p>

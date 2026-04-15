@@ -2,12 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  AlertTriangle,
-  CheckCircle,
-  Loader2,
-  XCircle,
-  Save,
-  Users,
+  AlertTriangle, CheckCircle, Loader2, XCircle, Save, Users, CheckCheck, Clock, UserX,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,26 +11,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -45,6 +25,7 @@ interface ClassItem {
   name: string;
   category: string;
   sections: { section_id: number; name: string }[];
+  is_class_teacher?: boolean;
 }
 
 interface StudentItem {
@@ -55,11 +36,34 @@ interface StudentItem {
   last_name: string;
 }
 
-interface AttendanceRecord {
-  attendance_id: number;
-  student_id: number;
-  status: string;
-  student: StudentItem;
+// ─── Status Options (matching CI3) ───────────────────────────
+const STATUS_OPTIONS = [
+  { value: "present", label: "Present", icon: CheckCircle, color: "emerald" },
+  { value: "absent", label: "Absent", icon: XCircle, color: "red" },
+  { value: "late", label: "Late", icon: Clock, color: "amber" },
+  { value: "sick-home", label: "Sick Home", icon: UserX, color: "orange" },
+  { value: "sick-clinic", label: "Sick Clinic", icon: UserX, color: "rose" },
+] as const;
+
+function getStatusBtnClass(status: string, current: string, color: string) {
+  if (current === status) {
+    const colors: Record<string, string> = {
+      emerald: "bg-emerald-600 hover:bg-emerald-700 text-white",
+      red: "bg-red-600 hover:bg-red-700 text-white",
+      amber: "bg-amber-600 hover:bg-amber-700 text-white",
+      orange: "bg-orange-600 hover:bg-orange-700 text-white",
+      rose: "bg-rose-600 hover:bg-rose-700 text-white",
+    };
+    return colors[color] || colors.emerald;
+  }
+  const outline: Record<string, string> = {
+    emerald: "text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800",
+    red: "text-red-700 hover:bg-red-50 hover:text-red-800",
+    amber: "text-amber-700 hover:bg-amber-50 hover:text-amber-800",
+    orange: "text-orange-700 hover:bg-orange-50 hover:text-orange-800",
+    rose: "text-rose-700 hover:bg-rose-50 hover:text-rose-800",
+  };
+  return outline[color] || outline.emerald;
 }
 
 // ─── Main Component ──────────────────────────────────────────
@@ -67,7 +71,6 @@ export default function TeacherAttendancePage() {
   const { isLoading: authLoading } = useAuth();
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [students, setStudents] = useState<StudentItem[]>([]);
-  const [existingAttendance, setExistingAttendance] = useState<AttendanceRecord[]>([]);
 
   const [selectedClassId, setSelectedClassId] = useState("");
   const [selectedSectionId, setSelectedSectionId] = useState("");
@@ -75,15 +78,16 @@ export default function TeacherAttendancePage() {
   const [attendanceMap, setAttendanceMap] = useState<Record<number, string>>({});
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingStudents, setIsLoadingStudents] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // ─── Fetch classes ─────────────────────────────────────────
+  // ─── Fetch classes (teacher-specific) ─────────────────────
   const fetchClasses = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/classes");
+      const res = await fetch("/api/teacher/classes");
       if (!res.ok) throw new Error("Failed to fetch classes");
       const data = await res.json();
       setClasses(data || []);
@@ -98,41 +102,40 @@ export default function TeacherAttendancePage() {
     if (!authLoading) fetchClasses();
   }, [authLoading, fetchClasses]);
 
-  // ─── Fetch students when class & section selected ──────────
+  // ─── Fetch students & existing attendance ─────────────────
   const fetchStudents = useCallback(async () => {
     if (!selectedClassId || !selectedSectionId) {
       setStudents([]);
       setAttendanceMap({});
-      setExistingAttendance([]);
       return;
     }
-    setIsLoading(true);
+    setIsLoadingStudents(true);
     setError(null);
     try {
       const [studentsRes, attRes] = await Promise.all([
-        fetch(`/api/students?classId=${selectedClassId}&sectionId=${selectedSectionId}&limit=200`),
-        fetch(`/api/attendance?class_id=${selectedClassId}&section_id=${selectedSectionId}&date=${selectedDate}&limit=200`),
+        fetch(`/api/teacher/students?class_id=${selectedClassId}&section_id=${selectedSectionId}`),
+        fetch(`/api/teacher/attendance?class_id=${selectedClassId}&section_id=${selectedSectionId}&date=${selectedDate}`),
       ]);
       if (!studentsRes.ok) throw new Error("Failed to fetch students");
 
       const studentsData = await studentsRes.json();
-      setStudents(studentsData.students || []);
+      const studentList = Array.isArray(studentsData) ? studentsData : studentsData.students || [];
+      setStudents(studentList);
 
       // Load existing attendance
       const attData = attRes.ok ? await attRes.json() : { records: [] };
-      const records: AttendanceRecord[] = attData.records || [];
-      setExistingAttendance(records);
+      const records = attData.records || [];
 
       const map: Record<number, string> = {};
-      (studentsData.students || []).forEach((s: StudentItem) => {
-        const existing = records.find((r) => r.student_id === s.student_id);
+      studentList.forEach((s: StudentItem) => {
+        const existing = records.find((r: { student_id: number; status: string }) => r.student_id === s.student_id);
         map[s.student_id] = existing?.status || "present";
       });
       setAttendanceMap(map);
     } catch {
       setError("Failed to load students");
     } finally {
-      setIsLoading(false);
+      setIsLoadingStudents(false);
     }
   }, [selectedClassId, selectedSectionId, selectedDate]);
 
@@ -168,7 +171,7 @@ export default function TeacherAttendancePage() {
         status,
       }));
 
-      const res = await fetch("/api/attendance", {
+      const res = await fetch("/api/teacher/attendance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -176,7 +179,6 @@ export default function TeacherAttendancePage() {
           section_id: parseInt(selectedSectionId),
           date: selectedDate,
           records,
-          marked_by: "teacher",
         }),
       });
 
@@ -190,7 +192,12 @@ export default function TeacherAttendancePage() {
     }
   };
 
-  // Get the selected class to extract its sections
+  // Stats
+  const presentCount = students.filter(s => attendanceMap[s.student_id] === "present").length;
+  const absentCount = students.filter(s => attendanceMap[s.student_id] === "absent").length;
+  const lateCount = students.filter(s => attendanceMap[s.student_id] === "late").length;
+  const sickCount = students.filter(s => ["sick-home", "sick-clinic"].includes(attendanceMap[s.student_id] || "")).length;
+
   const selectedClass = classes.find((c) => c.class_id === parseInt(selectedClassId));
   const sections = selectedClass?.sections || [];
 
@@ -210,42 +217,28 @@ export default function TeacherAttendancePage() {
               <div className="space-y-2">
                 <Label>Class</Label>
                 <Select value={selectedClassId} onValueChange={(v) => { setSelectedClassId(v); setSelectedSectionId(""); }}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select class" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                   <SelectContent>
                     {classes.map((c) => (
-                      <SelectItem key={c.class_id} value={String(c.class_id)}>
-                        {c.name}
-                      </SelectItem>
+                      <SelectItem key={c.class_id} value={String(c.class_id)}>{c.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="space-y-2">
                 <Label>Section</Label>
                 <Select value={selectedSectionId} onValueChange={setSelectedSectionId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select section" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select section" /></SelectTrigger>
                   <SelectContent>
                     {sections.map((s) => (
-                      <SelectItem key={s.section_id} value={String(s.section_id)}>
-                        {s.name}
-                      </SelectItem>
+                      <SelectItem key={s.section_id} value={String(s.section_id)}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="space-y-2">
                 <Label>Date</Label>
-                <Input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                />
+                <Input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
               </div>
             </div>
           </CardContent>
@@ -279,17 +272,19 @@ export default function TeacherAttendancePage() {
                   </CardTitle>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={markAllPresent}>
-                    All Present
+                  <Button variant="outline" size="sm" onClick={markAllPresent} className="min-w-[44px] min-h-[44px]">
+                    <CheckCheck className="w-3.5 h-3.5 mr-1" />
+                    <span className="hidden sm:inline">All Present</span>
                   </Button>
-                  <Button variant="outline" size="sm" onClick={markAllAbsent}>
-                    All Absent
+                  <Button variant="outline" size="sm" onClick={markAllAbsent} className="min-w-[44px] min-h-[44px]">
+                    <XCircle className="w-3.5 h-3.5 mr-1" />
+                    <span className="hidden sm:inline">All Absent</span>
                   </Button>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
-              {isLoading ? (
+              {isLoadingStudents ? (
                 <div className="space-y-3">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Skeleton key={i} className="h-12 w-full" />
@@ -302,6 +297,26 @@ export default function TeacherAttendancePage() {
                 </div>
               ) : (
                 <>
+                  {/* Live Stats */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                    <div className="flex items-center gap-2 p-2 rounded-lg bg-emerald-50 border border-emerald-100">
+                      <CheckCircle className="w-4 h-4 text-emerald-600" />
+                      <span className="text-sm font-medium text-emerald-700">Present: {presentCount}</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 rounded-lg bg-red-50 border border-red-100">
+                      <XCircle className="w-4 h-4 text-red-600" />
+                      <span className="text-sm font-medium text-red-700">Absent: {absentCount}</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-50 border border-amber-100">
+                      <Clock className="w-4 h-4 text-amber-600" />
+                      <span className="text-sm font-medium text-amber-700">Late: {lateCount}</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2 rounded-lg bg-orange-50 border border-orange-100">
+                      <UserX className="w-4 h-4 text-orange-600" />
+                      <span className="text-sm font-medium text-orange-700">Sick: {sickCount}</span>
+                    </div>
+                  </div>
+
                   <div className="max-h-[500px] overflow-y-auto rounded-lg border border-slate-200">
                     <Table>
                       <TableHeader>
@@ -317,39 +332,37 @@ export default function TeacherAttendancePage() {
                           <TableRow key={student.student_id} className="hover:bg-slate-50">
                             <TableCell className="text-slate-400 text-sm">{idx + 1}</TableCell>
                             <TableCell className="font-medium text-sm text-slate-900">
-                              {student.name || `${student.first_name} ${student.last_name}`.trim()}
+                              <div className="flex items-center gap-2">
+                                <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                  attendanceMap[student.student_id] === "present" ? "bg-emerald-100" :
+                                  attendanceMap[student.student_id] === "absent" ? "bg-red-100" :
+                                  attendanceMap[student.student_id] === "late" ? "bg-amber-100" : "bg-orange-100"
+                                }`}>
+                                  <span className="text-[10px] font-bold text-slate-600">
+                                    {student.name?.charAt(0) || student.first_name?.charAt(0) || "?"}
+                                  </span>
+                                </div>
+                                {student.name || `${student.first_name} ${student.last_name}`.trim()}
+                              </div>
                             </TableCell>
                             <TableCell className="hidden sm:table-cell text-sm text-slate-500 font-mono">
                               {student.student_code}
                             </TableCell>
                             <TableCell className="text-right">
-                              <div className="flex items-center justify-end gap-1">
-                                <Button
-                                  variant={attendanceMap[student.student_id] === "present" ? "default" : "outline"}
-                                  size="sm"
-                                  className={`h-8 min-w-[44px] ${attendanceMap[student.student_id] === "present" ? "bg-emerald-600 hover:bg-emerald-700" : "text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"}`}
-                                  onClick={() => handleStatusChange(student.student_id, "present")}
-                                >
-                                  <CheckCircle className="w-3.5 h-3.5 sm:mr-1" />
-                                  <span className="hidden sm:inline">P</span>
-                                </Button>
-                                <Button
-                                  variant={attendanceMap[student.student_id] === "absent" ? "default" : "outline"}
-                                  size="sm"
-                                  className={`h-8 min-w-[44px] ${attendanceMap[student.student_id] === "absent" ? "bg-red-600 hover:bg-red-700" : "text-red-700 hover:bg-red-50 hover:text-red-800"}`}
-                                  onClick={() => handleStatusChange(student.student_id, "absent")}
-                                >
-                                  <XCircle className="w-3.5 h-3.5 sm:mr-1" />
-                                  <span className="hidden sm:inline">A</span>
-                                </Button>
-                                <Button
-                                  variant={attendanceMap[student.student_id] === "late" ? "default" : "outline"}
-                                  size="sm"
-                                  className={`h-8 min-w-[44px] ${attendanceMap[student.student_id] === "late" ? "bg-amber-600 hover:bg-amber-700" : "text-amber-700 hover:bg-amber-50 hover:text-amber-800"}`}
-                                  onClick={() => handleStatusChange(student.student_id, "late")}
-                                >
-                                  <span className="text-xs font-medium">L</span>
-                                </Button>
+                              <div className="flex items-center justify-end gap-1 flex-wrap">
+                                {STATUS_OPTIONS.map(({ value, label, icon: Icon, color }) => (
+                                  <Button
+                                    key={value}
+                                    variant={attendanceMap[student.student_id] === value ? "default" : "outline"}
+                                    size="sm"
+                                    className={`h-8 min-w-[36px] ${getStatusBtnClass(value, attendanceMap[student.student_id] || "", color)}`}
+                                    onClick={() => handleStatusChange(student.student_id, value)}
+                                    title={label}
+                                  >
+                                    <Icon className="w-3.5 h-3.5 sm:mr-1" />
+                                    <span className="hidden lg:inline text-xs">{label.charAt(0)}</span>
+                                  </Button>
+                                ))}
                               </div>
                             </TableCell>
                           </TableRow>

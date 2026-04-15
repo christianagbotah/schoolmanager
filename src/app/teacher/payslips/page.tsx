@@ -2,32 +2,18 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  Banknote,
-  Download,
-  Printer,
-  Loader2,
-  AlertTriangle,
-  Calendar,
-  DollarSign,
-  Shield,
+  Banknote, Download, Printer, Loader2, AlertTriangle,
+  Calendar, DollarSign, Shield, Receipt,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/use-auth";
@@ -35,7 +21,7 @@ import { format } from "date-fns";
 
 // ─── Types ───────────────────────────────────────────────────
 interface Payslip {
-  id: number;
+  id?: number;
   month: string;
   year: string;
   basic_salary: number;
@@ -47,7 +33,8 @@ interface Payslip {
   other_deductions: number;
   net_pay: number;
   status: string;
-  generated_at: string;
+  generated_at?: string;
+  pay_date?: string;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -57,7 +44,7 @@ function formatCurrency(amount: number): string {
 
 // ─── Main Component ──────────────────────────────────────────
 export default function TeacherPayslipsPage() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading } = useAuth();
   const [payslips, setPayslips] = useState<Payslip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,18 +53,18 @@ export default function TeacherPayslipsPage() {
   const fetchPayslips = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/payslips?teacherId=${user?.id}`);
+      const res = await fetch("/api/teacher/payslips");
       if (res.ok) {
         const data = await res.json();
         setPayslips(Array.isArray(data) ? data : []);
       }
     } catch {
-      // Use demo data if API fails
+      // Use empty array if API fails - teacher payslips placeholder
       setPayslips([]);
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id]);
+  }, []);
 
   useEffect(() => {
     if (!authLoading) fetchPayslips();
@@ -109,7 +96,7 @@ export default function TeacherPayslipsPage() {
           </Button>
         </div>
 
-        {/* ─── Summary ─────────────────────────────────────── */}
+        {/* ─── Summary Stats ─────────────────────────────── */}
         {payslips.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card className="py-4 border-l-4 border-l-emerald-500">
@@ -119,10 +106,10 @@ export default function TeacherPayslipsPage() {
                 <p className="text-xs text-slate-400 mt-1">{payslips[0]?.month} {payslips[0]?.year}</p>
               </CardContent>
             </Card>
-            <Card className="py-4 border-l-4 border-l-blue-500">
+            <Card className="py-4 border-l-4 border-l-violet-500">
               <CardContent className="px-4 pb-0 pt-0">
                 <p className="text-xs font-medium text-slate-500">Total Gross (YTD)</p>
-                <p className="text-2xl font-bold text-blue-600 tabular-nums">{formatCurrency(payslips.reduce((s, p) => s + (p.basic_salary + p.allowance), 0))}</p>
+                <p className="text-2xl font-bold text-violet-600 tabular-nums">{formatCurrency(payslips.reduce((s, p) => s + (p.basic_salary + p.allowance), 0))}</p>
               </CardContent>
             </Card>
             <Card className="py-4 border-l-4 border-l-red-500">
@@ -140,7 +127,7 @@ export default function TeacherPayslipsPage() {
           </div>
         )}
 
-        {/* ─── Payslip List ────────────────────────────────── */}
+        {/* ─── Payslip List ──────────────────────────────── */}
         <Card className="gap-4">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -202,7 +189,10 @@ export default function TeacherPayslipsPage() {
         <Dialog open={!!selectedPayslip} onOpenChange={(open) => !open && setSelectedPayslip(null)}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Payslip — {selectedPayslip?.month} {selectedPayslip?.year}</DialogTitle>
+              <DialogTitle className="flex items-center gap-2">
+                <Receipt className="w-5 h-5 text-emerald-600" />
+                Payslip — {selectedPayslip?.month} {selectedPayslip?.year}
+              </DialogTitle>
             </DialogHeader>
             {selectedPayslip && (
               <div className="space-y-4">

@@ -2,12 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  AlertTriangle,
-  CheckCircle,
-  Loader2,
-  Save,
-  Award,
-  BookOpen,
+  AlertTriangle, CheckCircle, Loader2, Save, Award, BookOpen,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,19 +11,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/use-auth";
@@ -43,12 +29,15 @@ interface ClassItem {
 interface SubjectItem {
   subject_id: number;
   name: string;
+  class?: { class_id: number; name: string; name_numeric: number };
+  section?: { section_id: number; name: string };
 }
 
 interface ExamItem {
   exam_id: number;
   name: string;
-  type: string;
+  type?: string;
+  class_id?: number;
 }
 
 interface StudentItem {
@@ -57,13 +46,6 @@ interface StudentItem {
   name: string;
   first_name: string;
   last_name: string;
-}
-
-interface ExistingMark {
-  mark_id: number;
-  mark_obtained: number;
-  comment: string;
-  student_id: number;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -87,7 +69,7 @@ function getGradeColor(score: number): string {
 export default function TeacherMarksPage() {
   const { isLoading: authLoading } = useAuth();
   const [classes, setClasses] = useState<ClassItem[]>([]);
-  const [subjects, setSubjects] = useState<SubjectItem[]>([]);
+  const [allSubjects, setAllSubjects] = useState<SubjectItem[]>([]);
   const [exams, setExams] = useState<ExamItem[]>([]);
   const [students, setStudents] = useState<StudentItem[]>([]);
 
@@ -99,6 +81,7 @@ export default function TeacherMarksPage() {
   const [commentsMap, setCommentsMap] = useState<Record<number, string>>({});
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingStudents, setIsLoadingStudents] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -125,23 +108,24 @@ export default function TeacherMarksPage() {
   // ─── Fetch subjects & exams when class changes ─────────────
   useEffect(() => {
     if (!selectedClassId) {
-      setSubjects([]);
+      setAllSubjects([]);
       setExams([]);
       return;
     }
     const fetchData = async () => {
       try {
-        const [subjectsRes, examsRes] = await Promise.all([
+        const [subjectsRes, marksRes] = await Promise.all([
           fetch("/api/teacher/subjects"),
-          fetch("/api/teacher/marks"),
+          fetch(`/api/teacher/marks`),
         ]);
 
         if (subjectsRes.ok) {
           const data = await subjectsRes.json();
-          setSubjects(Array.isArray(data) ? data : []);
+          const subjectList = Array.isArray(data) ? data : [];
+          setAllSubjects(subjectList);
         }
-        if (examsRes.ok) {
-          const data = await examsRes.json();
+        if (marksRes.ok) {
+          const data = await marksRes.json();
           setExams(data.exams || []);
         }
       } catch {
@@ -151,6 +135,11 @@ export default function TeacherMarksPage() {
     fetchData();
   }, [selectedClassId]);
 
+  // ─── Filter subjects by selected class ─────────────────────
+  const filteredSubjects = selectedClassId
+    ? allSubjects.filter(s => String(s.class?.class_id) === selectedClassId)
+    : allSubjects;
+
   // ─── Fetch students & existing marks ──────────────────────
   const fetchStudentsAndMarks = useCallback(async () => {
     if (!selectedClassId || !selectedSectionId) {
@@ -159,27 +148,29 @@ export default function TeacherMarksPage() {
       setCommentsMap({});
       return;
     }
-    setIsLoading(true);
+    setIsLoadingStudents(true);
     setError(null);
     try {
-      const res = await fetch(`/api/students?classId=${selectedClassId}&sectionId=${selectedSectionId}&limit=200`);
-      if (!res.ok) throw new Error("Failed to fetch students");
-      const data = await res.json();
-      const studentList = data.students || [];
+      const studentsRes = await fetch(
+        `/api/teacher/students?class_id=${selectedClassId}&section_id=${selectedSectionId}`
+      );
+      if (!studentsRes.ok) throw new Error("Failed to fetch students");
+      const studentsData = await studentsRes.json();
+      const studentList = Array.isArray(studentsData) ? studentsData : studentsData.students || [];
       setStudents(studentList);
 
       // Load existing marks if subject + exam selected
       if (selectedSubjectId && selectedExamId) {
         const marksRes = await fetch(
-          `/api/marks?class_id=${selectedClassId}&subject_id=${selectedSubjectId}&exam_id=${selectedExamId}&limit=200`
+          `/api/teacher/marks?subject_id=${selectedSubjectId}&exam_id=${selectedExamId}&class_id=${selectedClassId}&section_id=${selectedSectionId}`
         );
         if (marksRes.ok) {
           const marksData = await marksRes.json();
-          const marks: ExistingMark[] = marksData.marks || [];
+          const marks = marksData.marks || [];
           const mMap: Record<number, number> = {};
           const cMap: Record<number, string> = {};
           studentList.forEach((s: StudentItem) => {
-            const existing = marks.find((m) => m.student_id === s.student_id);
+            const existing = marks.find((m: { student_id: number; mark_obtained: number; comment: string }) => m.student_id === s.student_id);
             mMap[s.student_id] = existing?.mark_obtained ?? 0;
             cMap[s.student_id] = existing?.comment ?? "";
           });
@@ -199,7 +190,7 @@ export default function TeacherMarksPage() {
     } catch {
       setError("Failed to load students");
     } finally {
-      setIsLoading(false);
+      setIsLoadingStudents(false);
     }
   }, [selectedClassId, selectedSectionId, selectedSubjectId, selectedExamId]);
 
@@ -233,7 +224,7 @@ export default function TeacherMarksPage() {
         comment: commentsMap[parseInt(studentId)] || "",
       }));
 
-      const res = await fetch("/api/marks", {
+      const res = await fetch("/api/teacher/marks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ records }),
@@ -251,6 +242,8 @@ export default function TeacherMarksPage() {
 
   const totalMarks = Object.values(marksMap).reduce((s, v) => s + v, 0);
   const avgMarks = students.length > 0 ? (totalMarks / students.length).toFixed(1) : "0";
+  const highest = students.length > 0 ? Math.max(...Object.values(marksMap)) : 0;
+  const lowest = students.length > 0 ? Math.min(...Object.values(marksMap).filter(v => v > 0)) : 0;
 
   const selectedClass = classes.find((c) => c.class_id === parseInt(selectedClassId));
   const sections = selectedClass?.sections || [];
@@ -270,58 +263,41 @@ export default function TeacherMarksPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label>Class</Label>
-                <Select value={selectedClassId} onValueChange={(v) => { setSelectedClassId(v); setSelectedSectionId(""); setSelectedSubjectId(""); }}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select class" />
-                  </SelectTrigger>
+                <Select value={selectedClassId} onValueChange={(v) => { setSelectedClassId(v); setSelectedSectionId(""); setSelectedSubjectId(""); setStudents([]); }}>
+                  <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                   <SelectContent>
                     {classes.map((c) => (
-                      <SelectItem key={c.class_id} value={String(c.class_id)}>
-                        {c.name}
-                      </SelectItem>
+                      <SelectItem key={c.class_id} value={String(c.class_id)}>{c.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="space-y-2">
                 <Label>Section</Label>
                 <Select value={selectedSectionId} onValueChange={setSelectedSectionId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select section" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select section" /></SelectTrigger>
                   <SelectContent>
                     {sections.map((s) => (
-                      <SelectItem key={s.section_id} value={String(s.section_id)}>
-                        {s.name}
-                      </SelectItem>
+                      <SelectItem key={s.section_id} value={String(s.section_id)}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="space-y-2">
                 <Label>Subject</Label>
                 <Select value={selectedSubjectId} onValueChange={setSelectedSubjectId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select subject" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
                   <SelectContent>
-                    {subjects.map((s) => (
-                      <SelectItem key={s.subject_id} value={String(s.subject_id)}>
-                        {s.name}
-                      </SelectItem>
+                    {filteredSubjects.map((s) => (
+                      <SelectItem key={s.subject_id} value={String(s.subject_id)}>{s.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="space-y-2">
                 <Label>Exam</Label>
                 <Select value={selectedExamId} onValueChange={setSelectedExamId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select exam" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select exam" /></SelectTrigger>
                   <SelectContent>
                     {exams.map((e) => (
                       <SelectItem key={e.exam_id} value={String(e.exam_id)}>
@@ -362,14 +338,16 @@ export default function TeacherMarksPage() {
                     Students ({students.length})
                   </CardTitle>
                 </div>
-                <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-4 text-sm flex-wrap">
                   <span className="text-slate-500">Total: <span className="font-semibold text-slate-900">{totalMarks}</span></span>
                   <span className="text-slate-500">Avg: <span className="font-semibold text-slate-900">{avgMarks}</span></span>
+                  <span className="text-emerald-600">High: <span className="font-semibold">{highest}</span></span>
+                  <span className="text-red-600">Low: <span className="font-semibold">{lowest}</span></span>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
-              {isLoading ? (
+              {isLoadingStudents ? (
                 <div className="space-y-3">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Skeleton key={i} className="h-12 w-full" />
@@ -401,7 +379,14 @@ export default function TeacherMarksPage() {
                             <TableRow key={student.student_id} className="hover:bg-slate-50">
                               <TableCell className="text-slate-400 text-sm">{idx + 1}</TableCell>
                               <TableCell className="font-medium text-sm text-slate-900">
-                                {student.name || `${student.first_name} ${student.last_name}`.trim()}
+                                <div className="flex items-center gap-2">
+                                  <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                                    <span className="text-[10px] font-bold text-purple-700">
+                                      {student.name?.charAt(0) || student.first_name?.charAt(0) || "?"}
+                                    </span>
+                                  </div>
+                                  {student.name || `${student.first_name} ${student.last_name}`.trim()}
+                                </div>
                               </TableCell>
                               <TableCell className="hidden sm:table-cell text-sm text-slate-500 font-mono">
                                 {student.student_code}

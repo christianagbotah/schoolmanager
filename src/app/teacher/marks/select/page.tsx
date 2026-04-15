@@ -2,12 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  FileText,
-  Loader2,
-  AlertTriangle,
-  MousePointerClick,
-  Clock,
-  History,
+  FileText, Loader2, AlertTriangle, MousePointerClick,
+  Clock, History, Award, Search,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,41 +11,40 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 
 // ─── Types ───────────────────────────────────────────────────
-interface ClassItem { class_id: number; name: string; sections: { section_id: number; name: string }[]; }
-interface SubjectItem { subject_id: number; name: string; }
-interface ExamItem { exam_id: number; name: string; type: string; }
+interface ClassItem {
+  class_id: number;
+  name: string;
+  sections: { section_id: number; name: string }[];
+}
+
+interface SubjectItem {
+  subject_id: number;
+  name: string;
+}
+
+interface ExamItem {
+  exam_id: number;
+  name: string;
+  type?: string;
+}
+
 interface MarkRecord {
   mark_id: number;
-  class_id: number;
-  section_id: number;
-  subject_id: number;
-  exam_id: number;
   mark_obtained: number;
   comment: string;
-  created_at: string;
-  class: { name: string };
-  section: { name: string };
-  subject: { name: string };
-  exam: { name: string } | null;
+  student?: { name: string; student_code: string };
+  subject?: { name: string };
+  exam?: { name: string };
 }
 
 // ─── Main Component ──────────────────────────────────────────
@@ -57,12 +52,12 @@ export default function TeacherMarksSelectPage() {
   const { isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [classes, setClasses] = useState<ClassItem[]>([]);
+  const [allSubjects, setAllSubjects] = useState<SubjectItem[]>([]);
+  const [exams, setExams] = useState<ExamItem[]>([]);
   const [selectedClassId, setSelectedClassId] = useState("");
   const [selectedSectionId, setSelectedSectionId] = useState("");
   const [selectedExamId, setSelectedExamId] = useState("");
   const [selectedSubjectId, setSelectedSubjectId] = useState("");
-  const [subjects, setSubjects] = useState<SubjectItem[]>([]);
-  const [exams, setExams] = useState<ExamItem[]>([]);
   const [history, setHistory] = useState<MarkRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
@@ -70,7 +65,7 @@ export default function TeacherMarksSelectPage() {
   const fetchClasses = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/classes");
+      const res = await fetch("/api/teacher/classes");
       if (res.ok) { const d = await res.json(); setClasses(d || []); }
     } catch { /* silent */ } finally { setIsLoading(false); }
   }, []);
@@ -78,32 +73,32 @@ export default function TeacherMarksSelectPage() {
   useEffect(() => { if (!authLoading) fetchClasses(); }, [authLoading, fetchClasses]);
 
   useEffect(() => {
-    if (!selectedClassId) { setSubjects([]); setExams([]); return; }
+    if (!selectedClassId) { setAllSubjects([]); setExams([]); return; }
     const loadSubjectsAndExams = async () => {
       try {
-        const [sRes, eRes] = await Promise.all([
-          fetch(`/api/subjects?class_id=${selectedClassId}`),
-          fetch(`/api/exams?class_id=${selectedClassId}`),
+        const [sRes, mRes] = await Promise.all([
+          fetch("/api/teacher/subjects"),
+          fetch("/api/teacher/marks"),
         ]);
-        if (sRes.ok) { const d = await sRes.json(); setSubjects(Array.isArray(d) ? d : []); }
-        if (eRes.ok) { const d = await eRes.json(); setExams(d.exams || []); }
+        if (sRes.ok) { const d = await sRes.json(); setAllSubjects(Array.isArray(d) ? d : []); }
+        if (mRes.ok) { const d = await mRes.json(); setExams(d.exams || []); }
       } catch { /* silent */ }
     };
     loadSubjectsAndExams();
   }, [selectedClassId]);
 
+  const filteredSubjects = selectedClassId
+    ? allSubjects.filter(s => String(s.class?.class_id) === selectedClassId)
+    : allSubjects;
+
   const fetchHistory = useCallback(async () => {
-    if (!selectedClassId || !selectedSectionId || !selectedExamId || !selectedSubjectId) {
-      setHistory([]);
-      return;
-    }
+    if (!selectedClassId || !selectedSectionId || !selectedExamId || !selectedSubjectId) { setHistory([]); return; }
     setIsLoadingHistory(true);
     try {
-      const res = await fetch(`/api/marks?class_id=${selectedClassId}&section_id=${selectedSectionId}&subject_id=${selectedSubjectId}&exam_id=${selectedExamId}&limit=200`);
-      if (res.ok) {
-        const d = await res.json();
-        setHistory(d.marks || []);
-      }
+      const res = await fetch(
+        `/api/teacher/marks?subject_id=${selectedSubjectId}&exam_id=${selectedExamId}&class_id=${selectedClassId}&section_id=${selectedSectionId}`
+      );
+      if (res.ok) { const d = await res.json(); setHistory(d.marks || []); }
     } catch { setHistory([]); }
     finally { setIsLoadingHistory(false); }
   }, [selectedClassId, selectedSectionId, selectedExamId, selectedSubjectId]);
@@ -120,7 +115,9 @@ export default function TeacherMarksSelectPage() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="space-y-6"><Skeleton className="h-8 w-48" /><Skeleton className="h-24 w-full" /><Skeleton className="h-24 w-full" /></div>
+        <div className="space-y-6">
+          <Skeleton className="h-8 w-48" /><Skeleton className="h-24 w-full" /><Skeleton className="h-24 w-full" />
+        </div>
       </DashboardLayout>
     );
   }
@@ -163,16 +160,14 @@ export default function TeacherMarksSelectPage() {
                 <Label>Exam</Label>
                 <Select value={selectedExamId} onValueChange={(v) => { setSelectedExamId(v); setHistory([]); }}>
                   <SelectTrigger><SelectValue placeholder="Select exam" /></SelectTrigger>
-                  <SelectContent>
-                    {exams.map((e) => <SelectItem key={e.exam_id} value={String(e.exam_id)}>{e.name} {e.type ? `(${e.type})` : ""}</SelectItem>)}
-                  </SelectContent>
+                  <SelectContent>{exams.map((e) => <SelectItem key={e.exam_id} value={String(e.exam_id)}>{e.name} {e.type ? `(${e.type})` : ""}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label>Subject</Label>
                 <Select value={selectedSubjectId} onValueChange={(v) => { setSelectedSubjectId(v); setHistory([]); }}>
                   <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
-                  <SelectContent>{subjects.map((s) => <SelectItem key={s.subject_id} value={String(s.subject_id)}>{s.name}</SelectItem>)}</SelectContent>
+                  <SelectContent>{filteredSubjects.map((s) => <SelectItem key={s.subject_id} value={String(s.subject_id)}>{s.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
             </div>
@@ -217,7 +212,7 @@ export default function TeacherMarksSelectPage() {
                     ) : (
                       history.map((m) => (
                         <TableRow key={m.mark_id} className="hover:bg-slate-50">
-                          <TableCell className="text-sm font-medium">{m.class?.name}</TableCell>
+                          <TableCell className="text-sm font-medium">{m.student?.name || `Student ${m.student_id}`}</TableCell>
                           <TableCell className="text-right font-semibold text-sm">{m.mark_obtained || 0}</TableCell>
                           <TableCell className="hidden sm:table-cell text-xs text-slate-500">{m.comment || "—"}</TableCell>
                         </TableRow>

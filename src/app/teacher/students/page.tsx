@@ -2,14 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  Users,
-  Search,
-  Award,
-  FileText,
-  Eye,
-  Loader2,
-  AlertTriangle,
-  GraduationCap,
+  Users, Search, Award, FileText, Eye, AlertTriangle, GraduationCap,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,27 +11,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -59,7 +39,9 @@ interface StudentItem {
   email: string;
   phone: string;
   address: string;
-  enrolls: { class: { class_id: number; name: string }; section: { section_id: number; name: string } }[];
+  class_name?: string;
+  section_name?: string;
+  roll?: number;
 }
 
 interface MarkRecord {
@@ -96,6 +78,7 @@ export default function TeacherStudentsPage() {
   const [students, setStudents] = useState<StudentItem[]>([]);
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingStudents, setIsLoadingStudents] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Detail dialog
@@ -107,7 +90,7 @@ export default function TeacherStudentsPage() {
   const fetchClasses = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/classes");
+      const res = await fetch("/api/teacher/classes");
       if (!res.ok) throw new Error("Failed to fetch classes");
       const data = await res.json();
       setClasses(data || []);
@@ -129,14 +112,17 @@ export default function TeacherStudentsPage() {
         setStudents([]);
         return;
       }
+      setIsLoadingStudents(true);
       setError(null);
       try {
-        const res = await fetch(`/api/students?classId=${selectedClassId}&sectionId=${selectedSectionId}&limit=200`);
+        const res = await fetch(`/api/teacher/students?class_id=${selectedClassId}&section_id=${selectedSectionId}`);
         if (!res.ok) throw new Error("Failed to fetch students");
         const data = await res.json();
-        setStudents(data.students || []);
+        setStudents(Array.isArray(data) ? data : data.students || []);
       } catch {
         setError("Failed to load students");
+      } finally {
+        setIsLoadingStudents(false);
       }
     };
     fetchStudents();
@@ -147,7 +133,7 @@ export default function TeacherStudentsPage() {
     setSelectedStudent(student);
     setIsLoadingMarks(true);
     try {
-      const res = await fetch(`/api/marks?student_id=${student.student_id}&limit=200`);
+      const res = await fetch(`/api/teacher/marks?student_id=${student.student_id}`);
       if (res.ok) {
         const data = await res.json();
         setStudentMarks(data.marks || []);
@@ -248,7 +234,9 @@ export default function TeacherStudentsPage() {
               </div>
             </CardHeader>
             <CardContent className="pt-0">
-              {filteredStudents.length === 0 ? (
+              {isLoadingStudents ? (
+                <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
+              ) : filteredStudents.length === 0 ? (
                 <div className="text-center py-12">
                   <GraduationCap className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                   <p className="text-slate-400 text-sm">No students found</p>
@@ -268,9 +256,16 @@ export default function TeacherStudentsPage() {
                     <TableBody>
                       {filteredStudents.map((student, idx) => (
                         <TableRow key={student.student_id} className="hover:bg-slate-50">
-                          <TableCell className="text-slate-400 text-sm">{idx + 1}</TableCell>
+                          <TableCell className="text-slate-400 text-sm">{student.roll || idx + 1}</TableCell>
                           <TableCell className="font-medium text-sm text-slate-900">
-                            {student.name || `${student.first_name} ${student.last_name}`.trim()}
+                            <div className="flex items-center gap-2">
+                              <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                                <span className="text-[10px] font-bold text-emerald-700">
+                                  {student.name?.charAt(0) || student.first_name?.charAt(0) || "?"}
+                                </span>
+                              </div>
+                              {student.name || `${student.first_name} ${student.last_name}`.trim()}
+                            </div>
                           </TableCell>
                           <TableCell className="hidden sm:table-cell text-sm text-slate-500 font-mono">{student.student_code}</TableCell>
                           <TableCell className="hidden md:table-cell">
@@ -360,6 +355,7 @@ export default function TeacherStudentsPage() {
                         <TableHeader>
                           <TableRow className="bg-slate-50 hover:bg-slate-50">
                             <TableHead className="text-xs">Subject</TableHead>
+                            <TableHead className="text-xs">Exam</TableHead>
                             <TableHead className="text-xs text-right">Score</TableHead>
                             <TableHead className="text-xs text-center">Grade</TableHead>
                           </TableRow>
@@ -368,6 +364,7 @@ export default function TeacherStudentsPage() {
                           {studentMarks.map((m) => (
                             <TableRow key={m.mark_id} className="hover:bg-slate-50">
                               <TableCell className="text-sm">{m.subject?.name || "N/A"}</TableCell>
+                              <TableCell className="text-xs text-slate-500">{m.exam?.name || "—"}</TableCell>
                               <TableCell className="text-right text-sm font-semibold">{m.mark_obtained}</TableCell>
                               <TableCell className="text-center">
                                 <Badge className={getGradeColor(m.mark_obtained)} variant="secondary">{getGrade(m.mark_obtained)}</Badge>

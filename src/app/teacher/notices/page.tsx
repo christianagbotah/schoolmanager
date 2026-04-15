@@ -2,13 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  Megaphone,
-  Pin,
-  Search,
-  Calendar,
-  Loader2,
-  AlertTriangle,
-  Eye,
+  Megaphone, Pin, Search, Calendar, Loader2, AlertTriangle, Eye,
+  Clock, FileText, Paperclip,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,17 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/use-auth";
@@ -39,8 +24,12 @@ interface Notice {
   title: string;
   notice: string;
   is_pinned: number;
-  timestamp: string | null;
-  created_at: string;
+  timestamp: number | null;
+  create_timestamp: number;
+  start_date?: string;
+  end_date?: string;
+  attachment?: string;
+  image?: string;
 }
 
 // ─── Main Component ──────────────────────────────────────────
@@ -51,12 +40,11 @@ export default function TeacherNoticesPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
-  const [dateFilter, setDateFilter] = useState("");
 
   const fetchNotices = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/notices?limit=100`);
+      const res = await fetch("/api/teacher/notices");
       if (res.ok) {
         const data = await res.json();
         setNotices(Array.isArray(data) ? data : []);
@@ -72,20 +60,16 @@ export default function TeacherNoticesPage() {
     if (!authLoading) fetchNotices();
   }, [authLoading, fetchNotices]);
 
+  const pinnedNotices = notices.filter(n => n.is_pinned);
   const filteredNotices = notices
     .filter((n) => {
       const q = search.toLowerCase();
       return n.title?.toLowerCase().includes(q) || n.notice?.toLowerCase().includes(q);
     })
-    .filter((n) => {
-      if (!dateFilter) return true;
-      if (n.timestamp) return new Date(n.timestamp).toISOString().startsWith(dateFilter);
-      return true;
-    })
     .sort((a, b) => {
       if (a.is_pinned && !b.is_pinned) return -1;
       if (!a.is_pinned && b.is_pinned) return 1;
-      return new Date(b.timestamp || b.created_at || 0).getTime() - new Date(a.timestamp || a.created_at || 0).getTime();
+      return new Date(b.timestamp || b.create_timestamp || 0).getTime() - new Date(a.timestamp || a.create_timestamp || 0).getTime();
     });
 
   if (isLoading) {
@@ -108,18 +92,12 @@ export default function TeacherNoticesPage() {
           <p className="text-sm text-slate-500 mt-1">School announcements and notices</p>
         </div>
 
-        {/* ─── Filters ─────────────────────────────────────── */}
+        {/* ─── Search ─────────────────────────────────────── */}
         <Card className="gap-4">
           <CardContent className="pt-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input placeholder="Search notices..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-              </div>
-              <div className="space-y-2">
-                <Label>Filter by Date</Label>
-                <Input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} />
-              </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input placeholder="Search notices..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
             </div>
           </CardContent>
         </Card>
@@ -131,12 +109,12 @@ export default function TeacherNoticesPage() {
         )}
 
         {/* ─── Pinned Notices ──────────────────────────────── */}
-        {filteredNotices.filter((n) => n.is_pinned).length > 0 && (
+        {pinnedNotices.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-              <Pin className="w-4 h-4" />Pinned
+              <Pin className="w-4 h-4" />Pinned ({pinnedNotices.length})
             </h3>
-            {filteredNotices.filter((n) => n.is_pinned).map((notice) => (
+            {pinnedNotices.map((notice) => (
               <Card key={notice.id} className="gap-4 border-amber-200 bg-amber-50/30">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-3">
@@ -146,10 +124,16 @@ export default function TeacherNoticesPage() {
                         <h4 className="font-semibold text-slate-900 truncate">{notice.title}</h4>
                       </div>
                       <p className="text-sm text-slate-500 mt-1 line-clamp-2">{notice.notice}</p>
-                      {notice.timestamp && (
+                      {notice.create_timestamp && (
                         <span className="text-xs text-slate-400 mt-2 flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          {format(new Date(notice.timestamp), "MMM d, yyyy")}
+                          {format(new Date(notice.create_timestamp * 1000), "MMM d, yyyy")}
+                        </span>
+                      )}
+                      {(notice.attachment || notice.image) && (
+                        <span className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                          <Paperclip className="w-3 h-3" />
+                          {notice.attachment || notice.image}
                         </span>
                       )}
                     </div>
@@ -182,16 +166,25 @@ export default function TeacherNoticesPage() {
             ) : (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {filteredNotices.map((notice) => (
-                  <div key={notice.id} className="p-4 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => setSelectedNotice(notice)}>
+                  <div
+                    key={notice.id}
+                    className="p-4 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
+                    onClick={() => setSelectedNotice(notice)}
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <h4 className="font-semibold text-sm text-slate-900 truncate">{notice.title}</h4>
+                        <div className="flex items-center gap-1.5">
+                          {notice.is_pinned && <Pin className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />}
+                          <h4 className="font-semibold text-sm text-slate-900 truncate">{notice.title}</h4>
+                        </div>
                         <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{notice.notice}</p>
-                        {notice.timestamp && (
-                          <span className="text-[10px] text-slate-400 mt-1">{format(new Date(notice.timestamp), "MMM d, yyyy")}</span>
+                        {notice.create_timestamp && (
+                          <span className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {format(new Date(notice.create_timestamp * 1000), "MMM d, yyyy")}
+                          </span>
                         )}
                       </div>
-                      {notice.is_pinned && <Pin className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />}
                     </div>
                   </div>
                 ))}
@@ -204,19 +197,34 @@ export default function TeacherNoticesPage() {
         <Dialog open={!!selectedNotice} onOpenChange={(open) => !open && setSelectedNotice(null)}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>{selectedNotice?.title}</DialogTitle>
+              <DialogTitle className="flex items-center gap-2">
+                {selectedNotice?.is_pinned && <Pin className="w-4 h-4 text-amber-500" />}
+                {selectedNotice?.title}
+              </DialogTitle>
             </DialogHeader>
             {selectedNotice && (
               <div className="space-y-4">
-                {selectedNotice.timestamp && (
+                {selectedNotice.create_timestamp && (
                   <p className="text-sm text-slate-400 flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
-                    {format(new Date(selectedNotice.timestamp), "EEEE, MMMM d, yyyy")}
+                    {format(new Date(selectedNotice.create_timestamp * 1000), "EEEE, MMMM d, yyyy")}
                   </p>
                 )}
-                <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
+                {selectedNotice.start_date && (
+                  <p className="text-xs text-slate-400 flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    Valid: {format(new Date(selectedNotice.start_date), "MMM d")} — {selectedNotice.end_date ? format(new Date(selectedNotice.end_date), "MMM d, yyyy") : "Ongoing"}
+                  </p>
+                )}
+                <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed bg-slate-50 rounded-lg p-4">
                   {selectedNotice.notice}
                 </div>
+                {(selectedNotice.attachment || selectedNotice.image) && (
+                  <div className="flex items-center gap-2 text-xs text-slate-400 border-t pt-3">
+                    <Paperclip className="w-4 h-4" />
+                    <span>Attachment: {selectedNotice.attachment || selectedNotice.image}</span>
+                  </div>
+                )}
               </div>
             )}
           </DialogContent>

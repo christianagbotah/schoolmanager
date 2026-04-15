@@ -2,18 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  Loader2,
-  Save,
-  AlertTriangle,
-  CheckCircle,
-  Lock,
-  Eye,
-  EyeOff,
+  User, Mail, Phone, MapPin, Calendar, Loader2, Save,
+  AlertTriangle, CheckCircle, Lock, Eye, EyeOff,
+  GraduationCap, Award, Building2, Hash, Shield, Camera,
+  Briefcase, Heart, CreditCard,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,14 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/use-auth";
@@ -38,6 +25,9 @@ import { format } from "date-fns";
 interface TeacherProfile {
   teacher_id: number;
   name: string;
+  first_name?: string;
+  last_name?: string;
+  teacher_code: string;
   email: string;
   phone: string;
   gender: string;
@@ -48,19 +38,32 @@ interface TeacherProfile {
   active_status: number;
   designation?: { des_name: string };
   department?: { dep_name: string };
+  salary?: number;
+  qualifications?: string;
 }
 
 // ─── Info Row ────────────────────────────────────────────────
-function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
+function InfoRow({ icon: Icon, label, value, mono = false }: { icon: React.ElementType; label: string; value: string; mono?: boolean }) {
   return (
     <div className="flex items-start gap-3 py-3">
       <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
         <Icon className="w-4 h-4 text-slate-500" />
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{label}</p>
-        <p className="text-sm text-slate-900 font-medium mt-0.5 truncate">{value || "—"}</p>
+        <p className={`text-sm text-slate-900 font-medium mt-0.5 truncate ${mono ? "font-mono" : ""}`}>{value || "—"}</p>
       </div>
+    </div>
+  );
+}
+
+// ─── Avatar Initials ────────────────────────────────────────
+function AvatarInitials({ name, size = "lg" }: { name: string; size?: "sm" | "lg" }) {
+  const initials = name?.split(" ").map(n => n.charAt(0)).join("").toUpperCase().slice(0, 2) || "?";
+  const sizeClasses = size === "lg" ? "w-20 h-20 text-2xl" : "w-10 h-10 text-sm";
+  return (
+    <div className={`${sizeClasses} rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold shadow-lg`}>
+      {initials}
     </div>
   );
 }
@@ -88,11 +91,11 @@ export default function TeacherProfilePage() {
   const [pwdMsg, setPwdMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [pwdDialogOpen, setPwdDialogOpen] = useState(false);
 
-  // ─── Fetch profile ─────────────────────────────────────────
+  // ─── Fetch profile ──────────────────────────────────────
   const fetchProfile = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/teachers/${user?.id}`);
+      const res = await fetch("/api/teacher/profile");
       if (!res.ok) throw new Error("Failed to fetch profile");
       const data = await res.json();
       setProfile(data);
@@ -105,18 +108,18 @@ export default function TeacherProfilePage() {
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id]);
+  }, []);
 
   useEffect(() => {
-    if (!authLoading && user?.id) fetchProfile();
-  }, [authLoading, user?.id, fetchProfile]);
+    if (!authLoading) fetchProfile();
+  }, [authLoading, fetchProfile]);
 
-  // ─── Save profile ──────────────────────────────────────────
+  // ─── Save profile ──────────────────────────────────────
   const handleSave = async () => {
     setIsSaving(true);
     setSaveMsg(null);
     try {
-      const res = await fetch(`/api/teachers/${user?.id}`, {
+      const res = await fetch("/api/teacher/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -136,7 +139,7 @@ export default function TeacherProfilePage() {
     }
   };
 
-  // ─── Change password ───────────────────────────────────────
+  // ─── Change password ───────────────────────────────────
   const handleChangePassword = async () => {
     if (!newPassword || newPassword.length < 6) {
       setPwdMsg({ type: "error", text: "Password must be at least 6 characters" });
@@ -149,7 +152,7 @@ export default function TeacherProfilePage() {
     setIsChangingPassword(true);
     setPwdMsg(null);
     try {
-      const res = await fetch(`/api/teachers/${user?.id}`, {
+      const res = await fetch("/api/teacher/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password: newPassword }),
@@ -172,8 +175,8 @@ export default function TeacherProfilePage() {
         <div className="space-y-6">
           <Skeleton className="h-8 w-48" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Skeleton className="h-80 w-full rounded-xl" />
-            <Skeleton className="h-80 w-full rounded-xl lg:col-span-2" />
+            <Skeleton className="h-96 w-full rounded-xl" />
+            <Skeleton className="h-96 w-full rounded-xl lg:col-span-2" />
           </div>
         </div>
       </DashboardLayout>
@@ -212,9 +215,12 @@ export default function TeacherProfilePage() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Change Password</DialogTitle>
+                <DialogTitle className="flex items-center gap-2">
+                  <Lock className="w-5 h-5 text-slate-700" />
+                  Change Password
+                </DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 mt-4">
+              <div className="space-y-4 mt-2">
                 {pwdMsg && (
                   <div className={`flex items-center gap-2 p-3 rounded-lg text-sm ${
                     pwdMsg.type === "success" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-red-50 text-red-700 border border-red-200"
@@ -240,6 +246,9 @@ export default function TeacherProfilePage() {
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
+                  {newPassword && newPassword.length < 6 && (
+                    <p className="text-xs text-red-500">Minimum 6 characters</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>Confirm Password</Label>
@@ -249,10 +258,13 @@ export default function TeacherProfilePage() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm new password"
                   />
+                  {confirmPassword && newPassword !== confirmPassword && (
+                    <p className="text-xs text-red-500">Passwords do not match</p>
+                  )}
                 </div>
                 <Button
                   onClick={handleChangePassword}
-                  disabled={isChangingPassword}
+                  disabled={isChangingPassword || !newPassword || !confirmPassword || newPassword.length < 6 || newPassword !== confirmPassword}
                   className="w-full bg-emerald-600 hover:bg-emerald-700 min-h-[44px]"
                 >
                   {isChangingPassword ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Lock className="w-4 h-4 mr-2" />}
@@ -265,32 +277,64 @@ export default function TeacherProfilePage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* ─── Profile Card ─────────────────────────────── */}
-          <Card className="gap-4">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center mx-auto mb-4">
-                  <User className="w-10 h-10 text-white" />
-                </div>
+          <Card className="gap-0 overflow-hidden">
+            {/* Gradient Header */}
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 p-6 text-center text-white relative">
+              <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
+                <AvatarInitials name={profile?.name || "Teacher"} />
+              </div>
+            </div>
+
+            {/* Content */}
+            <CardContent className="pt-14 pb-6 px-6">
+              <div className="text-center mb-1">
                 <h2 className="text-lg font-bold text-slate-900">{profile?.name || "Teacher"}</h2>
-                <p className="text-sm text-slate-500 mt-1">{profile?.designation?.des_name || "Teacher"}</p>
-                {profile?.department && (
-                  <Badge variant="outline" className="mt-2">{profile.department.dep_name}</Badge>
+                {profile?.designation?.des_name && (
+                  <p className="text-sm text-slate-500 mt-0.5">{profile.designation.des_name}</p>
                 )}
-                <Badge variant="secondary" className={`mt-2 ml-1 ${profile?.active_status === 1 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+              </div>
+
+              <div className="flex items-center justify-center gap-1 mt-3 flex-wrap">
+                {profile?.department && (
+                  <Badge variant="outline" className="mt-1"><Building2 className="w-3 h-3 mr-1" />{profile.department.dep_name}</Badge>
+                )}
+                <Badge variant="secondary" className={`mt-1 ${profile?.active_status === 1 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
                   {profile?.active_status === 1 ? "Active" : "Inactive"}
                 </Badge>
               </div>
-              <Separator className="my-4" />
-              <InfoRow icon={Mail} label="Email" value={profile?.email || ""} />
-              <InfoRow icon={Phone} label="Phone" value={profile?.phone || ""} />
-              <InfoRow icon={Calendar} label="Joining Date" value={profile?.joining_date ? format(new Date(profile.joining_date), "MMM d, yyyy") : ""} />
+
+              <Separator className="my-5" />
+
+              <div>
+                <InfoRow icon={Mail} label="Email" value={profile?.email || ""} />
+                <InfoRow icon={Phone} label="Phone" value={profile?.phone || ""} />
+                <InfoRow icon={Hash} label="Teacher Code" value={profile?.teacher_code || ""} mono />
+                <InfoRow icon={Calendar} label="Joining Date" value={profile?.joining_date ? format(new Date(profile.joining_date), "MMM d, yyyy") : ""} />
+                {profile?.birthday && (
+                  <InfoRow icon={Heart} label="Birthday" value={format(new Date(profile.birthday), "MMM d, yyyy")} />
+                )}
+                {profile?.gender && (
+                  <InfoRow icon={User} label="Gender" value={profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1)} />
+                )}
+                {profile?.blood_group && (
+                  <InfoRow icon={CreditCard} label="Blood Group" value={profile.blood_group} />
+                )}
+                {profile?.address && (
+                  <InfoRow icon={MapPin} label="Address" value={profile.address} />
+                )}
+              </div>
             </CardContent>
           </Card>
 
           {/* ─── Edit Form ────────────────────────────────── */}
           <Card className="gap-4 lg:col-span-2">
             <CardHeader>
-              <CardTitle className="text-base font-semibold">Edit Information</CardTitle>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                  <Save className="w-4 h-4 text-emerald-600" />
+                </div>
+                <CardTitle className="text-base font-semibold">Edit Information</CardTitle>
+              </div>
             </CardHeader>
             <CardContent className="pt-0">
               {saveMsg && (
@@ -301,45 +345,97 @@ export default function TeacherProfilePage() {
                   {saveMsg.text}
                 </div>
               )}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Full Name</Label>
-                  <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
+
+              <div className="space-y-6">
+                {/* Contact Information */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-slate-500" />
+                    Contact Information
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Full Name</Label>
+                      <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Enter your full name" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Email Address</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className="pl-9" placeholder="your@email.com" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Phone Number</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className="pl-9" placeholder="+233 XXX XXX XXXX" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Address</Label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Input value={editAddress} onChange={(e) => setEditAddress(e.target.value)} className="pl-9" placeholder="Enter your address" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Email</Label>
-                  <Input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
+
+                {/* Read-Only Information */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-slate-500" />
+                    Employment Details
+                    <Badge variant="outline" className="text-[10px] text-slate-400 ml-1">Managed by Admin</Badge>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Gender</Label>
+                      <Input value={profile?.gender || ""} disabled className="bg-slate-50" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Blood Group</Label>
+                      <Input value={profile?.blood_group || ""} disabled className="bg-slate-50" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Birthday</Label>
+                      <Input
+                        value={profile?.birthday ? format(new Date(profile.birthday), "yyyy-MM-dd") : ""}
+                        disabled
+                        className="bg-slate-50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Teacher Code</Label>
+                      <Input value={profile?.teacher_code || ""} disabled className="bg-slate-50 font-mono" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Joining Date</Label>
+                      <Input
+                        value={profile?.joining_date ? format(new Date(profile.joining_date), "yyyy-MM-dd") : ""}
+                        disabled
+                        className="bg-slate-50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Designation</Label>
+                      <Input value={profile?.designation?.des_name || ""} disabled className="bg-slate-50" />
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Phone</Label>
-                  <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} />
+
+                {/* Save Button */}
+                <div className="flex justify-end pt-2">
+                  <Button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="bg-emerald-600 hover:bg-emerald-700 min-w-[44px] min-h-[44px]"
+                  >
+                    {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                    Save Changes
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <Label>Gender</Label>
-                  <Input value={profile?.gender || ""} disabled />
-                </div>
-                <div className="space-y-2">
-                  <Label>Blood Group</Label>
-                  <Input value={profile?.blood_group || ""} disabled />
-                </div>
-                <div className="space-y-2">
-                  <Label>Birthday</Label>
-                  <Input value={profile?.birthday ? format(new Date(profile.birthday), "yyyy-MM-dd") : ""} disabled />
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <Label>Address</Label>
-                  <Input value={editAddress} onChange={(e) => setEditAddress(e.target.value)} />
-                </div>
-              </div>
-              <div className="flex justify-end mt-6">
-                <Button
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="bg-emerald-600 hover:bg-emerald-700 min-w-[44px] min-h-[44px]"
-                >
-                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                  Save Changes
-                </Button>
               </div>
             </CardContent>
           </Card>

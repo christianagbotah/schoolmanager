@@ -1,6 +1,7 @@
-import { getServerSession } from "@/lib/auth";
+import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import type { UserRole } from "@/lib/auth";
 
 /**
@@ -8,7 +9,7 @@ import type { UserRole } from "@/lib/auth";
  * Returns { teacher, teacherId } or null/401.
  */
 export async function getAuthenticatedTeacher() {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   if (!session?.user) {
     return null;
