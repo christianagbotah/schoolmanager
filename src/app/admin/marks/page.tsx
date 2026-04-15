@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useToast } from '@/hooks/use-toast'
 import {
   GraduationCap, Save, Loader2, ArrowLeft, AlertCircle, CheckCircle2,
-  BookOpen, FileText,
+  BookOpen, FileText, Search,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -18,6 +18,7 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
+import { Label } from '@/components/ui/label'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 
 // ===== Types =====
@@ -25,10 +26,7 @@ interface Student {
   student_id: number
   student_code: string
   name: string
-  first_name: string
-  last_name: string
   sex: string
-  active_status: number
 }
 
 interface Exam {
@@ -44,18 +42,6 @@ interface Subject {
   subject_id: number
   name: string
   class_id: number | null
-  teacher_id: number | null
-}
-
-interface MarkRecord {
-  mark_id: number
-  student_id: number
-  subject_id: number
-  class_id: number | null
-  section_id: number | null
-  exam_id: number | null
-  mark_obtained: number
-  comment: string
 }
 
 interface GradeScale {
@@ -69,8 +55,8 @@ interface GradeScale {
 interface ClassItem {
   class_id: number
   name: string
+  name_numeric: number
   category: string
-  section_id: number | null
 }
 
 interface Section {
@@ -93,6 +79,7 @@ function MarkEntryModule() {
   // Dropdown data
   const [exams, setExams] = useState<Exam[]>([])
   const [classes, setClasses] = useState<ClassItem[]>([])
+  const [sections, setSections] = useState<Section[]>([])
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [students, setStudents] = useState<Student[]>([])
   const [grades, setGrades] = useState<GradeScale[]>([])
@@ -100,16 +87,17 @@ function MarkEntryModule() {
   // Selections
   const [selectedExamId, setSelectedExamId] = useState('')
   const [selectedClassId, setSelectedClassId] = useState('')
+  const [selectedSectionId, setSelectedSectionId] = useState('')
   const [selectedSubjectId, setSelectedSubjectId] = useState('')
 
-  // Marks
+  // Marks - keyed by student_id
   const [marksMap, setMarksMap] = useState<Record<number, string>>({})
-  const [existingMarks, setExistingMarks] = useState<MarkRecord[]>([])
 
   // State
-  const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [studentsLoading, setStudentsLoading] = useState(false)
+  const [subjectsLoading, setSubjectsLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
 
   // Fetch exams, classes, grades on mount
   useEffect(() => {
@@ -118,65 +106,116 @@ function MarkEntryModule() {
       fetch('/api/classes').then(r => r.json()),
       fetch('/api/grades').then(r => r.json()),
     ]).then(([examsData, classesData, gradesData]) => {
-      setExams(Array.isArray(examsData) ? examsData : (examsData.exams || []))
+      const examsList = Array.isArray(examsData) ? examsData : (examsData.exams || [])
+      setExams(examsList)
       setClasses(Array.isArray(classesData) ? classesData : [])
-      setGrades(Array.isArray(gradesData) ? gradesData : (gradesData.grades || []))
-    }).catch(() => {})
+      const gList = Array.isArray(gradesData) ? gradesData : (gradesData.grades || [])
+      setGrades(gList.sort((a: GradeScale, b: GradeScale) => b.grade_from - a.grade_from))
+    }).catch(() => {}).finally(() => setInitialLoading(false))
   }, [])
 
-  // When class changes, fetch subjects and students
+  // When class changes, fetch sections and subjects
   useEffect(() => {
     if (!selectedClassId) {
+      setSections([])
       setSubjects([])
+      setSelectedSectionId('')
+      return
+    }
+
+    setSubjectsLoading(true)
+    Promise.all([
+      fetch(`/api/sections?class_id=${selectedClassId}`).then(r => r.json()),
+      fetch(`/api/subjects?class_id=${selectedClassId}`).then(r => r.json()),
+    ]).then(([sectionsData, subjectsData]) => {
+      const secs = Array.isArray(sectionsData) ? sectionsData : []
+      setSections(secs)
+      if (secs.length > 0) setSelectedSectionId(secs[0].section_id.toString())
+      else setSelectedSectionId('')
+      setSubjects(Array.isArray(subjectsData) ? subjectsData : [])
+      setSelectedSubjectId('')
+    }).catch(() => {
+      setSections([])
+      setSubjects([])
+    }).finally(() => setSubjectsLoading(false))
+  }, [selectedClassId])
+
+  // When exam + subject + class selected, fetch enrolled students
+  useEffect(() => {
+    if (!selectedClassId || !selectedExamId) {
       setStudents([])
+      setMarksMap({})
       return
     }
 
     setStudentsLoading(true)
-    Promise.all([
-      fetch(`/api/subjects?class_id=${selectedClassId}`).then(r => r.json()),
-      fetch(`/api/students?class_id=${selectedClassId}`).then(r => r.json()),
-    ]).then(([subjectsData, studentsData]) => {
-      setSubjects(Array.isArray(subjectsData) ? subjectsData : [])
-      setStudents(Array.isArray(studentsData) ? studentsData : [])
-      setMarksMap({})
-      setExistingMarks([])
-    }).catch(() => {
-      setSubjects([])
-      setStudents([])
-    }).finally(() => setStudentsLoading(false))
-  }, [selectedClassId])
+    // Fetch students enrolled in this class
+    const params = new URLSearchParams({
+      class_id: selectedClassId,
+      limit: '200',
+    })
+    if (selectedSectionId) params.set('section_id', selectedSectionId)
 
-  // When exam + subject selected, fetch existing marks
+    fetch(`/api/admin/students?${params.toString()}`)
+      .then(r => r.json())
+      .then(data => {
+        const studentsList = Array.isArray(data) ? data : (data.students || [])
+        setStudents(studentsList)
+        setMarksMap({})
+
+        // Now fetch existing marks
+        if (selectedSubjectId) {
+          const markParams = new URLSearchParams({
+            exam_id: selectedExamId,
+            subject_id: selectedSubjectId,
+            class_id: selectedClassId,
+            limit: '200',
+          })
+          fetch(`/api/marks?${markParams.toString()}`)
+            .then(r => r.json())
+            .then(markData => {
+              const records = Array.isArray(markData) ? markData : (markData.marks || [])
+              const map: Record<number, string> = {}
+              records.forEach((r: { student_id: number; mark_obtained: number }) => {
+                map[r.student_id] = r.mark_obtained.toString()
+              })
+              setMarksMap(map)
+            })
+            .catch(() => {})
+        }
+      })
+      .catch(() => setStudents([]))
+      .finally(() => setStudentsLoading(false))
+  }, [selectedClassId, selectedExamId, selectedSectionId])
+
+  // When subject changes, fetch existing marks
   useEffect(() => {
-    if (!selectedExamId || !selectedSubjectId) {
-      setExistingMarks([])
-      setMarksMap({})
+    if (!selectedExamId || !selectedSubjectId || !selectedClassId || students.length === 0) {
       return
     }
 
-    setLoading(true)
     const params = new URLSearchParams({
       exam_id: selectedExamId,
       subject_id: selectedSubjectId,
       class_id: selectedClassId,
+      limit: '200',
     })
     fetch(`/api/marks?${params.toString()}`)
       .then(r => r.json())
       .then(data => {
-        const records: MarkRecord[] = Array.isArray(data) ? data : (data.marks || [])
-        setExistingMarks(records)
+        const records = Array.isArray(data) ? data : (data.marks || [])
         const map: Record<number, string> = {}
-        records.forEach(r => { map[r.student_id] = r.mark_obtained.toString() })
+        records.forEach((r: { student_id: number; mark_obtained: number }) => {
+          map[r.student_id] = r.mark_obtained.toString()
+        })
         setMarksMap(map)
       })
-      .catch(() => setExistingMarks([]))
-      .finally(() => setLoading(false))
-  }, [selectedExamId, selectedSubjectId, selectedClassId])
+      .catch(() => {})
+  }, [selectedExamId, selectedSubjectId, selectedClassId, students.length])
 
   const handleSave = async () => {
-    if (!selectedExamId || !selectedSubjectId) {
-      toast({ title: 'Error', description: 'Please select exam and subject', variant: 'destructive' })
+    if (!selectedExamId || !selectedSubjectId || !selectedClassId) {
+      toast({ title: 'Error', description: 'Please select exam, class, and subject', variant: 'destructive' })
       return
     }
 
@@ -186,6 +225,7 @@ function MarkEntryModule() {
         student_id: s.student_id,
         subject_id: parseInt(selectedSubjectId),
         class_id: parseInt(selectedClassId),
+        section_id: selectedSectionId ? parseInt(selectedSectionId) : null,
         exam_id: parseInt(selectedExamId),
         mark_obtained: parseFloat(marksMap[s.student_id]) || 0,
         comment: '',
@@ -212,17 +252,28 @@ function MarkEntryModule() {
     return grade ? { name: grade.name, comment: grade.comment } : null
   }
 
+  const getGradeColor = (name: string): string => {
+    const n = name.toLowerCase()
+    if (n.startsWith('a') || n.startsWith('1')) return 'bg-emerald-100 text-emerald-700'
+    if (n.startsWith('b') || n.startsWith('2')) return 'bg-blue-100 text-blue-700'
+    if (n.startsWith('c') || n.startsWith('3')) return 'bg-amber-100 text-amber-700'
+    if (n.startsWith('d') || n.startsWith('4')) return 'bg-orange-100 text-orange-700'
+    return 'bg-red-100 text-red-700'
+  }
+
   const stats = {
     entered: Object.values(marksMap).filter(v => v !== '' && v !== '0').length,
     total: students.length,
-    avg: Object.values(marksMap).filter(v => v !== '').length > 0
-      ? (Object.values(marksMap).filter(v => v !== '').reduce((a, b) => a + parseFloat(b), 0) / Object.values(marksMap).filter(v => v !== '').length).toFixed(1)
+    avg: Object.values(marksMap).filter(v => v !== '' && v !== '0').length > 0
+      ? (Object.values(marksMap).filter(v => v !== '' && v !== '0').reduce((a, b) => a + parseFloat(b), 0) / Object.values(marksMap).filter(v => v !== '' && v !== '0').length).toFixed(1)
       : '—',
   }
 
-  const filteredExams = selectedClassId
-    ? exams.filter(e => !e.class_id || e.class_id.toString() === selectedClassId || !selectedClassId)
-    : exams
+  const selectedExam = exams.find(e => e.exam_id.toString() === selectedExamId)
+  const selectedClass = classes.find(c => c.class_id.toString() === selectedClassId)
+  const selectedSubject = subjects.find(s => s.subject_id.toString() === selectedSubjectId)
+
+  const canSave = selectedExamId && selectedSubjectId && selectedClassId && students.length > 0
 
   return (
     <div className="space-y-6">
@@ -235,66 +286,81 @@ function MarkEntryModule() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Mark Entry</h1>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Manage Exam Marks</h1>
             <p className="text-sm text-slate-500 mt-1">Enter and manage student examination marks</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button asChild variant="outline" className="min-h-[44px]">
+          <Button asChild variant="outline" className="min-h-[44px]" size="sm">
             <Link href="/admin/grades">
               <FileText className="w-4 h-4 mr-2" /> Grades
             </Link>
           </Button>
-          <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]" disabled={students.length === 0 || saving}>
+          <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]" disabled={!canSave || saving}>
             {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-            Save Marks
+            {saving ? 'Saving...' : 'Save Marks'}
           </Button>
         </div>
       </div>
 
-      {/* Selectors */}
+      {/* Selector Row matching CI3 marks_manage.php */}
       <Card className="border-slate-200/60">
         <CardContent className="p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-600">Exam</label>
+              <Label className="text-xs font-semibold text-slate-600 uppercase">Exam</Label>
               <Select value={selectedExamId} onValueChange={setSelectedExamId}>
-                <SelectTrigger className="min-h-[44px]">
-                  <SelectValue placeholder="Select exam" />
+                <SelectTrigger className="min-h-[52px] text-lg font-bold uppercase">
+                  <SelectValue placeholder="Select Exam" />
                 </SelectTrigger>
                 <SelectContent>
-                  {filteredExams.map(e => (
-                    <SelectItem key={e.exam_id} value={e.exam_id.toString()}>
-                      {e.name} ({e.type})
+                  {exams.map(e => (
+                    <SelectItem key={e.exam_id} value={e.exam_id.toString()} className="font-bold uppercase">
+                      {e.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-600">Class</label>
+              <Label className="text-xs font-semibold text-slate-600 uppercase">Class</Label>
               <Select value={selectedClassId} onValueChange={v => { setSelectedClassId(v); setSelectedSubjectId('') }}>
-                <SelectTrigger className="min-h-[44px]">
-                  <SelectValue placeholder="Select class" />
+                <SelectTrigger className="min-h-[52px] text-lg font-bold uppercase">
+                  <SelectValue placeholder="Select Class" />
                 </SelectTrigger>
                 <SelectContent>
                   {classes.map(c => (
-                    <SelectItem key={c.class_id} value={c.class_id.toString()}>
-                      {c.name}
+                    <SelectItem key={c.class_id} value={c.class_id.toString()} className="font-bold uppercase">
+                      {c.name} {c.name_numeric}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-600">Subject</label>
-              <Select value={selectedSubjectId} onValueChange={setSelectedSubjectId}>
-                <SelectTrigger className="min-h-[44px]">
-                  <SelectValue placeholder="Select subject" />
+              <Label className="text-xs font-semibold text-slate-600 uppercase">Section</Label>
+              <Select value={selectedSectionId} onValueChange={setSelectedSectionId}>
+                <SelectTrigger className="min-h-[52px] text-lg font-bold uppercase">
+                  <SelectValue placeholder={selectedClassId ? 'Select Section' : 'Select Class First'} />
+                </SelectTrigger>
+                <SelectContent>
+                  {sections.map(s => (
+                    <SelectItem key={s.section_id} value={s.section_id.toString()} className="font-bold uppercase">
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-600 uppercase">Subject</Label>
+              <Select value={selectedSubjectId} onValueChange={setSelectedSubjectId} disabled={subjectsLoading}>
+                <SelectTrigger className="min-h-[52px] text-lg font-bold uppercase">
+                  <SelectValue placeholder={selectedClassId ? 'Select Subject' : 'Select Class First'} />
                 </SelectTrigger>
                 <SelectContent>
                   {subjects.map(s => (
-                    <SelectItem key={s.subject_id} value={s.subject_id.toString()}>
+                    <SelectItem key={s.subject_id} value={s.subject_id.toString()} className="font-bold uppercase">
                       {s.name}
                     </SelectItem>
                   ))}
@@ -304,6 +370,20 @@ function MarkEntryModule() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Info Banner matching CI3 marks_manage_view header */}
+      {(selectedExam || selectedClass || selectedSubject) && (
+        <Card className="border-emerald-200 bg-emerald-50/50">
+          <CardContent className="p-4 text-center">
+            <h4 className="text-lg font-semibold text-slate-800">
+              Marks for <span className="text-emerald-700">{selectedExam?.name || '—'}</span>
+            </h4>
+            <p className="text-sm text-slate-600">
+              {selectedClass ? `${selectedClass.name} ${selectedClass.name_numeric}` : ''} | {selectedSubject?.name || 'No subject'}
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
@@ -321,14 +401,14 @@ function MarkEntryModule() {
         </div>
       </div>
 
-      {/* Marks Table */}
+      {/* Marks Table matching CI3 marks_manage_view.php */}
       <Card className="border-slate-200/60">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg">Student Marks</CardTitle>
           <CardDescription>
             {selectedExamId && selectedSubjectId
-              ? `${exams.find(e => e.exam_id.toString() === selectedExamId)?.name || ''} - ${subjects.find(s => s.subject_id.toString() === selectedSubjectId)?.name || ''}`
-              : 'Select exam, class, and subject to begin'}
+              ? `${selectedExam?.name || ''} — ${selectedSubject?.name || ''}`
+              : 'Select exam, class, section, and subject to begin entering marks'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -338,24 +418,36 @@ function MarkEntryModule() {
             </div>
           ) : !selectedClassId ? (
             <div className="flex flex-col items-center justify-center py-16">
-              <BookOpen className="w-12 h-12 text-slate-300 mb-4" />
-              <p className="text-sm text-slate-500">Select a class to load students</p>
+              <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                <BookOpen className="w-8 h-8 text-slate-300" />
+              </div>
+              <p className="text-sm text-slate-500 font-medium">Select a class to load students</p>
             </div>
           ) : students.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16">
-              <GraduationCap className="w-12 h-12 text-slate-300 mb-4" />
-              <p className="text-sm text-slate-500">No students found in this class</p>
+              <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mb-4">
+                <AlertCircle className="w-8 h-8 text-amber-400" />
+              </div>
+              <p className="text-sm text-amber-700 font-medium">No students enrolled in this class</p>
+              <p className="text-xs text-amber-600 mt-1">Make sure students are enrolled before entering marks</p>
+            </div>
+          ) : !selectedSubjectId ? (
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                <GraduationCap className="w-8 h-8 text-slate-300" />
+              </div>
+              <p className="text-sm text-slate-500 font-medium">Select a subject to enter marks</p>
             </div>
           ) : (
             <div className="max-h-[600px] overflow-y-auto rounded-lg border border-slate-200 custom-scrollbar">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-slate-50 hover:bg-slate-50">
-                    <TableHead className="w-[50px]">#</TableHead>
-                    <TableHead className="min-w-[180px]">Student</TableHead>
-                    <TableHead className="hidden sm:table-cell">Code</TableHead>
-                    <TableHead className="w-[140px]">Mark</TableHead>
-                    <TableHead className="w-[100px]">Grade</TableHead>
+                  <TableRow className="bg-slate-100 hover:bg-slate-100">
+                    <TableHead className="w-[50px] text-center hidden sm:table-cell">#</TableHead>
+                    <TableHead className="hidden sm:table-cell">ID</TableHead>
+                    <TableHead className="min-w-[180px]">Name</TableHead>
+                    <TableHead className="w-[140px] text-center">Mark Obtained</TableHead>
+                    <TableHead className="w-[90px] text-center">Grade</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -364,30 +456,32 @@ function MarkEntryModule() {
                     const grade = getGrade(markVal)
                     return (
                       <TableRow key={student.student_id} className="hover:bg-slate-50">
-                        <TableCell className="text-sm text-slate-500">{idx + 1}</TableCell>
-                        <TableCell>
-                          <p className="font-medium text-slate-900 text-sm">{student.name}</p>
-                          <p className="text-xs text-slate-500 sm:hidden">{student.student_code}</p>
+                        <TableCell className="text-center text-sm text-slate-500 hidden sm:table-cell">{idx + 1}</TableCell>
+                        <TableCell className="hidden sm:table-cell text-xs text-slate-500 font-mono whitespace-nowrap">
+                          {student.student_code}
                         </TableCell>
-                        <TableCell className="hidden sm:table-cell text-sm text-slate-500 font-mono">{student.student_code}</TableCell>
+                        <TableCell>
+                          <p className="font-semibold text-slate-900 text-sm whitespace-nowrap">{student.name}</p>
+                        </TableCell>
                         <TableCell>
                           <Input
                             type="number"
                             min="0"
                             max="100"
+                            step="0.5"
                             value={marksMap[student.student_id] || ''}
                             onChange={e => setMarksMap(prev => ({ ...prev, [student.student_id]: e.target.value }))}
                             placeholder="0"
-                            className="min-h-[40px] text-center font-medium tabular-nums"
+                            className="min-h-[40px] text-center font-bold tabular-nums text-lg border-green-200 focus:border-emerald-500"
                           />
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-center">
                           {grade ? (
-                            <Badge className={markVal >= 50 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}>
+                            <Badge variant="outline" className={`text-xs font-bold ${getGradeColor(grade.name)}`}>
                               {grade.name}
                             </Badge>
                           ) : (
-                            <span className="text-xs text-slate-400">—</span>
+                            <span className="text-xs text-slate-300">—</span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -399,6 +493,23 @@ function MarkEntryModule() {
           )}
         </CardContent>
       </Card>
+
+      {/* Save button at bottom matching CI3 sticky save */}
+      {canSave && (
+        <div className="flex justify-end sticky bottom-4 z-10">
+          <Button
+            onClick={handleSave}
+            className="bg-emerald-600 hover:bg-emerald-700 min-h-[48px] px-8 shadow-lg text-lg"
+            disabled={saving}
+          >
+            {saving ? (
+              <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Saving...</>
+            ) : (
+              <><Save className="w-5 h-5 mr-2" /> Save Marks</>
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

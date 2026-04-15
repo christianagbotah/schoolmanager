@@ -261,6 +261,9 @@ model subject {
   teacher_id Int?
   section_id Int?
   year       String @default("")
+  term       Int    @default(0)
+  sem        Int    @default(0)
+  status     Int    @default(1)
 
   class      school_class? @relation(fields: [class_id], references: [class_id])
   teacher    teacher?      @relation(fields: [teacher_id], references: [teacher_id])

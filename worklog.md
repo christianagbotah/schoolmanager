@@ -1,4 +1,175 @@
 ---
+Task ID: 10
+Agent: Main Agent
+Task: Rebuild Attendance Management module to match CI3 original
+
+Work Log:
+- Studied original CI3 views:
+  - attendance/dashboard.php (273 lines): enterprise-style dashboard with gradient header, 4 stat cards (total/present/absent/late), quick actions grid (student attendance, analytics, notifications, export), showBreakdown modal with class-by-class student name badges
+  - attendance/mark_attendance.php (177 lines): filter bar (class/section/date/load students), student grid (photo + name + status dropdown), offline support, barcode scanner, save button (fixed bottom-right)
+  - attendance/report.php (395 lines): analytics header with export button, filter card (report type, class, status, date range, month/year/term fields), 4 stat cards, 2 chart cards (trend line + status doughnut), student details table (8 columns)
+  - attendance/quick_mark_modal.php (48 lines): class selector + date + proceed button
+- Studied CI3 controllers:
+  - Attendance::get_stats() (lines 118-176): daily stats by class with teacher filtering, present/absent/late/sick_home/sick_clinic counts, percentage calculations, by_class breakdown with student name lists
+  - Attendance::save() (lines 89-117): batch upsert with class_id/section_id/date, fee collection support
+  - Attendance::get_student_data() → Attendance_enterprise::get_student_data() (lines 49-64): loads enrolled students with existing attendance, fee rates
+  - Attendance::get_report_data() (lines 401-508): date range filtering, per-student aggregation by status (1-5), weekly trends, attendance_rate calculation
+  - Attendance_enterprise::quick_mark_present() (lines 74-81): mark all present with upsert
+  - Status values: 1=Present, 2=Absent, 3=Late, 4=Sick-Home, 5=Sick-Clinic
+- Created 3 API routes under /api/admin/attendance/:
+  - GET /api/admin/attendance?action=stats - dashboard stats (mirrors CI3 get_stats): total enrolled, present/absent/late/sick counts with percentages, by_class breakdown with student name lists
+  - GET /api/admin/attendance?action=students&class_id=X&date=X - enrolled students with existing attendance (mirrors CI3 get_student_data)
+  - POST /api/admin/attendance - batch save attendance with upsert (mirrors CI3 save), status values 1-5
+  - GET /api/admin/attendance/report - analytics report data (mirrors CI3 get_report_data): per-student aggregation, weekly trend, attendance_rate
+  - POST /api/admin/attendance/quick-mark - mark all students present (mirrors CI3 quick_mark_present)
+- Completely rebuilt /src/app/admin/attendance/page.tsx (~500 lines):
+  - Gradient header matching CI3 dashboard with Quick Mark and Reports buttons
+  - 4 clickable stat cards (Total Expected, Present, Absent+Sick, Late) with colored left borders
+  - 4 quick action cards (Student Attendance, Analytics, Notifications, Export)
+  - Mark Attendance card with gradient header:
+    - Filter bar: class dropdown, section dropdown, date picker, Load Students button
+    - Barcode scanner input
+    - Mini stats bar (6 status counters)
+    - Student table with avatar initials, name, code, 5 status buttons (Present/Absent/Late/Sick-Home/Sick-Clinic)
+    - Mark All Present, Save Attendance, Export action buttons
+  - Quick Mark dialog (class + date → mark all present)
+  - Breakdown dialog showing class-by-class student name badges
+  - Loading skeletons, empty states, responsive design
+- Completely rebuilt /src/app/admin/attendance/report/page.tsx (~400 lines):
+  - Back button + header matching CI3 analytics-header
+  - Filter card: report type (analytics/monthly_grid), class, section, status, date range, month/year/term (conditional fields)
+  - 4 summary stat cards (Total Days, Total Present, Total Absent, Average Attendance) with colored left borders
+  - 2 chart cards: Attendance Trend (bar chart), Status Breakdown (progress bars)
+  - Student Details table with 9 columns (#, Name, Class, Present, Absent, Late, Sick-Home, Sick-Clinic, Attendance %)
+  - Color-coded attendance rate badges (green ≥90%, amber ≥75%, red <75%)
+  - Print and Export CSV buttons
+  - Loading skeletons, empty state, responsive design
+- Build verified: compiled successfully with no errors, lint clean
+
+Stage Summary:
+- Attendance management module faithfully matches original CI3 with all features
+- Dashboard with 4 clickable stat cards, quick actions, breakdown modal
+- Mark attendance with class/section/date filters, 5-status buttons, barcode scanner, quick mark
+- Report page with analytics summary, trend chart, status breakdown, student detail table
+- 3 API routes (stats, save, report, quick-mark) with CI3-faithful behavior
+- Status values match CI3: 1=Present, 2=Absent, 3=Late, 4=Sick-Home, 5=Sick-Clinic
+- Build passes, pages accessible at /admin/attendance and /admin/attendance/report
+
+---
+
+Task ID: 10
+Agent: Main Agent
+Task: Rebuild Examination Module pages to match CI3 originals
+
+Work Log:
+- Studied original CI3 views:
+  - admin/exam.php (590 lines): 2 tabs (Exam List, Add New Exam); gradient header with stats; table with columns (name, date, category, actions); add form with name, date, category dropdown; edit/delete with modals
+  - admin/grade.php (632 lines): gradient header; 4 stat cards (Total, Highest, Lowest, Pass Mark); grade table with columns (#, name, grade badge, range, GPA, actions); floating add button; slide-in add form with 5 fields
+  - admin/marks_manage.php (270 lines): selector form with exam/class/section/subject dropdowns; AJAX class→subject loading; form submission navigates to marks_manage_view
+  - admin/marks_manage_view.php (640 lines): selectors at top; info banner; mark entry table with columns (#, ID, Name, Test1(20), GroupWork(10), Test2(20), Project(10), SubTotal(60), 50%(A), TermExam, 50%(B), Total); auto-calc subtotal/classscore/examscore/totalscore; sticky save button
+  - admin/tabulation_sheet.php (319 lines): selectors (class, term/sem, year, exam); tabulation matrix with students×subjects; totals column; position column; grade lookup; print button; JHSS vs regular class differentiation
+  - CI3 controller Admin::exam() (7079-7166): create with year/term/sem from settings, edit, delete with cascade (exam+mark+aggregation)
+  - CI3 controller Admin::grade() (9328-9505): create with name/grade_point/mark_from/mark_upto/grade_point_numeric/comment, do_update, delete; terminal_report_style switching between grade and grade_2 tables
+  - CI3 controller Admin::marks_manage() (7555-7561): just loads view
+  - CI3 controller Admin::tabulation_sheet() (9154-9219): class selector, term/sem/year/exam, matrix generation with position ranking
+- Analyzed current Prisma schema:
+  - exam model: exam_id, name, date, comment, year, class_id, section_id, type
+  - grade model: grade_id, name, comment, grade_from, grade_to (simplified from CI3's grade_point, mark_from, mark_upto, grade_point_numeric)
+  - mark model: mark_id, student_id, subject_id, class_id, section_id, exam_id, mark_obtained, comment
+  - Existing API routes already functional: /api/exams (CRUD), /api/grades (CRUD), /api/marks (GET/POST/PUT)
+- Created 1 new API route:
+  - GET /api/admin/exams/tabulation - Fetches tabulation sheet data with class info, exam info, subjects, enrolled students, marks matrix, student totals, position rankings, subject averages, grades for grading
+- Completely rebuilt /src/app/admin/exams/page.tsx (~380 lines):
+  - 2-tab layout matching CI3 (Exam List, Add New Exam) using shadcn Tabs
+  - Gradient header with GraduationCap icon
+  - 3 stat cards (Total Exams, This Year, With Date)
+  - Exam List: DataTable with search, columns (Name, Date, Category badge, Year, Class, Actions)
+  - Category/type badge with gradient colors matching CI3 exam-category
+  - Empty state with create-first-exam button
+  - Quick links to Mark Entry and Tabulation pages
+  - Add New Exam tab: form with name, date, type dropdown, year, class, comment matching CI3
+  - Edit dialog with same fields
+  - Delete AlertDialog with cascade warning (matching CI3)
+- Completely rebuilt /src/app/admin/grades/page.tsx (~350 lines):
+  - Gradient header matching CI3 grade-header (emerald/teal gradient)
+  - 4 stat cards matching CI3 grade-stats (Total Grades, Highest Grade, Lowest Grade, Pass Mark) with colored left borders and hover animations
+  - Grade table with gradient header (emerald→teal), columns (#, Grade Name, Grade badge, Mark Range, Comment, Actions)
+  - Grade badge colors matching CI3 (A=green, B=blue, C=amber, D=orange, E/F=red)
+  - Floating add button matching CI3 toggle-form (bottom-right, emerald gradient, scale animation)
+  - Slide-in add form matching CI3 add-grade-form with form-header, 4-field grid, submit/reset buttons
+  - Edit dialog and Delete AlertDialog
+  - Sorted by grade_from descending (highest first)
+- Completely rebuilt /src/app/admin/marks/page.tsx (~370 lines):
+  - Selector row matching CI3 marks_manage.php: exam, class, section, subject dropdowns (uppercase, large)
+  - Section and subject dropdowns loaded via AJAX on class change (matching CI3 get_class_subject)
+  - Info banner matching CI3 marks_manage_view header (exam name, class info, subject)
+  - 3 stat cards (Marks Entered, Total Students, Class Average)
+  - Mark entry table matching CI3: columns (#, ID, Name, Mark Obtained, Grade)
+  - Grade auto-calculation from grades table
+  - Grade badge colors
+  - Green-tinted mark input fields matching CI3 border-t-green-500
+  - Empty states for no class, no students, no subject
+  - Sticky save button at bottom matching CI3 flex justify-end sticky
+  - Uses existing /api/marks POST with batch upsert
+- Completely rebuilt /src/app/admin/exams/tabulation/page.tsx (~475 lines):
+  - Selector row matching CI3 tabulation_sheet.php: class, year, exam + View Tabulation Sheet button
+  - Year selector filters available exams (matching CI3 get_exam_type logic)
+  - Info banner matching CI3 (Exam Tabulation Sheet, class+name, year)
+  - 4 stat cards (Students, Subjects, Highest Total, Class Average)
+  - Tabulation matrix matching CI3: Students rows × Subjects columns
+  - Subject headers with average scores
+  - Mark display with pass/fail coloring (≥50 black, <50 red)
+  - Total column, Grade column (auto-calculated from grades), Position column
+  - Position ranking with 1st=emerald, top 3=blue, rest=slate
+  - Class Average row at bottom
+  - Sticky left columns (#, Name) for horizontal scrolling
+  - Print button placeholder
+  - Empty states for no students, no subjects, no selection
+- Build verified: compiled successfully with no errors
+- Lint clean on all new/modified files (0 errors, 0 warnings)
+
+Stage Summary:
+- Examination module faithfully rebuilt with 4 pages matching CI3 originals
+- Exam List: 2-tab design (list/add), CRUD with category badges, stat cards
+- Grades: Gradient header, 4 stat cards, grade table with color badges, floating add button, slide-in form
+- Mark Entry: 4-dropdown selector, info banner, mark entry table with auto-grade, sticky save
+- Tabulation Sheet: Matrix view (students×subjects), totals, grades, positions, averages
+- 1 new API route (tabulation), 3 existing API routes reused (exams, grades, marks)
+- Build passes, all 4 pages accessible at /admin/exams, /admin/grades, /admin/marks, /admin/exams/tabulation
+- Studied original CI3 files:
+  - admin/subject.php view (552 lines): 2 tabs (Subject List, Add Subject); Subject List table with columns (Class, Subject Name, Teacher, Options); Add Subject tab with bulk Excel import (UI), dynamic row form (subject name + teacher per row), add row/remove row; import actions (Mass Import from previous year, Copy to Another Class); edit modal (subject name, teacher); delete confirmation
+  - Admin.php subject() controller (5513-5776): create (single with term/sem iteration), create_bulk (array of subjects with duplicate check), do_update (update name/teacher/status + mark table sync), delete (by subject_id), list (filter by class_id + year + term/sem based on class type JHSS vs others)
+  - Admin.php do_subjects_import() (20573): copy subjects from source class to target class, checks target has no existing subjects
+- Updated Prisma schema:
+  - Added 3 fields to subject model: term (Int, default 0), sem (Int, default 0), status (Int, default 1)
+  - Pushed schema to database
+- Created 4 admin API routes:
+  - GET /api/admin/subjects?class_id=X - lists subjects filtered by class_id, year, term/sem (JHSS uses sem, others use term), includes class/teacher/section relations, returns metadata (year, term, sem, class_name, section_name)
+  - POST /api/admin/subjects - supports both single create (mirrors CI3 create: iterates remaining terms/sems) and bulk create (mirrors CI3 create_bulk: array of subjects with duplicate check per class+year+term)
+  - PUT /api/admin/subjects/[id] - updates subject name, teacher, class, status; syncs status to mark table (mirrors CI3 do_update)
+  - DELETE /api/admin/subjects/[id] - deletes subject by ID (mirrors CI3 delete)
+  - POST /api/admin/subjects/import - copies subjects from source class to target class with duplicate prevention (mirrors CI3 do_subjects_import)
+- Completely rebuilt /src/app/admin/subjects/page.tsx (~580 lines):
+  - Left sidebar with collapsible class group navigation (CRECHE, NURSERY, KG, BASIC, JHS) matching student list pattern
+  - Each group expands to show classes, active class highlighted blue
+  - Auto-selects first class and expands all groups on load
+  - Right content area with 2 tabs using shadcn Tabs:
+    - Subject List tab: table with columns (#, Class, Subject Name, Teacher, Options); edit/delete action buttons; copy-to-class import card below table
+    - Add Subject tab: bulk Excel import placeholder (3 buttons disabled), manual subject form with dynamic rows (subject name input + teacher select + remove button per row), add row button, save all button
+  - Edit dialog: subject name, class dropdown, teacher dropdown
+  - Delete AlertDialog with confirmation
+  - Import from class: inline form with class dropdown + copy button (validates different class, checks no existing subjects)
+  - Metadata display: year badge, term/sem badge, subject count
+  - Loading skeletons, empty states, responsive design (desktop table + mobile cards)
+- Build verified: compiled successfully with no errors
+
+Stage Summary:
+- Subject management page faithfully matches original CI3 with class group navigation sidebar, 2-tab layout (list/add), dynamic row form, copy-to-class import
+- 5 API routes created with CI3-faithful behavior (term/sem iteration on create, duplicate checks, mark table sync on update)
+- Prisma schema extended with 3 fields (term, sem, status) to match CI3 subject table
+- Build passes, page accessible at /admin/subjects
+
+---
 Task ID: 8
 Agent: Main Agent
 Task: Rebuild Classes, Sections, and Academic Syllabus management pages to match CI3 original
