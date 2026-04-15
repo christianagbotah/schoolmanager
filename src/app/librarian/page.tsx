@@ -3,40 +3,36 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
-  BookCheck,
-  BookOpen,
-  Users,
-  AlertTriangle,
-  Clock,
-  Loader2,
-  ArrowUpRight,
-  Library as LibraryIcon,
-  BookPlus,
-  History,
+  BookCheck, BookOpen, AlertTriangle, Clock, Loader2, ArrowUpRight,
+  Library as LibraryIcon, BookPlus, History, Users, FileText,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { format } from "date-fns";
 
 // ─── Types ───────────────────────────────────────────────────
+interface BookStats {
+  total_books: number;
+  total_copies: number;
+  issued_copies: number;
+  pending_requests: number;
+  issued_requests: number;
+  returned_requests: number;
+}
+
 interface BookItem {
   book_id: number;
   name: string;
   author: string;
   total_copies: number;
   issued_copies: number;
-  status: string;
+  school_class?: { class_id: number; name: string } | null;
 }
 
 interface RequestItem {
@@ -67,6 +63,7 @@ export default function LibrarianDashboard() {
   const router = useRouter();
   const [books, setBooks] = useState<BookItem[]>([]);
   const [requests, setRequests] = useState<RequestItem[]>([]);
+  const [stats, setStats] = useState<BookStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -81,11 +78,12 @@ export default function LibrarianDashboard() {
 
       if (booksRes.ok) {
         const data = await booksRes.json();
-        setBooks(Array.isArray(data) ? data : []);
+        setBooks(data.data || []);
+        setStats(data.stats || null);
       }
       if (reqRes.ok) {
         const data = await reqRes.json();
-        setRequests(Array.isArray(data) ? data.slice(0, 10) : []);
+        setRequests((data.data || []).slice(0, 10));
       }
     } catch {
       setError("Unable to load dashboard data. Please try again later.");
@@ -96,17 +94,15 @@ export default function LibrarianDashboard() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // ─── Stats ─────────────────────────────────────────────────
-  const totalBooks = books.length;
-  const totalCopies = books.reduce((s, b) => s + (b.total_copies || 0), 0);
-  const issuedCopies = books.reduce((s, b) => s + (b.issued_copies || 0), 0);
+  const totalCopies = stats?.total_copies || 0;
+  const issuedCopies = stats?.issued_copies || 0;
   const availableCopies = totalCopies - issuedCopies;
+  const pendingCount = stats?.pending_requests || 0;
   const overdueRequests = requests.filter(r => {
     if (r.status !== "issued") return false;
     if (!r.issue_end_date) return false;
     return new Date(r.issue_end_date) < new Date();
   });
-  const pendingRequests = requests.filter(r => r.status === "issued");
 
   if (isLoading) {
     return (
@@ -156,14 +152,14 @@ export default function LibrarianDashboard() {
           </CardContent>
         </Card>
 
-        {/* ─── Stat Cards ──────────────────────────────────── */}
+        {/* ─── Stat Cards (matching CI3 dashboard) ─────────── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="gap-4 py-4 border-l-4 border-l-emerald-500 hover:shadow-md transition-shadow">
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <p className="text-xs font-medium text-slate-500">Total Books</p>
-                  <p className="text-2xl font-bold text-emerald-600">{totalBooks}</p>
+                  <p className="text-2xl font-bold text-emerald-600">{stats?.total_books || 0}</p>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center"><BookOpen className="w-5 h-5 text-emerald-600" /></div>
               </div>
@@ -173,10 +169,10 @@ export default function LibrarianDashboard() {
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-500">Total Copies</p>
-                  <p className="text-2xl font-bold text-blue-600">{totalCopies}</p>
+                  <p className="text-xs font-medium text-slate-500">Pending Requests</p>
+                  <p className="text-2xl font-bold text-blue-600">{pendingCount}</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center"><BookCheck className="w-5 h-5 text-blue-600" /></div>
+                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center"><FileText className="w-5 h-5 text-blue-600" /></div>
               </div>
             </CardContent>
           </Card>
@@ -184,21 +180,21 @@ export default function LibrarianDashboard() {
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-500">Available</p>
-                  <p className="text-2xl font-bold text-amber-600">{availableCopies}</p>
+                  <p className="text-xs font-medium text-slate-500">Total Copies</p>
+                  <p className="text-2xl font-bold text-amber-600">{totalCopies}</p>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center"><BookPlus className="w-5 h-5 text-amber-600" /></div>
               </div>
             </CardContent>
           </Card>
-          <Card className="gap-4 py-4 border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
+          <Card className="gap-4 py-4 border-l-4 border-l-rose-500 hover:shadow-md transition-shadow">
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-500">Overdue</p>
-                  <p className="text-2xl font-bold text-red-600">{overdueRequests.length}</p>
+                  <p className="text-xs font-medium text-slate-500">Issued Copies</p>
+                  <p className="text-2xl font-bold text-rose-600">{issuedCopies}</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center"><Clock className="w-5 h-5 text-red-600" /></div>
+                <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center"><BookCheck className="w-5 h-5 text-rose-600" /></div>
               </div>
             </CardContent>
           </Card>
@@ -237,15 +233,19 @@ export default function LibrarianDashboard() {
                         const isOverdue = r.status === "issued" && r.issue_end_date && new Date(r.issue_end_date) < new Date();
                         return (
                           <TableRow key={r.book_request_id} className="hover:bg-slate-50">
-                            <TableCell className="text-sm font-medium">{r.student?.name || "Unknown"}</TableCell>
+                            <TableCell className="font-medium text-sm">{r.student?.name || "Unknown"}</TableCell>
                             <TableCell className="hidden sm:table-cell text-sm text-slate-600 max-w-[150px] truncate">{r.book?.name || "—"}</TableCell>
                             <TableCell className="text-center">
                               {isOverdue ? (
                                 <Badge className="bg-red-100 text-red-700">Overdue</Badge>
+                              ) : r.status === "pending" ? (
+                                <Badge className="bg-blue-100 text-blue-700">Pending</Badge>
                               ) : r.status === "returned" ? (
                                 <Badge className="bg-emerald-100 text-emerald-700">Returned</Badge>
+                              ) : r.status === "rejected" ? (
+                                <Badge className="bg-red-100 text-red-700">Rejected</Badge>
                               ) : (
-                                <Badge className="bg-blue-100 text-blue-700">Issued</Badge>
+                                <Badge className="bg-violet-100 text-violet-700">Issued</Badge>
                               )}
                             </TableCell>
                           </TableRow>
@@ -258,7 +258,7 @@ export default function LibrarianDashboard() {
             </CardContent>
           </Card>
 
-          {/* Quick Stats */}
+          {/* Quick Actions & Overview */}
           <Card className="gap-4">
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -280,9 +280,11 @@ export default function LibrarianDashboard() {
               <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-3">
                 <h4 className="text-sm font-semibold text-slate-700">Library Overview</h4>
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm"><span className="text-slate-500">Titles</span><span className="font-semibold">{totalBooks}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-slate-500">Currently Issued</span><span className="font-semibold text-blue-600">{issuedCopies}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-slate-500">Book Titles</span><span className="font-semibold">{stats?.total_books || 0}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-slate-500">Total Copies</span><span className="font-semibold">{totalCopies}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-slate-500">Currently Issued</span><span className="font-semibold text-rose-600">{issuedCopies}</span></div>
                   <div className="flex justify-between text-sm"><span className="text-slate-500">Available</span><span className="font-semibold text-emerald-600">{availableCopies}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-slate-500">Pending Requests</span><span className="font-semibold text-blue-600">{pendingCount}</span></div>
                   <div className="flex justify-between text-sm"><span className="text-slate-500">Overdue</span><span className="font-semibold text-red-600">{overdueRequests.length}</span></div>
                 </div>
                 <div className="w-full bg-slate-200 rounded-full h-2">

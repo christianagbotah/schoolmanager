@@ -1,4 +1,125 @@
 ---
+Task ID: 17
+Agent: Main Agent
+Task: Migrate CI3 Accountant Portal to Next.js
+
+Work Log:
+- Studied original CI3 files:
+  - accounts/dashboard.php: enterprise-style dashboard with 4 primary metrics (total_assets, total_liabilities, monthly_revenue, monthly_expenses), 3 secondary metrics (net_income, bank_balance, pending_entries), budget utilization progress bar, 4 quick action buttons (create_entry, chart_of_accounts, balance_sheet, budgets)
+  - accounts/expense_management.php: amber gradient header, 4 stat cards (total/pending/approved/rejected), filter bar (date range, category, status), expense table with status badges, approve/reject actions, add expense modal with form fields (date, category, vendor, amount, payment method, reference, attachment, notes), export button
+  - accounts/reports.php: report header with date range filter + export/print buttons, 5 report types (balance_sheet, income_statement, cash_flow, trial_balance, general_ledger), each with AJAX-generated content tables
+  - accounts/bank_accounts.php: green gradient header, DataTable with bank name/number/balance/status columns, add bank modal (bank_name, account_number, account_name, branch, opening_balance)
+  - Accountant.php controller: dashboard, invoice_create (sequential code generation with duplicate validation), mass_invoice_create (bulk student iteration), invoice CRUD (do_update), take_payment (receipt code generation, invoice update, receipt creation), noticeboard access
+- Analyzed existing accountant pages (all calling generic APIs /api/payments, /api/invoices, /api/expenses):
+  - /accountant/page.tsx (360 lines): Basic dashboard with 4 stat cards, revenue chart, financial summary, recent transactions
+  - /accountant/invoices/page.tsx (240 lines): Read-only invoice list with search/status filter, view dialog, no create functionality
+  - /accountant/payments/page.tsx (294 lines): Payment recording dialog with student/invoice selectors, payment history table
+  - /accountant/expenses/page.tsx (304 lines): Add expense dialog with category/date/method fields, expense table with search, category breakdown chart
+  - /accountant/reports/page.tsx (272 lines): 3-tab reports (income/expenses/categories) with charts, client-side data aggregation
+- Studied existing Prisma schema: invoice, payment, receipts, bill_item, bill_category, expense, expense_category, chart_of_accounts, journal_entries, journal_entry_lines, bank_accounts models all present
+- Created 5 new API routes under /api/accountant/:
+  - GET /api/accountant/dashboard - Comprehensive financial dashboard data:
+    - Metrics: total_assets (bank_accounts), total_liabilities (outstanding invoices), monthly_revenue, monthly_expenses, net_income, bank_balance, pending_entries (draft journal_entries), budget_used/total/percentage
+    - Invoice summary: totalBilled, totalCollected, outstanding, counts by status (paid/partial/unpaid)
+    - Payment summary: totalCollected, todayTotal/todayCount, monthTotal/monthCount
+    - Expense summary: total, monthTotal
+    - Monthly trend data (last 6 months, revenue vs expenses)
+    - Recent payments (last 10 with student/invoice relations)
+    - Top 10 debtors (students with highest outstanding balance)
+    - Payment method breakdown (cash/momo/bank/etc)
+  - GET/POST /api/accountant/invoices - Invoice management:
+    - GET: search, classId, status, year, term filters; pagination; includes student and class relations; status counts; summary aggregation
+    - POST: Creates single or mass invoices with sequential code generation; supports studentIds array, items array, year/term/classId
+  - GET/POST /api/accountant/payments - Payment management:
+    - GET: search, method, startDate/endDate, year, term filters; pagination; includes student, invoice relations; owing students list (distinct by student_id with outstanding invoices); payment method breakdown
+    - POST: Records payment with sequential receipt code generation; updates invoice amount_paid/due/status; creates receipt; supports invoice linking
+  - GET/POST/PUT /api/accountant/expenses - Expense management:
+    - GET: categoryId, status, startDate, endDate, search filters; includes expense_category; month/total aggregates; status counts (pending/approved/rejected) with amounts; category breakdown chart data
+    - POST: Creates expense with title, description, categoryId, amount, expenseDate, paymentMethod, status
+    - PUT: Updates expense status (approve/reject)
+  - GET /api/accountant/expenses/categories - Expense categories list with counts and totals
+  - GET /api/accountant/reports - Financial reports:
+    - Date range filtering (from/to)
+    - Income statement: totalRevenue, totalExpenses, netIncome, profitMargin
+    - Balance sheet: totalAssets (bank accounts sum), totalLiabilities, bank accounts detail
+    - Payment methods breakdown with amounts and counts
+    - Expense by category breakdown
+    - Monthly trend (last 12 months, income/expenses/net)
+    - Trial balance from chart_of_accounts with journal_entries, total debit/credit, balanced check
+- Completely rebuilt /src/app/accountant/page.tsx (~350 lines):
+  - Gradient emerald-teal header with Wallet icon, page title, date, net income display
+  - 4 primary stat cards: Monthly Revenue (emerald), Monthly Expenses (red), Outstanding (amber), Bank Balance (sky)
+  - 3 secondary metric cards: Net Income, Today's Collections, Pending Entries
+  - Budget utilization progress bar with color-coded percentage (>90% red, >75% amber, else green)
+  - Revenue vs Expenses grouped bar chart (last 6 months) using recharts
+  - Invoice breakdown card with paid/partial/unpaid counts and collection rate progress
+  - Payment methods card with counts
+  - Quick actions grid: Invoices, Record Payment, Expenses, Reports
+  - Recent transactions table with student, amount, method columns
+  - Top debtors table with student name, outstanding amount
+  - Loading skeletons, error state, responsive design
+- Completely rebuilt /src/app/accountant/invoices/page.tsx (~400 lines):
+  - Sky-cyan gradient header with Receipt icon
+  - 5 summary stats: Total Billed, Collected, Outstanding, Paid count, Unpaid count
+  - Search, Status filter (All/Paid/Partial/Unpaid), Class filter
+  - Invoice table with Invoice, Student, Class, Description, Amount, Balance, Status, Date, View columns
+  - View dialog with full invoice details (code, student, class, term/year, amounts, status, description, created date)
+  - Create Invoice dialog with Tabs (Single/Mass):
+    - Common fields: Academic Year, Term, Class selector
+    - Student selector with search and checkboxes (loads from API)
+    - Bill items selector with amount totals
+    - Total amount calculation and display
+  - Loading skeletons, empty states, pagination
+- Completely rebuilt /src/app/accountant/payments/page.tsx (~380 lines):
+  - Emerald-green gradient header with CreditCard icon
+  - 4 summary stats: Today (with count), This Month (with count), All Time, Owing Students
+  - Payment methods horizontal bar chart (recharts)
+  - Payment history table with Receipt, Student, Invoice, Amount, Method, Date columns
+  - Record Payment dialog (matching CI3 modal_take_payment.php):
+    - Student selector showing students with outstanding fees (filtered by search)
+    - Selected student info card with avatar initials, name, code, class
+    - Invoice dropdown (auto-populated with student's owing invoices)
+    - Amount and payment method (Cash/Bank Transfer/Mobile Money/Cheque)
+    - Receipt success view with receipt code and Record Another/Done buttons
+  - Loading skeletons, empty states, pagination
+- Completely rebuilt /src/app/accountant/expenses/page.tsx (~350 lines):
+  - Amber-orange gradient header with TrendingDown icon
+  - 4 stat cards: Total Expenses, Pending (amount+count), Approved (amount+count), This Month
+  - Category breakdown horizontal bar chart + pie chart (recharts)
+  - Filters: Search, Category, Status (All/Pending/Approved/Rejected)
+  - Expense table with Title, Category, Amount, Method, Date, Status, Actions columns
+  - Approve/Reject actions for pending expenses (AlertDialog confirmation)
+  - View expense detail dialog
+  - Add Expense dialog with title, amount, category, date, payment method, description
+  - Loading skeletons, empty states
+- Completely rebuilt /src/app/accountant/reports/page.tsx (~400 lines):
+  - Violet-purple gradient header with BarChart3 icon, Print Report button
+  - Date range filter (from/to date pickers) with Generate button
+  - 4 summary cards: Total Income, Total Expenses, Net Revenue, Total Assets
+  - 4 report tabs using shadcn/ui Tabs:
+    - Income Statement: Revenue breakdown by payment method, expense breakdown by category, Net Income calculation, Profit Margin percentage
+    - Trends: 12-month bar chart (income vs expenses) using recharts
+    - Categories: Pie chart + itemized list with colored dots
+    - Trial Balance: Table from chart_of_accounts with journal_entries (code, name, type, debit, credit, balance), balanced badge, totals
+  - Balance Sheet section: Bank accounts list, total assets, liabilities, net position
+  - Print support via window.print()
+  - Loading skeletons, empty states
+- Lint: 0 errors/warnings from accountant files (all lint issues are pre-existing from CI3 source files)
+- Dev server: compiled successfully (✓ Compiled)
+
+Stage Summary:
+- Accountant portal completely rebuilt from basic pages to comprehensive financial management dashboard matching CI3 originals
+- Dashboard: gradient header, 7 metric cards, budget utilization, revenue vs expenses chart, quick actions, recent transactions, top debtors
+- Invoices: read-only list → full create capability with single/mass modes, student/bill item selectors, sequential invoice codes, class/term/year filters
+- Payments: basic form → CI3-faithful take payment workflow (select owing student, pick invoice, set amount/method, receipt generation, success view)
+- Expenses: simple add → approval workflow with pending/approved/rejected states, category/status filters, breakdown charts
+- Reports: client-side aggregation → server-side API with income statement, balance sheet, trial balance, 12-month trends, date range filtering
+- 6 new API routes with proper data aggregation, sequential code/receipt generation, invoice status auto-update
+- All 5 pages use accountant-specific API routes (/api/accountant/*) with consistent gradient headers and shadcn/ui components
+- Build passes, pages accessible at /accountant, /accountant/invoices, /accountant/payments, /accountant/expenses, /accountant/reports
+
+---
+
 Task ID: 16
 Agent: Main Agent
 Task: Rebuild Admin Users List and Librarian Management pages

@@ -17,14 +17,37 @@ export async function GET(req: NextRequest) {
   if (class_id) where.class_id = parseInt(class_id)
   if (status) where.status = status
 
-  const books = await db.book.findMany({
-    where: Object.keys(where).length > 0 ? where : undefined,
-    include: { book_requests: true },
-    orderBy: { book_id: 'desc' },
-    take: 200,
-  })
+  const [books, stats] = await Promise.all([
+    db.book.findMany({
+      where: Object.keys(where).length > 0 ? where : undefined,
+      include: {
+        book_requests: true,
+        school_class: { select: { class_id: true, name: true } },
+      },
+      orderBy: { book_id: 'desc' },
+      take: 500,
+    }),
+    db.book.aggregate({
+      _sum: { total_copies: true, issued_copies: true },
+      _count: true,
+    }),
+    db.book_request.groupBy({
+      by: ['status'],
+      _count: { book_request_id: true },
+    }),
+  ])
 
-  return NextResponse.json(books)
+  return NextResponse.json({
+    data: books,
+    stats: {
+      total_books: stats[0]._count,
+      total_copies: stats[0]._sum.total_copies || 0,
+      issued_copies: stats[0]._sum.issued_copies || 0,
+      pending_requests: stats[1].find((r: any) => r.status === 'pending')?._count.book_request_id || 0,
+      issued_requests: stats[1].find((r: any) => r.status === 'issued')?._count.book_request_id || 0,
+      returned_requests: stats[1].find((r: any) => r.status === 'returned')?._count.book_request_id || 0,
+    },
+  })
 }
 
 export async function POST(req: NextRequest) {

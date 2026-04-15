@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         section: { select: { section_id: true, name: true } },
+        subject: { select: { subject_id: true, name: true } },
       },
       orderBy: [{ day: 'asc' }, { time_start: 'asc' }],
     })
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
       },
       include: {
         section: { select: { section_id: true, name: true } },
+        subject: { select: { subject_id: true, name: true } },
       },
     })
 
@@ -76,11 +78,33 @@ export async function PUT(request: NextRequest) {
         day: day ?? undefined,
         room: room ?? undefined,
       },
+      include: {
+        subject: { select: { subject_id: true, name: true } },
+        section: { select: { section_id: true, name: true } },
+      },
     })
 
     return NextResponse.json(routine)
   } catch (error) {
     console.error('Routine PUT error:', error)
     return NextResponse.json({ error: 'Failed to update routine' }, { status: 500 })
+  }
+}
+
+// DELETE /api/routine
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 })
+    }
+
+    await db.class_routine.delete({ where: { class_routine_id: parseInt(id) } })
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Routine DELETE error:', error)
+    return NextResponse.json({ error: 'Failed to delete routine' }, { status: 500 })
   }
 }
