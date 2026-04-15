@@ -13,8 +13,8 @@ import { toast } from 'sonner';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
+import { Bar, BarChart, XAxis, YAxis } from 'recharts';
 import {
-  Bar, BarChart, XAxis, YAxis,
   ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent,
 } from '@/components/ui/chart';
 import {

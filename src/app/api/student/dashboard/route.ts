@@ -108,6 +108,25 @@ export async function GET(req: NextRequest) {
       select: { id: true, title: true, notice: true, timestamp: true, create_timestamp: true },
     });
 
+    // Calculate average score across all exams
+    const avgScore = recentMarks.length > 0
+      ? Math.round(recentMarks.reduce((sum, m) => sum + (m.mark_obtained || 0), 0) / recentMarks.length)
+      : 0;
+
+    // Get class size for rank context
+    let classSize = 0;
+    if (enroll) {
+      classSize = await db.enroll.count({
+        where: {
+          class_id: enroll.class_id,
+          section_id: enroll.section_id,
+          year: enroll.year,
+          term: enroll.term,
+          mute: 0,
+        },
+      });
+    }
+
     return NextResponse.json({
       student: {
         student_id: student.student_id,
@@ -135,14 +154,20 @@ export async function GET(req: NextRequest) {
             class_numeric: enroll.class.name_numeric,
             section_name: enroll.section.name,
             class_category: enroll.class.category,
+            class: { name: enroll.class.name, name_numeric: enroll.class.name_numeric, category: enroll.class.category },
+            section: { name: enroll.section.name },
           }
         : null,
       recentMarks,
+      averageScore: avgScore,
+      examCount: recentMarks.length,
       attendance: {
         present: presentCount,
         total: totalAtt,
         percentage: attPct,
       },
+      attendanceRate: attPct,
+      daysPresent: presentCount,
       invoices: invoices.map((inv) => ({
         invoice_id: inv.invoice_id,
         invoice_code: inv.invoice_code,
@@ -153,9 +178,16 @@ export async function GET(req: NextRequest) {
         status: inv.status,
         creation_timestamp: inv.creation_timestamp,
       })),
+      invoiceCount: invoices.length,
       feeBalance,
+      outstanding: feeBalance > 0 ? feeBalance : 0,
+      classSize,
       todayRoutines,
-      notices,
+      notices: notices.map((n) => ({
+        title: n.title,
+        notice: n.notice,
+        date: n.create_timestamp ? new Date(n.create_timestamp).toLocaleDateString() : "",
+      })),
     });
   } catch (error) {
     console.error("Student dashboard error:", error);

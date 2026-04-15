@@ -156,6 +156,24 @@ export async function GET() {
       select: { id: true, title: true, notice: true, timestamp: true },
     });
 
+    // Monthly payments
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+    const monthlyPayments = allStudentIds.length > 0
+      ? await db.payment.aggregate({
+          where: {
+            student_id: { in: allStudentIds },
+            timestamp: { gte: monthStart },
+          },
+          _sum: { amount: true },
+        })
+      : { _sum: { amount: 0 } };
+
+    // Average attendance across active children
+    const pcts = Object.values(attendanceSummary).map(s => s.pct);
+    const avgAttendance = pcts.length > 0 ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : 0;
+
     return NextResponse.json({
       parent,
       children,
@@ -172,7 +190,14 @@ export async function GET() {
       },
       feeBalances,
       attendanceSummary,
-      notices,
+      totalOutstanding: totalDue,
+      monthlyPayments: monthlyPayments._sum.amount || 0,
+      avgAttendance,
+      notices: notices.map(n => ({
+        title: n.title,
+        notice: n.notice,
+        date: n.timestamp ? new Date(n.timestamp).toLocaleDateString() : '',
+      })),
     });
   } catch (error) {
     console.error('Parent dashboard error:', error);
