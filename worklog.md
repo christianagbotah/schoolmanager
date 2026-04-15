@@ -71,3 +71,49 @@ Stage Summary:
 - Role-specific unique features use their own route prefixes
 - All 11 shared pages use RequirePermission guards to control admin vs non-admin actions
 - Old role directories still exist for role-specific features but shared pages are the primary access points
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix Login Flow to match original CI3 2-step authentication
+
+Work Log:
+- Studied original CI3 Login controller (Login.php) and view (login.php) thoroughly
+- Studied original Crud_model auth_verification() method
+- Rewrote /src/app/login/page.tsx from 1248 lines to 438 lines
+- Removed incorrect 3-step flow (email → auth key → credentials)
+- Removed role selector tabs (not in original)
+- Implemented correct 2-step flow: Auth Key → Email/Username + Password
+- Auth key auto-verifies on 5th character (matches original onkeyup)
+- Added 3-fail self-blocking mechanism matching original form_block
+- Created /api/auth/block-account endpoint matching original block_account()
+- Updated /api/auth/verify-key to match original Crud_model::auth_verification() table order
+- Students get username field; all others get email/username
+
+Stage Summary:
+- Login flow now faithfully matches original CI3 behavior
+- Committed as b0fb018, pushed to GitHub
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Admin Dashboard rebuild to match original CI3
+
+Work Log:
+- Studied original CI3 admin/dashboard.php (1265 lines) and dashboard_enterprise.php
+- Studied original Admin controller dashboard() method
+- Studied all database queries in the view (enroll, student, parent, teacher, attendance, payment, invoice, daily_fee_transactions, daily_fee_wallet, settings)
+- Rewrote /api/admin/dashboard/route.ts with 13 parallel queries
+- Updated /app/admin/page.tsx to use new API format
+- Added 4 stat cards matching original (students from enroll, teachers, parents from enroll, attendance status 1/3)
+- Added 3 financial overview cards (revenue, collection rate, pending)
+- Added 4 charts: student distribution (bar), attendance trend (line), gender by class (grouped bar), residential by class (grouped bar)
+- Added Financial Summary section for super-admin (unpaid invoices, income, expenses gradient cards)
+- Added recent payments table
+- Added 6 quick action buttons matching original
+- Added filter support for super-admin (date, term, year)
+- Added missing Prisma schema fields: enroll.mute, enroll.parent_id, enroll.residence_type, invoice.mute, invoice.can_delete, payment.can_delete, attendance.date
+
+Stage Summary:
+- Admin dashboard now faithfully matches original CI3 with all charts, stats, and financial sections
+- Committed as c3d77c4, pushed to GitHub
+- Assessed student management module - found scaffold quality with critical issues (bulk broken, promotion broken, field mismatches)
