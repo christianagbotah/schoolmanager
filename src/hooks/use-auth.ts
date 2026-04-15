@@ -51,19 +51,8 @@ export function useAuth() {
   };
 
   const getDashboardPath = (): string => {
-    const dashboardPaths: Record<string, string> = {
-      "super-admin": "/admin",
-      admin: "/admin",
-      teacher: "/teacher",
-      student: "/student",
-      parent: "/parent",
-      accountant: "/accountant",
-      librarian: "/librarian",
-      cashier: "/accountant",
-      conductor: "/admin",
-      receptionist: "/admin",
-    };
-    return role ? (dashboardPaths[role] || "/login") : "/login";
+    // Unified dashboard for all roles
+    return role ? "/dashboard" : "/login";
   };
 
   return {

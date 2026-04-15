@@ -70,7 +70,7 @@ const adminMenus: MenuSection[] = [
   {
     title: "Main",
     items: [
-      { label: "Dashboard", href: "/admin", icon: LayoutDashboard, permission: null },
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, permission: null },
       { label: "Barcode Scanner", href: "/admin/barcode", icon: ScanBarcode, permission: "can_use_barcode_scanner" },
     ],
   },
@@ -172,7 +172,7 @@ const teacherMenus: MenuSection[] = [
   {
     title: "Main",
     items: [
-      { label: "Dashboard", href: "/teacher", icon: LayoutDashboard, permission: null },
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, permission: null },
       { label: "My Classes", href: "/teacher/classes", icon: BookOpen, permission: "can_view_class_routine" },
       { label: "Attendance", href: "/teacher/attendance", icon: CheckSquare, permission: "can_manage_attendance" },
     ],
@@ -215,7 +215,7 @@ const studentMenus: MenuSection[] = [
   {
     title: "Main",
     items: [
-      { label: "Dashboard", href: "/student", icon: LayoutDashboard, permission: null },
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, permission: null },
       { label: "My Results", href: "/student/results", icon: FileText, permission: "can_view_own_results" },
       { label: "My Invoices", href: "/student/invoices", icon: Receipt, permission: "can_view_own_invoices" },
     ],
@@ -248,7 +248,7 @@ const parentMenus: MenuSection[] = [
   {
     title: "Main",
     items: [
-      { label: "Dashboard", href: "/parent", icon: LayoutDashboard, permission: null },
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, permission: null },
       { label: "My Children", href: "/parent/children", icon: Users, permission: null },
       { label: "Children's Results", href: "/parent/results", icon: FileText, permission: "can_view_children_results" },
     ],
@@ -288,7 +288,7 @@ const accountantMenus: MenuSection[] = [
   {
     title: "Main",
     items: [
-      { label: "Dashboard", href: "/accountant", icon: LayoutDashboard, permission: null },
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, permission: null },
       { label: "Invoices", href: "/accountant/invoices", icon: Receipt, permission: "can_view_invoices" },
       { label: "Payments", href: "/accountant/payments", icon: CreditCard, permission: "can_view_payments" },
     ],
@@ -306,7 +306,7 @@ const librarianMenus: MenuSection[] = [
   {
     title: "Main",
     items: [
-      { label: "Dashboard", href: "/librarian", icon: LayoutDashboard, permission: null },
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, permission: null },
       { label: "Books", href: "/librarian/books", icon: BookCheck, permission: "can_manage_books" },
       { label: "Book Requests", href: "/librarian/requests", icon: BookOpen, permission: "can_issue_books" },
     ],
@@ -377,7 +377,7 @@ export const metroGroups: MetroGroup[] = [
   {
     title: "Dashboard",
     tiles: [
-      { label: "Dashboard", href: "/admin", icon: LayoutDashboard, color: "#0078d4", wide: true, permission: null },
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, color: "#0078d4", wide: true, permission: null },
       { label: "Barcode Scanner", href: "/admin/barcode", icon: ScanBarcode, color: "#5d5a58", permission: "can_use_barcode_scanner" },
     ],
   },

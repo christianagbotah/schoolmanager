@@ -2,21 +2,21 @@ import { withAuth, NextRequestWithAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import type { UserRole } from "@/lib/auth";
 
-// Role-based route mapping
+// Role-based route mapping (where each role should land)
 const roleRoutes: Record<string, string> = {
-  "super-admin": "/admin",
-  admin: "/admin",
-  teacher: "/teacher",
-  student: "/student",
-  parent: "/parent",
-  accountant: "/accountant",
-  librarian: "/librarian",
-  cashier: "/accountant",
-  conductor: "/admin",
-  receptionist: "/admin",
+  "super-admin": "/dashboard",
+  admin: "/dashboard",
+  teacher: "/dashboard",
+  student: "/dashboard",
+  parent: "/dashboard",
+  accountant: "/dashboard",
+  librarian: "/dashboard",
+  cashier: "/dashboard",
+  conductor: "/dashboard",
+  receptionist: "/dashboard",
 };
 
-// Role-protected route prefixes
+// Role-protected route prefixes (legacy routes still accessible)
 const protectedRoutes: { path: string; roles: UserRole[] }[] = [
   { path: "/admin", roles: ["admin"] },
   { path: "/teacher", roles: ["teacher"] },
@@ -58,10 +58,9 @@ export default withAuth(
 
     const userRole = (token.role as string) || "student";
 
-    // Handle /dashboard redirect to role-specific dashboard
+    // /dashboard is the unified entry point - allow all authenticated users
     if (pathname === "/dashboard") {
-      const dashboardPath = roleRoutes[userRole] || "/login";
-      return NextResponse.redirect(new URL(dashboardPath, req.url));
+      return NextResponse.next();
     }
 
     // Check if the route requires a specific role
@@ -73,9 +72,8 @@ export default withAuth(
       // Super-admin has access to all routes
       const effectiveRole = userRole === "super-admin" ? "admin" : userRole;
       if (!matchedRoute.roles.includes(effectiveRole as UserRole)) {
-        // Redirect to the user's own dashboard
-        const dashboardPath = roleRoutes[userRole] || "/login";
-        return NextResponse.redirect(new URL(dashboardPath, req.url));
+        // Redirect to the unified dashboard
+        return NextResponse.redirect(new URL("/dashboard", req.url));
       }
     }
 

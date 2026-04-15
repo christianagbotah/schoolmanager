@@ -30,13 +30,13 @@ import {
 import { cn } from "@/lib/utils";
 
 const ROLE_DASHBOARDS: Record<string, string> = {
-  admin: "/admin",
-  "super-admin": "/admin",
-  teacher: "/teacher",
-  student: "/student",
-  parent: "/parent",
-  accountant: "/accountant",
-  librarian: "/librarian",
+  admin: "/dashboard",
+  "super-admin": "/dashboard",
+  teacher: "/dashboard",
+  student: "/dashboard",
+  parent: "/dashboard",
+  accountant: "/dashboard",
+  librarian: "/dashboard",
 };
 
 type AuthStep = "email" | "auth-key" | "credentials";
@@ -1474,7 +1474,9 @@ function LoginForm() {
       style={{ background: gradientBg }}
     >
       {/* Mobile */}
-      {renderMobileView()}
+      <div className="md:hidden">
+        {renderMobileView()}
+      </div>
 
       {/* Tablet (40/60 split) */}
       {renderTableView()}
