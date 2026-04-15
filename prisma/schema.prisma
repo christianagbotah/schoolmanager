@@ -781,6 +781,7 @@ model discount_profiles {
   profile_id        Int    @id @default(autoincrement())
   profile_name      String @default("")
   discount_category String @default("")
+  discount_type     String @default("")
   description       String @default("")
   flat_amount       Float  @default(0)
   flat_percentage   Float  @default(0)
@@ -1305,6 +1306,7 @@ model grade_2 {
 model grade_creche {
   grade_creche_id Int    @id @default(autoincrement())
   name            String @default("")
+  abbrev          String @default("")
   grade_from      Float  @default(0)
   grade_to        Float  @default(0)
   comment         String @default("")
