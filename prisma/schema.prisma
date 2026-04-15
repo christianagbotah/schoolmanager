@@ -1241,6 +1241,48 @@ model RolePermission {
 }
 
 // ============================================================
+// APPROVALS & HANDOVER
+// ============================================================
+
+model approval_request {
+  id              Int       @id @default(autoincrement())
+  request_type    String    @default("")
+  reference_id    Int?
+  reference_code  String    @default("")
+  title           String    @default("")
+  description     String    @default("")
+  requested_by    String    @default("")
+  status          String    @default("pending")
+  reviewed_by     String    @default("")
+  review_reason   String    @default("")
+  created_at      DateTime  @default(now())
+  reviewed_at     DateTime?
+
+  @@index([status])
+  @@index([request_type])
+}
+
+model collector_handover {
+  id              Int       @id @default(autoincrement())
+  from_collector  String    @default("")
+  to_collector    String    @default("")
+  handover_date   DateTime  @default(now())
+  cash_amount     Float     @default(0)
+  momo_amount     Float     @default(0)
+  bank_amount     Float     @default(0)
+  total_amount    Float     @default(0)
+  transaction_count Int      @default(0)
+  notes           String    @default("")
+  status          String    @default("pending")
+  verified_by     String    @default("")
+  verified_at     DateTime?
+  created_at      DateTime  @default(now())
+
+  @@index([status])
+  @@index([handover_date])
+}
+
+// ============================================================
 // SETTINGS & SYSTEM (Extended)
 // ============================================================
 
