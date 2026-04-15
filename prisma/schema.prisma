@@ -48,6 +48,7 @@ model admin {
   active_status          Int    @default(1)
   authentication_key     String @default("")
   account_number         String @default("")
+  block_limit            Int    @default(0)
   can_collect_daily_fees Int    @default(0)
   collection_point       String @default("")
   transport_only         Int    @default(0)
@@ -194,9 +195,11 @@ model librarian {
   name                String @default("")
   email               String @unique @default("")
   phone               String @default("")
+  address             String @default("")
   password            String @default("")
   active_status       Int    @default(1)
   authentication_key  String @default("")
+  block_limit         Int    @default(0)
 }
 
 // ============================================================

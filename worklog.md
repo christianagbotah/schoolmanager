@@ -1,4 +1,134 @@
 ---
+Task ID: 16
+Agent: Main Agent
+Task: Rebuild Admin Users List and Librarian Management pages
+
+Work Log:
+- Analyzed existing pages and API routes:
+  - /admin/admins/page.tsx (465 lines): DataTable with Full Name, Email, Auth Key, Phone, Designation, Account Status, Options columns; bug: `isBlocked` referenced in desktop table but only defined in mobile view (line 279 vs 311)
+  - /admin/librarians/page.tsx (374 lines): Table with Name, Email, Auth Key, Phone, Account Status, Options; referenced `block_limit` which didn't exist on librarian model
+  - /api/admin/admins/route.ts: GET with search/level/status filters, POST create admin with auth key generation, level-based fee collection privileges
+  - /api/admin/admins/[id]/route.ts: GET/PUT/DELETE with block/unblock via `active_status` only (inconsistent with frontend checking `block_limit`)
+  - /api/admin/librarians/route.ts: GET with search/status, POST create with auth key
+  - /api/admin/librarians/[id]/route.ts: GET/PUT/DELETE with block/unblock (same inconsistency)
+- Identified schema gaps:
+  - `admin` model missing `block_limit` field (frontend checked `block_limit === 3`, API only set `active_status: 0`)
+  - `librarian` model missing `block_limit` and `address` fields
+- Updated Prisma schema:
+  - Added `block_limit Int @default(0)` to `admin` model
+  - Added `block_limit Int @default(0)` and `address String @default("")` to `librarian` model
+  - Ran `bun run db:push` successfully
+- Updated /api/admin/admins/route.ts:
+  - GET now returns `{ data: admins, stats: { total, blocked, active, inactive } }` with proper block_limit + active_status combined filtering
+  - POST now validates `level` and `password` as required fields
+- Updated /api/admin/admins/[id]/route.ts:
+  - Block action now sets both `active_status: 0` AND `block_limit: 3` (was only active_status before)
+  - Unblock action now sets both `active_status: 1` AND `block_limit: 0`
+  - Delete action now prevents deleting the last super admin (level 1)
+- Updated /api/admin/librarians/route.ts:
+  - GET now returns `{ data: librarians, stats: { total, blocked, active } }` with proper filtering
+  - POST now handles `address` field
+- Updated /api/admin/librarians/[id]/route.ts:
+  - PUT now handles `address` field updates
+  - Block/Unblock now sets both `active_status` AND `block_limit`
+- Completely rebuilt /src/app/admin/admins/page.tsx (~520 lines):
+  - Fixed critical `isBlocked` bug: now defined as helper function `isBlocked(a)` used consistently in both desktop and mobile views
+  - Gradient header with emerald-teal icon badge and Users icon
+  - 6 stat cards: Total, Active (emerald), Blocked (red), plus per-level counts (Super Admin, Admin, Accountant, Cashier, Conductor)
+  - Each level card has matching icon (ShieldCheck, Shield, UserCog, CircleDot, ShieldAlert) and color
+  - Search bar + Status filter (All/Active/Blocked) + Level filter (All/5 levels)
+  - DataTable columns: Full Name (avatar + name + admin code), Email, Auth Key (show/hide/copy with tooltips), Phone (hidden on smaller screens), Designation (badge with level icon), Status (Active/Blocked badges), Actions (Block/Unblock, Edit, Delete)
+  - Super admin restriction: "Add New Admin" button only visible when currentAdminLevel === '1'
+  - Designation level selector shows colored dot indicators per level
+  - Blocked rows shown with reduced opacity and red-tinted avatar
+  - Desktop: tooltip-wrapped action buttons with hover colors
+  - Mobile: card layout with inline action buttons, auth key in bg card with show/copy
+  - Pagination with "Showing X–Y of Z" info
+  - Add/Edit dialog: 3-column name fields, email+phone, gender+designation dropdowns, account number, password with show/hide toggle, auth key display when editing
+  - Delete AlertDialog with "Delete Permanently" styling
+  - Block/Unblock AlertDialog with descriptive messages about login access
+  - Loading skeletons for both desktop and mobile views
+- Completely rebuilt /src/app/admin/librarians/page.tsx (~400 lines):
+  - Gradient header with violet-purple icon badge and Library icon
+  - 3 stat cards: Total Librarians (violet), Active (emerald), Blocked (red) with larger card size
+  - Search bar + Status filter (All/Active/Blocked)
+  - DataTable columns: Name (avatar + name + address subtitle), Email (with Mail icon), Auth Key (show/hide/copy with tooltips), Phone (with Phone icon, hidden on smaller screens), Account Status, Options
+  - Added `address` field: shown as subtitle under name with MapPin icon in both desktop and mobile
+  - Mobile card shows phone and address as separate info items
+  - Auth key section uses violet theme (matching page identity)
+  - Add/Edit dialog: name, email (with Mail icon), phone (with Phone icon), address (textarea with MapPin icon), password with show/hide, auth key display
+  - Create button uses violet-600 gradient (consistent with page theme)
+  - Loading skeletons for both desktop and mobile
+- Lint: 0 errors/warnings from modified files
+- TypeScript: no type errors
+
+Stage Summary:
+- Admin users page completely rebuilt with bug fixes, improved UI, super admin restriction
+- Key bug fixed: `isBlocked` undefined in desktop table (was only defined in mobile view scope)
+- Key schema fix: added `block_limit` to both admin and librarian models for proper block/unblock tracking
+- API consistency: block/unblock now sets both `active_status` AND `block_limit` fields
+- API safety: prevents deleting the last super admin
+- Admin page features: 6 stat cards, dual filters (status + level), level icons/badges, gradient header, super admin-only add button, tooltips on all actions, pagination
+- Librarian page features: 3 stat cards, status filter, address field (new), Mail/Phone/MapPin icons, violet theme, gradient header
+- Both pages: responsive desktop+mobile, loading skeletons, empty states, tooltip-wrapped action buttons
+- Build passes, pages accessible at /admin/admins and /admin/librarians
+
+---
+
+Task ID: 15
+Agent: Main Agent
+Task: Rebuild System Settings page with all CI3 fields, file upload, organized panels
+
+Work Log:
+- Studied original CI3 view admin/system_settings.php (695 lines):
+  - Logo upload panel: school logo, head teacher signature, SSNIT logo (fileinput plugin)
+  - System Settings 1 panel: system_name, system_title/slogan, location, address, box_number, digital_address, website_address, phone[], ssnit_number, currency, system_email, language, running_year, running_term, term_ending, next_term_begins
+  - System Settings 2 panel: half_payment_week (dropdown), full_payment_date, mo_account_name, mo_account_number, teacher_code_prefix/format, student_code_prefix/format, invoice_number_format, receipt_style (3 options), terminal_report_style (2 options), boarding_system (yes/no), fee_collection_mode (integrated/separated), purchase_code
+- Analyzed existing page /src/app/admin/settings/page.tsx (530 lines):
+  - Already had 5-tab layout (School, Academic, Finance, IDs, Theme) with most fields
+  - Missing: actual file upload (was placeholder only), phone[] array support, language dropdown, semester fields
+- Analyzed existing API /api/admin/settings/route.ts: GET returns all settings as map, POST batch upserts
+- Created 1 new API route:
+  - POST /api/admin/settings/upload - file upload endpoint for school_logo, head_teacher_signature, ssnit_logo
+    - Validates file type (PNG/JPG/GIF/WebP only), size (max 2MB), upload type
+    - Writes to public/uploads/school/ with unique filename
+    - Saves public path to settings table
+- Rebuilt /src/app/admin/settings/page.tsx (~470 lines) from 530 lines with major enhancements:
+  - School tab:
+    - School Information card with all CI3 fields: system_name, system_title, location, address, box_number, digital_address, website_address, phone[], ssnit_number, currency, system_email, language dropdown (English/French/Spanish/Arabic)
+    - Phone numbers stored as JSON array (phone_json) with add/remove support (up to 5 phones)
+    - Uploads & Branding card with 3 functional UploadCard components:
+      - School Logo (200x200px recommended) with image preview and remove button
+      - Head Teacher Signature (landscape aspect) with preview and remove
+      - SSNIT Logo with preview and remove
+      - Each upload validates file type, shows "Active" badge when set, supports replace
+  - Academic tab:
+    - Academic Calendar card: running_year, running_term (with admin-change warning), term_ending, next_term_begins
+    - Semester Configuration section (sky-tinted card for JHSS): running_sem, sem_ending, next_sem_begins
+    - School Preferences card: receipt_style (3 options), terminal_report_style (2 options), boarding_system (Switch toggle), fee_collection_mode (integrated/separated with description)
+    - Payment Deadlines card: half_payment_week (dropdown: 1st-4th week), full_payment_date
+  - Finance tab: mo_account_name, mo_account_number, purchase_code
+  - IDs tab: Staff ID (prefix + format in violet card), Student ID (prefix + format in emerald card), Invoice numbering (amber card with numeric-only warning)
+  - Theme tab: 8 predefined theme cards with gradient previews, custom color pickers (primary/secondary/accent)
+  - Reusable components: UploadCard, PhoneInputs, SField, SectionCard, SaveBtn
+  - All save buttons show section-specific loading states (saving variable tracks which section is saving)
+  - Responsive design, semantic icons per field, loading skeletons
+- Created public/uploads/school/ directory for uploaded files
+- Build verified: compiled successfully with 0 errors
+- Lint: 0 errors/warnings from modified files (pre-existing warnings only from other files)
+
+Stage Summary:
+- System settings page completely rebuilt with all CI3 system_settings.php fields
+- File upload now functional (was placeholder) for school logo, head teacher signature, SSNIT logo
+- Phone numbers stored as JSON array with add/remove UI (up to 5)
+- Language dropdown added with 4 options
+- Semester fields added for JHSS classes (running_sem, sem_ending, next_sem_begins)
+- 5 organized tabs: School (info + uploads), Academic (calendar + preferences + deadlines), Finance (MoMo + purchase code), IDs (staff/student/invoice), Theme (predefined + custom)
+- 1 new API route (file upload with validation)
+- Build passes, page accessible at /admin/settings
+
+---
+
 Task ID: 14
 Agent: Main Agent
 Task: Rebuild Daily Fee Management dashboard with 4 tabs (Overview, Fee Rates, Collection, Handover)
