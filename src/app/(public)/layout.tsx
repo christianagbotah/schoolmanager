@@ -21,6 +21,11 @@ function Navbar() {
   const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -109,6 +114,7 @@ function Navbar() {
             </div>
 
             {/* Mobile hamburger */}
+            {mounted ? (
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild className="lg:hidden">
                 <Button variant="ghost" size="icon" className="min-h-[44px] min-w-[44px]" aria-label="Open menu">
@@ -168,6 +174,11 @@ function Navbar() {
                 </div>
               </SheetContent>
             </Sheet>
+            ) : (
+              <Button variant="ghost" size="icon" className="lg:hidden min-h-[44px] min-w-[44px]" aria-label="Open menu">
+                <Menu className="w-6 h-6" />
+              </Button>
+            )}
           </div>
         </div>
       </header>

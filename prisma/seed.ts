@@ -77,32 +77,34 @@ async function main() {
   // Admin users
   const admin1 = await prisma.admin.upsert({
     where: { email: "admin@school.com" },
-    update: { password: hashedPassword, name: "System Administrator", active_status: 1 },
+    update: { password: hashedPassword, name: "System Administrator", active_status: 1, authentication_key: "ADMIN1" },
     create: {
       email: "admin@school.com",
       password: hashedPassword,
       name: "System Administrator",
       phone: "+233-XXX-000-001",
       active_status: 1,
+      authentication_key: "ADMIN1",
     },
   });
 
   await prisma.admin.upsert({
     where: { email: "superadmin@school.com" },
-    update: { password: hashedPassword },
+    update: { password: hashedPassword, authentication_key: "SUPAD1" },
     create: {
       email: "superadmin@school.com",
       password: hashedPassword,
       name: "Super Admin",
       phone: "+233-XXX-000-002",
       active_status: 1,
+      authentication_key: "SUPAD1",
     },
   });
 
   // Teacher users
   const teacher1 = await prisma.teacher.upsert({
     where: { email: "teacher@school.com" },
-    update: { password: hashedPassword, name: "Ama Mensah", active_status: 1, department_id: dept1.id, designation_id: des1.id },
+    update: { password: hashedPassword, name: "Ama Mensah", active_status: 1, department_id: dept1.id, designation_id: des1.id, authentication_key: "TEACH1" },
     create: {
       email: "teacher@school.com",
       password: hashedPassword,
@@ -116,12 +118,13 @@ async function main() {
       joining_date: new Date("2020-01-15"),
       address: "12 University Road, Accra",
       birthday: new Date("1985-06-20"),
+      authentication_key: "TEACH1",
     },
   });
 
   const teacher2 = await prisma.teacher.upsert({
     where: { email: "kofi.asante@school.com" },
-    update: { password: hashedPassword, department_id: dept2.id, designation_id: des2.id },
+    update: { password: hashedPassword, department_id: dept2.id, designation_id: des2.id, authentication_key: "TEACH2" },
     create: {
       email: "kofi.asante@school.com",
       password: hashedPassword,
@@ -135,12 +138,13 @@ async function main() {
       joining_date: new Date("2019-09-01"),
       address: "45 Main Street, Kumasi",
       birthday: new Date("1988-03-12"),
+      authentication_key: "TEACH2",
     },
   });
 
   const teacher3 = await prisma.teacher.upsert({
     where: { email: "abena.oku@school.com" },
-    update: { password: hashedPassword, department_id: dept4.id, designation_id: des3.id },
+    update: { password: hashedPassword, department_id: dept4.id, designation_id: des3.id, authentication_key: "TEACH3" },
     create: {
       email: "abena.oku@school.com",
       password: hashedPassword,
@@ -154,13 +158,14 @@ async function main() {
       joining_date: new Date("2021-01-10"),
       address: "78 School Lane, Tema",
       birthday: new Date("1992-11-05"),
+      authentication_key: "TEACH3",
     },
   });
 
   // Student users - upsert by username to handle unique student_code
   const student1 = await prisma.student.upsert({
     where: { username: "student" },
-    update: { password: hashedPassword, name: "Kwame Boateng", active_status: 1, email: "student@school.com" },
+    update: { password: hashedPassword, name: "Kwame Boateng", active_status: 1, email: "student@school.com", authentication_key: "STUDE1" },
     create: {
       email: "student@school.com",
       username: "student",
@@ -172,6 +177,7 @@ async function main() {
       birthday: new Date("2015-03-15"),
       blood_group: "O+",
       active_status: 1,
+      authentication_key: "STUDE1",
     },
   });
 
@@ -210,7 +216,7 @@ async function main() {
   // Parent users
   const parent1 = await prisma.parent.upsert({
     where: { email: "parent@school.com" },
-    update: { password: hashedPassword, name: "Mr. Boateng Sr.", active_status: 1 },
+    update: { password: hashedPassword, name: "Mr. Boateng Sr.", active_status: 1, authentication_key: "PAREN1" },
     create: {
       email: "parent@school.com",
       password: hashedPassword,
@@ -219,12 +225,13 @@ async function main() {
       profession: "Businessman",
       guardian_gender: "Male",
       active_status: 1,
+      authentication_key: "PAREN1",
     },
   });
 
   const parent2 = await prisma.parent.upsert({
     where: { email: "mrs.darko@school.com" },
-    update: { password: hashedPassword },
+    update: { password: hashedPassword, authentication_key: "PAREN2" },
     create: {
       email: "mrs.darko@school.com",
       password: hashedPassword,
@@ -233,36 +240,49 @@ async function main() {
       profession: "Nurse",
       guardian_gender: "Female",
       active_status: 1,
+      authentication_key: "PAREN2",
     },
   });
 
   // Accountant
   const accountant1 = await prisma.accountant.upsert({
     where: { email: "accountant@school.com" },
-    update: { password: hashedPassword, name: "Ebenezer Tetteh", active_status: 1 },
+    update: { password: hashedPassword, name: "Ebenezer Tetteh", active_status: 1, authentication_key: "ACCOU1" },
     create: {
       email: "accountant@school.com",
       password: hashedPassword,
       name: "Ebenezer Tetteh",
       phone: "+233-XXX-400-001",
       active_status: 1,
+      authentication_key: "ACCOU1",
     },
   });
 
   // Librarian
   const librarian1 = await prisma.librarian.upsert({
     where: { email: "librarian@school.com" },
-    update: { password: hashedPassword, name: "Comfort Agyeman", active_status: 1 },
+    update: { password: hashedPassword, name: "Comfort Agyeman", active_status: 1, authentication_key: "LIBRA1" },
     create: {
       email: "librarian@school.com",
       password: hashedPassword,
       name: "Comfort Agyeman",
       phone: "+233-XXX-500-001",
       active_status: 1,
+      authentication_key: "LIBRA1",
     },
   });
 
   console.log("  ✅ Created 2 admins, 3 teachers, 10 students, 2 parents, 1 accountant, 1 librarian");
+  console.log("\n📋 Demo Accounts (password: password123):");
+  console.log("  Role         Email                    Auth Key");
+  console.log("  ──────────   ─────────────────────    ────────");
+  console.log("  Super Admin  superadmin@school.com     SUPAD1");
+  console.log("  Admin        admin@school.com          ADMIN1");
+  console.log("  Teacher      teacher@school.com        TEACH1");
+  console.log("  Student      student@school.com        STUDE1");
+  console.log("  Parent       parent@school.com         PAREN1");
+  console.log("  Accountant   accountant@school.com     ACCOU1");
+  console.log("  Librarian    librarian@school.com      LIBRA1\n");
 
   // ============================
   // Create Classes
@@ -427,14 +447,7 @@ async function main() {
   }
   console.log("  ✅ Linked students to parents");
 
-  console.log("\n🎉 Seeding completed successfully!\n");
-  console.log("📋 Demo Accounts:");
-  console.log("  Admin:        admin@school.com / password123");
-  console.log("  Teacher:      teacher@school.com / password123");
-  console.log("  Student:      student@school.com / password123 (or username: student)");
-  console.log("  Parent:       parent@school.com / password123");
-  console.log("  Accountant:   accountant@school.com / password123");
-  console.log("  Librarian:    librarian@school.com / password123");
+  console.log("\n🎉 Seeding completed successfully!");
 }
 
 main()
