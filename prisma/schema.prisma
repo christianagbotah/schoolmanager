@@ -907,6 +907,7 @@ model message {
   message_id        Int       @id @default(autoincrement())
   message_thread_id Int
   sender_id         Int
+  sender_type       String    @default("admin")
   message           String    @default("")
   file              String    @default("")
   sent_on           DateTime?
@@ -921,6 +922,8 @@ model message_thread {
   message_thread_id      Int       @id @default(autoincrement())
   hash                   String    @default("")
   subject                String    @default("")
+ sender                  String    @default("")
+  reciever               String    @default("")
   last_message_timestamp DateTime?
   participant_ids        String    @default("")
 
@@ -928,10 +931,25 @@ model message_thread {
 }
 
 model notice {
-  id        Int       @id @default(autoincrement())
-  title     String    @default("")
-  notice    String    @default("")
-  timestamp DateTime?
+  id              Int       @id @default(autoincrement())
+  title           String    @default("")
+  notice          String    @default("")
+  timestamp       DateTime?
+  notice_timestamp DateTime?
+  create_timestamp Int       @default(0)
+  start_date      DateTime?
+  end_date        DateTime?
+  show_on_website Int       @default(1)
+  visibility_roles String    @default("all")
+  status          Int       @default(1)
+  image           String    @default("")
+  attachment      String    @default("")
+  check_sms       Int       @default(2)
+  sms_target      Int       @default(0)
+  check_email     Int       @default(2)
+
+  @@index([status])
+  @@index([timestamp])
 }
 
 model notifications {
@@ -3002,9 +3020,12 @@ model sms_log {
   delivered_at  DateTime?
   gateway       String    @default("")
   cost          Float     @default(0)
+  recipient_type String    @default("")
+  recipient_id   Int       @default(0)
 
   @@index([phone_number])
   @@index([status])
+  @@index([recipient_type])
   @@map("sms_log")
 }
 

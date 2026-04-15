@@ -151,7 +151,7 @@ export default function PaymentsPage() {
       params.set('page', String(page));
       params.set('limit', '15');
 
-      const res = await fetch(`/api/payments?${params}`);
+      const res = await fetch(`/api/admin/payments?${params}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setPayments(data.payments || []);
@@ -203,7 +203,7 @@ export default function PaymentsPage() {
     setSearchResults([]);
     // Fetch unpaid invoices
     try {
-      const res = await fetch(`/api/invoices?search=${encodeURIComponent(student.student_code)}&status=unpaid&limit=50`);
+      const res = await fetch(`/api/admin/invoices?search=${encodeURIComponent(student.student_code)}&status=unpaid&limit=50`);
       const data = await res.json();
       setStudentInvoices((data.invoices || []).filter((inv: any) => inv.due > 0));
     } catch {
@@ -218,7 +218,7 @@ export default function PaymentsPage() {
     }
     setRecording(true);
     try {
-      const res = await fetch('/api/payments', {
+      const res = await fetch('/api/admin/payments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -277,7 +277,7 @@ export default function PaymentsPage() {
 
   const handleDeletePayment = async (id: number) => {
     try {
-      const res = await fetch(`/api/payments/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/payments/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       toast.success('Payment deleted');

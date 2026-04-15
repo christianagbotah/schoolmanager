@@ -1,7 +1,329 @@
 ---
-Task ID: 10
+Task ID: 14
 Agent: Main Agent
-Task: Rebuild Attendance Management module to match CI3 original
+Task: Rebuild Daily Fee Management dashboard with 4 tabs (Overview, Fee Rates, Collection, Handover)
+
+Work Log:
+- Studied original CI3 views:
+  - admin/daily_fee_rates.php (181 lines): rate cards per class with sections, 4 fee types (feeding/breakfast/classes/water), bulk assign modal, AJAX refresh
+  - admin/classes_feeding_trs_fees.php (541 lines): enterprise dashboard with search by date/term/year, 5 module stat cards (feeding/classes/transport/breakfast/water) for collected/outstanding/payables, payment detail modals, fee mode badge (separated/integrated)
+  - admin/daily_fee_collection.php (305 lines): POS-style collection with student search (select2), class data attributes, 4 fee type cards with toggle, transport section with direction (morning/afternoon/both/none), total display, payment method selector, collect button with AJAX
+- Studied CI3 controllers:
+  - Admin::daily_fee_rates() (26344-26389): create/do_update with year/term from settings, get_rate_data JSON
+  - Admin::daily_fee_rates_bulk_save() (26389-26433): batch create/update with rate_ids
+  - Admin::get_fct_bydate/get_fct_byterm (21970-21978): delegated to ajaxload
+  - Fee_collection::collect() (511-700): unified collection with student validation, duplicate prevention, wallet update, transport boarding
+  - Fee_collection::daily_fee_report() (1117-1150): per-fee-type report with student list
+  - Fee_collection::get_statistics_data() (70-100): date range filter with class/collector/method
+- Analyzed existing Prisma schema: daily_fee_rates, daily_fee_wallet, daily_fee_transactions models
+- Analyzed existing API routes: /api/admin/daily-fees/rates, /api/admin/daily-fees/collect, /api/admin/daily-fees/report, /api/admin/daily-fees/transactions, /api/admin/daily-fees/wallet
+- Enhanced 2 existing API routes:
+  - GET /api/admin/daily-fees/collect: added search parameter for student name/code filtering, added todayTransaction check (already collected badge), added rates on student list
+  - GET /api/admin/daily-fees/report: added period parameter (today/week/month), payment method breakdown with counts, unique students count, outstanding wallet balances, top 10 debtors
+- Created 1 new API route:
+  - GET /api/admin/daily-fees/handover?date=X: cashier handover report with grand totals (total/cash/momo/bank), per-fee-type breakdown, collector breakdown with transaction counts and method breakdowns, full transaction list
+- Completely rebuilt /src/app/admin/daily-fees/page.tsx (~1400 lines) from simple rates page to comprehensive 4-tab dashboard:
+  - Overview tab (matching CI3 classes_feeding_trs_fees.php):
+    - 3 period stat cards (Today/This Week/This Month) with total, transaction count, cash/momo subtotals
+    - 5 fee type breakdown cards (Feeding/Breakfast/Classes/Water/Transport) with left color borders
+    - Weekly collection stacked bar chart using recharts with 5 fee type series and legend
+    - Payment methods card with progress bars (Cash/Mobile Money/Bank Transfer/Cheque)
+    - Unique students count
+    - Quick action buttons (Collect Fees/Manage Rates/Cash Handover)
+  - Fee Rates tab (matching CI3 daily_fee_rates.php):
+    - Stats badges (classes with rates, missing)
+    - Bulk Assign Rates button with amber gradient
+    - Class cards grouped by category (CRECHE/NURSERY/KG/BASIC/JHS)
+    - Each card shows 4 fee type rates (feeding/breakfast/classes/water) in colored grids
+    - Visual indicators: violet left border for rates set, amber dashed border for missing
+    - Edit/Set Rates dialog with 2x2 grid of rate inputs and total calculation
+    - Bulk Assign dialog with scrollable table (class + 4 rate inputs)
+  - Collection tab (matching CI3 daily_fee_collection.php):
+    - Student search by name/code with real-time filtering
+    - Class filter dropdown (loads enrolled students with rates)
+    - Student list with avatar initials, name, code, section, collection status badges
+    - Selected student highlight card with class info
+    - 4 fee type cards with tap-to-toggle (gradient backgrounds when selected)
+    - Transport section with direction selector (Not Using/Morning Only/Afternoon Only/Both Ways) and fare input
+    - Total amount display in gradient violet card
+    - Payment method selector grid (Cash/Mobile Money/Bank Transfer/Cheque) with icons
+    - Collect button with processing state
+    - Receipt success view with Print and Next buttons
+    - Print receipt opens formatted receipt in new window with transaction details
+  - Handover tab (matching CI3 cashier handover pattern):
+    - Date picker for selecting handover date
+    - 4 grand total stat cards (Total Collected/Cash/Mobile Money/Bank Transfer)
+    - Collection by fee type grid (5 types)
+    - Breakdown by cashier with per-cashier stats:
+      - Avatar, name, transaction count, total collected
+      - 4-type fee breakdown (feeding/breakfast/classes/water)
+      - Payment method breakdown (cash/momo/bank with counts)
+    - All transactions scrollable table with columns (#, Student, Feeding, Breakfast, Classes, Water, Transport, Total, Method)
+- Fixed LayerGroup icon (not available in current lucide-react) → replaced with Layers
+- Build verified: compiled successfully with 0 errors
+- Lint: no new errors/warnings from daily-fees files
+
+Stage Summary:
+- Daily fee management completely rebuilt from simple rates page to comprehensive 4-tab dashboard matching CI3
+- Overview: 3 period stats, 5 fee type cards, weekly stacked bar chart, payment method breakdown, unique students
+- Fee Rates: Class cards grouped by category, edit dialog, bulk assign dialog, visual status indicators
+- Collection: Student search + class filter, fee type toggle cards, transport direction, payment method grid, collect + print receipt
+- Handover: Date selector, grand totals, fee type breakdown, per-cashier breakdown with detailed stats, transaction table
+- 1 new API route (handover), 2 enhanced API routes (collect, report)
+- Build passes, page accessible at /admin/daily-fees
+
+---
+
+Task ID: 13
+Agent: Main Agent
+Task: Enhance Noticeboard & Messaging pages with date range, visibility roles, file attachments, group messaging
+
+Work Log:
+- Studied original CI3 views:
+  - admin/noticeboard.php (222 lines): 2 tabs (Noticeboard List, Add Noticeboard); running/archived sub-tabs; notice table; add form with title, notice, event_date, image upload (fileinput plugin), send_sms toggle, sms_target (all/parents/teachers/students), send_email toggle; success message banner
+  - admin/noticeboard_edit.php (118 lines): edit form matching create form, pre-filled, image preview with existing file
+  - admin/message.php (525 lines): 2 main tabs (SMS Messages, In-App Messages); SMS tab with 3 send types (individual/bulk/custom numbers); phone simulator; in-app chat sidebar, thread list, conversation bubbles; recipient tag selection; character count (160/SMS count)
+  - admin/group_message.php (65 lines): sidebar with group thread list (group_message_thread table), create group button, group conversation read view with messages, edit/delete actions on groups
+- Studied CI3 controller methods:
+  - Admin::noticeboard() (16095-16553): create with title/notice/date/image, SMS sending to target groups, email alerts, edit, delete, mark_as_archive (status=0), remove_from_archived (status=1)
+  - Admin::message() (16555-16638): in-app messaging send_new/send_reply, delete with cascade
+  - Admin::group_message() (16846-16904): group messaging with create_group, group_message_read, delete
+- Updated Prisma schema:
+  - Added to notice model: start_date (DateTime?), end_date (DateTime?), visibility_roles (String, default "all"), attachment (String, default "")
+  - Existing group_message/group_message_thread/group_message_other models already in schema (broadcast-style group messaging)
+- Updated /api/admin/notices/route.ts:
+  - GET: added date_from/date_to query params for date range filtering, added withSms to stats
+  - POST: added start_date, end_date, visibility_roles, attachment fields
+  - PUT: added start_date, end_date, visibility_roles, attachment update support
+- Updated /api/admin/messages/route.ts:
+  - GET: added group_threads action (list group broadcasts), group_detail action (single group with threads)
+  - POST: added create_group action (broadcast message to target group), send_group_reply, file attachment support
+  - DELETE: added group deletion with action=group&group_id=X parameter
+- Completely rebuilt /src/app/admin/notices/page.tsx (~480 lines):
+  - 4 stat cards (Total, Running, Archived, SMS Alerts) with colored icons
+  - Running/Archived/All sub-tabs with search
+  - Date range filter popover (from/to date pickers) with apply/clear buttons
+  - Enhanced notice table: Title (with attachment badges), Date Range (from→to display), Visibility (Public/Private + role badge), SMS (On/Off + target label), Status (Active/Scheduled/Archived)
+  - Scheduled status detection: checks start_date/end_date against current time
+  - Attachment indicators: Image (sky badge) and File (orange badge) in title column
+  - Create/Edit dialog organized into sections:
+    - Title + Notice Content
+    - Date Range row (Event Date, Visible From, Visible Until)
+    - Visibility & Access card: Show on Website toggle, Visible to dropdown (Everyone/Teachers/Students/Parents)
+    - Notifications card: Send SMS toggle with conditional SMS target dropdown (All/Parents/Teachers/Students), Send Email toggle
+    - Attachments card: Image upload input, Document upload input (.pdf,.doc,.docx,.xls,.xlsx), file name badges
+  - View dialog: all badges (status, visibility, SMS target, email), attachments section with file type icons, created timestamp
+  - Delete AlertDialog with permanent deletion warning
+  - Loading skeletons, empty states, responsive design
+- Completely rebuilt /src/app/admin/messages/page.tsx (~700 lines):
+  - 3 main tabs (In-App Messages, SMS Messages, Group Messages) — In-App set as default
+  - In-App Messages tab:
+    - Chat-style layout with violet gradient sidebar, New Message button, search
+    - Thread list with avatar, partner name, type badge, timestamp, delete on hover
+    - Conversation view with date separators between different days
+    - Message status indicators: timestamp, file attachment icon
+    - Reply area with loading state on send button
+    - Compose dialog: recipient select grouped by Students/Teachers/Parents, message textarea, file attachment
+    - Mobile responsive: sidebar/message view toggle
+  - SMS Messages tab (unchanged from previous):
+    - 3 send type cards (Individual/Bulk/Custom Numbers)
+    - Tag-based recipient selection with search
+    - Phone simulator preview
+    - Character count (160/SMS), SMS count display
+    - Send Bill Reminder button
+  - Group Messages tab (new, matching CI3 group_message.php):
+    - Left sidebar with amber gradient header, New Group Message button
+    - Group message list with title, message preview, target group badge, date, status badge, delete on hover
+    - Group message detail view: message bubble with admin avatar, file attachment indicator, sent timestamp
+    - Delivery status section: list of recipient threads with read/delivered/pending status icons and colored badges
+    - Create Group Message dialog: title, target group dropdown (Students/Teachers/Parents/Admins/Everyone), message textarea, file attachment
+  - Unified delete confirmation AlertDialog for both threads and groups
+  - Loading skeletons, empty states for all tabs
+- Dev server: compiled successfully for all modified files
+- Lint: only pre-existing warnings (set-state-in-effect, unused disable directives), no new errors from modified files
+
+Stage Summary:
+- Noticeboard enhanced with date range filtering, visibility role targeting, file attachment uploads (image + document), scheduled/active status detection
+- Messages enhanced with Group Messages tab (broadcast messaging with delivery tracking), date separators in conversations, SMS indicators
+- Prisma schema extended with start_date, end_date, visibility_roles, attachment fields on notice model
+- 2 API routes updated with new query parameters and group messaging support
+- Build passes, pages accessible at /admin/notices, /admin/messages
+
+---
+
+Task ID: 12
+Agent: Main Agent
+Task: Rebuild Invoice and Payment management pages to match CI3 originals
+
+Work Log:
+- Studied original CI3 views:
+  - admin/invoices.php (960 lines): 2 tabs (Invoices, All Receipts); search-by-date card (date picker, total amount stat card, quantity, duration); search-by-term/year card (term/year dropdowns, total amount stat card); class selection card for invoices tab with bulk invoice/bill buttons; AJAX class loading; receipt filters (start/end date, receipt code, class, student)
+  - admin/student_payment.php (540 lines): 5 tabs (Add Billing Item, Create Invoice, Manage Bulk Invoices, Bulk Arrears Import, Modification Requests); add billing item form (title, category dropdown, amount with currency prefix, description, add button); bill items table with inline edit/delete; mass invoice creation form (date, term, year, class, student category toggle, bill items checkboxes)
+  - admin/income.php (267 lines): 3 tabs (Invoices, Payment History, Student Specific Payment History); invoices tab: table with columns (#, student, title, total, paid, status, date, options with take payment/view/edit/delete); payment history tab: all income payments table (#, title, description, method, amount, date, view invoice link); student specific tab: student dropdown filter + payment table
+  - admin/modal_take_payment.php (138 lines): student selector (students who owe), student details (name, class, total payable), payment mode dropdown (cash/momo/cheque), amount input, receipt number, conditional fields (momo transaction id, bank name, cheque number), print receipt toggle, submit button
+  - admin/income2.php (22 lines): navigation wrapper with 3 links (Invoices, Payment History, Student Specific Payment History)
+- Analyzed existing Prisma schema: invoice, payment, receipts, bill_item, bill_category models already defined
+- Analyzed existing pages and API routes:
+  - /admin/invoices/page.tsx: ~900+ lines with comprehensive 3-tab layout (Invoice List, Create Invoice, Bill Items), full CRUD, take payment, print receipt
+  - /admin/payments/page.tsx: ~680 lines with payment history, filters, record payment dialog, CSV export (but calling wrong API endpoints)
+  - /admin/income/page.tsx: Placeholder page with just links
+  - API routes already existed: /api/admin/invoices (GET/POST), /api/admin/invoices/[id] (GET/PUT/DELETE), /api/admin/payments (GET/POST), /api/admin/payments/[id] (GET/DELETE), /api/admin/income (GET)
+- Rebuilt /src/app/admin/income/page.tsx (~580 lines) from placeholder to comprehensive 4-tab dashboard:
+  - Overview tab:
+    - 5 gradient stat cards (Total Collected/emerald, Total Invoiced/sky, Outstanding/amber, Today/violet, This Month/teal) with icons and contextual labels
+    - Collection Rate progress bar with percentage and target
+    - Invoice Breakdown card with paid/partial/unpaid counts and percentage badges
+    - Payment Methods card with colored progress bars (cash/emerald, mobile_money/violet, etc.)
+    - Monthly Collection bar chart with labels
+    - Top 10 Debtors table with student name, class, amount owed
+    - Collection by Class table with invoices count, billed, collected, outstanding, rate
+    - Recent Payments table with student, receipt, amount, method, date
+  - Invoices tab (matching CI3 income.php invoices tab):
+    - Search and status filter
+    - Invoice table with columns (#, Student, Title, Total, Paid, Status, Date)
+    - Status badges (paid=green, partial=amber, unpaid=red)
+    - Pagination
+  - Payment History tab (matching CI3 income.php payment_history tab):
+    - 3 summary cards (All Time, Today, This Month)
+    - Search and method filter
+    - Payment table with columns (#, Title/Student, Invoice Code, Method badge, Amount, Date)
+    - Pagination
+  - Student Specific tab (matching CI3 income.php student_specific_payment_history):
+    - Student selector dropdown (all students + individual)
+    - Payment table filtered by student
+- Fixed /src/app/admin/payments/page.tsx API endpoint calls:
+  - Changed `/api/payments` → `/api/admin/payments` (GET for list)
+  - Changed `/api/payments` → `/api/admin/payments` (POST for record)
+  - Changed `/api/invoices` → `/api/admin/invoices` (GET for unpaid invoices lookup)
+  - Changed `/api/payments/${id}` → `/api/admin/payments/${id}` (DELETE)
+- Verified existing Invoices page already comprehensive with CI3-faithful features:
+  - 3 tabs (Invoice List, Create Invoice, Bill Items)
+  - Invoice list with search, class/status/year/term filters, pagination
+  - Create Invoice with single/mass modes, date/term/year/class selectors, bill item selection
+  - Bill Items tab with add/edit/delete inline
+  - View/Edit/Delete/Print invoice actions
+  - Take Payment modal with student selector (students owing), payment form (method, amount, receipt code), receipt printing
+- Build verified: compiled successfully with 0 errors
+- Lint: only pre-existing set-state-in-effect warnings (no new warnings from modified files)
+
+Stage Summary:
+- Income & Payments dashboard completely rebuilt from placeholder to comprehensive 4-tab page matching CI3 income.php
+- Overview tab with 5 gradient stat cards, collection rate, invoice breakdown, payment methods, monthly chart, top debtors, class breakdown, recent payments
+- Invoices tab with search/filter and invoice table matching CI3
+- Payment History tab with summary cards and payment table matching CI3
+- Student Specific tab with student selector and filtered payment table matching CI3
+- Payments page fixed to use correct admin API endpoints
+- All 3 pages fully functional with existing comprehensive API routes
+- Build passes, pages accessible at /admin/income, /admin/invoices, /admin/payments
+
+---
+
+Task ID: 11
+Agent: Main Agent
+Task: Rebuild Communication Module (Noticeboard, Messages, SMS) to match CI3 original
+
+Work Log:
+- Studied original CI3 views:
+  - admin/noticeboard.php (222 lines): 2 tabs (Noticeboard List, Add Noticeboard); running/archived sub-tabs; notice table (#, title, date, options); add form with title, notice, event_date, image upload, send_sms toggle, sms_target (all/parents/teachers/students), send_email toggle; success message banner
+  - admin/noticeboard_edit.php (118 lines): edit form matching create form, pre-filled with existing data
+  - admin/running_noticeboard.php (71 lines): running notices table with view/edit/archive/delete actions
+  - admin/message.php (525 lines): 2 main tabs (SMS Messages, In-App Messages); SMS tab with 3 send types (individual/bulk/custom numbers); phone simulator preview; in-app messaging with chat sidebar, thread list, conversation bubbles; recipient tag selection with search; character count (160/SMS count)
+  - admin/message_new.php (125 lines): new message compose with recipient select (grouped by student/teacher/parent), message textarea, file attachment, send/cancel buttons
+  - admin/message_read.php (115 lines): message thread conversation view with bubbles (sent/received), sender avatar, timestamp, file attachment, reply area
+  - admin/group_message.php (65 lines): sidebar with group thread list, create group button, group conversation read view with messages
+  - admin/sms_automation.php (441 lines): 4 stat cards (total/active/messages_sent/success_rate), automations grid with toggle/edit/logs actions, activity chart
+  - admin/sms_settings.php (174 lines): SMS service provider selection (Hubtel/Disabled), attendance SMS toggle, Hubtel config (sender/client_id/client_secret)
+  - admin/sms_log_report.php (62 lines): SMS log table with date, student, phone, type, message, status columns
+- Studied CI3 controller methods:
+  - Admin::noticeboard() (16095-16553): create with title/notice/date/image, SMS sending to parents/teachers/students, email alerts, edit, delete (with read_notice_ids cleanup), mark_as_archive (status=0), remove_from_archived (status=1)
+  - Admin::message() (16555-16638): in-app messaging thread/message management, delete thread (cascade delete messages)
+  - Admin::group_message() (16870-16904): group messaging thread management
+- Updated Prisma schema:
+  - Added sender_type field to message model (default "admin")
+  - Added sender/reciever fields to message_thread model (CI3 thread pattern: "admin-1", "parent-5")
+  - Extended notice model with: create_timestamp (int), show_on_website, status, image, check_sms, sms_target, check_email, notice_timestamp (mirrors CI3 noticeboard table fields)
+  - Added recipient_type and recipient_id fields to sms_log model for filtering
+  - Removed duplicate message_thread model
+- Created 3 admin API routes:
+  - GET /api/admin/notices - list notices with status filter (running/archived/all), search, stats (total/running/archived)
+  - POST /api/admin/notices - create notice (mirrors CI3 noticeboard/create)
+  - PUT /api/admin/notices - update notice (mirrors CI3 noticeboard/do_update)
+  - DELETE /api/admin/notices?id=X&action=archive - archive notice (mirrors CI3 noticeboard/mark_as_archive)
+  - DELETE /api/admin/notices?id=X&action=restore - restore notice (mirrors CI3 noticeboard/remove_from_archived)
+  - DELETE /api/admin/notices?id=X - hard delete notice (mirrors CI3 noticeboard/delete)
+  - GET /api/admin/messages?action=recipients - list all recipients grouped by student/teacher/parent (mirrors CI3 message_new.php)
+  - GET /api/admin/messages - list threads for current admin, optional thread_id for messages
+  - POST /api/admin/messages?action=send_new - create thread + send first message (mirrors CI3 message/send_new)
+  - POST /api/admin/messages?action=send_reply - reply to thread (mirrors CI3 message/send_reply)
+  - DELETE /api/admin/messages?thread_id=X - delete thread with cascade messages (mirrors CI3 message/delete)
+  - GET /api/admin/sms?action=logs - SMS logs with stats (sent/failed/pending/total)
+  - GET /api/admin/sms?action=templates - list all SMS templates
+  - GET /api/admin/sms?action=automations - list automations with stats (total/active/total_sent/success_rate)
+  - GET /api/admin/sms?action=settings - SMS service settings (active service, Hubtel config, attendance SMS toggle)
+  - POST /api/admin/sms?action=send - send SMS to individuals/bulk/groups/custom numbers (mirrors CI3 message/sms_send)
+  - POST /api/admin/sms?action=save_template - create SMS template
+  - POST /api/admin/sms?action=create_automation - create SMS automation with trigger event
+  - POST /api/admin/sms?action=toggle_automation - toggle automation active/inactive
+  - POST /api/admin/sms?action=update_settings - update SMS provider settings
+  - POST /api/admin/sms?action=send_bill_reminder - send bill reminder SMS to parents with outstanding balances (mirrors CI3 send_bill_reminder)
+  - DELETE /api/admin/sms?action=template|automation|log&id=X - delete respective items
+- Completely rebuilt /src/app/admin/notices/page.tsx (~310 lines):
+  - 2-tab layout (Noticeboard List, Add Noticeboard) matching CI3
+  - Running/Archived/All sub-tabs with status filtering
+  - 3 stat cards (Total, Running, Archived) with icons and colors
+  - Notice table with columns (#, Title, Date, Visibility, SMS, Options)
+  - Create/Edit dialog with title, notice, event date, show on website, send SMS toggle, SMS target (all/parents/teachers/students), send email toggle (matching CI3 form)
+  - View dialog with full notice details
+  - Archive/Restore buttons (matching CI3 mark_as_archive/remove_from_archived)
+  - Delete confirmation AlertDialog
+  - Loading skeletons, empty states, search, responsive design
+- Completely rebuilt /src/app/admin/messages/page.tsx (~580 lines):
+  - 2 main tabs matching CI3 (SMS Messages, In-App Messages)
+  - SMS Messages tab: 3 send type cards (Individual/Bulk/Custom Numbers) matching CI3 sms-type-selector
+  - SMS form with tag-based recipient selection, group dropdown, phone number input with tag UI
+  - Character count (160 per SMS), SMS count display
+  - Phone simulator preview component matching CI3 phone-simulator
+  - Send Bill Reminder button (amber) matching CI3 sendBillReminder
+  - SMS info banner matching CI3
+  - In-App Messages tab: chat-style layout matching CI3
+    - Sidebar with gradient header (violet), New Message button, search
+    - Thread list with avatar, partner name, unread badge, type badge, timestamp, delete on hover
+    - Conversation view with sent/received bubbles matching CI3 msg-bubble
+    - Reply area with textarea, file attachment button, send button
+    - New Message dialog with recipient select (grouped by Student/Teacher/Parent), message textarea, file attachment
+    - Auto-scroll to bottom on thread open
+    - Mobile responsive: sidebar/message view toggle
+- Completely rebuilt /src/app/admin/sms/page.tsx (~570 lines):
+  - 4 tabs matching CI3 (Settings, Automation, Templates, SMS Logs)
+  - Settings tab matching CI3 sms_settings.php:
+    - SMS Service Provider card with active/disabled selection, Hubtel configuration (sender/client_id/client_secret), Attendance Notifications toggle
+    - Border highlighting for active services (emerald border/bg)
+  - Automation tab matching CI3 sms_automation.php:
+    - 4 stat cards (Total, Active, Messages Sent, Success Rate)
+    - Automations grid with name, trigger event, recipient group, active/inactive badge, toggle button
+    - Create automation dialog with name, trigger event, recipient group, cooldown
+  - Templates tab:
+    - Template cards grid with name, category, content, edit/delete actions
+    - New template dialog with name, category, content, variables
+    - Delete template confirmation
+  - SMS Logs tab matching CI3 sms_log_report.php:
+    - 3 stats cards (Sent/green, Failed/red, Total/blue)
+    - Logs table with Date, Phone, Type, Message, Status columns
+    - Status badges (Sent=green, Failed=red, Pending=amber)
+  - Loading skeletons, empty states for all tabs
+- Build verified: compiled successfully (✓ Compiled, ✓ Generating static pages)
+- Lint: only pre-existing set-state-in-effect warnings on new files (3 warnings, same pattern as other pages)
+
+Stage Summary:
+- Communication module faithfully rebuilt with 3 pages matching CI3 originals
+- Noticeboard: 2-tab layout (list/add), running/archived status, SMS/email notification options, view/edit/archive/delete
+- Messages: 2 main tabs (SMS Messages + In-App Messages), individual/bulk/custom SMS with phone simulator, chat-style in-app messaging with thread/conversation/reply
+- SMS: 4 tabs (Settings, Automation, Templates, Logs), Hubtel config, attendance toggle, automation create/toggle, template CRUD, SMS log table
+- 3 API routes with full CI3-faithful behavior (archive, cascade delete, recipient loading, bill reminders)
+- Prisma schema extended with notice fields, message_thread sender/reciever, sms_log recipient tracking
+- Build passes, all 3 pages accessible at /admin/notices, /admin/messages, /admin/sms
+
+---
 
 Work Log:
 - Studied original CI3 views:
