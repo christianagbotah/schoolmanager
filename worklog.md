@@ -1,4 +1,75 @@
 ---
+Task ID: 18
+Agent: Main Agent
+Task: Rebuild Librarian Portal (Dashboard, Books CRUD, Book Requests)
+
+Work Log:
+- Analyzed existing Prisma schema: book (book_id, name, description, author, isbn, category, shelf, class_id, price, total_copies, issued_copies, status), book_request (book_request_id, book_id, student_id, issue_start_date, issue_end_date, status) models with student/book relations
+- Analyzed existing pages:
+  - /librarian/page.tsx (~334 lines): Basic dashboard with gradient header, 4 stat cards, recent requests table, quick actions, library overview, top categories
+  - /librarian/books/page.tsx (~437 lines): Book CRUD with search/category filters, desktop table + mobile cards, add/edit/delete dialogs
+  - /librarian/requests/page.tsx (~473 lines): Request management with 6 stat cards, search/status filters, accept/reject/return actions, issue dialog, return dialog
+- Analyzed existing API routes:
+  - /api/librarian/books: GET with search/category/class/status/pagination, POST create, PUT update, DELETE with issued-copies check; returns stats with category groups
+  - /api/librarian/requests: GET with status/search/pagination, POST create/direct-issue, PUT status update (approve/reject/return), DELETE with copy decrement
+- Enhanced /api/librarian/books/route.ts:
+  - GET now returns additional stats: total_value (sum of prices), unique_categories count, returned_requests count
+  - Added weekly issuance trend data (last 8 weeks, issued vs returned grouped by week)
+  - Added popularBooks data (top 5 most borrowed books by issued_copies)
+  - Category groups now include totalCopies and issuedCopies per category (for progress bars)
+- Enhanced /api/librarian/requests/route.ts:
+  - GET overdue count now calculated at DB level using `issue_end_date: { lt: new Date() }` instead of client-side filtering
+  - Added overdueRequests detail response (top 10 overdue requests with book/student relations)
+- Completely rebuilt /src/app/librarian/page.tsx (~420 lines) from 334 lines:
+  - Enhanced gradient header (violet-600 to purple-600) with Library icon, title, date, availability count
+  - 4 primary stat cards with colored left borders: Total Books (violet), Available (emerald), Pending (amber), Overdue (red)
+  - 3 secondary metric cards: Collection Value (violet), Returned (emerald), Total Copies (slate)
+  - Availability progress bar with color-coded percentage (>70% green, >40% amber, else red)
+  - Weekly Activity bar chart (last 8 weeks, issued vs returned) using recharts with ChartContainer
+  - Quick Actions grid: Manage Books, Requests, Issue Book, Overdue (conditional, shows count)
+  - Recent Requests table with student, book, due date, status badges (overdue highlighting in red)
+  - Most Borrowed sidebar with ranked list (gold/silver/bronze badges for top 3)
+  - Categories sidebar with colored dots, count badges, and percentage progress bars
+  - Library Summary sidebar with 7 key metrics (titles, copies, issued, available, pending, overdue, value)
+  - Loading skeletons for all sections, error state with retry button
+- Completely rebuilt /src/app/librarian/books/page.tsx (~430 lines) from 437 lines:
+  - Enhanced gradient header (violet-600 to purple-600) with BookOpen icon, title, subtitle, white Add Book button
+  - 5 summary stat cards: Titles (violet), Available (emerald), Issued (amber), Total Copies (sky), Categories (pink)
+  - Enhanced search + filters: search input (2-col span), category dropdown, status dropdown (available/unavailable)
+  - Active filter badges with clear button
+  - Desktop table (11 columns): #, Title, Author, ISBN, Category, Shelf, Copies, Available, Price, Status, Actions
+  - Tablet table (6 columns): #, Title+category subtitle, Author, Copies, Available, Actions
+  - Mobile card view: title, author, badges (ISBN, category, shelf), copy counts, price, status, view/edit/delete buttons
+  - View Dialog: book name in violet highlight card, 2x2 grid (ISBN, category, shelf, class, price, status), copies overview (total/issued/available in 3-column), description
+  - Add/Edit Dialog: title, author (with Pencil icon), ISBN (with Hash icon, monospace), category dropdown, shelf (with ScanBarcode icon), description textarea, price, copies, class dropdown, status dropdown, violet submit button
+  - Delete AlertDialog with issued copies warning, loading state
+  - Empty state with icon and "Add your first book" CTA
+- Completely rebuilt /src/app/librarian/requests/page.tsx (~480 lines) from 473 lines:
+  - Enhanced gradient header (violet-600 to purple-600) with BookCheck icon, white Issue Book button
+  - 6 stat cards with left color borders: Total (slate), Pending (amber), Issued (sky), Overdue (red), Returned (emerald), Rejected (red)
+  - Filters: search input, status dropdown (All/Pending/Issued/Returned/Rejected), clear filters button
+  - Desktop table (8 columns): #, Student (name + code), Book, Category, Issue Date, Due Date (overdue in red), Status, Actions
+  - Mobile card view: book name, author, student name+code, issue/due dates, category badge, action buttons
+  - View Dialog: 2x2 student+status cards, book info card (title, author, ISBN, category), issue/due date cards, overdue warning banner
+  - Issue Book Dialog: student search input with real-time filtering, student dropdown (filtered list), book dropdown (available only with counts), issue/due date pickers, violet submit button
+  - Return Dialog: student/book info card, issue/due dates, overdue warning banner, confirm return button
+  - Accept/Reject AlertDialog with descriptive messages, color-coded action buttons
+  - Delete AlertDialog for pending/rejected requests
+  - Empty state with "Issue a book" CTA link
+  - Conditional overdue row highlighting (red bg tint)
+- Lint: 0 errors/warnings from librarian files
+- Build: ✓ Compiled successfully in 18.3s
+
+Stage Summary:
+- Librarian portal completely rebuilt with 3 pages and 2 enhanced API routes
+- Dashboard: 7 stat cards, availability progress bar, weekly issuance chart (recharts), quick actions grid, recent requests table, most borrowed ranking, category breakdown with progress bars, library summary
+- Books: 5 summary stats, 3-tier responsive table (desktop 11 cols, tablet 6 cols, mobile cards), status/category/search filters, view dialog, add/edit dialog, delete with safety check
+- Requests: 6 stat cards, enhanced filters with clear, accept/reject workflow with AlertDialog confirmations, issue dialog with student search, return dialog with overdue detection, view dialog, delete for non-active requests
+- API enhancements: books endpoint returns weekly trends, popular books, collection value, unique categories; requests endpoint calculates overdue at DB level with detail list
+- Build passes, pages accessible at /librarian, /librarian/books, /librarian/requests
+
+---
+
 Task ID: 17
 Agent: Main Agent
 Task: Migrate CI3 Accountant Portal to Next.js

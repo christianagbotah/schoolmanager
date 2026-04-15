@@ -67,7 +67,7 @@ export default function NoticesPage() {
   // Dialog states
   const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
   const [viewOpen, setViewOpen] = useState(false);
-  [const formOpen, setFormOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [showOnWebsite, setShowOnWebsite] = useState(true);
   const [sendSms, setSendSms] = useState(false);

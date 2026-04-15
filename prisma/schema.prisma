@@ -876,6 +876,9 @@ model book {
   name          String @default("")
   description   String @default("")
   author        String @default("")
+  isbn          String @default("")
+  category      String @default("")
+  shelf         String @default("")
   class_id      Int?
   price         Float  @default(0)
   total_copies  Int    @default(0)
