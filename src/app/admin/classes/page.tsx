@@ -2,277 +2,549 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Search, Plus, BookOpen, Eye, Pencil, Trash2, Users, Layers, BookMarked, ChevronLeft, ChevronRight } from 'lucide-react';
+import { List, PlusCircle, Upload, Users, Pencil, Trash2, Eye, BookOpen, UploadCloud, Info, Download } from 'lucide-react';
 import Link from 'next/link';
 
+// G.E.S Curriculum class names
+const CLASS_NAMES = ['CRECHE', 'NURSERY', 'KG', 'BASIC', 'JHS'];
+const CATEGORIES = ['Pre-School', 'Lower Primary', 'Upper Primary', 'JHS'];
+
 interface SchoolClass {
-  class_id: number; name: string; name_numeric: number; category: string; digit: string;
-  note: string; student_capacity: number;
-  teacher?: { teacher_id: number; name: string; email: string };
-  section?: { section_id: number; name: string };
+  class_id: number;
+  name: string;
+  name_numeric: number;
+  category: string;
+  digit: string;
+  note: string;
+  student_capacity: number;
+  teacher?: { teacher_id: number; name: string; teacher_code: string } | null;
+  section?: { section_id: number; name: string } | null;
   sections?: { section_id: number; name: string }[];
-  subjects?: { subject_id: number; name: string }[];
   _count?: { enrolls: number };
 }
 
-const CLASS_GROUPS = ['CRECHE', 'NURSERY', 'KG', 'BASIC', 'JHS'];
+interface Teacher {
+  teacher_id: number;
+  name: string;
+  teacher_code?: string;
+}
 
 export default function ClassesPage() {
   const [classes, setClasses] = useState<SchoolClass[]>([]);
+  const [allClasses, setAllClasses] = useState<SchoolClass[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [groupFilter, setGroupFilter] = useState('');
-  const [page, setPage] = useState(1);
-  const [pageSize] = useState(15);
-  const [teachers, setTeachers] = useState<{ teacher_id: number; name: string }[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [activeTab, setActiveTab] = useState('list');
 
+  // Form state
   const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<SchoolClass | null>(null);
   const [formSaving, setFormSaving] = useState(false);
+  const [editing, setEditing] = useState<SchoolClass | null>(null);
   const [formData, setFormData] = useState({
-    name: '', name_numeric: '', category: '', teacher_id: '', student_capacity: '', digit: '', note: '', section_id: '',
+    name: '',
+    name_numeric: '',
+    category: '',
+    teacher_id: '',
+    section_name: '',
   });
 
-  const [sectionFormOpen, setSectionFormOpen] = useState(false);
-  const [sectionSaving, setSectionSaving] = useState(false);
-  const [sectionData, setSectionData] = useState({ name: '', numeric_name: '', teacher_id: '', class_id: '' });
-  const [selectedClassForSection, setSelectedClassForSection] = useState<SchoolClass | null>(null);
+  // Delete confirmation
+  const [deleteTarget, setDeleteTarget] = useState<SchoolClass | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  // Bulk upload state
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const fetchClasses = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (search) params.set('search', search);
-      if (groupFilter) params.set('category', groupFilter);
-      const res = await fetch(`/api/classes?${params}`);
+      const res = await fetch('/api/admin/classes');
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setClasses(Array.isArray(data) ? data : []);
-    } catch { toast.error('Failed to load classes'); } finally { setLoading(false); }
-  }, [search, groupFilter]);
+      setAllClasses(Array.isArray(data) ? data : []);
+    } catch {
+      toast.error('Failed to load classes');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  useEffect(() => { fetchClasses(); }, [fetchClasses]);
-  useEffect(() => { const t = setTimeout(() => setPage(1), 400); return () => clearTimeout(t); }, [search, groupFilter]);
-  useEffect(() => { fetch('/api/teachers?limit=200').then(r => r.json()).then(d => setTeachers(Array.isArray(d) ? d : [])).catch(() => {}); }, []);
+  useEffect(() => {
+    fetchClasses();
+    fetch('/api/admin/teachers')
+      .then(r => r.json())
+      .then(d => {
+        const list = d.data || d;
+        setTeachers(Array.isArray(list) ? list.map((t: Teacher) => ({ teacher_id: t.teacher_id, name: t.name, teacher_code: t.teacher_code })) : []);
+      })
+      .catch(() => {});
+  }, [fetchClasses]);
+
+  // Count classes by category
+  const getCategoryCount = (cat: string) => allClasses.filter(c => c.category === cat).length;
+  const getDisplayClassName = (c: SchoolClass) => {
+    if (c.name_numeric > 0) return `${c.name} ${c.name_numeric}`;
+    return c.name;
+  };
 
   const openAddForm = () => {
     setEditing(null);
-    setFormData({ name: '', name_numeric: '', category: '', teacher_id: '', student_capacity: '', digit: '', note: '', section_id: '' });
+    setFormData({ name: '', name_numeric: '', category: '', teacher_id: '', section_name: '' });
     setFormOpen(true);
   };
+
   const openEditForm = (c: SchoolClass) => {
     setEditing(c);
-    setFormData({ name: c.name, name_numeric: String(c.name_numeric), category: c.category, teacher_id: c.teacher ? String(c.teacher.teacher_id) : '', student_capacity: String(c.student_capacity), digit: c.digit || '', note: c.note || '', section_id: c.section ? String(c.section.section_id) : '' });
+    setFormData({
+      name: c.name,
+      name_numeric: String(c.name_numeric),
+      category: c.category,
+      teacher_id: c.teacher ? String(c.teacher.teacher_id) : '',
+      section_name: '',
+    });
     setFormOpen(true);
   };
+
   const handleSave = async () => {
     if (!formData.name) { toast.error('Class name is required'); return; }
+    if (!formData.category) { toast.error('Category is required'); return; }
+
     setFormSaving(true);
     try {
-      const url = editing ? `/api/classes/${editing.class_id}` : '/api/classes';
-      const res = await fetch(url, { method: editing ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
-      const data = await res.json(); if (data.error) throw new Error(data.error);
-      toast.success(editing ? 'Class updated' : 'Class created'); setFormOpen(false); fetchClasses();
-    } catch (err: any) { toast.error(err.message); } finally { setFormSaving(false); }
-  };
-  const handleDelete = async (id: number) => {
-    if (!confirm('Delete this class? This may affect enrolled students.')) return;
-    try {
-      const res = await fetch(`/api/classes/${id}`, { method: 'DELETE' });
-      const data = await res.json(); if (data.error) throw new Error(data.error);
-      toast.success('Class deleted'); fetchClasses();
-    } catch (err: any) { toast.error(err.message); }
+      const url = editing
+        ? `/api/admin/classes/${editing.class_id}`
+        : '/api/admin/classes';
+      const method = editing ? 'PUT' : 'POST';
+      const body = editing
+        ? { name: formData.name, name_numeric: formData.name_numeric, category: formData.category, teacher_id: formData.teacher_id }
+        : { name: formData.name, name_numeric: formData.name_numeric, category: formData.category, teacher_id: formData.teacher_id, section_name: formData.section_name || 'A' };
+
+      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      toast.success(editing ? 'Class updated successfully' : 'Class created successfully');
+      setFormOpen(false);
+      fetchClasses();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Operation failed';
+      toast.error(msg);
+    } finally {
+      setFormSaving(false);
+    }
   };
 
-  // Section management
-  const openSectionForm = (c: SchoolClass) => {
-    setSelectedClassForSection(c);
-    setSectionData({ name: '', numeric_name: '', teacher_id: '', class_id: String(c.class_id) });
-    setSectionFormOpen(true);
-  };
-  const handleSaveSection = async () => {
-    if (!sectionData.name) { toast.error('Section name is required'); return; }
-    setSectionSaving(true);
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      const res = await fetch('/api/sections', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sectionData) });
-      const data = await res.json(); if (data.error) throw new Error(data.error);
-      toast.success('Section created'); setSectionFormOpen(false); fetchClasses();
-    } catch (err: any) { toast.error(err.message); } finally { setSectionSaving(false); }
+      const res = await fetch(`/api/admin/classes/${deleteTarget.class_id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      toast.success('Class deleted successfully');
+      setDeleteTarget(null);
+      fetchClasses();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Delete failed';
+      toast.error(msg);
+    } finally {
+      setDeleting(false);
+    }
   };
-  const handleDeleteSection = async (id: number) => {
-    if (!confirm('Delete this section?')) return;
-    try {
-      const res = await fetch(`/api/sections/${id}`, { method: 'DELETE' });
-      const data = await res.json(); if (data.error) throw new Error(data.error);
-      toast.success('Section deleted'); fetchClasses();
-    } catch (err: any) { toast.error(err.message); }
-  };
-
-  const filtered = groupFilter ? classes.filter(c => c.category === groupFilter) : classes;
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Classes</h1>
-            <p className="text-sm text-slate-500 mt-1">Manage classes, sections, and syllabus</p>
+        {/* Tabs: Class List, Add Class, Bulk Upload */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <div className="mb-6 border-b border-gray-200">
+            <TabsList className="bg-transparent border-0 h-auto p-0 gap-0">
+              <TabsTrigger
+                value="list"
+                className="inline-flex items-center gap-2 px-6 py-4 border-b-2 rounded-none data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:shadow-none data-[state=active]:bg-transparent border-transparent text-gray-500 hover:text-gray-700"
+              >
+                <List className="w-5 h-5" />
+                <span className="text-base font-bold">Class List</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="add"
+                className="inline-flex items-center gap-2 px-6 py-4 border-b-2 rounded-none data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:shadow-none data-[state=active]:bg-transparent border-transparent text-gray-500 hover:text-gray-700"
+              >
+                <PlusCircle className="w-5 h-5" />
+                <span className="text-base font-bold">Add Class</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="bulk"
+                className="inline-flex items-center gap-2 px-6 py-4 border-b-2 rounded-none data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 data-[state=active]:shadow-none data-[state=active]:bg-transparent border-transparent text-gray-500 hover:text-gray-700"
+              >
+                <Upload className="w-5 h-5" />
+                <span className="text-base font-bold">Bulk Upload</span>
+              </TabsTrigger>
+            </TabsList>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" asChild><Link href="/admin/classes/sections"><Layers className="w-4 h-4 mr-2" />Sections</Link></Button>
-            <Button onClick={openAddForm} className="bg-emerald-600 hover:bg-emerald-700"><Plus className="w-4 h-4 mr-2" />Add Class</Button>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {CLASS_GROUPS.map(g => (
-            <Card key={g} className={`cursor-pointer hover:shadow-md transition-shadow ${groupFilter === g ? 'ring-2 ring-emerald-500 border-emerald-300' : ''}`} onClick={() => setGroupFilter(groupFilter === g ? '' : g)}>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center"><BookOpen className="w-5 h-5 text-emerald-600" /></div>
-                <div><p className="text-xs text-slate-500">{g}</p><p className="text-lg font-bold text-slate-900">{classes.filter(c => c.category === g).length}</p></div>
+          {/* ===== CLASS LIST TAB ===== */}
+          <TabsContent value="list" className="mt-0">
+            <Card>
+              <CardHeader className="border-b">
+                <div className="flex items-center gap-2">
+                  <List className="w-5 h-5 text-blue-600" />
+                  <h3 className="text-lg font-bold text-gray-900">All Classes</h3>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-50">
+                        <TableHead className="w-12">#</TableHead>
+                        <TableHead>Class Name</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Numeric</TableHead>
+                        <TableHead>Section(s)</TableHead>
+                        <TableHead>Teacher</TableHead>
+                        <TableHead>Students</TableHead>
+                        <TableHead className="text-right">Options</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {loading ? (
+                        Array.from({ length: 6 }).map((_, i) => (
+                          <TableRow key={i}>
+                            {Array.from({ length: 8 }).map((_, j) => (
+                              <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>
+                            ))}
+                          </TableRow>
+                        ))
+                      ) : classes.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={8} className="text-center py-12 text-gray-400">
+                            <BookOpen className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                            <p>No classes found</p>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        classes.map((c, i) => (
+                          <TableRow key={c.class_id} className="hover:bg-gray-50">
+                            <TableCell className="text-sm text-gray-500">{i + 1}</TableCell>
+                            <TableCell className="font-semibold text-gray-900">{getDisplayClassName(c)}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="text-xs bg-gray-100">{c.category || '—'}</Badge>
+                            </TableCell>
+                            <TableCell className="font-bold">{c.name_numeric || '—'}</TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {c.sections && c.sections.length > 0
+                                  ? c.sections.map(s => <Badge key={s.section_id} variant="secondary" className="text-xs">{s.name}</Badge>)
+                                  : <span className="text-sm text-gray-400">None</span>}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {c.teacher ? (
+                                <Link href={`/admin/teachers`} className="text-blue-600 hover:text-blue-800 hover:underline font-medium text-sm">
+                                  {c.teacher.name}
+                                </Link>
+                              ) : (
+                                <span className="text-sm text-gray-400">Not assigned</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">
+                                {c._count?.enrolls || 0}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center justify-end gap-1">
+                                <Button variant="ghost" size="sm" className="h-8 text-blue-600" asChild>
+                                  <Link href={`/admin/students/lists?class_id=${c.class_id}`}>
+                                    <Users className="w-4 h-4 mr-1" />Students
+                                  </Link>
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600" onClick={() => openEditForm(c)}>
+                                  <Pencil className="w-4 h-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600" onClick={() => setDeleteTarget(c)}>
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
+          </TabsContent>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-col lg:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input placeholder="Search classes..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
-              </div>
-              <Select value={groupFilter} onValueChange={v => v === '__all__' ? setGroupFilter('') : setGroupFilter(v)}>
-                <SelectTrigger className="w-full lg:w-48"><SelectValue placeholder="All Groups" /></SelectTrigger>
-                <SelectContent><SelectItem value="__all__">All Groups</SelectItem>{CLASS_GROUPS.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-0">
-            <div className="hidden md:block overflow-x-auto">
-              <Table>
-                <TableHeader><TableRow className="bg-slate-50">
-                  <TableHead className="text-xs font-semibold">Name</TableHead>
-                  <TableHead className="text-xs font-semibold">Numeric</TableHead>
-                  <TableHead className="text-xs font-semibold">Category</TableHead>
-                  <TableHead className="text-xs font-semibold">Class Teacher</TableHead>
-                  <TableHead className="text-xs font-semibold">Students</TableHead>
-                  <TableHead className="text-xs font-semibold">Capacity</TableHead>
-                  <TableHead className="text-xs font-semibold">Sections</TableHead>
-                  <TableHead className="text-xs font-semibold text-right">Actions</TableHead>
-                </TableRow></TableHeader>
-                <TableBody>
-                  {loading ? Array.from({ length: 6 }).map((_, i) => <TableRow key={i}>{Array.from({ length: 8 }).map((_, j) => <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>)}</TableRow>)
-                  : paged.length === 0 ? <TableRow><TableCell colSpan={8} className="text-center py-12 text-slate-400"><BookOpen className="w-10 h-10 mx-auto mb-2 opacity-50" /><p>No classes found</p></TableCell></TableRow>
-                  : paged.map(c => (
-                    <TableRow key={c.class_id} className="hover:bg-slate-50/50">
-                      <TableCell className="font-medium text-sm">{c.name}</TableCell>
-                      <TableCell className="text-sm">{c.name_numeric}</TableCell>
-                      <TableCell><Badge variant="outline" className="text-xs bg-slate-100">{c.category || '—'}</Badge></TableCell>
-                      <TableCell className="text-sm">{c.teacher?.name || '—'}</TableCell>
-                      <TableCell className="text-sm">{c._count?.enrolls || 0}</TableCell>
-                      <TableCell className="text-sm">{c.student_capacity || 0}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {c.sections?.map(s => (
-                            <Badge key={s.section_id} variant="secondary" className="text-xs cursor-pointer" onClick={() => handleDeleteSection(s.section_id)} title="Click to delete">{s.name} ×</Badge>
-                          ))}
-                          <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => openSectionForm(c)}><Plus className="w-3 h-3" /></Button>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditForm(c)}><Pencil className="w-3.5 h-3.5" /></Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500" onClick={() => handleDelete(c.class_id)}><Trash2 className="w-3.5 h-3.5" /></Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-            <div className="md:hidden divide-y">
-              {loading ? Array.from({ length: 4 }).map((_, i) => <div key={i} className="p-4"><Skeleton className="h-4 w-3/4" /></div>)
-              : paged.length === 0 ? <div className="text-center py-12 text-slate-400"><p>No classes found</p></div>
-              : paged.map(c => (
-                <div key={c.class_id} className="p-4 space-y-2">
-                  <div className="flex items-start justify-between"><div><p className="font-medium text-sm">{c.name}</p><p className="text-xs text-slate-500">{c.category} · {c._count?.enrolls || 0} students</p></div><Badge variant="outline" className="text-xs bg-slate-100">{c.category}</Badge></div>
-                  <p className="text-xs text-slate-500">Teacher: {c.teacher?.name || '—'} · Sections: {c.sections?.length || 0}</p>
-                  <div className="flex gap-2 pt-1">
-                    <Button variant="outline" size="sm" className="flex-1 h-8 text-xs" onClick={() => openEditForm(c)}><Pencil className="w-3 h-3 mr-1" />Edit</Button>
-                    <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => openSectionForm(c)}><Plus className="w-3 h-3" /></Button>
+          {/* ===== ADD CLASS TAB ===== */}
+          <TabsContent value="add" className="mt-0">
+            <Card>
+              <CardHeader className="border-b">
+                <div className="flex items-center gap-2">
+                  <PlusCircle className="w-5 h-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-gray-900">Create New Class</h3>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="max-w-6xl mx-auto space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-900">Name *</Label>
+                      <Select value={formData.name} onValueChange={v => setFormData({ ...formData, name: v })}>
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Select Class Name" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CLASS_NAMES.map(cn => <SelectItem key={cn} value={cn}>{cn}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-900">Category *</Label>
+                      <Select value={formData.category} onValueChange={v => setFormData({ ...formData, category: v })}>
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Select Category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-900">Numeric Name</Label>
+                      <Input
+                        type="text"
+                        placeholder="e.g., 1, 2, 3"
+                        value={formData.name_numeric}
+                        onChange={e => setFormData({ ...formData, name_numeric: e.target.value })}
+                        className="mt-2"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-900">Section</Label>
+                      <Input
+                        type="text"
+                        placeholder="Default: A"
+                        value={formData.section_name}
+                        onChange={e => setFormData({ ...formData, section_name: e.target.value })}
+                        className="mt-2"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold text-gray-900">Teacher</Label>
+                      <Select value={formData.teacher_id} onValueChange={v => setFormData({ ...formData, teacher_id: v })}>
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Select Teacher" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {teachers.map(t => <SelectItem key={t.teacher_id} value={String(t.teacher_id)}>{t.name}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-end">
+                      <Button
+                        onClick={handleSave}
+                        disabled={formSaving || !formData.name || !formData.category}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3"
+                      >
+                        {formSaving ? 'Creating...' : 'Create Class'}
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t">
-                <p className="text-xs text-slate-500">{filtered.length} class(es)</p>
-                <div className="flex items-center gap-1">
-                  <Button variant="outline" size="icon" className="h-8 w-8" disabled={page <= 1} onClick={() => setPage(p => p - 1)}><ChevronLeft className="w-4 h-4" /></Button>
-                  <span className="text-sm px-2">{page}/{totalPages}</span>
-                  <Button variant="outline" size="icon" className="h-8 w-8" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}><ChevronRight className="w-4 h-4" /></Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ===== BULK UPLOAD TAB ===== */}
+          <TabsContent value="bulk" className="mt-0">
+            <Card>
+              <CardHeader className="border-b">
+                <div className="flex items-center gap-2">
+                  <Upload className="w-5 h-5 text-blue-600" />
+                  <h3 className="text-lg font-bold text-gray-900">Bulk Upload Classes</h3>
                 </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                  <div className="p-6 bg-amber-50 border border-amber-200 rounded-lg">
+                    <h4 className="flex items-center gap-2 text-amber-800 font-bold text-lg mb-4">
+                      <Info className="w-5 h-5" />How It Works
+                    </h4>
+                    <ol className="space-y-2 text-base text-gray-700 list-decimal list-inside">
+                      <li>Download the template below</li>
+                      <li>Fill in class details (Name, Category, Numeric, Teacher ID)</li>
+                      <li>Upload the completed CSV file</li>
+                    </ol>
+                  </div>
+                  <div className="p-6 bg-green-50 border border-green-200 rounded-lg">
+                    <h4 className="flex items-center gap-2 text-green-800 font-bold text-lg mb-4">
+                      <Download className="w-5 h-5" />Download Template
+                    </h4>
+                    <p className="text-base text-gray-700 mb-4">Get the Excel/CSV template with sample data</p>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const csv = 'Name,Category,Numeric,Teacher ID,Section\nBASIC,Lower Primary,1,1,A\nJHS,JHS,1,2,A';
+                        const blob = new Blob([csv], { type: 'text/csv' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url; a.download = 'class_template.csv'; a.click();
+                        URL.revokeObjectURL(url);
+                      }}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <Download className="w-4 h-4 mr-2" />Download CSV Template
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center w-full">
+                  <label
+                    className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all"
+                    htmlFor="bulkFile"
+                  >
+                    <UploadCloud className="w-16 h-16 text-gray-400 mb-4" />
+                    <p className="mb-2 text-sm text-gray-500">
+                      <span className="font-semibold">Click to upload</span> or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500">CSV files only</p>
+                    {uploadFile && (
+                      <p className="mt-4 text-base font-medium text-green-600">{uploadFile.name}</p>
+                    )}
+                    <input
+                      id="bulkFile"
+                      type="file"
+                      className="hidden"
+                      accept=".csv"
+                      onChange={e => {
+                        if (e.target.files?.[0]) setUploadFile(e.target.files[0]);
+                      }}
+                    />
+                  </label>
+                </div>
+                <div className="mt-6 text-center">
+                  <Button
+                    disabled={!uploadFile || uploading}
+                    onClick={() => toast.info('Bulk upload coming soon - use Add Class tab instead')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                  >
+                    {uploading ? 'Uploading...' : 'Upload and Create Classes'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Quick links */}
+        <div className="flex flex-wrap gap-3">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/classes/sections"><BookOpen className="w-4 h-4 mr-1" />Manage Sections</Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/classes/syllabus"><BookOpen className="w-4 h-4 mr-1" />Academic Syllabus</Link>
+          </Button>
+        </div>
       </div>
 
+      {/* Edit Class Dialog */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Class' : 'Add New Class'}</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Edit Class' : 'Add New Class'}</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4">
-            <div><Label className="text-xs">Class Name *</Label><Input placeholder="e.g. Basic 1" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="mt-1" /></div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label className="text-xs">Numeric Name</Label><Input type="number" placeholder="e.g. 1" value={formData.name_numeric} onChange={e => setFormData({ ...formData, name_numeric: e.target.value })} className="mt-1" /></div>
-              <div><Label className="text-xs">Category</Label><Select value={formData.category} onValueChange={v => setFormData({ ...formData, category: v })}><SelectTrigger className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{CLASS_GROUPS.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}</SelectContent></Select></div>
+            <div>
+              <Label>Class Name *</Label>
+              {editing ? (
+                <Input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="mt-1" />
+              ) : (
+                <Select value={formData.name} onValueChange={v => setFormData({ ...formData, name: v })}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {CLASS_NAMES.map(cn => <SelectItem key={cn} value={cn}>{cn}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label className="text-xs">Class Teacher</Label><Select value={formData.teacher_id} onValueChange={v => setFormData({ ...formData, teacher_id: v })}><SelectTrigger className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{teachers.map(t => <SelectItem key={t.teacher_id} value={String(t.teacher_id)}>{t.name}</SelectItem>)}</SelectContent></Select></div>
-              <div><Label className="text-xs">Capacity</Label><Input type="number" placeholder="0" value={formData.student_capacity} onChange={e => setFormData({ ...formData, student_capacity: e.target.value })} className="mt-1" /></div>
+            <div>
+              <Label>Category *</Label>
+              {editing ? (
+                <Input value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="mt-1" />
+              ) : (
+                <Select value={formData.category} onValueChange={v => setFormData({ ...formData, category: v })}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
-            <div><Label className="text-xs">Digit</Label><Input placeholder="e.g. B1" value={formData.digit} onChange={e => setFormData({ ...formData, digit: e.target.value })} className="mt-1" /></div>
-            <div><Label className="text-xs">Note</Label><Textarea placeholder="Notes..." value={formData.note} onChange={e => setFormData({ ...formData, note: e.target.value })} className="mt-1" rows={2} /></div>
+            <div>
+              <Label>Numeric Name</Label>
+              <Input type="text" placeholder="e.g. 1" value={formData.name_numeric} onChange={e => setFormData({ ...formData, name_numeric: e.target.value })} className="mt-1" />
+            </div>
+            <div>
+              <Label>Class Teacher</Label>
+              <Select value={formData.teacher_id} onValueChange={v => setFormData({ ...formData, teacher_id: v })}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select Teacher" /></SelectTrigger>
+                <SelectContent>
+                  {teachers.map(t => <SelectItem key={t.teacher_id} value={String(t.teacher_id)}>{t.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setFormOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={formSaving || !formData.name} className="bg-emerald-600 hover:bg-emerald-700">{formSaving ? 'Saving...' : editing ? 'Update' : 'Create'}</Button>
+            <Button onClick={handleSave} disabled={formSaving || !formData.name || !formData.category} className="bg-blue-600 hover:bg-blue-700">
+              {formSaving ? 'Saving...' : editing ? 'Update' : 'Create'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={sectionFormOpen} onOpenChange={setSectionFormOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle>Add Section to {selectedClassForSection?.name}</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            <div><Label className="text-xs">Section Name *</Label><Input placeholder="e.g. A" value={sectionData.name} onChange={e => setSectionData({ ...sectionData, name: e.target.value })} className="mt-1" /></div>
-            <div><Label className="text-xs">Numeric Order</Label><Input type="number" placeholder="1" value={sectionData.numeric_name} onChange={e => setSectionData({ ...sectionData, numeric_name: e.target.value })} className="mt-1" /></div>
-            <div><Label className="text-xs">Section Teacher</Label><Select value={sectionData.teacher_id} onValueChange={v => setSectionData({ ...sectionData, teacher_id: v })}><SelectTrigger className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{teachers.map(t => <SelectItem key={t.teacher_id} value={String(t.teacher_id)}>{t.name}</SelectItem>)}</SelectContent></Select></div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSectionFormOpen(false)}>Cancel</Button>
-            <Button onClick={handleSaveSection} disabled={sectionSaving || !sectionData.name} className="bg-emerald-600 hover:bg-emerald-700">{sectionSaving ? 'Saving...' : 'Add Section'}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this class? This action cannot be undone.
+              {deleteTarget && deleteTarget._count && deleteTarget._count.enrolls > 0 && (
+                <span className="block mt-2 text-red-600 font-semibold">
+                  Warning: {deleteTarget._count.enrolls} student(s) enrolled!
+                </span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }

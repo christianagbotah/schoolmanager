@@ -159,17 +159,20 @@ model parent {
   parent_id           Int    @id @default(autoincrement())
   name                String @default("")
   guardian_gender     String @default("")
+  guardian_is_the     String @default("")
   email               String @unique @default("")
   password            String @default("")
   phone               String @default("")
   address             String @default("")
   profession          String @default("")
+  designation         String @default("")
   father_name         String @default("")
   father_phone        String @default("")
   mother_name         String @default("")
   mother_phone        String @default("")
   active_status       Int    @default(1)
   authentication_key  String @default("")
+  block_limit         Int    @default(0)
 
   students        student[]
   enrolls         enroll[]  @relation("EnrollParent")
@@ -224,6 +227,7 @@ model school_class {
   daily_fee_rates  daily_fee_rates[]
   invoices         invoice[]
   online_exams     online_exam[]
+  syllabi          academic_syllabus[]
 
   @@index([teacher_id])
   @@index([section_id])
@@ -233,6 +237,7 @@ model school_class {
 model section {
   section_id   Int    @id @default(autoincrement())
   name         String @default("")
+  nick_name    String @default("")
   numeric_name Int    @default(0)
   teacher_id   Int?
   class_id     Int?
@@ -266,6 +271,7 @@ model subject {
   curriculum_strands curriculum_strands[]
   portfolio_headers  portfolio_headers[]
   online_exams       online_exam[]
+  syllabi            academic_syllabus[]
 
   @@index([class_id])
   @@index([teacher_id])
@@ -1312,21 +1318,30 @@ model exam_category {
 }
 
 model academic_syllabus {
-  syllabus_id Int    @id @default(autoincrement())
-  title       String @default("")
-  description String @default("")
-  subject_id  Int?
-  class_id    Int?
-  section_id  Int?
-  year        String @default("")
-  term        String @default("")
-  file_path   String @default("")
-  upload_date DateTime?
-  uploaded_by String @default("")
+  syllabus_id             Int    @id @default(autoincrement())
+  academic_syllabus_code String @unique @default("")
+  title                   String @default("")
+  description             String @default("")
+  class_id                Int?
+  subject_id              Int?
+  section_id              Int?
+  uploader_type           String @default("")
+  uploader_id             Int    @default(0)
+  year                    String @default("")
+  term                    String @default("")
+  timestamp               Int    @default(0)
+  file_name               String @default("")
+  file_path               String @default("")
+  upload_date             DateTime?
+  uploaded_by             String @default("")
+
+  class   school_class? @relation(fields: [class_id], references: [class_id])
+  subject subject?      @relation(fields: [subject_id], references: [subject_id])
 
   @@index([subject_id])
   @@index([class_id])
   @@index([section_id])
+  @@index([academic_syllabus_code])
   @@map("academic_syllabus")
 }
 

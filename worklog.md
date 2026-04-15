@@ -1,4 +1,166 @@
 ---
+Task ID: 8
+Agent: Main Agent
+Task: Rebuild Classes, Sections, and Academic Syllabus management pages to match CI3 original
+
+Work Log:
+- Studied original CI3 views:
+  - admin/class.php (408 lines): 3 tabs (Class List, Add Class, Bulk Upload); class table with columns (#, name, category, numeric, section, teacher, options); options dropdown (view students, edit, delete); add form with fields (name dropdown, category, name_numeric, section dropdown, teacher dropdown); bulk upload with CSV template download
+  - admin/section.php (154 lines): sidebar with class list, sections table per class (#, section name, nick name, teacher, options); options dropdown (edit, delete); AJAX section loading
+  - admin/academic_syllabus.php (106 lines): vertical class tabs sidebar, syllabus table (#, title, description, subject, uploader, date, file, download/delete actions)
+- Studied CI3 controller methods:
+  - Admin::classes() (5993-6083): create (class+section), do_update (class+section), delete (class+fee_rates), list
+  - Admin::sections() (6320-6381): create with duplicate check, edit with duplicate check, delete
+  - Admin::get_sections_ajax() (6383-6401): AJAX section loading with HTML response
+  - Admin::academic_syllabus() (6213-6226): view by class_id
+  - Admin::upload_academic_syllabus() (6228-6261): create with code generation, file upload
+  - Admin::delete_academic_syllabus() (6275-6301): delete by code
+- Updated Prisma schema:
+  - Added academic_syllabus_code (unique), uploader_type, uploader_id, timestamp, file_name fields to academic_syllabus model
+  - Added class and subject relations to academic_syllabus
+  - Added syllabi reverse relations to school_class and subject models
+  - Pushed schema to database
+- Created 6 admin API routes:
+  - GET /api/admin/classes - lists all classes with teacher, sections, enroll counts, ordered by category/name_numeric/name
+  - POST /api/admin/classes - creates class + default section (mirrors CI3 auto-creates section A)
+  - GET /api/admin/classes/[id] - single class with relations
+  - PUT /api/admin/classes/[id] - updates class (mirrors CI3 do_update)
+  - DELETE /api/admin/classes/[id] - deletes class with enrollment check + fee_rates cleanup (mirrors CI3 delete)
+  - GET /api/admin/sections - lists sections filtered by class_id with teacher, class, enroll counts
+  - POST /api/admin/sections - creates section with duplicate name check per class (mirrors CI3 duplication_of_section_on_create)
+  - GET /api/admin/sections/[id] - single section
+  - PUT /api/admin/sections/[id] - updates section with duplicate check excluding self (mirrors CI3 duplication_of_section_on_edit)
+  - DELETE /api/admin/sections/[id] - deletes section with enrollment check (mirrors CI3 delete)
+  - GET /api/admin/syllabus - lists syllabus filtered by class_id with subject and class relations
+  - POST /api/admin/syllabus - creates syllabus with code generation (mirrors CI3 upload_academic_syllabus)
+  - DELETE /api/admin/syllabus/[id] - deletes syllabus (mirrors CI3 delete_academic_syllabus)
+- Completely rebuilt /src/app/admin/classes/page.tsx (~470 lines):
+  - 3-tab layout matching CI3 (Class List, Add Class, Bulk Upload) using shadcn Tabs
+  - Class List: DataTable with 8 columns (#, class name, category badge, numeric, sections badges, teacher link, students count, options)
+  - Options: View Students link, Edit button, Delete button with AlertDialog
+  - Add Class tab: inline form with 3-column grid (name dropdown G.E.S, category dropdown, numeric, section, teacher)
+  - Edit dialog: same fields in modal for editing existing classes
+  - Bulk Upload tab: instructions card, CSV template download, drag-drop upload area (UI placeholder)
+  - Quick links to Sections and Syllabus pages
+  - Delete checks enrollment count before allowing delete
+  - Loading skeletons, empty states, responsive design
+- Completely rebuilt /src/app/admin/classes/sections/page.tsx (~310 lines):
+  - Left sidebar with class list matching CI3 (active class highlighted blue)
+  - Right content: sections table per selected class with 6 columns (#, section name, nick name, teacher, students count, options)
+  - Options: Edit and Delete buttons
+  - Add Section dialog: name, nick_name, numeric_order, class dropdown, teacher dropdown
+  - Edit dialog: pre-filled with existing section data
+  - Duplicate section name validation (matching CI3 duplication_of_section_on_create/edit)
+  - Delete checks enrollment count before allowing delete
+  - AJAX-style section loading when clicking class in sidebar
+  - Responsive: sidebar stacks on top on mobile
+- Completely rebuilt /src/app/admin/classes/syllabus/page.tsx (~320 lines):
+  - Left sidebar with class list matching CI3 vertical tabs design
+  - Right content: syllabus table per selected class with 8 columns (#, title, description, subject, year, date, file, actions)
+  - Actions: Download button, Delete button
+  - Add Syllabus dialog: title, description, class dropdown, subject dropdown (filtered by class), file name
+  - Code auto-generation on create (mirrors CI3 md5 substr)
+  - Running year from settings table (mirrors CI3)
+  - Responsive: sidebar stacks on top on mobile
+- Build verified: compiled successfully with no errors
+
+Stage Summary:
+- Classes page faithfully matches CI3 with 3 tabs (list/add/bulk), full CRUD with enrollment check, auto-section creation
+- Sections page faithfully matches CI3 sidebar+table layout with duplicate validation and enrollment check
+- Academic Syllabus page faithfully matches CI3 vertical tabs+table layout with code generation
+- 6 admin API routes created with CI3-faithful behavior (duplicate checks, cascading deletes, enrollment protection)
+- Prisma schema extended with academic_syllabus relations and CI3 fields
+- Build passes, all 3 pages accessible at /admin/classes, /admin/classes/sections, /admin/classes/syllabus
+
+---
+Task ID: 7
+Agent: Main Agent
+Task: Rebuild Student Profile page to match CI3 original
+
+Work Log:
+- Studied original CI3 view: student_profile.php (2651 lines) with 5 tabs:
+  - Basic Info (tab1): Personal info (9 fields), Contact info (5 fields), Academic info (6 fields), Health & Medical (conditional), Technology (conditional)
+  - Parent Info (tab2): Primary Guardian card, Father's Info card, Mother's Info card, Family Address, Additional Contacts, Parent Portal Access
+  - Exam Marks (tab3): Exams grouped by exam_id with subjects table (S/N, Subject, Score, Grade, Remark), varies by class type (CRECHE/BASIC/JHS)
+  - Login (tab4): Authentication Key, Username, Password info
+  - Accounts (tab6): Accounts Receivables table (outstanding invoices due>0), Accounts Payables table (overpayments due<0), Payment History table (grouped by receipt_code)
+- Studied CI3 controller Admin::student_profile() (lines 813-872): loads running_year/term, gets current enrollment, other_students for selector, class section, exam marks
+- Studied student status logic: ACTIVE (enrolled in current year/term), INACTIVE (not enrolled), COMPLETED (JHS 3, term 3)
+- Created comprehensive API route at /api/admin/students/[id]/route.ts:
+  - GET: fetches student with all relations (parent, enrolls with class/section), computes status, gets other_students in same class, exam marks grouped by exam with subjects, grades table, invoices (receivables/payables), payments grouped by receipt_code, terminal reports
+  - PUT: updates student profile with all allowed fields, auto-generates full name from parts, email/username uniqueness checks, date field conversion
+  - DELETE: deletes student with cascade
+- Built comprehensive profile page at /src/app/admin/students/[id]/page.tsx (~900 lines):
+  - Sticky header with back button, title, student selector dropdown
+  - Left sidebar card: avatar with initials + status badge, name/student code, class/section link, gender + residence badges, Edit Profile and Delete Student buttons, quick info (email, phone, birthday), enrollment history list
+  - 5 tabs using shadcn Tabs component with gradient active state:
+    - Basic Info: Personal Information (9 InfoCards), Contact Information (5 InfoCards including full-width address), Academic Information (6 InfoCards), Health & Medical (conditional cards for NHIS, medical conditions, allergies, disability, special diet), Terminal Reports summary table
+    - Parent Info: Primary Guardian card (4 gradient fields), Father's Info card, Mother's Info card, Family Address card, Parent Portal Access card with auth key display
+    - Exam Marks: Grouped by exam with gradient header, subjects table (S/N, Subject, Score, Grade badge, Remark), total row
+    - Login: Auth key display, Username display, Password info card
+    - Accounts: Receivables table with totals (Date, Invoice#, Title, Total, Paid, Due), Payables table with overpayment amounts, Payment History table with accumulated total
+  - Edit Dialog: scrollable modal with 3 sections (Personal 13 fields, Contact 5 fields, Health/Medical 11 fields) using shadcn Dialog
+  - Delete AlertDialog: confirmation with cascading delete warning
+  - Loading skeleton matching page layout
+  - Error state with back navigation
+  - Fully responsive: desktop 4-column layout, mobile single column
+  - All InfoCard/GradientInfoCard reusable components inline
+- Build verified: compiled successfully, no lint errors from new files
+
+Stage Summary:
+- Student Profile page faithfully matches original CI3 with all 5 tabs and features
+- API route provides comprehensive student data with all relations, exam marks, invoices, payments
+- Edit and Delete functionality fully implemented with validation
+- Student selector allows switching between classmates
+- Accounts tab shows receivables, payables, and payment history with totals
+- Exam marks tab shows results grouped by exam with grades from grade table
+- Build passes, page accessible at /admin/students/[id]
+
+---
+Task ID: 6
+Agent: Main Agent
+Task: Rebuild Parent Management page to match CI3 original
+
+Work Log:
+- Studied original CI3 files:
+  - admin/parent.php view (395 lines): 3 tabs (All/Active/Inactive), gender stats bar (Males/Females/Total), DataTable with 8 columns (Name, Gender, Email, Auth Key, Phone, Profession, Account Status, Options), account status dropdown (Active/Blocked via block_limit), options dropdown (SMS, Edit, Delete), "Add New Parent" button
+  - Admin.php parent() controller (3677-3927): create/do_update/delete/block/unblock handlers; name required; email validation & uniqueness; password defaults to 123456; auth key generation; PTA executive + designation fields
+  - Admin.php get_parents() (3930-4020): server-side DataTable with search, ordering, pagination; gender count aggregation; block_limit for account status
+  - Admin.php get_active_parents() (4022-4112): same as get_parents but filters active_status=1
+  - Admin.php get_inactive_parents() (4115-4205): same but filters active_status=0
+  - modal_parent_add.php: form with name, guardian_gender, email, password, phone, address, profession, PTA executive checkbox, designation (conditional)
+  - modal_parent_edit.php: same as add but with guardian_is_the field, no password
+- Updated Prisma schema: added 3 new fields to parent model (guardian_is_the, designation, block_limit); pushed to DB
+- Created 5 API routes under /api/admin/parents/:
+  - GET /api/admin/parents - server-side listing with search, status filter (all/active/inactive), pagination, gender counts, children count from enroll+student tables
+  - POST /api/admin/parents - create parent with validation, email format/uniqueness check, auth key generation, bcrypt password hashing, default password 123456
+  - GET /api/admin/parents/[id] - fetch single parent with students and enroll details
+  - PUT /api/admin/parents/[id] - update parent with validation, email uniqueness excluding self
+  - DELETE /api/admin/parents/[id] - delete parent with children check (prevents if enroll or student references exist)
+  - POST /api/admin/parents/[id]/block - set block_limit=3
+  - POST /api/admin/parents/[id]/unblock - set block_limit=0
+- Completely rebuilt /src/app/admin/parents/page.tsx (~630 lines):
+  - 3 status filter tabs (All Parents/blue, Active Parents/green, Inactive Parents/red) matching CI3 tab design
+  - Gender summary bar (Males/Females/Total) in card above table matching CI3 table header
+  - Server-side search (name, email, phone, profession) with page reset on filter change
+  - Full DataTable matching CI3 8 columns: Name+avatar+children count, Gender badge, Email mailto link, Auth Key with copy-to-clipboard, Phone, Profession, Account Status dropdown (Active green/Blocked red with block/unblock), Options dropdown (View Profile, Edit, Delete)
+  - Account status dropdown button matching CI3 btn-group pattern with block/unblock actions
+  - Add/Edit modal with fields: name, guardian_gender, guardian_is_the (edit only), email, phone, password (add only), address, profession, PTA executive checkbox, designation (conditional)
+  - View Profile modal with avatar, details grid, designation badge, auth key, children list from enrollments
+  - Delete confirmation AlertDialog with children check prevention
+  - Block/Unblock confirmation AlertDialogs
+  - Mobile-responsive card layout for small screens
+  - Server-side pagination (15 per page) with smart page numbers
+  - Copy auth key to clipboard on click
+- Build verified successfully (next build), lint clean on modified files
+
+Stage Summary:
+- Parent management page faithfully matches original CI3 with all features: 3 status tabs, gender summary, server-side search/filter/pagination, account block/unblock, PTA executive support, children count display
+- 7 API routes created (CRUD + block/unblock) with proper validation matching CI3 controller
+- Prisma schema extended with 3 fields (guardian_is_the, designation, block_limit)
+- Build passes, page accessible at /admin/parents
+
+---
 Task ID: 4
 Agent: Main Agent
 Task: Rebuild Student Information / Student List page to match CI3 original
