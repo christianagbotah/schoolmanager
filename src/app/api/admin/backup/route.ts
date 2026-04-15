@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { copyFile, readdir, stat, unlink, mkdir } from 'fs/promises';
+import { existsSync, createReadStream } from 'fs';
+import path from 'path';
+import { db } from '@/lib/db';
 
-// --- Sample backup data ---
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const BACKUP_DIR = path.join(process.cwd(), 'backups');
+const DB_PATH = path.join(process.cwd(), 'prisma', 'dev.db');
+
+// ---------------------------------------------------------------------------
+// Types (kept identical to what the frontend expects)
+// ---------------------------------------------------------------------------
 
 interface BackupRecord {
   id: number;
@@ -14,213 +27,274 @@ interface BackupRecord {
   records: number;
 }
 
-const BACKUP_DB: BackupRecord[] = [
-  {
-    id: 1,
-    filename: 'school_db_backup_2025_06_15_020000.sql.gz',
-    created_at: '2025-06-15T02:00:00Z',
-    file_size: '24.3 MB',
-    file_size_bytes: 25480396,
-    type: 'auto',
-    status: 'completed',
-    tables: 47,
-    records: 156780,
-  },
-  {
-    id: 2,
-    filename: 'school_db_backup_2025_06_14_140523.sql.gz',
-    created_at: '2025-06-14T14:05:23Z',
-    file_size: '24.1 MB',
-    file_size_bytes: 25270784,
-    type: 'manual',
-    status: 'completed',
-    tables: 47,
-    records: 156412,
-  },
-  {
-    id: 3,
-    filename: 'school_db_backup_2025_06_14_020000.sql.gz',
-    created_at: '2025-06-14T02:00:00Z',
-    file_size: '24.0 MB',
-    file_size_bytes: 25165824,
-    type: 'auto',
-    status: 'completed',
-    tables: 47,
-    records: 156100,
-  },
-  {
-    id: 4,
-    filename: 'school_db_backup_2025_06_13_020000.sql.gz',
-    created_at: '2025-06-13T02:00:00Z',
-    file_size: '23.8 MB',
-    file_size_bytes: 24956108,
-    type: 'auto',
-    status: 'completed',
-    tables: 47,
-    records: 155890,
-  },
-  {
-    id: 5,
-    filename: 'school_db_backup_2025_06_12_020000.sql.gz',
-    created_at: '2025-06-12T02:00:00Z',
-    file_size: '23.6 MB',
-    file_size_bytes: 24746396,
-    type: 'auto',
-    status: 'completed',
-    tables: 47,
-    records: 155200,
-  },
-  {
-    id: 6,
-    filename: 'school_db_backup_2025_06_11_190032.sql.gz',
-    created_at: '2025-06-11T19:00:32Z',
-    file_size: '23.5 MB',
-    file_size_bytes: 24641587,
-    type: 'manual',
-    status: 'completed',
-    tables: 47,
-    records: 154980,
-  },
-  {
-    id: 7,
-    filename: 'school_db_backup_2025_06_11_020000.sql.gz',
-    created_at: '2025-06-11T02:00:00Z',
-    file_size: '23.4 MB',
-    file_size_bytes: 24536678,
-    type: 'auto',
-    status: 'completed',
-    tables: 47,
-    records: 154500,
-  },
-  {
-    id: 8,
-    filename: 'school_db_backup_2025_06_10_020000.sql.gz',
-    created_at: '2025-06-10T02:00:00Z',
-    file_size: '0 KB',
-    file_size_bytes: 0,
-    type: 'auto',
-    status: 'failed',
-    tables: 0,
-    records: 0,
-  },
-  {
-    id: 9,
-    filename: 'school_db_backup_2025_06_09_020000.sql.gz',
-    created_at: '2025-06-09T02:00:00Z',
-    file_size: '23.1 MB',
-    file_size_bytes: 24222105,
-    type: 'auto',
-    status: 'completed',
-    tables: 47,
-    records: 153800,
-  },
-  {
-    id: 10,
-    filename: 'school_db_backup_2025_06_08_020000.sql.gz',
-    created_at: '2025-06-08T02:00:00Z',
-    file_size: '23.0 MB',
-    file_size_bytes: 24117248,
-    type: 'auto',
-    status: 'completed',
-    tables: 47,
-    records: 153450,
-  },
-];
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
-let nextId = 11;
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  const size = bytes / Math.pow(1024, i);
+  return `${size.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
+}
 
-export async function GET() {
-  const sorted = [...BACKUP_DB].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
+/** Extract ISO timestamp from filename like `backup_2026-04-16T10-30-00.db` */
+function getTimestampFromFilename(filename: string): string {
+  const match = filename.match(/backup_(\d{4})-(\d{2})-(\d{2})T(\d{2})-(\d{2})-(\d{2})\.db$/);
+  if (!match) return '';
+  // Rebuild ISO string: 2026-04-16T10:30:00
+  return `${match[1]}-${match[2]}-${match[3]}T${match[4]}:${match[5]}:${match[6]}`;
+}
 
-  const completed = sorted.filter((b) => b.status === 'completed');
-  const latestBackup = completed[0] || null;
-  const totalRecords = completed.reduce((sum, b) => sum + b.records, 0);
-  const avgRecords = completed.length > 0 ? Math.round(totalRecords / completed.length) : 0;
+/** Generate a timestamped backup filename */
+function generateBackupFilename(): string {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const y = now.getFullYear();
+  const mo = pad(now.getMonth() + 1);
+  const d = pad(now.getDate());
+  const h = pad(now.getHours());
+  const mi = pad(now.getMinutes());
+  const s = pad(now.getSeconds());
+  return `backup_${y}-${mo}-${d}T${h}-${mi}-${s}.db`;
+}
+
+async function ensureBackupDir(): Promise<void> {
+  if (!existsSync(BACKUP_DIR)) {
+    await mkdir(BACKUP_DIR, { recursive: true });
+  }
+}
+
+/** Query the live SQLite database for table count and total records */
+async function getDatabaseInfo(): Promise<{ tables: number; totalRecords: number }> {
+  try {
+    const rows = await db.$queryRawUnsafe<{ name: string }[]>(
+      `SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name`
+    );
+
+    let totalRecords = 0;
+    for (const row of rows) {
+      try {
+        const result = await db.$queryRawUnsafe<{ cnt: number }[]>(
+          `SELECT COUNT(*) as cnt FROM "${row.name}"`
+        );
+        totalRecords += result[0]?.cnt ?? 0;
+      } catch {
+        // Some internal / virtual tables may fail — skip them
+      }
+    }
+
+    return { tables: rows.length, totalRecords };
+  } catch {
+    return { tables: 0, totalRecords: 0 };
+  }
+}
+
+/** Get the current database file size */
+async function getDbFileSize(): Promise<{ size: number; formatted: string }> {
+  try {
+    const s = await stat(DB_PATH);
+    return { size: s.size, formatted: formatFileSize(s.size) };
+  } catch {
+    return { size: 0, formatted: 'Unknown' };
+  }
+}
+
+/** List all `.db` backup files from disk, sorted newest-first */
+async function listBackups(): Promise<BackupRecord[]> {
+  await ensureBackupDir();
+
+  let files: string[];
+  try {
+    const all = await readdir(BACKUP_DIR);
+    files = all.filter((f) => f.startsWith('backup_') && f.endsWith('.db'));
+  } catch {
+    return [];
+  }
+
+  // Read current DB stats once (for tables/records on completed backups)
+  const dbInfo = await getDatabaseInfo();
+
+  const backups: BackupRecord[] = [];
+  for (const file of files) {
+    try {
+      const filePath = path.join(BACKUP_DIR, file);
+      const fileStat = await stat(filePath);
+      const ts = getTimestampFromFilename(file);
+      const created = ts ? new Date(ts).toISOString() : fileStat.mtime.toISOString();
+
+      backups.push({
+        id: 0, // assigned after sorting
+        filename: file,
+        created_at: created,
+        file_size: formatFileSize(fileStat.size),
+        file_size_bytes: fileStat.size,
+        type: 'manual',
+        status: fileStat.size > 0 ? 'completed' : 'failed',
+        tables: fileStat.size > 0 ? dbInfo.tables : 0,
+        records: fileStat.size > 0 ? dbInfo.totalRecords : 0,
+      });
+    } catch {
+      // skip unreadable files
+    }
+  }
+
+  // Sort newest first, then assign sequential IDs
+  backups.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  backups.forEach((b, i) => {
+    b.id = i + 1;
+  });
+
+  return backups;
+}
+
+// ---------------------------------------------------------------------------
+// GET – list backups OR download a file (when `?download=<filename>`)
+// ---------------------------------------------------------------------------
+
+export async function GET(request: NextRequest) {
+  // Download mode: serve a backup file
+  const { searchParams } = new URL(request.url);
+  const downloadFilename = searchParams.get('download');
+  if (downloadFilename) {
+    const safeName = path.basename(downloadFilename); // prevent path traversal
+    const filePath = path.join(BACKUP_DIR, safeName);
+
+    if (!existsSync(filePath)) {
+      return NextResponse.json(
+        { success: false, message: 'Backup file not found' },
+        { status: 404 }
+      );
+    }
+
+    const fileStat = await stat(filePath);
+    const readable = createReadStream(filePath);
+
+    return new NextResponse(readable as unknown as ReadableStream, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/x-sqlite3',
+        'Content-Disposition': `attachment; filename="${safeName}"`,
+        'Content-Length': String(fileStat.size),
+      },
+    });
+  }
+
+  // Normal listing mode
+  const backups = await listBackups();
+  const completed = backups.filter((b) => b.status === 'completed');
+  const latestBackup = completed[0] ?? null;
+  const dbFileSize = await getDbFileSize();
+  const dbInfo = await getDatabaseInfo();
 
   return NextResponse.json({
-    backups: sorted,
+    backups,
     stats: {
-      totalBackups: sorted.length,
+      totalBackups: backups.length,
       latestBackup: latestBackup
-        ? {
-            date: latestBackup.created_at,
-            filename: latestBackup.filename,
-          }
+        ? { date: latestBackup.created_at, filename: latestBackup.filename }
         : null,
-      databaseSize: '24.3 MB',
+      databaseSize: dbFileSize.formatted,
       autoBackupEnabled: true,
       autoBackupSchedule: 'daily',
       retentionDays: 30,
     },
     databaseInfo: {
-      tables: 47,
-      totalRecords: avgRecords,
+      tables: dbInfo.tables,
+      totalRecords: dbInfo.totalRecords,
       engine: 'SQLite',
-      version: '3.39.0',
-      lastOptimized: '2025-06-14T03:00:00Z',
+      version: '3.x',
+      lastOptimized: new Date().toISOString(),
     },
   });
 }
 
+// ---------------------------------------------------------------------------
+// POST – create a new backup by copying the live DB file
+// ---------------------------------------------------------------------------
+
 export async function POST(request: NextRequest) {
   try {
+    // Verify source DB exists
+    if (!existsSync(DB_PATH)) {
+      return NextResponse.json(
+        { success: false, message: 'Database file not found' },
+        { status: 500 }
+      );
+    }
+
+    await ensureBackupDir();
+
     const body = await request.json();
-    const now = new Date();
-    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '_');
-    const timeStr = now.toISOString().slice(11, 19).replace(/:/g, '');
+    const filename = generateBackupFilename();
+    const destPath = path.join(BACKUP_DIR, filename);
 
-    // Simulate backup creation (random success/fail)
-    const isSuccess = Math.random() > 0.1; // 90% success rate
+    await copyFile(DB_PATH, destPath);
 
-    const newBackup: BackupRecord = {
-      id: nextId++,
-      filename: `school_db_backup_${dateStr}_${timeStr}.sql.gz`,
-      created_at: now.toISOString(),
-      file_size: isSuccess ? '24.4 MB' : '0 KB',
-      file_size_bytes: isSuccess ? 25585254 : 0,
-      type: body.type || 'manual',
-      status: isSuccess ? 'completed' : 'failed',
-      tables: isSuccess ? 47 : 0,
-      records: isSuccess ? 157200 : 0,
+    const fileStat = await stat(destPath);
+    const dbInfo = await getDatabaseInfo();
+
+    const backup: BackupRecord = {
+      id: 1, // will always be 1 since it's the newest
+      filename,
+      created_at: new Date().toISOString(),
+      file_size: formatFileSize(fileStat.size),
+      file_size_bytes: fileStat.size,
+      type: (body.type as 'manual' | 'auto') || 'manual',
+      status: 'completed',
+      tables: dbInfo.tables,
+      records: dbInfo.totalRecords,
     };
-
-    BACKUP_DB.unshift(newBackup);
 
     return NextResponse.json(
       {
         success: true,
-        backup: newBackup,
-        message: isSuccess
-          ? 'Backup created successfully'
-          : 'Backup creation failed. Please try again.',
+        backup,
+        message: 'Backup created successfully',
       },
       { status: 201 }
     );
-  } catch {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to create backup';
     return NextResponse.json(
-      { success: false, message: 'Failed to create backup' },
+      { success: false, message },
       { status: 500 }
     );
   }
 }
 
-export async function DELETE(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const id = parseInt(searchParams.get('id') || '0', 10);
+// ---------------------------------------------------------------------------
+// DELETE – remove a backup file from disk (identifies by sequential `id`)
+// ---------------------------------------------------------------------------
 
-  const index = BACKUP_DB.findIndex((b) => b.id === id);
-  if (index === -1) {
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = parseInt(searchParams.get('id') || '0', 10);
+
+    const backups = await listBackups();
+    const target = backups.find((b) => b.id === id);
+
+    if (!target) {
+      return NextResponse.json(
+        { success: false, message: 'Backup not found' },
+        { status: 404 }
+      );
+    }
+
+    const filePath = path.join(BACKUP_DIR, target.filename);
+    await unlink(filePath);
+
+    return NextResponse.json({
+      success: true,
+      message: `Backup "${target.filename}" deleted successfully`,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to delete backup';
     return NextResponse.json(
-      { success: false, message: 'Backup not found' },
-      { status: 404 }
+      { success: false, message },
+      { status: 500 }
     );
   }
-
-  const removed = BACKUP_DB.splice(index, 1)[0];
-  return NextResponse.json({
-    success: true,
-    message: `Backup "${removed.filename}" deleted successfully`,
-  });
 }

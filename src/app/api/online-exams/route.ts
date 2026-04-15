@@ -62,6 +62,27 @@ export async function GET(req: NextRequest) {
       take: 100,
     })
 
+    // Count questions stored in settings for each exam
+    const examIds = exams.map((e) => e.online_exam_id)
+    const questionSettings = examIds.length > 0
+      ? await db.settings.findMany({
+          where: {
+            type: 'online_exam_questions',
+            description: { in: examIds.map((id) => `questions_for_exam_${id}`) },
+          },
+        })
+      : []
+    const questionCounts: Record<number, number> = {}
+    for (const qs of questionSettings) {
+      try {
+        const parsed = JSON.parse(qs.value)
+        const eid = parseInt(qs.description.replace('questions_for_exam_', ''))
+        questionCounts[eid] = Array.isArray(parsed) ? parsed.length : 0
+      } catch {
+        /* ignore parse errors */
+      }
+    }
+
     const mapped = exams.map((e) => ({
       id: e.online_exam_id,
       title: e.title,
@@ -75,7 +96,7 @@ export async function GET(req: NextRequest) {
       minimum_percentage: e.minimum_percentage,
       start_date: e.start_date,
       end_date: e.end_date,
-      total_questions: 0, // placeholder until questions table exists
+      total_questions: questionCounts[e.online_exam_id] || 0,
       created_at: e.start_date || new Date(),
     }))
 
@@ -103,9 +124,42 @@ export async function POST(req: NextRequest) {
       })
       if (!exam) return NextResponse.json({ error: 'Exam not found' }, { status: 404 })
 
-      // Calculate score (placeholder - 0/100)
-      const obtainedMark = 0
-      const totalMark = 100
+      // Fetch questions from settings to grade the submission
+      const questionSetting = await db.settings.findFirst({
+        where: {
+          type: 'online_exam_questions',
+          description: `questions_for_exam_${exam_id}`,
+        },
+      })
+
+      let obtainedMark = 0
+      let totalMark = 0
+
+      if (questionSetting) {
+        try {
+          const questions: Array<{
+            id: number
+            type: string
+            correct_answer: string
+            marks: number
+          }> = JSON.parse(questionSetting.value)
+
+          totalMark = questions.reduce((sum, q) => sum + (q.marks || 0), 0)
+
+          for (const q of questions) {
+            const studentAnswer = answers?.[String(q.id)] ?? answers?.[q.id]
+            if (studentAnswer && q.correct_answer) {
+              const normalizedStudent = String(studentAnswer).trim().toLowerCase()
+              const normalizedCorrect = String(q.correct_answer).trim().toLowerCase()
+              if (normalizedStudent === normalizedCorrect) {
+                obtainedMark += q.marks || 1
+              }
+            }
+          }
+        } catch {
+          // If parsing fails, obtainedMark stays 0
+        }
+      }
 
       const result = await db.online_exam_result.create({
         data: {
