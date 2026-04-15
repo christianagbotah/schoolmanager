@@ -1132,10 +1132,23 @@ model pay_salary {
 // FRONTEND CMS
 // ============================================================
 
+model frontend_slider {
+  frontend_slider_id Int    @id @default(autoincrement())
+  title              String @default("")
+  subtitle           String @default("")
+  image              String @default("")
+  button_text        String @default("")
+  button_url         String @default("")
+  sort_order         Int    @default(0)
+  status             Int    @default(1)
+  timestamp          DateTime?
+}
+
 model frontend_events {
   frontend_events_id Int       @id @default(autoincrement())
   title              String    @default("")
   description        String    @default("")
+  image              String    @default("")
   date               DateTime?
   timestamp          DateTime?
 }
@@ -1166,8 +1179,17 @@ model frontend_news {
   frontend_news_id Int       @id @default(autoincrement())
   title            String    @default("")
   description      String    @default("")
+  image            String    @default("")
   date             DateTime?
   timestamp        DateTime?
+}
+
+model frontend_pages {
+  frontend_pages_id Int       @id @default(autoincrement())
+  title             String    @default("")
+  slug              String    @unique @default("")
+  content           String    @default("")
+  updated_at        DateTime?
 }
 
 model frontend_general_settings {
