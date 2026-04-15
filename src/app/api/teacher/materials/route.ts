@@ -21,7 +21,7 @@ export async function GET() {
     const subjectIds = teacherSubjects.map((s) => s.subject_id);
     const classIds = [...new Set(teacherSubjects.map((s) => s.class_id).filter(Boolean))];
 
-    const materials = await db.studyMaterial.findMany({
+    const materials = await db.study_material.findMany({
       where: {
         ...(subjectIds.length > 0 ? { subject_id: { in: subjectIds } } : {}),
         ...(classIds.length > 0 ? { class_id: { in: classIds } } : {}),
@@ -31,7 +31,7 @@ export async function GET() {
         subject: { select: { subject_id: true, name: true } },
         teacher: { select: { teacher_id: true, name: true } },
       },
-      orderBy: { upload_date: "desc" },
+      orderBy: { created_at: "desc" },
     });
 
     return NextResponse.json(materials);

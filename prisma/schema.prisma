@@ -84,9 +84,10 @@ model teacher {
   designation    designation? @relation("TeacherDesignation", fields: [designation_id], references: [id])
   department     department?  @relation("TeacherDepartment", fields: [department_id], references: [id])
 
-  classes        school_class[]
-  sections       section[]
-  subjects       subject[]
+  classes           school_class[]
+  sections          section[]
+  subjects          subject[]
+  study_materials   study_material[]
 
   @@index([designation_id])
   @@index([department_id])
@@ -232,6 +233,7 @@ model school_class {
   invoices         invoice[]
   online_exams     online_exam[]
   syllabi          academic_syllabus[]
+  study_materials  study_material[]
 
   @@index([teacher_id])
   @@index([section_id])
@@ -279,6 +281,7 @@ model subject {
   portfolio_headers  portfolio_headers[]
   online_exams       online_exam[]
   syllabi            academic_syllabus[]
+  study_materials    study_material[]
 
   @@index([class_id])
   @@index([teacher_id])
@@ -3956,4 +3959,31 @@ model noticeboard {
   @@index([category])
   @@index([created_at])
   @@map("noticeboard")
+}
+
+// ============================================================
+// STUDY MATERIALS
+// ============================================================
+
+model study_material {
+  study_material_id Int      @id @default(autoincrement())
+  title             String
+  description       String   @default("")
+  file_name         String
+  file_type         String   @default("")
+  file_url          String
+  class_id          Int?
+  subject_id        Int?
+  teacher_id        Int?
+  downloads         Int      @default(0)
+  created_at        DateTime @default(now())
+
+  class   school_class? @relation(fields: [class_id], references: [class_id])
+  subject subject?      @relation(fields: [subject_id], references: [subject_id])
+  teacher teacher?      @relation(fields: [teacher_id], references: [teacher_id])
+
+  @@index([class_id])
+  @@index([subject_id])
+  @@index([teacher_id])
+  @@map("study_material")
 }
