@@ -17,77 +17,6 @@ interface CreditEntry {
   class_name: string;
 }
 
-// ── Mock credit-note & overpayment data ─────────────────────────────
-function mockCredits(): CreditEntry[] {
-  const names = [
-    { name: 'Ama Mensah', code: 'STU001', class: 'JHS 1A' },
-    { name: 'Kwame Asante', code: 'STU002', class: 'JHS 2B' },
-    { name: 'Abena Osei', code: 'STU003', class: 'JHS 3A' },
-    { name: 'Kofi Boateng', code: 'STU004', class: 'Primary 5B' },
-    { name: 'Akua Sarpong', code: 'STU005', class: 'Primary 6A' },
-    { name: 'Yaw Adjei', code: 'STU006', class: 'JHS 1B' },
-    { name: 'Efua Darko', code: 'STU007', class: 'JHS 2A' },
-    { name: 'Nana Akufo', code: 'STU008', class: 'Primary 4A' },
-    { name: 'Adwoa Poku', code: 'STU009', class: 'JHS 3B' },
-    { name: 'Kojo Annan', code: 'STU010', class: 'Primary 3B' },
-    { name: 'Ama Frimpong', code: 'STU011', class: 'JHS 1A' },
-    { name: 'Emmanuel Tetteh', code: 'STU012', class: 'Primary 5A' },
-  ];
-
-  const creditNotes: CreditEntry[] = names.map((s, i) => ({
-    id: 1000 + i,
-    student_id: 1000 + i,
-    student_name: s.name,
-    student_code: s.code,
-    type: 'credit_note' as const,
-    category: 'general',
-    amount: Math.round((Math.random() * 200 + 20) * 100) / 100,
-    balance: Math.round((Math.random() * 150 + 10) * 100) / 100,
-    status: (['active', 'used', 'pending'] as const)[i % 3],
-    reason: [
-      'Fee adjustment for term discount',
-      'Scholarship credit awarded',
-      'Correction for billing error',
-      'Financial aid allocation',
-      'Sibling discount applied',
-      'Early payment reward',
-      'Boarding subsidy',
-      'PTA contribution credit',
-      'Sports fee waiver',
-      'Library membership credit',
-      'Transport subsidy',
-      'Exam fee adjustment',
-    ][i],
-    date: new Date(2025, 0, Math.min(28, 5 + i * 2)).toISOString().split('T')[0],
-    class_name: s.class,
-  }));
-
-  const overpayments: CreditEntry[] = names.slice(0, 7).map((s, i) => ({
-    id: 2000 + i,
-    student_id: 1000 + i,
-    student_name: s.name,
-    student_code: s.code,
-    type: 'overpayment' as const,
-    category: 'general',
-    amount: Math.round((Math.random() * 300 + 50) * 100) / 100,
-    balance: Math.round((Math.random() * 250 + 20) * 100) / 100,
-    status: (['active', 'pending'] as const)[i % 2],
-    reason: [
-      'Overpayment on term fees – Jan 2025',
-      'Excess payment on boarding fees',
-      'Double payment correction',
-      'Overpayment carried from last term',
-      'Extra amount paid via mobile money',
-      'Surplus from combined invoice payment',
-      'Refund pending from excursion fees',
-    ][i],
-    date: new Date(2025, 0, Math.min(28, 3 + i * 3)).toISOString().split('T')[0],
-    class_name: s.class,
-  }));
-
-  return [...creditNotes, ...overpayments];
-}
-
 // ── GET ──────────────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {
   try {
@@ -97,6 +26,50 @@ export async function GET(req: NextRequest) {
     const classFilter = sp.get('class') || '';
     const dateFrom = sp.get('dateFrom') || '';
     const dateTo = sp.get('dateTo') || '';
+
+    // ── Collect real credit notes from DB ────────────────────────────
+    const creditNoteRows = await db.credit_notes.findMany({
+      orderBy: { created_at: 'desc' },
+    });
+
+    // Gather unique student IDs from credit notes
+    const cnStudentIds = [...new Set(creditNoteRows.map(r => r.student_id).filter((id): id is number => id != null))];
+
+    // Fetch student info + enrollment for those IDs
+    const cnStudents = cnStudentIds.length > 0
+      ? await db.student.findMany({
+          where: { student_id: { in: cnStudentIds } },
+          select: { student_id: true, name: true, student_code: true },
+        })
+      : [];
+    const cnStudentMap = new Map(cnStudents.map(s => [s.student_id, s]));
+
+    const cnEnrollments = cnStudentIds.length > 0
+      ? await db.enroll.findMany({
+          where: { student_id: { in: cnStudentIds } },
+          include: { class: { select: { name: true } } },
+          distinct: ['student_id'],
+        })
+      : [];
+    const cnEnrollMap = new Map(cnEnrollments.map(e => [e.student_id, e.class?.name || '']));
+
+    const dbCreditNotes: CreditEntry[] = creditNoteRows.map(cn => {
+      const stu = cnStudentMap.get(cn.student_id ?? 0);
+      return {
+        id: cn.credit_note_id,
+        student_id: cn.student_id ?? 0,
+        student_name: stu?.name || 'Unknown',
+        student_code: stu?.student_code || '',
+        type: 'credit_note' as const,
+        category: 'general',
+        amount: cn.amount,
+        balance: cn.status === 'active' ? cn.amount : 0,
+        status: (cn.status || 'active') as CreditEntry['status'],
+        reason: cn.reason || cn.credit_number || '',
+        date: cn.created_at ? new Date(cn.created_at).toISOString().split('T')[0] : '',
+        class_name: cnEnrollMap.get(cn.student_id ?? 0) || '',
+      };
+    });
 
     // ── Collect wallet top-up rows from real transactions ────────────
     const walletTxs = await db.daily_fee_transactions.findMany({
@@ -149,7 +122,7 @@ export async function GET(req: NextRequest) {
     });
 
     // ── Merge all ────────────────────────────────────────────────────
-    let credits: CreditEntry[] = [...mockCredits(), ...walletCredits];
+    let credits: CreditEntry[] = [...dbCreditNotes, ...walletCredits];
 
     // ── Filter by type ───────────────────────────────────────────────
     if (type) credits = credits.filter(c => c.type === type);
