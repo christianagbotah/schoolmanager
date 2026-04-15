@@ -1053,6 +1053,22 @@ model dormitory {
   number_of_beds        Int    @default(0)
 }
 
+model boarding_student {
+  id             Int    @id @default(autoincrement())
+  student_id     Int
+  house_id       Int?
+  dormitory_id   Int?
+  bed_number     String @default("")
+  academic_year  String @default("")
+  assigned_at    DateTime?
+  is_active      Int    @default(1)
+
+  @@index([student_id])
+  @@index([house_id])
+  @@index([dormitory_id])
+  @@map("boarding_student")
+}
+
 // ============================================================
 // EMPLOYEE / PAYROLL
 // ============================================================
