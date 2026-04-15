@@ -90,23 +90,17 @@ export default function StudentInvoicesPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/invoices?search=${user.name || user.email}&limit=50`);
+      const res = await fetch(`/api/student/invoices`);
       if (!res.ok) throw new Error("Failed to load invoices");
       const data = await res.json();
       setInvoices(data.invoices || []);
-
-      // Fetch receipts
-      const receiptRes = await fetch(`/api/receipts?studentId=${user.id}`);
-      if (receiptRes.ok) {
-        const receiptData = await receiptRes.json();
-        setReceipts(Array.isArray(receiptData) ? receiptData : []);
-      }
+      setReceipts(data.receipts || []);
     } catch {
       setError("Failed to load invoices");
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id, user?.name, user?.email]);
+  }, [user?.id]);
 
   useEffect(() => {
     if (!authLoading) fetchData();

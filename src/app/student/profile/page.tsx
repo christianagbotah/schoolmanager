@@ -93,7 +93,7 @@ export default function StudentProfilePage() {
     if (!user?.id) return;
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/students/${user.id}`);
+      const res = await fetch(`/api/student/profile`);
       if (!res.ok) throw new Error("Failed to fetch profile");
       const data = await res.json();
       setProfile(data);
@@ -115,7 +115,7 @@ export default function StudentProfilePage() {
     setIsSaving(true);
     setSaveMsg(null);
     try {
-      const res = await fetch(`/api/students/${user?.id}`, {
+      const res = await fetch(`/api/student/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: editEmail, phone: editPhone, address: editAddress }),
@@ -142,7 +142,7 @@ export default function StudentProfilePage() {
     setIsChangingPwd(true);
     setPwdMsg(null);
     try {
-      const res = await fetch(`/api/students/${user?.id}`, {
+      const res = await fetch(`/api/student/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password: newPassword }),

@@ -62,7 +62,7 @@ export default function StudentAttendancePage() {
     if (!user?.id) return;
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/attendance?student_id=${user.id}&limit=1000`);
+      const res = await fetch(`/api/student/attendance`);
       if (res.ok) {
         const data = await res.json();
         setRecords(data.records || []);

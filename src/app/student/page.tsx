@@ -15,6 +15,8 @@ import {
   TrendingUp,
   GraduationCap,
   User,
+  Bell,
+  Bus,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,43 +35,62 @@ import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 
 // ─── Types ───────────────────────────────────────────────────
-interface StudentInfo {
-  student_id: number;
-  student_code: string;
-  name: string;
-  first_name: string;
-  last_name: string;
-  enrolls: { class: { class_id: number; name: string }; section: { section_id: number; name: string } }[];
-}
-
-interface MarkRecord {
-  mark_id: number;
-  mark_obtained: number;
-  comment: string;
-  subject: { subject_id: number; name: string };
-  exam: { exam_id: number; name: string } | null;
-}
-
-interface RoutineItem {
-  class_routine_id: number;
-  time_start: string;
-  time_end: string;
-  day: string;
-  room: string;
-  section_id: number;
-  section: { section_id: number; name: string };
-}
-
-interface InvoiceItem {
-  invoice_id: number;
-  invoice_code: string;
-  title: string;
-  amount: number;
-  amount_paid: number;
-  due: number;
-  status: string;
-  year: string;
-  term: string;
+interface DashboardData {
+  student: {
+    student_id: number;
+    student_code: string;
+    name: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    sex: string;
+    birthday: string | null;
+    address: string;
+    admission_date: string | null;
+    username: string;
+    active_status: number;
+  };
+  parent: { parent_id: number; name: string; phone: string; email: string } | null;
+  enroll: {
+    class_id: number;
+    section_id: number;
+    year: string;
+    term: string;
+    class_name: string;
+    class_numeric: number;
+    section_name: string;
+    class_category: string;
+  } | null;
+  recentMarks: {
+    mark_id: number;
+    mark_obtained: number;
+    comment: string;
+    subject: { subject_id: number; name: string } | null;
+    exam: { exam_id: number; name: string } | null;
+  }[];
+  attendance: { present: number; total: number; percentage: number };
+  invoices: {
+    invoice_id: number;
+    invoice_code: string;
+    title: string;
+    amount: number;
+    amount_paid: number;
+    due: number;
+    status: string;
+    creation_timestamp: string | null;
+  }[];
+  feeBalance: number;
+  todayRoutines: {
+    class_routine_id: number;
+    time_start: string;
+    time_end: string;
+    day: string;
+    room: string;
+    section_id: number;
+    section: { section_id: number; name: string };
+  }[];
+  notices: { id: number; title: string; notice: string; timestamp: string | null; create_timestamp: number }[];
 }
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -81,8 +102,6 @@ function getGrade(score: number): string {
   if (score >= 50) return "D";
   return "F";
 }
-
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -114,12 +133,7 @@ function StatSkeleton() {
 export default function StudentDashboard() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
-  const [studentInfo, setStudentInfo] = useState<StudentInfo | null>(null);
-  const [recentMarks, setRecentMarks] = useState<MarkRecord[]>([]);
-  const [routines, setRoutines] = useState<RoutineItem[]>([]);
-  const [invoices, setInvoices] = useState<InvoiceItem[]>([]);
-  const [attendanceData, setAttendanceData] = useState<{ present: number; total: number }>({ present: 0, total: 0 });
-
+  const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -128,51 +142,10 @@ export default function StudentDashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      const [studentRes, marksRes] = await Promise.all([
-        fetch(`/api/students/${user.id}`),
-        fetch(`/api/marks?student_id=${user.id}&limit=10`),
-      ]);
-
-      if (!studentRes.ok) throw new Error("Failed to load student data");
-      const studentData = await studentRes.json();
-      setStudentInfo(studentData);
-
-      if (marksRes.ok) {
-        const marksData = await marksRes.json();
-        setRecentMarks(marksData.marks || []);
-      }
-
-      // Get section from enroll
-      const enroll = studentData.enrolls?.[0];
-      if (enroll) {
-        const sectionId = enroll.section?.section_id;
-
-        // Fetch routine, invoices, attendance in parallel
-        const [routineRes, invoiceRes, attRes] = await Promise.all([
-          sectionId ? fetch(`/api/routine?section_id=${sectionId}`) : Promise.resolve(null),
-          fetch(`/api/invoices?studentId=${user.id}&limit=10`),
-          fetch(`/api/attendance?student_id=${user.id}&limit=500`),
-        ]);
-
-        if (routineRes?.ok) {
-          const routineData = await routineRes.json();
-          setRoutines(routineData.routines || []);
-        }
-
-        if (invoiceRes.ok) {
-          const invoiceData = await invoiceRes.json();
-          setInvoices(invoiceData.invoices || []);
-        }
-
-        if (attRes.ok) {
-          const attData = await attRes.json();
-          const records = attData.records || [];
-          setAttendanceData({
-            present: records.filter((r: { status: string }) => r.status === "present" || r.status === "late").length,
-            total: records.length,
-          });
-        }
-      }
+      const res = await fetch("/api/student/dashboard");
+      if (!res.ok) throw new Error("Failed to load dashboard");
+      const json = await res.json();
+      setData(json);
     } catch (err) {
       console.error(err);
       setError("Unable to load dashboard data. Please try again later.");
@@ -185,11 +158,12 @@ export default function StudentDashboard() {
     if (!authLoading) fetchData();
   }, [authLoading, fetchData]);
 
-  const todayName = DAYS[new Date().getDay() >= 1 && new Date().getDay() <= 5 ? new Date().getDay() - 1 : 0];
-  const todayRoutines = routines.filter((r) => r.day === todayName);
-  const feeBalance = invoices.reduce((sum, inv) => sum + (inv.due || 0), 0);
-  const attendancePct = attendanceData.total > 0 ? Math.round((attendanceData.present / attendanceData.total) * 100) : 0;
-  const enroll = studentInfo?.enrolls?.[0];
+  const enrollment = data?.enroll;
+  const feeBalance = data?.feeBalance || 0;
+  const attendancePct = data?.attendance?.percentage || 0;
+  const subjects = new Set(
+    (data?.recentMarks || []).map((m) => m.subject?.name).filter(Boolean)
+  ).size;
 
   // ─── Loading ───────────────────────────────────────────────
   if (authLoading || isLoading) {
@@ -198,7 +172,9 @@ export default function StudentDashboard() {
         <div className="space-y-6">
           <Skeleton className="h-32 w-full rounded-xl" />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => <StatSkeleton key={i} />)}
+            {Array.from({ length: 4 }).map((_, i) => (
+              <StatSkeleton key={i} />
+            ))}
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Skeleton className="h-80 w-full rounded-xl" />
@@ -219,7 +195,10 @@ export default function StudentDashboard() {
           </div>
           <h2 className="text-xl font-semibold text-slate-900">Something went wrong</h2>
           <p className="text-slate-500">{error}</p>
-          <Button onClick={fetchData} variant="outline"><Loader2 className="w-4 h-4 mr-2" />Try Again</Button>
+          <Button onClick={fetchData} variant="outline">
+            <Loader2 className="w-4 h-4 mr-2" />
+            Try Again
+          </Button>
         </div>
       </DashboardLayout>
     );
@@ -238,25 +217,23 @@ export default function StudentDashboard() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold">
-                    Welcome, {studentInfo?.name || user?.name || "Student"}!
+                    Welcome, {data?.student?.name || user?.name || "Student"}!
                   </h1>
                   <div className="flex flex-wrap items-center gap-2 mt-1">
-                    {enroll && (
+                    {enrollment && (
                       <Badge variant="secondary" className="bg-white/20 text-white hover:bg-white/30">
-                        {enroll.class?.name} — {enroll.section?.name}
+                        {enrollment.class_name} {enrollment.class_numeric} — {enrollment.section_name}
                       </Badge>
                     )}
-                    {studentInfo?.student_code && (
+                    {data?.student?.student_code && (
                       <Badge variant="secondary" className="bg-white/20 text-white hover:bg-white/30">
-                        {studentInfo.student_code}
+                        {data.student.student_code}
                       </Badge>
                     )}
                   </div>
                 </div>
               </div>
-              <p className="text-amber-100 text-sm">
-                {format(new Date(), "EEEE, MMMM d, yyyy")}
-              </p>
+              <p className="text-amber-100 text-sm">{format(new Date(), "EEEE, MMMM d, yyyy")}</p>
             </div>
           </CardContent>
         </Card>
@@ -268,7 +245,7 @@ export default function StudentDashboard() {
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <p className="text-xs font-medium text-slate-500">My Subjects</p>
-                  <p className="text-2xl font-bold text-amber-600">{recentMarks.length > 0 ? new Set(recentMarks.map(m => m.subject?.name).filter(Boolean)).size : 0}</p>
+                  <p className="text-2xl font-bold text-amber-600">{subjects}</p>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
                   <BookOpen className="w-5 h-5 text-amber-600" />
@@ -310,7 +287,7 @@ export default function StudentDashboard() {
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <p className="text-xs font-medium text-slate-500">Recent Marks</p>
-                  <p className="text-2xl font-bold text-purple-600">{recentMarks.length}</p>
+                  <p className="text-2xl font-bold text-purple-600">{data?.recentMarks?.length || 0}</p>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
                   <Award className="w-5 h-5 text-purple-600" />
@@ -320,7 +297,7 @@ export default function StudentDashboard() {
           </Card>
         </div>
 
-        {/* ─── Results & Schedule ──────────────────────────── */}
+        {/* ─── Results & Schedule & Notices ────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Results */}
           <Card className="gap-4">
@@ -348,14 +325,14 @@ export default function StudentDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {recentMarks.length === 0 ? (
+                    {(!data?.recentMarks || data.recentMarks.length === 0) ? (
                       <TableRow>
                         <TableCell colSpan={3} className="text-center text-slate-400 py-12">
                           No results available yet
                         </TableCell>
                       </TableRow>
                     ) : (
-                      recentMarks.slice(0, 8).map((m) => (
+                      data.recentMarks.slice(0, 8).map((m) => (
                         <TableRow key={m.mark_id} className="hover:bg-slate-50">
                           <TableCell className="text-sm font-medium text-slate-900">{m.subject?.name || "N/A"}</TableCell>
                           <TableCell className="text-right font-semibold text-sm tabular-nums">{m.mark_obtained}</TableCell>
@@ -390,21 +367,23 @@ export default function StudentDashboard() {
             </CardHeader>
             <CardContent className="pt-0">
               <div className="max-h-80 overflow-y-auto">
-                {todayRoutines.length === 0 ? (
+                {(!data?.todayRoutines || data.todayRoutines.length === 0) ? (
                   <div className="text-center py-12">
                     <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                     <p className="text-slate-400 text-sm">No classes scheduled for today</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {todayRoutines.map((r, i) => (
+                    {data.todayRoutines.map((r, i) => (
                       <div key={r.class_routine_id} className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors">
                         <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-xs font-bold text-emerald-700">
                           {i + 1}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-slate-900">Period {i + 1}</p>
-                          <p className="text-xs text-slate-500">{r.time_start?.substring(0, 5)} — {r.time_end?.substring(0, 5)} • Room: {r.room || "TBD"}</p>
+                          <p className="text-xs text-slate-500">
+                            {r.time_start?.substring(0, 5)} — {r.time_end?.substring(0, 5)} • Room: {r.room || "TBD"}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -414,6 +393,35 @@ export default function StudentDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* ─── Recent Notices ───────────────────────────────── */}
+        {data?.notices && data.notices.length > 0 && (
+          <Card className="gap-4">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                    <Bell className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <CardTitle className="text-base font-semibold">Recent Notices</CardTitle>
+                </div>
+                <Button variant="ghost" size="sm" className="text-emerald-700" onClick={() => router.push("/student/notices")}>
+                  View All
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {data.notices.slice(0, 3).map((n) => (
+                  <div key={n.id} className="p-3 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors">
+                    <h4 className="text-sm font-semibold text-slate-900">{n.title}</h4>
+                    <p className="text-xs text-slate-500 mt-1 line-clamp-1">{n.notice}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* ─── Quick Links ─────────────────────────────────── */}
         <Card className="gap-4">

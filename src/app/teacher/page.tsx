@@ -3,28 +3,15 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
-  BookOpen,
-  Users,
-  ClipboardCheck,
-  Award,
-  Clock,
-  Loader2,
-  AlertTriangle,
-  CheckSquare,
-  FileText,
-  GraduationCap,
+  BookOpen, Users, ClipboardCheck, Award, Clock, FileText,
+  GraduationCap, CheckSquare, Loader2, AlertTriangle, Save,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/use-auth";
@@ -35,29 +22,34 @@ interface TeacherClass {
   class_id: number;
   name: string;
   category: string;
-  _count: { enrolls: number };
+  name_numeric: number;
+  student_count: number;
   sections: { section_id: number; name: string }[];
+  subjects: { subject_id: number; name: string }[];
+  is_class_teacher: boolean;
 }
 
-interface RoutineItem {
-  class_routine_id: number;
-  section_id: number;
+interface TeacherSubject {
   subject_id: number;
-  time_start: string;
-  time_end: string;
-  day: string;
-  room: string;
+  name: string;
+  class: { class_id: number; name: string; name_numeric: number };
   section: { section_id: number; name: string };
 }
 
-interface MarkRecord {
-  mark_id: number;
-  mark_obtained: number;
-  comment: string;
-  student: { student_id: number; name: string; student_code: string };
-  subject: { subject_id: number; name: string };
-  class: { class_id: number; name: string };
-  exam: { exam_id: number; name: string } | null;
+interface DashboardNotice {
+  id: number;
+  title: string;
+  timestamp: number | null;
+  create_timestamp: number;
+}
+
+interface StatData {
+  totalClasses: number;
+  totalSubjects: number;
+  totalStudents: number;
+  todayPresent: number;
+  todayAbsent: number;
+  unreadMessages: number;
 }
 
 // ─── Helper ──────────────────────────────────────────────────
@@ -96,81 +88,53 @@ function StatCardSkeleton() {
 // ─── Main Component ──────────────────────────────────────────
 export default function TeacherDashboard() {
   const router = useRouter();
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, isTeacher } = useAuth();
   const [classes, setClasses] = useState<TeacherClass[]>([]);
-  const [routines, setRoutines] = useState<RoutineItem[]>([]);
-  const [recentMarks, setRecentMarks] = useState<MarkRecord[]>([]);
+  const [subjects, setSubjects] = useState<TeacherSubject[]>([]);
+  const [notices, setNotices] = useState<DashboardNotice[]>([]);
+  const [stats, setStats] = useState<StatData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [attendanceToday, setAttendanceToday] = useState(0);
 
   const fetchData = useCallback(async () => {
+    // If not a teacher, redirect
+    if (!authLoading && !isTeacher) {
+      router.push("/dashboard");
+      return;
+    }
+    if (authLoading || !isTeacher) return;
+
     setIsLoading(true);
     setError(null);
     try {
-      const [classesRes, marksRes] = await Promise.all([
-        fetch("/api/classes"),
-        fetch("/api/marks?limit=10"),
+      const [dashRes, classesRes] = await Promise.all([
+        fetch("/api/teacher/dashboard"),
+        fetch("/api/teacher/classes"),
       ]);
 
-      if (!classesRes.ok || !marksRes.ok) throw new Error("Failed to fetch data");
+      if (!dashRes.ok || !classesRes.ok) throw new Error("Failed to fetch data");
 
+      const dashData = await dashRes.json();
       const classesData = await classesRes.json();
-      const marksData = await marksRes.json();
 
-      const myClasses = (classesData || []).filter(
-        (c: TeacherClass) => c.name !== ""
-      );
-      setClasses(myClasses);
-      setRecentMarks(marksData.marks || []);
-
-      // Get today's attendance
-      const today = format(new Date(), "yyyy-MM-dd");
-      const mySectionIds = myClasses.flatMap((c: TeacherClass) =>
-        (c.sections || []).map((s) => s.section_id)
-      );
-      if (mySectionIds.length > 0) {
-        const attRes = await fetch(`/api/attendance?date=${today}&limit=200`);
-        if (attRes.ok) {
-          const attData = await attRes.json();
-          const filtered = (attData.records || []).filter((r: { section_id?: number }) =>
-            mySectionIds.includes(r.section_id)
-          );
-          setAttendanceToday(filtered.length);
-        }
-      }
-
-      // Fetch routine for teacher's sections
-      if (mySectionIds.length > 0) {
-        const routinePromises = mySectionIds.slice(0, 5).map((sid: number) =>
-          fetch(`/api/routine?section_id=${sid}`).then((r) =>
-            r.ok ? r.json() : { routines: [] }
-          )
-        );
-        const routineResults = await Promise.all(routinePromises);
-        const allRoutines = routineResults.flatMap(
-          (r) => r.routines || []
-        );
-        setRoutines(allRoutines);
-      }
+      setStats(dashData.stats);
+      setClasses(classesData);
+      setSubjects(dashData.subjects || []);
+      setNotices(dashData.recentNotices || []);
     } catch (err) {
       console.error(err);
       setError("Unable to load dashboard data. Please try again later.");
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [authLoading, isTeacher, router]);
 
   useEffect(() => {
-    if (!authLoading) fetchData();
-  }, [authLoading, fetchData]);
+    fetchData();
+  }, [fetchData]);
 
   const todayName = getTodayName();
-  const todayRoutines = routines.filter((r) => r.day === todayName);
-  const totalStudents = classes.reduce(
-    (sum, c) => sum + (c._count?.enrolls || 0),
-    0
-  );
+  const totalStudents = classes.reduce((sum, c) => sum + (c.student_count || 0), 0);
 
   // ─── Loading State ─────────────────────────────────────────
   if (authLoading || isLoading) {
@@ -237,7 +201,7 @@ export default function TeacherDashboard() {
         </Card>
 
         {/* ─── Stat Cards ──────────────────────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="gap-4 py-4 border-l-4 border-l-teal-500 hover:shadow-md transition-shadow">
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
@@ -256,11 +220,11 @@ export default function TeacherDashboard() {
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-500">Total Students</p>
-                  <p className="text-2xl font-bold text-blue-600">{totalStudents}</p>
+                  <p className="text-xs font-medium text-slate-500">My Subjects</p>
+                  <p className="text-2xl font-bold text-blue-600">{subjects.length}</p>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-blue-600" />
+                  <GraduationCap className="w-5 h-5 text-blue-600" />
                 </div>
               </div>
             </CardContent>
@@ -270,18 +234,34 @@ export default function TeacherDashboard() {
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-500">Today&apos;s Attendance</p>
-                  <p className="text-2xl font-bold text-amber-600">{attendanceToday}</p>
+                  <p className="text-xs font-medium text-slate-500">Total Students</p>
+                  <p className="text-2xl font-bold text-amber-600">{totalStudents}</p>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                  <ClipboardCheck className="w-5 h-5 text-amber-600" />
+                  <Users className="w-5 h-5 text-amber-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="gap-4 py-4 border-l-4 border-l-emerald-500 hover:shadow-md transition-shadow">
+            <CardContent className="px-4 pb-0 pt-0">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-slate-500">Today&apos;s Attendance</p>
+                  <p className="text-2xl font-bold text-emerald-600">
+                    {stats?.todayPresent || 0}
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                  <ClipboardCheck className="w-5 h-5 text-emerald-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* ─── Schedule & Recent Marks ─────────────────────── */}
+        {/* ─── Schedule & Recent Notices ─────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Today's Schedule */}
           <Card className="gap-4">
@@ -296,39 +276,32 @@ export default function TeacherDashboard() {
                   </CardTitle>
                 </div>
                 <Badge variant="outline" className="text-emerald-700 border-emerald-200">
-                  {todayRoutines.length} classes
+                  {todayName}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
               <div className="max-h-96 overflow-y-auto">
-                {todayRoutines.length === 0 ? (
+                {classes.length === 0 && subjects.length === 0 ? (
                   <div className="text-center py-12">
                     <GraduationCap className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                    <p className="text-slate-400 text-sm">No classes scheduled for today</p>
-                    <p className="text-slate-300 text-xs mt-1">Enjoy your free time!</p>
+                    <p className="text-slate-400 text-sm">No classes assigned yet</p>
+                    <p className="text-slate-300 text-xs mt-1">Contact admin to get started</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {todayRoutines.map((routine) => (
+                    {subjects.slice(0, 8).map((subj, idx) => (
                       <div
-                        key={routine.class_routine_id}
+                        key={subj.subject_id}
                         className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors"
                       >
                         <div className="w-12 h-12 rounded-lg bg-emerald-50 flex flex-col items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-medium text-emerald-700 leading-tight">
-                            {routine.time_start?.substring(0, 5) || ""}
-                          </span>
-                          <span className="text-[10px] text-emerald-500">
-                            {routine.time_end?.substring(0, 5) || ""}
-                          </span>
+                          <span className="text-xs font-bold text-emerald-700 leading-tight">{idx + 1}</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-slate-900 truncate">
-                            Period
-                          </p>
+                          <p className="text-sm font-medium text-slate-900 truncate">{subj.name}</p>
                           <p className="text-xs text-slate-500 truncate">
-                            Section: {routine.section?.name || "N/A"} • Room: {routine.room || "TBD"}
+                            {subj.class?.name || "N/A"}{subj.section?.name ? ` — Section ${subj.section.name}` : ""}
                           </p>
                         </div>
                       </div>
@@ -339,74 +312,100 @@ export default function TeacherDashboard() {
             </CardContent>
           </Card>
 
-          {/* Recent Marks Entered */}
+          {/* Recent Notices */}
           <Card className="gap-4">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
-                  <Award className="w-4 h-4 text-purple-600" />
+                <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                  <FileText className="w-4 h-4 text-amber-600" />
                 </div>
                 <CardTitle className="text-base font-semibold">
-                  Recent Marks Entered
+                  Recent Notices
                 </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="max-h-96 overflow-y-auto rounded-lg border border-slate-200">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-slate-50 hover:bg-slate-50">
-                      <TableHead className="text-xs font-semibold text-slate-600 uppercase">
-                        Student
-                      </TableHead>
-                      <TableHead className="text-xs font-semibold text-slate-600 uppercase hidden sm:table-cell">
-                        Subject
-                      </TableHead>
-                      <TableHead className="text-xs font-semibold text-slate-600 uppercase text-right">
-                        Score
-                      </TableHead>
-                      <TableHead className="text-xs font-semibold text-slate-600 uppercase text-right">
-                        Grade
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentMarks.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center text-slate-400 py-12">
-                          No marks entered yet
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      recentMarks.map((m) => (
-                        <TableRow key={m.mark_id} className="hover:bg-slate-50">
-                          <TableCell className="font-medium text-sm text-slate-900">
-                            {m.student?.name || "Unknown"}
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell text-sm text-slate-500">
-                            {m.subject?.name || "N/A"}
-                          </TableCell>
-                          <TableCell className="text-right font-semibold text-sm tabular-nums">
-                            {m.mark_obtained}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Badge
-                              variant={
-                                m.mark_obtained >= 50 ? "default" : "destructive"
-                              }
-                            >
-                              {getGrade(m.mark_obtained)}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+              <div className="max-h-96 overflow-y-auto">
+                {notices.length === 0 ? (
+                  <div className="text-center py-12">
+                    <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-400 text-sm">No notices</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {notices.slice(0, 5).map((notice) => (
+                      <div
+                        key={notice.id}
+                        className="p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-slate-900 truncate">{notice.title}</p>
+                            <p className="text-xs text-slate-400 mt-0.5">
+                              {notice.create_timestamp
+                                ? format(new Date(notice.create_timestamp * 1000), "MMM d, yyyy")
+                                : "—"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* ─── My Classes ────────────────────────────────── */}
+        <Card className="gap-4">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                  <BookOpen className="w-4 h-4 text-violet-600" />
+                </div>
+                <CardTitle className="text-base font-semibold">My Classes</CardTitle>
+              </div>
+              <Badge variant="outline" className="text-violet-700 border-violet-200">
+                {classes.length} classes
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="max-h-72 overflow-y-auto">
+              {classes.length === 0 ? (
+                <div className="text-center py-12">
+                  <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-400 text-sm">No classes assigned</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {classes.slice(0, 6).map((cls) => (
+                    <div
+                      key={cls.class_id}
+                      className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors"
+                      onClick={() => router.push("/teacher/classes")}
+                    >
+                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${cls.is_class_teacher ? "bg-violet-100" : "bg-slate-100"}`}>
+                        <BookOpen className={`w-5 h-5 ${cls.is_class_teacher ? "text-violet-600" : "text-slate-400"}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-slate-900 truncate">{cls.name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-slate-400">{cls.student_count} students</span>
+                          {cls.is_class_teacher && (
+                            <Badge variant="secondary" className="bg-violet-100 text-violet-700 text-[10px] px-1.5 py-0">Class Teacher</Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* ─── Quick Actions ───────────────────────────────── */}
         <Card className="gap-4">
@@ -445,23 +444,23 @@ export default function TeacherDashboard() {
               <Button
                 variant="outline"
                 className="h-auto py-4 flex flex-col items-center gap-2.5 rounded-xl border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 transition-all group"
-                onClick={() => router.push("/teacher/profile")}
+                onClick={() => router.push("/teacher/routine")}
               >
                 <div className="w-10 h-10 rounded-xl bg-slate-100 group-hover:bg-emerald-100 flex items-center justify-center transition-colors">
-                  <Users className="w-5 h-5" />
+                  <Clock className="w-5 h-5" />
                 </div>
-                <span className="text-xs font-medium">My Profile</span>
+                <span className="text-xs font-medium">Timetable</span>
               </Button>
 
               <Button
                 variant="outline"
                 className="h-auto py-4 flex flex-col items-center gap-2.5 rounded-xl border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 transition-all group"
-                onClick={() => router.push("/teacher/classes")}
+                onClick={() => router.push("/teacher/messages")}
               >
                 <div className="w-10 h-10 rounded-xl bg-slate-100 group-hover:bg-emerald-100 flex items-center justify-center transition-colors">
-                  <BookOpen className="w-5 h-5" />
+                  <FileText className="w-5 h-5" />
                 </div>
-                <span className="text-xs font-medium">My Classes</span>
+                <span className="text-xs font-medium">Messages{stats?.unreadMessages ? ` (${stats.unreadMessages})` : ""}</span>
               </Button>
             </div>
           </CardContent>

@@ -32,8 +32,10 @@ interface ClassItem {
   class_id: number;
   name: string;
   category: string;
-  _count: { enrolls: number };
+  _count?: { enrolls: number };
+  student_count?: number;
   sections: { section_id: number; name: string }[];
+  is_class_teacher?: boolean;
 }
 
 interface StudentItem {
@@ -62,10 +64,10 @@ export default function TeacherClassesPage() {
   const fetchClasses = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/classes");
+      const res = await fetch("/api/teacher/classes");
       if (!res.ok) throw new Error("Failed to fetch classes");
       const data = await res.json();
-      setClasses((data || []).filter((c: ClassItem) => c.name !== ""));
+      setClasses((Array.isArray(data) ? data : []).filter((c: ClassItem) => c.name !== ""));
     } catch {
       setError("Failed to load classes");
     } finally {
@@ -82,10 +84,10 @@ export default function TeacherClassesPage() {
     setIsLoadingStudents(true);
     setError(null);
     try {
-      const res = await fetch(`/api/students?classId=${cls.class_id}&sectionId=${sectionId}&limit=200`);
+      const res = await fetch(`/api/teacher/students?class_id=${cls.class_id}&section_id=${sectionId}`);
       if (!res.ok) throw new Error("Failed to fetch students");
       const data = await res.json();
-      setStudents(data.students || []);
+      setStudents(Array.isArray(data) ? data : data.students || []);
     } catch {
       setError("Failed to load students");
       setStudents([]);
@@ -201,6 +203,9 @@ export default function TeacherClassesPage() {
                           {cls.category && (
                             <Badge variant="outline" className="text-xs mt-1">{cls.category}</Badge>
                           )}
+                          {cls.is_class_teacher && (
+                            <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 text-[10px] px-1.5 py-0">Class Teacher</Badge>
+                          )}
                         </div>
                       </div>
                       <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-emerald-500 transition-colors" />
@@ -208,7 +213,7 @@ export default function TeacherClassesPage() {
                     <div className="flex items-center gap-4 mt-4 text-xs text-slate-500">
                       <span className="flex items-center gap-1">
                         <Users className="w-3.5 h-3.5" />
-                        {cls._count?.enrolls || 0} students
+                        {cls.student_count || cls._count?.enrolls || 0} students
                       </span>
                       <span className="flex items-center gap-1">
                         <GraduationCap className="w-3.5 h-3.5" />

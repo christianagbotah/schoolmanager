@@ -75,12 +75,11 @@ export default function StudentLibraryPage() {
     if (!user?.id) return;
     setIsLoading(true);
     try {
-      const [booksRes, reqRes] = await Promise.all([
-        fetch("/api/books?limit=100"),
-        fetch(`/api/book-requests?studentId=${user.id}`),
-      ]);
-      if (booksRes.ok) { const d = await booksRes.json(); setBooks(Array.isArray(d) ? d : d.books || []); }
-      if (reqRes.ok) { const d = await reqRes.json(); setRequests(Array.isArray(d) ? d : d.requests || []); }
+      const res = await fetch("/api/student/library");
+      if (!res.ok) throw new Error("Failed to load library data");
+      const data = await res.json();
+      setBooks(data.books || []);
+      setRequests(data.requests || []);
     } catch { setError("Failed to load library data"); }
     finally { setIsLoading(false); }
   }, [user?.id]);
@@ -91,10 +90,10 @@ export default function StudentLibraryPage() {
     if (!requestBookId) return;
     setIsRequesting(true);
     try {
-      const res = await fetch("/api/book-requests", {
+      const res = await fetch("/api/student/library", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ book_id: parseInt(requestBookId), student_id: user?.id }),
+        body: JSON.stringify({ book_id: parseInt(requestBookId) }),
       });
       if (!res.ok) throw new Error("Failed");
       setSuccessMsg("Book request submitted");

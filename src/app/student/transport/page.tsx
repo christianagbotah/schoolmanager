@@ -36,7 +36,7 @@ export default function StudentTransportPage() {
   const fetchRoutes = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/transport?limit=100");
+      const res = await fetch("/api/student/transport");
       if (res.ok) { const d = await res.json(); setRoutes(Array.isArray(d) ? d : d.routes || []); }
     } catch { setError("Failed to load transport data"); }
     finally { setIsLoading(false); }

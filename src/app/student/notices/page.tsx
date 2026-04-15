@@ -45,8 +45,8 @@ export default function StudentNoticesPage() {
   const fetchNotices = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/notices?limit=100");
-      if (res.ok) { const d = await res.json(); setNotices(Array.isArray(d) ? d : []); }
+      const res = await fetch("/api/student/notices");
+      if (res.ok) { const d = await res.json(); setNotices(d.notices || []); }
     } catch { /* silent */ }
     finally { setIsLoading(false); }
   }, []);

@@ -1027,3 +1027,58 @@ Stage Summary:
 - API route enhanced to properly create enrollment with residence_type, parent_id, and update parent records
 - Prisma schema extended with 15 student fields to match CI3 database
 - Build passes, lint clean on modified files
+
+---
+Task ID: 17
+Agent: Main Agent
+Task: Migrate CI3 student portal views to Next.js with student-specific API routes and 11 student pages
+
+Work Log:
+- Studied all CI3 original student views (72 files total, 15 key files analyzed):
+  - navigation.php: sidebar with links to dashboard, teachers, subjects, class routine, attendance, study material, academic syllabus, exam marks, online exam, payment, library (3 sub-items), transport, noticeboard, messages, account
+  - dashboard.php: 4 stat tiles (active students, teachers, parents, attendance), event calendar with fullCalendar
+  - manage_profile.php: gradient profile card, personal info form (name, email, photo upload), change password form
+  - manage_attendance.php: month/year/term filter for attendance report
+  - attendance_report_view.php: calendar grid with green/red dots for present/absent, print support
+  - marks.php: exam/subject dropdown filter, mark display table
+  - invoice.php: invoice table with student info, payment status badges, mobile money payment button, view invoice modal
+  - pay_invoice.php: mobile money payment modal with transaction ID
+  - class_routine.php: day-by-day routine table with subject buttons showing time range
+  - book.php: DataTable with server-side book listing (id, name, author, description, price, class, download)
+  - book_request.php: request table with status badges (pending/issued/rejected/overdue)
+  - message.php: chat sidebar with thread list, unread badges, compose, message bubbles
+  - group_message.php: group message sidebar, create group, delivery status
+  - noticeboard.php: notice table (#, title, notice, date, view button)
+  - online_exam.php: active/results tabs, exam list with take/schedule/status badges
+  - online_exam_take.php: exam header (title, subject, total marks, duration, deadline), countdown timer, question list (multiple choice, true/false, fill-in-the-blanks), auto-submit on timeout
+  - transport.php: route table (name, vehicles, description, fare)
+- Analyzed existing student scaffolds (11 pages): all well-built with DashboardLayout, useAuth, shadcn/ui
+  - Identified all pages were using general API routes (/api/students, /api/marks, /api/invoices, etc.) without student role verification
+- Created /lib/verify-student.ts: shared utility for session-based student role verification using getServerSession
+- Created 11 student API routes under /api/student/:
+  - GET /api/student/dashboard: aggregated dashboard data (profile, marks, attendance, invoices, routine, notices) in single request
+  - GET|PUT /api/student/profile: student profile with limited field updates (email, phone, address, password)
+  - GET /api/student/attendance: attendance records with present/absent/late summary
+  - GET /api/student/results: exam list with mark filtering by exam_id
+  - GET /api/student/routine: auto-detects section from enrollment, returns routine with subject names
+  - GET /api/student/invoices: student invoices with receipts and billing summary
+  - GET|POST /api/student/library: book listing with availability + book request creation with duplicate prevention
+  - GET|POST /api/student/messages: thread-based messaging (list threads, load messages, compose, reply, delete)
+  - GET /api/student/notices: student-visible notices filtered by visibility_roles
+  - GET /api/student/online-exams: available exams with submitted status, results list
+  - GET /api/student/transport: transport routes with fare information
+- Updated all 11 student pages to use /api/student/* routes instead of general API routes
+- Completely rewrote /student/page.tsx (Dashboard): enhanced with welcome card, 4 stat cards (Subjects, Attendance %, Fee Balance, Recent Marks), recent results table, today's schedule, recent notices card, quick links grid
+- Rebuilt /student/messages/page.tsx: new chat UI with thread list (conversation list), real-time conversation view with sent/received bubbles, compose dialog, reply dialog, delete thread button
+- Dev server compiled successfully with 0 errors for all student files
+- Lint: no new errors from student files (235 errors/warnings are all pre-existing from other modules)
+
+Stage Summary:
+- 11 student API routes created with session-based student role verification
+- 1 shared auth utility (verify-student.ts) for consistent student authentication
+- All 11 student pages updated to use student-specific API endpoints
+- Dashboard enhanced with welcome card, attendance %, fee balance, notices, quick links
+- Messages page rebuilt with proper thread-based chat UI (list + conversation + compose + reply)
+- All pages use DashboardLayout, useAuth, shadcn/ui components
+- No Prisma schema changes needed (existing models sufficient)
+- Dev server compiles successfully for all student files

@@ -107,7 +107,7 @@ export default function TeacherMarksPage() {
   const fetchClasses = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("/api/classes");
+      const res = await fetch("/api/teacher/classes");
       if (!res.ok) throw new Error("Failed to fetch classes");
       const data = await res.json();
       setClasses(data || []);
@@ -132,8 +132,8 @@ export default function TeacherMarksPage() {
     const fetchData = async () => {
       try {
         const [subjectsRes, examsRes] = await Promise.all([
-          fetch(`/api/subjects?class_id=${selectedClassId}`),
-          fetch(`/api/exams?class_id=${selectedClassId}`),
+          fetch("/api/teacher/subjects"),
+          fetch("/api/teacher/marks"),
         ]);
 
         if (subjectsRes.ok) {

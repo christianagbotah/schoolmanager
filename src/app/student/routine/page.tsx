@@ -73,17 +73,14 @@ export default function StudentRoutinePage() {
     if (!user?.id) return;
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/students/${user.id}`);
-      if (!res.ok) throw new Error("Failed to load student data");
+      const res = await fetch(`/api/student/routine`);
+      if (!res.ok) throw new Error("Failed to load routine data");
       const data = await res.json();
-      setStudentInfo(data);
+      setRoutines(data.routines || []);
 
-      const enrollSections = (data.enrolls || []).map(
-        (e: { section: { section_id: number; name: string } }) => e.section
-      );
-      setSections(enrollSections);
-      if (enrollSections.length > 0) {
-        setSelectedSectionId(String(enrollSections[0].section_id));
+      if (data.section) {
+        setSections([{ section_id: data.section.section_id, name: data.section.name }]);
+        setSelectedSectionId(String(data.section.section_id));
       }
     } catch {
       setError("Failed to load student data");
@@ -104,7 +101,7 @@ export default function StudentRoutinePage() {
     }
     setError(null);
     try {
-      const res = await fetch(`/api/routine?section_id=${selectedSectionId}`);
+      const res = await fetch(`/api/student/routine?section_id=${selectedSectionId}`);
       if (!res.ok) throw new Error("Failed to load routine");
       const data = await res.json();
       setRoutines(data.routines || []);

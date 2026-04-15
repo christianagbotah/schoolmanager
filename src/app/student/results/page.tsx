@@ -88,10 +88,15 @@ export default function StudentResultsPage() {
     if (!user?.id) return;
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/exams?limit=50`);
+      const res = await fetch(`/api/student/results`);
       if (!res.ok) throw new Error("Failed to load exams");
       const data = await res.json();
-      setExams(data.exams || []);
+      setExams((data.exams || []).map((e: { exam_id: number; name: string; type: string; year: string; date: string | null }) => ({
+        exam_id: e.exam_id,
+        name: e.name,
+        type: e.type || "",
+        year: e.year || "",
+      })));
     } catch {
       setError("Failed to load exams");
     } finally {
@@ -112,7 +117,7 @@ export default function StudentResultsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/marks?student_id=${user.id}&exam_id=${selectedExam}&limit=200`);
+      const res = await fetch(`/api/student/results?exam_id=${selectedExam}`);
       if (!res.ok) throw new Error("Failed to load results");
       const data = await res.json();
       setMarks(data.marks || []);

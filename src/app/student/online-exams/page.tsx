@@ -79,11 +79,11 @@ export default function StudentOnlineExamsPage() {
     setIsLoading(true);
     try {
       const [examsRes, resultsRes] = await Promise.all([
-        fetch("/api/online-exams?status=active"),
-        fetch(`/api/online-exams?studentId=${user.id}&type=results`),
+        fetch("/api/student/online-exams?type=available"),
+        fetch("/api/student/online-exams?type=results"),
       ]);
-      if (examsRes.ok) { const d = await examsRes.json(); setExams(Array.isArray(d) ? d : []); }
-      if (resultsRes.ok) { const d = await resultsRes.json(); setResults(Array.isArray(d) ? d : []); }
+      if (examsRes.ok) { const d = await examsRes.json(); setExams(Array.isArray(d) ? d : d.exams || []); }
+      if (resultsRes.ok) { const d = await resultsRes.json(); setResults(Array.isArray(d) ? d : d.results || []); }
     } catch { setError("Failed to load exams"); }
     finally { setIsLoading(false); }
   }, [user?.id]);
