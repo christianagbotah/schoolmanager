@@ -145,6 +145,7 @@ model parent {
   authentication_key  String @default("")
 
   students        student[]
+  enrolls         enroll[]  @relation("EnrollParent")
   receipts        receipts[]
 }
 
@@ -245,21 +246,26 @@ model subject {
 }
 
 model enroll {
-  enroll_id  Int    @id @default(autoincrement())
-  student_id Int
-  class_id   Int
-  section_id Int
-  year       String @default("")
-  term       String @default("")
-  roll       String @default("")
+  enroll_id      Int     @id @default(autoincrement())
+  student_id     Int
+  class_id       Int
+  section_id     Int
+  year           String  @default("")
+  term           String  @default("")
+  roll           String  @default("")
+  mute           Int     @default(0)
+  parent_id      Int?
+  residence_type String  @default("")
 
   student    student      @relation(fields: [student_id], references: [student_id])
   class      school_class @relation(fields: [class_id], references: [class_id])
   section    section      @relation(fields: [section_id], references: [section_id])
+  parent     parent?      @relation("EnrollParent", fields: [parent_id], references: [parent_id])
 
   @@index([student_id])
   @@index([class_id])
   @@index([section_id])
+  @@index([parent_id])
   @@unique([student_id, class_id, section_id, year, term])
 }
 
@@ -515,6 +521,8 @@ model invoice {
   class_id           Int?
   invoice_code       String    @default("")
   class_name         String    @default("")
+  mute               Int       @default(0)
+  can_delete         String    @default("")
 
   student            student      @relation(fields: [student_id], references: [student_id])
   class              school_class? @relation(fields: [class_id], references: [class_id])
@@ -541,6 +549,7 @@ model payment {
   term            String    @default("")
   timestamp       DateTime?
   approval_status String    @default("")
+  can_delete      String    @default("")
 
   student         student   @relation(fields: [student_id], references: [student_id])
   invoice         invoice?  @relation(fields: [invoice_id], references: [invoice_id])
@@ -770,6 +779,7 @@ model attendance {
   section_id        Int?
   student_id        Int
   status            String    @default("")
+  date              String    @default("")
   checked_in        DateTime?
   checked_out       DateTime?
   feeding_charged   Int       @default(0)

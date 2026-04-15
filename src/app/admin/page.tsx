@@ -61,70 +61,77 @@ import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 import { PERMISSIONS } from "@/lib/permissions";
 
-// ─── Types ───────────────────────────────────────────────────
+// ─── Types (matches new API response format) ──────────────────
 interface DashboardStats {
   totalStudents: number;
-  totalTeachers: number;
-  totalClasses: number;
+  activeTeachers: number;
   activeParents: number;
   attendanceToday: number;
 }
 
 interface FinancialStats {
   totalRevenue: number;
+  totalBilled: number;
   collectionRate: number;
   collectionLabel: string;
   collectionColor: string;
-  totalOutstanding: number;
+  pendingPayments: number;
+}
+
+interface FinancialSummary {
+  unpaidInvoices: { count: number; amount: number };
+  totalIncome: { count: number; amount: number };
+  totalExpenses: { amount: number };
 }
 
 interface RecentPayment {
-  id: number;
   studentName: string;
   amount: number;
   method: string;
   date: string | null;
-  status: string;
   invoiceCode: string;
 }
 
 interface ChartData {
-  classDistribution: { name: string; students: number }[];
-  genderDistribution: { name: string; value: number; fill: string }[];
-  attendanceTrend: { day: string; date: string; present: number }[];
+  studentDistribution: { name: string; count: number }[];
+  attendanceTrend: { date: string; day: string; count: number }[];
+  genderDistribution: { className: string; male: number; female: number; total: number }[];
+  residentialDistribution: { className: string; residenceType: string; count: number }[];
 }
 
 interface DashboardData {
+  academicTerm: { year: string; term: string };
   stats: DashboardStats;
   financial: FinancialStats;
+  financialSummary: FinancialSummary;
   charts: ChartData;
   recentPayments: RecentPayment[];
-  academicTerm: {
-    year: string;
-    term: string;
-  };
 }
 
 // ─── Chart Configs ───────────────────────────────────────────
 const classChartConfig = {
-  students: { label: "Students", color: "#667eea" },
+  count: { label: "Students", color: "#667eea" },
 };
 
 const genderChartConfig = {
-  male: { label: "Male", color: "#6366f1" },
-  female: { label: "Female", color: "#ec4899" },
+  male: { label: "Male", color: "#36a2eb" },
+  female: { label: "Female", color: "#ff6384" },
 };
 
 const attendanceChartConfig = {
-  present: { label: "Present", color: "#00f2fe" },
+  count: { label: "Present", color: "#fa709a" },
 };
 
-const GENDER_COLORS = ["#6366f1", "#ec4899"];
-const ATTENDANCE_LINE_COLOR = "#00f2fe";
+const ATTENDANCE_LINE_COLOR = "#fa709a";
 const BAR_COLORS = [
   "#667eea", "#f5576c", "#00f2fe", "#fee140",
   "#a78bfa", "#34d399", "#fb923c", "#f472b6",
   "#38bdf8", "#fbbf24",
+];
+
+const RESIDENTIAL_COLORS = [
+  "rgba(102, 126, 234, 0.8)", "rgba(118, 75, 162, 0.8)",
+  "rgba(255, 138, 0, 0.8)", "rgba(0, 200, 83, 0.8)",
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -534,7 +541,7 @@ export default function AdminDashboard() {
             gradientFrom="from-indigo-500"
             gradientTo="to-purple-600"
             borderColor="#667eea"
-            subtext={`Across ${data.stats.totalClasses} classes`}
+            subtext={`${data.academicTerm.term}, ${data.academicTerm.year}`}
           />
           <StatCard
             icon={Users}
@@ -630,11 +637,11 @@ export default function AdminDashboard() {
                     Pending Payments
                   </p>
                   <p className="text-2xl font-bold text-slate-900 tabular-nums">
-                    {formatCurrency(data.financial.totalOutstanding)}
+                    {data.financial.pendingPayments}
                   </p>
-                  <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
+                  <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
                     <TrendingDown className="w-3 h-3" />
-                    Outstanding invoices
+                    Students with unpaid invoices
                   </p>
                 </div>
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl text-white bg-gradient-to-br from-pink-400 to-rose-500 flex-shrink-0 ml-4">
@@ -664,7 +671,7 @@ export default function AdminDashboard() {
               className="h-[300px] w-full"
             >
               <BarChart
-                data={data.charts.classDistribution}
+                data={data.charts.studentDistribution}
                 margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
               >
                 <CartesianGrid
@@ -689,18 +696,11 @@ export default function AdminDashboard() {
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar
-                  dataKey="students"
+                  dataKey="count"
                   fill="#667eea"
-                  radius={[6, 6, 0, 0]}
+                  radius={[8, 8, 0, 0]}
                   maxBarSize={40}
-                >
-                  {data.charts.classDistribution.map((_, index) => (
-                    <Cell
-                      key={`class-${index}`}
-                      fill={BAR_COLORS[index % BAR_COLORS.length]}
-                    />
-                  ))}
-                </Bar>
+                />
               </BarChart>
             </ChartContainer>
           </div>
@@ -747,7 +747,7 @@ export default function AdminDashboard() {
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Line
                   type="monotone"
-                  dataKey="present"
+                  dataKey="count"
                   stroke={ATTENDANCE_LINE_COLOR}
                   strokeWidth={3}
                   dot={{ r: 5, fill: ATTENDANCE_LINE_COLOR, strokeWidth: 2, stroke: "#fff" }}
@@ -760,7 +760,7 @@ export default function AdminDashboard() {
 
         {/* ─── Row 4: Gender + Residential (2 columns) ───────── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Gender Distribution */}
+          {/* Gender Distribution by Class (grouped bar - matches original CI3) */}
           <div className="bg-white rounded-2xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
@@ -768,46 +768,30 @@ export default function AdminDashboard() {
                   <Users className="w-4 h-4 text-purple-600" />
                 </div>
                 <h3 className="text-base font-semibold text-slate-900">
-                  Gender Distribution
+                  Gender Distribution by Class
                 </h3>
               </div>
-              <span className="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
-                Active students
-              </span>
+              <ChartLegend content={<ChartLegendContent />} />
             </div>
             <ChartContainer
               config={genderChartConfig}
-              className="h-[280px] w-full"
+              className="h-[300px] w-full"
             >
-              <PieChart>
+              <BarChart
+                data={data.charts.genderDistribution}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-slate-100" />
+                <XAxis dataKey="className" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} interval={0} angle={-20} textAnchor="end" height={60} />
+                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: "#94a3b8" }} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Pie
-                  data={data.charts.genderDistribution}
-                  cx="50%"
-                  cy="45%"
-                  innerRadius={60}
-                  outerRadius={95}
-                  paddingAngle={4}
-                  dataKey="value"
-                  nameKey="name"
-                  stroke="none"
-                >
-                  {data.charts.genderDistribution.map((_, index) => (
-                    <Cell
-                      key={`gender-${index}`}
-                      fill={GENDER_COLORS[index % GENDER_COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <ChartLegend
-                  content={<ChartLegendContent />}
-                  verticalAlign="bottom"
-                />
-              </PieChart>
+                <Bar dataKey="male" fill="rgba(54, 162, 235, 0.8)" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                <Bar dataKey="female" fill="rgba(255, 99, 132, 0.8)" radius={[4, 4, 0, 0]} maxBarSize={30} />
+              </BarChart>
             </ChartContainer>
           </div>
 
-          {/* Residential / Boarding Overview */}
+          {/* Residential Distribution by Class (matches original CI3) */}
           <div className="bg-white rounded-2xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
@@ -815,40 +799,45 @@ export default function AdminDashboard() {
                   <BarChart3 className="w-4 h-4 text-amber-600" />
                 </div>
                 <h3 className="text-base font-semibold text-slate-900">
-                  Student Overview
+                  Residential Distribution by Class
                 </h3>
               </div>
+              <ChartLegend content={<ChartLegendContent />} />
             </div>
-            <div className="grid grid-cols-2 gap-4 h-[280px] content-center">
-              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 text-center hover:shadow-md transition-shadow">
-                <GraduationCap className="w-10 h-10 text-indigo-500 mx-auto mb-2" />
-                <p className="text-3xl font-bold text-slate-900">
-                  {data.stats.totalClasses}
-                </p>
-                <p className="text-sm text-slate-500 mt-1">Total Classes</p>
-              </div>
-              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 text-center hover:shadow-md transition-shadow">
-                <Users className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
-                <p className="text-3xl font-bold text-slate-900">
-                  {data.stats.totalStudents}
-                </p>
-                <p className="text-sm text-slate-500 mt-1">Total Students</p>
-              </div>
-              <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-6 text-center hover:shadow-md transition-shadow">
-                <Users className="w-10 h-10 text-pink-500 mx-auto mb-2" />
-                <p className="text-3xl font-bold text-slate-900">
-                  {data.stats.totalTeachers}
-                </p>
-                <p className="text-sm text-slate-500 mt-1">Total Teachers</p>
-              </div>
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 text-center hover:shadow-md transition-shadow">
-                <DollarSign className="w-10 h-10 text-amber-500 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-slate-900">
-                  {formatCompactNumber(data.financial.totalRevenue)}
-                </p>
-                <p className="text-sm text-slate-500 mt-1">Term Revenue</p>
-              </div>
-            </div>
+            <ChartContainer
+              config={{
+                ...Object.fromEntries(
+                  [...new Set(data.charts.residentialDistribution.map(d => d.residenceType))].map((type, i) => [
+                    type, { label: type, color: RESIDENTIAL_COLORS[i % RESIDENTIAL_COLORS.length] },
+                  ])
+                )}
+              }
+              className="h-[300px] w-full"
+            >
+              <BarChart
+                data={(() => {
+                  const classSet = [...new Set(data.charts.residentialDistribution.map(d => d.className))];
+                  const typeSet = [...new Set(data.charts.residentialDistribution.map(d => d.residenceType))];
+                  return classSet.map(cls => {
+                    const row: Record<string, string | number> = { className: cls };
+                    typeSet.forEach(type => {
+                      const found = data.charts.residentialDistribution.find(d => d.className === cls && d.residenceType === type);
+                      row[type] = found ? found.count : 0;
+                    });
+                    return row;
+                  });
+                })()}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-slate-100" />
+                <XAxis dataKey="className" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} interval={0} angle={-20} textAnchor="end" height={60} />
+                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: "#94a3b8" }} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                {[...new Set(data.charts.residentialDistribution.map(d => d.residenceType))].map((type, i) => (
+                  <Bar key={type} dataKey={type} fill={RESIDENTIAL_COLORS[i % RESIDENTIAL_COLORS.length]} radius={[4, 4, 0, 0]} maxBarSize={30} />
+                ))}
+              </BarChart>
+            </ChartContainer>
           </div>
         </div>
 
@@ -894,22 +883,19 @@ export default function AdminDashboard() {
                       <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">
                         Date
                       </th>
-                      <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                        Status
-                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.recentPayments.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center text-slate-400 py-12">
+                        <td colSpan={5} className="text-center text-slate-400 py-12">
                           No recent payments found
                         </td>
                       </tr>
                     ) : (
-                      data.recentPayments.map((payment) => (
+                      data.recentPayments.map((payment, idx) => (
                         <tr
-                          key={payment.id}
+                          key={idx}
                           className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors cursor-pointer"
                           onClick={() => router.push("/admin/payments")}
                         >
@@ -930,15 +916,71 @@ export default function AdminDashboard() {
                               ? format(new Date(payment.date), "MMM d, yyyy")
                               : "—"}
                           </td>
-                          <td className="px-4 py-3 text-right">
-                            <PaymentStatusBadge status={payment.status} />
-                          </td>
                         </tr>
                       ))
                     )}
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ─── Financial Summary (Super Admin Only) ────────────── */}
+        {isSuperAdmin && data.financialSummary && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <DollarSign className="w-4 h-4 text-emerald-600" />
+              </div>
+              <h3 className="text-base font-semibold text-slate-900">
+                Financial Summary
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Unpaid Invoices */}
+              <button
+                onClick={() => router.push("/admin/invoices")}
+                className="text-left dashboard-card rounded-2xl shadow-sm p-6 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-white"
+                style={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}
+              >
+                <p className="text-sm font-medium text-white/80 mb-1">Unpaid Invoices</p>
+                <p className="text-2xl font-bold">{formatCurrency(data.financialSummary.unpaidInvoices.amount)}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
+                    {data.financialSummary.unpaidInvoices.count} invoices
+                  </Badge>
+                </div>
+              </button>
+
+              {/* Total Income */}
+              <div
+                className="dashboard-card rounded-2xl shadow-sm p-6 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-white"
+                style={{ background: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)" }}
+              >
+                <p className="text-sm font-medium text-white/80 mb-1">Total Income</p>
+                <p className="text-2xl font-bold">{formatCurrency(data.financialSummary.totalIncome.amount)}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
+                    {data.financialSummary.totalIncome.count} receipts
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Total Expenses */}
+              <button
+                onClick={() => router.push("/admin/expenses")}
+                className="text-left dashboard-card rounded-2xl shadow-sm p-6 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-white"
+                style={{ background: "linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)" }}
+              >
+                <p className="text-sm font-medium text-white/80 mb-1">Total Expenses</p>
+                <p className="text-2xl font-bold">{formatCurrency(data.financialSummary.totalExpenses.amount)}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
+                    All time
+                  </Badge>
+                </div>
+              </button>
             </div>
           </div>
         )}
