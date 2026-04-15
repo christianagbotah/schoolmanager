@@ -27,9 +27,9 @@ export default function CommunicationSettingsPage() {
     setSaving(true);
     try {
       await Promise.all([
-        fetch("/api/settings/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "sms_provider", description: "SMS Provider", value: smsForm.provider }) }),
-        fetch("/api/settings/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "sms_api_key", description: "SMS API Key", value: smsForm.api_key }) }),
-        fetch("/api/settings/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "sms_from", description: "SMS From Number", value: smsForm.from_number }) }),
+        fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "sms_provider", description: "SMS Provider", value: smsForm.provider }) }),
+        fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "sms_api_key", description: "SMS API Key", value: smsForm.api_key }) }),
+        fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "sms_from", description: "SMS From Number", value: smsForm.from_number }) }),
       ]);
       toast({ title: "Success", description: "SMS settings saved" });
     } catch { toast({ title: "Error", variant: "destructive" }); }
@@ -40,11 +40,11 @@ export default function CommunicationSettingsPage() {
     setSaving(true);
     try {
       await Promise.all([
-        fetch("/api/settings/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "smtp_host", description: "SMTP Host", value: emailForm.host }) }),
-        fetch("/api/settings/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "smtp_port", description: "SMTP Port", value: emailForm.port }) }),
-        fetch("/api/settings/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "smtp_username", description: "SMTP Username", value: emailForm.username }) }),
-        fetch("/api/settings/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "smtp_password", description: "SMTP Password", value: emailForm.password }) }),
-        fetch("/api/settings/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "smtp_from", description: "From Email", value: emailForm.from_email }) }),
+        fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "smtp_host", description: "SMTP Host", value: emailForm.host }) }),
+        fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "smtp_port", description: "SMTP Port", value: emailForm.port }) }),
+        fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "smtp_username", description: "SMTP Username", value: emailForm.username }) }),
+        fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "smtp_password", description: "SMTP Password", value: emailForm.password }) }),
+        fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "smtp_from", description: "From Email", value: emailForm.from_email }) }),
       ]);
       toast({ title: "Success", description: "Email settings saved" });
     } catch { toast({ title: "Error", variant: "destructive" }); }
@@ -55,10 +55,10 @@ export default function CommunicationSettingsPage() {
     setSaving(true);
     try {
       await Promise.all([
-        fetch("/api/settings/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "notif_email", description: "Email Notifications", value: notifForm.email_notifs ? "1" : "0" }) }),
-        fetch("/api/settings/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "notif_sms", description: "SMS Notifications", value: notifForm.sms_notifs ? "1" : "0" }) }),
-        fetch("/api/settings/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "notif_fees", description: "Fee Reminders", value: notifForm.fee_reminders ? "1" : "0" }) }),
-        fetch("/api/settings/route", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "notif_attendance", description: "Attendance Alerts", value: notifForm.attendance_alerts ? "1" : "0" }) }),
+        fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "notif_email", description: "Email Notifications", value: notifForm.email_notifs ? "1" : "0" }) }),
+        fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "notif_sms", description: "SMS Notifications", value: notifForm.sms_notifs ? "1" : "0" }) }),
+        fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "notif_fees", description: "Fee Reminders", value: notifForm.fee_reminders ? "1" : "0" }) }),
+        fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "notif_attendance", description: "Attendance Alerts", value: notifForm.attendance_alerts ? "1" : "0" }) }),
       ]);
       toast({ title: "Success", description: "Notification preferences saved" });
     } catch { toast({ title: "Error", variant: "destructive" }); }
