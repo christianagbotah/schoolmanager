@@ -58,12 +58,28 @@ export default withAuth(
 
     const userRole = (token.role as string) || "student";
 
-    // /dashboard is the unified entry point - allow all authenticated users
+    // /dashboard is the unified entry point — allow all authenticated users
     if (pathname === "/dashboard") {
       return NextResponse.next();
     }
 
-    // Check if the route requires a specific role
+    // Shared pages under /dashboard/* are permission-gated at the page level,
+    // so allow all authenticated users to access them
+    if (pathname.startsWith("/dashboard")) {
+      return NextResponse.next();
+    }
+
+    // Shared pages (notices, messages, profile, attendance, routine, transport,
+    // library, invoices, payments, results, online-exams) — allow all authenticated users
+    const sharedPages = [
+      "/notices", "/messages", "/profile", "/attendance", "/routine",
+      "/transport", "/library", "/invoices", "/payments", "/results", "/online-exams",
+    ];
+    if (sharedPages.some((page) => pathname === page || pathname.startsWith(page + "/"))) {
+      return NextResponse.next();
+    }
+
+    // Check if the route requires a specific role (legacy routes)
     const matchedRoute = protectedRoutes.find((route) =>
       pathname.startsWith(route.path)
     );

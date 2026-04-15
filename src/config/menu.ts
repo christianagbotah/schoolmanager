@@ -83,7 +83,7 @@ const adminMenus: MenuSection[] = [
         children: [
           { label: "Admit Student", href: "/admin/students/new", icon: UserPlus, permission: "can_admit_students" },
           { label: "Bulk Upload", href: "/admin/students/bulk", icon: Users, permission: "can_admit_students" },
-          { label: "Attendance", href: "/admin/attendance", icon: ClipboardList, permission: "can_manage_attendance" },
+          { label: "Attendance", href: "/attendance", icon: ClipboardList, permission: "can_manage_attendance" },
           { label: "Lists by Class", href: "/admin/students/lists", icon: ListChecks, permission: "can_view_students_list" },
           { label: "Promotion", href: "/admin/students/promotion", icon: ArrowUpCircle, permission: "can_edit_students" },
           { label: "Marksheets", href: "/admin/students/marksheets", icon: FileText, permission: "can_view_marks" },
@@ -106,7 +106,7 @@ const adminMenus: MenuSection[] = [
         ],
       },
       { label: "Subjects", href: "/admin/subjects", icon: Globe, permission: "can_manage_subjects" },
-      { label: "Timetable", href: "/admin/routine", icon: Calendar, permission: "can_manage_class_routine" },
+      { label: "Timetable", href: "/routine", icon: Calendar, permission: "can_manage_class_routine" },
       { label: "Study Material", href: "/admin/study-material", icon: FileClock, permission: "can_manage_subjects" },
       {
         label: "Examination", href: "/admin/exams", icon: FileText, permission: "can_manage_exams",
@@ -116,7 +116,7 @@ const adminMenus: MenuSection[] = [
           { label: "Grades", href: "/admin/grades", icon: Star, permission: "can_manage_grades" },
           { label: "Manage Marks", href: "/admin/marks", icon: PenLine, permission: "can_enter_marks" },
           { label: "Tabulation", href: "/admin/exams/tabulation", icon: Table2, permission: "can_view_broadsheet" },
-          { label: "Online Exams", href: "/admin/exams/online", icon: Trophy, permission: "can_manage_exams" },
+          { label: "Online Exams", href: "/online-exams", icon: Trophy, permission: "can_manage_exams" },
         ],
       },
     ],
@@ -146,8 +146,8 @@ const adminMenus: MenuSection[] = [
   {
     title: "Communication",
     items: [
-      { label: "Noticeboard", href: "/admin/notices", icon: Megaphone, permission: "can_manage_notices" },
-      { label: "Messages", href: "/admin/messages", icon: MessageSquare, permission: "can_send_messages" },
+      { label: "Noticeboard", href: "/notices", icon: Megaphone, permission: "can_manage_notices" },
+      { label: "Messages", href: "/messages", icon: MessageSquare, permission: "can_send_messages" },
       { label: "SMS Automation", href: "/admin/sms", icon: Smartphone, permission: "can_send_sms" },
       { label: "Bill Reminders", href: "/admin/bill-reminders", icon: BellRing, permission: "can_send_sms" },
     ],
@@ -159,10 +159,10 @@ const adminMenus: MenuSection[] = [
       { label: "SMS Settings", href: "/admin/settings/sms", icon: Smartphone, permission: "can_manage_settings" },
       { label: "Permissions", href: "/admin/settings/permissions", icon: Shield, permission: "can_manage_roles_permissions", adminOnly: true },
       { label: "Frontend CMS", href: "/admin/settings/frontend", icon: Palette, permission: "can_manage_frontend_cms" },
-      { label: "Transport", href: "/admin/transport", icon: Bus, permission: "can_manage_transport" },
+      { label: "Transport", href: "/transport", icon: Bus, permission: "can_manage_transport" },
       { label: "Inventory", href: "/admin/inventory", icon: Package, permission: "can_manage_inventory" },
       { label: "Boarding", href: "/admin/boarding", icon: BedDouble, permission: "can_mark_boarding_attendance" },
-      { label: "Library", href: "/admin/library", icon: LibraryIcon, permission: "can_manage_books" },
+      { label: "Library", href: "/library", icon: LibraryIcon, permission: "can_manage_books" },
       { label: "Employees", href: "/admin/employees", icon: UserCog, permission: "can_manage_employees" },
     ],
   },
@@ -174,39 +174,39 @@ const teacherMenus: MenuSection[] = [
     items: [
       { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, permission: null },
       { label: "My Classes", href: "/teacher/classes", icon: BookOpen, permission: "can_view_class_routine" },
-      { label: "Attendance", href: "/teacher/attendance", icon: CheckSquare, permission: "can_manage_attendance" },
+      { label: "Attendance", href: "/attendance", icon: CheckSquare, permission: "can_manage_attendance" },
     ],
   },
   {
     title: "Academic",
     items: [
       { label: "Mark Entry", href: "/teacher/marks", icon: FileText, permission: "can_enter_marks" },
-      { label: "Class Routine", href: "/teacher/routine", icon: Calendar, permission: "can_view_class_routine" },
+      { label: "Class Routine", href: "/routine", icon: Calendar, permission: "can_view_class_routine" },
       { label: "Students", href: "/teacher/students", icon: GraduationCap, permission: "can_view_students_list" },
       { label: "Syllabus", href: "/teacher/syllabus", icon: BookMarked, permission: "can_manage_classes" },
       { label: "Study Materials", href: "/teacher/study-material", icon: FileClock, permission: "can_manage_subjects" },
-      { label: "Online Exams", href: "/teacher/online-exams", icon: Trophy, permission: "can_manage_exams" },
+      { label: "Online Exams", href: "/online-exams", icon: Trophy, permission: "can_manage_exams" },
     ],
   },
   {
     title: "Communication",
     items: [
-      { label: "Messages", href: "/teacher/messages", icon: MessageSquare, permission: "can_send_messages" },
-      { label: "Noticeboard", href: "/teacher/notices", icon: Megaphone, permission: null },
+      { label: "Messages", href: "/messages", icon: MessageSquare, permission: "can_send_messages" },
+      { label: "Noticeboard", href: "/notices", icon: Megaphone, permission: null },
     ],
   },
   {
     title: "Resources",
     items: [
-      { label: "Library", href: "/teacher/library", icon: LibraryIcon, permission: "can_manage_books" },
-      { label: "Transport", href: "/teacher/transport", icon: Bus, permission: null },
+      { label: "Library", href: "/library", icon: LibraryIcon, permission: "can_manage_books" },
+      { label: "Transport", href: "/transport", icon: Bus, permission: null },
       { label: "My Payslips", href: "/teacher/payslips", icon: Banknote, permission: null },
     ],
   },
   {
     title: "Profile",
     items: [
-      { label: "My Profile", href: "/teacher/profile", icon: User, permission: null },
+      { label: "My Profile", href: "/profile", icon: User, permission: null },
     ],
   },
 ];
@@ -216,30 +216,30 @@ const studentMenus: MenuSection[] = [
     title: "Main",
     items: [
       { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, permission: null },
-      { label: "My Results", href: "/student/results", icon: FileText, permission: "can_view_own_results" },
-      { label: "My Invoices", href: "/student/invoices", icon: Receipt, permission: "can_view_own_invoices" },
+      { label: "My Results", href: "/results", icon: FileText, permission: "can_view_own_results" },
+      { label: "My Invoices", href: "/invoices", icon: Receipt, permission: "can_view_own_invoices" },
     ],
   },
   {
     title: "Academic",
     items: [
-      { label: "Attendance", href: "/student/attendance", icon: CheckSquare, permission: null },
-      { label: "Class Routine", href: "/student/routine", icon: Calendar, permission: "can_view_own_routine" },
-      { label: "Online Exams", href: "/student/online-exams", icon: Trophy, permission: null },
+      { label: "Attendance", href: "/attendance", icon: CheckSquare, permission: null },
+      { label: "Class Routine", href: "/routine", icon: Calendar, permission: "can_view_own_routine" },
+      { label: "Online Exams", href: "/online-exams", icon: Trophy, permission: null },
     ],
   },
   {
     title: "Resources",
     items: [
-      { label: "Library", href: "/student/library", icon: LibraryIcon, permission: "can_request_books" },
-      { label: "Transport", href: "/student/transport", icon: Bus, permission: null },
+      { label: "Library", href: "/library", icon: LibraryIcon, permission: "can_request_books" },
+      { label: "Transport", href: "/transport", icon: Bus, permission: null },
     ],
   },
   {
     title: "Communication",
     items: [
-      { label: "Messages", href: "/student/messages", icon: MessageSquare, permission: null },
-      { label: "Noticeboard", href: "/student/notices", icon: Megaphone, permission: null },
+      { label: "Messages", href: "/messages", icon: MessageSquare, permission: null },
+      { label: "Noticeboard", href: "/notices", icon: Megaphone, permission: null },
     ],
   },
 ];
@@ -250,36 +250,36 @@ const parentMenus: MenuSection[] = [
     items: [
       { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, permission: null },
       { label: "My Children", href: "/parent/children", icon: Users, permission: null },
-      { label: "Children's Results", href: "/parent/results", icon: FileText, permission: "can_view_children_results" },
+      { label: "Children's Results", href: "/results", icon: FileText, permission: "can_view_children_results" },
     ],
   },
   {
     title: "Finance",
     items: [
-      { label: "Fee Payments", href: "/parent/payments", icon: CreditCard, permission: "can_view_children_invoices" },
+      { label: "Fee Payments", href: "/payments", icon: CreditCard, permission: "can_view_children_invoices" },
     ],
   },
   {
     title: "Academic",
     items: [
-      { label: "Attendance", href: "/parent/attendance", icon: CheckSquare, permission: "can_view_children_attendance" },
+      { label: "Attendance", href: "/attendance", icon: CheckSquare, permission: "can_view_children_attendance" },
       { label: "Teachers", href: "/parent/teachers", icon: User, permission: null },
       { label: "Syllabus", href: "/parent/syllabus", icon: BookMarked, permission: null },
-      { label: "Class Routine", href: "/parent/routine", icon: Calendar, permission: null },
+      { label: "Class Routine", href: "/routine", icon: Calendar, permission: null },
     ],
   },
   {
     title: "Resources",
     items: [
-      { label: "Library", href: "/parent/library", icon: LibraryIcon, permission: null },
-      { label: "Transport", href: "/parent/transport", icon: Bus, permission: null },
+      { label: "Library", href: "/library", icon: LibraryIcon, permission: null },
+      { label: "Transport", href: "/transport", icon: Bus, permission: null },
     ],
   },
   {
     title: "Communication",
     items: [
-      { label: "Messages", href: "/parent/messages", icon: MessageSquare, permission: null },
-      { label: "Noticeboard", href: "/parent/notices", icon: Megaphone, permission: null },
+      { label: "Messages", href: "/messages", icon: MessageSquare, permission: null },
+      { label: "Noticeboard", href: "/notices", icon: Megaphone, permission: null },
     ],
   },
 ];
@@ -289,8 +289,8 @@ const accountantMenus: MenuSection[] = [
     title: "Main",
     items: [
       { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, permission: null },
-      { label: "Invoices", href: "/accountant/invoices", icon: Receipt, permission: "can_view_invoices" },
-      { label: "Payments", href: "/accountant/payments", icon: CreditCard, permission: "can_view_payments" },
+      { label: "Invoices", href: "/invoices", icon: Receipt, permission: "can_view_invoices" },
+      { label: "Payments", href: "/payments", icon: CreditCard, permission: "can_view_payments" },
     ],
   },
   {
@@ -397,8 +397,8 @@ export const metroGroups: MetroGroup[] = [
     tiles: [
       { label: "Classes", href: "/admin/classes", icon: BookOpen, color: "#0078d4", permission: "can_manage_classes" },
       { label: "Subjects", href: "/admin/subjects", icon: Globe, color: "#00bcf2", permission: "can_manage_subjects" },
-      { label: "Timetable", href: "/admin/routine", icon: Calendar, color: "#ff8c00", permission: "can_manage_class_routine" },
-      { label: "Attendance", href: "/admin/attendance", icon: CheckSquare, color: "#107c10", wide: true, permission: "can_manage_attendance" },
+      { label: "Timetable", href: "/routine", icon: Calendar, color: "#ff8c00", permission: "can_manage_class_routine" },
+      { label: "Attendance", href: "/attendance", icon: CheckSquare, color: "#107c10", wide: true, permission: "can_manage_attendance" },
       { label: "Exams", href: "/admin/exams", icon: FileText, color: "#e81123", permission: "can_manage_exams" },
       { label: "Marks", href: "/admin/marks", icon: PenLine, color: "#5c2d91", permission: "can_enter_marks" },
       { label: "Grades", href: "/admin/grades", icon: Star, color: "#008272", permission: "can_manage_grades" },
@@ -419,8 +419,8 @@ export const metroGroups: MetroGroup[] = [
   {
     title: "Communication",
     tiles: [
-      { label: "Noticeboard", href: "/admin/notices", icon: Megaphone, color: "#0078d4", wide: true, permission: "can_manage_notices" },
-      { label: "Messages", href: "/admin/messages", icon: MessageSquare, color: "#008272", permission: "can_send_messages" },
+      { label: "Noticeboard", href: "/notices", icon: Megaphone, color: "#0078d4", wide: true, permission: "can_manage_notices" },
+      { label: "Messages", href: "/messages", icon: MessageSquare, color: "#008272", permission: "can_send_messages" },
       { label: "SMS", href: "/admin/sms", icon: Smartphone, color: "#00bcf2", permission: "can_send_sms" },
       { label: "Bill Reminders", href: "/admin/bill-reminders", icon: BellRing, color: "#ff8c00", permission: "can_send_sms" },
     ],
@@ -428,8 +428,8 @@ export const metroGroups: MetroGroup[] = [
   {
     title: "Modules",
     tiles: [
-      { label: "Transport", href: "/admin/transport", icon: Bus, color: "#ff8c00", permission: "can_manage_transport" },
-      { label: "Library", href: "/admin/library", icon: LibraryIcon, color: "#5c2d91", permission: "can_manage_books" },
+      { label: "Transport", href: "/transport", icon: Bus, color: "#ff8c00", permission: "can_manage_transport" },
+      { label: "Library", href: "/library", icon: LibraryIcon, color: "#5c2d91", permission: "can_manage_books" },
       { label: "Inventory", href: "/admin/inventory", icon: Package, color: "#008272", permission: "can_manage_inventory" },
       { label: "Boarding", href: "/admin/boarding", icon: BedDouble, color: "#107c10", permission: "can_mark_boarding_attendance" },
     ],
