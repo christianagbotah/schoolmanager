@@ -232,12 +232,11 @@ function LoginForm() {
         return;
       }
 
-      if (callbackUrl) {
-        router.push(callbackUrl);
-      } else {
-        router.push(ROLE_DASHBOARDS[verifiedType] || "/dashboard");
-      }
-      router.refresh();
+      // Refresh the session first, then navigate to dashboard
+      // This ensures NextAuth has the session ready before DashboardLayout checks it
+      await router.refresh();
+      const dest = callbackUrl || (ROLE_DASHBOARDS[verifiedType] || "/dashboard");
+      router.push(dest);
     } catch {
       setLoginError("An unexpected error occurred.");
       setShowLoadingOverlay(false);

@@ -28,10 +28,24 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
   }, []);
 
   // Redirect unauthenticated users to login
+  // Use a ref to ensure we only redirect once and give NextAuth time to
+  // establish the session after a fresh signIn() call (avoids race condition).
+  const hasRedirectedRef = useRef(false);
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      const loginUrl = `/login?callbackUrl=${encodeURIComponent(pathname)}`;
-      router.replace(loginUrl);
+    if (!isLoading && !isAuthenticated && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      // Delay redirect by 1.5s to let NextAuth pick up the session cookie
+      const timer = setTimeout(() => {
+        // Re-check — session may have loaded by now
+        // If still not authenticated, redirect to login
+        const loginUrl = `/login?callbackUrl=${encodeURIComponent(pathname)}`;
+        router.replace(loginUrl);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+    // Reset ref when user becomes authenticated (allows future redirects if session expires)
+    if (isAuthenticated) {
+      hasRedirectedRef.current = false;
     }
   }, [isLoading, isAuthenticated, pathname, router]);
 

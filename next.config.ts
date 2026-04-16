@@ -6,9 +6,9 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
+  // Allow all z.ai preview origins
   allowedDevOrigins: [
-    "https://preview-chat-a2ce6c38-0f36-44a2-a783-81549334b7f3.space.z.ai",
-    "https://preview-chat-a2ce6c38-0f36-44a2-a783-81549334b7f3.space.chatglm.site",
+    "https://preview-chat-f748a7ef-cfd3-4cea-bfdc-f4ce00609005.space.z.ai",
   ],
   serverExternalPackages: ["bcryptjs"],
   async redirects() {
