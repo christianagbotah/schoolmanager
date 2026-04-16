@@ -11,6 +11,28 @@ const nextConfig: NextConfig = {
     "https://preview-chat-f748a7ef-cfd3-4cea-bfdc-f4ce00609005.space.z.ai",
   ],
   serverExternalPackages: ["bcryptjs"],
+  // Aggressive no-cache headers to prevent browser from caching old redirect responses
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate, max-age=0, s-maxage=0",
+          },
+          {
+            key: "Pragma",
+            value: "no-cache",
+          },
+          {
+            key: "Expires",
+            value: "0",
+          },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       // ─── Shared pages migrated to permission-based routes ─────────────

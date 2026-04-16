@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 import { ClientProviders } from "@/components/providers/client-providers";
 
@@ -33,13 +34,22 @@ export const metadata: Metadata = {
 // This is required because next-auth v4 + React 19 have prerendering compatibility issues
 export const dynamic = "force-dynamic";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Add aggressive no-cache headers to prevent browser from caching redirect responses
+  const headersList = await headers();
+  // In middleware-less setup, we set headers via response directly
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
