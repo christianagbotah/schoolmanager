@@ -351,3 +351,15 @@ export {
   ChartLegendContent,
   ChartStyle,
 }
+
+// Re-export recharts primitives for convenience
+export const Bar = RechartsPrimitive.Bar
+export const BarChart = RechartsPrimitive.BarChart
+export const XAxis = RechartsPrimitive.XAxis
+export const YAxis = RechartsPrimitive.YAxis
+export const CartesianGrid = RechartsPrimitive.CartesianGrid
+export const Line = RechartsPrimitive.Line
+export const LineChart = RechartsPrimitive.LineChart
+export const Pie = RechartsPrimitive.Pie
+export const PieChart = RechartsPrimitive.PieChart
+export const Cell = RechartsPrimitive.Cell

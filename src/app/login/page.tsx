@@ -78,7 +78,7 @@ function LoginForm() {
   useEffect(() => {
     async function fetchSettings() {
       try {
-        const res = await fetch("/api/settings");
+        const res = await fetchWithRetry("/api/settings");
         if (res.ok) {
           const settings = await res.json();
           setSystemName(
@@ -106,11 +106,28 @@ function LoginForm() {
     setTimeout(() => setShakeError(false), 600);
   };
 
+  // ─── fetchWithRetry helper: 3 retries with 2s delay ───
+  const fetchWithRetry = useCallback(async (url: string, options?: RequestInit): Promise<Response> => {
+    let lastError: Error | null = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch(url, options);
+        return res;
+      } catch (err) {
+        lastError = err as Error;
+        if (attempt < 2) {
+          await new Promise((r) => setTimeout(r, 2000));
+        }
+      }
+    }
+    throw lastError;
+  }, []);
+
   // ─── Step 1: Verify Auth Key (matches original auth_verification AJAX) ───
   const verifyAuthKey = useCallback(async (key: string) => {
     setVerifyStatus("loading");
     try {
-      const res = await fetch("/api/auth/verify-key", {
+      const res = await fetchWithRetry("/api/auth/verify-key", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ key }),
@@ -245,7 +262,7 @@ function LoginForm() {
   const handleBlockAccount = async () => {
     if (!blockEmail.trim()) return;
     try {
-      const res = await fetch("/api/auth/block-account", {
+      const res = await fetchWithRetry("/api/auth/block-account", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: blockEmail.trim() }),
