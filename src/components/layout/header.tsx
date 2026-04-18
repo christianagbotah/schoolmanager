@@ -34,10 +34,8 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/use-auth";
-import { roleLabels, roleColors } from "@/config/menu";
 import { usePathname } from "next/navigation";
 import { BackButton } from "./back-button";
-import type { UserRole } from "@/lib/auth";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -60,10 +58,6 @@ export function Header({ onMenuClick, onMetroToggle }: HeaderProps) {
       .toUpperCase()
       .slice(0, 2);
   };
-
-  const roleColor = role
-    ? roleColors[role as UserRole] || "bg-slate-100 text-slate-700"
-    : "bg-slate-100 text-slate-700";
 
   // Auto-close search on Escape
   useEffect(() => {

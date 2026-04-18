@@ -84,7 +84,7 @@ const adminMenus: MenuSection[] = [
     ],
   },
   {
-    title: "User Management",
+    title: "People",
     items: [
       { label: "Administrators", href: "/admin/admins", icon: UserCog, permission: "can_view_admins_list" },
       {
@@ -105,6 +105,7 @@ const adminMenus: MenuSection[] = [
       { label: "Teachers", href: "/admin/teachers", icon: User, permission: "can_view_teachers_list" },
       { label: "Parents", href: "/admin/parents", icon: Users, permission: "can_view_parents_list" },
       { label: "Librarians", href: "/admin/librarians", icon: LibraryIcon, permission: "can_manage_books" },
+      { label: "Employees", href: "/admin/employees", icon: UserCog, permission: "can_manage_employees" },
     ],
   },
   {
@@ -144,7 +145,7 @@ const adminMenus: MenuSection[] = [
     ],
   },
   {
-    title: "Financial",
+    title: "Finance",
     items: [
       {
         label: "Daily Fees", href: "/admin/daily-fees", icon: DollarSign, permission: "can_receive_daily_fees",
@@ -199,8 +200,16 @@ const adminMenus: MenuSection[] = [
       { label: "Student Ledger", href: "/admin/ledger", icon: BookCheck, permission: "can_view_invoices" },
       { label: "Budget Management", href: "/admin/budgets", icon: PiggyBank, permission: "can_view_financial_reports" },
       { label: "Fiscal Years", href: "/admin/fiscal-years", icon: CalendarDays, permission: "can_view_financial_reports" },
+      { label: "Payroll", href: "/admin/payroll", icon: Banknote, permission: "can_manage_payroll" },
+      { label: "Payslips", href: "/admin/payroll/payslips", icon: FileText, permission: "can_view_financial_reports" },
+      { label: "SSNIT Reports", href: "/admin/payroll/ssnit", icon: Shield, permission: "can_manage_payroll" },
+      { label: "SSNIT Summary", href: "/admin/payroll/ssnit/summary", icon: BarChart3, permission: "can_view_financial_reports" },
       { label: "Student Accounts", href: "/admin/reports/student-accounts", icon: FileText, permission: "can_view_financial_reports" },
       { label: "Aging Report", href: "/admin/reports/aging", icon: TrendingUp, permission: "can_view_financial_reports" },
+      { label: "Reconciliation", href: "/admin/reconciliation", icon: Scale, permission: "can_view_financial_reports" },
+      { label: "Collection Efficiency", href: "/admin/collection-efficiency", icon: TrendingUp, permission: "can_view_financial_reports" },
+      { label: "Financial Alerts", href: "/admin/financial-alerts", icon: BellRing, permission: "can_view_financial_reports" },
+      { label: "Collector Handover", href: "/admin/collector-handover", icon: HandCoins, permission: "can_receive_daily_fees" },
     ],
   },
   {
@@ -215,7 +224,7 @@ const adminMenus: MenuSection[] = [
     ],
   },
   {
-    title: "School Operations",
+    title: "Operations",
     items: [
       {
         label: "Transport", href: "/admin/transport", icon: Bus, permission: "can_manage_transport",
@@ -236,26 +245,7 @@ const adminMenus: MenuSection[] = [
     ],
   },
   {
-    title: "HR & Payroll",
-    items: [
-      { label: "Employees", href: "/admin/employees", icon: UserCog, permission: "can_manage_employees" },
-      { label: "Payroll", href: "/admin/payroll", icon: Banknote, permission: "can_manage_payroll" },
-      { label: "Payslips", href: "/admin/payroll/payslips", icon: FileText, permission: "can_view_financial_reports" },
-      { label: "SSNIT Reports", href: "/admin/payroll/ssnit", icon: Shield, permission: "can_manage_payroll" },
-      { label: "SSNIT Summary", href: "/admin/payroll/ssnit/summary", icon: BarChart3, permission: "can_view_financial_reports" },
-    ],
-  },
-  {
-    title: "Reports & Analytics",
-    items: [
-      { label: "Reconciliation", href: "/admin/reconciliation", icon: Scale, permission: "can_view_financial_reports" },
-      { label: "Collection Efficiency", href: "/admin/collection-efficiency", icon: TrendingUp, permission: "can_view_financial_reports" },
-      { label: "Financial Alerts", href: "/admin/financial-alerts", icon: BellRing, permission: "can_view_financial_reports" },
-      { label: "Collector Handover", href: "/admin/collector-handover", icon: HandCoins, permission: "can_receive_daily_fees" },
-    ],
-  },
-  {
-    title: "Administration",
+    title: "System",
     items: [
       { label: "Approvals", href: "/admin/approvals", icon: CheckSquare, permission: "can_manage_settings", adminOnly: true },
       { label: "Audit Log", href: "/admin/audit-log", icon: Shield, permission: "can_manage_settings", adminOnly: true },

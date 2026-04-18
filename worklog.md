@@ -310,3 +310,48 @@ Stage Summary:
 - The error is caused by stale browser cookies/cache
 - User should: clear browser cookies, or try incognito mode
 - Confirmed working: admin@school.com / admin123 / authKey=ABCDE → successful login → dashboard loads
+---
+Task ID: 1
+Agent: Main Agent
+Task: Header cleanup, Select.Item empty string fixes, sidebar menu consolidation
+
+Work Log:
+
+**Task 1: Remove name/role from header user dropdown trigger**
+- File: `src/components/layout/header.tsx`
+- Removed the `<div>` containing user name text and role badge from the DropdownMenuTrigger button (lines 293-302)
+- Kept only the Avatar with initials and the ChevronDown arrow icon
+- The DropdownMenuContent still shows name and email in the label section (unchanged)
+- Cleaned up unused imports: removed `roleLabels`, `roleColors` from `@/config/menu` and `UserRole` type import
+- Removed the unused `roleColor` variable
+
+**Task 2: Fix Select.Item empty string value errors**
+- Radix UI `<Select.Item>` throws errors when `value=""` because empty string is reserved
+- Verified all files listed — `src/app/admin/invoices/page.tsx` and `src/app/admin/auto-billing/page.tsx` were already fixed in a prior session
+- Confirmed remaining files are also already fixed with proper sentinel values:
+  - `discounts/page.tsx`: 6 filter selects use `value="__all__"` with `onValueChange` mapping
+  - `students/new/page.tsx`: Guardian select uses `value="__placeholder__"` with handler mapping
+  - `assessment-analytics/page.tsx`: Class filter uses `value="__all__"` with handler mapping
+  - `teacher/online-exams/page.tsx`: Subject filter uses `value="__all__"` with handler mapping
+  - `parent/syllabus/page.tsx`: Child filter uses `value="__all__"` with handler mapping
+- All instances confirmed fixed via grep — zero remaining `SelectItem value=""` in codebase
+
+**Task 3: Consolidate sidebar menu sections**
+- File: `src/config/menu.ts` (adminMenus array)
+- Reduced admin sidebar from 9 sections to 7:
+  - "Main" (unchanged): Dashboard, Barcode Scanner
+  - "People" (was "User Management"): Added Employees from HR & Payroll
+  - "Academics" (unchanged): Classes, Subjects, Timetable, Study Material, Examination
+  - "Finance" (was "Financial"): Added Payroll, Payslips, SSNIT Reports, SSNIT Summary from HR & Payroll; Added Reconciliation, Collection Efficiency, Financial Alerts, Collector Handover from Reports & Analytics
+  - "Communication" (unchanged): Noticeboard, Messages, SMS, SMS Automation, SMS Log, Bill Reminders
+  - "Operations" (was "School Operations"): Transport, Dormitory, Library, Inventory, POS Terminal, POS Sales, Insurance, Maintenance
+  - "System" (was "Administration"): Approvals, Audit Log, Backup, Settings, Frontend CMS, My Profile
+- Dissolved sections: "HR & Payroll" (items moved to People + Finance), "Reports & Analytics" (items moved to Finance), "Administration" (renamed to System)
+- All menu items, children, permissions, and icons preserved exactly as before — only section grouping changed
+- Other role menus (teacher, student, parent, accountant, librarian) unchanged
+
+Stage Summary:
+- Header user dropdown now shows only avatar + chevron (cleaner look, no "SA System Administrator / Administrator" text)
+- All Select.Item empty string errors resolved across the codebase
+- Admin sidebar reduced from 9 sections to 7 for better navigation organization
+- No lint errors introduced in modified files
