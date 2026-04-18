@@ -10,7 +10,13 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
-  // Allow all z.ai preview origins (both http and https)
+  // Trust all forwarded Host headers in production.
+  // Without this, Next.js rejects requests from unrecognized proxy domains
+  // and may redirect, creating an infinite redirect loop through the gateway.
+  // This also covers allowedDevOrigins functionality for dev mode.
+  experimental: {
+    trustHost: true,
+  },
   allowedDevOrigins: [
     "https://preview-chat-f748a7ef-cfd3-4cea-bfdc-f4ce00609005.space.z.ai",
     "http://preview-chat-f748a7ef-cfd3-4cea-bfdc-f4ce00609005.space.z.ai",
