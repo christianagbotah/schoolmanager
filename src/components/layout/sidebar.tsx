@@ -357,7 +357,7 @@ export function Sidebar({
   const sidebarContent = (
     <div
       className={cn(
-        "flex flex-col h-full bg-gradient-to-b from-slate-800 to-slate-900 transition-all duration-300 ease-in-out",
+        "flex flex-col h-full overflow-hidden bg-gradient-to-b from-slate-800 to-slate-900 transition-all duration-300 ease-in-out",
         collapsed ? "w-[72px]" : "w-[280px]"
       )}
     >
@@ -398,7 +398,7 @@ export function Sidebar({
       )}
 
       {/* Navigation */}
-      <ScrollArea className="flex-1 py-2">
+      <ScrollArea className="flex-1 min-h-0 py-2">
         <nav className="space-y-1 px-2.5">
           {filteredMenus.map((section: MenuSection) => (
             <div key={section.title}>
