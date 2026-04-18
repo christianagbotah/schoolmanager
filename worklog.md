@@ -147,3 +147,42 @@ Stage Summary:
 - Auth configuration cleaned up (removed invalid options, removed hardcoded URL)
 - All routes verified working through external proxy
 
+---
+Task ID: 1
+Agent: Main Agent
+Task: Cron health check - restart production server if down
+
+Work Log:
+- Checked server health: curl returned 000 (server was down)
+- Standalone build existed at .next/standalone/server.js
+- Copied .env, static files, public dir, db dir, prisma dir to standalone
+- Started production server, verified HTTP 200 on /login
+
+Stage Summary:
+- Server restarted and verified healthy
+- Port 3000 responding with HTTP 200
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Investigate and fix redirect loop issue on proxy domain
+
+Work Log:
+- Tested all routes via localhost:3000 - ALL return 200, no redirects
+- Tested all routes via Caddy port 81 - ALL return 200, no redirects
+- Confirmed NO middleware.ts exists in the project
+- Confirmed login page has NO session check or redirect logic
+- Confirmed dashboard layout redirect is client-side only (router.replace)
+- Discovered critical issue: NextAuth /api/auth/signin returned callbackUrl=http://localhost:3000 even when accessed via proxy domain
+- Root cause: NEXTAUTH_URL was not set in .env, causing NextAuth to fall back to internal localhost URL
+- Set NEXTAUTH_URL=https://preview-chat-f748a7ef-cfd3-4cea-bfdc-f4ce00609005.space.z.ai in .env
+- Verified fix: callbackUrl now correctly returns https://preview-chat-...space.z.ai
+- Set up PM2 process manager for persistent server management
+- Committed and pushed fix to GitHub
+
+Stage Summary:
+- NEXTAUTH_URL fix applied and verified
+- NextAuth callbackUrl now uses correct proxy domain
+- PM2 process manager set up for server persistence
+- Git commit: 0645527 pushed to main
+- Note: Application-level testing shows NO redirect loop. All pages return 200. The redirect loop reported by the user may be at the external gateway proxy level, which is outside our control. The NEXTAUTH_URL fix ensures that when the proxy works, auth callbacks will correctly route back to the proxy domain.
