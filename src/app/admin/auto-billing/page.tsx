@@ -21,7 +21,7 @@ import {
   Zap, Clock, FileText, DollarSign, RefreshCw, Eye, Settings,
   CheckCircle, XCircle, AlertTriangle, Users, CreditCard,
   Printer, ChevronRight, History, Bus, TrendingUp, CalendarDays,
-  BarChart3, Download, ChevronLeft, ChevronRight, Filter,
+  BarChart3, Download, ChevronLeft, Filter,
   Activity, ToggleLeft, ToggleRight,
 } from 'lucide-react';
 
