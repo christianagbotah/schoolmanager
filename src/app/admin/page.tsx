@@ -59,7 +59,7 @@ import {
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
-import { PERMISSIONS } from "@/lib/permissions";
+import { PERMISSIONS } from "@/lib/permission-constants";
 
 // ─── Types (matches new API response format) ──────────────────
 interface DashboardStats {
@@ -355,6 +355,25 @@ export default function AdminDashboard() {
 
   const today = format(new Date(), "EEEE, MMMM d, yyyy");
 
+  // ─── Error State ──────────────────────────────────────────
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+            <AlertTriangle className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-xl font-semibold text-slate-900">Something went wrong</h2>
+          <p className="text-slate-500 text-center max-w-md">{error}</p>
+          <Button onClick={fetchDashboardData} variant="outline" className="mt-2">
+            <Loader2 className="w-4 h-4 mr-2" />
+            Try Again
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   // ─── Loading State ─────────────────────────────────────────
   if (authLoading || isLoading || !data) {
     return (
@@ -402,24 +421,6 @@ export default function AdminDashboard() {
             <ChartSkeleton />
             <ChartSkeleton />
           </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <DashboardLayout>
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
-            <AlertTriangle className="w-8 h-8 text-red-600" />
-          </div>
-          <h2 className="text-xl font-semibold text-slate-900">Something went wrong</h2>
-          <p className="text-slate-500 text-center max-w-md">{error}</p>
-          <Button onClick={fetchDashboardData} variant="outline" className="mt-2">
-            <Loader2 className="w-4 h-4 mr-2" />
-            Try Again
-          </Button>
         </div>
       </DashboardLayout>
     );
@@ -548,7 +549,7 @@ export default function AdminDashboard() {
           <StatCard
             icon={Users}
             label="Active Teachers"
-            value={formatCompactNumber(data.stats.activeTeachers ?? data.stats.totalTeachers ?? 0)}
+            value={formatCompactNumber(data.stats.activeTeachers)}
             gradientFrom="from-pink-400"
             gradientTo="to-rose-500"
             borderColor="#f5576c"

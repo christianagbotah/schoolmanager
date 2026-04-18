@@ -18,7 +18,8 @@ const nextConfig: NextConfig = {
   // Trust all forwarded Host headers in production.
   // Without this, Next.js rejects requests from unrecognized proxy domains
   // and may redirect, creating an infinite redirect loop through the gateway.
-  experimental: { turbo: false },
+  // Turbopack disabled: use `next build --webpack` to build with webpack instead.
+  // Turbopack has a chunk generation bug that causes missing JS files in production.
   allowedDevOrigins: [
     "https://preview-chat-f748a7ef-cfd3-4cea-bfdc-f4ce00609005.space.z.ai",
     "http://preview-chat-f748a7ef-cfd3-4cea-bfdc-f4ce00609005.space.z.ai",

@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import { ShieldX, Loader2 } from "lucide-react";
-import { hasAnyPermission } from "@/lib/permissions";
+import { hasAnyPermission } from "@/lib/permission-constants";
 
 interface RequirePermissionProps {
   /** One or more permissions required to access the content */

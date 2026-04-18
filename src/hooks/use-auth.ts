@@ -3,7 +3,7 @@
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import type { UserRole } from "@/lib/auth";
-import { hasPermission as checkPermission, hasAnyPermission as checkAnyPermission } from "@/lib/permissions";
+import { hasPermission as checkPermission, hasAnyPermission as checkAnyPermission } from "@/lib/permission-constants";
 
 export function useAuth() {
   const { data: session, status } = useSession();

@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { RequirePermission } from "@/components/auth/require-permission";
-import { PERMISSIONS } from "@/lib/permissions";
+import { PERMISSIONS } from "@/lib/permission-constants";
 import { format } from "date-fns";
 
 // ─── Types ───────────────────────────────────────────────────

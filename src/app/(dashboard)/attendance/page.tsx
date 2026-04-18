@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { useAuth } from "@/hooks/use-auth";
 import { RequirePermission } from "@/components/auth/require-permission";
-import { PERMISSIONS } from "@/lib/permissions";
+import { PERMISSIONS } from "@/lib/permission-constants";
 import {
   format, startOfMonth, endOfMonth, eachDayOfInterval, isToday,
   addMonths, subMonths,

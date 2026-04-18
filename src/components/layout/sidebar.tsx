@@ -28,7 +28,7 @@ import {
   type MenuSection,
   type MenuItem,
 } from "@/config/menu";
-import { filterMenuByPermissions } from "@/lib/permissions";
+import { filterMenuByPermissions } from "@/lib/permission-constants";
 import { useAuth } from "@/hooks/use-auth";
 import type { UserRole } from "@/lib/auth";
 

@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { metroGroups, type MetroGroup, type MetroTile } from "@/config/menu";
 import { useAuth } from "@/hooks/use-auth";
-import { hasPermission } from "@/lib/permissions";
+import { hasPermission } from "@/lib/permission-constants";
 
 interface MetroMenuProps {
   open: boolean;
