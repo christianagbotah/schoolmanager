@@ -152,6 +152,8 @@ model student {
   online_exam_results    online_exam_result[]
   discount_assignments   student_discount_assignments[]
   portfolio_scores       portfolio_scores[]
+  payment_plan_student   payment_plans[]       @relation("PlanStudent")
+  payment_installment_students payment_installments[]  @relation("InstallmentStudent")
 
   @@index([parent_id])
   @@index([student_code])
@@ -234,6 +236,7 @@ model school_class {
   online_exams     online_exam[]
   syllabi          academic_syllabus[]
   study_materials  study_material[]
+  fee_structures   fee_structures[] @relation("FeeStructureClass")
 
   @@index([teacher_id])
   @@index([section_id])
@@ -571,6 +574,7 @@ model invoice {
   class              school_class? @relation(fields: [class_id], references: [class_id])
 
   payments           payment[]
+  payment_installment_invoices payment_installments[]  @relation("InstallmentInvoice")
 
   @@index([student_id])
   @@index([class_id])
@@ -2532,13 +2536,29 @@ model payment_methods {
 }
 
 model payment_plans {
-  payment_plan_id   Int    @id @default(autoincrement())
-  name              String @default("")
-  description       String @default("")
-  number_of_payments Int   @default(1)
-  frequency         String @default("monthly")
-  is_active         Int    @default(1)
+  payment_plan_id    Int       @id @default(autoincrement())
+  name               String    @default("")
+  description        String    @default("")
+  number_of_payments Int       @default(1)
+  frequency          String    @default("monthly")
+  is_active          Int       @default(1)
+  student_id         Int?
+  fee_structure_id   Int?
+  total_amount       Float     @default(0)
+  paid_amount        Float     @default(0)
+  status             String    @default("active")
+  start_date         DateTime?
+  end_date           DateTime?
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
 
+  student        student?        @relation("PlanStudent", fields: [student_id], references: [student_id])
+  fee_structure  fee_structures? @relation("PlanFeeStructure", fields: [fee_structure_id], references: [fee_structure_id])
+  installments   payment_installments[]
+
+  @@index([student_id])
+  @@index([fee_structure_id])
+  @@index([status])
   @@map("payment_plans")
 }
 
@@ -2547,15 +2567,22 @@ model payment_installments {
   payment_plan_id   Int?
   student_id        Int?
   invoice_id        Int?
+  installment_number Int      @default(0)
   amount            Float     @default(0)
   due_date          DateTime?
   paid_amount       Float     @default(0)
   status            String    @default("pending")
   payment_date      DateTime?
+  payment_method    String    @default("")
+
+  payment_plan payment_plans? @relation(fields: [payment_plan_id], references: [payment_plan_id])
+  student       student?        @relation("InstallmentStudent", fields: [student_id], references: [student_id])
+  invoice       invoice?        @relation("InstallmentInvoice", fields: [invoice_id], references: [invoice_id])
 
   @@index([payment_plan_id])
   @@index([student_id])
   @@index([invoice_id])
+  @@index([status])
   @@map("payment_installments")
 }
 
@@ -3852,17 +3879,26 @@ model fee_collection_assignments {
 }
 
 model fee_structures {
-  fee_structure_id   Int    @id @default(autoincrement())
-  name               String @default("")
+  fee_structure_id   Int       @id @default(autoincrement())
+  name               String    @default("")
   class_id           Int?
   section_id         Int?
-  year               String @default("")
-  term               String @default("")
-  total_amount       Float  @default(0)
-  description        String @default("")
-  is_active          Int    @default(1)
+  year               String    @default("")
+  term               String    @default("")
+  total_amount       Float     @default(0)
+  description        String    @default("")
+  is_active          Int       @default(1)
+  installment_count  Int       @default(1)
+  due_dates_json     String    @default("[]")
+  status             String    @default("active")
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+
+  class          school_class?      @relation("FeeStructureClass", fields: [class_id], references: [class_id])
+  payment_plans  payment_plans[] @relation("PlanFeeStructure")
 
   @@index([class_id])
+  @@index([status])
   @@map("fee_structures")
 }
 

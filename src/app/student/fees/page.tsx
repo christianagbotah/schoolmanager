@@ -2,17 +2,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import {
-  AlertTriangle,
-  Receipt,
-  CreditCard,
-  Loader2,
-  Download,
-  Smartphone,
-  DollarSign,
-  CheckCircle,
-  Clock,
-  Eye,
-  X,
+  AlertTriangle, Receipt, CreditCard, Loader2, Download,
+  Smartphone, DollarSign, CheckCircle, Clock, Eye, X,
+  CalendarRange, ChevronDown, ChevronUp, Banknote,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,27 +14,15 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
@@ -84,27 +64,58 @@ interface ReceiptItem {
   generated_at: string | null;
 }
 
+interface Installment {
+  installment_id: number;
+  installment_number: number;
+  amount: number;
+  paid_amount: number;
+  due_date: string | null;
+  status: string;
+  payment_date: string | null;
+  payment_method: string;
+}
+
+interface PaymentPlan {
+  payment_plan_id: number;
+  name: string;
+  description: string;
+  total_amount: number;
+  paid_amount: number;
+  status: string;
+  start_date: string | null;
+  end_date: string | null;
+  frequency: string;
+  number_of_payments: number;
+  fee_structure: { fee_structure_id: number; name: string; year: string; term: string } | null;
+  installments: Installment[];
+}
+
 // ─── Helpers ─────────────────────────────────────────────────
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "GHS",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
+    style: "currency", currency: "GHS", minimumFractionDigits: 0, maximumFractionDigits: 2,
   }).format(amount);
 }
 
 function statusBadge(status: string) {
   switch (status) {
-    case "paid":
-      return <Badge className="bg-emerald-100 text-emerald-700">Paid</Badge>;
-    case "partial":
-      return <Badge className="bg-blue-100 text-blue-700">Partial</Badge>;
-    case "unpaid":
-      return <Badge className="bg-red-100 text-red-700">Unpaid</Badge>;
-    default:
-      return <Badge variant="secondary">{status}</Badge>;
+    case "paid": return <Badge className="bg-emerald-100 text-emerald-700">Paid</Badge>;
+    case "partial": return <Badge className="bg-blue-100 text-blue-700">Partial</Badge>;
+    case "unpaid": return <Badge className="bg-red-100 text-red-700">Unpaid</Badge>;
+    default: return <Badge variant="secondary">{status}</Badge>;
   }
+}
+
+const instStatusConfig: Record<string, { label: string; color: string }> = {
+  paid: { label: "Paid", color: "text-emerald-600" },
+  pending: { label: "Pending", color: "text-amber-600" },
+  overdue: { label: "Overdue", color: "text-red-600" },
+  partial: { label: "Partial", color: "text-sky-600" },
+};
+
+function isOverdue(dateStr: string | null): boolean {
+  if (!dateStr) return false;
+  return new Date(dateStr) < new Date();
 }
 
 // ─── Main Component ──────────────────────────────────────────
@@ -113,11 +124,15 @@ export default function StudentFeesPage() {
   const [invoices, setInvoices] = useState<InvoiceItem[]>([]);
   const [payments, setPayments] = useState<PaymentItem[]>([]);
   const [receipts, setReceipts] = useState<ReceiptItem[]>([]);
+  const [paymentPlans, setPaymentPlans] = useState<PaymentPlan[]>([]);
   const [moAccountName, setMoAccountName] = useState("");
   const [moAccountNumber, setMoAccountNumber] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("invoices");
+
+  // Expanded plan state
+  const [expandedPlan, setExpandedPlan] = useState<number | null>(null);
 
   // Payment dialog
   const [payDialogOpen, setPayDialogOpen] = useState(false);
@@ -140,6 +155,7 @@ export default function StudentFeesPage() {
       setInvoices(data.invoices || []);
       setPayments(data.payments || []);
       setReceipts(data.receipts || []);
+      setPaymentPlans(data.paymentPlans || []);
       setMoAccountName(data.moAccountName || "");
       setMoAccountNumber(data.moAccountNumber || "");
     } catch {
@@ -157,6 +173,11 @@ export default function StudentFeesPage() {
   const totalPaid = invoices.reduce((s, i) => s + (i.amount_paid || 0), 0);
   const totalDue = invoices.reduce((s, i) => s + (i.due || 0), 0);
   const unpaidCount = invoices.filter((i) => i.due > 0).length;
+
+  // Plan stats
+  const activePlanCount = paymentPlans.filter((p) => p.status === "active").length;
+  const totalPlanDue = paymentPlans.reduce((s, p) => s + (p.total_amount - p.paid_amount), 0);
+  const totalPlanPaid = paymentPlans.reduce((s, p) => s + p.paid_amount, 0);
 
   const openPayDialog = (inv: InvoiceItem) => {
     setSelectedInvoice(inv);
@@ -209,8 +230,7 @@ export default function StudentFeesPage() {
           <h2 className="text-xl font-semibold text-slate-900">Something went wrong</h2>
           <p className="text-slate-500">{error}</p>
           <Button onClick={fetchData} variant="outline">
-            <Loader2 className="w-4 h-4 mr-2" />
-            Try Again
+            <Loader2 className="w-4 h-4 mr-2" /> Try Again
           </Button>
         </div>
       </DashboardLayout>
@@ -224,7 +244,7 @@ export default function StudentFeesPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Fee Payments</h1>
-            <p className="text-sm text-slate-500 mt-1">View invoices, make payments, and download receipts</p>
+            <p className="text-sm text-slate-500 mt-1">View invoices, payment plans, and make payments</p>
           </div>
           {moAccountNumber && (
             <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-sm flex-shrink-0">
@@ -251,13 +271,13 @@ export default function StudentFeesPage() {
           <Card className="py-4 border-l-4 border-l-red-500">
             <CardContent className="px-4 pb-0 pt-0">
               <p className="text-xs font-medium text-slate-500">Outstanding</p>
-              <p className="text-xl font-bold text-red-600 tabular-nums">{formatCurrency(totalDue)}</p>
+              <p className="text-xl font-bold text-red-600 tabular-nums">{formatCurrency(totalDue + totalPlanDue)}</p>
             </CardContent>
           </Card>
           <Card className="py-4 border-l-4 border-l-amber-500">
             <CardContent className="px-4 pb-0 pt-0">
-              <p className="text-xs font-medium text-slate-500">Unpaid Invoices</p>
-              <p className="text-xl font-bold text-amber-600">{unpaidCount}</p>
+              <p className="text-xs font-medium text-slate-500">Active Plans</p>
+              <p className="text-xl font-bold text-amber-600">{activePlanCount}</p>
             </CardContent>
           </Card>
         </div>
@@ -266,20 +286,20 @@ export default function StudentFeesPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="w-full sm:w-auto">
             <TabsTrigger value="invoices" className="gap-1.5">
-              <Receipt className="w-4 h-4" />
-              Invoices
+              <Receipt className="w-4 h-4" /> Invoices
+            </TabsTrigger>
+            <TabsTrigger value="plans" className="gap-1.5">
+              <CalendarRange className="w-4 h-4" /> Payment Plans
             </TabsTrigger>
             <TabsTrigger value="payments" className="gap-1.5">
-              <CreditCard className="w-4 h-4" />
-              Payment History
+              <CreditCard className="w-4 h-4" /> History
             </TabsTrigger>
             <TabsTrigger value="receipts" className="gap-1.5">
-              <Download className="w-4 h-4" />
-              Receipts
+              <Download className="w-4 h-4" /> Receipts
             </TabsTrigger>
           </TabsList>
 
-          {/* Invoices Tab */}
+          {/* ─── Invoices Tab ─────────────────────────────── */}
           <TabsContent value="invoices" className="mt-4">
             <Card className="gap-4">
               <CardContent className="pt-6">
@@ -294,7 +314,7 @@ export default function StudentFeesPage() {
                       <TableHeader>
                         <TableRow className="bg-slate-50 hover:bg-slate-50">
                           <TableHead className="text-xs font-semibold text-slate-600 uppercase">Invoice</TableHead>
-                          <TableHead className="text-xs font-semibold text-slate-600 uppercase hidden sm:table-cell">Description</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 uppercase hidden sm:table-cell">Title</TableHead>
                           <TableHead className="text-xs font-semibold text-slate-600 uppercase text-right">Amount</TableHead>
                           <TableHead className="text-xs font-semibold text-slate-600 uppercase text-right hidden md:table-cell">Paid</TableHead>
                           <TableHead className="text-xs font-semibold text-slate-600 uppercase text-right">Balance</TableHead>
@@ -306,39 +326,19 @@ export default function StudentFeesPage() {
                         {invoices.map((inv) => (
                           <TableRow key={inv.invoice_id} className="hover:bg-slate-50">
                             <TableCell className="font-mono text-sm text-slate-700">{inv.invoice_code}</TableCell>
-                            <TableCell className="hidden sm:table-cell text-sm text-slate-600 max-w-[200px] truncate">
-                              {inv.title || inv.description}
-                            </TableCell>
-                            <TableCell className="text-right font-semibold text-sm tabular-nums">
-                              {formatCurrency(inv.amount)}
-                            </TableCell>
-                            <TableCell className="text-right text-sm tabular-nums hidden md:table-cell text-emerald-600">
-                              {formatCurrency(inv.amount_paid)}
-                            </TableCell>
-                            <TableCell className="text-right font-semibold text-sm tabular-nums text-red-600">
-                              {formatCurrency(inv.due)}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              {statusBadge(inv.status || (inv.due > 0 ? "unpaid" : "paid"))}
-                            </TableCell>
+                            <TableCell className="hidden sm:table-cell text-sm text-slate-600 max-w-[200px] truncate">{inv.title}</TableCell>
+                            <TableCell className="text-right font-semibold text-sm tabular-nums">{formatCurrency(inv.amount)}</TableCell>
+                            <TableCell className="text-right text-sm tabular-nums hidden md:table-cell text-emerald-600">{formatCurrency(inv.amount_paid)}</TableCell>
+                            <TableCell className="text-right font-semibold text-sm tabular-nums text-red-600">{formatCurrency(inv.due)}</TableCell>
+                            <TableCell className="text-center">{statusBadge(inv.status || (inv.due > 0 ? "unpaid" : "paid"))}</TableCell>
                             <TableCell className="text-center">
                               <div className="flex items-center justify-center gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0"
-                                  onClick={() => setViewInvoice(inv)}
-                                >
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setViewInvoice(inv)}>
                                   <Eye className="w-3.5 h-3.5" />
                                 </Button>
                                 {inv.due > 0 && (
-                                  <Button
-                                    size="sm"
-                                    className="h-8 bg-emerald-600 hover:bg-emerald-700 text-xs px-2"
-                                    onClick={() => openPayDialog(inv)}
-                                  >
-                                    <Smartphone className="w-3 h-3 mr-1" />
-                                    Pay
+                                  <Button size="sm" className="h-8 bg-emerald-600 hover:bg-emerald-700 text-xs px-2" onClick={() => openPayDialog(inv)}>
+                                    <Smartphone className="w-3 h-3 mr-1" /> Pay
                                   </Button>
                                 )}
                               </div>
@@ -353,7 +353,137 @@ export default function StudentFeesPage() {
             </Card>
           </TabsContent>
 
-          {/* Payments Tab */}
+          {/* ─── Payment Plans Tab ────────────────────────── */}
+          <TabsContent value="plans" className="mt-4">
+            {paymentPlans.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center text-slate-400">
+                  <CalendarRange className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <p className="text-sm">No payment plans assigned</p>
+                  <p className="text-xs mt-1">Contact the school office for fee payment plan setup</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {paymentPlans.map((plan) => {
+                  const progress = plan.total_amount > 0 ? (plan.paid_amount / plan.total_amount) * 100 : 0;
+                  const isExpanded = expandedPlan === plan.payment_plan_id;
+                  const isOverduePlan = plan.installments.some((i) => i.status === "overdue");
+                  const remaining = plan.total_amount - plan.paid_amount;
+
+                  return (
+                    <Card key={plan.payment_plan_id} className={isOverduePlan ? "border-red-200" : ""}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold text-sm truncate">{plan.name}</h3>
+                              {isOverduePlan && <Badge className="bg-red-100 text-red-700 text-xs">Overdue</Badge>}
+                              {plan.status === "completed" && <Badge className="bg-emerald-100 text-emerald-700 text-xs">Completed</Badge>}
+                            </div>
+                            <p className="text-xs text-slate-400 mt-0.5">
+                              {plan.fee_structure?.name || ""} {plan.fee_structure?.year ? `— ${plan.fee_structure.year}` : ""}
+                              {plan.fee_structure?.term ? ` / ${plan.fee_structure.term}` : ""}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost" size="sm" className="h-8 w-8 p-0"
+                            onClick={() => setExpandedPlan(isExpanded ? null : plan.payment_plan_id)}
+                          >
+                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3 mb-3">
+                          <div className="text-center">
+                            <p className="text-xs text-slate-400">Total</p>
+                            <p className="text-sm font-bold">{formatCurrency(plan.total_amount)}</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-xs text-slate-400">Paid</p>
+                            <p className="text-sm font-bold text-emerald-600">{formatCurrency(plan.paid_amount)}</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-xs text-slate-400">Remaining</p>
+                            <p className={`text-sm font-bold ${remaining > 0 ? "text-red-600" : "text-emerald-600"}`}>{formatCurrency(remaining)}</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1 mb-1">
+                          <div className="flex justify-between text-xs text-slate-400">
+                            <span>Progress</span>
+                            <span>{Math.round(progress)}%</span>
+                          </div>
+                          <Progress value={progress} className="h-2" />
+                        </div>
+
+                        {/* Expanded installments */}
+                        {isExpanded && (
+                          <div className="mt-4 space-y-2">
+                            <h4 className="text-xs font-semibold text-slate-500 uppercase">Installment Schedule</h4>
+                            <div className="max-h-64 overflow-y-auto space-y-2">
+                              {plan.installments.map((inst) => {
+                                const sc = instStatusConfig[inst.status] || instStatusConfig.pending;
+                                const overdue = inst.status === "overdue" || (inst.status === "pending" && isOverdue(inst.due_date));
+                                const instRemaining = inst.amount - inst.paid_amount;
+
+                                return (
+                                  <div key={inst.installment_id} className={`flex items-center justify-between p-3 rounded-lg border ${overdue ? "border-red-200 bg-red-50/50" : "border-slate-100"}`}>
+                                    <div className="flex items-center gap-3">
+                                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${inst.status === "paid" ? "bg-emerald-100" : overdue ? "bg-red-100" : "bg-slate-100"}`}>
+                                        {inst.status === "paid" ? (
+                                          <CheckCircle className="w-4 h-4 text-emerald-600" />
+                                        ) : overdue ? (
+                                          <AlertTriangle className="w-4 h-4 text-red-600" />
+                                        ) : (
+                                          <Clock className="w-4 h-4 text-slate-400" />
+                                        )}
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-medium">#{inst.installment_number}</p>
+                                        <p className="text-xs text-slate-400 flex items-center gap-1">
+                                          <CalendarRange className="w-3 h-3" />
+                                          {inst.due_date ? format(new Date(inst.due_date), "MMM d, yyyy") : "—"}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <p className="text-sm font-bold">{formatCurrency(inst.amount)}</p>
+                                      <p className={`text-xs font-medium ${sc.color}`}>{sc.label}</p>
+                                      {inst.paid_amount > 0 && inst.status !== "paid" && (
+                                        <p className="text-xs text-slate-400">Paid: {formatCurrency(inst.paid_amount)}</p>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+
+                {/* Make Payment placeholder */}
+                {moAccountNumber && totalPlanDue > 0 && (
+                  <Card className="bg-emerald-50 border-emerald-200">
+                    <CardContent className="p-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-emerald-800">Outstanding Balance: {formatCurrency(totalPlanDue)}</p>
+                        <p className="text-xs text-emerald-600">Contact the school office or pay via MoMo below</p>
+                      </div>
+                      <Button className="bg-emerald-600 hover:bg-emerald-700">
+                        <Smartphone className="w-4 h-4 mr-2" /> Pay Now
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* ─── Payments Tab ─────────────────────────────── */}
           <TabsContent value="payments" className="mt-4">
             <Card className="gap-4">
               <CardHeader>
@@ -388,24 +518,11 @@ export default function StudentFeesPage() {
                           <TableRow key={p.payment_id} className="hover:bg-slate-50">
                             <TableCell className="font-mono text-sm">{p.receipt_code || "—"}</TableCell>
                             <TableCell className="text-sm text-slate-600 max-w-[150px] truncate">{p.title || "—"}</TableCell>
-                            <TableCell className="text-right font-semibold text-sm text-emerald-600 tabular-nums">
-                              {formatCurrency(p.amount)}
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell text-sm text-slate-500 capitalize">
-                              {p.payment_method?.replace(/_/g, " ") || "—"}
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell text-sm text-slate-500">
-                              {p.timestamp ? format(new Date(p.timestamp), "MMM d, yyyy") : "—"}
-                            </TableCell>
+                            <TableCell className="text-right font-semibold text-sm text-emerald-600 tabular-nums">{formatCurrency(p.amount)}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-sm text-slate-500 capitalize">{p.payment_method?.replace(/_/g, " ") || "—"}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-sm text-slate-500">{p.timestamp ? format(new Date(p.timestamp), "MMM d, yyyy") : "—"}</TableCell>
                             <TableCell className="text-center">
-                              <Badge
-                                variant="secondary"
-                                className={
-                                  p.approval_status === "approved"
-                                    ? "bg-emerald-100 text-emerald-700 text-xs"
-                                    : "bg-amber-100 text-amber-700 text-xs"
-                                }
-                              >
+                              <Badge variant="secondary" className={p.approval_status === "approved" ? "bg-emerald-100 text-emerald-700 text-xs" : "bg-amber-100 text-amber-700 text-xs"}>
                                 {p.approval_status || "Pending"}
                               </Badge>
                             </TableCell>
@@ -419,7 +536,7 @@ export default function StudentFeesPage() {
             </Card>
           </TabsContent>
 
-          {/* Receipts Tab */}
+          {/* ─── Receipts Tab ─────────────────────────────── */}
           <TabsContent value="receipts" className="mt-4">
             <Card className="gap-4">
               <CardHeader>
@@ -451,15 +568,9 @@ export default function StudentFeesPage() {
                         {receipts.map((r) => (
                           <TableRow key={r.receipt_id} className="hover:bg-slate-50">
                             <TableCell className="font-mono text-sm">{r.receipt_number}</TableCell>
-                            <TableCell className="text-right font-semibold text-sm text-emerald-600 tabular-nums">
-                              {formatCurrency(r.amount)}
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell text-sm text-slate-500 capitalize">
-                              {r.payment_method?.replace(/_/g, " ") || "—"}
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell text-sm text-slate-500">
-                              {r.generated_at ? format(new Date(r.generated_at), "MMM d, yyyy") : "—"}
-                            </TableCell>
+                            <TableCell className="text-right font-semibold text-sm text-emerald-600 tabular-nums">{formatCurrency(r.amount)}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-sm text-slate-500 capitalize">{r.payment_method?.replace(/_/g, " ") || "—"}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-sm text-slate-500">{r.generated_at ? format(new Date(r.generated_at), "MMM d, yyyy") : "—"}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -504,12 +615,6 @@ export default function StudentFeesPage() {
                     <p className="text-slate-400 text-xs uppercase">Amount Paid</p>
                     <p className="font-bold text-emerald-600">{formatCurrency(viewInvoice.amount_paid)}</p>
                   </div>
-                  {viewInvoice.discount > 0 && (
-                    <div>
-                      <p className="text-slate-400 text-xs uppercase">Discount</p>
-                      <p className="font-bold text-blue-600">{formatCurrency(viewInvoice.discount)}</p>
-                    </div>
-                  )}
                 </div>
                 <div className="p-3 rounded-lg bg-slate-50">
                   <div className="flex justify-between items-center">
@@ -519,12 +624,6 @@ export default function StudentFeesPage() {
                     </span>
                   </div>
                 </div>
-                <p className="text-xs text-slate-400">
-                  Created:{" "}
-                  {viewInvoice.creation_timestamp
-                    ? format(new Date(viewInvoice.creation_timestamp), "MMMM d, yyyy 'at' HH:mm")
-                    : "—"}
-                </p>
               </div>
             )}
           </DialogContent>
@@ -554,39 +653,22 @@ export default function StudentFeesPage() {
                 <div className="space-y-3">
                   <div className="space-y-1">
                     <Label>Your MoMo Name</Label>
-                    <Input
-                      value={payName}
-                      onChange={(e) => setPayName(e.target.value)}
-                      placeholder="Enter your registered name"
-                    />
+                    <Input value={payName} onChange={(e) => setPayName(e.target.value)} placeholder="Enter your registered name" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label>MoMo Number</Label>
-                      <Input
-                        value={payPhone}
-                        onChange={(e) => setPayPhone(e.target.value)}
-                        placeholder="e.g. 024XXXXXXX"
-                        type="tel"
-                      />
+                      <Input value={payPhone} onChange={(e) => setPayPhone(e.target.value)} placeholder="e.g. 024XXXXXXX" type="tel" />
                     </div>
                     <div className="space-y-1">
                       <Label>Amount (GHS)</Label>
-                      <Input
-                        value={payAmount}
-                        onChange={(e) => setPayAmount(e.target.value)}
-                        placeholder="Amount"
-                        type="number"
-                        min="1"
-                      />
+                      <Input value={payAmount} onChange={(e) => setPayAmount(e.target.value)} placeholder="Amount" type="number" min="1" />
                     </div>
                   </div>
                   <div className="space-y-1">
                     <Label>Network</Label>
                     <Select value={payChannel} onValueChange={setPayChannel}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select network" />
-                      </SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder="Select network" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="mtn">MTN MoMo</SelectItem>
                         <SelectItem value="vodafone">Vodafone Cash</SelectItem>
@@ -596,19 +678,9 @@ export default function StudentFeesPage() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" className="flex-1" onClick={() => setPayDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 min-h-[44px]"
-                    onClick={handleSubmitPayment}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <Smartphone className="w-4 h-4 mr-2" />
-                    )}
+                  <Button variant="outline" className="flex-1" onClick={() => setPayDialogOpen(false)}>Cancel</Button>
+                  <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700 min-h-[44px]" onClick={handleSubmitPayment} disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Smartphone className="w-4 h-4 mr-2" />}
                     Submit Payment
                   </Button>
                 </div>

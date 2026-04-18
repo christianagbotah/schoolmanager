@@ -9,52 +9,67 @@ export async function GET() {
   try {
     const studentId = auth.studentId;
 
-    // Get invoices
-    const invoices = await db.invoice.findMany({
-      where: { student_id: studentId, can_delete: { not: "trash" } },
-      orderBy: { creation_timestamp: "desc" },
-      select: {
-        invoice_id: true,
-        invoice_code: true,
-        title: true,
-        description: true,
-        amount: true,
-        amount_paid: true,
-        due: true,
-        discount: true,
-        status: true,
-        year: true,
-        term: true,
-        creation_timestamp: true,
-        payment_timestamp: true,
-      },
-    });
+    const [invoices, payments, receipts, plans] = await Promise.all([
+      // Invoices
+      db.invoice.findMany({
+        where: { student_id: studentId, can_delete: { not: "trash" } },
+        orderBy: { creation_timestamp: "desc" },
+        select: {
+          invoice_id: true, invoice_code: true, title: true, description: true,
+          amount: true, amount_paid: true, due: true, discount: true,
+          status: true, year: true, term: true, creation_timestamp: true, payment_timestamp: true,
+        },
+      }),
+      // Payments
+      db.payment.findMany({
+        where: { student_id: studentId },
+        orderBy: { timestamp: "desc" },
+        select: {
+          payment_id: true, receipt_code: true, invoice_code: true, title: true,
+          amount: true, payment_method: true, payment_type: true, timestamp: true, approval_status: true,
+        },
+      }),
+      // Receipts
+      db.receipts.findMany({
+        where: { student_id: studentId },
+        orderBy: { generated_at: "desc" },
+        take: 50,
+      }),
+      // Payment Plans with installments
+      db.payment_plans.findMany({
+        where: { student_id: studentId, is_active: 1 },
+        include: {
+          fee_structure: {
+            select: { fee_structure_id: true, name: true, year: true, term: true },
+          },
+          installments: {
+            orderBy: { installment_number: "asc" },
+          },
+        },
+        orderBy: { created_at: "desc" },
+      }),
+    ]);
 
-    // Get payments
-    const payments = await db.payment.findMany({
-      where: { student_id: studentId },
-      orderBy: { timestamp: "desc" },
-      select: {
-        payment_id: true,
-        receipt_code: true,
-        invoice_code: true,
-        title: true,
-        amount: true,
-        payment_method: true,
-        payment_type: true,
-        timestamp: true,
-        approval_status: true,
-      },
-    });
+    // Mark overdue installments
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    for (const plan of plans) {
+      for (const inst of plan.installments) {
+        if (inst.status === "pending" && inst.due_date && new Date(inst.due_date) < today) {
+          await db.payment_installments.update({
+            where: { installment_id: inst.installment_id },
+            data: { status: "overdue" },
+          });
+          inst.status = "overdue";
+        }
+      }
+    }
 
-    // Get receipts
-    const receipts = await db.receipts.findMany({
-      where: { student_id: studentId },
-      orderBy: { generated_at: "desc" },
-      take: 50,
-    });
+    // Payment plan stats
+    const totalPlanAmount = plans.reduce((s, p) => s + p.total_amount, 0);
+    const totalPlanPaid = plans.reduce((s, p) => s + p.paid_amount, 0);
 
-    // Get MoMo settings
+    // MoMo settings
     const [moName, moNumber, currency] = await Promise.all([
       db.settings.findFirst({ where: { type: "mo_account_name" } }),
       db.settings.findFirst({ where: { type: "mo_account_number" } }),
@@ -69,7 +84,8 @@ export async function GET() {
       invoices,
       payments,
       receipts,
-      summary: { totalBilled, totalPaid, totalDue },
+      paymentPlans: plans,
+      summary: { totalBilled, totalPaid, totalDue, totalPlanAmount, totalPlanPaid },
       moAccountName: moName?.description || "",
       moAccountNumber: moNumber?.description || "",
       currency: currency?.description || "GHS",
