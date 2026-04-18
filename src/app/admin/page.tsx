@@ -136,18 +136,20 @@ const RESIDENTIAL_COLORS = [
 
 // ─── Helpers ─────────────────────────────────────────────────
 function formatCurrency(amount: number): string {
+  const safeAmount = amount ?? 0;
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "GHS",
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  }).format(amount);
+  }).format(safeAmount);
 }
 
 function formatCompactNumber(num: number): string {
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
-  if (num >= 1000) return (num / 1000).toFixed(1) + "K";
-  return num.toLocaleString();
+  const safeNum = num ?? 0;
+  if (safeNum >= 1000000) return (safeNum / 1000000).toFixed(1) + "M";
+  if (safeNum >= 1000) return (safeNum / 1000).toFixed(1) + "K";
+  return safeNum.toLocaleString();
 }
 
 function PaymentStatusBadge({ status }: { status: string }) {
@@ -546,7 +548,7 @@ export default function AdminDashboard() {
           <StatCard
             icon={Users}
             label="Active Teachers"
-            value={formatCompactNumber(data.stats.totalTeachers)}
+            value={formatCompactNumber(data.stats.activeTeachers ?? data.stats.totalTeachers ?? 0)}
             gradientFrom="from-pink-400"
             gradientTo="to-rose-500"
             borderColor="#f5576c"
