@@ -212,9 +212,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login",
   },
-  // Trust proxy headers so NextAuth uses the forwarded host/protocol
-  // This is critical when accessed through a reverse proxy (e.g. space.z.ai → localhost:3000)
- useSecureCookies: false,
+  useSecureCookies: false,
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
@@ -278,6 +276,4 @@ export const authOptions: NextAuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-  // Trust the X-Forwarded-Host and X-Forwarded-Proto headers from Caddy
-  trustHost: true,
 };

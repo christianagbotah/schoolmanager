@@ -2,13 +2,19 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // trailingSlash must be true because the external proxy (*.space.z.ai)
+  // appends trailing slashes to paths like /dashboard → /dashboard/.
+  // Without this, Next.js removes the slash (308 → /dashboard), the proxy adds
+  // it back (301 → /dashboard/), creating an infinite redirect loop.
+  trailingSlash: true,
   typescript: {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
-  // Allow all z.ai preview origins
+  // Allow all z.ai preview origins (both http and https)
   allowedDevOrigins: [
     "https://preview-chat-f748a7ef-cfd3-4cea-bfdc-f4ce00609005.space.z.ai",
+    "http://preview-chat-f748a7ef-cfd3-4cea-bfdc-f4ce00609005.space.z.ai",
   ],
   serverExternalPackages: ["bcryptjs"],
   // Aggressive no-cache headers to prevent browser from caching old redirect responses
