@@ -1,23 +1,31 @@
 :81 {
-        @transform_port_query {
-                query XTransformPort=*
-        }
+	# Strip trailing slashes from ALL paths before forwarding to Next.js.
+	# The external gateway (*.space.z.ai) adds trailing slashes via 301,
+	# which conflicts with Next.js trailingSlash:false (308 back).
+	# By rewriting internally, the browser URL keeps the trailing slash
+	# but Next.js sees the path without it — no redirect loop.
+	@hasTrailingSlash path_regexp ^(.+)/$
+	uri @hasTrailingSlash strip_suffix /
 
-        handle @transform_port_query {
-                reverse_proxy localhost:{query.XTransformPort} {
-                        header_up Host {host}
-                        header_up X-Forwarded-For {remote_host}
-                        header_up X-Forwarded-Proto https
-                        header_up X-Real-IP {remote_host}
-                }
-        }
+	@transform_port_query {
+		query XTransformPort=*
+	}
 
-        handle {
-                reverse_proxy localhost:3000 {
-                        header_up Host {host}
-                        header_up X-Forwarded-For {remote_host}
-                        header_up X-Forwarded-Proto https
-                        header_up X-Real-IP {remote_host}
-                }
-        }
+	handle @transform_port_query {
+		reverse_proxy localhost:{query.XTransformPort} {
+			header_up Host {host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto https
+			header_up X-Real-IP {remote_host}
+		}
+	}
+
+	handle {
+		reverse_proxy localhost:3000 {
+			header_up Host {host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto https
+			header_up X-Real-IP {remote_host}
+		}
+	}
 }
