@@ -2,11 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  // trailingSlash must be true because the external proxy (*.space.z.ai)
-  // appends trailing slashes to paths like /dashboard → /dashboard/.
-  // Without this, Next.js removes the slash (308 → /dashboard), the proxy adds
-  // it back (301 → /dashboard/), creating an infinite redirect loop.
-  trailingSlash: true,
+  // trailingSlash must be false to prevent redirect loops through the proxy.
+  // With true, Next.js redirects /login → /login/ (308), and the proxy/browser
+  // may strip the trailing slash back, creating an infinite redirect loop.
+  trailingSlash: false,
   typescript: {
     ignoreBuildErrors: true,
   },

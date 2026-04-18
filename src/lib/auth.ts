@@ -49,8 +49,6 @@ export const authOptions: NextAuthOptions = {
         };
         const identifier = email.trim().toLowerCase();
 
-        // Determine which user table to query
-        // Students can login with email OR username
         let userId: number | string | null = null;
         let userEmail = "";
         let userName = "";
@@ -70,7 +68,6 @@ export const authOptions: NextAuthOptions = {
           userPassword = admin.password;
           userActiveStatus = admin.active_status;
           userAuthKey = admin.authentication_key;
-          // Admin level 1 = super-admin, level 2+ = admin
           const adminLevel = parseInt(admin.level || "2", 10);
           role = adminLevel === 1 ? "super-admin" : "admin";
         }
@@ -161,26 +158,21 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials. No account found.");
         }
 
-        // Check if account is inactive
         if (userActiveStatus !== 1) {
           throw new Error("Your account has been deactivated. Please contact the administrator.");
         }
 
-        // If auth key is provided, verify it matches the user
         if (authKey && authKey.trim().length > 0) {
           if (userAuthKey !== authKey.trim()) {
             throw new Error("Authentication key does not match. Please verify your key.");
           }
         }
 
-        // Verify password
         const isPasswordValid = await bcrypt.compare(password, userPassword);
-
         if (!isPasswordValid) {
           throw new Error("Invalid email or password.");
         }
 
-        // Determine admin level for permission lookup
         let adminLevel: number | undefined;
         if (role === "super-admin") {
           adminLevel = 1;
@@ -188,10 +180,7 @@ export const authOptions: NextAuthOptions = {
           adminLevel = 2;
         }
 
-        // Fetch user permissions from RBAC system
         const permissionNames = await getLegacyUserPermissionNames(role === "super-admin" ? "admin" : role, adminLevel);
-
-        // Determine the role slug for RBAC mapping
         const roleSlug = role === "super-admin" ? "super-admin" : role;
 
         return {
@@ -207,15 +196,19 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
-    maxAge: 24 * 60 * 60, // 24 hours
+    maxAge: 24 * 60 * 60,
   },
   pages: {
     signIn: "/login",
   },
+  // Force useSecureCookies OFF so cookies work without Secure flag.
+  // The browser connects via HTTPS through the external proxy, but
+  // the internal Next.js server is HTTP-only. Non-secure cookies
+  // will be accepted by the browser in either case.
   useSecureCookies: false,
   cookies: {
     sessionToken: {
-      name: `next-auth.session-token`,
+      name: "next-auth.session-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
@@ -224,16 +217,16 @@ export const authOptions: NextAuthOptions = {
       },
     },
     callbackUrl: {
-      name: `next-auth.callback-url`,
+      name: "next-auth.callback-url",
       options: {
-        httpOnly: true,
+        httpOnly: false,
         sameSite: "lax",
         path: "/",
         secure: false,
       },
     },
     csrfToken: {
-      name: `next-auth.csrf-token`,
+      name: "next-auth.csrf-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
@@ -242,7 +235,7 @@ export const authOptions: NextAuthOptions = {
       },
     },
     pkceCodeVerifier: {
-      name: `next-auth.pkce.code_verifier`,
+      name: "next-auth.pkce.code_verifier",
       options: {
         httpOnly: true,
         sameSite: "lax",
