@@ -124,3 +124,26 @@ Stage Summary:
 - Server: RUNNING on port 3000 (HTTP 200)
 - Git: Synced with GitHub (2 commits pushed)
 - Migration status: ~95%+ complete
+---
+Task ID: 1
+Agent: main
+Task: Fix redirect loop on preview-chat-xxx.space.z.ai
+
+Work Log:
+- Investigated redirect loop: curl tests showed root / returns 200 OK, no server-side redirects
+- Discovered /dashboard has infinite redirect loop: /dashboard → 301 → /dashboard/ → 308 → /dashboard
+- Root cause: external proxy (*.space.z.ai) appends trailing slash to /dashboard → /dashboard/
+- Next.js with trailingSlash:false redirects /dashboard/ → /dashboard (308), creating loop
+- Fix: enabled trailingSlash: true in next.config.ts
+- Also removed hardcoded NEXTAUTH_URL from .env (NextAuth auto-detects now)
+- Removed invalid trustHost:true from auth.ts (not supported in NextAuth v4)
+- Added http:// variant to allowedDevOrigins in next.config.ts
+- Tested all routes through external proxy - all return 200 OK
+- Committed and pushed to GitHub
+
+Stage Summary:
+- Redirect loop fixed by enabling trailingSlash:true
+- Root cause was proxy (space.z.ai) adding trailing slashes conflicting with NextJS removing them
+- Auth configuration cleaned up (removed invalid options, removed hardcoded URL)
+- All routes verified working through external proxy
+
