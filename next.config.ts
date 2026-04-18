@@ -2,10 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  // trailingSlash must be false to prevent redirect loops through the proxy.
-  // With true, Next.js redirects /login → /login/ (308), and the proxy/browser
-  // may strip the trailing slash back, creating an infinite redirect loop.
-  trailingSlash: false,
+  // Use trailingSlash:true because the external proxy (*.space.z.ai) adds
+  // trailing slashes to certain paths (e.g. /dashboard → 301 → /dashboard/).
+  // With trailingSlash:false, Next.js sent 308 back, creating an infinite loop:
+  //   /dashboard → proxy 301 → /dashboard/ → Next.js 308 → /dashboard → ...
+  // With trailingSlash:true, Next.js serves /dashboard/ directly (200).
+  trailingSlash: true,
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -13,7 +15,6 @@ const nextConfig: NextConfig = {
   // Trust all forwarded Host headers in production.
   // Without this, Next.js rejects requests from unrecognized proxy domains
   // and may redirect, creating an infinite redirect loop through the gateway.
-  // This also covers allowedDevOrigins functionality for dev mode.
   experimental: {
     trustHost: true,
   },
