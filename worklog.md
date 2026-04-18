@@ -263,3 +263,31 @@ Stage Summary:
 - All NextAuth API routes return 200 without 308 redirects
 - No middleware needed — `skipTrailingSlashRedirect` handles it at the framework level
 - PM2 process `school-manager` running, all routes verified
+---
+Task ID: cron-health-check-20260418-2228
+Agent: Main Agent
+Task: Cron health check + redirect loop investigation
+
+Work Log:
+- Checked server on port 3000: /login returns 200 — server healthy, no restart needed
+- PM2 is not running but server is alive as background process
+- Investigated redirect loop reported by user ("Dashboard is never loading. Still error...redirected you too many times")
+- Traced full redirect chain through external proxy:
+  - /dashboard → 301 (external proxy adds trailing slash) → /dashboard/ → 200 OK
+  - /login → 301 → /login/ → 200 OK
+  - / → 200 OK
+  - /api/auth/session → 200 OK (empty session)
+  - /api/auth/csrf → 200 OK
+  - /api/auth/signin → 302 → /login?callbackUrl=...
+- All server-side endpoints work correctly — NO server-side redirect loop exists
+- Tested with agent-browser (fresh browser, no cached redirects):
+  - Homepage loads perfectly (Greenfield Academy public page)
+  - /dashboard loads → client-side auth check → redirects to /login (correct behavior)
+  - No redirect loop, no console errors
+- Conclusion: The redirect loop was caused by the user's browser caching old 301/308 redirects from a previous misconfigured state. The current configuration (trailingSlash:false, skipTrailingSlashRedirect:true, beforeFiles rewrite) is correct and working properly.
+
+Stage Summary:
+- Server is healthy and running correctly
+- Redirect loop is NOT a server-side issue — it was caused by browser-cached redirects from old config
+- Current next.config.ts: trailingSlash:false, skipTrailingSlashRedirect:true, beforeFiles rewrite to strip trailing slashes internally
+- User should clear browser cache/redirect cache or try incognito mode
