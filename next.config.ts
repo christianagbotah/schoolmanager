@@ -2,14 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  // trailingSlash must be false so that NextAuth API routes (/api/auth/*)
-  // work without 308 redirects — the NextAuth client SDK always calls paths
-  // WITHOUT trailing slashes. The external proxy adds trailing slashes (301),
-  // which would create a loop with trailingSlash:false:
-  //   /dashboard → proxy 301 → /dashboard/ → Next.js 308 → /dashboard → ...
-  // skipTrailingSlashRedirect disables the automatic 308, and a middleware
-  // rewrites trailing-slash paths internally (no HTTP redirect to cache).
-  trailingSlash: false,
+  // trailingSlash:true aligns with the external gateway proxy, which
+  // always adds trailing slashes via 301. By serving pages at the same
+  // trailing-slash path the gateway redirects to, we eliminate the
+  // redirect-loop possibility entirely.
+  // skipTrailingSlashRedirect keeps non-trailing-slash paths working too
+  // (e.g. NextAuth SDK calls /api/auth/csrf without a slash).
+  trailingSlash: true,
   skipTrailingSlashRedirect: true,
   typescript: {
     ignoreBuildErrors: true,
@@ -29,18 +28,6 @@ const nextConfig: NextConfig = {
   // The external proxy adds trailing slashes via 301. Combined with
   // skipTrailingSlashRedirect:true, this ensures no 308 is sent back
   // (which the browser could cache, causing an infinite loop).
-  async rewrites() {
-    return {
-      beforeFiles: [
-        // Strip trailing slash for all non-root paths.
-        // :path+ matches one or more segments; the trailing / is literal.
-        {
-          source: "/:path+/",
-          destination: "/:path+",
-        },
-      ],
-    };
-  },
   // Aggressive no-cache headers to prevent browser from caching old redirect responses
   async headers() {
     return [

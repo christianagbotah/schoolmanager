@@ -1,12 +1,4 @@
 :81 {
-	# Strip trailing slashes from ALL paths before forwarding to Next.js.
-	# The external gateway (*.space.z.ai) adds trailing slashes via 301,
-	# which conflicts with Next.js trailingSlash:false (308 back).
-	# By rewriting internally, the browser URL keeps the trailing slash
-	# but Next.js sees the path without it — no redirect loop.
-	@hasTrailingSlash path_regexp ^(.+)/$
-	uri @hasTrailingSlash strip_suffix /
-
 	@transform_port_query {
 		query XTransformPort=*
 	}
