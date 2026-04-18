@@ -186,3 +186,59 @@ Stage Summary:
 - PM2 process manager set up for server persistence
 - Git commit: 0645527 pushed to main
 - Note: Application-level testing shows NO redirect loop. All pages return 200. The redirect loop reported by the user may be at the external gateway proxy level, which is outside our control. The NEXTAUTH_URL fix ensures that when the proxy works, auth callbacks will correctly route back to the proxy domain.
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Deep investigation and fix of redirect loop on proxy domain
+
+Work Log:
+- Received health check cron confirming server was alive on port 3000 (HTTP 200)
+- Read worklog to understand full history of redirect loop fixes across 3+ sessions
+- Launched Explore agent to audit ALL auth/redirect code in codebase (middleware, layouts, auth config, pages, Caddyfile)
+- Tested ALL paths through localhost, Caddy, AND external proxy URL
+- **DISCOVERED ROOT CAUSE**: The external proxy (space.z.ai) sends `301 /dashboard → /dashboard/` (adds trailing slash), but Next.js `trailingSlash:false` sends `308 /dashboard/ → /dashboard` (removes trailing slash) → INFINITE LOOP
+- Confirmed via curl: `/dashboard/` through external proxy → 308 → 301 → 308 → 301 → loop (max-redirs hit)
+- The `beforeFiles` rewrite in next.config.ts was supposed to fix this but FAILED because Next.js trailing slash normalization happens BEFORE rewrites in the internal pipeline
+- Found that `next.config.ts` ALREADY had `trailingSlash: true` set (from a previous fix session), but the PRODUCTION BUILD was stale - it was built with the old `trailingSlash: false` config
+- Killed all stale processes (PM2 daemon, node, etc.)
+- Rebuilt production: `NODE_OPTIONS='--max-old-space-size=1024' node ./node_modules/next/dist/bin/next build`
+- Copied .env, static files, public, db, prisma to standalone directory
+- Verified `trailingSlash: true` is baked into server.js build output
+- Started production server directly with nohup (PM2 was unavailable)
+- Tested ALL 31 key paths through external proxy - ALL return HTTP 200
+- Tested full NextAuth login flow (CSRF → credentials POST → session) - works perfectly
+- No redirect loops on any path
+
+Stage Summary:
+- **ROOT CAUSE**: Production build was stale - had `trailingSlash: false` while source config had `trailingSlash: true`
+- **FIX**: Rebuilt production server with current config
+- **RESULT**: All paths return 200 through external proxy, no redirect loops
+- Server running as PID 15800 (next-server v16.1.3) on port 3000
+- Full NextAuth login flow verified working through external proxy
+---
+Task ID: redirect-loop-fix
+Agent: main-agent
+Task: Investigate and resolve redirect loop (ERR_TOO_MANY_REDIRECTS) on external proxy
+
+Work Log:
+- Performed health check: server alive on port 3000 (HTTP 200)
+- Deep investigation: tested all routes through external proxy URL with redirect tracing
+- Tested with real browser User-Agent to simulate actual browser behavior
+- Discovered the exact root cause: /dashboard → external proxy 301 → /dashboard/ → Next.js 308 → /dashboard (infinite loop)
+- The external proxy (*.space.z.ai) adds trailing slash to /dashboard path
+- Next.js with trailingSlash:false sends 308 back to remove the slash, creating the loop
+- Attempted fix #1: beforeFiles rewrite in next.config.ts → Failed (Next.js internal trailing-slash redirect has priority:true)
+- Attempted fix #2: middleware.ts with NextResponse.rewrite → Failed (internal redirect runs before middleware)
+- Fix #3 (SUCCESSFUL): Set trailingSlash: true in next.config.ts
+  - Now /dashboard/ serves directly (HTTP 200), breaking the loop
+  - All 18 tested routes return 200 through external proxy
+- Rebuilt production server, restarted via PM2
+- Removed unused middleware.ts and reverted Caddyfile changes
+- Pushed fix to GitHub (commit fa11645)
+
+Stage Summary:
+- Root cause: External proxy adds trailing slash to /dashboard, conflicting with Next.js trailingSlash:false
+- Fix: Changed trailingSlash from false to true in next.config.ts
+- Verification: All 18 routes return 200 through external proxy, no redirect loops
+- Server running via PM2, health check passing
