@@ -849,10 +849,10 @@ export default function InvoicesPage() {
                   </div>
                   <div>
                     <Label className="text-xs">Category</Label>
-                    <Select value={newItemCategory} onValueChange={setNewItemCategory}>
+                    <Select value={newItemCategory === '' ? '__none__' : newItemCategory} onValueChange={(v) => setNewItemCategory(v === '__none__' ? '' : v)}>
                       <SelectTrigger className="mt-1"><SelectValue placeholder="Select category" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">No category</SelectItem>
+                        <SelectItem value="__none__">No category</SelectItem>
                         {billCategories.map((c) => <SelectItem key={c.bill_category_id} value={String(c.bill_category_id)}>{c.bill_category_name}</SelectItem>)}
                       </SelectContent>
                     </Select>
@@ -901,10 +901,10 @@ export default function InvoicesPage() {
                             <TableCell className="text-xs">{idx + 1}</TableCell>
                             <TableCell><Input value={editItemTitle} onChange={(e) => setEditItemTitle(e.target.value)} className="h-8 text-sm" /></TableCell>
                             <TableCell>
-                              <Select value={editItemCategory} onValueChange={setEditItemCategory}>
+                              <Select value={editItemCategory === '' ? '__none__' : editItemCategory} onValueChange={(v) => setEditItemCategory(v === '__none__' ? '' : v)}>
                                 <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="">None</SelectItem>
+                                  <SelectItem value="__none__">None</SelectItem>
                                   {billCategories.map((c) => <SelectItem key={c.bill_category_id} value={String(c.bill_category_id)}>{c.bill_category_name}</SelectItem>)}
                                 </SelectContent>
                               </Select>

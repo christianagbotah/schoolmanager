@@ -792,10 +792,10 @@ export default function AutoBillingPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs font-medium">Academic Year</Label>
-                  <Select value={editForm.year} onValueChange={(v) => setEditForm({ ...editForm, year: v })}>
+                  <Select value={editForm.year === '' ? '__none__' : editForm.year} onValueChange={(v) => setEditForm({ ...editForm, year: v === '__none__' ? '' : v })}>
                     <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="__none__">None</SelectItem>
                       <SelectItem value="2025/2026">2025/2026</SelectItem>
                       <SelectItem value="2024/2025">2024/2025</SelectItem>
                     </SelectContent>
@@ -803,10 +803,10 @@ export default function AutoBillingPage() {
                 </div>
                 <div>
                   <Label className="text-xs font-medium">Term</Label>
-                  <Select value={editForm.term} onValueChange={(v) => setEditForm({ ...editForm, term: v })}>
+                  <Select value={editForm.term === '' ? '__none__' : editForm.term} onValueChange={(v) => setEditForm({ ...editForm, term: v === '__none__' ? '' : v })}>
                     <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="__none__">None</SelectItem>
                       <SelectItem value="Term 1">Term 1</SelectItem>
                       <SelectItem value="Term 2">Term 2</SelectItem>
                       <SelectItem value="Term 3">Term 3</SelectItem>

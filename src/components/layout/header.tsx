@@ -283,23 +283,13 @@ export function Header({ onMenuClick, onMetroToggle }: HeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="h-10 gap-2 px-2 lg:px-3 text-white hover:bg-white/10 hover:text-white"
+                className="h-10 gap-2 px-2 text-white hover:bg-white/10 hover:text-white"
               >
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white text-xs font-semibold">
                     {user?.name ? getInitials(user.name) : "U"}
                   </AvatarFallback>
                 </Avatar>
-                <div className="hidden md:flex flex-col items-start">
-                  <span className="text-sm font-medium text-white leading-tight">
-                    {user?.name || "User"}
-                  </span>
-                  <span
-                    className={`text-[10px] font-medium px-1.5 py-0 rounded ${roleColor}`}
-                  >
-                    {role ? roleLabels[role as UserRole] : "User"}
-                  </span>
-                </div>
                 <ChevronDown className="w-4 h-4 text-white/70 hidden md:block" />
               </Button>
             </DropdownMenuTrigger>

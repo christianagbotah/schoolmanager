@@ -271,6 +271,13 @@ export default function AdmitStudentPage() {
 
   // ── When parent selected + guardian type changed, auto-populate ──
   const handleParentSelect = (parentId: string) => {
+    if (parentId === '__placeholder__') {
+      setParentMode('none');
+      setSelectedParentId('');
+      setGuardianType('');
+      clearAllParentFields();
+      return;
+    }
     if (parentId === '__new__') {
       setParentMode('new');
       setSelectedParentId('');
@@ -764,10 +771,10 @@ export default function AdmitStudentPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="parent_id">Primary Guardian <span className="text-red-500">*</span></Label>
-                  <Select value={parentMode === 'none' ? '' : parentMode === 'new' ? '__new__' : selectedParentId} onValueChange={handleParentSelect}>
+                  <Select value={parentMode === 'none' ? '__placeholder__' : parentMode === 'new' ? '__new__' : selectedParentId} onValueChange={handleParentSelect}>
                     <SelectTrigger id="parent_id" className="mt-1"><SelectValue placeholder="Search or select guardian..." /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">— Select Guardian —</SelectItem>
+                      <SelectItem value="__placeholder__">— Select Guardian —</SelectItem>
                       <SelectItem value="__new__">➕ Register New Guardian</SelectItem>
                       {parents.map(p => (
                         <SelectItem key={p.parent_id} value={String(p.parent_id)}>

@@ -71,10 +71,10 @@ export default function ParentSyllabusPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Filter by Child</Label>
-                <Select value={filterChild} onValueChange={setFilterChild}>
+                <Select value={filterChild === '' ? '__all__' : filterChild} onValueChange={(v) => setFilterChild(v === '__all__' ? '' : v)}>
                   <SelectTrigger><SelectValue placeholder="All Classes" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Classes</SelectItem>
+                    <SelectItem value="__all__">All Classes</SelectItem>
                     {children.map((c, idx) => (
                       <SelectItem key={c.student_id} value={String(c.student_id)}>{c.name || `${c.first_name} ${c.last_name}`.trim()}</SelectItem>
                     ))}

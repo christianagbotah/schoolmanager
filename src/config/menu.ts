@@ -195,17 +195,12 @@ const adminMenus: MenuSection[] = [
           { label: "Reports", href: "/admin/expenses/reports", icon: BarChart3, permission: "can_view_financial_reports" },
         ],
       },
-      { label: "Payroll", href: "/admin/payroll", icon: Banknote, permission: "can_manage_payroll" },
-      { label: "Payslips", href: "/admin/payroll/payslips", icon: FileText, permission: "can_view_financial_reports" },
-      { label: "SSNIT Reports", href: "/admin/payroll/ssnit", icon: Shield, permission: "can_manage_payroll" },
-      { label: "SSNIT Summary", href: "/admin/payroll/ssnit/summary", icon: BarChart3, permission: "can_view_financial_reports" },
       { label: "Receivables", href: "/admin/receivables", icon: Scale, permission: "can_view_invoices" },
       { label: "Student Ledger", href: "/admin/ledger", icon: BookCheck, permission: "can_view_invoices" },
       { label: "Budget Management", href: "/admin/budgets", icon: PiggyBank, permission: "can_view_financial_reports" },
       { label: "Fiscal Years", href: "/admin/fiscal-years", icon: CalendarDays, permission: "can_view_financial_reports" },
       { label: "Student Accounts", href: "/admin/reports/student-accounts", icon: FileText, permission: "can_view_financial_reports" },
       { label: "Aging Report", href: "/admin/reports/aging", icon: TrendingUp, permission: "can_view_financial_reports" },
-      { label: "SMS Log", href: "/admin/sms/log", icon: Smartphone, permission: "can_send_sms" },
     ],
   },
   {
@@ -220,7 +215,47 @@ const adminMenus: MenuSection[] = [
     ],
   },
   {
-    title: "System",
+    title: "School Operations",
+    items: [
+      {
+        label: "Transport", href: "/admin/transport", icon: Bus, permission: "can_manage_transport",
+        children: [
+          { label: "Routes", href: "/admin/transport", icon: Bus, permission: "can_manage_transport" },
+          { label: "Vehicles", href: "/admin/transport/vehicles", icon: Bus, permission: "can_manage_transport" },
+          { label: "Drivers", href: "/admin/transport/drivers", icon: User, permission: "can_manage_transport" },
+          { label: "Conductor Portal", href: "/admin/transport/conductor", icon: UserCog, permission: "can_manage_transport" },
+        ],
+      },
+      { label: "Dormitory", href: "/admin/dormitory", icon: BedDouble, permission: "can_manage_boarding" },
+      { label: "Library", href: "/admin/library", icon: LibraryIcon, permission: "can_manage_books" },
+      { label: "Inventory", href: "/admin/inventory", icon: Package, permission: "can_manage_inventory" },
+      { label: "POS Terminal", href: "/admin/inventory/pos", icon: CreditCard, permission: "can_manage_inventory" },
+      { label: "POS Sales", href: "/admin/inventory/pos/sales", icon: BarChart3, permission: "can_manage_inventory" },
+      { label: "Insurance", href: "/admin/insurance", icon: Shield, permission: "can_manage_settings" },
+      { label: "Maintenance", href: "/admin/maintenance", icon: Settings, permission: "can_manage_settings" },
+    ],
+  },
+  {
+    title: "HR & Payroll",
+    items: [
+      { label: "Employees", href: "/admin/employees", icon: UserCog, permission: "can_manage_employees" },
+      { label: "Payroll", href: "/admin/payroll", icon: Banknote, permission: "can_manage_payroll" },
+      { label: "Payslips", href: "/admin/payroll/payslips", icon: FileText, permission: "can_view_financial_reports" },
+      { label: "SSNIT Reports", href: "/admin/payroll/ssnit", icon: Shield, permission: "can_manage_payroll" },
+      { label: "SSNIT Summary", href: "/admin/payroll/ssnit/summary", icon: BarChart3, permission: "can_view_financial_reports" },
+    ],
+  },
+  {
+    title: "Reports & Analytics",
+    items: [
+      { label: "Reconciliation", href: "/admin/reconciliation", icon: Scale, permission: "can_view_financial_reports" },
+      { label: "Collection Efficiency", href: "/admin/collection-efficiency", icon: TrendingUp, permission: "can_view_financial_reports" },
+      { label: "Financial Alerts", href: "/admin/financial-alerts", icon: BellRing, permission: "can_view_financial_reports" },
+      { label: "Collector Handover", href: "/admin/collector-handover", icon: HandCoins, permission: "can_receive_daily_fees" },
+    ],
+  },
+  {
+    title: "Administration",
     items: [
       { label: "Approvals", href: "/admin/approvals", icon: CheckSquare, permission: "can_manage_settings", adminOnly: true },
       { label: "Audit Log", href: "/admin/audit-log", icon: Shield, permission: "can_manage_settings", adminOnly: true },
@@ -235,22 +270,6 @@ const adminMenus: MenuSection[] = [
           { label: "Permissions", href: "/admin/permissions", icon: Shield, permission: "can_manage_roles_permissions", adminOnly: true },
         ],
       },
-      { label: "My Profile", href: "/admin/profile", icon: User, permission: null },
-      {
-        label: "Transport", href: "/admin/transport", icon: Bus, permission: "can_manage_transport",
-        children: [
-          { label: "Routes", href: "/admin/transport", icon: Bus, permission: "can_manage_transport" },
-          { label: "Vehicles", href: "/admin/transport/vehicles", icon: Bus, permission: "can_manage_transport" },
-          { label: "Drivers", href: "/admin/transport/drivers", icon: User, permission: "can_manage_transport" },
-          { label: "Conductor Portal", href: "/admin/transport/conductor", icon: UserCog, permission: "can_manage_transport" },
-        ],
-      },
-      { label: "Inventory", href: "/admin/inventory", icon: Package, permission: "can_manage_inventory" },
-      { label: "POS Terminal", href: "/admin/inventory/pos", icon: CreditCard, permission: "can_manage_inventory" },
-      { label: "POS Sales", href: "/admin/inventory/pos/sales", icon: BarChart3, permission: "can_manage_inventory" },
-      { label: "Dormitory", href: "/admin/dormitory", icon: BedDouble, permission: "can_manage_boarding" },
-      { label: "Insurance", href: "/admin/insurance", icon: Shield, permission: "can_manage_settings" },
-      { label: "Maintenance", href: "/admin/maintenance", icon: Settings, permission: "can_manage_settings" },
       {
         label: "Frontend CMS", href: "/admin/frontend", icon: Palette, permission: "can_manage_frontend_cms",
         children: [
@@ -261,12 +280,7 @@ const adminMenus: MenuSection[] = [
           { label: "Slider", href: "/admin/frontend/slider", icon: Layers, permission: "can_manage_frontend_cms" },
         ],
       },
-      { label: "Library", href: "/admin/library", icon: LibraryIcon, permission: "can_manage_books" },
-      { label: "Employees", href: "/admin/employees", icon: UserCog, permission: "can_manage_employees" },
-      { label: "Reconciliation", href: "/admin/reconciliation", icon: Scale, permission: "can_view_financial_reports" },
-      { label: "Collection Efficiency", href: "/admin/collection-efficiency", icon: TrendingUp, permission: "can_view_financial_reports" },
-      { label: "Financial Alerts", href: "/admin/financial-alerts", icon: BellRing, permission: "can_view_financial_reports" },
-      { label: "Collector Handover", href: "/admin/collector-handover", icon: HandCoins, permission: "can_receive_daily_fees" },
+      { label: "My Profile", href: "/admin/profile", icon: User, permission: null },
     ],
   },
 ];

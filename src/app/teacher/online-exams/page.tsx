@@ -228,12 +228,12 @@ export default function TeacherOnlineExamsPage() {
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
             </TabsList>
             <div className="sm:ml-auto">
-              <Select value={filterSubject} onValueChange={setFilterSubject}>
+              <Select value={filterSubject === '' ? '__all__' : filterSubject} onValueChange={(v) => setFilterSubject(v === '__all__' ? '' : v)}>
                 <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="All Subjects" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Subjects</SelectItem>
+                  <SelectItem value="__all__">All Subjects</SelectItem>
                   {subjects.map((s) => (
                     <SelectItem key={s.subject_id} value={String(s.subject_id)}>{s.name}</SelectItem>
                   ))}

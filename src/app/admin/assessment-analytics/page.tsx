@@ -568,10 +568,10 @@ export default function AssessmentAnalyticsPage() {
             {/* Class filter */}
             <div className="flex items-center gap-3 print:hidden">
               <span className="text-sm text-slate-500">Filter by class:</span>
-              <Select value={subjectClassFilter} onValueChange={(v) => { setSubjectClassFilter(v); fetchSubjectData(v || undefined); }}>
+              <Select value={subjectClassFilter === '' ? '__all__' : subjectClassFilter} onValueChange={(v) => { const val = v === '__all__' ? '' : v; setSubjectClassFilter(val); fetchSubjectData(val || undefined); }}>
                 <SelectTrigger className="w-48 h-9"><SelectValue placeholder="All Classes" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Classes</SelectItem>
+                  <SelectItem value="__all__">All Classes</SelectItem>
                   {classes.map(c => <SelectItem key={c.class_id} value={String(c.class_id)}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>

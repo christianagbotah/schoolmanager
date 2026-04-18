@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Tooltip,
   TooltipContent,
@@ -23,14 +22,11 @@ import {
 } from "@/components/ui/tooltip";
 import {
   getMenuByRole,
-  roleLabels,
-  roleColors,
   type MenuSection,
   type MenuItem,
 } from "@/config/menu";
 import { filterMenuByPermissions } from "@/lib/permission-constants";
 import { useAuth } from "@/hooks/use-auth";
-import type { UserRole } from "@/lib/auth";
 
 // ─── Constants ──────────────────────────────────────────────
 const SIDEBAR_KEY = "school-manager-sidebar-collapsed";
@@ -207,59 +203,6 @@ function MenuItemComponent({
   );
 }
 
-// ─── User Profile Card ──────────────────────────────────────
-function UserProfileCard({ collapsed, onClick }: { collapsed: boolean; onClick?: () => void }) {
-  const { user, role, logout } = useAuth();
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  const roleColor = role
-    ? roleColors[role as UserRole] || "bg-slate-100 text-slate-700"
-    : "bg-slate-100 text-slate-700";
-
-  if (collapsed) {
-    return (
-      <div className="flex flex-col items-center gap-2 py-3 px-2">
-        <Avatar className="h-9 w-9">
-          <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white text-xs font-semibold">
-            {user?.name ? getInitials(user.name) : "U"}
-          </AvatarFallback>
-        </Avatar>
-      </div>
-    );
-  }
-
-  return (
-    <div className="px-4 py-3 flex items-center gap-3 border-b border-white/10">
-      <Avatar className="h-10 w-10 flex-shrink-0">
-        <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white text-sm font-semibold">
-          {user?.name ? getInitials(user.name) : "U"}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-white truncate">
-          {user?.name || "User"}
-        </p>
-        <span
-          className={cn(
-            "text-[10px] font-medium px-1.5 py-0.5 rounded inline-block mt-0.5",
-            roleColor
-          )}
-        >
-          {role ? roleLabels[role as UserRole] || role : "User"}
-        </span>
-      </div>
-    </div>
-  );
-}
-
 // ─── Sidebar ────────────────────────────────────────────────
 export function Sidebar({
   collapsed: collapsedProp,
@@ -361,9 +304,6 @@ export function Sidebar({
         collapsed ? "w-[72px]" : "w-[280px]"
       )}
     >
-      {/* User Profile Card */}
-      <UserProfileCard collapsed={collapsed} onClick={onCloseMobile} />
-
       {/* Logo Section */}
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-white/10 flex-shrink-0">
         <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">

@@ -458,18 +458,18 @@ export default function DiscountsPage() {
                     <LayoutGrid className="w-4 h-4" />
                   </button>
                 </div>
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <Select value={categoryFilter === '' ? '__all__' : categoryFilter} onValueChange={(v) => setCategoryFilter(v === '__all__' ? '' : v)}>
                   <SelectTrigger className="w-40 h-9 text-xs"><Filter className="w-3 h-3 mr-1" /><SelectValue placeholder="All Categories" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Categories</SelectItem>
+                    <SelectItem value="__all__">All Categories</SelectItem>
                     <SelectItem value="invoice">Invoice</SelectItem>
                     <SelectItem value="daily_fees">Daily Fees</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <Select value={statusFilter === '' ? '__all__' : statusFilter} onValueChange={(v) => setStatusFilter(v === '__all__' ? '' : v)}>
                   <SelectTrigger className="w-36 h-9 text-xs"><SelectValue placeholder="All Status" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Status</SelectItem>
+                    <SelectItem value="__all__">All Status</SelectItem>
                     <SelectItem value="1">Active</SelectItem>
                     <SelectItem value="0">Inactive</SelectItem>
                   </SelectContent>
@@ -655,30 +655,30 @@ export default function DiscountsPage() {
                       <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                       <Input placeholder="Search by student, code, or profile..." value={assignmentSearch} onChange={(e) => setAssignmentSearch(e.target.value)} className="pl-8 h-9 w-full text-xs" />
                     </div>
-                    <Select value={filterYear} onValueChange={setFilterYear}>
+                    <Select value={filterYear === '' ? '__all__' : filterYear} onValueChange={(v) => setFilterYear(v === '__all__' ? '' : v)}>
                       <SelectTrigger className="w-32 h-9 text-xs"><SelectValue placeholder="Year" /></SelectTrigger>
-                      <SelectContent><SelectItem value="">All Years</SelectItem></SelectContent>
+                      <SelectContent><SelectItem value="__all__">All Years</SelectItem></SelectContent>
                     </Select>
-                    <Select value={filterTerm} onValueChange={setFilterTerm}>
+                    <Select value={filterTerm === '' ? '__all__' : filterTerm} onValueChange={(v) => setFilterTerm(v === '__all__' ? '' : v)}>
                       <SelectTrigger className="w-28 h-9 text-xs"><SelectValue placeholder="Term" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Terms</SelectItem>
+                        <SelectItem value="__all__">All Terms</SelectItem>
                         <SelectItem value="1">Term 1</SelectItem>
                         <SelectItem value="2">Term 2</SelectItem>
                         <SelectItem value="3">Term 3</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Select value={filterProfile} onValueChange={setFilterProfile}>
+                    <Select value={filterProfile === '' ? '__all__' : filterProfile} onValueChange={(v) => setFilterProfile(v === '__all__' ? '' : v)}>
                       <SelectTrigger className="w-40 h-9 text-xs"><SelectValue placeholder="All Profiles" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Profiles</SelectItem>
+                        <SelectItem value="__all__">All Profiles</SelectItem>
                         {profilesList.map((p) => <SelectItem key={p.profile_id} value={String(p.profile_id)}>{p.profile_name}</SelectItem>)}
                       </SelectContent>
                     </Select>
-                    <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <Select value={filterStatus === '' ? '__all__' : filterStatus} onValueChange={(v) => setFilterStatus(v === '__all__' ? '' : v)}>
                       <SelectTrigger className="w-32 h-9 text-xs"><SelectValue placeholder="All Status" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Status</SelectItem>
+                        <SelectItem value="__all__">All Status</SelectItem>
                         <SelectItem value="1">Active</SelectItem>
                         <SelectItem value="0">Inactive</SelectItem>
                       </SelectContent>
