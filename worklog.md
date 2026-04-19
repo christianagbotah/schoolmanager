@@ -2983,3 +2983,30 @@ Stage Summary:
 - Fixed Select.Item empty value prop in: admin/students/promotion, teacher/students/promotion, admin/students/[id]/profile, admin/students/[id]
 - Server running at PID 24074, HTTP 200 confirmed
 - Commit: b8913b7 pushed to main
+---
+Task ID: 5-9
+Agent: Main Agent
+Task: Fix Prisma schema duplicate Permission model, verify RBAC system, verify dashboard CI3 parity
+
+Work Log:
+- Found and removed duplicate Permission model from Prisma schema (old standalone version at lines 14-24)
+- Kept the RBAC Permission model (with RolePermission join table) at line ~1304
+- Ran `prisma db push` — schema synced, client regenerated
+- Verified existing permission utility at `src/lib/permissions.ts` (479 lines) with hasPermission, canAccessPage, getPermissionsForRole
+- Verified RBAC seed data: 10 roles, 92 permissions, 920 role-permission mappings across 13 modules
+- Verified menu.ts is already permission-based (every item has `permission` field)
+- Verified dashboard page at `src/app/dashboard/page.tsx` (2552 lines) has full CI3 parity:
+  - Data Filter (super admin only)
+  - 4 Key Metrics cards (students, teachers, parents, attendance)
+  - 3 Financial Overview cards (revenue, collection rate, pending payments)
+  - 4 Charts (student distribution, attendance trend, gender, residential)
+  - 6 Quick Actions (permission-gated)
+  - 3 Financial Summary cards (unpaid invoices, income, expenses)
+  - Recent Payments table
+- Server running on port 3000, /dashboard returns HTTP 200
+
+Stage Summary:
+- Prisma schema duplicate Permission model fixed
+- RBAC system fully operational with seeded data
+- Admin dashboard matches CI3 parity with dynamic permission-based rendering
+- All CI3 sections represented: metrics, financial, charts, quick actions, recent payments

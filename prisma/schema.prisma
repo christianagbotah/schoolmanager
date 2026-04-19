@@ -8,22 +8,6 @@ datasource db {
 }
 
 // ============================================================
-// PERMISSIONS (Dynamic Permission-Based Access Control)
-// ============================================================
-
-model Permission {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique // e.g., "can_view_students"
-  description String   @default("")
-  module      String   @default("") // e.g., "dashboard", "students", "finance", "academics", "communication", "system"
-  userRoles   String   @default("[]") // JSON array: ["admin","teacher","parent","student","accountant","librarian"]
-  minLevel    Int      @default(1) // minimum admin level required (for admin-type users; 1=superadmin, 2=admin, 3=accountant, 4=cashier)
-  isDefault   Int      @default(0) // 1 = enabled by default for matching roles
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-// ============================================================
 // SETTINGS
 // ============================================================
 
