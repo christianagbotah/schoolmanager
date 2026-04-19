@@ -12,7 +12,18 @@ export async function GET(request: NextRequest) {
     const classId = searchParams.get("class_id");
 
     if (!classId) {
-      return NextResponse.json({ error: "class_id is required" }, { status: 400 });
+      // Return all subjects when no class_id specified (for general list view)
+      const allSubjects = await db.subject.findMany({
+        include: {
+          class: {
+            select: { class_id: true, name: true, name_numeric: true, category: true },
+          },
+          teacher: { select: { teacher_id: true, name: true } },
+          section: { select: { section_id: true, name: true } },
+        },
+        orderBy: { name: "asc" },
+      });
+      return NextResponse.json(allSubjects);
     }
 
     // Get running_year and running_term from settings
@@ -186,19 +197,45 @@ export async function POST(request: NextRequest) {
     }
 
     // Single create
-    const classId = parseInt(body.class_id, 10);
-    if (!classId || !body.name?.trim()) {
+    const subjectName = body.name?.trim();
+    if (!subjectName) {
       return NextResponse.json(
-        { error: "class_id and name are required" },
+        { error: "Subject name is required" },
         { status: 400 }
       );
     }
 
+    const classId = body.class_id ? parseInt(body.class_id, 10) : null;
+
+    // Simple create without class (for general subjects)
+    if (!classId) {
+      const subject = await db.subject.create({
+        data: {
+          name: subjectName,
+          class_id: null,
+          teacher_id: body.teacher_id ? parseInt(body.teacher_id, 10) : null,
+          section_id: body.section_id ? parseInt(body.section_id, 10) : null,
+          year: body.year || "",
+          status: 1,
+        },
+        include: {
+          class: { select: { class_id: true, name: true, name_numeric: true, category: true } },
+          teacher: { select: { teacher_id: true, name: true } },
+          section: { select: { section_id: true, name: true } },
+        },
+      });
+
+      return NextResponse.json({
+        status: "success",
+        message: "Subject added successfully",
+        subject,
+      });
+    }
+
+    // Class-specific create (mirrors CI3 behavior: creates for remaining terms/sems)
     const schoolClass = await db.school_class.findUnique({
       where: { class_id: classId },
     });
-
-    const subjectName = body.name.trim();
 
     // For JHSS, create for remaining semesters; for others, create for remaining terms
     if (schoolClass?.name === "JHSS") {

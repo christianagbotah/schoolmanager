@@ -80,6 +80,10 @@ import {
   Clock,
   X,
   Filter,
+  RefreshCw,
+  Printer,
+  UserCheck,
+  UserX,
 } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -188,20 +192,15 @@ function TableSkeleton() {
     <>
       {Array.from({ length: 6 }).map((_, i) => (
         <TableRow key={i}>
-          <TableCell>
-            <div className="flex items-center gap-3">
-              <Skeleton className="w-9 h-9 rounded-full flex-shrink-0" />
-              <div className="space-y-1.5">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-20" />
-              </div>
-            </div>
-          </TableCell>
+          <TableCell><Skeleton className="w-9 h-9 rounded-full" /></TableCell>
           <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-          <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-          <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+          <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+          <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-14" /></TableCell>
+          <TableCell><Skeleton className="h-4 w-20" /></TableCell>
           <TableCell className="hidden xl:table-cell"><Skeleton className="h-4 w-16" /></TableCell>
-          <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-32" /></TableCell>
+          <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-28" /></TableCell>
+          <TableCell className="hidden xl:table-cell"><Skeleton className="h-4 w-14" /></TableCell>
+          <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
           <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
           <TableCell><Skeleton className="h-8 w-8 rounded-md ml-auto" /></TableCell>
         </TableRow>
@@ -260,6 +259,9 @@ function FilterChip({
     red: active
       ? 'bg-red-600 text-white border-red-600 hover:bg-red-700'
       : 'bg-white text-red-600 border-red-200 hover:bg-red-50',
+    sky: active
+      ? 'bg-sky-600 text-white border-sky-600 hover:bg-sky-700'
+      : 'bg-white text-sky-700 border-sky-200 hover:bg-sky-50',
   };
 
   return (
@@ -282,6 +284,7 @@ export default function TeachersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
+  const [designationFilter, setDesignationFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize] = useState(15);
@@ -300,6 +303,7 @@ export default function TeachersPage() {
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
   const [formSaving, setFormSaving] = useState(false);
   const [formData, setFormData] = useState<FormData>(emptyForm);
+  const [generatingCode, setGeneratingCode] = useState(false);
 
   // View modal
   const [viewOpen, setViewOpen] = useState(false);
@@ -317,6 +321,7 @@ export default function TeachersPage() {
       const params = new URLSearchParams();
       if (search) params.set('search', search);
       if (departmentFilter) params.set('department', departmentFilter);
+      if (designationFilter) params.set('designation', designationFilter);
       if (statusFilter) params.set('status', statusFilter);
       params.set('page', String(page));
       params.set('pageSize', String(pageSize));
@@ -335,7 +340,7 @@ export default function TeachersPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, departmentFilter, statusFilter, page, pageSize]);
+  }, [search, departmentFilter, designationFilter, statusFilter, page, pageSize]);
 
   useEffect(() => {
     fetchTeachers();
@@ -344,7 +349,7 @@ export default function TeachersPage() {
   // Reset page on filter change (debounced for search)
   useEffect(() => {
     setPage(1);
-  }, [departmentFilter, statusFilter]);
+  }, [departmentFilter, designationFilter, statusFilter]);
 
   useEffect(() => {
     const timer = setTimeout(() => { setPage(1); }, 400);
@@ -374,7 +379,7 @@ export default function TeachersPage() {
 
   const onLeaveCount = teachers.filter(t => t.active_status !== 1 && t.block_limit < 3).length;
 
-  const hasActiveFilters = search || departmentFilter || statusFilter;
+  const hasActiveFilters = search || departmentFilter || designationFilter || statusFilter;
 
   const uniqueSubjectNames = Array.from(
     new Set(subjects.map(s => s.name).filter(Boolean))
@@ -393,6 +398,23 @@ export default function TeachersPage() {
     : teachers;
 
   // ─── Form handlers ────────────────────────────────────────────────────────
+
+  const generateTeacherCode = async () => {
+    setGeneratingCode(true);
+    try {
+      const res = await fetch('/api/admin/teachers/generate-code');
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      if (data.teacher_code) {
+        setFormData(prev => ({ ...prev, teacher_code: data.teacher_code }));
+        toast.success('Staff ID generated successfully');
+      }
+    } catch {
+      toast.error('Failed to generate Staff ID');
+    } finally {
+      setGeneratingCode(false);
+    }
+  };
 
   const openAddForm = () => {
     setEditingTeacher(null);
@@ -570,6 +592,7 @@ export default function TeachersPage() {
   const clearFilters = () => {
     setSearch('');
     setDepartmentFilter('');
+    setDesignationFilter('');
     setStatusFilter('');
     setSubjectFilter('');
     setPage(1);
@@ -602,6 +625,8 @@ export default function TeachersPage() {
     );
   }
 
+  const isAddMode = !editingTeacher;
+
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
@@ -614,27 +639,29 @@ export default function TeachersPage() {
             <p className="text-sm text-slate-500 mt-1">Manage teaching staff, assignments &amp; accounts</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={handleExportCSV}
-              className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 min-h-[44px]"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Export</span>
-            </Button>
+            {(isAdmin || hasPermission('teachers.read')) && (
+              <Button
+                variant="outline"
+                onClick={handleExportCSV}
+                className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 min-h-[44px]"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Export</span>
+              </Button>
+            )}
             {(isAdmin || hasPermission('teachers.create')) && (
               <Button
                 onClick={openAddForm}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white min-h-[44px] shadow-sm"
               >
                 <UserPlus className="w-4 h-4 mr-2" />
-                Add Teacher
+                Add New Teacher
               </Button>
             )}
           </div>
         </div>
 
-        {/* ─── Stat Cards ───────────────────────────────────────────────── */}
+        {/* ─── Stat Cards (CI3: Males / Females / Total in table header) ──── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {loading ? (
             <>
@@ -645,6 +672,32 @@ export default function TeachersPage() {
             </>
           ) : (
             <>
+              {/* Males (CI3 parity) */}
+              <Card className="border-slate-200/80 hover:shadow-md transition-all duration-200">
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center flex-shrink-0">
+                    <UserCheck className="w-6 h-6 text-sky-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Males</p>
+                    <p className="text-2xl font-bold text-sky-700 mt-0.5">{totalMale}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Females (CI3 parity) */}
+              <Card className="border-slate-200/80 hover:shadow-md transition-all duration-200">
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-pink-50 flex items-center justify-center flex-shrink-0">
+                    <UserX className="w-6 h-6 text-pink-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Females</p>
+                    <p className="text-2xl font-bold text-pink-700 mt-0.5">{totalFemale}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Total Teachers */}
               <Card className="border-slate-200/80 hover:shadow-md transition-all duration-200">
                 <CardContent className="p-5 flex items-center gap-4">
@@ -652,34 +705,8 @@ export default function TeachersPage() {
                     <GraduationCap className="w-6 h-6 text-emerald-600" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Teachers</p>
+                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Total</p>
                     <p className="text-2xl font-bold text-slate-900 mt-0.5">{grandTotal}</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Active */}
-              <Card className="border-slate-200/80 hover:shadow-md transition-all duration-200">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Active</p>
-                    <p className="text-2xl font-bold text-emerald-700 mt-0.5">{activeCount}</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Departments */}
-              <Card className="border-slate-200/80 hover:shadow-md transition-all duration-200">
-                <CardContent className="p-5 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center flex-shrink-0">
-                    <Building2 className="w-6 h-6 text-sky-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Departments</p>
-                    <p className="text-2xl font-bold text-sky-700 mt-0.5">{departments.length}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -707,7 +734,7 @@ export default function TeachersPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="Search by name, email, or staff ID..."
+                placeholder="Search by name, code, or email..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-10 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"
@@ -743,10 +770,10 @@ export default function TeachersPage() {
                 />
               </div>
 
-              {/* Department chips (scrollable) */}
+              {/* Department chips (scrollable) - CI3 parity */}
               {departments.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-slate-400 flex-shrink-0">Dept:</span>
+                  <span className="text-xs font-medium text-slate-400 flex-shrink-0">Department:</span>
                   <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                     <FilterChip
                       label="All"
@@ -763,6 +790,32 @@ export default function TeachersPage() {
                           departmentFilter === String(d.id) ? '' : String(d.id)
                         )}
                         color="sky"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Designation chips (scrollable) - CI3 parity */}
+              {designations.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-slate-400 flex-shrink-0">Designation:</span>
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                    <FilterChip
+                      label="All"
+                      active={!designationFilter}
+                      onClick={() => setDesignationFilter('')}
+                      color="slate"
+                    />
+                    {designations.map((d) => (
+                      <FilterChip
+                        key={d.id}
+                        label={d.des_name}
+                        active={designationFilter === String(d.id)}
+                        onClick={() => setDesignationFilter(
+                          designationFilter === String(d.id) ? '' : String(d.id)
+                        )}
+                        color="emerald"
                       />
                     ))}
                   </div>
@@ -802,6 +855,16 @@ export default function TeachersPage() {
                     onClick={() => setDepartmentFilter('')}
                   >
                     {departments.find(d => String(d.id) === departmentFilter)?.dep_name || departmentFilter}
+                    <X className="w-3 h-3" />
+                  </Badge>
+                )}
+                {designationFilter && (
+                  <Badge
+                    variant="outline"
+                    className="gap-1 text-xs cursor-pointer hover:bg-slate-50"
+                    onClick={() => setDesignationFilter('')}
+                  >
+                    {designations.find(d => String(d.id) === designationFilter)?.des_name || designationFilter}
                     <X className="w-3 h-3" />
                   </Badge>
                 )}
@@ -858,25 +921,53 @@ export default function TeachersPage() {
               <span className="font-semibold text-slate-700">{grandTotal}</span>{' '}
               teachers
             </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={fetchTeachers}
+              className="h-8 text-slate-400 hover:text-slate-600"
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+              Refresh
+            </Button>
           </div>
         )}
 
         {/* ─── Data Card ─────────────────────────────────────────────────── */}
         <Card className="border-slate-200/80 overflow-hidden">
           <CardContent className="p-0">
-            {/* Desktop Table */}
-            <div className="hidden md:block">
+            {/* Desktop Table - CI3 column parity */}
+            <div className="hidden lg:block">
               <Table>
                 <TableHeader>
+                  {/* CI3: Gender summary row spanning all columns */}
+                  <TableRow className="bg-slate-100/80 hover:bg-slate-100/80">
+                    <TableCell colSpan={11} className="py-2">
+                      <div className="grid grid-cols-3 gap-3 py-1">
+                        <div className="text-sm font-semibold text-slate-600">
+                          MALES: <Badge variant="outline" className="ml-1 bg-slate-200 border-slate-300 text-slate-800">{totalMale}</Badge>
+                        </div>
+                        <div className="text-sm font-semibold text-slate-600">
+                          FEMALES: <Badge variant="outline" className="ml-1 bg-slate-200 border-slate-300 text-slate-800">{totalFemale}</Badge>
+                        </div>
+                        <div className="text-sm font-semibold text-slate-600">
+                          TOTAL: <Badge variant="outline" className="ml-1 bg-slate-200 border-slate-300 text-slate-800">{grandTotal}</Badge>
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
                   <TableRow className="bg-slate-50/80 hover:bg-slate-50/80">
-                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Teacher</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider w-16">Photo</TableHead>
                     <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Staff ID</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Department</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Designation</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Gender</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Qualification</TableHead>
                     <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden xl:table-cell">Form Master</TableHead>
                     <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Email</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-right pr-4">Actions</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden xl:table-cell">Auth Key</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Phone</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Account Status</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-right pr-4">Options</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -884,7 +975,7 @@ export default function TeachersPage() {
                     <TableSkeleton />
                   ) : displayedTeachers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8}>
+                      <TableCell colSpan={11}>
                         <div className="flex flex-col items-center justify-center py-20 text-center">
                           <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
                             <GraduationCap className="w-8 h-8 text-slate-300" />
@@ -920,33 +1011,34 @@ export default function TeachersPage() {
                   ) : (
                     displayedTeachers.map((t) => (
                       <TableRow key={t.teacher_id} className="hover:bg-slate-50/50 transition-colors group">
-                        {/* Teacher Avatar + Name */}
+                        {/* Photo */}
                         <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white bg-gradient-to-br from-emerald-500 to-emerald-700 flex-shrink-0 shadow-sm">
-                              {t.name?.charAt(0) || '?'}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-medium text-sm text-slate-900 truncate">{t.name}</p>
-                              <p className="text-xs text-slate-400">{t.phone || ''}</p>
-                            </div>
+                          <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white bg-gradient-to-br from-emerald-500 to-emerald-700 flex-shrink-0 shadow-sm">
+                            {t.name?.charAt(0) || '?'}
                           </div>
                         </TableCell>
                         {/* Staff ID */}
                         <TableCell>
                           <code className="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">{t.teacher_code || '—'}</code>
                         </TableCell>
-                        {/* Department */}
+                        {/* Name */}
                         <TableCell>
-                          {t.department?.dep_name ? (
-                            <Badge variant="outline" className="border-slate-200 bg-white text-slate-600 text-xs font-normal">
-                              {t.department.dep_name}
-                            </Badge>
-                          ) : (
-                            <span className="text-sm text-slate-400">—</span>
-                          )}
+                          <p className="font-medium text-sm text-slate-900 truncate">{t.name}</p>
                         </TableCell>
-                        {/* Designation */}
+                        {/* Gender */}
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={
+                              t.gender === 'Male'
+                                ? 'border-sky-200 bg-sky-50 text-sky-700 text-xs font-normal'
+                                : 'border-pink-200 bg-pink-50 text-pink-700 text-xs font-normal'
+                            }
+                          >
+                            {t.gender || '—'}
+                          </Badge>
+                        </TableCell>
+                        {/* Qualification (designation) */}
                         <TableCell>
                           <span className="text-sm text-slate-700">{t.designation?.des_name || '—'}</span>
                         </TableCell>
@@ -968,11 +1060,19 @@ export default function TeachersPage() {
                         <TableCell className="hidden lg:table-cell">
                           <span className="text-sm text-slate-600 truncate block max-w-[200px]">{t.email}</span>
                         </TableCell>
-                        {/* Status */}
+                        {/* Auth Key */}
+                        <TableCell className="hidden xl:table-cell">
+                          <code className="text-xs font-mono bg-amber-50 text-amber-700 px-2 py-0.5 rounded">{t.authentication_key || '—'}</code>
+                        </TableCell>
+                        {/* Phone */}
+                        <TableCell className="hidden lg:table-cell">
+                          <span className="text-sm text-slate-600">{t.phone || '—'}</span>
+                        </TableCell>
+                        {/* Account Status */}
                         <TableCell>
                           <StatusBadge teacher={t} />
                         </TableCell>
-                        {/* Actions */}
+                        {/* Options (Actions) */}
                         <TableCell className="text-right pr-2">
                           <div className="flex items-center justify-end gap-0.5">
                             <Button
@@ -1049,7 +1149,7 @@ export default function TeachersPage() {
             </div>
 
             {/* Mobile Card View */}
-            <div className="md:hidden divide-y divide-slate-100">
+            <div className="lg:hidden divide-y divide-slate-100">
               {loading ? (
                 <>
                   <MobileCardSkeleton />
@@ -1099,12 +1199,29 @@ export default function TeachersPage() {
                           <div className="min-w-0">
                             <p className="font-semibold text-sm text-slate-900 truncate">{t.name}</p>
                             <p className="text-xs text-slate-500 mt-0.5">
+                              <code className="font-mono bg-slate-100 px-1 rounded text-[10px]">{t.teacher_code}</code>
+                              {' '}&middot;{' '}
                               {[t.designation?.des_name, t.department?.dep_name].filter(Boolean).join(' · ') || 'No designation'}
                             </p>
                           </div>
                           <StatusBadge teacher={t} />
                         </div>
                       </div>
+                    </div>
+
+                    {/* Gender & Auth Key */}
+                    <div className="ml-15 flex items-center gap-2 text-xs">
+                      <Badge
+                        variant="outline"
+                        className={
+                          t.gender === 'Male'
+                            ? 'border-sky-200 bg-sky-50 text-sky-700 text-xs font-normal'
+                            : 'border-pink-200 bg-pink-50 text-pink-700 text-xs font-normal'
+                        }
+                      >
+                        {t.gender}
+                      </Badge>
+                      <code className="font-mono bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded text-[10px]">{t.authentication_key}</code>
                     </div>
 
                     {/* Details */}
@@ -1203,21 +1320,25 @@ export default function TeachersPage() {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-lg">
-              <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <UserPlus className="w-4 h-4 text-emerald-600" />
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isAddMode ? 'bg-blue-100' : 'bg-green-100'}`}>
+                {isAddMode ? (
+                  <UserPlus className="w-4 h-4 text-blue-600" />
+                ) : (
+                  <Pencil className="w-4 h-4 text-green-600" />
+                )}
               </div>
-              {editingTeacher ? 'Edit Teacher' : 'Add Teacher'}
+              {isAddMode ? 'Add Teacher' : 'Edit Teacher'}
             </DialogTitle>
             <DialogDescription>
-              {editingTeacher ? 'Update teacher information below.' : 'Fill in the form to add a new teacher.'}
+              {isAddMode ? 'Fill in the form to add a new teacher.' : 'Update teacher information below.'}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-6">
-            {/* Personal Information */}
+            {/* ─── Personal Information ─────────────────────────────────── */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-emerald-200 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-emerald-600" />
+              <h3 className={`text-sm font-semibold mb-3 pb-2 border-b flex items-center gap-2 ${isAddMode ? 'text-slate-800 border-blue-300' : 'text-slate-800 border-green-300'}`}>
+                <FileText className={`w-4 h-4 ${isAddMode ? 'text-blue-600' : 'text-green-600'}`} />
                 Personal Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1227,7 +1348,7 @@ export default function TeachersPage() {
                 </div>
                 <div>
                   <Label className="text-sm">Other Name</Label>
-                  <Input placeholder="Other name" value={formData.other_name} onChange={(e) => setFormData({ ...formData, other_name: e.target.value })} className="mt-1" />
+                  <Input placeholder="Other name (optional)" value={formData.other_name} onChange={(e) => setFormData({ ...formData, other_name: e.target.value })} className="mt-1" />
                 </div>
                 <div>
                   <Label className="text-sm">Last Name <span className="text-red-500">*</span></Label>
@@ -1236,14 +1357,39 @@ export default function TeachersPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                {/* Staff ID - CI3: auto-gen with validate in add, disabled in edit */}
                 <div>
-                  <Label className="text-sm">Staff ID</Label>
-                  <Input placeholder="e.g. TCH-0001" value={formData.teacher_code} onChange={(e) => setFormData({ ...formData, teacher_code: e.target.value })} className="mt-1" />
+                  <Label className="text-sm">Staff ID <span className="text-red-500">*</span></Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      placeholder="e.g. TCH-0001"
+                      value={formData.teacher_code}
+                      onChange={(e) => setFormData({ ...formData, teacher_code: e.target.value })}
+                      disabled={!isAddMode}
+                      className={!isAddMode ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}
+                    />
+                    {isAddMode && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={generateTeacherCode}
+                        disabled={generatingCode}
+                        className="flex-shrink-0 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                      >
+                        {generatingCode ? (
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="w-4 h-4" />
+                        )}
+                        <span className="hidden sm:inline ml-1.5">Validate</span>
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <Label className="text-sm">Qualification</Label>
                   <Select value={formData.designation_id} onValueChange={(v) => setFormData({ ...formData, designation_id: v })}>
-                    <SelectTrigger className="mt-1"><SelectValue placeholder="Select designation" /></SelectTrigger>
+                    <SelectTrigger className="mt-1"><SelectValue placeholder="Select qualification" /></SelectTrigger>
                     <SelectContent>
                       {designations.map((d) => (
                         <SelectItem key={d.id} value={String(d.id)}>{d.des_name}</SelectItem>
@@ -1275,10 +1421,10 @@ export default function TeachersPage() {
               </div>
             </div>
 
-            {/* Contact Information */}
+            {/* ─── Contact Information ─────────────────────────────────── */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-emerald-200 flex items-center gap-2">
-                <Phone className="w-4 h-4 text-emerald-600" />
+              <h3 className={`text-sm font-semibold mb-3 pb-2 border-b flex items-center gap-2 ${isAddMode ? 'text-slate-800 border-blue-300' : 'text-slate-800 border-green-300'}`}>
+                <Phone className={`w-4 h-4 ${isAddMode ? 'text-blue-600' : 'text-green-600'}`} />
                 Contact Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1291,16 +1437,24 @@ export default function TeachersPage() {
                   <Input type="email" placeholder="Email address" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="mt-1" />
                 </div>
                 <div>
-                  <Label className="text-sm">{!editingTeacher ? 'Password' : 'New Password'} {!editingTeacher && <span className="text-red-500">*</span>}</Label>
-                  <Input type="password" placeholder={editingTeacher ? 'Leave blank to keep' : 'Password'} value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} className="mt-1" />
+                  <Label className="text-sm">
+                    {isAddMode ? 'Password' : 'New Password'} {!isAddMode ? '' : <span className="text-red-500">*</span>}
+                  </Label>
+                  <Input
+                    type="password"
+                    placeholder={isAddMode ? 'Password' : 'Leave blank to keep current'}
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="mt-1"
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Identification */}
+            {/* ─── Identification (CI3 parity) ──────────────────────────── */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-emerald-200 flex items-center gap-2">
-                <IdCard className="w-4 h-4 text-emerald-600" />
+              <h3 className={`text-sm font-semibold mb-3 pb-2 border-b flex items-center gap-2 ${isAddMode ? 'text-slate-800 border-blue-300' : 'text-slate-800 border-green-300'}`}>
+                <IdCard className={`w-4 h-4 ${isAddMode ? 'text-blue-600' : 'text-green-600'}`} />
                 Identification
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1319,10 +1473,10 @@ export default function TeachersPage() {
               </div>
             </div>
 
-            {/* Department */}
+            {/* ─── Department ───────────────────────────────────────────── */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-emerald-200 flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-emerald-600" />
+              <h3 className={`text-sm font-semibold mb-3 pb-2 border-b flex items-center gap-2 ${isAddMode ? 'text-slate-800 border-blue-300' : 'text-slate-800 border-green-300'}`}>
+                <Building2 className={`w-4 h-4 ${isAddMode ? 'text-blue-600' : 'text-green-600'}`} />
                 Department
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1340,32 +1494,41 @@ export default function TeachersPage() {
               </div>
             </div>
 
-            {/* Social Links */}
+            {/* ─── Social Links (CI3 parity) ───────────────────────────── */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-emerald-200 flex items-center gap-2">
-                <Globe className="w-4 h-4 text-emerald-600" />
+              <h3 className={`text-sm font-semibold mb-3 pb-2 border-b flex items-center gap-2 ${isAddMode ? 'text-slate-800 border-blue-300' : 'text-slate-800 border-green-300'}`}>
+                <Globe className={`w-4 h-4 ${isAddMode ? 'text-blue-600' : 'text-green-600'}`} />
                 Social Links
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
+                <div className="relative">
                   <Label className="text-sm">Facebook</Label>
-                  <Input placeholder="Facebook URL" value={formData.facebook} onChange={(e) => setFormData({ ...formData, facebook: e.target.value })} className="mt-1" />
+                  <div className="relative mt-1">
+                    <Globe className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input placeholder="Facebook URL" value={formData.facebook} onChange={(e) => setFormData({ ...formData, facebook: e.target.value })} className="pl-9" />
+                  </div>
                 </div>
-                <div>
+                <div className="relative">
                   <Label className="text-sm">Twitter</Label>
-                  <Input placeholder="Twitter handle" value={formData.twitter} onChange={(e) => setFormData({ ...formData, twitter: e.target.value })} className="mt-1" />
+                  <div className="relative mt-1">
+                    <Globe className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input placeholder="Twitter handle" value={formData.twitter} onChange={(e) => setFormData({ ...formData, twitter: e.target.value })} className="pl-9" />
+                  </div>
                 </div>
-                <div>
+                <div className="relative">
                   <Label className="text-sm">LinkedIn</Label>
-                  <Input placeholder="LinkedIn URL" value={formData.linkedin} onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })} className="mt-1" />
+                  <div className="relative mt-1">
+                    <Globe className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input placeholder="LinkedIn URL" value={formData.linkedin} onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })} className="pl-9" />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Account Information */}
+            {/* ─── Account Information (CI3 parity) ────────────────────── */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-emerald-200 flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-emerald-600" />
+              <h3 className={`text-sm font-semibold mb-3 pb-2 border-b flex items-center gap-2 ${isAddMode ? 'text-slate-800 border-blue-300' : 'text-slate-800 border-green-300'}`}>
+                <CreditCard className={`w-4 h-4 ${isAddMode ? 'text-blue-600' : 'text-green-600'}`} />
                 Account Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1392,7 +1555,7 @@ export default function TeachersPage() {
             <Button
               onClick={handleSave}
               disabled={formSaving}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white min-h-[44px]"
+              className={`min-h-[44px] text-white ${isAddMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'}`}
             >
               {formSaving ? (
                 <>
@@ -1404,7 +1567,7 @@ export default function TeachersPage() {
                   </span>
                   Saving...
                 </>
-              ) : editingTeacher ? 'Update Teacher' : 'Add Teacher'}
+              ) : isAddMode ? 'Add Teacher' : 'Update Teacher'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1430,7 +1593,7 @@ export default function TeachersPage() {
                 </p>
                 <div className="flex items-center justify-center gap-2 mt-2">
                   <StatusBadge teacher={viewTeacher} />
-                  <Badge variant="outline" className={viewTeacher.gender === 'Male' ? 'border-blue-200 text-blue-700 bg-blue-50' : 'border-pink-200 text-pink-700 bg-pink-50'}>
+                  <Badge variant="outline" className={viewTeacher.gender === 'Male' ? 'border-sky-200 text-sky-700 bg-sky-50' : 'border-pink-200 text-pink-700 bg-pink-50'}>
                     {viewTeacher.gender}
                   </Badge>
                 </div>
@@ -1448,12 +1611,12 @@ export default function TeachersPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Shield className="w-4 h-4 text-slate-500" />
+                  <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Shield className="w-4 h-4 text-amber-600" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs text-slate-400 font-medium">Auth Key</p>
-                    <p className="font-mono text-xs text-slate-700 mt-0.5 tracking-widest break-all">{viewTeacher.authentication_key}</p>
+                    <p className="font-mono text-xs text-amber-700 mt-0.5 tracking-widest break-all">{viewTeacher.authentication_key}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2.5">
@@ -1495,10 +1658,12 @@ export default function TeachersPage() {
               </div>
 
               {/* Address */}
-              <div className="text-sm">
-                <p className="text-xs text-slate-400 font-medium mb-1">Address</p>
-                <p className="text-slate-700 text-sm">{viewTeacher.address || '—'}</p>
-              </div>
+              {viewTeacher.address && (
+                <div className="text-sm">
+                  <p className="text-xs text-slate-400 font-medium mb-1">Address</p>
+                  <p className="text-slate-700 text-sm">{viewTeacher.address}</p>
+                </div>
+              )}
 
               {/* Form Master */}
               {viewTeacher.form_master.length > 0 && (
@@ -1520,7 +1685,7 @@ export default function TeachersPage() {
             {viewTeacher && (isAdmin || hasPermission('teachers.update')) && (
               <Button
                 onClick={() => { setViewOpen(false); openEditForm(viewTeacher); }}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white min-h-[44px]"
+                className="bg-green-600 hover:bg-green-700 text-white min-h-[44px]"
               >
                 <Pencil className="w-4 h-4 mr-2" />
                 Edit

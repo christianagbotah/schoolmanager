@@ -50,6 +50,7 @@ import {
   Edit, Trash2, Download, Eye, DollarSign, TrendingUp, TrendingDown,
   FileText, Info, CheckCircle, XCircle, Activity, Users, HeartPulse,
   School, ClipboardList, CircleDollarSign, Receipt, ArrowLeft,
+  Ban, Unlock, IdCard, Printer, MessageSquare, BarChart3, Monitor,
 } from 'lucide-react';
 
 // Types
@@ -244,7 +245,13 @@ function formatCurrency(amount: number): string {
 }
 
 // Info card component for the profile tabs
-function InfoCard({ icon: Icon, iconColor, label, value, className = '' }: {
+function InfoCard({
+  icon: Icon,
+  iconColor,
+  label,
+  value,
+  className = '',
+}: {
   icon: React.ElementType;
   iconColor: string;
   label: string;
@@ -263,7 +270,12 @@ function InfoCard({ icon: Icon, iconColor, label, value, className = '' }: {
 }
 
 // Gradient info card (parent tab)
-function GradientInfoCard({ icon: Icon, bgColor, label, value }: {
+function GradientInfoCard({
+  icon: Icon,
+  bgColor,
+  label,
+  value,
+}: {
   icon: React.ElementType;
   bgColor: string;
   label: string;
@@ -535,6 +547,35 @@ export default function StudentProfilePage() {
                     <Edit className="h-4 w-4 mr-2" />
                     Edit Profile
                   </Button>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link href={`/admin/students/${studentId}/profile`}>
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Profile
+                    </Link>
+                  </Button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" size="sm" className="text-xs" asChild>
+                      <Link href={`/admin/students/${studentId}/profile?tab=academic`}>
+                        <BarChart3 className="h-3.5 w-3.5 mr-1" />
+                        Marksheet
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-xs" asChild>
+                      <Link href={`/admin/students/${studentId}/profile?tab=financial`}>
+                        <Receipt className="h-3.5 w-3.5 mr-1" />
+                        Receipts
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-xs">
+                      <IdCard className="h-3.5 w-3.5 mr-1" />
+                      Generate ID
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-xs">
+                      <Printer className="h-3.5 w-3.5 mr-1" />
+                      Print
+                    </Button>
+                  </div>
+                  <Separator />
                   <Button variant="outline" className="w-full text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => setDeleteOpen(true)}>
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete Student
@@ -641,6 +682,8 @@ export default function StudentProfilePage() {
                       <InfoCard icon={Baby} iconColor="pink" label="Place of Birth" value={student.place_of_birth} />
                       <InfoCard icon={Home} iconColor="teal" label="Hometown" value={student.hometown} />
                       <InfoCard icon={Calendar} iconColor="cyan" label="Admission Date" value={formatDate(student.admission_date)} />
+                      <InfoCard icon={Flag} iconColor="emerald" label="Religion" value={student.religion} />
+                      <InfoCard icon={Users} iconColor="amber" label="Tribe" value={student.tribe} />
                     </div>
                   </CardContent>
                 </Card>
@@ -690,6 +733,7 @@ export default function StudentProfilePage() {
                       <InfoCard icon={Heart} iconColor="green" label="Special Diet" value={student.special_diet === 1 ? 'YES' : 'NO'} />
                       <InfoCard icon={School} iconColor="teal" label="Former School" value={student.former_school} />
                       <InfoCard icon={ClipboardList} iconColor="indigo" label="Class Reached" value={student.class_reached} />
+                      <InfoCard icon={ClipboardList} iconColor="amber" label="Roll Number" value={currentEnroll?.roll || 'N/A'} />
                     </div>
                   </CardContent>
                 </Card>
@@ -762,7 +806,24 @@ export default function StudentProfilePage() {
                   </Card>
                 )}
 
-                {/* Terminal Reports Summary */}
+                {/* Digital Literacy & Technology */
+                <Card className="p-5">
+                  <CardHeader className="p-0 pb-4">
+                    <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                      <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center">
+                        <Monitor className="h-5 w-5 text-violet-600" />
+                      </div>
+                      Digital Literacy & Technology
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <InfoCard icon={GraduationCap} iconColor="violet" label="Digital Literacy" value={(student as any).digital_literacy || 'Beginner'} />
+                      <InfoCard icon={Monitor} iconColor="purple" label="Home Technology Access" value={(student as any).home_technology_access === '1' ? 'Available' : ((student as any).home_technology_access === '0' ? 'Not Available' : 'N/A')} />
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {terminalReports.length > 0 && (
                   <Card className="p-5">
                     <CardHeader className="p-0 pb-4">

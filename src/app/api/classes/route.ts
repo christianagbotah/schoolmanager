@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
     const category = searchParams.get('category')
+    const limitParam = searchParams.get('limit')
 
     const where: Record<string, unknown> = {}
 
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
       where.category = category
     }
 
-    const classes = await db.school_class.findMany({
+    const queryArgs: Record<string, unknown> = {
       where,
       include: {
         teacher: { select: { teacher_id: true, name: true, email: true } },
@@ -29,7 +30,18 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: [{ name_numeric: 'asc' }, { name: 'asc' }],
-    })
+    }
+
+    if (limitParam) {
+      queryArgs.take = parseInt(limitParam, 10)
+    }
+
+    const classes = await db.school_class.findMany(queryArgs)
+
+    // If limit param is present, return { classes: [...] } format for compatibility
+    if (limitParam) {
+      return NextResponse.json({ classes })
+    }
 
     return NextResponse.json(classes)
   } catch (error) {

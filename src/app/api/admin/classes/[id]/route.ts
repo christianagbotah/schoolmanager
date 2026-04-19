@@ -46,10 +46,21 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, name_numeric, category, teacher_id } = body;
+    const { name, name_numeric, category, teacher_id, student_capacity, section_name } = body;
 
     if (!name?.trim()) {
       return NextResponse.json({ error: "Class name is required" }, { status: 400 });
+    }
+
+    // CI3 parity: if section_name is provided, find the section by name and link it
+    let sectionIdToSet: number | null = undefined;
+    if (section_name?.trim()) {
+      const existingSection = await db.section.findFirst({
+        where: { name: section_name.trim().toUpperCase() },
+      });
+      if (existingSection) {
+        sectionIdToSet = existingSection.section_id;
+      }
     }
 
     const schoolClass = await db.school_class.update({
@@ -59,6 +70,8 @@ export async function PUT(
         name_numeric: name_numeric ? parseInt(name_numeric, 10) : 0,
         category: category || "",
         teacher_id: teacher_id ? parseInt(teacher_id, 10) : null,
+        student_capacity: student_capacity ? parseInt(student_capacity, 10) : 0,
+        ...(sectionIdToSet !== undefined && { section_id: sectionIdToSet }),
       },
     });
 

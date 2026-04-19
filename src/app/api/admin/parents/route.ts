@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
     const statusFilter = searchParams.get("status") || "";
+    const classIdFilter = searchParams.get("classId") || "";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const pageSize = Math.max(1, Math.min(100, parseInt(searchParams.get("pageSize") || "15", 10)));
 
@@ -31,10 +32,25 @@ export async function GET(request: NextRequest) {
         { profession: { contains: search } },
       ];
     }
+    // CI3 uses block_limit for account status: blocked = block_limit >= 3
     if (statusFilter === "active") {
-      where.active_status = 1;
+      where.block_limit = { lt: 3 };
     } else if (statusFilter === "inactive") {
-      where.active_status = 0;
+      where.block_limit = { gte: 3 };
+    }
+
+    // If classId filter is provided, only show parents linked to students in that class
+    if (classIdFilter) {
+      const enrollments = await db.enroll.findMany({
+        where: { class_id: parseInt(classIdFilter, 10) },
+        select: { parent_id: true },
+      });
+      const linkedParentIds = enrollments.map(e => e.parent_id).filter(Boolean);
+      if (linkedParentIds.length > 0) {
+        where.parent_id = { in: linkedParentIds };
+      } else {
+        where.parent_id = -1; // Force empty result
+      }
     }
 
     // Parallel queries for data, total, and gender counts
@@ -168,6 +184,10 @@ export async function POST(request: NextRequest) {
         address: address ? address.trim() : "",
         profession: profession ? profession.trim() : "",
         designation: designation ? designation.trim() : "",
+        father_name: body.father_name?.trim() || "",
+        father_phone: body.father_phone?.trim() || "",
+        mother_name: body.mother_name?.trim() || "",
+        mother_phone: body.mother_phone?.trim() || "",
         authentication_key: authKey,
         active_status: 1,
         block_limit: 0,

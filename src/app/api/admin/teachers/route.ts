@@ -20,6 +20,8 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search") || "";
     const statusFilter = searchParams.get("status") || "";
     const genderFilter = searchParams.get("gender") || "";
+    const departmentFilter = searchParams.get("department") || "";
+    const designationFilter = searchParams.get("designation") || "";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const pageSize = Math.max(1, Math.min(100, parseInt(searchParams.get("pageSize") || "15", 10)));
 
@@ -38,6 +40,12 @@ export async function GET(request: NextRequest) {
     else if (statusFilter === "0") where.active_status = 0;
     if (genderFilter) {
       where.gender = genderFilter.charAt(0).toUpperCase() + genderFilter.slice(1).toLowerCase();
+    }
+    if (departmentFilter) {
+      where.department_id = parseInt(departmentFilter, 10);
+    }
+    if (designationFilter) {
+      where.designation_id = parseInt(designationFilter, 10);
     }
 
     // Parallel queries
@@ -168,6 +176,13 @@ export async function POST(request: NextRequest) {
     const bcrypt = await import("bcryptjs");
     const hashedPassword = password ? await bcrypt.hash(password, 10) : "";
 
+    // Build social links JSON (matching CI3 format: array of objects)
+    const socialLinks = JSON.stringify([{
+      facebook: body.facebook?.trim() || "",
+      twitter: body.twitter?.trim() || "",
+      linkedin: body.linkedin?.trim() || "",
+    }]);
+
     // Create teacher
     const teacher = await db.teacher.create({
       data: {
@@ -190,6 +205,7 @@ export async function POST(request: NextRequest) {
         petra_id: body.petra_id?.trim() || "",
         account_number: account_number?.trim() || "",
         account_details: account_details?.trim() || "",
+        social_links: socialLinks,
       },
     });
 

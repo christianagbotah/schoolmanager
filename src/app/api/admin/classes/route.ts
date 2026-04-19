@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
       category,
       teacher_id,
       section_name,
+      student_capacity,
     } = body;
 
     if (!name?.trim()) {
@@ -68,6 +69,7 @@ export async function POST(request: NextRequest) {
         name_numeric: name_numeric ? parseInt(name_numeric, 10) : 0,
         category: category,
         teacher_id: teacher_id ? parseInt(teacher_id, 10) : null,
+        student_capacity: student_capacity ? parseInt(student_capacity, 10) : 0,
       },
     });
 

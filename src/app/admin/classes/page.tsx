@@ -106,6 +106,9 @@ export default function ClassesPage() {
   const [deleteSectionTarget, setDeleteSectionTarget] = useState<Section | null>(null);
   const [deletingSection, setDeletingSection] = useState(false);
 
+  // Available sections for class form (distinct section names, CI3 parity)
+  const [availableSections, setAvailableSections] = useState<string[]>([]);
+
   // Class form
   const [classFormOpen, setClassFormOpen] = useState(false);
   const [classFormSaving, setClassFormSaving] = useState(false);
@@ -115,7 +118,8 @@ export default function ClassesPage() {
     name_numeric: '',
     category: '',
     teacher_id: '',
-    section_name: '',
+    section_name: 'A',
+    student_capacity: '',
   });
 
   // Delete class
@@ -154,6 +158,15 @@ export default function ClassesPage() {
         );
       })
       .catch(() => {});
+    // Fetch distinct section names for class form dropdown (CI3 parity)
+    fetch('/api/admin/sections')
+      .then((r) => r.json())
+      .then((d) => {
+        const list = Array.isArray(d) ? d : [];
+        const names = [...new Set(list.map((s: Section) => s.name).filter(Boolean))];
+        setAvailableSections(names);
+      })
+      .catch(() => {});
   }, [fetchClasses]);
 
   // ─── Filtered data ───────────────────────────────────────────────────────────
@@ -181,7 +194,7 @@ export default function ClassesPage() {
   // ─── Class CRUD ──────────────────────────────────────────────────────────────
   const openAddClass = () => {
     setEditingClass(null);
-    setClassFormData({ name: '', name_numeric: '', category: '', teacher_id: '', section_name: 'A' });
+    setClassFormData({ name: '', name_numeric: '', category: '', teacher_id: '', section_name: 'A', student_capacity: '' });
     setClassFormOpen(true);
   };
 
@@ -193,6 +206,7 @@ export default function ClassesPage() {
       category: c.category,
       teacher_id: c.teacher ? String(c.teacher.teacher_id) : '',
       section_name: '',
+      student_capacity: c.student_capacity ? String(c.student_capacity) : '',
     });
     setClassFormOpen(true);
   };
@@ -218,6 +232,7 @@ export default function ClassesPage() {
             name_numeric: classFormData.name_numeric,
             category: classFormData.category,
             teacher_id: classFormData.teacher_id,
+            student_capacity: classFormData.student_capacity,
           }
         : {
             name: classFormData.name,
@@ -225,6 +240,7 @@ export default function ClassesPage() {
             category: classFormData.category,
             teacher_id: classFormData.teacher_id,
             section_name: classFormData.section_name || 'A',
+            student_capacity: classFormData.student_capacity,
           };
 
       const res = await fetch(url, {
@@ -540,6 +556,9 @@ export default function ClassesPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50/80 dark:bg-slate-800/40">
+                    <TableHead className="text-xs font-semibold text-slate-600 dark:text-slate-300 w-12">
+                      #
+                    </TableHead>
                     <TableHead className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                       Class Name
                     </TableHead>
@@ -551,6 +570,9 @@ export default function ClassesPage() {
                     </TableHead>
                     <TableHead className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                       Sections
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                      Capacity
                     </TableHead>
                     <TableHead className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                       Students
@@ -582,7 +604,7 @@ export default function ClassesPage() {
                     ))
                   ) : filteredClasses.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6}>
+                      <TableCell colSpan={7}>
                         <div className="flex flex-col items-center justify-center py-20 text-slate-400 dark:text-slate-500">
                           <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
                             <GraduationCap className="w-8 h-8 opacity-40" />
@@ -608,11 +630,12 @@ export default function ClassesPage() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredClasses.map((c) => (
+                    filteredClasses.map((c, idx) => (
                       <TableRow
                         key={c.class_id}
                         className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors"
                       >
+                        <TableCell className="text-xs text-slate-500">{idx + 1}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
@@ -656,6 +679,11 @@ export default function ClassesPage() {
                             {c.sections?.length || 0} section{(c.sections?.length || 0) !== 1 ? 's' : ''}
                             <ChevronRight className="w-3.5 h-3.5" />
                           </button>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm font-mono text-slate-600 dark:text-slate-300">
+                            {c.student_capacity || 0}
+                          </span>
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
@@ -812,6 +840,12 @@ export default function ClassesPage() {
                         <Layers className="w-3 h-3 mr-1" />
                         {c.sections?.length || 0} section{(c.sections?.length || 0) !== 1 ? 's' : ''}
                       </Badge>
+                      {c.student_capacity > 0 && (
+                        <Badge variant="outline" className="text-xs bg-violet-50 text-violet-700 dark:bg-violet-900/20 dark:text-violet-300">
+                          <Hash className="w-3 h-3 mr-1" />
+                          Cap: {c.student_capacity}
+                        </Badge>
+                      )}
                     </div>
 
                     {/* Manage sections CTA */}
@@ -1034,6 +1068,22 @@ export default function ClassesPage() {
               />
             </div>
 
+            {/* Student Capacity */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Student Capacity</Label>
+              <Input
+                type="number"
+                min="0"
+                placeholder="e.g. 40"
+                value={classFormData.student_capacity}
+                onChange={(e) => setClassFormData({ ...classFormData, student_capacity: e.target.value })}
+                className="min-h-[44px]"
+              />
+              <p className="text-xs text-slate-400">
+                Maximum number of students allowed
+              </p>
+            </div>
+
             {/* Class Teacher */}
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">Class Teacher</Label>
@@ -1054,21 +1104,70 @@ export default function ClassesPage() {
               </Select>
             </div>
 
-            {/* Default Section Name (new only) */}
-            {!editingClass && (
+            {/* Section Name (CI3 parity: dropdown of distinct section names) */}
+            {!editingClass ? (
               <>
                 <Separator />
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium">Default Section Name</Label>
-                  <Input
-                    placeholder="A"
-                    value={classFormData.section_name}
-                    onChange={(e) => setClassFormData({ ...classFormData, section_name: e.target.value })}
-                    className="min-h-[44px]"
-                  />
+                  <Label className="text-xs font-medium">Section</Label>
+                  {availableSections.length > 0 ? (
+                    <Select
+                      value={classFormData.section_name}
+                      onValueChange={(v) => setClassFormData({ ...classFormData, section_name: v })}
+                    >
+                      <SelectTrigger className="min-h-[44px]">
+                        <SelectValue placeholder="Select section" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableSections.map((sec) => (
+                          <SelectItem key={sec} value={sec}>
+                            {sec}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      placeholder="e.g. A"
+                      value={classFormData.section_name}
+                      onChange={(e) => setClassFormData({ ...classFormData, section_name: e.target.value })}
+                      className="min-h-[44px]"
+                    />
+                  )}
                   <p className="text-xs text-slate-400">
                     A default section will be created with this name
                   </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <Separator />
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium">Section</Label>
+                  {availableSections.length > 0 ? (
+                    <Select
+                      value={classFormData.section_name || ''}
+                      onValueChange={(v) => setClassFormData({ ...classFormData, section_name: v })}
+                    >
+                      <SelectTrigger className="min-h-[44px]">
+                        <SelectValue placeholder="Select section" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableSections.map((sec) => (
+                          <SelectItem key={sec} value={sec}>
+                            {sec}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      placeholder="Section name"
+                      value={classFormData.section_name}
+                      onChange={(e) => setClassFormData({ ...classFormData, section_name: e.target.value })}
+                      className="min-h-[44px]"
+                    />
+                  )}
                 </div>
               </>
             )}

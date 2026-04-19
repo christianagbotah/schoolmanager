@@ -226,8 +226,8 @@ export default function SubjectsPage() {
     setLoading(true);
     try {
       const [subjectsRes, classesRes, teachersRes] = await Promise.all([
-        fetch('/api/subjects'),
-        fetch('/api/classes'),
+        fetch('/api/admin/subjects'),
+        fetch('/api/admin/classes'),
         fetch('/api/admin/teachers?pageSize=500'),
       ]);
 
@@ -254,11 +254,10 @@ export default function SubjectsPage() {
   // Fetch sections when class changes in form
   useEffect(() => {
     if (form.class_id && form.class_id !== '__none__') {
-      fetch(`/api/classes?id=${form.class_id}`)
+      fetch(`/api/admin/sections?class_id=${form.class_id}`)
         .then((r) => r.json())
         .then((d) => {
-          const secs = d.sections || d.section || [];
-          setSections(Array.isArray(secs) ? secs : secs ? [secs] : []);
+          setSections(Array.isArray(d) ? d : []);
         })
         .catch(() => setSections([]));
     } else {
@@ -330,8 +329,8 @@ export default function SubjectsPage() {
     setSaving(true);
     try {
       const url = selected
-        ? `/api/subjects/${selected.subject_id}`
-        : '/api/subjects';
+        ? `/api/admin/subjects/${selected.subject_id}`
+        : '/api/admin/subjects';
       const method = selected ? 'PUT' : 'POST';
       const res = await fetch(url, {
         method,
@@ -353,10 +352,8 @@ export default function SubjectsPage() {
         }),
       });
 
-      if (!res.ok) {
-        const d = await res.json();
-        throw new Error(d.error || 'Failed to save');
-      }
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
 
       toast.success(selected ? 'Subject updated' : 'Subject created');
       setFormOpen(false);
@@ -373,10 +370,11 @@ export default function SubjectsPage() {
     if (!selected) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/subjects/${selected.subject_id}`, {
+      const res = await fetch(`/api/admin/subjects/${selected.subject_id}`, {
         method: 'DELETE',
       });
-      if (!res.ok) throw new Error('Failed to delete');
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
       toast.success('Subject deleted');
       setDeleteOpen(false);
       setSelected(null);
@@ -604,6 +602,12 @@ export default function SubjectsPage() {
                       <TableHead className="text-xs font-semibold text-slate-600">
                         Section
                       </TableHead>
+                      <TableHead className="text-xs font-semibold text-slate-600 hidden lg:table-cell">
+                        Year
+                      </TableHead>
+                      <TableHead className="text-xs font-semibold text-slate-600 hidden lg:table-cell">
+                        Term
+                      </TableHead>
                       <TableHead className="text-xs font-semibold text-slate-600">
                         Status
                       </TableHead>
@@ -637,6 +641,16 @@ export default function SubjectsPage() {
                         </TableCell>
                         <TableCell className="text-sm text-slate-600">
                           {s.section?.name || (
+                            <span className="text-slate-400">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-sm text-slate-600 hidden lg:table-cell">
+                          {s.year || (
+                            <span className="text-slate-400">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-sm text-slate-600 hidden lg:table-cell">
+                          {s.term > 0 ? s.term : (
                             <span className="text-slate-400">—</span>
                           )}
                         </TableCell>
@@ -722,6 +736,18 @@ export default function SubjectsPage() {
                             <Layers className="w-3 h-3 text-slate-400" />
                             <span>{s.section?.name || '—'}</span>
                           </p>
+                          {s.year && (
+                            <p className="flex items-center gap-1.5">
+                              <span className="w-3 h-3 text-slate-400" />
+                              <span>Year: {s.year}</span>
+                            </p>
+                          )}
+                          {s.term > 0 && (
+                            <p className="flex items-center gap-1.5">
+                              <span className="w-3 h-3 text-slate-400" />
+                              <span>Term: {s.term}</span>
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>

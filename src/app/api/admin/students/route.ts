@@ -1,18 +1,30 @@
 import { db } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
+import { getSetting } from '@/lib/settings';
+import crypto from 'crypto';
+
+// ── Helpers ──
+function generateStudentCode(): string {
+  const year = new Date().getFullYear();
+  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  return `STU${year}${random}`;
+}
 
 /**
  * GET /api/admin/students
- * 
- * List students for the admin student_information page.
- * Matches CI3 Admin::student_information + get_students functionality.
- * 
+ *
+ * List students for the admin all_students page.
+ * Matches CI3 Admin::all_students functionality.
+ *
  * Query params:
- *   classId   - required: filter by class_id (enroll table)
- *   sectionId - optional: filter by section_id
- *   search    - optional: search student name or code
- *   page      - pagination page (default 1)
- *   limit     - items per page (default 20)
+ *   classId     - optional: filter by class_id
+ *   sectionId   - optional: filter by section_id
+ *   search      - optional: search student name or code
+ *   gender      - optional: male / female
+ *   residence   - optional: Day / Boarding
+ *   activeStatus - optional: 1 (active) or 0 (inactive)
+ *   page        - pagination page (default 1)
+ *   limit       - items per page (default 50)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -20,24 +32,38 @@ export async function GET(request: NextRequest) {
     const classId = searchParams.get('classId');
     const sectionId = searchParams.get('sectionId');
     const search = searchParams.get('search') || '';
+    const gender = searchParams.get('gender') || '';
+    const residence = searchParams.get('residence') || '';
+    const activeStatus = searchParams.get('activeStatus') || '';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
 
-    if (!classId) {
-      return NextResponse.json(
-        { error: 'classId is required' },
-        { status: 400 }
-      );
-    }
+    // Get running year/term from settings
+    const running_year = await getSetting('running_year') || String(new Date().getFullYear());
+    const running_term = await getSetting('running_term') || '1';
 
     // Build enroll where clause
     const enrollWhere: Record<string, unknown> = {
-      class_id: parseInt(classId),
       mute: 0,
     };
 
+    // Try to match year/term if there's data
+    const hasYearTerm = await db.enroll.findFirst({
+      where: { year: { not: '' } },
+      select: { year: true },
+    });
+    if (hasYearTerm) {
+      enrollWhere.year = running_year;
+    }
+
+    if (classId && classId !== '__all__') {
+      enrollWhere.class_id = parseInt(classId);
+    }
     if (sectionId && sectionId !== '__all__') {
       enrollWhere.section_id = parseInt(sectionId);
+    }
+    if (residence) {
+      enrollWhere.residence_type = residence;
     }
 
     // Build student where clause
@@ -49,6 +75,12 @@ export async function GET(request: NextRequest) {
         { first_name: { contains: search } },
         { last_name: { contains: search } },
       ];
+    }
+    if (gender) {
+      studentWhere.sex = gender;
+    }
+    if (activeStatus !== '') {
+      studentWhere.active_status = parseInt(activeStatus);
     }
 
     const skip = (page - 1) * limit;
@@ -68,10 +100,11 @@ export async function GET(request: NextRequest) {
             sex: true,
             phone: true,
             email: true,
-            authentication_key: true,
-            active_status: true,
             address: true,
             birthday: true,
+            active_status: true,
+            admission_date: true,
+            parent_id: true,
           },
         },
         class: {
@@ -96,7 +129,10 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: { roll: 'asc' },
+      orderBy: [
+        { class: { name_numeric: 'asc' } },
+        { roll: 'asc' },
+      ],
       skip,
       take: limit,
     });
@@ -112,39 +148,51 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Calculate gender stats from all enrolled students in this class (not just current page)
+    // Calculate stats from all enrolled students (not just current page)
     const allEnrolls = await db.enroll.findMany({
       where: enrollWhere,
       include: {
-        student: { select: { sex: true } },
+        student: { select: { sex: true, active_status: true } },
       },
     });
 
     const males = allEnrolls.filter(e => {
       const s = e.student?.sex?.toLowerCase();
-      return s === 'male';
+      return s === 'male' && e.student?.active_status === 1;
     }).length;
     const females = allEnrolls.filter(e => {
       const s = e.student?.sex?.toLowerCase();
-      return s === 'female';
+      return s === 'female' && e.student?.active_status === 1;
     }).length;
-    const unsetGender = allEnrolls.filter(e => {
+    const unknownGender = allEnrolls.filter(e => {
       const s = e.student?.sex?.toLowerCase();
-      return s !== 'male' && s !== 'female';
+      return s !== 'male' && s !== 'female' && e.student?.active_status === 1;
     }).length;
+    const totalActive = allEnrolls.filter(e => e.student?.active_status === 1).length;
+    const totalInactive = allEnrolls.filter(e => e.student?.active_status === 0).length;
+
+    // Group by class for display
+    const classGroups: Record<string, typeof validEnrolls> = {};
+    for (const e of validEnrolls) {
+      const key = String(e.class.class_id);
+      if (!classGroups[key]) classGroups[key] = [];
+      classGroups[key].push(e);
+    }
 
     const students = validEnrolls.map(e => ({
       enroll_id: e.enroll_id,
       student_id: e.student.student_id,
       student_code: e.student.student_code,
       name: e.student.name,
+      first_name: e.student.first_name,
+      last_name: e.student.last_name,
       sex: e.student.sex,
-      authentication_key: e.student.authentication_key,
-      active_status: e.student.active_status,
       phone: e.student.phone,
       email: e.student.email,
       address: e.student.address,
       birthday: e.student.birthday,
+      active_status: e.student.active_status,
+      admission_date: e.student.admission_date,
       roll: e.roll,
       residence_type: e.residence_type,
       class_id: e.class.class_id,
@@ -158,10 +206,41 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       students,
+      classGroups: Object.fromEntries(
+        Object.entries(classGroups).map(([id, enrolls]) => [
+          id,
+          {
+            class_id: parseInt(id),
+            class_name: enrolls[0]?.class.name || '',
+            class_name_numeric: enrolls[0]?.class.name_numeric || 0,
+            students: enrolls.map(e => ({
+              enroll_id: e.enroll_id,
+              student_id: e.student.student_id,
+              student_code: e.student.student_code,
+              name: e.student.name,
+              sex: e.student.sex,
+              phone: e.student.phone,
+              address: e.student.address,
+              birthday: e.student.birthday,
+              active_status: e.student.active_status,
+              residence_type: e.residence_type,
+              class_id: e.class.class_id,
+              class_name: e.class.name,
+              class_name_numeric: e.class.name_numeric,
+              section_id: e.section.section_id,
+              section_name: e.section.name,
+              parent: e.parent,
+              roll: e.roll,
+            })),
+          },
+        ])
+      ),
       stats: {
         males,
         females,
-        unsetGender,
+        unknownGender,
+        totalActive,
+        totalInactive,
         total: allEnrolls.length,
       },
       pagination: {
@@ -181,15 +260,150 @@ export async function GET(request: NextRequest) {
 }
 
 /**
+ * POST /api/admin/students
+ *
+ * Create a new student with enrollment.
+ * Matches CI3 Admin::student('create') functionality.
+ *
+ * Accepts full student payload including personal, academic,
+ * guardian, and medical fields. Creates student record and
+ * enrollment in a single transaction.
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const {
+      first_name, middle_name, last_name, sex, religion, blood_group, birthday,
+      nationality, address, phone, student_phone, email, admission_date,
+      parent_id, class_id, section_id, year, term, roll, residence_type,
+      username, password, special_needs, ghana_card_id, place_of_birth,
+      hometown, tribe, emergency_contact, allergies, medical_conditions,
+      nhis_number, nhis_status, disability_status, special_diet,
+      student_special_diet_details, former_school, class_reached, student_code,
+      father_name, father_phone, mother_name, mother_phone, parent_email,
+    } = body;
+
+    // Basic validation
+    if (!first_name?.trim() || !last_name?.trim()) {
+      return NextResponse.json(
+        { error: 'First name and last name are required' },
+        { status: 400 }
+      );
+    }
+    if (!class_id || !section_id) {
+      return NextResponse.json(
+        { error: 'Class and section are required' },
+        { status: 400 }
+      );
+    }
+
+    const name = [first_name, middle_name, last_name].filter(Boolean).join(' ').toUpperCase();
+
+    // Generate 5-char authentication key
+    const authKey = crypto.randomBytes(3).toString('hex').substring(0, 5).toUpperCase();
+
+    // Resolve year/term from settings if not provided
+    const running_year = year || await getSetting('running_year') || String(new Date().getFullYear());
+    const running_term = term || await getSetting('running_term') || '';
+
+    // Create the student record
+    const student = await db.student.create({
+      data: {
+        first_name: first_name || '',
+        middle_name: middle_name || '',
+        last_name: last_name || '',
+        name,
+        sex: sex || '',
+        religion: religion || '',
+        blood_group: blood_group || '',
+        birthday: birthday ? new Date(birthday) : null,
+        nationality: nationality || 'Ghanaian',
+        address: address || '',
+        phone: phone || '',
+        student_phone: student_phone || '',
+        email: email || '',
+        admission_date: admission_date ? new Date(admission_date) : new Date(),
+        parent_id: parent_id || null,
+        username: username || student_code || generateStudentCode(),
+        password: password || '',
+        special_needs: special_needs || '',
+        student_code: student_code || generateStudentCode(),
+        ghana_card_id: ghana_card_id || '',
+        place_of_birth: place_of_birth || '',
+        hometown: hometown || '',
+        tribe: tribe || '',
+        emergency_contact: emergency_contact || '',
+        allergies: allergies || '',
+        medical_conditions: medical_conditions || '',
+        nhis_number: nhis_number || '',
+        nhis_status: nhis_status || 'inactive',
+        disability_status: disability_status ? 1 : 0,
+        special_diet: special_diet ? 1 : 0,
+        student_special_diet_details: student_special_diet_details || '',
+        former_school: former_school || '',
+        class_reached: class_reached || '',
+        authentication_key: authKey,
+        active_status: 1,
+        mute: 0,
+      },
+    });
+
+    // Create enrollment record
+    await db.enroll.create({
+      data: {
+        student_id: student.student_id,
+        class_id: parseInt(class_id),
+        section_id: parseInt(section_id),
+        year: running_year,
+        term: running_term,
+        roll: roll || '',
+        residence_type: residence_type || 'Day',
+        parent_id: parent_id ? parseInt(parent_id as string) : null,
+        mute: 0,
+      },
+    });
+
+    // Update parent record with father/mother info if parent_id provided
+    if (parent_id) {
+      const parentUpdate: Record<string, string> = {};
+      if (father_name) parentUpdate.father_name = father_name;
+      if (father_phone) parentUpdate.father_phone = father_phone;
+      if (mother_name) parentUpdate.mother_name = mother_name;
+      if (mother_phone) parentUpdate.mother_phone = mother_phone;
+      if (phone) parentUpdate.phone = phone;
+      if (parent_email) parentUpdate.email = parent_email;
+
+      if (Object.keys(parentUpdate).length > 0) {
+        await db.parent.update({
+          where: { parent_id: parseInt(parent_id as string) },
+          data: parentUpdate,
+        });
+      }
+    }
+
+    return NextResponse.json(
+      { student_id: student.student_id, student_code: student.student_code, name: student.name },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Error creating student (admin):', error);
+    const message = error instanceof Error && error.message.includes('Unique')
+      ? 'A student with this username or student code already exists'
+      : 'Failed to create student';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+/**
  * DELETE /api/admin/students
- * 
+ *
  * Bulk delete students (matches CI3 Admin::bulk_students_delete)
- * Body: { studentIds: number[], classId: number }
+ * Body: { studentIds: number[] }
  */
 export async function DELETE(request: NextRequest) {
   try {
     const body = await request.json();
-    const { studentIds, classId } = body;
+    const { studentIds } = body;
 
     if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
       return NextResponse.json(
@@ -221,7 +435,7 @@ export async function DELETE(request: NextRequest) {
 
 /**
  * PUT /api/admin/students
- * 
+ *
  * Actions: block, unblock, mute, unmute, move, change_residence
  * Matches CI3 student account management actions.
  */
@@ -279,7 +493,6 @@ export async function PUT(request: NextRequest) {
       const ids = student_ids.map(Number);
       let moved = 0;
       for (const sid of ids) {
-        // Get the latest enrollment for this student
         const latestEnroll = await db.enroll.findFirst({
           where: { student_id: sid },
           orderBy: { enroll_id: 'desc' },

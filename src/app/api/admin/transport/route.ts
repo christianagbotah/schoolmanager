@@ -11,6 +11,8 @@ export async function GET(request: NextRequest) {
       where.OR = [
         { route_name: { contains: search } },
         { vehicle_number: { contains: search } },
+        { description: { contains: search } },
+        { facilities: { contains: search } },
       ];
     }
 
@@ -25,10 +27,26 @@ export async function GET(request: NextRequest) {
       orderBy: { transport_id: 'desc' },
     });
 
+    // Enrich with driver info
+    const driverIds = routes.map(r => r.driver_id).filter(Boolean) as number[];
+    const drivers = driverIds.length > 0
+      ? await db.driver.findMany({
+          where: { driver_id: { in: driverIds } },
+          select: { driver_id: true, name: true, phone: true, status: true },
+        })
+      : [];
+    const driverMap = new Map(drivers.map(d => [d.driver_id, d]));
+
     const routesWithCount = routes.map(r => ({
-      ...r,
+      transport_id: r.transport_id,
+      route_name: r.route_name,
+      description: r.description,
+      vehicle_number: r.vehicle_number,
+      driver_id: r.driver_id,
+      fare: r.fare,
+      facilities: r.facilities,
       studentCount: r.bus_attendances.length,
-      bus_attendances: undefined,
+      driver: r.driver_id ? driverMap.get(r.driver_id) || null : null,
     }));
 
     return NextResponse.json(routesWithCount);

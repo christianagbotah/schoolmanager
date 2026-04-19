@@ -11,11 +11,24 @@ export async function GET(req: NextRequest) {
     const endDate = searchParams.get('endDate') || '';
     const status = searchParams.get('status') || '';
 
+    const search = searchParams.get('search') || '';
     const where: Record<string, unknown> = {};
     if (categoryId) where.category_id = parseInt(categoryId);
     if (status) where.status = status;
     if (startDate && endDate) {
       where.expense_date = { gte: new Date(startDate), lte: new Date(endDate) };
+    } else if (startDate) {
+      where.expense_date = { gte: new Date(startDate) };
+    } else if (endDate) {
+      where.expense_date = { lte: new Date(endDate) };
+    }
+    if (search) {
+      where.OR = [
+        { title: { contains: search } },
+        { description: { contains: search } },
+        { payment_method: { contains: search } },
+        { expense_category: { is: { expense_category_name: { contains: search } } } },
+      ];
     }
 
     const [expenses, total] = await Promise.all([

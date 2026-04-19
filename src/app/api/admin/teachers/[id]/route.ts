@@ -83,6 +83,13 @@ export async function PUT(
       .replace(/\s+/g, " ")
       .trim();
 
+    // Build social links JSON (matching CI3 format: array of objects)
+    const socialLinks = JSON.stringify([{
+      facebook: body.facebook?.trim() || "",
+      twitter: body.twitter?.trim() || "",
+      linkedin: body.linkedin?.trim() || "",
+    }]);
+
     // Update teacher
     await db.teacher.update({
       where: { teacher_id: teacherId },
@@ -103,6 +110,8 @@ export async function PUT(
         petra_id: body.petra_id?.trim() || "",
         account_number: account_number?.trim() || "",
         account_details: account_details?.trim() || "",
+        blood_group: body.blood_group?.trim() || "",
+        social_links: socialLinks,
       },
     });
 

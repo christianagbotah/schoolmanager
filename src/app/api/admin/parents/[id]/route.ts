@@ -110,6 +110,10 @@ export async function PUT(
         address: address ? address.trim() : "",
         profession: profession ? profession.trim() : "",
         designation: designation ? designation.trim() : "",
+        father_name: body.father_name?.trim() || "",
+        father_phone: body.father_phone?.trim() || "",
+        mother_name: body.mother_name?.trim() || "",
+        mother_phone: body.mother_phone?.trim() || "",
       },
     });
 

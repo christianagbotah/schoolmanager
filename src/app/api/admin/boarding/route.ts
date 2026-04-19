@@ -8,10 +8,6 @@ export async function GET(req: NextRequest) {
   if (action === 'students') {
     const assignments = await db.boarding_student.findMany({
       where: { is_active: 1 },
-      include: {
-        // @ts-expect-error Prisma relation via raw field
-        _student: { select: { name: true, student_code: true, sex: true, class_name: String } },
-      },
       orderBy: { id: 'desc' },
       take: 200,
     })
@@ -19,18 +15,22 @@ export async function GET(req: NextRequest) {
   }
 
   if (action === 'stats') {
-    const houses = await db.boarding_house.count()
-    const dormitories = await db.dormitory.count()
-    const assigned = await db.boarding_student.count({ where: { is_active: 1 } })
-    const totalBeds = await db.dormitory.aggregate({ _sum: { number_of_beds: true } })
-    const totalRooms = await db.dormitory.aggregate({ _sum: { number_of_rooms: true } })
-    const totalCapacity = await db.boarding_house.aggregate({ _sum: { house_capacity: true } })
+    const [houses, dormitories, assigned] = await Promise.all([
+      db.boarding_house.findMany({ orderBy: { house_id: 'desc' } }),
+      db.dormitory.findMany({ orderBy: { dormitory_id: 'desc' } }),
+      db.boarding_student.count({ where: { is_active: 1 } }),
+    ])
+    const totalBeds = dormitories.reduce((s, d) => s + d.number_of_beds, 0)
+    const totalRooms = dormitories.reduce((s, d) => s + d.number_of_rooms, 0)
+    const totalCapacity = houses.reduce((s, h) => s + h.house_capacity, 0)
 
     return NextResponse.json({
-      houses, dormitories, assigned,
-      totalBeds: totalBeds._sum.number_of_beds || 0,
-      totalRooms: totalRooms._sum.number_of_rooms || 0,
-      totalCapacity: totalCapacity._sum.house_capacity || 0,
+      houses,
+      dormitories,
+      assigned,
+      totalBeds,
+      totalRooms,
+      totalCapacity,
     })
   }
 

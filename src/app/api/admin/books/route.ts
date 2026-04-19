@@ -11,6 +11,8 @@ export async function GET(request: NextRequest) {
       where.OR = [
         { name: { contains: search } },
         { author: { contains: search } },
+        { isbn: { contains: search } },
+        { category: { contains: search } },
       ];
     }
 
@@ -29,7 +31,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, author, class_id, price, total_copies, status } = body;
+    const {
+      name, description, author, isbn, category, shelf,
+      class_id, price, total_copies, status,
+    } = body;
 
     if (!name?.trim()) {
       return NextResponse.json({ error: 'Book name is required' }, { status: 400 });
@@ -40,6 +45,9 @@ export async function POST(request: NextRequest) {
         name: name.trim(),
         description: description || '',
         author: author || '',
+        isbn: isbn || '',
+        category: category === '__none__' ? '' : (category || ''),
+        shelf: shelf || '',
         class_id: class_id ? parseInt(class_id) : null,
         price: price ? parseFloat(price) : 0,
         total_copies: total_copies ? parseInt(total_copies) : 1,
@@ -62,19 +70,26 @@ export async function PUT(request: NextRequest) {
     if (!id) return NextResponse.json({ error: 'Book ID required' }, { status: 400 });
 
     const body = await request.json();
-    const { name, description, author, class_id, price, total_copies, status } = body;
+    const {
+      name, description, author, isbn, category, shelf,
+      class_id, price, total_copies, status,
+    } = body;
+
+    const updateData: Record<string, unknown> = {};
+    if (name !== undefined) updateData.name = name;
+    if (description !== undefined) updateData.description = description;
+    if (author !== undefined) updateData.author = author;
+    if (isbn !== undefined) updateData.isbn = isbn;
+    if (category !== undefined) updateData.category = category === '__none__' ? '' : category;
+    if (shelf !== undefined) updateData.shelf = shelf;
+    if (class_id !== undefined) updateData.class_id = class_id ? parseInt(class_id) : null;
+    if (price !== undefined) updateData.price = price ? parseFloat(price) : 0;
+    if (total_copies !== undefined) updateData.total_copies = parseInt(total_copies);
+    if (status !== undefined) updateData.status = status;
 
     const book = await db.book.update({
       where: { book_id: parseInt(id) },
-      data: {
-        name: name || undefined,
-        description: description !== undefined ? description : undefined,
-        author: author !== undefined ? author : undefined,
-        class_id: class_id ? parseInt(class_id) : null,
-        price: price ? parseFloat(price) : 0,
-        total_copies: total_copies ? parseInt(total_copies) : undefined,
-        status: status || undefined,
-      },
+      data: updateData,
     });
 
     return NextResponse.json(book);

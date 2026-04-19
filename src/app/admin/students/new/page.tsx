@@ -14,16 +14,19 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import {
   ArrowLeft, UserPlus, GraduationCap, Users, Heart, Camera,
-  Loader2, ShieldCheck, RotateCcw, AlertTriangle,
+  Loader2, ShieldCheck, RotateCcw, AlertTriangle, Home, FileText,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/use-auth';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const CLASS_GROUPS = ['CRECHE', 'NURSERY', 'KG', 'BASIC', 'JHS'];
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const;
+
+const RELIGIONS = ['Christianity', 'Islam', 'Traditional', 'Others'] as const;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -51,6 +54,11 @@ interface ParentItem {
   father_phone: string;
   mother_name: string;
   mother_phone: string;
+}
+
+interface SchoolSettings {
+  running_year: string;
+  running_term: string;
 }
 
 // ─── Helper: generate student code ───────────────────────────────────────────
@@ -100,6 +108,7 @@ function SectionCard({
 
 export default function AdmitStudentPage() {
   const router = useRouter();
+  const { isAdmin, hasPermission, isLoading: authLoading } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Loading / saving state ──
@@ -111,6 +120,10 @@ export default function AdmitStudentPage() {
   const [sections, setSections] = useState<SectionItem[]>([]);
   const [parents, setParents] = useState<ParentItem[]>([]);
   const [filteredSections, setFilteredSections] = useState<SectionItem[]>([]);
+  const [settings, setSettings] = useState<SchoolSettings>({
+    running_year: String(new Date().getFullYear()),
+    running_term: '',
+  });
 
   // ── Filters ──
   const [classGroup, setClassGroup] = useState('');
@@ -146,6 +159,9 @@ export default function AdmitStudentPage() {
     student_code: generateStudentCode(),
     class_id: '',
     section_id: '',
+    year: '',
+    term: '',
+    roll: '',
     admission_date: new Date().toISOString().split('T')[0],
     former_school: '',
     class_reached: '',
@@ -197,19 +213,37 @@ export default function AdmitStudentPage() {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [classesRes, sectionsRes, parentsRes] = await Promise.all([
+        const [classesRes, sectionsRes, parentsRes, settingsRes] = await Promise.all([
           fetch('/api/classes?limit=200'),
           fetch('/api/sections'),
           fetch('/api/parents?limit=500'),
+          fetch('/api/settings'),
         ]);
-        const [classesData, sectionsData, parentsData] = await Promise.all([
+        const [classesData, sectionsData, parentsData, settingsData] = await Promise.all([
           classesRes.json(),
           sectionsRes.json(),
           parentsRes.json(),
+          settingsRes.json(),
         ]);
         setClasses(Array.isArray(classesData) ? classesData : []);
         setSections(Array.isArray(sectionsData) ? sectionsData : []);
         setParents(Array.isArray(parentsData) ? parentsData : []);
+
+        // Extract running_year and running_term from settings
+        const settingsMap: Record<string, string> = {};
+        if (settingsData && !Array.isArray(settingsData)) {
+          Object.entries(settingsData).forEach(([key, val]) => {
+            settingsMap[key] = String(val);
+          });
+        } else if (Array.isArray(settingsData)) {
+          settingsData.forEach((s: { type?: string; description?: string }) => {
+            if (s.type) settingsMap[s.type] = s.description || '';
+          });
+        }
+        setSettings({
+          running_year: settingsMap['running_year'] || String(new Date().getFullYear()),
+          running_term: settingsMap['running_term'] || '',
+        });
       } catch {
         toast.error('Failed to load reference data');
       } finally {
@@ -218,6 +252,17 @@ export default function AdmitStudentPage() {
     };
     fetchAll();
   }, []);
+
+  // ── Set year/term from settings after load ──
+  useEffect(() => {
+    if (settings.running_year && !academic.year) {
+      setAcademic(prev => ({
+        ...prev,
+        year: settings.running_year,
+        term: settings.running_term || prev.term,
+      }));
+    }
+  }, [settings]);
 
   // ── Auto-generate full name (uppercase) ──
   useEffect(() => {
@@ -394,7 +439,7 @@ export default function AdmitStudentPage() {
         parentId = parseInt(selectedParentId);
       }
 
-      // Step 2: Create student
+      // Step 2: Create student via admin API
       const payload = {
         // Personal
         first_name: form.first_name,
@@ -419,6 +464,9 @@ export default function AdmitStudentPage() {
         student_code: academic.student_code,
         class_id: academic.class_id,
         section_id: academic.section_id,
+        year: academic.year || settings.running_year,
+        term: academic.term || settings.running_term,
+        roll: academic.roll,
         admission_date: academic.admission_date,
         former_school: academic.former_school,
         class_reached: academic.class_reached,
@@ -450,7 +498,7 @@ export default function AdmitStudentPage() {
         parent_email: guardianFields.email,
       };
 
-      const res = await fetch('/api/students', {
+      const res = await fetch('/api/admin/students', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -461,7 +509,7 @@ export default function AdmitStudentPage() {
         throw new Error(data.error);
       }
 
-      toast.success('Student admitted successfully!');
+      toast.success(`Student ${data.name} (${data.student_code}) admitted successfully!`);
       router.push('/admin/students');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to admit student';
@@ -471,8 +519,21 @@ export default function AdmitStudentPage() {
     }
   };
 
+  // ── Permission check ──
+  if (!authLoading && !isAdmin) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-5xl mx-auto px-4 md:px-6 py-24 text-center">
+          <ShieldCheck className="w-16 h-16 mx-auto text-slate-300 mb-4" />
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Access Denied</h2>
+          <p className="text-slate-500">You do not have permission to access this page.</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   // ── Loading skeleton ──
-  if (loadingData) {
+  if (loadingData || authLoading) {
     return (
       <DashboardLayout>
         <div className="space-y-6 max-w-5xl mx-auto px-4 md:px-6">
@@ -615,10 +676,9 @@ export default function AdmitStudentPage() {
                 <Select value={form.religion} onValueChange={v => sf('religion', v)}>
                   <SelectTrigger id="religion" className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Christianity">Christianity</SelectItem>
-                    <SelectItem value="Islam">Islam</SelectItem>
-                    <SelectItem value="Traditional">Traditional</SelectItem>
-                    <SelectItem value="Others">Others</SelectItem>
+                    {RELIGIONS.map(r => (
+                      <SelectItem key={r} value={r}>{r}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -692,7 +752,8 @@ export default function AdmitStudentPage() {
               {/* Student Code */}
               <div>
                 <Label htmlFor="student_code">Student ID <span className="text-red-500">*</span></Label>
-                <Input id="student_code" value={academic.student_code} onChange={e => sa('student_code', e.target.value)} className="mt-1 font-mono text-sm" readOnly />
+                <Input id="student_code" value={academic.student_code} className="mt-1 font-mono text-sm" readOnly />
+                <p className="text-xs text-slate-400 mt-1">Auto-generated unique identifier</p>
               </div>
 
               {/* Class Group / Class / Section */}
@@ -738,6 +799,22 @@ export default function AdmitStudentPage() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Year / Term / Roll */}
+              <div>
+                <Label htmlFor="year">Academic Year</Label>
+                <Input id="year" placeholder={settings.running_year || 'e.g. 2025'} value={academic.year} onChange={e => sa('year', e.target.value)} className="mt-1" />
+                <p className="text-xs text-slate-400 mt-1">Running year: {settings.running_year}</p>
+              </div>
+              <div>
+                <Label htmlFor="term">Term</Label>
+                <Input id="term" placeholder={settings.running_term || 'e.g. Term 1'} value={academic.term} onChange={e => sa('term', e.target.value)} className="mt-1" />
+                <p className="text-xs text-slate-400 mt-1">Running term: {settings.running_term || 'Not set'}</p>
+              </div>
+              <div>
+                <Label htmlFor="roll">Roll Number</Label>
+                <Input id="roll" placeholder="Enter roll number" value={academic.roll} onChange={e => sa('roll', e.target.value)} className="mt-1" />
               </div>
 
               {/* Admission Date */}
@@ -960,7 +1037,7 @@ export default function AdmitStudentPage() {
               SECTION 6 — RESIDENCE TYPE
               ═══════════════════════════════════════════════════════════════════ */}
           <SectionCard
-            icon={<svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>}
+            icon={<Home className="w-5 h-5" />}
             title="Residence Type"
             accentColor="slate"
           >
