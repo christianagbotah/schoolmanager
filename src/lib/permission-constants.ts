@@ -207,6 +207,10 @@ export const PERMISSIONS = {
   CAN_VIEW_CHILDREN_ATTENDANCE: "can_view_children_attendance",
   CAN_MAKE_PAYMENTS: "can_make_payments",
   CAN_VIEW_CHILDREN_INVOICES: "can_view_children_invoices",
+
+  // System (additional)
+  CAN_USE_BARCODE_SCANNER: "can_use_barcode_scanner",
+  CAN_MANAGE_FEE_SETTINGS: "can_manage_fee_settings",
 } as const;
 
 /**

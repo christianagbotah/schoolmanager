@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   GraduationCap,
@@ -42,12 +42,40 @@ import {
   Sparkles,
   ClipboardList,
   Eye,
+  Send,
+  Filter,
+  XCircle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -58,7 +86,19 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  AreaChart,
+  Area,
+  Legend,
 } from "recharts";
+
+// ─── Reusable Chart Styles ─────────────────────────────────
+const CHART_TOOLTIP_STYLE = {
+  borderRadius: "8px",
+  border: "1px solid #e2e8f0",
+  fontSize: "12px",
+  boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+};
+const CHART_AXIS_STYLE = { fontSize: 11, fill: "#94a3b8" };
 
 // ─── Icon Color Map ───────────────────────────────────────
 const iconStyles: Record<string, string> = {
@@ -166,6 +206,7 @@ function StatCard({
   href,
   subtitle,
   trend,
+  onClick,
 }: {
   icon: React.ElementType;
   label: string;
@@ -174,6 +215,7 @@ function StatCard({
   href?: string;
   subtitle?: string;
   trend?: { value: string; up: boolean };
+  onClick?: () => void;
 }) {
   const router = useRouter();
   const content = (
@@ -226,6 +268,9 @@ function StatCard({
     </Card>
   );
 
+  if (onClick) {
+    return <div onClick={onClick}>{content}</div>;
+  }
   if (href) {
     return <div onClick={() => router.push(href)}>{content}</div>;
   }
@@ -241,6 +286,7 @@ function GradientStatCard({
   href,
   subtitle,
   trend,
+  onClick,
 }: {
   icon: React.ElementType;
   label: string;
@@ -249,13 +295,13 @@ function GradientStatCard({
   href?: string;
   subtitle?: string;
   trend?: { value: string; up: boolean };
+  onClick?: () => void;
 }) {
   const router = useRouter();
   const content = (
     <Card
       className="hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-white group overflow-hidden relative"
     >
-      {/* Gradient top accent bar */}
       <div className={`h-1.5 w-full ${gradientStyles[color] || gradientStyles.emerald}`} />
       <CardContent className="p-5">
         <div className="flex items-start justify-between">
@@ -307,6 +353,9 @@ function GradientStatCard({
     </Card>
   );
 
+  if (onClick) {
+    return <div onClick={onClick}>{content}</div>;
+  }
   if (href) {
     return <div onClick={() => router.push(href)}>{content}</div>;
   }
@@ -400,7 +449,6 @@ function TimelineSlot({
 }) {
   return (
     <div className="flex gap-4">
-      {/* Timeline line */}
       <div className="flex flex-col items-center">
         <div
           className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border-2 ${
@@ -419,8 +467,6 @@ function TimelineSlot({
           <div className={`w-0.5 flex-1 min-h-[32px] ${isCurrent ? "bg-emerald-200" : "bg-slate-200"}`} />
         )}
       </div>
-
-      {/* Content card */}
       <div className={`pb-6 flex-1 ${isLast ? "pb-0" : ""}`}>
         <div
           className={`p-3.5 rounded-xl border transition-all ${
@@ -477,299 +523,528 @@ function DashboardSkeleton() {
   );
 }
 
-// ─── Admin Dashboard ──────────────────────────────────────
+// ─── Admin Dashboard (CI3 Parity) ─────────────────────────
+interface AdminDashboardData {
+  academicTerm?: { year: string; term: string };
+  stats?: {
+    totalStudents: number;
+    activeTeachers: number;
+    activeParents: number;
+    totalClasses: number;
+    attendanceToday: number;
+  };
+  financial?: {
+    totalRevenue: number;
+    totalBilled: number;
+    collectionRate: number;
+    collectionLabel: string;
+    collectionColor: string;
+    pendingPayments: number;
+  };
+  financialSummary?: {
+    unpaidInvoices: { count: number; amount: number };
+    totalIncome: { count: number; amount: number };
+    totalExpenses: { amount: number };
+  };
+  charts?: {
+    studentDistribution: { name: string; count: number }[];
+    attendanceTrend: { date: string; day: string; count: number }[];
+    genderDistribution: { className: string; male: number; female: number; total: number }[];
+    residentialDistribution: { className: string; residenceType: string; count: number }[];
+    feeCollectionBreakdown: {
+      paid: { count: number; amount: number };
+      partial: { count: number; amount: number };
+      unpaid: { count: number; amount: number };
+    };
+  };
+  recentPayments: {
+    studentName: string;
+    amount: number;
+    method: string;
+    date: string | null;
+    invoiceCode: string;
+  }[];
+}
+
 function AdminDashboard() {
-  const [stats, setStats] = useState<Record<string, unknown>>({});
+  const [data, setData] = useState<AdminDashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [revenueModalOpen, setRevenueModalOpen] = useState(false);
+  const [filterYear, setFilterYear] = useState("");
+  const [filterTerm, setFilterTerm] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+  const { hasPermission, hasAnyPermission } = useAuth();
+  const router = useRouter();
+
+  const loadData = async (year?: string, term?: string, date?: string) => {
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (year) params.set("year", year);
+      if (term) params.set("term", term);
+      if (date) params.set("date", date);
+      const query = params.toString();
+      const url = `/api/admin/dashboard${query ? `?${query}` : ""}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const json = await res.json();
+        setData(json);
+      }
+    } catch {
+      // fallback
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function loadStats() {
-      try {
-        const res = await fetch("/api/admin/dashboard");
-        if (res.ok) {
-          const data = await res.json();
-          setStats(data);
-        }
-      } catch {
-        // fallback
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadStats();
+    loadData();
   }, []);
 
+  const handleFilterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    loadData(filterYear, filterTerm, filterDate);
+  };
+
+  const handleFilterReset = () => {
+    setFilterYear("");
+    setFilterTerm("");
+    setFilterDate("");
+    loadData();
+  };
+
+  // Pivot residential distribution for stacked bar (before early returns)
+  const residentialPivoted = useMemo(() => {
+    if (!data?.charts?.residentialDistribution || data.charts.residentialDistribution.length === 0) return [];
+    const classMap: Record<string, Record<string, number>> = {};
+    data.charts.residentialDistribution.forEach((d) => {
+      if (!classMap[d.className]) classMap[d.className] = {};
+      classMap[d.className][d.residenceType] = d.count;
+    });
+    return Object.entries(classMap).map(([className, counts]) => ({
+      className,
+      ...counts,
+    }));
+  }, [data?.charts?.residentialDistribution]);
+
+  // Get unique residence types (before early returns)
+  const residenceTypes = useMemo(() => {
+    if (!data?.charts?.residentialDistribution) return [];
+    return [...new Set(data.charts.residentialDistribution.map((d) => d.residenceType))];
+  }, [data?.charts?.residentialDistribution]);
+
   if (isLoading) return <DashboardSkeleton />;
+  if (!data) return <DashboardSkeleton />;
 
-  const s = stats;
+  const stats = data.stats || {};
+  const financial = data.financial || {};
+  const financialSummary = data.financialSummary || {};
+  const charts = data.charts || {};
+  const recentPayments = data.recentPayments || [];
+  const academicTerm = data.academicTerm || {};
 
-  // Build chart data from recent payments
-  const recentPayments = s.recentPayments as
-    | { studentName: string; amount: number; timestamp: string }[]
-    | undefined;
-  const chartData = recentPayments
-    ? recentPayments
-        .slice(0, 7)
-        .reverse()
-        .map((p) => ({
-          name:
-            new Date(p.timestamp).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-            }) || "N/A",
-          amount: Number(p.amount) || 0,
-        }))
-    : [];
+  // Collection rate badge
+  const collectionBadgeClass = financial.collectionColor === "emerald"
+    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+    : financial.collectionColor === "amber"
+      ? "bg-amber-50 text-amber-700 border-amber-200"
+      : "bg-red-50 text-red-700 border-red-200";
 
-  const collectionRate = Number(s.collectionRate || 0);
+  const residenceColors: Record<string, string> = {
+    Day: "#059669",
+    Boarder: "#d97706",
+  };
+
+  // Year options for filter
+  const currentYear = new Date().getFullYear();
+  const yearOptions = [];
+  for (let y = currentYear - 5; y <= currentYear + 1; y++) {
+    yearOptions.push(y.toString());
+  }
+
+  const canViewFinancial = hasAnyPermission([
+    "can_view_financial_reports",
+    "can_receive_payment",
+    "can_view_invoices",
+  ]);
+  const canManageSettings = hasPermission("can_manage_settings");
 
   return (
     <div className="space-y-6">
-      {/* ── Key Metrics ── */}
+      {/* ── 1. Data Filter (Super Admin only) ── */}
+      {canManageSettings && (
+        <Card className="border-slate-200/80 bg-white">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <SectionHeader icon={Filter} title="Data Filter" />
+              {academicTerm.year && (
+                <Badge variant="outline" className="text-emerald-700 border-emerald-200 bg-emerald-50">
+                  {academicTerm.year} — {academicTerm.term}
+                </Badge>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <form onSubmit={handleFilterSubmit} className="flex flex-col sm:flex-row items-end gap-3">
+              <div className="flex-1 w-full sm:w-auto space-y-1.5">
+                <Label className="text-xs font-medium text-slate-500">Year</Label>
+                <Select value={filterYear} onValueChange={setFilterYear}>
+                  <SelectTrigger className="bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]">
+                    <SelectValue placeholder="Select Year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {yearOptions.map((y) => (
+                      <SelectItem key={y} value={y}>{y}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1 w-full sm:w-auto space-y-1.5">
+                <Label className="text-xs font-medium text-slate-500">Term</Label>
+                <Select value={filterTerm} onValueChange={setFilterTerm}>
+                  <SelectTrigger className="bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]">
+                    <SelectValue placeholder="Select Term" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Term 1">Term 1</SelectItem>
+                    <SelectItem value="Term 2">Term 2</SelectItem>
+                    <SelectItem value="Term 3">Term 3</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1 w-full sm:w-auto space-y-1.5">
+                <Label className="text-xs font-medium text-slate-500">Date</Label>
+                <Input
+                  type="date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  className="bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button type="submit" className="min-h-[44px] bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Filter className="w-4 h-4 mr-1.5" />
+                  Apply
+                </Button>
+                <Button type="button" variant="outline" onClick={handleFilterReset} className="min-h-[44px] border-slate-200">
+                  <XCircle className="w-4 h-4 mr-1.5" />
+                  Reset
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── 2. Key Metrics (4 equal cards) ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={GraduationCap}
           label="Total Students"
-          value={s.students || 0}
+          value={stats.totalStudents || 0}
           color="emerald"
           href="/admin/students"
           subtitle="Active enrolled"
         />
         <StatCard
           icon={Users}
-          label="Total Teachers"
-          value={s.teachers || 0}
+          label="Active Teachers"
+          value={stats.activeTeachers || 0}
           color="teal"
           href="/admin/teachers"
           subtitle="Teaching staff"
         />
         <StatCard
           icon={Users}
-          label="Total Parents"
-          value={s.parents || 0}
+          label="Active Parents"
+          value={stats.activeParents || 0}
           color="sky"
           href="/admin/parents"
           subtitle="Registered guardians"
         />
         <StatCard
-          icon={CircleDollarSign}
-          label="Total Revenue"
-          value={`GHS ${Number(s.revenue || 0).toLocaleString()}`}
+          icon={CheckSquare}
+          label="Attendance Today"
+          value={stats.attendanceToday || 0}
           color="amber"
-          href="/admin/reports/finance"
-          subtitle={`${collectionRate.toFixed(1)}% collection rate`}
-          trend={{ value: `${collectionRate.toFixed(1)}%`, up: collectionRate > 50 }}
+          href="/attendance"
+          subtitle="Students present"
         />
       </div>
 
-      {/* ── Chart + Financial + Action Items ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Revenue Chart */}
-        <Card className="lg:col-span-2">
+      {/* ── 3. Financial Overview (3 cards, admin_level <= 3) ── */}
+      {canViewFinancial && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Daily Revenue (clickable → modal) */}
+          <StatCard
+            icon={DollarSign}
+            label="Daily Revenue"
+            value={`GHS ${(financial.totalRevenue || 0).toLocaleString()}`}
+            color="emerald"
+            subtitle={`Billed: GHS ${(financial.totalBilled || 0).toLocaleString()}`}
+            onClick={() => setRevenueModalOpen(true)}
+          />
+          {/* Collection Rate */}
+          <StatCard
+            icon={TrendingUp}
+            label="Collection Rate"
+            value={`${(financial.collectionRate || 0).toFixed(1)}%`}
+            color={financial.collectionColor || "amber"}
+            subtitle={`${financial.totalRevenue || 0} of ${financial.totalBilled || 0} collected`}
+          >
+            <Badge variant="outline" className={`mt-1 text-[10px] font-semibold ${collectionBadgeClass}`}>
+              {financial.collectionLabel || "N/A"}
+            </Badge>
+          </StatCard>
+          {/* Pending Payments */}
+          <StatCard
+            icon={AlertTriangle}
+            label="Pending Payments"
+            value={financial.pendingPayments || 0}
+            color="red"
+            href="/admin/receivables"
+            subtitle="Distinct unpaid students"
+          />
+        </div>
+      )}
+
+      {/* ── 4. Charts (2x2 grid, always visible) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Student Distribution by Class (Bar Chart) */}
+        <Card>
           <CardHeader className="pb-2">
             <SectionHeader
-              icon={BarChart3}
-              title="Recent Collections"
-              action={{ label: "View Reports", href: "/admin/reports/finance" }}
+              icon={GraduationCap}
+              title="Student Distribution by Class"
+              action={{ label: "All Classes", href: "/admin/classes" }}
             />
           </CardHeader>
           <CardContent className="pt-2">
-            {chartData.length > 0 ? (
-              <div className="h-56">
+            {charts.studentDistribution && charts.studentDistribution.length > 0 ? (
+              <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData}
-                    margin={{ top: 5, right: 5, left: -15, bottom: 5 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#f1f5f9"
-                      vertical={false}
-                    />
-                    <XAxis
-                      dataKey="name"
-                      tick={{ fontSize: 11, fill: "#94a3b8" }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 11, fill: "#94a3b8" }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: "8px",
-                        border: "1px solid #e2e8f0",
-                        fontSize: "12px",
-                        boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
-                      }}
-                      formatter={(value: number) => [
-                        `GHS ${value.toLocaleString()}`,
-                        "Amount",
-                      ]}
-                    />
-                    <Bar
-                      dataKey="amount"
-                      fill="#059669"
-                      radius={[4, 4, 0, 0]}
-                      maxBarSize={48}
-                    />
+                  <BarChart data={charts.studentDistribution} margin={{ top: 5, right: 5, left: -15, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <XAxis dataKey="name" tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} />
+                    <YAxis tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
+                    <Bar dataKey="count" fill="#059669" radius={[4, 4, 0, 0]} maxBarSize={40} name="Students" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             ) : (
-              <div className="h-56 flex items-center justify-center text-sm text-slate-400">
-                No payment data available
+              <div className="h-64 flex items-center justify-center text-sm text-slate-400">
+                No student distribution data
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Financial Overview + Action Items */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <SectionHeader icon={PiggyBank} title="Financial Summary" />
-            </CardHeader>
-            <CardContent className="pt-2 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">Total Billed</span>
-                <span className="text-sm font-semibold text-slate-800">
-                  GHS {Number(s.totalBilled || 0).toLocaleString()}
-                </span>
+        {/* Attendance Trend Last 7 Days (Area Chart) */}
+        <Card>
+          <CardHeader className="pb-2">
+            <SectionHeader
+              icon={CheckSquare}
+              title="Attendance Trend (7 Days)"
+              action={{ label: "Details", href: "/attendance" }}
+            />
+          </CardHeader>
+          <CardContent className="pt-2">
+            {charts.attendanceTrend && charts.attendanceTrend.length > 0 ? (
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={charts.attendanceTrend} margin={{ top: 5, right: 5, left: -15, bottom: 5 }}>
+                    <defs>
+                      <linearGradient id="attendanceGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#059669" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <XAxis dataKey="day" tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} />
+                    <YAxis tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
+                    <Area type="monotone" dataKey="count" stroke="#059669" fill="url(#attendanceGrad)" strokeWidth={2} name="Attendance" />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">Collected</span>
-                <span className="text-sm font-semibold text-emerald-600">
-                  GHS {Number(s.totalCollected || 0).toLocaleString()}
-                </span>
+            ) : (
+              <div className="h-64 flex items-center justify-center text-sm text-slate-400">
+                No attendance trend data
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500">Outstanding</span>
-                <span className="text-sm font-semibold text-red-600">
-                  GHS {Number(s.outstanding || 0).toLocaleString()}
-                </span>
-              </div>
-              <div className="space-y-1.5 pt-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">
-                    Collection Rate
-                  </span>
-                  <span className="text-xs font-bold text-emerald-600">
-                    {collectionRate.toFixed(1)}%
-                  </span>
-                </div>
-                <Progress value={collectionRate} className="h-2" />
-              </div>
-            </CardContent>
-          </Card>
+            )}
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <SectionHeader icon={AlertTriangle} title="Action Items" />
-            </CardHeader>
-            <CardContent className="pt-2">
-              <div className="max-h-40 overflow-y-auto custom-scrollbar">
-                {s.pendingInvoices > 0 && (
-                  <ActivityItem
-                    icon={Receipt}
-                    title={`${s.pendingInvoices} unpaid invoices`}
-                    subtitle="Follow up on outstanding payments"
-                    time="Now"
-                    color="bg-red-50 text-red-600"
-                  />
-                )}
-                {s.overdueStudents > 0 && (
-                  <ActivityItem
-                    icon={AlertTriangle}
-                    title={`${s.overdueStudents} students with arrears`}
-                    subtitle="Send reminders to parents"
-                    time="Urgent"
-                    color="bg-amber-50 text-amber-600"
-                  />
-                )}
-                {s.mutedStudents > 0 && (
-                  <ActivityItem
-                    icon={Users}
-                    title={`${s.mutedStudents} muted students`}
-                    subtitle="Review muted accounts"
-                    time="Review"
-                    color="bg-slate-50 text-slate-600"
-                  />
-                )}
-                <ActivityItem
-                  icon={Bell}
-                  title="System health check"
-                  subtitle="Review settings & backup"
-                  time="Weekly"
-                  color="bg-sky-50 text-sky-600"
-                />
+        {/* Gender Distribution by Class (Stacked Bar) */}
+        <Card>
+          <CardHeader className="pb-2">
+            <SectionHeader
+              icon={Users}
+              title="Gender Distribution by Class"
+            />
+          </CardHeader>
+          <CardContent className="pt-2">
+            {charts.genderDistribution && charts.genderDistribution.length > 0 ? (
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={charts.genderDistribution} margin={{ top: 5, right: 5, left: -15, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <XAxis dataKey="className" tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} />
+                    <YAxis tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
+                    <Legend iconType="circle" wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }} />
+                    <Bar dataKey="male" stackId="gender" fill="#0d9488" radius={[0, 0, 0, 0]} maxBarSize={40} name="Male" />
+                    <Bar dataKey="female" stackId="gender" fill="#f43f5e" radius={[4, 4, 0, 0]} maxBarSize={40} name="Female" />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            ) : (
+              <div className="h-64 flex items-center justify-center text-sm text-slate-400">
+                No gender distribution data
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Residential Distribution by Class (Stacked Bar) */}
+        <Card>
+          <CardHeader className="pb-2">
+            <SectionHeader
+              icon={Bus}
+              title="Residential Distribution by Class"
+            />
+          </CardHeader>
+          <CardContent className="pt-2">
+            {residentialPivoted.length > 0 ? (
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={residentialPivoted} margin={{ top: 5, right: 5, left: -15, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <XAxis dataKey="className" tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} />
+                    <YAxis tick={CHART_AXIS_STYLE} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
+                    <Legend iconType="circle" wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }} />
+                    {residenceTypes.map((type, i) => (
+                      <Bar
+                        key={type}
+                        dataKey={type}
+                        stackId="residence"
+                        fill={residenceColors[type] || (i === 0 ? "#059669" : "#d97706")}
+                        radius={i === residenceTypes.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+                        maxBarSize={40}
+                        name={type}
+                      />
+                    ))}
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="h-64 flex items-center justify-center text-sm text-slate-400">
+                No residential distribution data
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* ── Secondary Stats ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          icon={CreditCard}
-          label="Pending Invoices"
-          value={s.pendingInvoices || 0}
-          color="red"
-          href="/admin/receivables"
-        />
-        <StatCard
-          icon={UserCheck}
-          label="Attendance Today"
-          value={`${s.attendanceRate || 0}%`}
-          color="teal"
-          href="/attendance"
-          subtitle="Present rate"
-        />
-        <StatCard
-          icon={BookOpen}
-          label="Classes"
-          value={s.classes || 0}
-          color="purple"
-          href="/admin/classes"
-          subtitle={s.sections ? `${s.sections} sections` : undefined}
-        />
-        <StatCard
-          icon={Receipt}
-          label="Payments (Month)"
-          value={`GHS ${Number(s.monthlyPayments || 0).toLocaleString()}`}
-          color="violet"
-          href="/admin/payments"
-        />
-      </div>
-
-      {/* ── Quick Actions ── */}
+      {/* ── 5. Quick Actions (6 items, not cashier) ── */}
       <Card>
         <CardHeader className="pb-3">
           <SectionHeader icon={Activity} title="Quick Actions" />
         </CardHeader>
         <CardContent className="pt-0">
           <div className="flex flex-wrap gap-3">
-            <QuickAction icon={GraduationCap} label="Admit Student" href="/admin/students/new" color="bg-emerald-50 text-emerald-600" />
-            <QuickAction icon={CreditCard} label="Bill Students" href="/admin/invoices" color="bg-red-50 text-red-600" />
-            <QuickAction icon={HandCoins} label="Daily Fees" href="/admin/daily-fees" color="bg-teal-50 text-teal-600" />
-            <QuickAction icon={CheckSquare} label="Attendance" href="/attendance" color="bg-purple-50 text-purple-600" />
-            <QuickAction icon={Calendar} label="Timetable" href="/routine" color="bg-sky-50 text-sky-600" />
-            <QuickAction icon={BarChart3} label="Reports" href="/admin/reports/finance" color="bg-amber-50 text-amber-600" />
-            <QuickAction icon={Megaphone} label="Notices" href="/notices" color="bg-orange-50 text-orange-600" />
-            <QuickAction icon={MessageSquare} label="Messages" href="/messages" color="bg-violet-50 text-violet-600" />
-            <QuickAction icon={Bus} label="Transport" href="/admin/transport" color="bg-rose-50 text-rose-600" />
-            <QuickAction icon={Library} label="Library" href="/admin/library" color="bg-teal-50 text-teal-600" />
-            <QuickAction icon={Trophy} label="Online Exams" href="/admin/exams/online/create" color="bg-amber-50 text-amber-600" />
-            <QuickAction icon={FileText} label="Terminal Reports" href="/admin/reports/terminal" color="bg-slate-50 text-slate-600" />
+            {hasPermission("can_admit_students") && (
+              <QuickAction icon={GraduationCap} label="Add Student" href="/admin/students/new" color="bg-emerald-50 text-emerald-600" />
+            )}
+            {hasPermission("can_manage_attendance") && (
+              <QuickAction icon={CheckSquare} label="Attendance" href="/attendance" color="bg-teal-50 text-teal-600" />
+            )}
+            {hasPermission("can_bill_students") && (
+              <QuickAction icon={CreditCard} label="Billing" href="/admin/invoices" color="bg-red-50 text-red-600" />
+            )}
+            {hasPermission("can_receive_payment") && (
+              <QuickAction icon={HandCoins} label="Take Payment" href="/admin/payments/new" color="bg-amber-50 text-amber-600" />
+            )}
+            {hasPermission("can_send_messages") && (
+              <QuickAction icon={MessageSquare} label="Messages" href="/messages" color="bg-violet-50 text-violet-600" />
+            )}
+            {hasPermission("can_send_sms") && (
+              <QuickAction icon={Send} label="Bill Reminders" href="/admin/communication/sms-automation" color="bg-orange-50 text-orange-600" />
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* ── Recent Activity ── */}
-      {recentPayments && recentPayments.length > 0 && (
+      {/* ── 6. Financial Summary (Super Admin only) ── */}
+      {canManageSettings && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Unpaid Invoices */}
+          <div
+            onClick={() => router.push("/admin/receivables")}
+            className="p-5 rounded-xl bg-white border border-slate-200/80 hover:shadow-lg transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Unpaid Invoices</p>
+                <p className="text-2xl font-bold text-slate-900 mt-2">
+                  GHS {(financialSummary.unpaidInvoices?.amount || 0).toLocaleString()}
+                </p>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  {financialSummary.unpaidInvoices?.count || 0} unpaid invoices
+                </p>
+              </div>
+              <div className="w-11 h-11 rounded-xl bg-red-50 text-red-600 border border-red-100 flex items-center justify-center flex-shrink-0">
+                <Receipt className="w-5 h-5" />
+              </div>
+            </div>
+          </div>
+          {/* Total Income */}
+          <div
+            onClick={() => router.push("/admin/reports/finance")}
+            className="p-5 rounded-xl bg-white border border-slate-200/80 hover:shadow-lg transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Income</p>
+                <p className="text-2xl font-bold text-emerald-600 mt-2">
+                  GHS {(financialSummary.totalIncome?.amount || 0).toLocaleString()}
+                </p>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  {financialSummary.totalIncome?.count || 0} transactions
+                </p>
+              </div>
+              <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+            </div>
+          </div>
+          {/* Total Expenses */}
+          <div
+            onClick={() => router.push("/admin/expenses")}
+            className="p-5 rounded-xl bg-white border border-slate-200/80 hover:shadow-lg transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Expenses</p>
+                <p className="text-2xl font-bold text-red-600 mt-2">
+                  GHS {(financialSummary.totalExpenses?.amount || 0).toLocaleString()}
+                </p>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  All recorded expenses
+                </p>
+              </div>
+              <div className="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center flex-shrink-0">
+                <TrendingDown className="w-5 h-5" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── 7. Recent Payments Table ── */}
+      {hasPermission("can_view_invoices") && recentPayments.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
             <SectionHeader
@@ -779,37 +1054,144 @@ function AdminDashboard() {
             />
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="max-h-72 overflow-y-auto custom-scrollbar">
-              {recentPayments.slice(0, 8).map((p, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 py-2.5 border-b border-slate-100 last:border-0"
-                >
-                  <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                    <CircleDollarSign className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-slate-800 truncate">
-                      {p.studentName}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      {new Date(p.timestamp).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
-                  <span className="text-sm font-semibold text-emerald-600 flex-shrink-0">
-                    GHS {Number(p.amount).toLocaleString()}
-                  </span>
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-slate-100">
+                    <TableHead className="text-[10px] font-semibold text-slate-400 uppercase">Student</TableHead>
+                    <TableHead className="text-[10px] font-semibold text-slate-400 uppercase">Invoice</TableHead>
+                    <TableHead className="text-[10px] font-semibold text-slate-400 uppercase text-right">Amount</TableHead>
+                    <TableHead className="text-[10px] font-semibold text-slate-400 uppercase">Method</TableHead>
+                    <TableHead className="text-[10px] font-semibold text-slate-400 uppercase text-right">Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentPayments.slice(0, 10).map((p, i) => (
+                    <TableRow key={i} className="border-slate-100 hover:bg-slate-50/50">
+                      <TableCell className="py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                            <CircleDollarSign className="w-3.5 h-3.5" />
+                          </div>
+                          <span className="text-sm font-medium text-slate-800 truncate max-w-[160px]">
+                            {p.studentName}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <span className="text-xs text-slate-500 font-mono">{p.invoiceCode || "--"}</span>
+                      </TableCell>
+                      <TableCell className="py-3 text-right">
+                        <span className="text-sm font-semibold text-emerald-600 tabular-nums">
+                          GHS {Number(p.amount).toLocaleString()}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <Badge variant="secondary" className="text-[10px] font-medium">
+                          {p.method || "N/A"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="py-3 text-right">
+                        <span className="text-xs text-slate-500">
+                          {p.date
+                            ? new Date(p.date).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })
+                            : "N/A"}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
       )}
+
+      {/* ── Daily Revenue Modal ── */}
+      <Dialog open={revenueModalOpen} onOpenChange={setRevenueModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center">
+                <DollarSign className="w-4 h-4" />
+              </div>
+              Fee Collection Breakdown
+            </DialogTitle>
+            <DialogDescription>
+              Current term collection status
+            </DialogDescription>
+          </DialogHeader>
+          {charts.feeCollectionBreakdown && (
+            <div className="space-y-4 mt-2">
+              {/* Paid */}
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center">
+                      <CheckSquare className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-emerald-800">Fully Paid</p>
+                      <p className="text-[11px] text-emerald-600">{charts.feeCollectionBreakdown.paid?.count || 0} payments</p>
+                    </div>
+                  </div>
+                  <p className="text-lg font-bold text-emerald-700 tabular-nums">
+                    GHS {(charts.feeCollectionBreakdown.paid?.amount || 0).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+              {/* Partial */}
+              <div className="p-4 rounded-xl bg-amber-50 border border-amber-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center">
+                      <AlertTriangle className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-amber-800">Partial Payments</p>
+                      <p className="text-[11px] text-amber-600">{charts.feeCollectionBreakdown.partial?.count || 0} payments</p>
+                    </div>
+                  </div>
+                  <p className="text-lg font-bold text-amber-700 tabular-nums">
+                    GHS {(charts.feeCollectionBreakdown.partial?.amount || 0).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+              {/* Unpaid */}
+              <div className="p-4 rounded-xl bg-red-50 border border-red-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-red-500 text-white flex items-center justify-center">
+                      <XCircle className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-red-800">Unpaid</p>
+                      <p className="text-[11px] text-red-600">{charts.feeCollectionBreakdown.unpaid?.count || 0} students</p>
+                    </div>
+                  </div>
+                  <p className="text-lg font-bold text-red-700 tabular-nums">
+                    GHS {(charts.feeCollectionBreakdown.unpaid?.amount || 0).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+              {/* Collection rate bar */}
+              <div className="space-y-1.5 pt-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500">Overall Collection Rate</span>
+                  <span className="text-xs font-bold text-emerald-600">
+                    {(financial.collectionRate || 0).toFixed(1)}%
+                  </span>
+                </div>
+                <Progress value={financial.collectionRate || 0} className="h-2.5" />
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -818,6 +1200,7 @@ function AdminDashboard() {
 function TeacherDashboard() {
   const [stats, setStats] = useState<Record<string, unknown>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const { hasPermission } = useAuth();
 
   useEffect(() => {
     async function loadStats() {
@@ -842,7 +1225,6 @@ function TeacherDashboard() {
   const schedule = s.todaySchedule as { period: string; subject: string; class: string; time: string }[] | undefined;
   const subjects = s.subjects as { subjectName: string; className: string; classId: number; sectionName: string }[] | undefined;
 
-  // Determine current period based on time
   const now = new Date();
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
@@ -865,7 +1247,6 @@ function TeacherDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* ── Gradient Stat Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <GradientStatCard
           icon={BookOpen}
@@ -900,7 +1281,6 @@ function TeacherDashboard() {
         />
       </div>
 
-      {/* ── Today's Schedule Timeline ── */}
       {schedule && schedule.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
@@ -928,7 +1308,6 @@ function TeacherDashboard() {
         </Card>
       )}
 
-      {/* ── My Subjects & Classes ── */}
       {subjects && subjects.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
@@ -970,26 +1349,24 @@ function TeacherDashboard() {
         </Card>
       )}
 
-      {/* ── Quick Actions Grid ── */}
       <Card>
         <CardHeader className="pb-3">
           <SectionHeader icon={Activity} title="Quick Actions" />
         </CardHeader>
         <CardContent className="pt-0">
           <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-            <QuickAction icon={CheckSquare} label="Attendance" href="/teacher/attendance" color="bg-emerald-50 text-emerald-600" />
-            <QuickAction icon={FileText} label="Enter Marks" href="/teacher/marks" color="bg-amber-50 text-amber-600" />
-            <QuickAction icon={Calendar} label="Timetable" href="/routine" color="bg-sky-50 text-sky-600" />
-            <QuickAction icon={GraduationCap} label="Students" href="/teacher/students" color="bg-teal-50 text-teal-600" />
-            <QuickAction icon={MessageSquare} label="Messages" href="/messages" color="bg-violet-50 text-violet-600" />
+            {hasPermission("can_manage_attendance") && <QuickAction icon={CheckSquare} label="Attendance" href="/teacher/attendance" color="bg-emerald-50 text-emerald-600" />}
+            {hasPermission("can_enter_marks") && <QuickAction icon={FileText} label="Enter Marks" href="/teacher/marks" color="bg-amber-50 text-amber-600" />}
+            {hasPermission("can_view_class_routine") && <QuickAction icon={Calendar} label="Timetable" href="/routine" color="bg-sky-50 text-sky-600" />}
+            {hasPermission("can_view_students_list") && <QuickAction icon={GraduationCap} label="Students" href="/teacher/students" color="bg-teal-50 text-teal-600" />}
+            {hasPermission("can_send_messages") && <QuickAction icon={MessageSquare} label="Messages" href="/messages" color="bg-violet-50 text-violet-600" />}
             <QuickAction icon={Megaphone} label="Notices" href="/notices" color="bg-orange-50 text-orange-600" />
-            <QuickAction icon={Trophy} label="Exams" href="/online-exams" color="bg-purple-50 text-purple-600" />
-            <QuickAction icon={BookCheck} label="Materials" href="/teacher/study-material" color="bg-rose-50 text-rose-600" />
+            {hasPermission("can_manage_exams") && <QuickAction icon={Trophy} label="Exams" href="/online-exams" color="bg-purple-50 text-purple-600" />}
+            {hasPermission("can_manage_subjects") && <QuickAction icon={BookCheck} label="Materials" href="/teacher/study-material" color="bg-rose-50 text-rose-600" />}
           </div>
         </CardContent>
       </Card>
 
-      {/* ── Recent Activity Feed ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-3">
@@ -1031,7 +1408,6 @@ function TeacherDashboard() {
           </CardContent>
         </Card>
 
-        {/* Attendance summary mini-card */}
         <Card>
           <CardHeader className="pb-3">
             <SectionHeader icon={UserCheck} title="Attendance Overview" />
@@ -1079,6 +1455,7 @@ function TeacherDashboard() {
 function StudentDashboard() {
   const [stats, setStats] = useState<Record<string, unknown>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const { hasPermission } = useAuth();
 
   useEffect(() => {
     async function loadStats() {
@@ -1107,15 +1484,13 @@ function StudentDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* ── Enhanced Student Info Banner ── */}
+      {/* Student Info Banner */}
       <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-emerald-600 p-6 text-white">
-        {/* Decorative elements */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4" />
         <div className="absolute bottom-0 left-1/2 w-40 h-40 bg-white/5 rounded-full translate-y-1/2" />
         <div className="absolute top-4 right-4">
           <Sparkles className="w-5 h-5 text-white/30" />
         </div>
-
         <div className="relative flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-sm shadow-lg border border-white/20">
             <GraduationCap className="w-8 h-8" />
@@ -1150,7 +1525,7 @@ function StudentDashboard() {
         </div>
       </div>
 
-      {/* ── Performance Summary Cards ── */}
+      {/* Performance Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <GradientStatCard
           icon={BarChart3}
@@ -1186,9 +1561,8 @@ function StudentDashboard() {
         />
       </div>
 
-      {/* ── Performance & Fees Row ── */}
+      {/* Performance & Fees Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Academic Performance */}
         <Card>
           <CardHeader className="pb-3">
             <SectionHeader icon={Star} title="Academic Performance" action={{ label: "View Results", href: "/results" }} />
@@ -1229,7 +1603,6 @@ function StudentDashboard() {
           </CardContent>
         </Card>
 
-        {/* Fee Status */}
         <Card>
           <CardHeader className="pb-3">
             <SectionHeader icon={Wallet} title="Fee Status" action={{ label: "Pay Now", href: "/student/fees" }} />
@@ -1267,7 +1640,7 @@ function StudentDashboard() {
         </Card>
       </div>
 
-      {/* ── Upcoming Events & Notices ── */}
+      {/* Notices */}
       {s.notices && Array.isArray(s.notices) && s.notices.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
@@ -1294,21 +1667,21 @@ function StudentDashboard() {
         </Card>
       )}
 
-      {/* ── Quick Actions ── */}
+      {/* Quick Actions */}
       <Card>
         <CardHeader className="pb-3">
           <SectionHeader icon={Activity} title="Quick Actions" />
         </CardHeader>
         <CardContent className="pt-0">
           <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-            <QuickAction icon={BarChart3} label="Results" href="/results" color="bg-purple-50 text-purple-600" />
-            <QuickAction icon={Receipt} label="Invoices" href="/invoices" color="bg-red-50 text-red-600" />
+            {hasPermission("can_view_own_results") && <QuickAction icon={BarChart3} label="Results" href="/results" color="bg-purple-50 text-purple-600" />}
+            {hasPermission("can_view_own_invoices") && <QuickAction icon={Receipt} label="Invoices" href="/invoices" color="bg-red-50 text-red-600" />}
             <QuickAction icon={CreditCard} label="Pay Fees" href="/student/fees" color="bg-emerald-50 text-emerald-600" />
             <QuickAction icon={CheckSquare} label="Attendance" href="/attendance" color="bg-sky-50 text-sky-600" />
-            <QuickAction icon={Calendar} label="Timetable" href="/routine" color="bg-teal-50 text-teal-600" />
+            {hasPermission("can_view_own_routine") && <QuickAction icon={Calendar} label="Timetable" href="/routine" color="bg-teal-50 text-teal-600" />}
             <QuickAction icon={Trophy} label="Exams" href="/online-exams" color="bg-amber-50 text-amber-600" />
-            <QuickAction icon={MessageSquare} label="Messages" href="/messages" color="bg-violet-50 text-violet-600" />
-            <QuickAction icon={Library} label="Library" href="/library" color="bg-rose-50 text-rose-600" />
+            {hasPermission("can_send_messages") && <QuickAction icon={MessageSquare} label="Messages" href="/messages" color="bg-violet-50 text-violet-600" />}
+            {hasPermission("can_request_books") && <QuickAction icon={Library} label="Library" href="/library" color="bg-rose-50 text-rose-600" />}
           </div>
         </CardContent>
       </Card>
@@ -1320,6 +1693,7 @@ function StudentDashboard() {
 function ParentDashboard() {
   const [data, setData] = useState<Record<string, unknown>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const { hasPermission } = useAuth();
 
   useEffect(() => {
     async function loadData() {
@@ -1347,7 +1721,7 @@ function ParentDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* ── Parent Welcome Banner ── */}
+      {/* Parent Welcome Banner */}
       <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 p-6 text-white">
         <div className="absolute top-0 right-0 w-56 h-56 bg-white/5 rounded-full -translate-y-1/3 translate-x-1/4" />
         <div className="absolute bottom-0 left-1/3 w-32 h-32 bg-white/5 rounded-full translate-y-1/2" />
@@ -1358,13 +1732,13 @@ function ParentDashboard() {
           <div>
             <h2 className="text-lg font-bold tracking-tight">Parent Portal</h2>
             <p className="text-sm opacity-90 mt-0.5">
-              Managing <span className="font-semibold">{childCount}</span> {childCount === 1 ? "child" : "children"} at Greenfield Academy
+              Managing <span className="font-semibold">{childCount}</span> {childCount === 1 ? "child" : "children"}
             </p>
           </div>
         </div>
       </div>
 
-      {/* ── Summary Stat Cards ── */}
+      {/* Summary Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <GradientStatCard
           icon={GraduationCap}
@@ -1397,7 +1771,7 @@ function ParentDashboard() {
         />
       </div>
 
-      {/* ── Children Cards with Photos & Fee Summary ── */}
+      {/* Children Cards */}
       {children && children.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
@@ -1412,17 +1786,15 @@ function ParentDashboard() {
                 const initials = child.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
                 const genderColor = child.sex?.toLowerCase() === "f"
                   ? { bg: "from-rose-400 to-pink-500", ring: "ring-rose-200" }
-                  : { bg: "from-sky-400 to-blue-500", ring: "ring-sky-200" };
+                  : { bg: "from-sky-400 to-cyan-500", ring: "ring-sky-200" };
                 return (
                   <div
                     key={child.student_id}
                     onClick={() => window.location.href = "/parent/children"}
                     className="relative p-5 rounded-xl border border-slate-200/80 hover:shadow-lg cursor-pointer transition-all bg-white group overflow-hidden"
                   >
-                    {/* Top accent line */}
                     <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${genderColor.bg}`} />
                     <div className="flex items-start gap-4">
-                      {/* Avatar */}
                       <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${genderColor.bg} text-white flex items-center justify-center font-bold text-lg shadow-md ring-4 ${genderColor.ring} group-hover:scale-105 transition-transform`}>
                         {initials}
                       </div>
@@ -1441,7 +1813,6 @@ function ParentDashboard() {
                         )}
                       </div>
                     </div>
-                    {/* Fee & attendance summary */}
                     <div className="mt-4 grid grid-cols-2 gap-3">
                       <div className="flex items-center gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-200/60">
                         <Wallet className="w-3.5 h-3.5 text-red-500" />
@@ -1468,7 +1839,7 @@ function ParentDashboard() {
         </Card>
       )}
 
-      {/* ── Combined Attendance View ── */}
+      {/* Attendance Overview */}
       <Card>
         <CardHeader className="pb-3">
           <SectionHeader icon={UserCheck} title="Attendance Overview" action={{ label: "Details", href: "/attendance" }} />
@@ -1517,26 +1888,26 @@ function ParentDashboard() {
         </CardContent>
       </Card>
 
-      {/* ── Quick Actions ── */}
+      {/* Quick Actions */}
       <Card>
         <CardHeader className="pb-3">
           <SectionHeader icon={Activity} title="Quick Actions" />
         </CardHeader>
         <CardContent className="pt-0">
           <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-            <QuickAction icon={BarChart3} label="Results" href="/results" color="bg-purple-50 text-purple-600" />
-            <QuickAction icon={CreditCard} label="Pay Fees" href="/parent/payments" color="bg-red-50 text-red-600" />
-            <QuickAction icon={Receipt} label="Invoices" href="/parent/invoices" color="bg-emerald-50 text-emerald-600" />
-            <QuickAction icon={CheckSquare} label="Attendance" href="/attendance" color="bg-sky-50 text-sky-600" />
+            {hasPermission("can_view_children_results") && <QuickAction icon={BarChart3} label="Results" href="/results" color="bg-purple-50 text-purple-600" />}
+            {hasPermission("can_make_payments") && <QuickAction icon={CreditCard} label="Pay Fees" href="/parent/payments" color="bg-red-50 text-red-600" />}
+            {hasPermission("can_view_children_invoices") && <QuickAction icon={Receipt} label="Invoices" href="/parent/invoices" color="bg-emerald-50 text-emerald-600" />}
+            {hasPermission("can_view_children_attendance") && <QuickAction icon={CheckSquare} label="Attendance" href="/attendance" color="bg-sky-50 text-sky-600" />}
             <QuickAction icon={Calendar} label="Timetable" href="/routine" color="bg-teal-50 text-teal-600" />
-            <QuickAction icon={MessageSquare} label="Messages" href="/messages" color="bg-violet-50 text-violet-600" />
+            {hasPermission("can_send_messages") && <QuickAction icon={MessageSquare} label="Messages" href="/messages" color="bg-violet-50 text-violet-600" />}
             <QuickAction icon={Megaphone} label="Notices" href="/notices" color="bg-orange-50 text-orange-600" />
             <QuickAction icon={Users} label="Teachers" href="/parent/teachers" color="bg-slate-50 text-slate-600" />
           </div>
         </CardContent>
       </Card>
 
-      {/* ── School Notices ── */}
+      {/* School Notices */}
       {notices && notices.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
@@ -1570,6 +1941,7 @@ function ParentDashboard() {
 function AccountantDashboard() {
   const [stats, setStats] = useState<Record<string, unknown>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const { hasPermission } = useAuth();
 
   useEffect(() => {
     async function loadStats() {
@@ -1598,7 +1970,7 @@ function AccountantDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* ── Financial KPI Cards with Trend Indicators ── */}
+      {/* Financial KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <GradientStatCard
           icon={TrendingUp}
@@ -1636,7 +2008,7 @@ function AccountantDashboard() {
         />
       </div>
 
-      {/* ── Secondary Stats ── */}
+      {/* Secondary Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={CreditCard} label="Today Collections" value={`GHS ${Number(s.todayTotal || 0).toLocaleString()}`} color="sky" href="/accountant/payments" subtitle={s.todayCount ? `${s.todayCount} payments` : undefined} />
         <StatCard icon={HandCoins} label="Net Income" value={`GHS ${netIncome.toLocaleString()}`} color="violet" href="/accountant/reports" />
@@ -1644,17 +2016,14 @@ function AccountantDashboard() {
         <StatCard icon={Users} label="Owing Students" value={s.owingCount || 0} color="rose" href="/accountant/reports" />
       </div>
 
-      {/* ── Revenue vs Expense & Pending Invoices ── */}
+      {/* Revenue vs Expense & Pending Invoices */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Revenue/Expense Chart */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-3">
             <SectionHeader icon={BarChart3} title="Revenue vs Expenses" action={{ label: "Reports", href: "/accountant/reports" }} />
           </CardHeader>
           <CardContent className="pt-0">
-            {/* CSS-based visual bar chart */}
             <div className="space-y-4 mt-2">
-              {/* Revenue bar */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
@@ -1670,7 +2039,6 @@ function AccountantDashboard() {
                   />
                 </div>
               </div>
-              {/* Expenses bar */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
@@ -1686,7 +2054,6 @@ function AccountantDashboard() {
                   />
                 </div>
               </div>
-              {/* Net Income */}
               <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200/60 mt-2">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${netIncome >= 0 ? "bg-emerald-100 text-emerald-600" : "bg-red-100 text-red-600"}`}>
@@ -1707,7 +2074,6 @@ function AccountantDashboard() {
           </CardContent>
         </Card>
 
-        {/* Pending Invoices Alert */}
         <div className="space-y-4">
           <Card className="border-amber-200 bg-gradient-to-b from-amber-50/50 to-white">
             <CardHeader className="pb-2">
@@ -1740,7 +2106,6 @@ function AccountantDashboard() {
             </CardContent>
           </Card>
 
-          {/* Quick stats */}
           <Card>
             <CardHeader className="pb-2">
               <SectionHeader icon={Clock} title="Today&apos;s Summary" />
@@ -1767,7 +2132,7 @@ function AccountantDashboard() {
         </div>
       </div>
 
-      {/* ── Recent Transactions Feed ── */}
+      {/* Recent Transactions */}
       <Card>
         <CardHeader className="pb-3">
           <SectionHeader icon={Clock} title="Recent Transactions" action={{ label: "View All", href: "/accountant/payments" }} />
@@ -1806,7 +2171,7 @@ function AccountantDashboard() {
         </CardContent>
       </Card>
 
-      {/* ── Top Debtors ── */}
+      {/* Top Debtors */}
       {s.topDebtors && Array.isArray(s.topDebtors) && s.topDebtors.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
@@ -1833,19 +2198,19 @@ function AccountantDashboard() {
         </Card>
       )}
 
-      {/* ── Quick Actions ── */}
+      {/* Quick Actions */}
       <Card>
         <CardHeader className="pb-3">
           <SectionHeader icon={Activity} title="Quick Actions" />
         </CardHeader>
         <CardContent className="pt-0">
           <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <QuickAction icon={Receipt} label="Invoices" href="/invoices" color="bg-red-50 text-red-600" />
-            <QuickAction icon={CreditCard} label="Record Payment" href="/accountant/payments" color="bg-emerald-50 text-emerald-600" />
-            <QuickAction icon={TrendingDown} label="Expenses" href="/accountant/expenses" color="bg-amber-50 text-amber-600" />
-            <QuickAction icon={BarChart3} label="Reports" href="/accountant/reports" color="bg-purple-50 text-purple-600" />
-            <QuickAction icon={PiggyBank} label="Payroll" href="/accountant/payroll" color="bg-teal-50 text-teal-600" />
-            <QuickAction icon={Scale} label="Reconciliation" href="/accountant/reconciliation" color="bg-sky-50 text-sky-600" />
+            {hasPermission("can_view_invoices") && <QuickAction icon={Receipt} label="Invoices" href="/invoices" color="bg-red-50 text-red-600" />}
+            {hasPermission("can_receive_payment") && <QuickAction icon={CreditCard} label="Record Payment" href="/accountant/payments" color="bg-emerald-50 text-emerald-600" />}
+            {hasPermission("can_enter_expenses") && <QuickAction icon={TrendingDown} label="Expenses" href="/accountant/expenses" color="bg-amber-50 text-amber-600" />}
+            {hasPermission("can_view_financial_reports") && <QuickAction icon={BarChart3} label="Reports" href="/accountant/reports" color="bg-purple-50 text-purple-600" />}
+            {hasPermission("can_manage_payroll") && <QuickAction icon={PiggyBank} label="Payroll" href="/accountant/payroll" color="bg-teal-50 text-teal-600" />}
+            {hasPermission("can_view_financial_reports") && <QuickAction icon={Scale} label="Reconciliation" href="/accountant/reconciliation" color="bg-sky-50 text-sky-600" />}
           </div>
         </CardContent>
       </Card>
@@ -1857,6 +2222,7 @@ function AccountantDashboard() {
 function LibrarianDashboard() {
   const [stats, setStats] = useState<Record<string, unknown>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const { hasPermission } = useAuth();
 
   useEffect(() => {
     async function loadStats() {
@@ -1886,7 +2252,7 @@ function LibrarianDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* ── Primary Stat Cards ── */}
+      {/* Primary Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <GradientStatCard
           icon={BookOpen}
@@ -1922,7 +2288,7 @@ function LibrarianDashboard() {
         />
       </div>
 
-      {/* ── Secondary Stats ── */}
+      {/* Secondary Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={HandCoins} label="Collection Value" value={s.totalValue ? `GHS ${Number(s.totalValue).toLocaleString()}` : "GHS 0"} color="violet" />
         <StatCard icon={Users} label="Total Copies" value={s.totalCopies || 0} color="slate" />
@@ -1930,9 +2296,8 @@ function LibrarianDashboard() {
         <StatCard icon={Megaphone} label="Notices" value={s.noticeCount || 0} color="orange" href="/notices" />
       </div>
 
-      {/* ── Overdue Alert & Activity ── */}
+      {/* Overdue Alert & Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Overdue Books Alert */}
         <Card className={overdueRequests > 0 ? "border-red-200 bg-gradient-to-b from-red-50/50 to-white" : ""}>
           <CardHeader className="pb-3">
             <SectionHeader icon={AlertTriangle} title="Overdue Books" action={{ label: "View All", href: "/librarian/requests" }} />
@@ -1964,7 +2329,6 @@ function LibrarianDashboard() {
           </CardContent>
         </Card>
 
-        {/* Pending Requests */}
         <Card>
           <CardHeader className="pb-3">
             <SectionHeader icon={Clock} title="Pending Requests" action={{ label: "Manage", href: "/librarian/requests" }} />
@@ -1991,7 +2355,6 @@ function LibrarianDashboard() {
           </CardContent>
         </Card>
 
-        {/* Library Utilization */}
         <Card>
           <CardHeader className="pb-3">
             <SectionHeader icon={Eye} title="Library Overview" />
@@ -2019,22 +2382,22 @@ function LibrarianDashboard() {
         </Card>
       </div>
 
-      {/* ── Quick Actions ── */}
+      {/* Quick Actions */}
       <Card>
         <CardHeader className="pb-3">
           <SectionHeader icon={Activity} title="Quick Actions" />
         </CardHeader>
         <CardContent className="pt-0">
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <QuickAction icon={BookOpen} label="Manage Books" href="/librarian/books" color="bg-emerald-50 text-emerald-600" />
-            <QuickAction icon={BookCheck} label="Book Requests" href="/librarian/requests" badge={pendingRequests} color="bg-teal-50 text-teal-600" />
-            <QuickAction icon={CheckSquare} label="Book Returns" href="/librarian/returns" color="bg-amber-50 text-amber-600" />
+            {hasPermission("can_manage_books") && <QuickAction icon={BookOpen} label="Manage Books" href="/librarian/books" color="bg-emerald-50 text-emerald-600" />}
+            {hasPermission("can_issue_books") && <QuickAction icon={BookCheck} label="Book Requests" href="/librarian/requests" badge={pendingRequests} color="bg-teal-50 text-teal-600" />}
+            {hasPermission("can_receive_books") && <QuickAction icon={CheckSquare} label="Book Returns" href="/librarian/returns" color="bg-amber-50 text-amber-600" />}
             <QuickAction icon={Megaphone} label="Notices" href="/notices" color="bg-orange-50 text-orange-600" />
           </div>
         </CardContent>
       </Card>
 
-      {/* ── Most Borrowed Books ── */}
+      {/* Most Borrowed Books */}
       {s.popularBooks && Array.isArray(s.popularBooks) && s.popularBooks.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
@@ -2073,7 +2436,7 @@ function LibrarianDashboard() {
         </Card>
       )}
 
-      {/* ── Recent Activity ── */}
+      {/* Recent Activity */}
       <Card>
         <CardHeader className="pb-3">
           <SectionHeader icon={ClipboardList} title="Recent Activity" />
@@ -2140,40 +2503,49 @@ export default function UnifiedDashboard() {
 
   const roleLabel = role === "super-admin" ? "Super Admin" : role.charAt(0).toUpperCase() + role.slice(1);
 
+  // Get greeting based on time of day
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* ─── Welcome Header with Live Clock ──────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white rounded-xl border border-slate-200/80 p-5 shadow-sm">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-              Welcome back, {user?.name || roleLabel}
-            </h1>
-            <div className="flex items-center gap-2 mt-1.5">
-              <Badge
-                variant="outline"
-                className="text-emerald-700 border-emerald-200 bg-emerald-50 font-medium"
-              >
-                {roleLabel}
-              </Badge>
-              <span className="text-sm text-slate-500">
-                Here&apos;s your dashboard overview
-              </span>
+      <div className="min-h-screen flex flex-col">
+        <div className="flex-1">
+          {/* ─── Header: Dashboard Overview + greeting + date + clock ──── */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white rounded-xl border border-slate-200/80 p-5 shadow-sm mb-6">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                Dashboard Overview
+              </h1>
+              <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                <span className="text-sm text-slate-600">
+                  {greeting}, <span className="font-semibold text-slate-800">{user?.name || roleLabel}</span>
+                </span>
+                <Badge
+                  variant="outline"
+                  className="text-emerald-700 border-emerald-200 bg-emerald-50 font-medium"
+                >
+                  {roleLabel}
+                </Badge>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 text-slate-500 flex-shrink-0">
+              <div className="hidden sm:flex items-center gap-1.5 text-xs">
+                <CalendarDays className="w-4 h-4 text-emerald-600" />
+                <span>{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+              </div>
+              <LiveClock />
             </div>
           </div>
-          <div className="flex items-center gap-2 text-slate-500 flex-shrink-0">
-            <CalendarDays className="w-4 h-4 text-emerald-600" />
-            <LiveClock />
-          </div>
-        </div>
 
-        {/* ─── Role-specific Dashboard ──────────────── */}
-        {isAdmin && <AdminDashboard />}
-        {isTeacher && <TeacherDashboard />}
-        {isStudent && <StudentDashboard />}
-        {isParent && <ParentDashboard />}
-        {isAccountant && <AccountantDashboard />}
-        {isLibrarian && <LibrarianDashboard />}
+          {/* ─── Role-specific Dashboard ──────────────── */}
+          {isAdmin && <AdminDashboard />}
+          {isTeacher && <TeacherDashboard />}
+          {isStudent && <StudentDashboard />}
+          {isParent && <ParentDashboard />}
+          {isAccountant && <AccountantDashboard />}
+          {isLibrarian && <LibrarianDashboard />}
+        </div>
       </div>
     </DashboardLayout>
   );

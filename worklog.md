@@ -1,4 +1,86 @@
 ---
+Task ID: 5
+Agent: Dashboard Rebuilder
+Task: Rebuild unified dashboard page with CI3 parity and permission-based visibility
+
+Work Log:
+- Read worklog.md and analyzed existing dashboard page (~2189 lines)
+- Read useAuth hook to understand permission API (hasPermission, hasAnyPermission, isRole, etc.)
+- Identified critical data binding bugs: `s.students` should be `data.stats.totalStudents`, `s.teachers` → `data.stats.activeTeachers`, `s.revenue` → `data.financial.totalRevenue`, etc.
+- Analyzed DashboardLayout to understand flex structure (already handles sticky footer)
+
+**AdminDashboard — FULL REWRITE with CI3 parity:**
+- Added `AdminDashboardData` TypeScript interface matching the API response structure
+- **Header**: Updated UnifiedDashboard header to show "Dashboard Overview" + greeting (time-of-day based) + today's date + live clock
+- **Data Filter** (permission-gated via `can_manage_settings`): Year/Term/Date pickers with Apply/Reset buttons, shows current academic term badge
+- **Key Metrics** (4 equal cards, `grid-cols-2 lg:grid-cols-4`): Total Students, Active Teachers, Active Parents, Attendance Today — all bound to `data.stats.*`
+- **Financial Overview** (3 cards, permission-gated via `hasAnyPermission(["can_view_financial_reports", "can_receive_payment", "can_view_invoices"])`):
+  - Daily Revenue (clickable → modal with fee collection breakdown)
+  - Collection Rate (with dynamic Excellent/Good/Needs Attention badge using `financial.collectionColor`)
+  - Pending Payments (distinct unpaid students count)
+- **Charts** (2x2 grid, always visible):
+  - Student Distribution by Class → BarChart (Recharts, emerald fill)
+  - Attendance Trend Last 7 Days → AreaChart with gradient fill
+  - Gender Distribution by Class → Stacked BarChart (teal=male, rose=female)
+  - Residential Distribution by Class → Stacked BarChart (dynamically pivoted from raw data, emerald=Day, amber=Boarder)
+- **Quick Actions** (6 items, permission-gated per action):
+  - `can_admit_students` → Add Student → /admin/students/new
+  - `can_manage_attendance` → Attendance → /attendance
+  - `can_bill_students` → Billing → /admin/invoices
+  - `can_receive_payment` → Take Payment → /admin/payments/new
+  - `can_send_messages` → Messages → /messages
+  - `can_send_sms` → Bill Reminders → /admin/communication/sms-automation
+- **Financial Summary** (super admin via `can_manage_settings`):
+  - 3 cards: Unpaid Invoices (→/admin/receivables), Total Income (→/admin/reports/finance), Total Expenses (→/admin/expenses)
+- **Recent Payments Table** (permission: `can_view_invoices`): Proper HTML table with student name, invoice code, amount, method badge, date — last 10 rows
+- **Daily Revenue Modal**: Dialog showing fee collection breakdown (paid/partial/unpaid) with amounts, counts, and collection rate progress bar
+
+**Data Binding Fixes:**
+- All admin data now accessed via proper nested structure: `data.stats.totalStudents`, `data.financial.totalRevenue`, `data.financialSummary.unpaidInvoices.amount`, etc.
+- Fixed `useMemo` hooks placed before early return to comply with React Hooks rules
+
+**Other Dashboard Views (preserved with fixes):**
+- TeacherDashboard: Kept existing structure, preserved all permission checks
+- StudentDashboard: Kept existing structure, preserved all permission checks
+- ParentDashboard: Kept existing structure, preserved all permission checks
+- AccountantDashboard: Kept existing structure, preserved all permission checks
+- LibrarianDashboard: Kept existing structure, preserved all permission checks
+
+**New Imports Added:**
+- `useMemo` from React
+- `Send`, `Filter`, `XCircle` from lucide-react
+- `Dialog`, `DialogContent`, `DialogHeader`, `DialogTitle`, `DialogDescription` from @/components/ui/dialog
+- `Select`, `SelectContent`, `SelectItem`, `SelectTrigger`, `SelectValue` from @/components/ui/select
+- `Input`, `Label`, `Button` from @/components/ui/*
+- `Table`, `TableBody`, `TableCell`, `TableHead`, `TableHeader`, `TableRow` from @/components/ui/table
+- `AreaChart`, `Area`, `Legend` from recharts
+
+**Responsive Design:**
+- All grids use mobile-first patterns: `grid-cols-2 lg:grid-cols-4` for stats, `grid-cols-1 lg:grid-cols-2` for charts
+- Financial overview: `grid-cols-1 sm:grid-cols-3`
+- Data filter form: `flex-col sm:flex-row`
+- All touch targets ≥44px
+- `min-h-screen flex flex-col` in UnifiedDashboard for proper footer behavior
+
+**Styling:**
+- No indigo/blue colors used
+- Emerald as primary accent
+- Collection rate badges: emerald (≥80%), amber (≥60%), red (<60%) via `financial.collectionColor`
+- Consistent tooltip and axis styling via `CHART_TOOLTIP_STYLE` and `CHART_AXIS_STYLE` constants
+
+- ESLint: 0 errors
+- Dev server running clean, dashboard accessible at /dashboard (HTTP 200)
+
+Stage Summary:
+- Complete CI3 parity admin dashboard with all 8 required sections in correct order
+- All hardcoded admin_level checks replaced with dynamic permission checks
+- All data bindings fixed to match the API response structure
+- 4 Recharts charts implemented (BarChart, AreaChart, 2x Stacked BarChart)
+- Daily Revenue clickable modal with fee collection breakdown
+- Data filter for super admin with year/term/date pickers
+- All 6 role dashboards preserved and functional
+- Zero lint errors
+---
 Task ID: 8b-14
 Agent: UI Rebuilder
 Task: Enhance 6 teacher pages (dashboard, classes, students, marks, attendance, messages) with modern UI patterns

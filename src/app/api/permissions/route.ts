@@ -1,23 +1,42 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 
-/**
- * GET /api/permissions
- * List all permissions grouped by module.
- * Admin-only access enforced at the auth layer.
- */
 export async function GET() {
   try {
-    const permissions = await db.permission.findMany({
-      orderBy: [{ module: "asc" }, { displayName: "asc" }],
-      include: {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const role = session.user.role;
+    const roleSlug = session.user.roleSlug;
+
+    // Map to the RBAC role slug for permission lookup
+    let mappedRoleSlug: string;
+    if (role === "super-admin") {
+      mappedRoleSlug = "super-admin";
+    } else {
+      mappedRoleSlug = roleSlug || role;
+    }
+
+    // Find the role in the RBAC system
+    const roleRecord = await db.role.findUnique({
+      where: { slug: mappedRoleSlug },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        level: true,
         rolePermissions: {
-          include: {
-            role: {
+          where: { isGranted: true },
+          select: {
+            permission: {
               select: {
-                id: true,
                 name: true,
-                slug: true,
+                displayName: true,
+                module: true,
               },
             },
           },
@@ -25,30 +44,28 @@ export async function GET() {
       },
     });
 
-    // Group by module
-    const grouped = permissions.reduce<
-      Record<string, typeof permissions>
-    >((acc, perm) => {
-      if (!acc[perm.module]) {
-        acc[perm.module] = [];
-      }
-      acc[perm.module].push(perm);
-      return acc;
-    }, {});
+    if (!roleRecord) {
+      // Fallback: return empty permissions
+      return NextResponse.json({
+        permissions: [],
+        role: mappedRoleSlug,
+        roleLabel: role,
+        roleLevel: 0,
+      });
+    }
+
+    const permissions = roleRecord.rolePermissions.map((rp) => rp.permission.name);
 
     return NextResponse.json({
-      success: true,
-      data: {
-        all: permissions,
-        grouped,
-        total: permissions.length,
-        modules: Object.keys(grouped),
-      },
+      permissions,
+      role: roleRecord.slug,
+      roleLabel: roleRecord.name,
+      roleLevel: roleRecord.level,
     });
   } catch (error) {
     console.error("Error fetching permissions:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch permissions" },
+      { error: "Failed to fetch permissions" },
       { status: 500 }
     );
   }

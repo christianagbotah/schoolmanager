@@ -92,6 +92,8 @@ const permissions = [
   { name: "can_manage_discounts", displayName: "Can Manage Discounts", module: "finance", description: "Create and manage discount profiles and categories" },
   { name: "can_generate_receipts", displayName: "Can Generate Receipts", module: "finance", description: "Generate payment receipts" },
   { name: "can_view_unified_financial_dashboard", displayName: "Can View Unified Financial Dashboard", module: "finance", description: "Access the unified financial dashboard" },
+  { name: "can_use_barcode_scanner", displayName: "Can Use Barcode Scanner", module: "finance", description: "Access the barcode scanner feature" },
+  { name: "can_manage_fee_settings", displayName: "Can Manage Fee Settings", module: "finance", description: "Configure fee rates, permissions, and collection settings" },
 
   // --- COMMUNICATION MODULE ---
   { name: "can_send_sms", displayName: "Can Send SMS", module: "communication", description: "Send SMS messages to parents and students" },
@@ -218,6 +220,8 @@ const rolePermissionMappings: Record<string, string[]> = {
     "can_manage_discounts",
     "can_generate_receipts",
     "can_view_unified_financial_dashboard",
+    "can_use_barcode_scanner",
+    "can_manage_fee_settings",
 
     // Communication
     "can_send_sms",
