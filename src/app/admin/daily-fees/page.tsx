@@ -104,6 +104,7 @@ interface StudentInfo {
   section_name: string;
   rates: any | null;
   todayTransaction?: any | null;
+  transport?: { route_id: number; route_name: string; fare: number } | null;
 }
 
 interface CashierSummary {
@@ -341,6 +342,8 @@ export default function DailyFeesDashboard() {
   const [collectWater, setCollectWater] = useState(false);
   const [transportDirection, setTransportDirection] = useState('none');
   const [transportFare, setTransportFare] = useState(0);
+  const [routeName, setRouteName] = useState('');
+  const [baseRouteFare, setBaseRouteFare] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [collecting, setCollecting] = useState(false);
   const [lastReceipt, setLastReceipt] = useState<any>(null);
@@ -511,7 +514,7 @@ export default function DailyFeesDashboard() {
     if (amt <= 0) { toast.error('Please enter a valid amount'); return; }
     setQuickCollecting(true);
     try {
-      const res = await fetch('/api/admin/daily-fees/transactions', {
+      const res = await fetch('/api/admin/daily-fees/collect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -636,6 +639,14 @@ export default function DailyFeesDashboard() {
     setSelectedStudent(student);
     resetCollection();
     if (student.rates) setClassRates(student.rates);
+    // Auto-load transport route if student has one (CI3: loads route info on student select)
+    if (student.transport) {
+      setRouteName(student.transport.route_name);
+      setBaseRouteFare(student.transport.fare || 0);
+    } else {
+      setRouteName('');
+      setBaseRouteFare(0);
+    }
   };
 
   const resetCollection = () => {
@@ -645,7 +656,21 @@ export default function DailyFeesDashboard() {
     setCollectWater(false);
     setTransportDirection('none');
     setTransportFare(0);
+    setRouteName('');
+    setBaseRouteFare(0);
     setLastReceipt(null);
+  };
+
+  // Calculate transport fare based on direction (CI3 parity)
+  const handleTransportDirectionChange = (dir: string) => {
+    setTransportDirection(dir);
+    if (dir === 'in' || dir === 'out') {
+      setTransportFare(baseRouteFare);
+    } else if (dir === 'both') {
+      setTransportFare(baseRouteFare * 2);
+    } else {
+      setTransportFare(0);
+    }
   };
 
   const totalAmount = (classRates?.feeding_rate || 0) * (collectFeeding ? 1 : 0) +
@@ -659,7 +684,7 @@ export default function DailyFeesDashboard() {
     if (totalAmount <= 0) { toast.error('Please select at least one fee type'); return; }
     setCollecting(true);
     try {
-      const res = await fetch('/api/admin/daily-fees/transactions', {
+      const res = await fetch('/api/admin/daily-fees/collect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -669,6 +694,7 @@ export default function DailyFeesDashboard() {
           classes_amount: collectClasses ? (classRates?.classes_rate || 0) : 0,
           water_amount: collectWater ? (classRates?.water_rate || 0) : 0,
           transport_amount: transportFare,
+          transport_direction: transportDirection,
           payment_method: paymentMethod,
           collected_by: 'Admin',
           payment_date: new Date().toISOString().split('T')[0],
@@ -1032,19 +1058,38 @@ export default function DailyFeesDashboard() {
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-semibold flex items-center gap-2">
                       <Bus className="w-4 h-4 text-violet-500" />
-                      Transport (Optional)
+                      Transport {selectedStudent?.transport ? '' : '(Optional)'}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
+                    {/* Route info (CI3: shows route name readonly) */}
+                    {selectedStudent?.transport ? (
+                      <div className="p-3 rounded-lg bg-violet-50 border border-violet-100 mb-4">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Bus className="w-4 h-4 text-violet-500" />
+                          <span className="font-medium text-violet-700">
+                            Route: {routeName}
+                          </span>
+                          <Badge variant="outline" className="text-[10px] bg-violet-100 text-violet-600 border-violet-200 ml-auto">
+                            Base fare: {fmt(baseRouteFare)}
+                          </Badge>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded-lg bg-slate-50 border border-slate-100 mb-4">
+                        <p className="text-xs text-slate-400 text-center">
+                          No transport route assigned to this student
+                        </p>
+                      </div>
+                    )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="text-xs font-medium">Direction</Label>
-                        <Select value={transportDirection} onValueChange={(v) => {
-                          setTransportDirection(v);
-                          if (v === 'in' || v === 'out') setTransportFare(0);
-                          else if (v === 'both') setTransportFare(0);
-                          else setTransportFare(0);
-                        }}>
+                        <Label className="text-xs font-medium">Direction Today</Label>
+                        <Select
+                          value={transportDirection}
+                          onValueChange={handleTransportDirectionChange}
+                          disabled={!selectedStudent?.transport}
+                        >
                           <SelectTrigger className="min-h-[44px] bg-slate-50">
                             <SelectValue />
                           </SelectTrigger>
@@ -1057,7 +1102,7 @@ export default function DailyFeesDashboard() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-xs font-medium">Fare Amount (GH\u20B5)</Label>
+                        <Label className="text-xs font-medium">Transport Fare (GH\u20B5)</Label>
                         <Input
                           type="number"
                           step="0.50"

@@ -162,6 +162,15 @@ export default function FrontendDashboardPage() {
       color: 'from-sky-500 to-blue-600',
       badgeColor: 'bg-sky-100 text-sky-700',
     },
+    {
+      title: 'General Settings',
+      description: 'Site title, contact info, social links, logos',
+      icon: LayoutDashboard,
+      count: 1,
+      href: '/admin/frontend/settings',
+      color: 'from-slate-600 to-slate-700',
+      badgeColor: 'bg-slate-100 text-slate-700',
+    },
   ];
 
   const typeIcon = (type: string) => {

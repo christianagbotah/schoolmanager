@@ -1,155 +1,137 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
+// GET - List dormitories or get students for a dormitory
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const action = searchParams.get("action");
+    const dormitoryId = searchParams.get("dormitory_id");
 
-    if (action === "stats") {
-      const rooms = await db.dormitory_room.findMany({
-        include: { occupants: { where: { is_active: 1 } } },
+    // Get students assigned to a specific dormitory (CI3 modal_dormitory_student)
+    if (action === "students" && dormitoryId) {
+      const assignments = await db.boarding_student.findMany({
+        where: {
+          dormitory_id: parseInt(dormitoryId),
+          is_active: 1,
+        },
+        include: {
+          student: {
+            select: {
+              student_id: true,
+              name: true,
+              email: true,
+              phone: true,
+              student_code: true,
+              active_status: true,
+              enrolls: {
+                select: { class_id: true },
+                take: 1,
+                orderBy: { enroll_id: "desc" },
+              },
+            },
+          },
+        },
+        orderBy: { id: "asc" },
       });
 
-      const students = await db.student.findMany({
-        where: { active_status: 1 },
-        select: { student_id: true, name: true, student_code: true, sex: true },
-      });
+      // Enrich with class names
+      const enriched = await Promise.all(
+        assignments.map(async (a) => {
+          let class_name = "";
+          if (a.student.enrolls.length > 0) {
+            const cls = await db.school_class.findUnique({
+              where: { class_id: a.student.enrolls[0].class_id },
+              select: { name: true },
+            });
+            class_name = cls?.name || "";
+          }
+          return {
+            ...a,
+            student: { ...a.student, class_name },
+          };
+        })
+      );
 
-      const totalRooms = rooms.length;
-      const occupied = rooms.filter((r) => r.occupants.length >= r.capacity).length;
-      const available = totalRooms - occupied;
-      const totalCapacity = rooms.reduce((s, r) => s + r.capacity, 0);
-      const totalOccupants = rooms.reduce((s, r) => s + r.occupants.length, 0);
-
-      return NextResponse.json({
-        rooms,
-        students,
-        stats: { totalRooms, occupied, available, totalCapacity, totalOccupants },
-      });
+      return NextResponse.json({ students: enriched });
     }
 
-    const rooms = await db.dormitory_room.findMany({
-      include: {
-        occupants: {
-          where: { is_active: 1 },
-        },
-      },
-      orderBy: { id: "asc" },
+    // Default: list all dormitories
+    const dormitories = await db.dormitory.findMany({
+      orderBy: { dormitory_id: "desc" },
     });
 
-    return NextResponse.json({ rooms });
+    // Count students per dormitory
+    const studentCounts = await db.boarding_student.groupBy({
+      by: ["dormitory_id"],
+      where: { is_active: 1, dormitory_id: { not: null } },
+      _count: { student_id: true },
+    });
+
+    const countMap = new Map(
+      studentCounts.map((c) => [c.dormitory_id, c._count.student_id])
+    );
+
+    const dormitoriesWithCount = dormitories.map((d) => ({
+      ...d,
+      students_count: countMap.get(d.dormitory_id) || 0,
+    }));
+
+    return NextResponse.json({ dormitories: dormitoriesWithCount });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
+// POST - Create or update dormitory
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { action, ...data } = body;
 
     if (action === "create") {
-      const room = await db.dormitory_room.create({
+      const { name, number_of_rooms, description } = data;
+      if (!name) {
+        return NextResponse.json(
+          { error: "Dormitory name is required" },
+          { status: 400 }
+        );
+      }
+
+      const dormitory = await db.dormitory.create({
         data: {
-          room_name: data.room_name || "",
-          room_number: data.room_number || "",
-          room_type: data.room_type || "Single",
-          capacity: Number(data.capacity) || 1,
-          floor: Number(data.floor) || 1,
-          facilities: Array.isArray(data.facilities) ? data.facilities.join(",") : (data.facilities || ""),
-          status: data.status || "Available",
+          dormitory_name: name,
+          number_of_rooms: parseInt(number_of_rooms) || 0,
+          dormitory_description: description || "",
         },
       });
-      return NextResponse.json({ room });
+
+      return NextResponse.json({ dormitory }, { status: 201 });
     }
 
     if (action === "update") {
-      const room = await db.dormitory_room.update({
-        where: { id: Number(data.id) },
+      const { dormitory_id, name, number_of_rooms, description } = data;
+      if (!dormitory_id) {
+        return NextResponse.json(
+          { error: "Dormitory ID is required" },
+          { status: 400 }
+        );
+      }
+
+      const dormitory = await db.dormitory.update({
+        where: { dormitory_id: parseInt(dormitory_id) },
         data: {
-          room_name: data.room_name ?? undefined,
-          room_number: data.room_number ?? undefined,
-          room_type: data.room_type ?? undefined,
-          capacity: data.capacity !== undefined ? Number(data.capacity) : undefined,
-          floor: data.floor !== undefined ? Number(data.floor) : undefined,
-          facilities: Array.isArray(data.facilities) ? data.facilities.join(",") : (data.facilities ?? undefined),
-          status: data.status ?? undefined,
-        },
-      });
-      return NextResponse.json({ room });
-    }
-
-    if (action === "assign_student") {
-      const { room_id, student_id } = data;
-      if (!room_id || !student_id) {
-        return NextResponse.json({ error: "room_id and student_id required" }, { status: 400 });
-      }
-
-      // Check room capacity
-      const room = await db.dormitory_room.findUnique({
-        where: { id: Number(room_id) },
-        include: { occupants: { where: { is_active: 1 } } },
-      });
-      if (!room) return NextResponse.json({ error: "Room not found" }, { status: 404 });
-      if (room.occupants.length >= room.capacity) {
-        return NextResponse.json({ error: "Room is at full capacity" }, { status: 400 });
-      }
-
-      // Deactivate existing assignment if any
-      await db.dormitory_room_student.updateMany({
-        where: { student_id: Number(student_id), is_active: 1 },
-        data: { is_active: 0 },
-      });
-
-      const assignment = await db.dormitory_room_student.create({
-        data: {
-          room_id: Number(room_id),
-          student_id: Number(student_id),
+          dormitory_name: name ?? undefined,
+          number_of_rooms:
+            number_of_rooms !== undefined
+              ? parseInt(number_of_rooms)
+              : undefined,
+          dormitory_description: description ?? undefined,
         },
       });
 
-      // Update room status
-      const updatedOccupants = room.occupants.length + 1;
-      if (updatedOccupants >= room.capacity) {
-        await db.dormitory_room.update({
-          where: { id: Number(room_id) },
-          data: { status: "Occupied" },
-        });
-      } else if (room.status === "Available" && updatedOccupants > 0) {
-        await db.dormitory_room.update({
-          where: { id: Number(room_id) },
-          data: { status: "Occupied" },
-        });
-      }
-
-      return NextResponse.json({ assignment });
-    }
-
-    if (action === "remove_student") {
-      await db.dormitory_room_student.updateMany({
-        where: {
-          room_id: Number(data.room_id),
-          student_id: Number(data.student_id),
-          is_active: 1,
-        },
-        data: { is_active: 0 },
-      });
-
-      // Check if room is now empty
-      const room = await db.dormitory_room.findUnique({
-        where: { id: Number(data.room_id) },
-        include: { occupants: { where: { is_active: 1 } } },
-      });
-      if (room && room.occupants.length === 0 && room.status !== "Maintenance") {
-        await db.dormitory_room.update({
-          where: { id: Number(data.room_id) },
-          data: { status: "Available" },
-        });
-      }
-
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ dormitory });
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
@@ -159,6 +141,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// DELETE - Remove dormitory
 export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -168,13 +151,14 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "ID required" }, { status: 400 });
     }
 
-    // Remove all occupant assignments first
-    await db.dormitory_room_student.deleteMany({
-      where: { room_id: Number(id) },
+    // Remove student assignments for this dormitory
+    await db.boarding_student.updateMany({
+      where: { dormitory_id: parseInt(id) },
+      data: { dormitory_id: null },
     });
 
-    await db.dormitory_room.delete({
-      where: { id: Number(id) },
+    await db.dormitory.delete({
+      where: { dormitory_id: parseInt(id) },
     });
 
     return NextResponse.json({ success: true });

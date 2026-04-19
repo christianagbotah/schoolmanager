@@ -22,11 +22,14 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 
+// ─── Types ─────────────────────────────────────────────────────────────────────
+
 interface Book {
   book_id: number; name: string; description: string; author: string;
   class_id: number | null; price: number; total_copies: number;
   issued_copies: number; status: string; isbn: string; category: string;
   shelf: string; available_copies?: number; active_requests?: number;
+  class_name?: string;
 }
 
 interface BookRequest {
@@ -37,21 +40,9 @@ interface BookRequest {
 }
 
 interface Student { student_id: number; name: string; student_code: string; }
+interface ClassOption { class_id: number; name: string; name_numeric: string; }
 
-const BOOK_COLORS = [
-  { bg: 'from-emerald-400 to-emerald-600', light: 'bg-emerald-100' },
-  { bg: 'from-sky-400 to-sky-600', light: 'bg-sky-100' },
-  { bg: 'from-amber-400 to-amber-600', light: 'bg-amber-100' },
-  { bg: 'from-violet-400 to-violet-600', light: 'bg-violet-100' },
-  { bg: 'from-rose-400 to-rose-600', light: 'bg-rose-100' },
-  { bg: 'from-teal-400 to-teal-600', light: 'bg-teal-100' },
-  { bg: 'from-orange-400 to-orange-600', light: 'bg-orange-100' },
-  { bg: 'from-cyan-400 to-cyan-600', light: 'bg-cyan-100' },
-];
-
-function getBookColor(id: number) {
-  return BOOK_COLORS[id % BOOK_COLORS.length];
-}
+// ─── Skeleton ──────────────────────────────────────────────────────────────────
 
 function PageSkeleton() {
   return (
@@ -77,43 +68,37 @@ function PageSkeleton() {
           </Card>
         ))}
       </div>
-      <div className="flex gap-2">
-        <Skeleton className="h-10 w-32 rounded-lg" />
-        <Skeleton className="h-10 w-40 rounded-lg" />
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Card key={i} className="border-slate-200/60">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <Skeleton className="w-14 h-[76px] rounded-lg flex-shrink-0" />
-                <div className="flex-1 space-y-2 min-w-0">
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-3 w-1/2" />
-                  <div className="flex gap-2">
-                    <Skeleton className="h-5 w-16 rounded-full" />
-                    <Skeleton className="h-5 w-12 rounded-full" />
-                  </div>
-                </div>
-              </div>
-              <Skeleton className="h-1.5 w-full rounded-full mt-3" />
-              <div className="flex gap-2 mt-4">
-                <Skeleton className="h-8 w-16 rounded-md" />
-                <Skeleton className="h-8 w-8 rounded-md" />
-                <Skeleton className="h-8 w-8 rounded-md ml-auto" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Skeleton className="h-10 w-full rounded-lg" />
+      <Skeleton className="h-64 w-full rounded-lg" />
     </div>
   );
 }
+
+// ─── Status Badge ──────────────────────────────────────────────────────────────
+
+function BookStatusBadge({ status }: { status: string }) {
+  const available = status === 'Available' || status === 'available';
+  return (
+    <Badge
+      variant="secondary"
+      className={`text-xs font-medium ${
+        available
+          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+          : 'bg-red-50 text-red-700 border border-red-200'
+      }`}
+    >
+      {available ? 'Available' : 'Unavailable'}
+    </Badge>
+  );
+}
+
+// ─── Main Component ────────────────────────────────────────────────────────────
 
 export default function LibraryPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [requests, setRequests] = useState<BookRequest[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
+  const [classes, setClasses] = useState<ClassOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [studentSearch, setStudentSearch] = useState('');
@@ -151,15 +136,14 @@ export default function LibraryPage() {
     );
   }, [students, studentSearch]);
 
-  const fetchBooks = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (search) params.set('search', search);
-      const [booksRes, reqRes, stRes] = await Promise.all([
+      const [booksRes, reqRes, stRes, clsRes] = await Promise.all([
         fetch('/api/admin/books'),
         fetch('/api/admin/book-requests'),
         fetch('/api/admin/students'),
+        fetch('/api/admin/classes'),
       ]);
       const booksData = await booksRes.json();
       setBooks(Array.isArray(booksData) ? booksData : []);
@@ -167,11 +151,15 @@ export default function LibraryPage() {
       setRequests(Array.isArray(reqData) ? reqData : []);
       const stData = await stRes.json();
       setStudents(Array.isArray(stData) ? stData.slice(0, 200) : []);
+      const clsData = await clsRes.json();
+      setClasses(Array.isArray(clsData) ? clsData : []);
     } catch { /* empty */ }
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetchBooks(); }, [fetchBooks]);
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  // ── Form Validation ────────────────────────────────────────────────────────
 
   const validateBookForm = (): boolean => {
     const errors: Record<string, string> = {};
@@ -183,6 +171,8 @@ export default function LibraryPage() {
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
+
+  // ── CRUD Handlers ──────────────────────────────────────────────────────────
 
   const openCreateBook = () => {
     setSelectedBook(null);
@@ -196,7 +186,7 @@ export default function LibraryPage() {
     setBookForm({
       name: b.name, description: b.description, author: b.author,
       class_id: b.class_id?.toString() || '', price: b.price.toString(),
-      total_copies: b.total_copies.toString(), status: b.status,
+      total_copies: b.total_copies.toString(), status: b.status || 'available',
       isbn: b.isbn || '', category: b.category || '', shelf: b.shelf || '',
     });
     setFormErrors({});
@@ -220,7 +210,7 @@ export default function LibraryPage() {
       if (!res.ok) throw new Error('Failed');
       toast.success(selectedBook ? 'Book updated successfully' : 'Book created successfully');
       setBookFormOpen(false);
-      fetchBooks();
+      fetchData();
     } catch { toast.error('Failed to save book'); }
     setSaving(false);
   };
@@ -232,7 +222,7 @@ export default function LibraryPage() {
       if (!res.ok) throw new Error('Failed');
       toast.success('Book deleted');
       setDeleteOpen(false);
-      fetchBooks();
+      fetchData();
     } catch { toast.error('Failed to delete'); }
   };
 
@@ -253,7 +243,7 @@ export default function LibraryPage() {
       if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Failed'); }
       toast.success('Book issued successfully');
       setIssueOpen(false);
-      fetchBooks();
+      fetchData();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to issue book';
       toast.error(msg);
@@ -268,15 +258,19 @@ export default function LibraryPage() {
         body: JSON.stringify({ book_request_id: req.book_request_id, status: 'returned' }),
       });
       toast.success('Book returned successfully');
-      fetchBooks();
+      fetchData();
     } catch { toast.error('Failed to return'); }
   };
+
+  // ── Stats ──────────────────────────────────────────────────────────────────
 
   const totalBooks = books.reduce((s, b) => s + b.total_copies, 0);
   const issuedBooks = books.reduce((s, b) => s + b.issued_copies, 0);
   const availableBooks = totalBooks - issuedBooks;
   const uniqueTitles = books.length;
   const overdueRequests = requests.filter(r => r.status === 'issued' && r.issue_end_date && new Date(r.issue_end_date) < new Date());
+
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <DashboardLayout>
@@ -285,92 +279,88 @@ export default function LibraryPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Library Management</h1>
-            <p className="text-sm text-slate-500 mt-1">Books catalog, issues and returns</p>
+            <p className="text-sm text-slate-500 mt-1">Manage books, issue and return tracking</p>
           </div>
           <Button onClick={openCreateBook} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] shadow-sm">
             <Plus className="w-4 h-4 mr-2" /> Add Book
           </Button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {loading ? (
-            <>
-              <PageSkeleton />
-            </>
-          ) : (
-            <>
-              <Card className="border-slate-200/60 hover:shadow-sm transition-shadow">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                    <Library className="w-5 h-5 text-emerald-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-500 truncate">Total Titles</p>
-                    <p className="text-xl font-bold text-slate-900">{uniqueTitles}</p>
-                    <p className="text-[10px] text-slate-400">{totalBooks} copies</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="border-slate-200/60 hover:shadow-sm transition-shadow">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center flex-shrink-0">
-                    <BookCheck className="w-5 h-5 text-sky-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-500 truncate">Available</p>
-                    <p className="text-xl font-bold text-slate-900">{availableBooks}</p>
-                    <p className="text-[10px] text-emerald-500 font-medium">
-                      {totalBooks > 0 ? Math.round((availableBooks / totalBooks) * 100) : 0}% available
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="border-slate-200/60 hover:shadow-sm transition-shadow">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                    <ArrowRightLeft className="w-5 h-5 text-amber-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-500 truncate">Issued</p>
-                    <p className="text-xl font-bold text-slate-900">{issuedBooks}</p>
-                    <p className="text-[10px] text-slate-400">Currently out</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="border-slate-200/60 hover:shadow-sm transition-shadow">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
-                    <AlertTriangle className="w-5 h-5 text-rose-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-500 truncate">Overdue</p>
-                    <p className="text-xl font-bold text-slate-900">{overdueRequests.length}</p>
-                    <p className="text-[10px] text-rose-500 font-medium">
-                      {overdueRequests.length > 0 ? 'Need attention' : 'All on time'}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
-        </div>
+        {/* Stats Cards */}
+        {loading ? (
+          <PageSkeleton />
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="border-slate-200/60 hover:shadow-sm transition-shadow">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <Library className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-slate-500 truncate">Total Titles</p>
+                  <p className="text-xl font-bold text-slate-900">{uniqueTitles}</p>
+                  <p className="text-[10px] text-slate-400">{totalBooks} copies</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-200/60 hover:shadow-sm transition-shadow">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center flex-shrink-0">
+                  <BookCheck className="w-5 h-5 text-sky-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-slate-500 truncate">Available</p>
+                  <p className="text-xl font-bold text-slate-900">{availableBooks}</p>
+                  <p className="text-[10px] text-emerald-500 font-medium">
+                    {totalBooks > 0 ? Math.round((availableBooks / totalBooks) * 100) : 0}% available
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-200/60 hover:shadow-sm transition-shadow">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <ArrowRightLeft className="w-5 h-5 text-amber-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-slate-500 truncate">Issued</p>
+                  <p className="text-xl font-bold text-slate-900">{issuedBooks}</p>
+                  <p className="text-[10px] text-slate-400">Currently out</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-200/60 hover:shadow-sm transition-shadow">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-rose-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-slate-500 truncate">Overdue</p>
+                  <p className="text-xl font-bold text-slate-900">{overdueRequests.length}</p>
+                  <p className="text-[10px] text-rose-500 font-medium">
+                    {overdueRequests.length > 0 ? 'Need attention' : 'All on time'}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
 
-      {/* Show tabs only when not loading */}
+      {/* Tabs: Book List | Issues & Returns */}
       {!loading && (
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4 bg-white border border-slate-200 p-1 rounded-xl h-auto flex w-full sm:w-auto">
             <TabsTrigger value="books" className="flex-1 min-w-[100px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
-              <BookOpen className="w-4 h-4 mr-1.5 hidden sm:inline" /> Books ({books.length})
+              <BookOpen className="w-4 h-4 mr-1.5 hidden sm:inline" /> Book List
             </TabsTrigger>
             <TabsTrigger value="requests" className="flex-1 min-w-[100px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
-              <BookCheck className="w-4 h-4 mr-1.5 hidden sm:inline" /> Issues & Returns
+              <BookCheck className="w-4 h-4 mr-1.5 hidden sm:inline" /> Book Requests
             </TabsTrigger>
           </TabsList>
 
-          {/* Books Tab */}
+          {/* ── Books Tab ──────────────────────────────────────────────────── */}
           <TabsContent value="books">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
               <div className="relative flex-1">
@@ -382,6 +372,10 @@ export default function LibraryPage() {
                   className="pl-10 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"
                 />
               </div>
+              <p className="text-xs text-slate-400 whitespace-nowrap">
+                {filteredBooks.length} book{filteredBooks.length !== 1 ? 's' : ''}
+                {search && ` of ${books.length}`}
+              </p>
             </div>
 
             {filteredBooks.length === 0 ? (
@@ -405,98 +399,174 @@ export default function LibraryPage() {
               </Card>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Desktop Table */}
+                <Card className="border-slate-200/60 hidden lg:block">
+                  <CardContent className="p-0">
+                    <div className="max-h-[600px] overflow-y-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-slate-50 hover:bg-slate-50">
+                            <TableHead className="text-xs font-semibold text-slate-600 w-10">#</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600">Name</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600">Author</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600">ISBN</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600">Category</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600">Shelf</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600">Class</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600 text-right">Price</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600 text-center">Total</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600 text-center">Issued</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600 text-center">Available</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600">Status</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600 w-28">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredBooks.map((book, idx) => {
+                            const available = book.total_copies - book.issued_copies;
+                            const isAvailable = book.status === 'Available' || book.status === 'available';
+                            return (
+                              <TableRow key={book.book_id} className="group">
+                                <TableCell className="text-xs text-slate-400 font-mono">{idx + 1}</TableCell>
+                                <TableCell>
+                                  <p className="font-medium text-slate-900 text-sm truncate max-w-[180px]">{book.name}</p>
+                                  {book.description && (
+                                    <p className="text-[10px] text-slate-400 truncate max-w-[180px] mt-0.5">{book.description}</p>
+                                  )}
+                                </TableCell>
+                                <TableCell className="text-sm text-slate-600">{book.author || '—'}</TableCell>
+                                <TableCell className="text-xs text-slate-500 font-mono">{book.isbn || '—'}</TableCell>
+                                <TableCell className="text-xs text-slate-500">{book.category || '—'}</TableCell>
+                                <TableCell className="text-xs text-slate-500">{book.shelf || '—'}</TableCell>
+                                <TableCell className="text-xs text-slate-500">{book.class_name || '—'}</TableCell>
+                                <TableCell className="text-sm text-slate-700 text-right font-medium">
+                                  {book.price > 0 ? `GHS ${book.price.toFixed(2)}` : '—'}
+                                </TableCell>
+                                <TableCell className="text-sm text-slate-600 text-center">{book.total_copies}</TableCell>
+                                <TableCell className="text-sm text-slate-600 text-center">{book.issued_copies}</TableCell>
+                                <TableCell className="text-center">
+                                  <span className={`text-sm font-semibold ${available > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                                    {available}
+                                  </span>
+                                </TableCell>
+                                <TableCell>
+                                  <BookStatusBadge status={book.status} />
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-1">
+                                    {available > 0 && (
+                                      <Button size="sm" variant="ghost" className="h-8 text-xs text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 min-h-[36px]" onClick={() => openIssue(book)} title="Issue">
+                                        <ArrowRightLeft className="w-3.5 h-3.5" />
+                                      </Button>
+                                    )}
+                                    <Button size="sm" variant="ghost" className="h-8 text-xs text-slate-500 hover:bg-slate-100 min-h-[36px]" onClick={() => openEditBook(book)} title="Edit">
+                                      <Pencil className="w-3.5 h-3.5" />
+                                    </Button>
+                                    <Button size="sm" variant="ghost" className="h-8 text-xs text-red-500 hover:bg-red-50 hover:text-red-600 min-h-[36px]" onClick={() => { setSelectedBook(book); setDeleteOpen(true); }} title="Delete">
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Mobile / Tablet Card View */}
+                <div className="lg:hidden space-y-3">
                   {filteredBooks.map(book => {
                     const available = book.total_copies - book.issued_copies;
-                    const color = getBookColor(book.book_id);
-                    const availabilityPct = book.total_copies > 0 ? (available / book.total_copies) * 100 : 0;
+                    const isAvailable = book.status === 'Available' || book.status === 'available';
                     return (
-                      <Card key={book.book_id} className="hover:shadow-md transition-shadow border-slate-200/60 group">
+                      <Card key={book.book_id} className="border-slate-200/60 hover:shadow-sm transition-shadow">
                         <CardContent className="p-4">
-                          <div className="flex items-start gap-3">
-                            {/* Book cover placeholder */}
-                            <div className={`w-14 h-[76px] rounded-lg bg-gradient-to-br ${color.bg} flex items-center justify-center flex-shrink-0 shadow-sm`}>
-                              <BookOpen className="w-6 h-6 text-white/90" />
-                            </div>
-
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-slate-900 text-sm truncate">{book.name}</h3>
-                              <p className="text-xs text-slate-500 mt-0.5 truncate">{book.author || 'Unknown Author'}</p>
-
-                              <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                                {/* Availability indicator */}
-                                <Badge
-                                  variant="secondary"
-                                  className={`text-[10px] h-5 px-1.5 font-medium ${
-                                    available > 0
-                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                      : 'bg-red-50 text-red-700 border border-red-200'
-                                  }`}
-                                >
-                                  {available > 0 ? `${available} available` : 'None available'}
-                                </Badge>
-                                {book.category && (
-                                  <span className="text-[10px] text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded-full">
-                                    {book.category}
-                                  </span>
-                                )}
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-slate-900 text-sm truncate">{book.name}</h3>
+                                <BookStatusBadge status={book.status} />
                               </div>
+                              <p className="text-xs text-slate-500 mt-0.5">{book.author || 'Unknown Author'}</p>
+                              {book.description && (
+                                <p className="text-[10px] text-slate-400 mt-1 line-clamp-1">{book.description}</p>
+                              )}
                             </div>
-                          </div>
-
-                          {/* Availability bar */}
-                          <div className="mt-3 space-y-1">
-                            <div className="flex items-center justify-between text-[10px] text-slate-500">
-                              <span>{available} of {book.total_copies} copies available</span>
-                              {book.price > 0 && <span className="font-medium text-slate-700">GHS {book.price}</span>}
-                            </div>
-                            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all ${
-                                  availabilityPct > 50 ? 'bg-emerald-500' : availabilityPct > 0 ? 'bg-amber-500' : 'bg-red-500'
-                                }`}
-                                style={{ width: `${availabilityPct}%` }}
-                              />
-                            </div>
-                          </div>
-
-                          {book.isbn && (
-                            <p className="text-[10px] text-slate-400 mt-1 font-mono">ISBN: {book.isbn}</p>
-                          )}
-
-                          {/* Actions */}
-                          <div className="flex items-center gap-1 mt-3 pt-3 border-t border-slate-100">
-                            {available > 0 && (
-                              <Button size="sm" variant="ghost" className="h-8 text-xs text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 min-h-[36px]" onClick={() => openIssue(book)}>
-                                <ArrowRightLeft className="w-3.5 h-3.5 mr-1" /> Issue
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              {available > 0 && (
+                                <Button size="sm" variant="ghost" className="h-8 text-xs text-emerald-600 hover:bg-emerald-50 min-h-[36px]" onClick={() => openIssue(book)}>
+                                  <ArrowRightLeft className="w-3.5 h-3.5" />
+                                </Button>
+                              )}
+                              <Button size="sm" variant="ghost" className="h-8 text-xs text-slate-500 hover:bg-slate-100 min-h-[36px]" onClick={() => openEditBook(book)}>
+                                <Pencil className="w-3.5 h-3.5" />
                               </Button>
+                              <Button size="sm" variant="ghost" className="h-8 text-xs text-red-500 hover:bg-red-50 min-h-[36px]" onClick={() => { setSelectedBook(book); setDeleteOpen(true); }}>
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+
+                          {/* Metadata grid */}
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 mt-3 pt-3 border-t border-slate-100">
+                            {book.isbn && (
+                              <div className="text-[11px]">
+                                <span className="text-slate-400">ISBN:</span>{' '}
+                                <span className="text-slate-600 font-mono">{book.isbn}</span>
+                              </div>
                             )}
-                            <Button size="sm" variant="ghost" className="h-8 text-xs text-slate-500 hover:bg-slate-50 min-h-[36px]" onClick={() => openEditBook(book)}>
-                              <Pencil className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button
-                              size="sm" variant="ghost"
-                              className="h-8 text-xs text-red-500 hover:bg-red-50 hover:text-red-600 min-h-[36px] ml-auto"
-                              onClick={() => { setSelectedBook(book); setDeleteOpen(true); }}
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
+                            {book.category && (
+                              <div className="text-[11px]">
+                                <span className="text-slate-400">Category:</span>{' '}
+                                <span className="text-slate-600">{book.category}</span>
+                              </div>
+                            )}
+                            {book.shelf && (
+                              <div className="text-[11px]">
+                                <span className="text-slate-400">Shelf:</span>{' '}
+                                <span className="text-slate-600">{book.shelf}</span>
+                              </div>
+                            )}
+                            {book.class_name && (
+                              <div className="text-[11px]">
+                                <span className="text-slate-400">Class:</span>{' '}
+                                <span className="text-slate-600">{book.class_name}</span>
+                              </div>
+                            )}
+                            <div className="text-[11px]">
+                              <span className="text-slate-400">Price:</span>{' '}
+                              <span className="text-slate-600 font-medium">{book.price > 0 ? `GHS ${book.price.toFixed(2)}` : '—'}</span>
+                            </div>
+                          </div>
+
+                          {/* Copies bar */}
+                          <div className="flex items-center gap-4 mt-3 pt-2 border-t border-slate-50">
+                            <div className="flex items-center gap-1.5 text-xs">
+                              <span className="text-slate-400">Total:</span>
+                              <span className="font-medium text-slate-700">{book.total_copies}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs">
+                              <span className="text-slate-400">Issued:</span>
+                              <span className="font-medium text-amber-600">{book.issued_copies}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs ml-auto">
+                              <span className="text-slate-400">Available:</span>
+                              <span className={`font-bold ${available > 0 ? 'text-emerald-600' : 'text-red-600'}`}>{available}</span>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
                     );
                   })}
                 </div>
-                {search && (
-                  <p className="text-xs text-slate-400 text-center mt-2">
-                    Showing {filteredBooks.length} of {books.length} books
-                  </p>
-                )}
               </>
             )}
           </TabsContent>
 
-          {/* Issues & Returns Tab */}
+          {/* ── Book Requests Tab ──────────────────────────────────────────── */}
           <TabsContent value="requests">
             {/* Desktop table */}
             <Card className="border-slate-200/60 hidden md:block">
@@ -507,10 +577,10 @@ export default function LibraryPage() {
                       <TableRow className="bg-slate-50 hover:bg-slate-50">
                         <TableHead className="text-xs font-semibold text-slate-600">Student</TableHead>
                         <TableHead className="text-xs font-semibold text-slate-600">Book</TableHead>
-                        <TableHead className="text-xs font-semibold text-slate-600">Issued</TableHead>
-                        <TableHead className="text-xs font-semibold text-slate-600">Due</TableHead>
+                        <TableHead className="text-xs font-semibold text-slate-600">Issue Date</TableHead>
+                        <TableHead className="text-xs font-semibold text-slate-600">Due Date</TableHead>
                         <TableHead className="text-xs font-semibold text-slate-600">Status</TableHead>
-                        <TableHead className="text-xs font-semibold text-slate-600 w-24"></TableHead>
+                        <TableHead className="text-xs font-semibold text-slate-600 w-28">Action</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -534,28 +604,28 @@ export default function LibraryPage() {
                                   <User className="w-3.5 h-3.5 text-slate-400" />
                                 </div>
                                 <div>
-                                  <p className="font-medium text-slate-900">{req.student?.name || '\u2014'}</p>
+                                  <p className="font-medium text-slate-900">{req.student?.name || '—'}</p>
                                   <p className="text-[10px] text-slate-400">{req.student?.student_code}</p>
                                 </div>
                               </div>
                             </TableCell>
                             <TableCell className="text-sm">
-                              <p className="font-medium text-slate-900">{req.book?.name || '\u2014'}</p>
+                              <p className="font-medium text-slate-900">{req.book?.name || '—'}</p>
                               <p className="text-[10px] text-slate-400">{req.book?.author}</p>
                             </TableCell>
                             <TableCell className="text-xs text-slate-500">
-                              {req.issue_start_date ? format(new Date(req.issue_start_date), 'MMM d, yyyy') : '\u2014'}
+                              {req.issue_start_date ? format(new Date(req.issue_start_date), 'MMM d, yyyy') : '—'}
                             </TableCell>
                             <TableCell className="text-xs">
                               <span className={isOverdue ? 'text-red-600 font-medium' : 'text-slate-500'}>
-                                {req.issue_end_date ? format(new Date(req.issue_end_date), 'MMM d, yyyy') : '\u2014'}
+                                {req.issue_end_date ? format(new Date(req.issue_end_date), 'MMM d, yyyy') : '—'}
                               </span>
                               {isOverdue && <span className="text-[10px] text-red-500 block">Overdue</span>}
                             </TableCell>
                             <TableCell>
                               <Badge
-                                variant={req.status === 'issued' ? 'default' : 'secondary'}
-                                className={`text-xs ${
+                                variant="secondary"
+                                className={`text-xs font-medium ${
                                   isOverdue ? 'bg-red-100 text-red-700 hover:bg-red-100' :
                                   req.status === 'issued' ? 'bg-amber-100 text-amber-700 hover:bg-amber-100' :
                                   'bg-emerald-100 text-emerald-700 hover:bg-emerald-100'
@@ -602,13 +672,13 @@ export default function LibraryPage() {
                             <User className="w-4 h-4 text-slate-400" />
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-medium text-slate-900 truncate">{req.student?.name || '\u2014'}</p>
+                            <p className="text-sm font-medium text-slate-900 truncate">{req.student?.name || '—'}</p>
                             <p className="text-[10px] text-slate-400">{req.student?.student_code}</p>
                           </div>
                         </div>
                         <Badge
-                          variant={req.status === 'issued' ? 'default' : 'secondary'}
-                          className={`text-[10px] flex-shrink-0 ${
+                          variant="secondary"
+                          className={`text-[10px] flex-shrink-0 font-medium ${
                             isOverdue ? 'bg-red-100 text-red-700' :
                             req.status === 'issued' ? 'bg-amber-100 text-amber-700' :
                             'bg-emerald-100 text-emerald-700'
@@ -620,7 +690,7 @@ export default function LibraryPage() {
                       <div className="flex items-start gap-2 mb-2">
                         <BookOpen className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
                         <div className="min-w-0">
-                          <p className="text-sm font-medium text-slate-700 truncate">{req.book?.name || '\u2014'}</p>
+                          <p className="text-sm font-medium text-slate-700 truncate">{req.book?.name || '—'}</p>
                           <p className="text-[10px] text-slate-400">{req.book?.author}</p>
                         </div>
                       </div>
@@ -666,7 +736,7 @@ export default function LibraryPage() {
       </div>
       )}
 
-      {/* Add/Edit Book Dialog */}
+      {/* ── Add/Edit Book Dialog ──────────────────────────────────────────── */}
       <Dialog open={bookFormOpen} onOpenChange={setBookFormOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -680,7 +750,17 @@ export default function LibraryPage() {
               {selectedBook ? 'Update book details below' : 'Fill in the details to add a new book to the library'}
             </DialogDescription>
           </DialogHeader>
+
+          {/* Status indicator on edit */}
+          {selectedBook && (
+            <div className="flex items-center gap-2 px-1">
+              <span className="text-xs font-medium text-slate-500">Current Status:</span>
+              <BookStatusBadge status={selectedBook.status} />
+            </div>
+          )}
+
           <div className="grid gap-4 py-4">
+            {/* Name */}
             <div className="grid gap-2">
               <Label className="text-xs font-medium">Book Title <span className="text-red-500">*</span></Label>
               <Input
@@ -692,6 +772,7 @@ export default function LibraryPage() {
               {formErrors.name && <p className="text-xs text-red-500">{formErrors.name}</p>}
             </div>
 
+            {/* Author & ISBN */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label className="text-xs font-medium">Author</Label>
@@ -712,6 +793,7 @@ export default function LibraryPage() {
               </div>
             </div>
 
+            {/* Category & Shelf */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label className="text-xs font-medium">Category</Label>
@@ -747,6 +829,7 @@ export default function LibraryPage() {
               </div>
             </div>
 
+            {/* Description */}
             <div className="grid gap-2">
               <Label className="text-xs font-medium">Description</Label>
               <Textarea
@@ -757,6 +840,28 @@ export default function LibraryPage() {
               />
             </div>
 
+            {/* Class */}
+            <div className="grid gap-2">
+              <Label className="text-xs font-medium">Class <span className="text-red-500">*</span></Label>
+              <Select value={bookForm.class_id} onValueChange={v => setBookForm({ ...bookForm, class_id: v })}>
+                <SelectTrigger className="min-h-[44px]">
+                  <SelectValue placeholder="Select class" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {classes.length === 0 ? (
+                    <SelectItem value="__none__" disabled>No classes available</SelectItem>
+                  ) : (
+                    classes.map(c => (
+                      <SelectItem key={c.class_id} value={c.class_id.toString()}>
+                        {c.name} {c.name_numeric}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Price, Copies, Status */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="grid gap-2">
                 <Label className="text-xs font-medium">Price (GHS)</Label>
@@ -798,7 +903,7 @@ export default function LibraryPage() {
             <Button variant="outline" onClick={() => setBookFormOpen(false)} className="min-h-[44px]">Cancel</Button>
             <Button
               onClick={handleSaveBook}
-              disabled={saving || !bookForm.name.trim()}
+              disabled={saving || !bookForm.name.trim() || !bookForm.class_id}
               className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]"
             >
               {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
@@ -808,7 +913,7 @@ export default function LibraryPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Issue Book Dialog */}
+      {/* ── Issue Book Dialog ─────────────────────────────────────────────── */}
       <Dialog open={issueOpen} onOpenChange={setIssueOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -823,7 +928,6 @@ export default function LibraryPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            {/* Student search */}
             <div className="grid gap-2">
               <Label className="text-xs font-medium">Search Student <span className="text-red-500">*</span></Label>
               <div className="relative">
@@ -893,7 +997,7 @@ export default function LibraryPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Dialog */}
+      {/* ── Delete Confirmation Dialog ────────────────────────────────────── */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

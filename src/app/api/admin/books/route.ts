@@ -21,7 +21,38 @@ export async function GET(request: NextRequest) {
       orderBy: { book_id: 'desc' },
     });
 
-    return NextResponse.json(books);
+    // Enrich with class info
+    const classIds = books.map(b => b.class_id).filter(Boolean) as number[];
+    const classes = classIds.length > 0
+      ? await db.school_class.findMany({
+          where: { class_id: { in: classIds } },
+          select: { class_id: true, name: true, name_numeric: true },
+        })
+      : [];
+    const classMap = new Map(classes.map(c => [c.class_id, c]));
+
+    // Enrich with active request count
+    const bookIds = books.map(b => b.book_id);
+    const activeRequests = bookIds.length > 0
+      ? await db.book_request.groupBy({
+          where: { book_id: { in: bookIds }, status: 'issued' },
+          by: ['book_id'],
+          _count: { book_request_id: true },
+        })
+      : [];
+    const requestMap = new Map(activeRequests.map(r => [r.book_id, r._count.book_request_id]));
+
+    const enriched = books.map(b => {
+      const cls = b.class_id ? classMap.get(b.class_id) : null;
+      return {
+        ...b,
+        class_name: cls ? `${cls.name} ${cls.name_numeric}` : '',
+        available_copies: b.total_copies - b.issued_copies,
+        active_requests: requestMap.get(b.book_id) || 0,
+      };
+    });
+
+    return NextResponse.json(enriched);
   } catch (error) {
     console.error('Error fetching books:', error);
     return NextResponse.json({ error: 'Failed to fetch books' }, { status: 500 });

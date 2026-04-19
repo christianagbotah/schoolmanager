@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
-// GET /api/admin/exams/marks - Get marks for a specific exam/class/subject
+// GET /api/admin/exams/marks - Get marks for a specific exam/class/subject with detail fields
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       marksMap.set(m.student_id, m)
     }
 
-    // Merge students with their marks
+    // Merge students with their marks (CI3 parity: detailed mark fields)
     const studentsWithMarks = enrollments.map(e => {
       const existing = marksMap.get(e.student_id)
       return {
@@ -72,13 +72,22 @@ export async function GET(request: NextRequest) {
         mark_id: existing?.mark_id || null,
         mark_obtained: existing?.mark_obtained || 0,
         comment: existing?.comment || '',
+        // CI3 detailed mark fields
+        test1: existing?.test1 || 0,
+        group_work: existing?.group_work || 0,
+        test2: existing?.test2 || 0,
+        project: existing?.project || 0,
+        sub_total: existing?.sub_total || 0,
+        class_score: existing?.class_score || 0,
+        term_exam: existing?.term_exam || 0,
+        exam_score: existing?.exam_score || 0,
         parent: e.student.parent || null,
       }
     })
 
     // Get exam and subject info
     const [examInfo, subjectInfo] = await Promise.all([
-      db.exam.findUnique({ where: { exam_id: parseInt(examId) }, select: { name: true, year: true } }),
+      db.exam.findUnique({ where: { exam_id: parseInt(examId) }, select: { name: true, year: true, type: true } }),
       db.subject.findUnique({ where: { subject_id: parseInt(subjectId) }, select: { name: true } }),
     ])
 
@@ -93,7 +102,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/admin/exams/marks - Save marks (batch upsert)
+// POST /api/admin/exams/marks - Save marks (batch upsert) with CI3 detail fields
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -117,13 +126,24 @@ export async function POST(request: NextRequest) {
         },
       })
 
+      const markData = {
+        mark_obtained: record.mark_obtained ?? 0,
+        comment: record.comment ?? '',
+        // CI3 detailed mark fields
+        test1: record.test1 ?? 0,
+        group_work: record.group_work ?? 0,
+        test2: record.test2 ?? 0,
+        project: record.project ?? 0,
+        sub_total: record.sub_total ?? 0,
+        class_score: record.class_score ?? 0,
+        term_exam: record.term_exam ?? 0,
+        exam_score: record.exam_score ?? 0,
+      }
+
       if (existing) {
         await db.mark.update({
           where: { mark_id: existing.mark_id },
-          data: {
-            mark_obtained: record.mark_obtained ?? 0,
-            comment: record.comment ?? '',
-          },
+          data: markData,
         })
       } else {
         await db.mark.create({
@@ -133,8 +153,7 @@ export async function POST(request: NextRequest) {
             class_id: record.class_id || null,
             section_id: record.section_id || null,
             exam_id: record.exam_id || null,
-            mark_obtained: record.mark_obtained ?? 0,
-            comment: record.comment || '',
+            ...markData,
           },
         })
       }

@@ -1,16 +1,7 @@
 import { db } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 
-// This route extends the existing rates route with additional
-// management features for the rates page sub-route.
-
-// GET /api/admin/daily-fees/rates - handled by the existing route
-// POST /api/admin/daily-fees/rates - handled by the existing route
-
-// We add a PUT for updating rates by class and DELETE for removing rates
-// These will be handled by the existing route file, so this file
-// provides supplementary endpoints.
-
+// GET /api/admin/daily-fees/rates - List rates grouped by category
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -36,13 +27,6 @@ export async function GET(request: NextRequest) {
 
     const classes = await db.school_class.findMany({
       orderBy: [{ category: 'asc' }, { name_numeric: 'asc' }, { name: 'asc' }],
-    });
-
-    // Calculate transport fares per class from transport table
-    const transportFares = await db.transport.findMany();
-    const transportMap: Record<number, number> = {};
-    transportFares.forEach(t => {
-      transportMap[t.transport_id] = t.fare;
     });
 
     // Group rates by category
@@ -79,6 +63,112 @@ export async function GET(request: NextRequest) {
         classesWithRates: rates.length,
       },
     });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+// POST /api/admin/daily-fees/rates - Save single or bulk rates
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { action, class_id, feeding_rate, breakfast_rate, classes_rate, water_rate, items } = body;
+
+    // Get running year/term
+    const settings = await db.settings.findMany({
+      where: { type: { in: ['running_year', 'running_term'] } },
+    });
+    let year = '', term = '';
+    settings.forEach((s: any) => {
+      if (s.type === 'running_year') year = s.description;
+      if (s.type === 'running_term') term = s.description;
+    });
+
+    // Bulk save
+    if (action === 'bulk' && Array.isArray(items)) {
+      let saved = 0;
+      for (const item of items) {
+        const cid = item.class_id || item.rate_id;
+        if (!cid) continue;
+
+        // Check if rate exists
+        const existing = await db.daily_fee_rates.findFirst({
+          where: { class_id: cid, year, term },
+        });
+
+        if (existing) {
+          await db.daily_fee_rates.update({
+            where: { id: existing.id },
+            data: {
+              feeding_rate: item.feeding_rate || 0,
+              breakfast_rate: item.breakfast_rate || 0,
+              classes_rate: item.classes_rate || 0,
+              water_rate: item.water_rate || 0,
+            },
+          });
+        } else {
+          await db.daily_fee_rates.create({
+            data: {
+              class_id: cid,
+              feeding_rate: item.feeding_rate || 0,
+              breakfast_rate: item.breakfast_rate || 0,
+              classes_rate: item.classes_rate || 0,
+              water_rate: item.water_rate || 0,
+              year,
+              term,
+            },
+          });
+        }
+        saved++;
+      }
+      return NextResponse.json({
+        status: 'success',
+        message: `${saved} class rates saved successfully`,
+      });
+    }
+
+    // Single save
+    if (!class_id) {
+      return NextResponse.json({ error: 'class_id is required' }, { status: 400 });
+    }
+
+    const existing = await db.daily_fee_rates.findFirst({
+      where: { class_id, year, term },
+    });
+
+    if (existing) {
+      const updated = await db.daily_fee_rates.update({
+        where: { id: existing.id },
+        data: {
+          feeding_rate: feeding_rate || 0,
+          breakfast_rate: breakfast_rate || 0,
+          classes_rate: classes_rate || 0,
+          water_rate: water_rate || 0,
+        },
+      });
+      return NextResponse.json({
+        status: 'success',
+        message: 'Rates updated successfully',
+        rate: updated,
+      });
+    } else {
+      const created = await db.daily_fee_rates.create({
+        data: {
+          class_id,
+          feeding_rate: feeding_rate || 0,
+          breakfast_rate: breakfast_rate || 0,
+          classes_rate: classes_rate || 0,
+          water_rate: water_rate || 0,
+          year,
+          term,
+        },
+      });
+      return NextResponse.json({
+        status: 'success',
+        message: 'Rates created successfully',
+        rate: created,
+      });
+    }
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

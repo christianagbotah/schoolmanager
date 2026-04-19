@@ -114,34 +114,32 @@ export default function SmsLogPage() {
           <div className="max-h-[500px] overflow-y-auto">
             <Table>
               <TableHeader><TableRow className="bg-slate-50">
-                <TableHead className="w-12">#</TableHead>
-                <TableHead>Recipient</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Student / Recipient</TableHead>
+                <TableHead>Phone</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Message</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Sent At</TableHead>
-                <TableHead>Sent By</TableHead>
               </TableRow></TableHeader>
               <TableBody>
-                {loading ? Array.from({ length: 8 }).map((_, i) => <TableRow key={i}><TableCell colSpan={7}><Skeleton className="h-10" /></TableCell></TableRow>) :
-                  logs.length === 0 ? <TableRow><TableCell colSpan={7} className="text-center py-12 text-slate-400"><MessageSquare className="w-10 h-10 mx-auto mb-2 opacity-50" /><p className="font-medium">No SMS messages found</p></TableCell></TableRow> :
+                {loading ? Array.from({ length: 8 }).map((_, i) => <TableRow key={i}><TableCell colSpan={6}><Skeleton className="h-10" /></TableCell></TableRow>) :
+                  logs.length === 0 ? <TableRow><TableCell colSpan={6} className="text-center py-12 text-slate-400"><MessageSquare className="w-10 h-10 mx-auto mb-2 opacity-50" /><p className="font-medium">No SMS messages found</p></TableCell></TableRow> :
                     logs.map((log, i) => {
                       const cfg = statusConfig[log.status] || statusConfig.pending;
                       const StatusIcon = cfg.icon;
                       return (
                         <TableRow key={log.id}>
-                          <TableCell className="text-xs text-slate-400">{i + 1}</TableCell>
+                          <TableCell className="text-xs text-slate-500">{log.sent_at ? format(new Date(log.sent_at), 'yyyy-MM-dd HH:mm') : '—'}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Phone className="w-3 h-3 text-slate-400" />
                               <span className="text-sm font-medium">{log.recipient || 'Unknown'}</span>
                             </div>
                           </TableCell>
+                          <TableCell className="text-sm font-mono text-slate-600">{log.phone || '—'}</TableCell>
                           <TableCell><Badge variant="outline" className="text-[10px] capitalize">{log.recipient_type || 'general'}</Badge></TableCell>
                           <TableCell><p className="text-sm text-slate-700 max-w-[200px] truncate">{log.message || 'No message'}</p></TableCell>
                           <TableCell><Badge className={`${cfg.color} text-xs`}><StatusIcon className="w-3 h-3 mr-1" />{cfg.label}</Badge></TableCell>
-                          <TableCell className="text-xs text-slate-500">{log.sent_at ? format(new Date(log.sent_at), 'MMM d, yyyy HH:mm') : '—'}</TableCell>
-                          <TableCell className="text-xs text-slate-500">{log.sent_by || 'System'}</TableCell>
                         </TableRow>
                       );
                     })}

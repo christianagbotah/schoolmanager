@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/table';
 import {
   PartyPopper, Plus, Pencil, Trash2, Search, Eye, Calendar, Clock,
-  LayoutDashboard, Image, Loader2,
+  LayoutDashboard, Image, Loader2, Circle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -34,10 +34,11 @@ interface Event {
   description: string;
   image: string;
   date: string | null;
+  status: number;
   timestamp: string | null;
 }
 
-interface EventStats { total: number; upcoming: number; past: number; }
+interface EventStats { total: number; active: number; inactive: number; }
 
 function EventsSkeleton() {
   return (
@@ -86,7 +87,7 @@ export default function EventsPage() {
   // Form dialog
   const [formOpen, setFormOpen] = useState(false);
   const [editEvent, setEditEvent] = useState<Event | null>(null);
-  const [form, setForm] = useState({ title: '', description: '', image: '', date: '' });
+  const [form, setForm] = useState({ title: '', description: '', image: '', date: '', status: 1 });
   const [saving, setSaving] = useState(false);
 
   // View dialog
@@ -114,14 +115,14 @@ export default function EventsPage() {
   useEffect(() => { fetchEvents(); }, [fetchEvents]);
 
   const filteredEvents = events.filter((e) => {
-    if (tab === 'upcoming') return e.date && new Date(e.date) >= new Date();
-    if (tab === 'past') return e.date && new Date(e.date) < new Date();
+    if (tab === 'active') return e.status === 1;
+    if (tab === 'inactive') return e.status === 0 || !e.status;
     return true;
   });
 
   const openCreate = () => {
     setEditEvent(null);
-    setForm({ title: '', description: '', image: '', date: format(new Date(), 'yyyy-MM-dd') });
+    setForm({ title: '', description: '', image: '', date: format(new Date(), 'yyyy-MM-dd'), status: 1 });
     setFormOpen(true);
   };
 
@@ -132,6 +133,7 @@ export default function EventsPage() {
       description: ev.description,
       image: ev.image,
       date: ev.date ? format(new Date(ev.date), 'yyyy-MM-dd') : '',
+      status: ev.status ?? 1,
     });
     setFormOpen(true);
   };
@@ -226,17 +228,17 @@ export default function EventsPage() {
               <Clock className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Upcoming</p>
-              <p className="text-2xl font-bold text-emerald-600 tabular-nums">{stats.upcoming}</p>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active</p>
+              <p className="text-2xl font-bold text-emerald-600 tabular-nums">{stats.active}</p>
             </div>
           </div>
           <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-slate-400 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
             <div className="w-11 h-11 rounded-xl bg-slate-500 flex items-center justify-center shrink-0">
-              <Calendar className="w-5 h-5 text-white" />
+              <Circle className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Past</p>
-              <p className="text-2xl font-bold text-slate-500 tabular-nums">{stats.past}</p>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Inactive</p>
+              <p className="text-2xl font-bold text-slate-500 tabular-nums">{stats.inactive}</p>
             </div>
           </div>
         </div>
@@ -251,8 +253,8 @@ export default function EventsPage() {
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList>
               <TabsTrigger value="all" className="gap-1">All</TabsTrigger>
-              <TabsTrigger value="upcoming" className="gap-1">Upcoming</TabsTrigger>
-              <TabsTrigger value="past" className="gap-1">Past</TabsTrigger>
+              <TabsTrigger value="active" className="gap-1">Active</TabsTrigger>
+              <TabsTrigger value="inactive" className="gap-1">Inactive</TabsTrigger>
             </TabsList>
 
             <TabsContent value={tab} className="mt-4">
@@ -301,10 +303,10 @@ export default function EventsPage() {
                                 <span className="text-sm text-slate-600">{ev.date ? format(new Date(ev.date), 'dd MMM yyyy') : '—'}</span>
                               </TableCell>
                               <TableCell>
-                                {ev.date && new Date(ev.date) >= new Date() ? (
-                                  <Badge className="bg-emerald-100 text-emerald-700 text-[10px]">Upcoming</Badge>
+                                {ev.status === 1 ? (
+                                  <Badge className="bg-emerald-100 text-emerald-700 text-[10px]"><Circle className="w-2 h-2 mr-1 fill-current" /> Active</Badge>
                                 ) : (
-                                  <Badge className="bg-slate-100 text-slate-500 text-[10px]">Past</Badge>
+                                  <Badge className="bg-red-100 text-red-600 text-[10px]"><Circle className="w-2 h-2 mr-1 fill-current" /> Inactive</Badge>
                                 )}
                               </TableCell>
                               <TableCell>
@@ -333,8 +335,8 @@ export default function EventsPage() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
                                 <p className="font-semibold text-sm text-slate-900 truncate">{ev.title}</p>
-                                <Badge className={`text-[10px] shrink-0 ${ev.date && new Date(ev.date) >= new Date() ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-                                  {ev.date && new Date(ev.date) >= new Date() ? 'Upcoming' : 'Past'}
+                                <Badge className={`text-[10px] shrink-0 ${ev.status === 1 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
+                                  {ev.status === 1 ? 'Active' : 'Inactive'}
                                 </Badge>
                               </div>
                               <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{ev.description}</p>
@@ -392,6 +394,16 @@ export default function EventsPage() {
             <div className="grid gap-2">
               <Label className="text-sm font-semibold flex items-center gap-1"><Calendar className="w-4 h-4" /> Event Date *</Label>
               <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="min-h-[44px]" />
+            </div>
+            <div className="grid gap-2">
+              <Label className="text-sm font-semibold">Status</Label>
+              <Select value={String(form.status)} onValueChange={v => setForm({ ...form, status: parseInt(v) })}>
+                <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">Active</SelectItem>
+                  <SelectItem value="0">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>

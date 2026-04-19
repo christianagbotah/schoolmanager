@@ -88,6 +88,7 @@ model teacher {
   sections          section[]
   subjects          subject[]
   study_materials   study_material[]
+  boarding_houses   boarding_house[] @relation("HouseMaster")
 
   @@index([designation_id])
   @@index([department_id])
@@ -324,14 +325,19 @@ model exam {
   class_id   Int?
   section_id Int?
   type       String    @default("")
+  category_id Int?
+  term       Int       @default(0)
+  sem        Int       @default(0)
 
   class      school_class? @relation(fields: [class_id], references: [class_id])
+  category    exam_category? @relation(fields: [category_id], references: [exam_category_id])
 
   exam_marks exam_marks[]
   marks_list mark[]
 
   @@index([class_id])
   @@index([section_id])
+  @@index([category_id])
 }
 
 model exam_marks {
@@ -362,6 +368,14 @@ model mark {
   exam_id       Int?
   mark_obtained Float  @default(0)
   comment       String @default("")
+  test1         Float  @default(0)
+  group_work    Float  @default(0)
+  test2         Float  @default(0)
+  project       Float  @default(0)
+  sub_total     Float  @default(0)
+  class_score   Float  @default(0)
+  term_exam     Float  @default(0)
+  exam_score    Float  @default(0)
 
   student       student      @relation(fields: [student_id], references: [student_id])
   subject       subject      @relation(fields: [subject_id], references: [subject_id])
@@ -1102,10 +1116,18 @@ model inventory_sale_items {
 // ============================================================
 
 model boarding_house {
-  house_id          Int    @id @default(autoincrement())
-  house_name        String @default("")
-  house_description String @default("")
-  house_capacity    Int    @default(0)
+  house_id             Int    @id @default(autoincrement())
+  house_name           String @default("")
+  house_description    String @default("")
+  house_capacity       Int    @default(0)
+  house_master_id      Int?
+  house_year_established String @default("")
+  house_gps_code       String @default("")
+  house_image_link     String @default("")
+
+  house_master teacher?  @relation("HouseMaster", fields: [house_master_id], references: [teacher_id])
+
+  @@index([house_master_id])
 }
 
 model dormitory {
@@ -1114,6 +1136,14 @@ model dormitory {
   dormitory_description String @default("")
   number_of_rooms       Int    @default(0)
   number_of_beds        Int    @default(0)
+  house_id              Int?
+  dormitory_type        String @default("")
+  dormitory_floor       String @default("")
+  dormitory_capacity    Int    @default(0)
+  dormitory_prefect_id  Int?
+  bed_code_prefix       String @default("")
+
+  @@index([house_id])
 }
 
 model boarding_student {
@@ -1484,6 +1514,8 @@ model exam_category {
   description      String @default("")
   weight           Float  @default(1)
   is_active        Int    @default(1)
+
+  exams exam[]
 
   @@map("exam_category")
 }

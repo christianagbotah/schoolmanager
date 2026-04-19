@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog';
@@ -23,89 +23,75 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import {
   Bus, Plus, Search, Pencil, Trash2, Users, DollarSign,
-  CheckCircle, Loader2, ChevronDown, ChevronRight, Car, UserCheck,
-  Wrench, Route, GraduationCap, AlertTriangle, X, Eye, LayoutGrid,
-  LayoutList, Download,
+  CheckCircle, Loader2, Car, UserCheck,
+  Route, GraduationCap, X, Eye,
+  Truck, ClipboardCheck, Phone, UserCircle,
+  MapPin, ArrowRightLeft, CalendarDays, IdCard, Wrench,
+  Navigation, User, CircleDot,
 } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface TransportRoute {
-  transport_id: number; route_name: string; description: string;
-  vehicle_number: string; driver_id: number | null; fare: number;
-  facilities: string; studentCount: number;
+  transport_id: number; route_name: string; route_code: string;
+  description: string; vehicle_number: string; driver_id: number | null;
+  fare: number; facilities: string; total_stops: number;
+  studentCount: number; driver: { driver_id: number; name: string; phone: string; status: string } | null;
 }
 
 interface Driver {
-  driver_id: number; name: string; phone: string; status: string;
+  driver_id: number; name: string; phone: string; email: string;
+  license_number: string; license_expiry: string | null;
+  status: string; vehicle_id: number | null;
+  assignedVehicle: { vehicle_id: number; vehicle_name: string; plate_number: string } | null;
+}
+
+interface TransportVehicle {
+  vehicle_id: number; vehicle_name: string; plate_number: string;
+  vehicle_type: string; capacity: number; driver_id: number | null;
+  status: string; created_at: string;
+  driver: { driver_id: number; name: string } | null;
 }
 
 interface Student {
   student_id: number; name: string; student_code: string;
 }
 
-// ─── Facility Helpers ────────────────────────────────────────────────────────
+interface TransportStudent {
+  bus_attendance_id: number; student_id: number; name: string;
+  student_code: string; phone: string; class: string; guardian_phone: string;
+}
 
-const facilityIcons: Record<string, string> = {
-  ac: '\u2744', gps: '\uD83D\uDCCD', wifi: '\uD83D\uDCF6', 'first aid': '\uD83C\uDFE5',
-  cctv: '\uD83D\uDCFC', seatbelt: '\uD83D\uDC93',
-};
-
-function getFacilityIcon(f: string): string {
-  const lower = f.trim().toLowerCase();
-  for (const [key, icon] of Object.entries(facilityIcons)) {
-    if (lower.includes(key)) return icon;
-  }
-  return '\u2705';
+interface AttendanceStudent {
+  bus_attendance_id: number; student_id: number; name: string;
+  student_code: string; class: string; status: string;
 }
 
 // ─── Skeleton Components ─────────────────────────────────────────────────────
 
 function StatCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/60 p-4 sm:p-5 flex flex-col">
+    <div className="bg-white rounded-xl border border-slate-200/60 p-4 flex flex-col">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 space-y-2.5">
           <Skeleton className="h-3 w-24" />
-          <Skeleton className="h-8 w-16" />
+          <Skeleton className="h-7 w-14" />
         </div>
-        <Skeleton className="w-11 h-11 rounded-xl flex-shrink-0" />
+        <Skeleton className="w-10 h-10 rounded-xl flex-shrink-0" />
       </div>
     </div>
   );
 }
 
-function FilterBarSkeleton() {
+function TableSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/60 p-4">
-      <Skeleton className="h-11 w-full rounded-lg" />
-    </div>
-  );
-}
-
-function CardGridSkeleton() {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="bg-white rounded-2xl border border-slate-200/60 p-4 space-y-3">
-          <div className="flex items-center gap-3">
-            <Skeleton className="w-10 h-10 rounded-xl" />
-            <div className="space-y-1.5 flex-1">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-3 w-20" />
-            </div>
-          </div>
-          <Skeleton className="h-3 w-full" />
-          <div className="flex gap-2">
-            <Skeleton className="h-5 w-12 rounded-full" />
-            <Skeleton className="h-5 w-12 rounded-full" />
-          </div>
-          <Separator />
-          <Skeleton className="h-4 w-24" />
-        </div>
+    <div className="space-y-2">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Skeleton key={i} className="h-12 w-full rounded-lg" />
       ))}
     </div>
   );
@@ -113,75 +99,108 @@ function CardGridSkeleton() {
 
 // ─── Stat Card Component ─────────────────────────────────────────────────────
 
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  subValue,
-  iconBg,
-  borderColor,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string | number;
-  subValue?: string;
-  iconBg: string;
-  borderColor: string;
+function StatCard({ icon: Icon, label, value, subValue, iconBg, borderColor }: {
+  icon: React.ElementType; label: string; value: string | number;
+  subValue?: string; iconBg: string; borderColor: string;
 }) {
   return (
-    <div
-      className="group relative bg-white rounded-2xl border border-slate-200/60 p-4 sm:p-5 hover:-translate-y-0.5 hover:shadow-lg hover:border-slate-300/80 transition-all duration-200 flex flex-col"
-      style={{ borderLeft: `4px solid ${borderColor}` }}
-    >
+    <div className="bg-white rounded-xl border border-slate-200/60 p-4 hover:shadow-sm transition-all flex flex-col" style={{ borderLeft: `4px solid ${borderColor}` }}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            {label}
-          </p>
-          <p className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1.5 tabular-nums leading-tight">
-            {value}
-          </p>
-          {subValue && (
-            <p className="text-xs text-slate-500 mt-1.5">{subValue}</p>
-          )}
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{label}</p>
+          <p className="text-2xl font-bold text-slate-900 mt-1 tabular-nums">{value}</p>
+          {subValue && <p className="text-xs text-slate-500 mt-1">{subValue}</p>}
         </div>
-        <div
-          className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}
-        >
-          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
+          <Icon className="w-5 h-5 text-white" />
         </div>
       </div>
     </div>
   );
 }
 
+// ─── Status Badge ────────────────────────────────────────────────────────────
+
+function StatusBadge({ status }: { status: string }) {
+  const isActive = status === 'Active';
+  return (
+    <Badge variant="secondary" className={`text-[10px] font-semibold px-2 py-0.5 ${isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+      <CircleDot className="w-2.5 h-2.5 mr-1" />
+      {status || 'Active'}
+    </Badge>
+  );
+}
+
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function TransportPage() {
+  // ─── Core Data ────────────────────────────────────────────────────────────
   const [routes, setRoutes] = useState<TransportRoute[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [vehicles, setVehicles] = useState<TransportVehicle[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
-  const [expandedCard, setExpandedCard] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState('routes');
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [assignOpen, setAssignOpen] = useState(false);
-  const [viewOpen, setViewOpen] = useState(false);
+  // ─── Route Dialog States ──────────────────────────────────────────────────
+  const [routeFormOpen, setRouteFormOpen] = useState(false);
+  const [routeDeleteOpen, setRouteDeleteOpen] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState<TransportRoute | null>(null);
-  const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
-  const [saving, setSaving] = useState(false);
-  const [studentSearch, setStudentSearch] = useState('');
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-
-  const [form, setForm] = useState({
+  const [routeSaving, setRouteSaving] = useState(false);
+  const [routeFormErrors, setRouteFormErrors] = useState<Record<string, string>>({});
+  const [routeForm, setRouteForm] = useState({
     route_name: '', description: '', vehicle_number: '', driver_id: '',
     fare: '', facilities: '',
   });
 
-  // ─── Computed ──────────────────────────────────────────────────────────────
+  // ─── Vehicle Dialog States ────────────────────────────────────────────────
+  const [vehicleFormOpen, setVehicleFormOpen] = useState(false);
+  const [vehicleDeleteOpen, setVehicleDeleteOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<TransportVehicle | null>(null);
+  const [vehicleSaving, setVehicleSaving] = useState(false);
+  const [vehicleFormErrors, setVehicleFormErrors] = useState<Record<string, string>>({});
+  const [vehicleForm, setVehicleForm] = useState({
+    vehicle_name: '', plate_number: '', vehicle_type: 'Bus',
+    capacity: '', driver_id: '', status: 'Active',
+  });
+
+  // ─── Driver Dialog States ─────────────────────────────────────────────────
+  const [driverFormOpen, setDriverFormOpen] = useState(false);
+  const [driverDeleteOpen, setDriverDeleteOpen] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
+  const [driverSaving, setDriverSaving] = useState(false);
+  const [driverFormErrors, setDriverFormErrors] = useState<Record<string, string>>({});
+  const [driverForm, setDriverForm] = useState({
+    name: '', phone: '', email: '', license_number: '',
+    license_expiry: '', vehicle_id: '', status: 'Active',
+  });
+
+  // ─── Assign Students Dialog States ────────────────────────────────────────
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
+  const [studentSearch, setStudentSearch] = useState('');
+
+  // ─── Reassign Dialog States ───────────────────────────────────────────────
+  const [reassignOpen, setReassignOpen] = useState(false);
+  const [reassignStudent, setReassignStudent] = useState<TransportStudent | null>(null);
+  const [reassignToRoute, setReassignToRoute] = useState('');
+
+  // ─── Students Tab State ───────────────────────────────────────────────────
+  const [studentsTabRoute, setStudentsTabRoute] = useState<string>('');
+  const [transportStudents, setTransportStudents] = useState<TransportStudent[]>([]);
+  const [studentsLoading, setStudentsLoading] = useState(false);
+
+  // ─── Attendance Tab State ─────────────────────────────────────────────────
+  const [attendanceRoute, setAttendanceRoute] = useState<string>('');
+  const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [attendanceSession, setAttendanceSession] = useState('both');
+  const [attendanceStudents, setAttendanceStudents] = useState<AttendanceStudent[]>([]);
+  const [attendanceLoading, setAttendanceLoading] = useState(false);
+  const [attendanceLoaded, setAttendanceLoaded] = useState(false);
+  const [attendanceSaving, setAttendanceSaving] = useState(false);
+
+  // ─── Computed ─────────────────────────────────────────────────────────────
 
   const driverMap = useMemo(() => {
     const map = new Map<number, Driver>();
@@ -209,9 +228,9 @@ export default function TransportPage() {
 
   const totalFare = routes.reduce((sum, r) => sum + r.studentCount * r.fare, 0);
   const totalStudents = routes.reduce((s, r) => s + r.studentCount, 0);
-  const activeDrivers = drivers.filter(d => d.status === 'Active').length;
+  const activeDriverCount = drivers.filter(d => d.status === 'Active').length;
 
-  // ─── Data Fetching ─────────────────────────────────────────────────────────
+  // ─── Data Fetching ────────────────────────────────────────────────────────
 
   const fetchRoutes = useCallback(async () => {
     setLoading(true);
@@ -221,9 +240,7 @@ export default function TransportPage() {
       const res = await fetch(`/api/admin/transport?${params}`);
       const data = await res.json();
       setRoutes(Array.isArray(data) ? data : []);
-    } catch {
-      toast.error('Failed to fetch routes');
-    }
+    } catch { toast.error('Failed to fetch routes'); }
     setLoading(false);
   }, [search]);
 
@@ -235,7 +252,15 @@ export default function TransportPage() {
     } catch { /* empty */ }
   }, []);
 
-  useEffect(() => { fetchRoutes(); fetchDrivers(); }, [fetchRoutes, fetchDrivers]);
+  const fetchVehicles = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/transport/vehicles');
+      const data = await res.json();
+      setVehicles(Array.isArray(data) ? data : []);
+    } catch { /* empty */ }
+  }, []);
+
+  useEffect(() => { fetchRoutes(); fetchDrivers(); fetchVehicles(); }, [fetchRoutes, fetchDrivers, fetchVehicles]);
 
   const fetchStudents = useCallback(async () => {
     try {
@@ -245,69 +270,64 @@ export default function TransportPage() {
     } catch { /* empty */ }
   }, []);
 
-  // ─── Form Handlers ─────────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ROUTE CRUD
+  // ═══════════════════════════════════════════════════════════════════════════
 
-  const validateForm = (): boolean => {
+  const validateRouteForm = (): boolean => {
     const errors: Record<string, string> = {};
-    if (!form.route_name.trim()) errors.route_name = 'Route name is required';
-    if (form.fare && isNaN(Number(form.fare))) errors.fare = 'Fare must be a number';
-    if (form.fare && Number(form.fare) < 0) errors.fare = 'Fare cannot be negative';
-    setFormErrors(errors);
+    if (!routeForm.route_name.trim()) errors.route_name = 'Route name is required';
+    if (!routeForm.vehicle_number.trim()) errors.vehicle_number = 'Vehicle number is required';
+    if (routeForm.fare && isNaN(Number(routeForm.fare))) errors.fare = 'Fare must be a number';
+    if (routeForm.fare && Number(routeForm.fare) < 0) errors.fare = 'Fare cannot be negative';
+    setRouteFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const openCreate = () => {
+  const openCreateRoute = () => {
     setSelectedRoute(null);
-    setForm({ route_name: '', description: '', vehicle_number: '', driver_id: '', fare: '', facilities: '' });
-    setFormErrors({});
-    setFormOpen(true);
+    setRouteForm({ route_name: '', description: '', vehicle_number: '', driver_id: '', fare: '', facilities: '' });
+    setRouteFormErrors({});
+    setRouteFormOpen(true);
   };
 
-  const openEdit = (r: TransportRoute) => {
+  const openEditRoute = (r: TransportRoute) => {
     setSelectedRoute(r);
-    setForm({
+    setRouteForm({
       route_name: r.route_name, description: r.description, vehicle_number: r.vehicle_number,
       driver_id: r.driver_id?.toString() || '', fare: r.fare.toString(), facilities: r.facilities,
     });
-    setFormErrors({});
-    setFormOpen(true);
+    setRouteFormErrors({});
+    setRouteFormOpen(true);
   };
 
-  const handleSave = async () => {
-    if (!validateForm()) return;
-    setSaving(true);
+  const handleSaveRoute = async () => {
+    if (!validateRouteForm()) return;
+    setRouteSaving(true);
     try {
       const url = selectedRoute ? `/api/admin/transport?id=${selectedRoute.transport_id}` : '/api/admin/transport';
       const method = selectedRoute ? 'PUT' : 'POST';
       const res = await fetch(url, {
         method, headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...form,
-          driver_id: form.driver_id || null,
-          fare: form.fare ? Number(form.fare) : 0,
-        }),
+        body: JSON.stringify({ ...routeForm, driver_id: routeForm.driver_id || null, fare: routeForm.fare ? Number(routeForm.fare) : 0 }),
       });
       if (!res.ok) throw new Error('Failed');
       toast.success(selectedRoute ? 'Route updated successfully' : 'Route created successfully');
-      setFormOpen(false);
+      setRouteFormOpen(false);
       fetchRoutes();
-    } catch {
-      toast.error('Failed to save route');
-    }
-    setSaving(false);
+    } catch { toast.error('Failed to save route'); }
+    setRouteSaving(false);
   };
 
-  const handleDelete = async () => {
+  const handleDeleteRoute = async () => {
     if (!selectedRoute) return;
     try {
       const res = await fetch(`/api/admin/transport?id=${selectedRoute.transport_id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed');
       toast.success('Route deleted');
-      setDeleteOpen(false);
+      setRouteDeleteOpen(false);
       fetchRoutes();
-    } catch {
-      toast.error('Failed to delete');
-    }
+    } catch { toast.error('Failed to delete route'); }
   };
 
   const openAssign = (r: TransportRoute) => {
@@ -320,48 +340,265 @@ export default function TransportPage() {
 
   const handleAssign = async () => {
     if (!selectedRoute || selectedStudents.length === 0) return;
-    setSaving(true);
+    setRouteSaving(true);
     try {
-      for (const studentId of selectedStudents) {
-        await fetch('/api/admin/transport/attendance', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            student_id: studentId,
-            route_id: selectedRoute.transport_id,
-            attendance_date: new Date().toISOString().split('T')[0],
-            transport_direction: 'morning',
-            total_fare: selectedRoute.fare,
-          }),
-        });
-      }
+      const res = await fetch('/api/admin/transport/attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          batch_assign: true,
+          student_ids: selectedStudents,
+          route_id: selectedRoute.transport_id,
+          attendance_date: new Date().toISOString().split('T')[0],
+          total_fare: selectedRoute.fare,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed');
       toast.success(`${selectedStudents.length} student(s) assigned to ${selectedRoute.route_name}`);
       setAssignOpen(false);
       fetchRoutes();
-    } catch {
-      toast.error('Failed to assign students');
-    }
-    setSaving(false);
+    } catch { toast.error('Failed to assign students'); }
+    setRouteSaving(false);
   };
 
-  const handleExportCSV = () => {
-    const headers = ['Route Name', 'Vehicle Number', 'Driver', 'Fare (GHS)', 'Students', 'Total Revenue', 'Facilities'];
-    const rows = routes.map(r => {
-      const driver = r.driver_id ? driverMap.get(r.driver_id) : null;
-      return [
-        r.route_name, r.vehicle_number, driver?.name || '', r.fare.toString(),
-        r.studentCount.toString(), (r.studentCount * r.fare).toString(), r.facilities,
-      ];
+  // ═══════════════════════════════════════════════════════════════════════════
+  // VEHICLE CRUD
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  const validateVehicleForm = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!vehicleForm.vehicle_name.trim()) errors.vehicle_name = 'Vehicle name is required';
+    if (!vehicleForm.plate_number.trim()) errors.plate_number = 'Plate number is required';
+    setVehicleFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const openCreateVehicle = () => {
+    setSelectedVehicle(null);
+    setVehicleForm({ vehicle_name: '', plate_number: '', vehicle_type: 'Bus', capacity: '', driver_id: '', status: 'Active' });
+    setVehicleFormErrors({});
+    setVehicleFormOpen(true);
+  };
+
+  const openEditVehicle = (v: TransportVehicle) => {
+    setSelectedVehicle(v);
+    setVehicleForm({
+      vehicle_name: v.vehicle_name, plate_number: v.plate_number,
+      vehicle_type: v.vehicle_type, capacity: v.capacity.toString(),
+      driver_id: v.driver_id?.toString() || '', status: v.status,
     });
-    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `transport-routes-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success('CSV exported');
+    setVehicleFormErrors({});
+    setVehicleFormOpen(true);
+  };
+
+  const handleSaveVehicle = async () => {
+    if (!validateVehicleForm()) return;
+    setVehicleSaving(true);
+    try {
+      const url = selectedVehicle ? `/api/admin/transport/vehicles?id=${selectedVehicle.vehicle_id}` : '/api/admin/transport/vehicles';
+      const method = selectedVehicle ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method, headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...vehicleForm,
+          driver_id: vehicleForm.driver_id || null,
+          capacity: vehicleForm.capacity ? Number(vehicleForm.capacity) : 0,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      toast.success(selectedVehicle ? 'Vehicle updated successfully' : 'Vehicle created successfully');
+      setVehicleFormOpen(false);
+      fetchVehicles();
+      fetchDrivers();
+      fetchRoutes();
+    } catch { toast.error('Failed to save vehicle'); }
+    setVehicleSaving(false);
+  };
+
+  const handleDeleteVehicle = async () => {
+    if (!selectedVehicle) return;
+    try {
+      const res = await fetch(`/api/admin/transport/vehicles?id=${selectedVehicle.vehicle_id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed');
+      toast.success('Vehicle deleted');
+      setVehicleDeleteOpen(false);
+      fetchVehicles();
+      fetchDrivers();
+    } catch { toast.error('Failed to delete vehicle'); }
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DRIVER CRUD
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  const validateDriverForm = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!driverForm.name.trim()) errors.name = 'Driver name is required';
+    if (!driverForm.license_number.trim()) errors.license_number = 'License number is required';
+    setDriverFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const openCreateDriver = () => {
+    setSelectedDriver(null);
+    setDriverForm({ name: '', phone: '', email: '', license_number: '', license_expiry: '', vehicle_id: '', status: 'Active' });
+    setDriverFormErrors({});
+    setDriverFormOpen(true);
+  };
+
+  const openEditDriver = (d: Driver) => {
+    setSelectedDriver(d);
+    setDriverForm({
+      name: d.name, phone: d.phone, email: d.email,
+      license_number: d.license_number, license_expiry: d.license_expiry || '',
+      vehicle_id: d.vehicle_id?.toString() || '', status: d.status,
+    });
+    setDriverFormErrors({});
+    setDriverFormOpen(true);
+  };
+
+  const handleSaveDriver = async () => {
+    if (!validateDriverForm()) return;
+    setDriverSaving(true);
+    try {
+      const url = selectedDriver ? `/api/admin/transport/drivers?id=${selectedDriver.driver_id}` : '/api/admin/transport/drivers';
+      const method = selectedDriver ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method, headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...driverForm,
+          vehicle_id: driverForm.vehicle_id || null,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      toast.success(selectedDriver ? 'Driver updated successfully' : 'Driver created successfully');
+      setDriverFormOpen(false);
+      fetchDrivers();
+      fetchVehicles();
+      fetchRoutes();
+    } catch { toast.error('Failed to save driver'); }
+    setDriverSaving(false);
+  };
+
+  const handleDeleteDriver = async () => {
+    if (!selectedDriver) return;
+    try {
+      const res = await fetch(`/api/admin/transport/drivers?id=${selectedDriver.driver_id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed');
+      toast.success('Driver deleted');
+      setDriverDeleteOpen(false);
+      fetchDrivers();
+      fetchVehicles();
+    } catch { toast.error('Failed to delete driver'); }
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STUDENTS TAB
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  const loadTransportStudents = useCallback(async () => {
+    if (!studentsTabRoute) { toast.error('Please select a route'); return; }
+    setStudentsLoading(true);
+    try {
+      const res = await fetch(`/api/admin/transport/attendance?action=students&route_id=${studentsTabRoute}`);
+      const data = await res.json();
+      setTransportStudents(Array.isArray(data) ? data : []);
+    } catch { toast.error('Failed to load students'); }
+    setStudentsLoading(false);
+  }, [studentsTabRoute]);
+
+  const handleUnassign = async (student: TransportStudent) => {
+    try {
+      const res = await fetch(`/api/admin/transport/attendance?student_id=${student.student_id}&route_id=${studentsTabRoute}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed');
+      toast.success(`${student.name} removed from route`);
+      loadTransportStudents();
+      fetchRoutes();
+    } catch { toast.error('Failed to unassign student'); }
+  };
+
+  const handleReassign = (student: TransportStudent) => {
+    setReassignStudent(student);
+    setReassignToRoute('');
+    setReassignOpen(true);
+  };
+
+  const confirmReassign = async () => {
+    if (!reassignStudent || !reassignToRoute) { toast.error('Please select a route'); return; }
+    try {
+      const res = await fetch('/api/admin/transport/attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reassign: true,
+          student_id: reassignStudent.student_id,
+          from_route_id: parseInt(studentsTabRoute),
+          to_route_id: parseInt(reassignToRoute),
+        }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      toast.success(`${reassignStudent.name} reassigned successfully`);
+      setReassignOpen(false);
+      loadTransportStudents();
+      fetchRoutes();
+    } catch { toast.error('Failed to reassign student'); }
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ATTENDANCE TAB
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  const loadAttendance = useCallback(async () => {
+    if (!attendanceRoute) { toast.error('Please select a route'); return; }
+    setAttendanceLoading(true);
+    try {
+      const params = new URLSearchParams({
+        action: 'attendance',
+        route_id: attendanceRoute,
+        date: attendanceDate,
+        session: attendanceSession,
+      });
+      const res = await fetch(`/api/admin/transport/attendance?${params}`);
+      const data = await res.json();
+      setAttendanceStudents(Array.isArray(data) ? data : []);
+      setAttendanceLoaded(true);
+    } catch { toast.error('Failed to load students for attendance'); }
+    setAttendanceLoading(false);
+  }, [attendanceRoute, attendanceDate, attendanceSession]);
+
+  const markAllAttendance = (status: string) => {
+    setAttendanceStudents(prev => prev.map(s => ({ ...s, status })));
+  };
+
+  const handleAttendanceChange = (studentId: number, status: string) => {
+    setAttendanceStudents(prev => prev.map(s =>
+      s.student_id === studentId ? { ...s, status } : s
+    ));
+  };
+
+  const saveAttendance = async () => {
+    if (!attendanceRoute) return;
+    setAttendanceSaving(true);
+    try {
+      const attendance: Record<string, string> = {};
+      attendanceStudents.forEach(s => { attendance[s.student_id.toString()] = s.status; });
+
+      const res = await fetch('/api/admin/transport/attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mark_attendance: true,
+          route_id: parseInt(attendanceRoute),
+          date: attendanceDate,
+          session: attendanceSession,
+          attendance,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      toast.success(`Attendance saved for ${data.count} students`);
+    } catch { toast.error('Failed to save attendance'); }
+    setAttendanceSaving(false);
   };
 
   // ─── Loading State ─────────────────────────────────────────────────────────
@@ -369,22 +606,12 @@ export default function TransportPage() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="space-y-5 sm:space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="space-y-1.5">
-              <Skeleton className="h-8 w-56" />
-              <Skeleton className="h-4 w-72" />
-            </div>
-            <div className="flex gap-2">
-              <Skeleton className="h-11 w-28 rounded-lg" />
-              <Skeleton className="h-11 w-32 rounded-lg" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div className="space-y-5">
+          <Skeleton className="h-8 w-56" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <StatCardSkeleton /><StatCardSkeleton /><StatCardSkeleton /><StatCardSkeleton />
           </div>
-          <FilterBarSkeleton />
-          <CardGridSkeleton />
+          <TableSkeleton />
         </div>
       </DashboardLayout>
     );
@@ -394,514 +621,527 @@ export default function TransportPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-5 sm:space-y-6">
-        {/* ═══════════════════════════════════════════════════════
-            Page Header
-            ═══════════════════════════════════════════════════════ */}
+      <div className="space-y-5">
+        {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-              Transport Management
-            </h1>
-            <p className="text-sm text-slate-500 mt-0.5">
-              Routes, vehicles and student assignments
-            </p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Transport Management</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Routes, vehicles, drivers, students and attendance</p>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={handleExportCSV}
-              className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 min-h-[44px]"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Export</span>
-            </Button>
-            <Button
-              onClick={openCreate}
-              className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] shadow-sm"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Route
-            </Button>
+            {activeTab === 'routes' && (
+              <Button onClick={openCreateRoute} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] shadow-sm">
+                <Plus className="w-4 h-4 mr-2" /> Add Route
+              </Button>
+            )}
+            {activeTab === 'vehicles' && (
+              <Button onClick={openCreateVehicle} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] shadow-sm">
+                <Plus className="w-4 h-4 mr-2" /> Add Vehicle
+              </Button>
+            )}
+            {activeTab === 'drivers' && (
+              <Button onClick={openCreateDriver} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] shadow-sm">
+                <Plus className="w-4 h-4 mr-2" /> Add Driver
+              </Button>
+            )}
           </div>
         </div>
 
-        {/* ═══════════════════════════════════════════════════════
-            Quick Stats Row
-            ═══════════════════════════════════════════════════════ */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <StatCard
-            icon={Bus}
-            label="Total Routes"
-            value={routes.length}
-            subValue={`${activeDrivers} active drivers`}
-            iconBg="bg-emerald-500"
-            borderColor="#10b981"
-          />
-          <StatCard
-            icon={Users}
-            label="Students"
-            value={totalStudents}
-            subValue={`Assigned across ${routes.length} routes`}
-            iconBg="bg-sky-500"
-            borderColor="#0ea5e9"
-          />
-          <StatCard
-            icon={DollarSign}
-            label="Total Revenue"
-            value={`GHS ${totalFare.toLocaleString()}`}
-            subValue="Monthly fare collection"
-            iconBg="bg-amber-500"
-            borderColor="#f59e0b"
-          />
-          <StatCard
-            icon={Route}
-            label="Avg Fare"
-            value={`GHS ${routes.length ? (totalFare / routes.length).toFixed(0) : 0}`}
-            subValue="Per route average"
-            iconBg="bg-violet-500"
-            borderColor="#8b5cf6"
-          />
+        {/* Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <StatCard icon={Bus} label="Routes" value={routes.length} subValue={`${activeDriverCount} active drivers`} iconBg="bg-emerald-500" borderColor="#10b981" />
+          <StatCard icon={Car} label="Vehicles" value={vehicles.length} subValue="Fleet total" iconBg="bg-sky-500" borderColor="#0ea5e9" />
+          <StatCard icon={Users} label="Students" value={totalStudents} subValue={`Across ${routes.length} routes`} iconBg="bg-amber-500" borderColor="#f59e0b" />
+          <StatCard icon={DollarSign} label="Revenue" value={`GHS ${totalFare.toLocaleString()}`} subValue="Monthly total" iconBg="bg-violet-500" borderColor="#8b5cf6" />
         </div>
 
-        {/* ═══════════════════════════════════════════════════════
-            Search + View Toggle
-            ═══════════════════════════════════════════════════════ */}
-        <div className="bg-white rounded-2xl border border-slate-200/60 p-4">
-          <div className="flex flex-col sm:flex-row gap-3">
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="bg-white border border-slate-200 p-1 rounded-xl h-auto flex w-full sm:w-auto overflow-x-auto">
+            <TabsTrigger value="routes" className="flex-1 min-w-[90px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm whitespace-nowrap">
+              <Route className="w-4 h-4 mr-1.5 hidden sm:inline" /> Routes
+            </TabsTrigger>
+            <TabsTrigger value="vehicles" className="flex-1 min-w-[90px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm whitespace-nowrap">
+              <Truck className="w-4 h-4 mr-1.5 hidden sm:inline" /> Vehicles
+            </TabsTrigger>
+            <TabsTrigger value="drivers" className="flex-1 min-w-[90px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm whitespace-nowrap">
+              <User className="w-4 h-4 mr-1.5 hidden sm:inline" /> Drivers
+            </TabsTrigger>
+            <TabsTrigger value="students" className="flex-1 min-w-[90px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm whitespace-nowrap">
+              <GraduationCap className="w-4 h-4 mr-1.5 hidden sm:inline" /> Students
+            </TabsTrigger>
+            <TabsTrigger value="attendance" className="flex-1 min-w-[90px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm whitespace-nowrap">
+              <ClipboardCheck className="w-4 h-4 mr-1.5 hidden sm:inline" /> Attendance
+            </TabsTrigger>
+          </TabsList>
+
+          {/* ═══════════════════════════════════════════════════════════════════
+              ROUTES TAB
+          ═══════════════════════════════════════════════════════════════════ */}
+          <TabsContent value="routes">
             {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="Search routes by name, vehicle, or description..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 min-h-[44px]"
-              />
-              {search && (
-                <button
-                  onClick={() => setSearch('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors"
-                >
-                  <X className="w-3 h-3 text-slate-400" />
-                </button>
-              )}
-            </div>
-
-            {/* View Mode Toggle */}
-            <div className="flex border border-slate-200 rounded-lg overflow-hidden flex-shrink-0">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`flex items-center gap-1.5 px-3 min-h-[44px] text-xs font-medium transition-colors ${
-                  viewMode === 'grid'
-                    ? 'bg-emerald-50 text-emerald-700 border-r border-slate-200'
-                    : 'text-slate-500 hover:bg-slate-50'
-                }`}
-              >
-                <LayoutGrid className="w-4 h-4" />
-                <span className="hidden sm:inline">Cards</span>
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
-                className={`flex items-center gap-1.5 px-3 min-h-[44px] text-xs font-medium transition-colors ${
-                  viewMode === 'table'
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : 'text-slate-500 hover:bg-slate-50'
-                }`}
-              >
-                <LayoutList className="w-4 h-4" />
-                <span className="hidden sm:inline">Table</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* ═══════════════════════════════════════════════════════
-            Empty State
-            ═══════════════════════════════════════════════════════ */}
-        {filteredRoutes.length === 0 && (
-          <div className="bg-white rounded-2xl border border-slate-200/60 py-16 sm:py-20">
-            <div className="flex flex-col items-center gap-4 px-4">
-              <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center">
-                <Bus className="w-10 h-10 text-slate-300" />
+            <div className="bg-white rounded-xl border border-slate-200/60 p-4 mb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input placeholder="Search routes by name, vehicle or description..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 min-h-[44px]" />
+                {search && (
+                  <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full hover:bg-slate-200 flex items-center justify-center">
+                    <X className="w-3 h-3 text-slate-400" />
+                  </button>
+                )}
               </div>
-              <div className="text-center">
-                <p className="font-semibold text-slate-600 text-lg">No routes found</p>
-                <p className="text-sm text-slate-400 mt-1.5 max-w-sm">
-                  {search
-                    ? 'Try a different search term to find what you are looking for'
-                    : 'Create your first transport route to start managing school transportation'}
-                </p>
-              </div>
-              {!search && (
-                <Button
-                  onClick={openCreate}
-                  variant="outline"
-                  className="mt-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 min-h-[44px]"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add First Route
-                </Button>
-              )}
             </div>
-          </div>
-        )}
 
-        {/* ═══════════════════════════════════════════════════════
-            Grid View (Cards)
-            ═══════════════════════════════════════════════════════ */}
-        {filteredRoutes.length > 0 && viewMode === 'grid' && (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredRoutes.map(route => {
-                const driver = route.driver_id ? driverMap.get(route.driver_id) : null;
-                const isExpanded = expandedCard === route.transport_id;
-                return (
-                  <Card
-                    key={route.transport_id}
-                    className={`rounded-2xl border-slate-200/60 hover:shadow-md transition-all ${
-                      isExpanded ? 'ring-2 ring-emerald-200 shadow-md' : ''
-                    }`}
-                  >
-                    <CardContent className="p-4 sm:p-5">
-                      {/* Route Header */}
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center flex-shrink-0 border border-emerald-200/50">
-                            <Bus className="w-5 h-5 text-emerald-600" />
-                          </div>
-                          <div className="min-w-0">
-                            <h3 className="font-semibold text-slate-900 text-sm truncate">{route.route_name}</h3>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              {route.vehicle_number ? (
-                                <Badge variant="outline" className="text-[10px] font-normal text-slate-500 gap-1 h-5">
-                                  <Car className="w-3 h-3" /> {route.vehicle_number}
+            {filteredRoutes.length === 0 ? (
+              <Card className="py-16 border-slate-200/60">
+                <CardContent className="flex flex-col items-center gap-3">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center"><Bus className="w-8 h-8 text-slate-300" /></div>
+                  <p className="text-slate-500 font-medium">No routes found</p>
+                  <p className="text-sm text-slate-400">{search ? 'Try a different search' : 'Create your first transport route'}</p>
+                  {!search && <Button onClick={openCreateRoute} variant="outline" className="mt-2 min-h-[44px]"><Plus className="w-4 h-4 mr-2" /> Add Route</Button>}
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border-slate-200/60">
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-slate-50 hover:bg-slate-50">
+                          <TableHead className="text-xs font-semibold text-slate-600">Route Name</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600">Vehicle</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600">Driver</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 text-right">Fare</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 hidden md:table-cell">Facilities</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 hidden lg:table-cell">Students</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600">Status</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredRoutes.map(route => {
+                          const driver = route.driver_id ? driverMap.get(route.driver_id) : null;
+                          const facilityList = route.facilities ? route.facilities.split(',').filter(Boolean) : [];
+                          return (
+                            <TableRow key={route.transport_id} className="hover:bg-slate-50/50">
+                              <TableCell>
+                                <div className="min-w-0">
+                                  <p className="font-medium text-sm text-slate-900">{route.route_name}</p>
+                                  {route.description && <p className="text-xs text-slate-400 truncate max-w-[200px]">{route.description}</p>}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                {route.vehicle_number ? (
+                                  <span className="inline-flex items-center gap-1.5 text-sm text-slate-700">
+                                    <Car className="w-3.5 h-3.5 text-slate-400" />
+                                    <span className="font-mono text-xs">{route.vehicle_number}</span>
+                                  </span>
+                                ) : <span className="text-xs text-slate-400 italic">Not Assigned</span>}
+                              </TableCell>
+                              <TableCell>
+                                {driver ? (
+                                  <span className="inline-flex items-center gap-1.5 text-sm text-slate-700">
+                                    <UserCircle className="w-3.5 h-3.5 text-slate-400" />
+                                    {driver.name}
+                                  </span>
+                                ) : <span className="text-xs text-slate-400 italic">Not Assigned</span>}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <span className="text-sm font-semibold text-slate-900">GHS {route.fare}</span>
+                              </TableCell>
+                              <TableCell className="hidden md:table-cell">
+                                {facilityList.length > 0 ? (
+                                  <div className="flex flex-wrap gap-1">
+                                    {facilityList.slice(0, 3).map((f, i) => (
+                                      <Badge key={i} variant="outline" className="text-[10px] border-slate-200 text-slate-500">{f.trim()}</Badge>
+                                    ))}
+                                    {facilityList.length > 3 && (
+                                      <Badge variant="outline" className="text-[10px] border-slate-200 text-slate-400">+{facilityList.length - 3}</Badge>
+                                    )}
+                                  </div>
+                                ) : <span className="text-xs text-slate-400">—</span>}
+                              </TableCell>
+                              <TableCell className="hidden lg:table-cell">
+                                <Badge variant="outline" className="text-xs border-slate-200">
+                                  <GraduationCap className="w-3 h-3 mr-1 text-slate-400" />{route.studentCount}
                                 </Badge>
-                              ) : (
-                                <span className="text-[10px] text-slate-400 italic">No vehicle assigned</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <Badge className="bg-emerald-100 text-emerald-700 text-xs font-semibold flex-shrink-0">
-                          GHS {route.fare}
-                        </Badge>
-                      </div>
-
-                      {/* Driver */}
-                      {driver && (
-                        <div className="flex items-center gap-2 mb-2 px-1">
-                          <UserCheck className="w-3.5 h-3.5 text-sky-500" />
-                          <span className="text-xs text-slate-600">{driver.name}</span>
-                          <Badge
-                            variant="secondary"
-                            className={`text-[10px] h-4 px-1.5 ${
-                              driver.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'
-                            }`}
-                          >
-                            {driver.status}
-                          </Badge>
-                        </div>
-                      )}
-
-                      {/* Facilities */}
-                      {route.facilities && route.facilities.split(',').filter(Boolean).length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-2">
-                          {route.facilities.split(',').filter(Boolean).slice(0, 4).map((f, i) => (
-                            <span
-                              key={i}
-                              className="inline-flex items-center gap-0.5 text-[10px] bg-slate-50 text-slate-600 px-2 py-0.5 rounded-full border border-slate-100"
-                            >
-                              {getFacilityIcon(f)} {f.trim()}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Description */}
-                      {route.description && (
-                        <p className="text-xs text-slate-500 mb-3 line-clamp-2">{route.description}</p>
-                      )}
-
-                      {/* Stats footer */}
-                      <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                        <div className="flex items-center gap-3 text-xs text-slate-500">
-                          <span className="flex items-center gap-1">
-                            <GraduationCap className="w-3 h-3" /> {route.studentCount} students
-                          </span>
-                          <span className="flex items-center gap-1 tabular-nums">
-                            <DollarSign className="w-3 h-3" /> GHS {(route.studentCount * route.fare).toLocaleString()}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => setExpandedCard(isExpanded ? null : route.transport_id)}
-                          className="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors"
-                        >
-                          {isExpanded ? (
-                            <ChevronDown className="w-4 h-4 text-slate-400" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4 text-slate-400" />
-                          )}
-                        </button>
-                      </div>
-
-                      {/* Expanded actions */}
-                      {isExpanded && (
-                        <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-9 text-xs min-h-[36px]"
-                            onClick={() => openAssign(route)}
-                          >
-                            <Users className="w-3.5 h-3.5 mr-1.5" /> Assign Students
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-9 text-xs min-h-[36px]"
-                            onClick={() => { setSelectedRoute(route); setViewOpen(true); }}
-                          >
-                            <Eye className="w-3.5 h-3.5 mr-1.5" /> View
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-9 text-xs min-h-[36px]"
-                            onClick={() => openEdit(route)}
-                          >
-                            <Pencil className="w-3.5 h-3.5 mr-1.5" /> Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-9 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 min-h-[36px]"
-                            onClick={() => { setSelectedRoute(route); setDeleteOpen(true); }}
-                          >
-                            <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Delete
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-            <p className="text-xs text-slate-400 text-center pb-2">
-              Showing {filteredRoutes.length} of {routes.length} routes
-            </p>
-          </>
-        )}
-
-        {/* ═══════════════════════════════════════════════════════
-            Table View
-            ═══════════════════════════════════════════════════════ */}
-        {filteredRoutes.length > 0 && viewMode === 'table' && (
-          <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
-            {/* Results header */}
-            <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-slate-100 bg-slate-50/50">
-              <p className="text-xs font-medium text-slate-500">
-                Showing {filteredRoutes.length} of {routes.length} routes
-              </p>
-            </div>
-
-            {/* Desktop Table */}
-            <div className="hidden md:block">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-slate-50 hover:bg-slate-50">
-                    <TableHead className="text-xs font-semibold text-slate-600">Route</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-600">Vehicle</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-600 hidden xl:table-cell">Driver</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-600 hidden lg:table-cell">Facilities</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-600 text-center">Students</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-600 text-right">Fare</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-600 text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRoutes.map(route => {
-                    const driver = route.driver_id ? driverMap.get(route.driver_id) : null;
-                    return (
-                      <TableRow key={route.transport_id} className="hover:bg-slate-50/50 transition-colors">
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center flex-shrink-0 border border-emerald-200/50">
-                              <Bus className="w-4 h-4 text-emerald-600" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-medium text-sm text-slate-900 truncate">{route.route_name}</p>
-                              {route.description && (
-                                <p className="text-xs text-slate-400 truncate max-w-[200px]">{route.description}</p>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {route.vehicle_number ? (
-                            <span className="inline-flex items-center gap-1 text-xs text-slate-700">
-                              <Car className="w-3 h-3 text-slate-400" />
-                              {route.vehicle_number}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-slate-400 italic">None</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="hidden xl:table-cell">
-                          {driver ? (
-                            <div>
-                              <p className="text-sm text-slate-700">{driver.name}</p>
-                              <Badge
-                                variant="secondary"
-                                className={`text-[10px] h-4 px-1.5 mt-0.5 ${
-                                  driver.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'
-                                }`}
-                              >
-                                {driver.status}
-                              </Badge>
-                            </div>
-                          ) : (
-                            <span className="text-sm text-slate-400">{'\u2014'}</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="hidden lg:table-cell">
-                          {route.facilities && route.facilities.split(',').filter(Boolean).length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {route.facilities.split(',').filter(Boolean).slice(0, 3).map((f, i) => (
-                                <span key={i} className="text-[10px] bg-slate-50 text-slate-600 px-1.5 py-0.5 rounded-full border border-slate-100">
-                                  {getFacilityIcon(f)} {f.trim()}
-                                </span>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="text-sm text-slate-400">{'\u2014'}</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge variant="outline" className="text-xs border-slate-200">
-                            <GraduationCap className="w-3 h-3 mr-1 text-slate-400" />
-                            {route.studentCount}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <span className="text-sm font-semibold text-slate-900 tabular-nums">GHS {route.fare}</span>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 min-w-[32px]"
-                              onClick={() => openAssign(route)}
-                              title="Assign Students"
-                            >
-                              <Users className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 min-w-[32px]"
-                              onClick={() => openEdit(route)}
-                              title="Edit"
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 min-w-[32px] text-red-500 hover:text-red-600 hover:bg-red-50"
-                              onClick={() => { setSelectedRoute(route); setDeleteOpen(true); }}
-                              title="Delete"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Mobile Card View */}
-            <div className="md:hidden divide-y divide-slate-100">
-              {filteredRoutes.map(route => {
-                const driver = route.driver_id ? driverMap.get(route.driver_id) : null;
-                return (
-                  <div key={route.transport_id} className="p-4 space-y-3">
-                    <div className="flex items-start gap-3">
-                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center flex-shrink-0 border border-emerald-200/50">
-                        <Bus className="w-5 h-5 text-emerald-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <p className="font-semibold text-sm text-slate-900 truncate">{route.route_name}</p>
-                            <p className="text-xs text-slate-500">{route.vehicle_number || 'No vehicle'}</p>
-                          </div>
-                          <Badge className="bg-emerald-100 text-emerald-700 text-xs font-semibold flex-shrink-0">
-                            GHS {route.fare}
-                          </Badge>
-                        </div>
-                        <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs text-slate-500">
-                          {driver && (
-                            <p className="flex items-center gap-1.5">
-                              <UserCheck className="w-3 h-3 text-sky-500" />
-                              <span className="truncate">{driver.name}</span>
-                            </p>
-                          )}
-                          <p className="flex items-center gap-1.5">
-                            <GraduationCap className="w-3 h-3 text-slate-400" />
-                            <span>{route.studentCount} students</span>
-                          </p>
-                          <p className="flex items-center gap-1.5">
-                            <DollarSign className="w-3 h-3 text-slate-400" />
-                            <span className="tabular-nums">GHS {(route.studentCount * route.fare).toLocaleString()}</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 pt-1">
-                      <Button
-                        variant="outline"
-                        className="flex-1 min-h-[44px] text-xs"
-                        onClick={() => openAssign(route)}
-                      >
-                        <Users className="w-3.5 h-3.5 mr-1.5" />
-                        Assign
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="min-h-[44px] min-w-[44px] text-xs"
-                        onClick={() => openEdit(route)}
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="min-h-[44px] min-w-[44px] text-xs text-red-600 border-red-200 hover:bg-red-50"
-                        onClick={() => { setSelectedRoute(route); setDeleteOpen(true); }}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
+                              </TableCell>
+                              <TableCell>
+                                <StatusBadge status="Active" />
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-0.5">
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openAssign(route)} title="Assign Students">
+                                    <Users className="w-4 h-4" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditRoute(route)} title="Edit Route">
+                                    <Pencil className="w-4 h-4" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => { setSelectedRoute(route); setRouteDeleteOpen(true); }} title="Delete Route">
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
                   </div>
-                );
-              })}
-            </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
-            <p className="text-xs text-slate-400 text-center px-4 sm:px-6 py-3 border-t bg-slate-50/50">
-              Showing {filteredRoutes.length} of {routes.length} routes
-            </p>
-          </div>
-        )}
+          {/* ═══════════════════════════════════════════════════════════════════
+              VEHICLES TAB
+          ═══════════════════════════════════════════════════════════════════ */}
+          <TabsContent value="vehicles">
+            {vehicles.length === 0 ? (
+              <Card className="py-16 border-slate-200/60">
+                <CardContent className="flex flex-col items-center gap-3">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center"><Truck className="w-8 h-8 text-slate-300" /></div>
+                  <p className="text-slate-500 font-medium">No vehicles registered</p>
+                  <p className="text-sm text-slate-400">Add your first vehicle to the fleet</p>
+                  <Button onClick={openCreateVehicle} variant="outline" className="mt-2 min-h-[44px]"><Plus className="w-4 h-4 mr-2" /> Add Vehicle</Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border-slate-200/60">
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-slate-50 hover:bg-slate-50">
+                          <TableHead className="text-xs font-semibold text-slate-600">Vehicle Number</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 hidden sm:table-cell">Type</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 hidden md:table-cell">Capacity</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600">Driver</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 hidden lg:table-cell">Route</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600">Status</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {vehicles.map(vehicle => {
+                          const assignedRoute = routes.find(r => r.vehicle_number === vehicle.plate_number);
+                          return (
+                            <TableRow key={vehicle.vehicle_id} className="hover:bg-slate-50/50">
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <div className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center border border-sky-100">
+                                    <Truck className="w-4 h-4 text-sky-600" />
+                                  </div>
+                                  <div>
+                                    <p className="font-semibold text-sm text-slate-900">{vehicle.vehicle_name}</p>
+                                    <p className="text-xs font-mono text-slate-400">{vehicle.plate_number}</p>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell className="hidden sm:table-cell text-sm text-slate-600">{vehicle.vehicle_type || 'N/A'}</TableCell>
+                              <TableCell className="hidden md:table-cell text-sm text-slate-600">{vehicle.capacity > 0 ? `${vehicle.capacity} seats` : '—'}</TableCell>
+                              <TableCell>
+                                {vehicle.driver ? (
+                                  <span className="text-sm text-slate-700">{vehicle.driver.name}</span>
+                                ) : <span className="text-xs text-slate-400 italic">Not Assigned</span>}
+                              </TableCell>
+                              <TableCell className="hidden lg:table-cell">
+                                {assignedRoute ? (
+                                  <span className="text-sm text-slate-700">{assignedRoute.route_name}</span>
+                                ) : <span className="text-xs text-slate-400 italic">Not Assigned</span>}
+                              </TableCell>
+                              <TableCell><StatusBadge status={vehicle.status} /></TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-0.5">
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditVehicle(vehicle)} title="Edit Vehicle"><Pencil className="w-4 h-4" /></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => { setSelectedVehicle(vehicle); setVehicleDeleteOpen(true); }} title="Delete Vehicle"><Trash2 className="w-4 h-4" /></Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* ═══════════════════════════════════════════════════════════════════
+              DRIVERS TAB
+          ═══════════════════════════════════════════════════════════════════ */}
+          <TabsContent value="drivers">
+            {drivers.length === 0 ? (
+              <Card className="py-16 border-slate-200/60">
+                <CardContent className="flex flex-col items-center gap-3">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center"><UserCheck className="w-8 h-8 text-slate-300" /></div>
+                  <p className="text-slate-500 font-medium">No drivers registered</p>
+                  <p className="text-sm text-slate-400">Add your first driver</p>
+                  <Button onClick={openCreateDriver} variant="outline" className="mt-2 min-h-[44px]"><Plus className="w-4 h-4 mr-2" /> Add Driver</Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border-slate-200/60">
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-slate-50 hover:bg-slate-50">
+                          <TableHead className="text-xs font-semibold text-slate-600">Name</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 hidden sm:table-cell">Phone</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 hidden md:table-cell">License #</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600">Assigned Vehicle</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600">Status</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {drivers.map(driver => (
+                          <TableRow key={driver.driver_id} className="hover:bg-slate-50/50">
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100">
+                                  <User className="w-4 h-4 text-emerald-600" />
+                                </div>
+                                <p className="font-medium text-sm text-slate-900">{driver.name}</p>
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell">
+                              {driver.phone ? (
+                                <span className="inline-flex items-center gap-1 text-sm text-slate-600"><Phone className="w-3 h-3 text-slate-400" />{driver.phone}</span>
+                              ) : <span className="text-xs text-slate-400">—</span>}
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              {driver.license_number ? (
+                                <span className="inline-flex items-center gap-1 text-sm text-slate-600"><IdCard className="w-3 h-3 text-slate-400" />{driver.license_number}</span>
+                              ) : <span className="text-xs text-slate-400">N/A</span>}
+                            </TableCell>
+                            <TableCell>
+                              {driver.assignedVehicle ? (
+                                <span className="text-sm text-slate-700">{driver.assignedVehicle.plate_number}</span>
+                              ) : <span className="text-xs text-slate-400 italic">Not Assigned</span>}
+                            </TableCell>
+                            <TableCell><StatusBadge status={driver.status} /></TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex items-center justify-end gap-0.5">
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEditDriver(driver)} title="Edit Driver"><Pencil className="w-4 h-4" /></Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => { setSelectedDriver(driver); setDriverDeleteOpen(true); }} title="Delete Driver"><Trash2 className="w-4 h-4" /></Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* ═══════════════════════════════════════════════════════════════════
+              STUDENTS TAB
+          ═══════════════════════════════════════════════════════════════════ */}
+          <TabsContent value="students">
+            <Card className="border-slate-200/60">
+              <CardContent className="p-4">
+                <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                  <div className="flex-1">
+                    <Label className="text-xs font-medium text-slate-600 mb-1 block">Select Route</Label>
+                    <Select value={studentsTabRoute} onValueChange={setStudentsTabRoute}>
+                      <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="Choose a route..." /></SelectTrigger>
+                      <SelectContent>
+                        {routes.map(r => (
+                          <SelectItem key={r.transport_id} value={r.transport_id.toString()}>{r.route_name} ({r.studentCount} students)</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-end">
+                    <Button onClick={loadTransportStudents} disabled={!studentsTabRoute || studentsLoading} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]">
+                      {studentsLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
+                      Load Students
+                    </Button>
+                  </div>
+                </div>
+
+                {transportStudents.length > 0 && (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-slate-50 hover:bg-slate-50">
+                          <TableHead className="text-xs font-semibold text-slate-600">Code</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600">Name</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 hidden sm:table-cell">Class</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 hidden md:table-cell">Guardian Phone</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {transportStudents.map(student => (
+                          <TableRow key={student.bus_attendance_id} className="hover:bg-slate-50/50">
+                            <TableCell className="text-xs font-mono text-sky-600">{student.student_code}</TableCell>
+                            <TableCell className="text-sm font-medium text-slate-900">{student.name}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-sm text-slate-600">{student.class || '—'}</TableCell>
+                            <TableCell className="hidden md:table-cell text-sm text-slate-600">{student.guardian_phone || '—'}</TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-1">
+                                <Button size="sm" variant="ghost" className="h-8 text-xs text-emerald-600 hover:bg-emerald-50" onClick={() => handleReassign(student)}>
+                                  <ArrowRightLeft className="w-3 h-3 mr-1" /> Reassign
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-8 text-xs text-red-500 hover:bg-red-50" onClick={() => handleUnassign(student)}>
+                                  <Trash2 className="w-3 h-3 mr-1" /> Unassign
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+
+                {studentsTabRoute && !studentsLoading && transportStudents.length === 0 && (
+                  <div className="py-12 text-center text-slate-400">
+                    <Users className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="text-sm font-medium">No students assigned to this route</p>
+                  </div>
+                )}
+
+                {!studentsTabRoute && (
+                  <div className="py-12 text-center text-slate-400">
+                    <GraduationCap className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="text-sm font-medium">Select a route to view assigned students</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ═══════════════════════════════════════════════════════════════════
+              ATTENDANCE TAB
+          ═══════════════════════════════════════════════════════════════════ */}
+          <TabsContent value="attendance">
+            <Card className="border-slate-200/60">
+              <CardContent className="p-4">
+                {/* Filters */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                  <div>
+                    <Label className="text-xs font-medium text-slate-600 mb-1 block">Route</Label>
+                    <Select value={attendanceRoute} onValueChange={setAttendanceRoute}>
+                      <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="Select route..." /></SelectTrigger>
+                      <SelectContent>
+                        {routes.map(r => (
+                          <SelectItem key={r.transport_id} value={r.transport_id.toString()}>{r.route_name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-medium text-slate-600 mb-1 block">Date</Label>
+                    <Input type="date" value={attendanceDate} onChange={e => setAttendanceDate(e.target.value)} className="min-h-[44px]" />
+                  </div>
+                  <div>
+                    <Label className="text-xs font-medium text-slate-600 mb-1 block">Session</Label>
+                    <Select value={attendanceSession} onValueChange={setAttendanceSession}>
+                      <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="both">Both</SelectItem>
+                        <SelectItem value="morning">Morning</SelectItem>
+                        <SelectItem value="afternoon">Afternoon</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-end">
+                    <Button onClick={loadAttendance} disabled={!attendanceRoute || attendanceLoading} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] w-full">
+                      {attendanceLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
+                      Load
+                    </Button>
+                  </div>
+                </div>
+
+                {attendanceLoaded && attendanceStudents.length > 0 && (
+                  <>
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 min-h-[40px]" onClick={() => markAllAttendance('present')}>
+                        <CheckCircle className="w-3.5 h-3.5 mr-1.5" /> Mark All Present
+                      </Button>
+                      <Button size="sm" className="bg-red-600 hover:bg-red-700 min-h-[40px]" onClick={() => markAllAttendance('absent')}>
+                        <X className="w-3.5 h-3.5 mr-1.5" /> Mark All Absent
+                      </Button>
+                      <Button size="sm" className="bg-violet-600 hover:bg-violet-700 min-h-[40px] ml-auto" onClick={saveAttendance} disabled={attendanceSaving}>
+                        {attendanceSaving ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <ClipboardCheck className="w-3.5 h-3.5 mr-1.5" />}
+                        Save Attendance
+                      </Button>
+                    </div>
+
+                    {/* Attendance Table */}
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-slate-50 hover:bg-slate-50">
+                            <TableHead className="text-xs font-semibold text-slate-600">Code</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600">Name</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600 hidden sm:table-cell">Class</TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600">Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {attendanceStudents.map(student => (
+                            <TableRow key={student.student_id} className="hover:bg-slate-50/50">
+                              <TableCell className="text-xs font-mono text-sky-600">{student.student_code}</TableCell>
+                              <TableCell className="text-sm font-medium text-slate-900">{student.name}</TableCell>
+                              <TableCell className="hidden sm:table-cell text-sm text-slate-600">{student.class || '—'}</TableCell>
+                              <TableCell>
+                                <Select value={student.status} onValueChange={v => handleAttendanceChange(student.student_id, v)}>
+                                  <SelectTrigger className={`h-9 w-[120px] text-xs font-semibold ${
+                                    student.status === 'present' ? 'text-emerald-700 border-emerald-200 bg-emerald-50' :
+                                    student.status === 'absent' ? 'text-red-700 border-red-200 bg-red-50' :
+                                    'text-amber-700 border-amber-200 bg-amber-50'
+                                  }`}>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="present">Present</SelectItem>
+                                    <SelectItem value="absent">Absent</SelectItem>
+                                    <SelectItem value="late">Late</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </>
+                )}
+
+                {attendanceLoaded && attendanceStudents.length === 0 && (
+                  <div className="py-12 text-center text-slate-400">
+                    <ClipboardCheck className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="text-sm font-medium">No students found on this route</p>
+                  </div>
+                )}
+
+                {!attendanceLoaded && (
+                  <div className="py-12 text-center text-slate-400">
+                    <MapPin className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="text-sm font-medium">Select a route and click Load to view students</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════
-          Create/Edit Route Dialog
-          ═══════════════════════════════════════════════════════ */}
-      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+      {/* ═══════════════════════════════════════════════════════════════════════
+          DIALOGS
+      ═══════════════════════════════════════════════════════════════════════ */}
+
+      {/* ─── Add/Edit Route Dialog ─── */}
+      <Dialog open={routeFormOpen} onOpenChange={setRouteFormOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -910,346 +1150,312 @@ export default function TransportPage() {
               </div>
               {selectedRoute ? 'Edit Route' : 'Add New Route'}
             </DialogTitle>
-            <DialogDescription>Configure the transport route details below</DialogDescription>
+            <DialogDescription>{selectedRoute ? 'Update route details below' : 'Fill in the details to create a new transport route'}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label className="text-xs font-medium">Route Name <span className="text-red-500">*</span></Label>
-              <Input
-                value={form.route_name}
-                onChange={(e) => { setForm({ ...form, route_name: e.target.value }); setFormErrors(prev => ({ ...prev, route_name: '' })); }}
-                placeholder="e.g. Airport - School"
-                className={`min-h-[44px] ${formErrors.route_name ? 'border-red-300 focus-visible:ring-red-200' : ''}`}
-              />
-              {formErrors.route_name && <p className="text-xs text-red-500">{formErrors.route_name}</p>}
-            </div>
-
-            <div className="grid gap-2">
-              <Label className="text-xs font-medium">Description</Label>
-              <Textarea
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={2}
-                placeholder="Route description or notes..."
-              />
-            </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label className="text-xs font-medium">Vehicle Number</Label>
-                <Input
-                  value={form.vehicle_number}
-                  onChange={(e) => setForm({ ...form, vehicle_number: e.target.value })}
-                  placeholder="e.g. GN 1234-25"
-                  className="min-h-[44px]"
-                />
+                <Label className="text-xs font-medium">Route Name <span className="text-red-500">*</span></Label>
+                <Input value={routeForm.route_name} onChange={e => { setRouteForm({ ...routeForm, route_name: e.target.value }); setRouteFormErrors(p => ({ ...p, route_name: '' })); }} placeholder="e.g. Airport Road - Campus" className={routeFormErrors.route_name ? 'border-red-300' : ''} />
+                {routeFormErrors.route_name && <p className="text-xs text-red-500">{routeFormErrors.route_name}</p>}
               </div>
               <div className="grid gap-2">
-                <Label className="text-xs font-medium">Driver</Label>
-                <Select value={form.driver_id} onValueChange={(v) => setForm({ ...form, driver_id: v === '__none__' ? '' : v })}>
-                  <SelectTrigger className="min-h-[44px]">
-                    <SelectValue placeholder="Select driver" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    <SelectItem value="__none__">No driver</SelectItem>
-                    {drivers.filter(d => d.status === 'Active').map(d => (
-                      <SelectItem key={d.driver_id} value={d.driver_id.toString()}>
-                        {d.name} {d.phone ? `(${d.phone})` : ''}
-                      </SelectItem>
+                <Label className="text-xs font-medium">Vehicle Number <span className="text-red-500">*</span></Label>
+                <Input value={routeForm.vehicle_number} onChange={e => { setRouteForm({ ...routeForm, vehicle_number: e.target.value }); setRouteFormErrors(p => ({ ...p, vehicle_number: '' })); }} placeholder="e.g. GH-1234-20" className={routeFormErrors.vehicle_number ? 'border-red-300' : ''} />
+                {routeFormErrors.vehicle_number && <p className="text-xs text-red-500">{routeFormErrors.vehicle_number}</p>}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">Route Fare (GHS) <span className="text-red-500">*</span></Label>
+                <Input type="number" step="0.01" min="0" value={routeForm.fare} onChange={e => { setRouteForm({ ...routeForm, fare: e.target.value }); setRouteFormErrors(p => ({ ...p, fare: '' })); }} placeholder="0.00" className={routeFormErrors.fare ? 'border-red-300' : ''} />
+                {routeFormErrors.fare && <p className="text-xs text-red-500">{routeFormErrors.fare}</p>}
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">Assign Driver</Label>
+                <Select value={routeForm.driver_id} onValueChange={v => setRouteForm({ ...routeForm, driver_id: v })}>
+                  <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="Select a driver" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">— No Driver —</SelectItem>
+                    {drivers.map(d => (
+                      <SelectItem key={d.driver_id} value={d.driver_id.toString()}>{d.name} ({d.phone})</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label className="text-xs font-medium">Fare (GHS)</Label>
-                <Input
-                  type="number" step="0.01" min="0"
-                  value={form.fare}
-                  onChange={(e) => { setForm({ ...form, fare: e.target.value }); setFormErrors(prev => ({ ...prev, fare: '' })); }}
-                  placeholder="0.00"
-                  className={`min-h-[44px] ${formErrors.fare ? 'border-red-300 focus-visible:ring-red-200' : ''}`}
-                />
-                {formErrors.fare && <p className="text-xs text-red-500">{formErrors.fare}</p>}
-              </div>
-              <div className="grid gap-2">
-                <Label className="text-xs font-medium">Facilities</Label>
-                <Input
-                  value={form.facilities}
-                  onChange={(e) => setForm({ ...form, facilities: e.target.value })}
-                  placeholder="AC, GPS, First Aid"
-                  className="min-h-[44px]"
-                />
-              </div>
+            <div className="grid gap-2">
+              <Label className="text-xs font-medium">Facilities / Stops</Label>
+              <Textarea value={routeForm.facilities} onChange={e => setRouteForm({ ...routeForm, facilities: e.target.value })} rows={2} placeholder="AC, GPS, WiFi (comma-separated). Each item counts as a stop." />
+              <p className="text-[10px] text-slate-400">Comma-separated list. Each item is displayed as a stop count.</p>
+            </div>
+            <div className="grid gap-2">
+              <Label className="text-xs font-medium">Description</Label>
+              <Textarea value={routeForm.description} onChange={e => setRouteForm({ ...routeForm, description: e.target.value })} rows={2} placeholder="Optional route description..." />
             </div>
           </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setFormOpen(false)} className="min-h-[44px]">Cancel</Button>
-            <Button
-              onClick={handleSave}
-              disabled={saving || !form.route_name.trim()}
-              className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]"
-            >
-              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {selectedRoute ? 'Update Route' : 'Create Route'}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRouteFormOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveRoute} disabled={routeSaving || !routeForm.route_name.trim() || !routeForm.vehicle_number.trim()} className="bg-emerald-600 hover:bg-emerald-700">
+              {routeSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {selectedRoute ? 'Update' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ═══════════════════════════════════════════════════════
-          View Route Details Dialog
-          ═══════════════════════════════════════════════════════ */}
-      <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          {selectedRoute && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                    <Bus className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  Route Details
-                </DialogTitle>
-                <DialogDescription>Full information about this transport route</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-2">
-                {/* Route Name & Fare */}
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-slate-50">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center border border-emerald-200/50">
-                    <Bus className="w-7 h-7 text-emerald-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-slate-900">{selectedRoute.route_name}</h3>
-                    <p className="text-sm text-slate-500">{selectedRoute.vehicle_number || 'No vehicle assigned'}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-emerald-700 tabular-nums">GHS {selectedRoute.fare}</p>
-                    <p className="text-xs text-slate-400">per student</p>
-                  </div>
-                </div>
-
-                {/* Details Grid */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/80">
-                    <div className="w-8 h-8 rounded-lg bg-white border border-slate-200/60 flex items-center justify-center flex-shrink-0">
-                      <UserCheck className="w-4 h-4 text-sky-500" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs text-slate-400">Driver</p>
-                      <p className="font-medium text-sm text-slate-800">
-                        {selectedRoute.driver_id ? driverMap.get(selectedRoute.driver_id)?.name || '\u2014' : 'Not assigned'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/80">
-                    <div className="w-8 h-8 rounded-lg bg-white border border-slate-200/60 flex items-center justify-center flex-shrink-0">
-                      <GraduationCap className="w-4 h-4 text-violet-500" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs text-slate-400">Students</p>
-                      <p className="font-medium text-sm text-slate-800">{selectedRoute.studentCount}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/80">
-                    <div className="w-8 h-8 rounded-lg bg-white border border-slate-200/60 flex items-center justify-center flex-shrink-0">
-                      <DollarSign className="w-4 h-4 text-amber-500" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs text-slate-400">Revenue</p>
-                      <p className="font-medium text-sm text-slate-800 tabular-nums">
-                        GHS {(selectedRoute.studentCount * selectedRoute.fare).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50/80">
-                    <div className="w-8 h-8 rounded-lg bg-white border border-slate-200/60 flex items-center justify-center flex-shrink-0">
-                      <Wrench className="w-4 h-4 text-slate-400" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs text-slate-400">Facilities</p>
-                      <p className="font-medium text-sm text-slate-800 truncate">
-                        {selectedRoute.facilities || 'None specified'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Description */}
-                {selectedRoute.description && (
-                  <div className="p-3 rounded-xl bg-slate-50/80">
-                    <p className="text-xs text-slate-400 mb-1">Description</p>
-                    <p className="text-sm text-slate-700">{selectedRoute.description}</p>
-                  </div>
-                )}
-
-                {/* Facilities chips */}
-                {selectedRoute.facilities && selectedRoute.facilities.split(',').filter(Boolean).length > 0 && (
-                  <div className="p-3 rounded-xl bg-slate-50/80">
-                    <p className="text-xs text-slate-400 mb-2">Facilities</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {selectedRoute.facilities.split(',').filter(Boolean).map((f, i) => (
-                        <span
-                          key={i}
-                          className="inline-flex items-center gap-1 text-xs bg-white text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200/60"
-                        >
-                          {getFacilityIcon(f)} {f.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <DialogFooter className="gap-2 sm:gap-0 mt-4">
-                <Button variant="outline" onClick={() => setViewOpen(false)} className="min-h-[44px]">Close</Button>
-                <Button
-                  onClick={() => { setViewOpen(false); openEdit(selectedRoute); }}
-                  className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]"
-                >
-                  <Pencil className="w-4 h-4 mr-2" />
-                  Edit
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* ═══════════════════════════════════════════════════════
-          Delete Confirmation
-          ═══════════════════════════════════════════════════════ */}
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+      {/* ─── Delete Route Dialog ─── */}
+      <AlertDialog open={routeDeleteOpen} onOpenChange={setRouteDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
-                <AlertTriangle className="w-4 h-4 text-red-600" />
-              </div>
-              Delete Route
-            </AlertDialogTitle>
-            <AlertDialogDescription asChild>
-              <div className="space-y-2">
-                <p>
-                  Are you sure you want to delete <strong>{selectedRoute?.route_name}</strong>?
-                </p>
-                {selectedRoute && selectedRoute.studentCount > 0 && (
-                  <p className="text-amber-600 flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    This route has {selectedRoute.studentCount} assigned student(s). They will be unassigned.
-                  </p>
-                )}
-              </div>
-            </AlertDialogDescription>
+            <AlertDialogTitle>Delete Route</AlertDialogTitle>
+            <AlertDialogDescription>Are you sure you want to delete <strong>{selectedRoute?.route_name}</strong>? All student assignments will also be removed.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="min-h-[44px]">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 min-h-[44px]">
-              Delete Route
-            </AlertDialogAction>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteRoute} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* ═══════════════════════════════════════════════════════
-          Student Assignment Dialog
-          ═══════════════════════════════════════════════════════ */}
-      <Dialog open={assignOpen} onOpenChange={setAssignOpen}>
+      {/* ─── Add/Edit Vehicle Dialog ─── */}
+      <Dialog open={vehicleFormOpen} onOpenChange={setVehicleFormOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-sky-100 flex items-center justify-center">
-                <Users className="w-4 h-4 text-sky-600" />
+                <Truck className="w-4 h-4 text-sky-600" />
               </div>
-              Assign Students to Route
+              {selectedVehicle ? 'Edit Vehicle' : 'Add New Vehicle'}
             </DialogTitle>
-            <DialogDescription>
-              {selectedRoute?.route_name} {'\u00B7'} Fare: GHS {selectedRoute?.fare}
-            </DialogDescription>
+            <DialogDescription>{selectedVehicle ? 'Update vehicle details' : 'Register a new vehicle in the fleet'}</DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
-            {/* Search */}
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">Vehicle Name <span className="text-red-500">*</span></Label>
+                <Input value={vehicleForm.vehicle_name} onChange={e => { setVehicleForm({ ...vehicleForm, vehicle_name: e.target.value }); setVehicleFormErrors(p => ({ ...p, vehicle_name: '' })); }} placeholder="e.g. Toyota Hiace" className={vehicleFormErrors.vehicle_name ? 'border-red-300' : ''} />
+                {vehicleFormErrors.vehicle_name && <p className="text-xs text-red-500">{vehicleFormErrors.vehicle_name}</p>}
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">Plate Number <span className="text-red-500">*</span></Label>
+                <Input value={vehicleForm.plate_number} onChange={e => { setVehicleForm({ ...vehicleForm, plate_number: e.target.value }); setVehicleFormErrors(p => ({ ...p, plate_number: '' })); }} placeholder="e.g. GH-1234-20" className={vehicleFormErrors.plate_number ? 'border-red-300' : ''} />
+                {vehicleFormErrors.plate_number && <p className="text-xs text-red-500">{vehicleFormErrors.plate_number}</p>}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">Vehicle Type</Label>
+                <Select value={vehicleForm.vehicle_type} onValueChange={v => setVehicleForm({ ...vehicleForm, vehicle_type: v })}>
+                  <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Bus">Bus</SelectItem>
+                    <SelectItem value="Minibus">Minibus</SelectItem>
+                    <SelectItem value="Van">Van</SelectItem>
+                    <SelectItem value="Car">Car</SelectItem>
+                    <SelectItem value="SUV">SUV</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">Seating Capacity</Label>
+                <Input type="number" min="0" value={vehicleForm.capacity} onChange={e => setVehicleForm({ ...vehicleForm, capacity: e.target.value })} placeholder="e.g. 33" />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label className="text-xs font-medium">Assign Driver</Label>
+              <Select value={vehicleForm.driver_id} onValueChange={v => setVehicleForm({ ...vehicleForm, driver_id: v })}>
+                <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="Select a driver" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">— No Driver —</SelectItem>
+                  {drivers.map(d => (
+                    <SelectItem key={d.driver_id} value={d.driver_id.toString()}>{d.name} ({d.phone})</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label className="text-xs font-medium">Status</Label>
+              <Select value={vehicleForm.status} onValueChange={v => setVehicleForm({ ...vehicleForm, status: v })}>
+                <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Inactive">Inactive</SelectItem>
+                  <SelectItem value="Maintenance">Maintenance</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setVehicleFormOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveVehicle} disabled={vehicleSaving || !vehicleForm.vehicle_name.trim() || !vehicleForm.plate_number.trim()} className="bg-emerald-600 hover:bg-emerald-700">
+              {vehicleSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {selectedVehicle ? 'Update' : 'Create'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── Delete Vehicle Dialog ─── */}
+      <AlertDialog open={vehicleDeleteOpen} onOpenChange={setVehicleDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Vehicle</AlertDialogTitle>
+            <AlertDialogDescription>Are you sure you want to delete <strong>{selectedVehicle?.vehicle_name}</strong> ({selectedVehicle?.plate_number})? This cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteVehicle} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* ─── Add/Edit Driver Dialog ─── */}
+      <Dialog open={driverFormOpen} onOpenChange={setDriverFormOpen}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                <User className="w-4 h-4 text-amber-600" />
+              </div>
+              {selectedDriver ? 'Edit Driver' : 'Add New Driver'}
+            </DialogTitle>
+            <DialogDescription>{selectedDriver ? 'Update driver details' : 'Register a new driver'}</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">Full Name <span className="text-red-500">*</span></Label>
+                <Input value={driverForm.name} onChange={e => { setDriverForm({ ...driverForm, name: e.target.value }); setDriverFormErrors(p => ({ ...p, name: '' })); }} placeholder="e.g. Kwame Asante" className={driverFormErrors.name ? 'border-red-300' : ''} />
+                {driverFormErrors.name && <p className="text-xs text-red-500">{driverFormErrors.name}</p>}
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">Phone <span className="text-red-500">*</span></Label>
+                <Input value={driverForm.phone} onChange={e => setDriverForm({ ...driverForm, phone: e.target.value })} placeholder="e.g. 024-123-4567" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">License Number <span className="text-red-500">*</span></Label>
+                <Input value={driverForm.license_number} onChange={e => { setDriverForm({ ...driverForm, license_number: e.target.value }); setDriverFormErrors(p => ({ ...p, license_number: '' })); }} placeholder="e.g. D/ABC/1234/2020" className={driverFormErrors.license_number ? 'border-red-300' : ''} />
+                {driverFormErrors.license_number && <p className="text-xs text-red-500">{driverFormErrors.license_number}</p>}
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">License Expiry</Label>
+                <Input type="date" value={driverForm.license_expiry} onChange={e => setDriverForm({ ...driverForm, license_expiry: e.target.value })} />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label className="text-xs font-medium">Email</Label>
+              <Input type="email" value={driverForm.email} onChange={e => setDriverForm({ ...driverForm, email: e.target.value })} placeholder="e.g. driver@email.com" />
+            </div>
+            <div className="grid gap-2">
+              <Label className="text-xs font-medium">Assign Vehicle</Label>
+              <Select value={driverForm.vehicle_id} onValueChange={v => setDriverForm({ ...driverForm, vehicle_id: v })}>
+                <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="Select a vehicle" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">— No Vehicle —</SelectItem>
+                  {vehicles.map(v => (
+                    <SelectItem key={v.vehicle_id} value={v.vehicle_id.toString()}>{v.vehicle_name} ({v.plate_number})</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDriverFormOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveDriver} disabled={driverSaving || !driverForm.name.trim() || !driverForm.license_number.trim()} className="bg-emerald-600 hover:bg-emerald-700">
+              {driverSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {selectedDriver ? 'Update' : 'Create'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── Delete Driver Dialog ─── */}
+      <AlertDialog open={driverDeleteOpen} onOpenChange={setDriverDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Driver</AlertDialogTitle>
+            <AlertDialogDescription>Are you sure you want to delete <strong>{selectedDriver?.name}</strong>? This cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteDriver} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* ─── Assign Students Dialog ─── */}
+      <Dialog open={assignOpen} onOpenChange={setAssignOpen}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Assign Students to {selectedRoute?.route_name}</DialogTitle>
+            <DialogDescription>Select students to assign to this route</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="Search students by name or code..."
-                value={studentSearch}
-                onChange={(e) => setStudentSearch(e.target.value)}
-                className="pl-10 min-h-[44px]"
-              />
+              <Input placeholder="Search students..." value={studentSearch} onChange={e => setStudentSearch(e.target.value)} className="pl-10" />
             </div>
-
-            {/* Selected count */}
-            {selectedStudents.length > 0 && (
-              <div className="flex items-center gap-2 px-1">
-                <Badge className="bg-emerald-100 text-emerald-700 text-xs">
-                  {selectedStudents.length} selected
-                </Badge>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs text-slate-500 h-7"
-                  onClick={() => setSelectedStudents([])}
-                >
-                  Clear all
-                </Button>
-              </div>
-            )}
-
-            {/* Student list */}
-            <div className="space-y-1 max-h-96 overflow-y-auto">
+            <div className="border rounded-lg max-h-80 overflow-y-auto">
               {filteredStudents.length === 0 ? (
-                <div className="py-8 text-center text-slate-400">
-                  <GraduationCap className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No students found</p>
-                </div>
+                <p className="text-sm text-slate-400 text-center py-8">No students found</p>
               ) : (
-                filteredStudents.map(s => (
-                  <label
-                    key={s.student_id}
-                    className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${
-                      selectedStudents.includes(s.student_id)
-                        ? 'bg-emerald-50 border border-emerald-200'
-                        : 'hover:bg-slate-50 border border-transparent'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedStudents.includes(s.student_id)}
-                      onChange={(e) => {
-                        if (e.target.checked) setSelectedStudents([...selectedStudents, s.student_id]);
-                        else setSelectedStudents(selectedStudents.filter(id => id !== s.student_id));
+                filteredStudents.map(student => (
+                  <label key={student.student_id} className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 cursor-pointer border-b last:border-0">
+                    <Checkbox
+                      checked={selectedStudents.includes(student.student_id)}
+                      onCheckedChange={() => {
+                        setSelectedStudents(prev =>
+                          prev.includes(student.student_id)
+                            ? prev.filter(id => id !== student.student_id)
+                            : [...prev, student.student_id]
+                        );
                       }}
-                      className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                     />
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
-                        <GraduationCap className="w-4 h-4 text-slate-400" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-slate-900 truncate">{s.name}</p>
-                        <p className="text-xs text-slate-500">{s.student_code}</p>
-                      </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-900">{student.name}</p>
+                      <p className="text-xs text-slate-400">{student.student_code}</p>
                     </div>
-                    {selectedStudents.includes(s.student_id) && (
-                      <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                    )}
                   </label>
                 ))
               )}
             </div>
+            {selectedStudents.length > 0 && (
+              <p className="text-sm text-emerald-600 font-medium">{selectedStudents.length} student(s) selected</p>
+            )}
           </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setAssignOpen(false)} className="min-h-[44px]">Close</Button>
-            <Button
-              className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]"
-              disabled={saving || selectedStudents.length === 0}
-              onClick={handleAssign}
-            >
-              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAssignOpen(false)}>Cancel</Button>
+            <Button onClick={handleAssign} disabled={routeSaving || selectedStudents.length === 0} className="bg-emerald-600 hover:bg-emerald-700">
+              {routeSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Assign ({selectedStudents.length})
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── Reassign Dialog ─── */}
+      <Dialog open={reassignOpen} onOpenChange={setReassignOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reassign Student</DialogTitle>
+            <DialogDescription>Move <strong>{reassignStudent?.name}</strong> to a new route</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Select value={reassignToRoute} onValueChange={setReassignToRoute}>
+              <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="Select new route..." /></SelectTrigger>
+              <SelectContent>
+                {routes.filter(r => r.transport_id.toString() !== studentsTabRoute).map(r => (
+                  <SelectItem key={r.transport_id} value={r.transport_id.toString()}>{r.route_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReassignOpen(false)}>Cancel</Button>
+            <Button onClick={confirmReassign} disabled={!reassignToRoute} className="bg-emerald-600 hover:bg-emerald-700">Reassign</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

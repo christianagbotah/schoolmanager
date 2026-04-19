@@ -6,7 +6,7 @@ import { format } from 'date-fns'
 import {
   CalendarCheck, Users, UserCheck, UserX, Clock, Heart,
   ShieldCheck, Save, Download, ScanBarcode, CheckCheck, Zap,
-  BarChart3, Bell, Loader2, FileText, Search, Filter,
+  BarChart3, Bell, Loader2, FileText, Search, Filter, X,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -302,12 +302,32 @@ function AttendanceModule() {
     setStudentsLoading(false)
   }, [selectedClassId, selectedSectionId, selectedDate])
 
+  // Student search filter
+  const [studentFilter, setStudentFilter] = useState('')
+
+  const filteredStudents = useMemo(() => {
+    if (!studentFilter.trim()) return students
+    const q = studentFilter.toLowerCase()
+    return students.filter(s =>
+      s.name?.toLowerCase().includes(q) ||
+      s.student_code?.toLowerCase().includes(q)
+    )
+  }, [students, studentFilter])
+
   // Mark all present
   const markAllPresent = () => {
     const map: Record<number, string> = {}
     students.forEach(s => { map[s.student_id] = '1' })
     setAttendanceMap(map)
     toast.success(`${students.length} students marked as present`)
+  }
+
+  // Mark all absent (matching CI3)
+  const markAllAbsent = () => {
+    const map: Record<number, string> = {}
+    students.forEach(s => { map[s.student_id] = '2' })
+    setAttendanceMap(map)
+    toast.success(`${students.length} students marked as absent`)
   }
 
   // Save attendance
@@ -611,16 +631,29 @@ function AttendanceModule() {
               </div>
             </div>
 
-            {/* Current Stats Bar */}
+            {/* Student Filter + Stats Bar (matching CI3 initSearchFilter) */}
             {students.length > 0 && (
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-5">
-                <MiniStat label="Total" value={currentStats.total} color="slate" />
-                <MiniStat label="Present" value={currentStats.present} color="emerald" />
-                <MiniStat label="Absent" value={currentStats.absent} color="red" />
-                <MiniStat label="Late" value={currentStats.late} color="amber" />
-                <MiniStat label="Sick-Home" value={currentStats.sickHome} color="yellow" />
-                <MiniStat label="Sick-Clinic" value={currentStats.sickClinic} color="blue" />
-              </div>
+              <>
+                <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      placeholder="Search by name or code..."
+                      value={studentFilter}
+                      onChange={e => setStudentFilter(e.target.value)}
+                      className="pl-10 min-h-[44px]"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-5">
+                  <MiniStat label="Total" value={currentStats.total} color="slate" />
+                  <MiniStat label="Present" value={currentStats.present} color="emerald" />
+                  <MiniStat label="Absent" value={currentStats.absent} color="red" />
+                  <MiniStat label="Late" value={currentStats.late} color="amber" />
+                  <MiniStat label="Sick-Home" value={currentStats.sickHome} color="yellow" />
+                  <MiniStat label="Sick-Clinic" value={currentStats.sickClinic} color="blue" />
+                </div>
+              </>
             )}
 
             {/* Students Table */}
@@ -641,11 +674,15 @@ function AttendanceModule() {
               </div>
             ) : students.length > 0 ? (
               <>
-                {/* Action Buttons */}
+                {/* Action Buttons (matching CI3: Select All Present, Mark All Absent) */}
                 <div className="flex flex-wrap gap-2 mb-4">
                   <Button onClick={markAllPresent} variant="outline" className="min-h-[44px] border-emerald-200 text-emerald-700 hover:bg-emerald-50">
                     <CheckCheck className="w-4 h-4 mr-2" />
-                    Mark All Present
+                    Select All Present
+                  </Button>
+                  <Button onClick={markAllAbsent} variant="outline" className="min-h-[44px] border-red-200 text-red-700 hover:bg-red-50">
+                    <X className="w-4 h-4 mr-2" />
+                    Mark All Absent
                   </Button>
                   <Button onClick={saveAttendance} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]" disabled={saving}>
                     {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
@@ -669,7 +706,7 @@ function AttendanceModule() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {students.map((student, idx) => {
+                      {filteredStudents.map((student, idx) => {
                         const currentStatus = attendanceMap[student.student_id] || ''
                         return (
                           <TableRow key={student.student_id} className="hover:bg-slate-50/50 transition-colors">
@@ -721,7 +758,7 @@ function AttendanceModule() {
 
                 {/* Mobile Card View */}
                 <div className="md:hidden divide-y divide-slate-100">
-                  {students.map((student) => {
+                  {filteredStudents.map((student) => {
                     const currentStatus = attendanceMap[student.student_id] || ''
                     const cfg = currentStatus ? STATUS_CONFIG[currentStatus] : null
                     return (

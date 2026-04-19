@@ -12,16 +12,17 @@ export async function GET(
       where: { exam_id: parseInt(id) },
       include: {
         class: { select: { class_id: true, name: true, name_numeric: true, category: true } },
+        category: { select: { exam_category_id: true, name: true } },
         marks_list: {
           include: {
-            student: { select: { student_id: true, name: true, student_code: string } },
-            subject: { select: { subject_id: true, name: string } },
+            student: { select: { student_id: true, name: true, student_code: true } },
+            subject: { select: { subject_id: true, name: true } },
           },
         },
         exam_marks: {
           include: {
-            student: { select: { student_id: true, name: true, student_code: string } },
-            subject: { select: { subject_id: true, name: string } },
+            student: { select: { student_id: true, name: true, student_code: true } },
+            subject: { select: { subject_id: true, name: true } },
           },
         },
       },
@@ -62,9 +63,13 @@ export async function PUT(
         class_id: body.class_id !== undefined ? (body.class_id || null) : existing.class_id,
         section_id: body.section_id !== undefined ? (body.section_id || null) : existing.section_id,
         type: body.type ?? existing.type,
+        category_id: body.category_id !== undefined ? (body.category_id || null) : existing.category_id,
+        term: body.term ?? existing.term,
+        sem: body.sem ?? existing.sem,
       },
       include: {
         class: { select: { class_id: true, name: true, category: true, name_numeric: true } },
+        category: { select: { exam_category_id: true, name: true } },
       },
     })
 

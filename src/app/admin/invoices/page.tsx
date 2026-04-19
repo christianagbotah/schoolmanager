@@ -43,6 +43,7 @@ interface BillItem {
 
 interface BillCategory { bill_category_id: number; bill_category_name: string; }
 interface SchoolClass { class_id: number; name: string; name_numeric: number; category: string; _count: { enrolls: number }; }
+interface Receipt { payment_id: number; student_id: number; invoice_id: number | null; invoice_code: string; receipt_code: string; title: string; amount: number; due: number; payment_type: string; payment_method: string; year: string; term: string; timestamp: string; approval_status: string; student: { student_id: number; name: string; student_code: string }; invoice: { invoice_code: string; title: string } | null; }
 
 // ======== CONFIG ========
 const statusConfig: Record<string, { label: string; className: string; dotColor: string }> = {
@@ -79,6 +80,7 @@ export default function InvoicesPage() {
   const [summary, setSummary] = useState({ totalBilled: 0, totalCollected: 0, outstanding: 0, paidCount: 0 });
   const [classes, setClasses] = useState<SchoolClass[]>([]);
   const [activeTab, setActiveTab] = useState('all');
+  const [mainTab, setMainTab] = useState<'invoices' | 'receipts'>('invoices');
 
   // Bill items state
   const [billItems, setBillItems] = useState<BillItem[]>([]);
@@ -132,6 +134,21 @@ export default function InvoicesPage() {
   // Take payment
   const [payOpen, setPayOpen] = useState(false);
   const [payStudentId, setPayStudentId] = useState<number | null>(null);
+
+  // Receipts tab (CI3 parity - All Receipts)
+  const [receipts, setReceipts] = useState<Receipt[]>([]);
+  const [receiptsLoading, setReceiptsLoading] = useState(false);
+ const [receiptsTotal, setReceiptsTotal] = useState(0);
+ const [receiptsPage, setReceiptsPage] = useState(1);
+ const [receiptsTotalPages, setReceiptsTotalPages] = useState(1);
+ const [receiptsSearch, setReceiptsSearch] = useState('');
+ const [receiptsMethod, setReceiptsMethod] = useState('');
+ const [receiptsStartDate, setReceiptsStartDate] = useState('');
+ const [receiptsEndDate, setReceiptsEndDate] = useState('');
+ const [receiptsSummary, setReceiptsSummary] = useState({ totalCollected: 0, todayTotal: 0, monthTotal: 0 });
+ const [receiptsViewOpen, setReceiptsViewOpen] = useState(false);
+  const [receiptsViewPayment, setReceiptsViewPayment] = useState<Receipt | null>(null);
+
   const [payStudentsOwing, setPayStudentsOwing] = useState<any[]>([]);
   const [payAmount, setPayAmount] = useState('');
   const [payMethod, setPayMethod] = useState('cash');
@@ -383,23 +400,30 @@ export default function InvoicesPage() {
 
   const handlePrintInvoice = (inv: Invoice) => {
     const sc = statusConfig[inv.status] || statusConfig.unpaid;
+    const statusBg = inv.status === 'paid' ? '#d1fae5' : inv.status === 'partial' ? '#fef3c7' : '#fee2e2';
+    const statusColor = inv.status === 'paid' ? '#065f46' : inv.status === 'partial' ? '#92400e' : '#991b1b';
     const w = window.open('', '_blank');
     if (!w) return;
     w.document.write(`<html><head><title>Invoice ${inv.invoice_code}</title>
       <style>body{font-family:Arial,sans-serif;padding:40px;color:#333;max-width:800px;margin:0 auto}
       table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border:1px solid #ddd;padding:10px;text-align:left}
-      th{background:#f5f5f5;font-size:13px}.header{display:flex;justify-content:space-between;margin-bottom:24px;align-items:flex-start}
-      .logo{font-size:20px;font-weight:bold;color:#059669}h2{margin:0;color:#1e293b}
-      .total-row{font-weight:bold;background:#f0fdf4;border-top:2px solid #059669}
+      th{background:#f5f5f5;font-size:13px}.total-row{font-weight:bold;background:#f0fdf4;border-top:2px solid #059669}
+      .header-table{border:none;margin:0}.header-table td{border:none;padding:4px 0}
+      .info-row td{border:none;padding:4px 12px;text-align:right;font-size:13px}
       @media print{body{padding:20px}}</style></head><body>
-      <div class="header"><div><div class="logo">School Manager</div><p style="color:#666;font-size:12px">School Fee Invoice</p></div>
-      <div style="text-align:right"><h2>INVOICE</h2><p style="font-family:monospace">${inv.invoice_code}</p>
-      <p>Date: ${fmtDate(inv.creation_timestamp)}</p>
-      <span style="padding:4px 12px;border-radius:20px;font-size:12px;background:${inv.status === 'paid' ? '#d1fae5' : '#fee2e2'};color:${inv.status === 'paid' ? '#065f46' : '#991b1b'}">${sc.label.toUpperCase()}</span></div></div>
-      <div style="display:flex;gap:32px;margin-bottom:20px;font-size:14px">
-      <div><strong>Bill To:</strong><br/>${inv.student?.name || 'Unknown'}<br/>${inv.student?.student_code || ''}</div>
-      <div><strong>Class:</strong> ${inv.class_name || '\u2014'}<br/><strong>Term:</strong> ${inv.term}<br/><strong>Year:</strong> ${inv.year}</div></div>
-      <hr style="margin:16px 0">
+      <table class="header-table"><tr>
+        <td style="vertical-align:top"><div style="font-size:20px;font-weight:bold;color:#059669">School Manager</div><p style="color:#666;font-size:12px">School Fee Invoice</p></td>
+        <td style="text-align:right;vertical-align:top"><h2 style="margin:0;color:#1e293b">INVOICE</h2><p style="font-family:monospace;font-size:13px">${inv.invoice_code}</p><p style="font-size:13px">${fmtDate(inv.creation_timestamp)}</p>
+        <span style="padding:4px 12px;border-radius:20px;font-size:12px;background:${statusBg};color:${statusColor}">${sc.label.toUpperCase()}</span></td>
+      </tr></table>
+      <table style="border:none;margin:8px 0"><tr>
+        <td style="border:none;padding:0"><h4 style="margin:0;font-size:13px;color:#666">BILL TO</h4>
+        <p style="font-size:14px;font-weight:bold;margin:4px 0">${inv.student?.name || 'Unknown'}</p>
+        <p style="font-size:12px;color:#666">${inv.student?.student_code || ''}<br/>${inv.class_name || ''}</p></td>
+        <td style="border:none;padding:0;text-align:right"><h4 style="margin:0;font-size:13px;color:#666">DETAILS</h4>
+        <p style="font-size:12px;margin:4px 0"><strong>Term:</strong> ${inv.term} &nbsp; <strong>Year:</strong> ${inv.year}</p></td>
+      </tr></table>
+      <hr style="margin:12px 0;border-color:#e2e8f0">
       <table><thead><tr><th>Description</th><th style="text-align:right">Amount (GHS)</th></tr></thead>
       <tbody><tr><td>${inv.description || inv.title}</td><td style="text-align:right">${fmt(inv.amount)}</td></tr>
       ${inv.discount > 0 ? `<tr><td>Discount</td><td style="text-align:right;color:#059669">-${fmt(inv.discount)}</td></tr>` : ''}
@@ -528,6 +552,56 @@ export default function InvoicesPage() {
     setList(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
   };
   const getSelectedTotal = (items: number[]) => billItems.filter((i) => items.includes(i.id)).reduce((s, i) => s + i.amount, 0);
+
+  // ===== RECEIPTS =====
+  const fetchReceipts = useCallback(async () => {
+    setReceiptsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (receiptsSearch) params.set('search', receiptsSearch);
+      if (receiptsMethod) params.set('method', receiptsMethod);
+      if (receiptsStartDate) params.set('startDate', receiptsStartDate);
+      if (receiptsEndDate) params.set('endDate', receiptsEndDate);
+      params.set('page', String(receiptsPage));
+      params.set('limit', '15');
+      const res = await fetch(`/api/admin/payments?${params}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setReceipts(data.payments || []);
+      setReceiptsTotalPages(data.pagination?.totalPages || 1);
+      setReceiptsTotal(data.pagination?.total || 0);
+      setReceiptsSummary(data.summary || { totalCollected: 0, todayTotal: 0, monthTotal: 0 });
+    } catch { toast.error('Failed to load receipts'); } finally { setReceiptsLoading(false); }
+  }, [receiptsSearch, receiptsMethod, receiptsStartDate, receiptsEndDate, receiptsPage]);
+
+  useEffect(() => { if (mainTab === 'receipts') fetchReceipts(); }, [fetchReceipts, mainTab]);
+  useEffect(() => { setReceiptsPage(1); }, [receiptsSearch, receiptsMethod, receiptsStartDate, receiptsEndDate]);
+
+  const handlePrintReceipt = (r: Receipt) => {
+    const w = window.open('', '_blank');
+    if (!w) return;
+    w.document.write(`<html><head><title>Receipt ${r.receipt_code}</title>
+      <style>body{font-family:Arial;padding:40px;color:#333;max-width:600px;margin:0 auto;text-align:center}
+      .receipt{border:2px dashed #ccc;padding:30px;border-radius:8px}
+      h2{color:#059669;margin:0}table{width:100%;border-collapse:collapse;margin:20px 0}
+      th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+      .amount{font-size:24px;font-weight:bold;color:#059669}
+      @media print{body{padding:20px}}</style></head><body>
+      <div class="receipt"><h2>RECEIPT</h2>
+      <p style="font-family:monospace;font-size:12px;color:#666">${r.receipt_code}</p>
+      <hr style="margin:16px 0;border:none;border-top:1px solid #ccc">
+      <p><strong>${r.student?.name || 'Student'}</strong></p>
+      <p style="font-size:12px;color:#666">${r.student?.student_code || ''}</p>
+      <p style="font-size:12px;color:#666">${r.title || ''}</p>
+      <div class="amount">GHS ${r.amount.toFixed(2)}</div>
+      <p style="font-size:12px;color:#666">Method: ${(r.payment_method || '').replace(/_/g, ' ')}</p>
+      <p style="font-size:12px;color:#666">${r.timestamp ? new Date(r.timestamp).toLocaleString() : ''}</p>
+      <hr style="margin:16px 0;border:none;border-top:1px solid #ccc">
+      <p style="font-size:11px;color:#999">Thank you for your payment</p></div>
+      </body></html>`);
+    w.document.close();
+    setTimeout(() => w.print(), 300);
+  };
 
   // ===== RENDER ========
   return (
@@ -662,6 +736,16 @@ export default function InvoicesPage() {
                     <SelectItem value="Term 3">Term 3</SelectItem>
                   </SelectContent>
                 </Select>
+                <Select value={status || '__all__'} onValueChange={(v) => { if (v === '__all__') { setStatus(''); setActiveTab('all'); } else { setStatus(v); setActiveTab(v); } }}>
+                  <SelectTrigger className="w-[130px] h-10"><SelectValue placeholder="All Status" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">All Status</SelectItem>
+                    <SelectItem value="paid">Paid</SelectItem>
+                    <SelectItem value="unpaid">Unpaid</SelectItem>
+                    <SelectItem value="partial">Partial</SelectItem>
+                    <SelectItem value="overdue">Overdue</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -749,12 +833,13 @@ export default function InvoicesPage() {
                         <TableRow className="bg-slate-50/80">
                           <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider w-[130px]">Invoice #</TableHead>
                           <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Student</TableHead>
-                          <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Class</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Title</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden xl:table-cell">Class</TableHead>
                           <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Amount</TableHead>
                           <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Paid</TableHead>
                           <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Balance</TableHead>
                           <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider w-[100px]">Status</TableHead>
-                          <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden xl:table-cell">Date</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden 2xl:table-cell">Date</TableHead>
                           <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-right w-[180px]">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -764,18 +849,19 @@ export default function InvoicesPage() {
                             <TableRow key={i}>
                               <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                               <TableCell><Skeleton className="h-4 w-32" /><Skeleton className="h-3 w-20 mt-1" /></TableCell>
-                              <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-16" /></TableCell>
+                              <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-28" /></TableCell>
+                              <TableCell className="hidden xl:table-cell"><Skeleton className="h-4 w-16" /></TableCell>
                               <TableCell className="text-right"><Skeleton className="h-4 w-20 ml-auto" /></TableCell>
                               <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
                               <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
                               <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
-                              <TableCell className="hidden xl:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
+                              <TableCell className="hidden 2xl:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
                               <TableCell className="text-right"><Skeleton className="h-8 w-28 ml-auto" /></TableCell>
                             </TableRow>
                           ))
                         ) : invoices.length === 0 ? (
                           <TableRow>
-                            <TableCell colSpan={9} className="h-[320px]">
+                            <TableCell colSpan={10} className="h-[320px]">
                               <div className="flex flex-col items-center justify-center text-slate-400">
                                 <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
                                   <FileText className="w-8 h-8 text-slate-300" />
@@ -806,7 +892,11 @@ export default function InvoicesPage() {
                                 <p className="font-medium text-sm text-slate-900">{inv.student?.name || 'Unknown'}</p>
                                 <p className="text-xs text-slate-400">{inv.student?.student_code}</p>
                               </TableCell>
-                              <TableCell className="hidden lg:table-cell text-sm text-slate-600">{inv.class_name || '\u2014'}</TableCell>
+                              <TableCell className="hidden lg:table-cell">
+                                <p className="text-sm text-slate-700 truncate max-w-[200px]">{inv.title || '\u2014'}</p>
+                                <p className="text-xs text-slate-400 truncate max-w-[200px]">{inv.description}</p>
+                              </TableCell>
+                              <TableCell className="hidden xl:table-cell text-sm text-slate-600">{inv.class_name || '\u2014'}</TableCell>
                               <TableCell className="text-right text-sm font-mono text-slate-700">{fmt(inv.amount)}</TableCell>
                               <TableCell className="text-right text-sm font-mono text-emerald-600 font-medium">{fmt(inv.amount_paid)}</TableCell>
                               <TableCell className="text-right text-sm font-mono font-semibold text-red-600">{fmt(inv.due)}</TableCell>
@@ -816,7 +906,7 @@ export default function InvoicesPage() {
                                   {sc.label}
                                 </Badge>
                               </TableCell>
-                              <TableCell className="hidden xl:table-cell text-xs text-slate-500">{fmtDate(inv.creation_timestamp)}</TableCell>
+                              <TableCell className="hidden 2xl:table-cell text-xs text-slate-500">{fmtDate(inv.creation_timestamp)}</TableCell>
                               <TableCell className="text-right">
                                 <div className="flex items-center justify-end gap-1 opacity-100">
                                   {inv.due > 0 && (
@@ -900,6 +990,7 @@ export default function InvoicesPage() {
                                       <p className="font-medium text-sm text-slate-900 truncate">{inv.student?.name || 'Unknown'}</p>
                                     </div>
                                     <p className="text-xs text-slate-400">{inv.invoice_code} &middot; {inv.class_name || 'No class'}</p>
+                                    {inv.title && <p className="text-xs text-slate-500 truncate mt-0.5">{inv.title}</p>}
                                   </div>
                                   <Badge variant="outline" className={`${sc.className} text-xs gap-1.5 px-2 shrink-0`}>
                                     <span className={`w-1.5 h-1.5 rounded-full ${sc.dotColor}`} />
@@ -1350,43 +1441,42 @@ export default function InvoicesPage() {
             </div>
           ) : viewInvoice ? (
             <div className="space-y-4">
-              {/* Status banner */}
-              <div className={`rounded-lg p-3 flex items-center justify-between ${
-                viewInvoice.status === 'paid' ? 'bg-emerald-50 border border-emerald-200' :
-                viewInvoice.due > 0 ? 'bg-red-50 border border-red-200' : 'bg-amber-50 border border-amber-200'
-              }`}>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className={statusConfig[viewInvoice.status]?.className}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${statusConfig[viewInvoice.status]?.dotColor}`} />
-                    {statusConfig[viewInvoice.status]?.label}
-                  </Badge>
-                  <span className="text-xs text-slate-500">{viewInvoice.invoice_code}</span>
+              {/* CI3-style Invoice Header: Payment To / Bill To */}
+              <div className="border rounded-xl p-4 bg-slate-50">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Payment To</p>
+                    <p className="font-bold text-slate-900 text-sm">School Manager</p>
+                    <p className="text-xs text-slate-500">School Fee Invoice</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Bill To</p>
+                    <p className="font-bold text-slate-900 text-sm">{viewInvoice.student?.name || 'Unknown'}</p>
+                    <p className="text-xs text-slate-500 font-mono">{viewInvoice.student?.student_code}</p>
+                    <p className="text-xs text-slate-500">{viewInvoice.class_name || '\u2014'} {viewInvoice.class?.name_numeric || ''}</p>
+                  </div>
                 </div>
-                {viewInvoice.due > 0 ? (
-                  <span className="font-bold text-red-600">{fmt(viewInvoice.due)} outstanding</span>
-                ) : (
-                  <span className="font-bold text-emerald-600">Fully paid</span>
-                )}
-              </div>
-
-              {/* Invoice Header Info */}
-              <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-                <div>
-                  <p className="text-xs text-slate-400 mb-0.5">Student</p>
-                  <p className="font-medium">{viewInvoice.student?.name}</p>
-                  <p className="text-xs text-slate-400 font-mono">{viewInvoice.student?.student_code}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400 mb-0.5">Class</p>
-                  <p className="font-medium">{viewInvoice.class_name || '\u2014'}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400 mb-0.5">Term / Year</p>
-                  <p>{viewInvoice.term} \u2014 {viewInvoice.year}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400 mb-0.5">Created</p>
-                  <p>{fmtDate(viewInvoice.creation_timestamp)}</p>
+                <Separator className="my-3" />
+                <div className="grid grid-cols-4 gap-2 text-xs">
+                  <div>
+                    <p className="text-slate-400">Invoice #</p>
+                    <p className="font-mono font-semibold text-slate-700">{viewInvoice.invoice_code}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-400">Date</p>
+                    <p className="font-semibold text-slate-700">{fmtDate(viewInvoice.creation_timestamp)}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-400">Status</p>
+                    <Badge variant="outline" className={`${statusConfig[viewInvoice.status]?.className} text-xs gap-1 mt-0.5`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${statusConfig[viewInvoice.status]?.dotColor}`} />
+                      {statusConfig[viewInvoice.status]?.label}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-slate-400">Year | Term</p>
+                    <p className="font-semibold text-slate-700">{viewInvoice.year?.split('-')[1]} | {viewInvoice.term}</p>
+                  </div>
                 </div>
               </div>
 
@@ -1479,6 +1569,14 @@ export default function InvoicesPage() {
             <DialogDescription>Update invoice details. Changes are saved immediately.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Student name (readonly, CI3 parity) */}
+            <div className="border rounded-lg p-3 bg-slate-50">
+              <p className="text-xs text-slate-400 mb-0.5">Student</p>
+              <p className="font-semibold text-slate-900">{editInvoice?.student?.name || 'Unknown'}</p>
+              <p className="text-xs text-slate-400 font-mono">{editInvoice?.invoice_code}</p>
+            </div>
+
+            {/* Title + Description */}
             <div>
               <Label className="text-xs font-medium text-slate-500">Title</Label>
               <Input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} className="mt-1 h-10" />
@@ -1487,6 +1585,8 @@ export default function InvoicesPage() {
               <Label className="text-xs font-medium text-slate-500">Description</Label>
               <Textarea value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} className="mt-1 min-h-[60px]" />
             </div>
+
+            {/* Amount + Discount + Status */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs font-medium text-slate-500">Amount (GHS)</Label>
@@ -1496,6 +1596,36 @@ export default function InvoicesPage() {
                 <Label className="text-xs font-medium text-slate-500">Discount (GHS)</Label>
                 <Input type="number" value={editForm.discount} onChange={(e) => setEditForm({ ...editForm, discount: parseFloat(e.target.value) || 0 })} className="mt-1 h-10" />
               </div>
+            </div>
+
+            {/* Amount Paid (readonly) + Status (auto-calculated, CI3 parity) */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs font-medium text-slate-500">Amount Paid</Label>
+                <div className="mt-1 h-10 rounded-md border bg-slate-50 px-3 flex items-center text-sm font-mono text-emerald-600 font-medium">
+                  {fmt(editInvoice?.amount_paid || 0)}
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs font-medium text-slate-500">Status</Label>
+                <div className={`mt-1 h-10 rounded-md border px-3 flex items-center text-sm font-semibold ${
+                  editInvoice?.status === 'paid' ? 'bg-emerald-100 border-emerald-300 text-emerald-700' :
+                  editInvoice?.status === 'partial' ? 'bg-amber-100 border-amber-300 text-amber-700' :
+                  'bg-red-100 border-red-300 text-red-700'
+                }`}>
+                  {editInvoice?.status ? editInvoice.status.charAt(0).toUpperCase() + editInvoice.status.slice(1) : 'Unknown'}
+                </div>
+              </div>
+            </div>
+
+            {/* Due amount summary */}
+            <div className={`rounded-lg p-3 text-sm flex items-center justify-between ${
+              (editForm.amount - editForm.discount - (editInvoice?.amount_paid || 0)) > 0
+                ? 'bg-red-50 border border-red-200 text-red-700'
+                : 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+            }`}>
+              <span className="font-medium">Balance Due:</span>
+              <span className="font-bold font-mono">{fmt(Math.max(0, editForm.amount - editForm.discount - (editInvoice?.amount_paid || 0)))}</span>
             </div>
           </div>
           <DialogFooter className="gap-2">

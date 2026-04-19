@@ -9,41 +9,24 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import {
-  Palette, Sun, Moon, Monitor, Type, Upload, Check, Save,
-  Eye, RefreshCw, Layout, Maximize2, MessageCircle,
+  Palette, Save, RefreshCw, Check, Eye, SwatchBook, Paintbrush,
+  Type, Layout, Maximize2, Monitor, Undo2,
 } from 'lucide-react';
 
-interface ThemeSettings {
-  primaryColor: string;
-  accentColor: string;
-  fontFamily: string;
-  fontSize: string;
-  sidebarPosition: 'left' | 'right';
-  sidebarStyle: 'full' | 'compact' | 'icon-only';
-  layout: 'wide' | 'boxed' | 'fluid';
-  showLogo: boolean;
-  showFooter: boolean;
-  showBreadcrumb: boolean;
-  enableAnimations: boolean;
-  enableDarkMode: boolean;
-  schoolName: string;
-  tagline: string;
-  logoUrl: string;
-  faviconUrl: string;
-}
-
-const COLOR_PRESETS = [
-  { name: 'Emerald', primary: '#059669', accent: '#10b981' },
-  { name: 'Blue', primary: '#2563eb', accent: '#3b82f6' },
-  { name: 'Indigo', primary: '#4f46e5', accent: '#6366f1' },
-  { name: 'Purple', primary: '#7c3aed', accent: '#8b5cf6' },
-  { name: 'Rose', primary: '#e11d48', accent: '#f43f5e' },
-  { name: 'Amber', primary: '#d97706', accent: '#f59e0b' },
-  { name: 'Teal', primary: '#0d9488', accent: '#14b8a6' },
-  { name: 'Orange', primary: '#ea580c', accent: '#f97316' },
+// CI3 predefined themes (matching theme_settings.php)
+const PREDEFINED_THEMES = [
+  { key: 'default', name: 'Default Blue', primary: '#667eea', secondary: '#764ba2', accent: '#f093fb' },
+  { key: 'ocean', name: 'Ocean Blue', primary: '#2E3192', secondary: '#1BFFFF', accent: '#00d4ff' },
+  { key: 'sunset', name: 'Sunset Orange', primary: '#f12711', secondary: '#f5af19', accent: '#ff6b6b' },
+  { key: 'forest', name: 'Forest Green', primary: '#134E5E', secondary: '#71B280', accent: '#38ef7d' },
+  { key: 'purple', name: 'Royal Purple', primary: '#5f27cd', secondary: '#341f97', accent: '#a29bfe' },
+  { key: 'crimson', name: 'Crimson Red', primary: '#c0392b', secondary: '#e74c3c', accent: '#ff7979' },
+  { key: 'teal', name: 'Teal Mint', primary: '#16a085', secondary: '#1abc9c', accent: '#48c9b0' },
+  { key: 'midnight', name: 'Midnight Blue', primary: '#2c3e50', secondary: '#34495e', accent: '#3498db' },
 ];
 
 const FONT_OPTIONS = [
@@ -55,96 +38,131 @@ const FONT_OPTIONS = [
   { label: 'Nunito', value: 'nunito' },
 ];
 
+const LAYOUT_OPTIONS = [
+  { value: 'wide', label: 'Wide', desc: 'Full width' },
+  { value: 'boxed', label: 'Boxed', desc: 'Max width' },
+  { value: 'fluid', label: 'Fluid', desc: 'Responsive' },
+];
+
+const SIDEBAR_OPTIONS = [
+  { value: 'full', label: 'Full', desc: 'With labels' },
+  { value: 'compact', label: 'Compact', desc: 'Small icons + labels' },
+  { value: 'icon-only', label: 'Icon Only', desc: 'No labels' },
+];
+
+interface ThemeSettings {
+  app_theme: string;
+  theme_primary: string;
+  theme_secondary: string;
+  theme_accent: string;
+  fontFamily: string;
+  fontSize: string;
+  sidebarStyle: string;
+  layout: string;
+  showLogo: boolean;
+  showFooter: boolean;
+  showBreadcrumb: boolean;
+  enableAnimations: boolean;
+  enableDarkMode: boolean;
+}
+
+const DEFAULT_THEME: ThemeSettings = {
+  app_theme: 'default',
+  theme_primary: '#667eea',
+  theme_secondary: '#764ba2',
+  theme_accent: '#f093fb',
+  fontFamily: 'inter',
+  fontSize: 'medium',
+  sidebarStyle: 'full',
+  layout: 'wide',
+  showLogo: true,
+  showFooter: true,
+  showBreadcrumb: true,
+  enableAnimations: true,
+  enableDarkMode: false,
+};
+
 export default function ThemeSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('colors');
-  const [settings, setSettings] = useState<ThemeSettings>({
-    primaryColor: '#059669',
-    accentColor: '#10b981',
-    fontFamily: 'inter',
-    fontSize: 'medium',
-    sidebarPosition: 'left',
-    sidebarStyle: 'full',
-    layout: 'wide',
-    showLogo: true,
-    showFooter: true,
-    showBreadcrumb: true,
-    enableAnimations: true,
-    enableDarkMode: false,
-    schoolName: '',
-    tagline: '',
-    logoUrl: '',
-    faviconUrl: '',
-  });
+  const [activeTab, setActiveTab] = useState('presets');
+  const [settings, setSettings] = useState<ThemeSettings>({ ...DEFAULT_THEME });
+  const [previewTheme, setPreviewTheme] = useState<string | null>(null);
 
   const fetchSettings = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/settings?section=theme');
+      const res = await fetch('/api/admin/settings');
       if (res.ok) {
         const data = await res.json();
-        if (data.settings) {
-          setSettings(prev => ({ ...prev, ...data.settings }));
-        }
+        const map = data.map || {};
+        setSettings(prev => ({
+          ...prev,
+          app_theme: map.app_theme || 'default',
+          theme_primary: map.theme_primary || '#667eea',
+          theme_secondary: map.theme_secondary || '#764ba2',
+          theme_accent: map.theme_accent || '#f093fb',
+        }));
       }
     } catch {
-      // Use defaults on error
+      // Use defaults
     }
     setLoading(false);
   }, []);
 
-  useEffect(() => { fetchSettings(); }, [fetchSettings]);
+  useEffect(() => {
+    const load = async () => { await fetchSettings(); };
+    load();
+  }, [fetchSettings]);
 
-  const saveSettings = async (section: string) => {
+  const saveSettings = async (themeData: Partial<ThemeSettings>) => {
     setSaving(true);
     try {
-      const res = await fetch('/api/settings', {
-        method: 'PUT',
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ section, settings }),
+        body: JSON.stringify({ settings: themeData }),
       });
       if (res.ok) {
-        toast.success(`${section} settings saved successfully`);
+        toast.success('Theme saved successfully');
+        fetchSettings();
       } else {
-        toast.error('Failed to save settings');
+        toast.error('Failed to save theme');
       }
     } catch {
-      toast.error('Network error while saving');
+      toast.error('Network error');
     }
     setSaving(false);
   };
 
-  const applyPreset = (preset: typeof COLOR_PRESETS[0]) => {
-    setSettings(prev => ({
-      ...prev,
-      primaryColor: preset.primary,
-      accentColor: preset.accent,
-    }));
-    toast.success(`Applied ${preset.name} color preset`);
+  const applyPreset = async (theme: typeof PREDEFINED_THEMES[0]) => {
+    const data = {
+      app_theme: theme.key,
+      theme_primary: theme.primary,
+      theme_secondary: theme.secondary,
+      theme_accent: theme.accent,
+    };
+    setSettings(prev => ({ ...prev, ...data }));
+    await saveSettings(data);
+  };
+
+  const saveCustomTheme = async () => {
+    await saveSettings({
+      theme_primary: settings.theme_primary,
+      theme_secondary: settings.theme_secondary,
+      theme_accent: settings.theme_accent,
+      app_theme: 'custom',
+    });
   };
 
   const resetToDefault = () => {
-    setSettings({
-      primaryColor: '#059669',
-      accentColor: '#10b981',
-      fontFamily: 'inter',
-      fontSize: 'medium',
-      sidebarPosition: 'left',
-      sidebarStyle: 'full',
-      layout: 'wide',
-      showLogo: true,
-      showFooter: true,
-      showBreadcrumb: true,
-      enableAnimations: true,
-      enableDarkMode: false,
-      schoolName: '',
-      tagline: '',
-      logoUrl: '',
-      faviconUrl: '',
-    });
-    toast.info('Reset to default theme settings');
+    setSettings({ ...DEFAULT_THEME });
+    toast.info('Reset to default theme');
   };
+
+  const activeColors = previewTheme
+    ? PREDEFINED_THEMES.find(t => t.key === previewTheme) || settings
+    : settings;
 
   if (loading) {
     return (
@@ -171,12 +189,8 @@ export default function ThemeSettingsPage() {
             <p className="text-sm text-slate-500 mt-1">Customize the appearance and branding of your school portal</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={resetToDefault}>
-              <RefreshCw className="w-4 h-4 mr-2" />Reset Defaults
-            </Button>
-            <Button size="sm" onClick={() => saveSettings('theme')} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
-              {saving ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              Save All
+            <Button variant="outline" size="sm" onClick={resetToDefault} className="min-h-[44px]">
+              <Undo2 className="w-4 h-4 mr-2" /> Reset Defaults
             </Button>
           </div>
         </div>
@@ -184,98 +198,158 @@ export default function ThemeSettingsPage() {
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-slate-100 p-1">
-            <TabsTrigger value="colors" className="data-[state=active]:bg-white"><Palette className="w-4 h-4 mr-2" />Colors</TabsTrigger>
+            <TabsTrigger value="presets" className="data-[state=active]:bg-white"><SwatchBook className="w-4 h-4 mr-2" />Presets</TabsTrigger>
+            <TabsTrigger value="custom" className="data-[state=active]:bg-white"><Paintbrush className="w-4 h-4 mr-2" />Custom</TabsTrigger>
             <TabsTrigger value="typography" className="data-[state=active]:bg-white"><Type className="w-4 h-4 mr-2" />Typography</TabsTrigger>
             <TabsTrigger value="layout" className="data-[state=active]:bg-white"><Layout className="w-4 h-4 mr-2" />Layout</TabsTrigger>
-            <TabsTrigger value="branding" className="data-[state=active]:bg-white"><Upload className="w-4 h-4 mr-2" />Branding</TabsTrigger>
-            <TabsTrigger value="features" className="data-[state=active]:bg-white"><Maximize2 className="w-4 h-4 mr-2" />Features</TabsTrigger>
+            <TabsTrigger value="preview" className="data-[state=active]:bg-white"><Eye className="w-4 h-4 mr-2" />Preview</TabsTrigger>
           </TabsList>
 
-          {/* Colors Tab */}
-          <TabsContent value="colors" className="space-y-6">
+          {/* ═══ Presets Tab — CI3 theme cards with gradient previews ═══ */}
+          <TabsContent value="presets" className="space-y-6">
+            <Card className="border-slate-200/60">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <SwatchBook className="w-5 h-5 text-emerald-600" /> Predefined Themes
+                </CardTitle>
+                <CardDescription>Choose from professionally designed color schemes</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {PREDEFINED_THEMES.map(theme => {
+                    const isActive = settings.app_theme === theme.key;
+                    return (
+                      <button
+                        key={theme.key}
+                        onClick={() => applyPreset(theme)}
+                        className={`rounded-xl border-2 overflow-hidden transition-all hover:scale-[1.02] hover:shadow-lg text-left ${
+                          isActive ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-200 hover:border-slate-300'
+                        }`}
+                      >
+                        {/* Gradient preview — matching CI3 */}
+                        <div
+                          className="h-24 relative flex items-end p-2"
+                          style={{ background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)` }}
+                        >
+                          <div
+                            className="w-full h-6 rounded opacity-90"
+                            style={{ backgroundColor: theme.accent }}
+                          />
+                        </div>
+                        {/* Theme name */}
+                        <div className="px-3 py-2.5 bg-white flex items-center justify-between">
+                          <span className="text-xs font-semibold text-slate-700">{theme.name}</span>
+                          {isActive && <Check className="w-4 h-4 text-emerald-600" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ═══ Custom Tab — color pickers like CI3 ═══ */}
+          <TabsContent value="custom" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="border-slate-200/60">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Color Presets</CardTitle>
-                  <CardDescription>Choose from professionally designed color schemes</CardDescription>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Paintbrush className="w-5 h-5 text-violet-600" /> Custom Colors
+                  </CardTitle>
+                  <CardDescription>Define your own brand colors</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-4 gap-3">
-                    {COLOR_PRESETS.map(preset => (
-                      <button
-                        key={preset.name}
-                        onClick={() => applyPreset(preset)}
-                        className={`p-3 rounded-lg border-2 transition-all hover:scale-105 ${
-                          settings.primaryColor === preset.primary
-                            ? 'border-slate-900 ring-2 ring-slate-900/20'
-                            : 'border-slate-200 hover:border-slate-300'
-                        }`}
-                      >
-                        <div className="flex gap-1 mb-2">
-                          <div className="w-6 h-6 rounded-full" style={{ backgroundColor: preset.primary }} />
-                          <div className="w-6 h-6 rounded-full" style={{ backgroundColor: preset.accent }} />
-                        </div>
-                        <p className="text-[10px] font-medium text-slate-600">{preset.name}</p>
-                      </button>
-                    ))}
+                <CardContent className="space-y-4">
+                  {/* Primary */}
+                  <div>
+                    <Label className="text-sm font-medium text-slate-700 mb-1.5 block">Primary Color</Label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={settings.theme_primary}
+                        onChange={e => setSettings(prev => ({ ...prev, theme_primary: e.target.value }))}
+                        className="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer"
+                      />
+                      <Input
+                        value={settings.theme_primary}
+                        onChange={e => setSettings(prev => ({ ...prev, theme_primary: e.target.value }))}
+                        className="flex-1 font-mono text-sm"
+                      />
+                      <div className="w-10 h-10 rounded-lg border" style={{ backgroundColor: settings.theme_primary }} />
+                    </div>
+                  </div>
+                  {/* Secondary */}
+                  <div>
+                    <Label className="text-sm font-medium text-slate-700 mb-1.5 block">Secondary Color</Label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={settings.theme_secondary}
+                        onChange={e => setSettings(prev => ({ ...prev, theme_secondary: e.target.value }))}
+                        className="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer"
+                      />
+                      <Input
+                        value={settings.theme_secondary}
+                        onChange={e => setSettings(prev => ({ ...prev, theme_secondary: e.target.value }))}
+                        className="flex-1 font-mono text-sm"
+                      />
+                      <div className="w-10 h-10 rounded-lg border" style={{ backgroundColor: settings.theme_secondary }} />
+                    </div>
+                  </div>
+                  {/* Accent */}
+                  <div>
+                    <Label className="text-sm font-medium text-slate-700 mb-1.5 block">Accent Color</Label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={settings.theme_accent}
+                        onChange={e => setSettings(prev => ({ ...prev, theme_accent: e.target.value }))}
+                        className="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer"
+                      />
+                      <Input
+                        value={settings.theme_accent}
+                        onChange={e => setSettings(prev => ({ ...prev, theme_accent: e.target.value }))}
+                        className="flex-1 font-mono text-sm"
+                      />
+                      <div className="w-10 h-10 rounded-lg border" style={{ backgroundColor: settings.theme_accent }} />
+                    </div>
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <Button onClick={saveCustomTheme} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]">
+                      {saving ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                      Apply Custom Theme
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
 
+              {/* Live preview card */}
               <Card className="border-slate-200/60">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Custom Colors</CardTitle>
-                  <CardDescription>Or define your own brand colors</CardDescription>
+                  <CardTitle className="text-base">Live Preview</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium text-slate-700">Primary Color</Label>
-                    <div className="flex items-center gap-3 mt-1">
-                      <input
-                        type="color"
-                        value={settings.primaryColor}
-                        onChange={e => setSettings(prev => ({ ...prev, primaryColor: e.target.value }))}
-                        className="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer"
-                      />
-                      <Input
-                        value={settings.primaryColor}
-                        onChange={e => setSettings(prev => ({ ...prev, primaryColor: e.target.value }))}
-                        className="flex-1 font-mono text-sm"
-                        placeholder="#059669"
-                      />
-                      <div className="w-10 h-10 rounded-lg border" style={{ backgroundColor: settings.primaryColor }} />
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="rounded-xl p-4 text-white" style={{ background: `linear-gradient(135deg, ${settings.theme_primary} 0%, ${settings.theme_secondary} 100%)` }}>
+                      <p className="text-sm font-semibold">Primary Gradient</p>
+                      <p className="text-xs opacity-75 mt-1">Used for headers, buttons, and active states</p>
                     </div>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-slate-700">Accent Color</Label>
-                    <div className="flex items-center gap-3 mt-1">
-                      <input
-                        type="color"
-                        value={settings.accentColor}
-                        onChange={e => setSettings(prev => ({ ...prev, accentColor: e.target.value }))}
-                        className="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer"
-                      />
-                      <Input
-                        value={settings.accentColor}
-                        onChange={e => setSettings(prev => ({ ...prev, accentColor: e.target.value }))}
-                        className="flex-1 font-mono text-sm"
-                        placeholder="#10b981"
-                      />
-                      <div className="w-10 h-10 rounded-lg border" style={{ backgroundColor: settings.accentColor }} />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-xl p-4 text-white" style={{ backgroundColor: settings.theme_primary }}>
+                        <p className="text-sm font-semibold">Primary</p>
+                      </div>
+                      <div className="rounded-xl p-4 text-white" style={{ backgroundColor: settings.theme_secondary }}>
+                        <p className="text-sm font-semibold">Secondary</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="pt-2">
-                    <Label className="text-sm font-medium text-slate-700 mb-2 block">Preview</Label>
-                    <div className="space-y-2">
-                      <div className="flex gap-2">
-                        <div className="px-4 py-2 text-white rounded-lg text-sm font-medium" style={{ backgroundColor: settings.primaryColor }}>Primary Button</div>
-                        <div className="px-4 py-2 rounded-lg text-sm font-medium border" style={{ borderColor: settings.primaryColor, color: settings.primaryColor }}>Outline Button</div>
-                      </div>
-                      <div className="flex gap-2">
-                        <div className="px-4 py-2 text-white rounded-lg text-sm font-medium" style={{ backgroundColor: settings.accentColor }}>Accent Button</div>
-                        <Badge style={{ backgroundColor: settings.primaryColor }}>Status Badge</Badge>
-                        <Badge variant="outline" style={{ borderColor: settings.accentColor, color: settings.accentColor }}>Info Badge</Badge>
-                      </div>
+                    <div className="rounded-xl p-4 border-2" style={{ borderColor: settings.theme_accent }}>
+                      <p className="text-sm font-semibold" style={{ color: settings.theme_accent }}>Accent Color</p>
+                      <p className="text-xs text-slate-500 mt-1">Used for badges, links, highlights</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="px-4 py-2 text-white rounded-lg text-xs font-medium" style={{ backgroundColor: settings.theme_primary }}>Primary Button</div>
+                      <div className="px-4 py-2 rounded-lg text-xs font-medium border-2" style={{ borderColor: settings.theme_primary, color: settings.theme_primary }}>Outline Button</div>
+                      <div className="px-4 py-2 text-white rounded-lg text-xs font-medium" style={{ backgroundColor: settings.theme_accent }}>Accent</div>
                     </div>
                   </div>
                 </CardContent>
@@ -283,19 +357,18 @@ export default function ThemeSettingsPage() {
             </div>
           </TabsContent>
 
-          {/* Typography Tab */}
+          {/* ═══ Typography Tab ═══ */}
           <TabsContent value="typography" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="border-slate-200/60">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">Font Settings</CardTitle>
-                  <CardDescription>Configure typography across the portal</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium text-slate-700">Font Family</Label>
+                    <Label className="text-sm font-medium text-slate-700 mb-1 block">Font Family</Label>
                     <Select value={settings.fontFamily} onValueChange={v => setSettings(prev => ({ ...prev, fontFamily: v }))}>
-                      <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {FONT_OPTIONS.map(f => (
                           <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
@@ -304,12 +377,12 @@ export default function ThemeSettingsPage() {
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-slate-700">Base Font Size</Label>
+                    <Label className="text-sm font-medium text-slate-700 mb-1 block">Base Font Size</Label>
                     <Select value={settings.fontSize} onValueChange={v => setSettings(prev => ({ ...prev, fontSize: v }))}>
-                      <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="small">Small (14px)</SelectItem>
-                        <SelectItem value="medium">Medium (16px) - Default</SelectItem>
+                        <SelectItem value="medium">Medium (16px) — Default</SelectItem>
                         <SelectItem value="large">Large (18px)</SelectItem>
                       </SelectContent>
                     </Select>
@@ -319,23 +392,22 @@ export default function ThemeSettingsPage() {
 
               <Card className="border-slate-200/60">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Preview</CardTitle>
-                  <CardDescription>See how your typography looks</CardDescription>
+                  <CardTitle className="text-base">Typography Preview</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3 p-4 bg-slate-50 rounded-lg">
-                    <h1 className="text-2xl font-bold text-slate-900">Heading 1 - Dashboard</h1>
-                    <h2 className="text-lg font-semibold text-slate-800">Heading 2 - Student Management</h2>
-                    <h3 className="text-base font-medium text-slate-700">Heading 3 - Class List</h3>
-                    <p className="text-sm text-slate-600">Body text - The quick brown fox jumps over the lazy dog. GHS 1,250.00 received from student fees.</p>
-                    <p className="text-xs text-slate-500">Caption text - Last updated: April 16, 2026 at 10:30 AM</p>
+                    <h1 className="text-2xl font-bold text-slate-900">Heading 1 — Dashboard</h1>
+                    <h2 className="text-lg font-semibold text-slate-800">Heading 2 — Student Management</h2>
+                    <h3 className="text-base font-medium text-slate-700">Heading 3 — Class List</h3>
+                    <p className="text-sm text-slate-600">Body text — The quick brown fox jumps over the lazy dog. GHS 1,250.00 received.</p>
+                    <p className="text-xs text-slate-500">Caption — Last updated: April 16, 2026 at 10:30 AM</p>
                   </div>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
-          {/* Layout Tab */}
+          {/* ═══ Layout Tab ═══ */}
           <TabsContent value="layout" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="border-slate-200/60">
@@ -344,35 +416,21 @@ export default function ThemeSettingsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium text-slate-700">Position</Label>
-                    <div className="flex gap-3 mt-2">
-                      {(['left', 'right'] as const).map(pos => (
+                    <Label className="text-sm font-medium text-slate-700 mb-2 block">Style</Label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {SIDEBAR_OPTIONS.map(opt => (
                         <button
-                          key={pos}
-                          onClick={() => setSettings(prev => ({ ...prev, sidebarPosition: pos }))}
-                          className={`flex-1 p-4 rounded-lg border-2 text-center transition-all ${
-                            settings.sidebarPosition === pos
-                              ? 'border-emerald-500 bg-emerald-50'
-                              : 'border-slate-200 hover:border-slate-300'
+                          key={opt.value}
+                          onClick={() => setSettings(prev => ({ ...prev, sidebarStyle: opt.value }))}
+                          className={`p-3 rounded-lg border-2 text-center transition-all ${
+                            settings.sidebarStyle === opt.value ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 hover:border-slate-300'
                           }`}
                         >
-                          <div className={`text-lg font-medium ${settings.sidebarPosition === pos ? 'text-emerald-700' : 'text-slate-600'}`}>
-                            {pos === 'left' ? 'Left' : 'Right'}
-                          </div>
+                          <p className={`text-sm font-medium ${settings.sidebarStyle === opt.value ? 'text-emerald-700' : 'text-slate-600'}`}>{opt.label}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{opt.desc}</p>
                         </button>
                       ))}
                     </div>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-slate-700">Style</Label>
-                    <Select value={settings.sidebarStyle} onValueChange={v => setSettings(prev => ({ ...prev, sidebarStyle: v as ThemeSettings['sidebarStyle'] }))}>
-                      <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="full">Full (with labels)</SelectItem>
-                        <SelectItem value="compact">Compact (small icons + labels)</SelectItem>
-                        <SelectItem value="icon-only">Icon Only</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                 </CardContent>
               </Card>
@@ -383,24 +441,18 @@ export default function ThemeSettingsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium text-slate-700">Layout Mode</Label>
-                    <div className="grid grid-cols-3 gap-3 mt-2">
-                      {([
-                        { value: 'wide', label: 'Wide', desc: 'Full width' },
-                        { value: 'boxed', label: 'Boxed', desc: 'Max width' },
-                        { value: 'fluid', label: 'Fluid', desc: 'Responsive' },
-                      ] as const).map(mode => (
+                    <Label className="text-sm font-medium text-slate-700 mb-2 block">Layout Mode</Label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {LAYOUT_OPTIONS.map(opt => (
                         <button
-                          key={mode.value}
-                          onClick={() => setSettings(prev => ({ ...prev, layout: mode.value }))}
+                          key={opt.value}
+                          onClick={() => setSettings(prev => ({ ...prev, layout: opt.value }))}
                           className={`p-3 rounded-lg border-2 text-center transition-all ${
-                            settings.layout === mode.value
-                              ? 'border-emerald-500 bg-emerald-50'
-                              : 'border-slate-200 hover:border-slate-300'
+                            settings.layout === opt.value ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 hover:border-slate-300'
                           }`}
                         >
-                          <p className={`text-sm font-medium ${settings.layout === mode.value ? 'text-emerald-700' : 'text-slate-600'}`}>{mode.label}</p>
-                          <p className="text-[10px] text-slate-400 mt-1">{mode.desc}</p>
+                          <p className={`text-sm font-medium ${settings.layout === opt.value ? 'text-emerald-700' : 'text-slate-600'}`}>{opt.label}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{opt.desc}</p>
                         </button>
                       ))}
                     </div>
@@ -410,110 +462,47 @@ export default function ThemeSettingsPage() {
             </div>
           </TabsContent>
 
-          {/* Branding Tab */}
-          <TabsContent value="branding" className="space-y-6">
-            <Card className="border-slate-200/60 max-w-2xl">
+          {/* ═══ Preview Tab ═══ */}
+          <TabsContent value="preview" className="space-y-6">
+            <Card className="border-slate-200/60">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">School Branding</CardTitle>
-                <CardDescription>Upload your school logo and customize branding text</CardDescription>
+                <CardTitle className="text-base">Theme Preview</CardTitle>
+                <CardDescription>Preview how the active theme looks across common UI elements</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium text-slate-700">School Name</Label>
-                    <Input
-                      value={settings.schoolName}
-                      onChange={e => setSettings(prev => ({ ...prev, schoolName: e.target.value }))}
-                      className="mt-1"
-                      placeholder="Ghana Education Service School"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-slate-700">Tagline</Label>
-                    <Input
-                      value={settings.tagline}
-                      onChange={e => setSettings(prev => ({ ...prev, tagline: e.target.value }))}
-                      className="mt-1"
-                      placeholder="Excellence in Education"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium text-slate-700">Logo URL</Label>
-                    <Input
-                      value={settings.logoUrl}
-                      onChange={e => setSettings(prev => ({ ...prev, logoUrl: e.target.value }))}
-                      className="mt-1"
-                      placeholder="/uploads/logo.png"
-                    />
-                    <div className="mt-2 p-4 border border-dashed border-slate-300 rounded-lg text-center">
-                      <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-                      <p className="text-xs text-slate-500">Drag & drop or click to upload logo</p>
-                      <p className="text-[10px] text-slate-400 mt-1">Recommended: 200x60px, PNG or SVG</p>
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-slate-700">Favicon URL</Label>
-                    <Input
-                      value={settings.faviconUrl}
-                      onChange={e => setSettings(prev => ({ ...prev, faviconUrl: e.target.value }))}
-                      className="mt-1"
-                      placeholder="/uploads/favicon.ico"
-                    />
-                    <div className="mt-2 p-4 border border-dashed border-slate-300 rounded-lg text-center">
-                      <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-                      <p className="text-xs text-slate-500">Drag & drop or click to upload favicon</p>
-                      <p className="text-[10px] text-slate-400 mt-1">Recommended: 32x32px, ICO or PNG</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Features Tab */}
-          <TabsContent value="features" className="space-y-6">
-            <Card className="border-slate-200/60 max-w-2xl">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Feature Toggles</CardTitle>
-                <CardDescription>Enable or disable portal features</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {[
-                  { key: 'showLogo' as const, label: 'Show School Logo', desc: 'Display the school logo in the sidebar and login page', icon: Eye },
-                  { key: 'showFooter' as const, label: 'Show Footer', desc: 'Display footer with school info and links', icon: MessageCircle },
-                  { key: 'showBreadcrumb' as const, label: 'Show Breadcrumb', desc: 'Display navigation breadcrumbs at the top of pages', icon: Layout },
-                  { key: 'enableAnimations' as const, label: 'Enable Animations', desc: 'Smooth transitions and hover effects throughout the portal', icon: RefreshCw },
-                  { key: 'enableDarkMode' as const, label: 'Enable Dark Mode', desc: 'Allow users to switch to dark theme (coming soon)', icon: Moon },
-                ].map(item => (
-                  <div
-                    key={item.key}
-                    className="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center">
-                        <item.icon className="w-4 h-4 text-slate-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-slate-700">{item.label}</p>
-                        <p className="text-xs text-slate-500">{item.desc}</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setSettings(prev => ({ ...prev, [item.key]: !prev[item.key] }))}
-                      className={`relative w-11 h-6 rounded-full transition-colors ${
-                        settings[item.key] ? 'bg-emerald-500' : 'bg-slate-300'
-                      }`}
+              <CardContent>
+                <div className="space-y-6">
+                  {/* Sidebar preview */}
+                  <div className="flex gap-4">
+                    <div
+                      className="w-48 rounded-xl p-3 text-white space-y-2"
+                      style={{ background: `linear-gradient(180deg, ${activeColors.theme_primary} 0%, ${activeColors.theme_secondary} 100%)` }}
                     >
-                      <span
-                        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                          settings[item.key] ? 'translate-x-5' : 'translate-x-0'
-                        }`}
-                      />
-                    </button>
+                      <div className="h-8 rounded bg-white/20 flex items-center px-2">
+                        <Monitor className="w-4 h-4" />
+                      </div>
+                      {['Dashboard', 'Students', 'Teachers', 'Routine', 'Settings'].map(item => (
+                        <div key={item} className="px-3 py-1.5 rounded text-xs opacity-80 hover:opacity-100 cursor-default">{item}</div>
+                      ))}
+                    </div>
+                    <div className="flex-1 rounded-xl border p-4 space-y-3">
+                      <div className="h-6 w-40 rounded bg-slate-200" />
+                      <div className="h-3 w-64 rounded bg-slate-100" />
+                      <div className="grid grid-cols-3 gap-3">
+                        {[1, 2, 3].map(i => (
+                          <div key={i} className="h-20 rounded-lg border p-2 space-y-1">
+                            <div className="h-3 w-16 rounded bg-slate-100" />
+                            <div className="h-2 w-24 rounded bg-slate-50" />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="px-3 py-1.5 text-white rounded text-[10px]" style={{ backgroundColor: activeColors.theme_primary }}>Button</div>
+                        <div className="px-3 py-1.5 rounded text-[10px] border-2" style={{ borderColor: activeColors.theme_primary, color: activeColors.theme_primary }}>Outline</div>
+                        <div className="px-3 py-1.5 text-white rounded text-[10px]" style={{ backgroundColor: activeColors.theme_accent }}>Accent</div>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

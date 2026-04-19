@@ -10,6 +10,9 @@ export async function GET(req: NextRequest) {
     const endDate = searchParams.get('endDate') || '';
     const year = searchParams.get('year') || '';
     const term = searchParams.get('term') || '';
+    const classId = searchParams.get('classId') || '';
+    const studentId = searchParams.get('studentId') || '';
+    const paymentType = searchParams.get('paymentType') || '';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const action = searchParams.get('action') || '';
@@ -23,7 +26,7 @@ export async function GET(req: NextRequest) {
       const monthStart = new Date(todayStart.getFullYear(), todayStart.getMonth(), 1);
       const monthEnd = new Date(todayStart.getFullYear(), todayStart.getMonth() + 1, 0, 23, 59, 59, 999);
 
-      const [totalCount, totalCollected, todayTotal, monthTotal, cashTotal, momoTotal, chequeTotal] = await Promise.all([
+      const [totalCount, totalCollected, todayTotal, monthTotal, cashTotal, momoTotal, chequeTotal, bankTransferTotal] = await Promise.all([
         db.payment.count(),
         db.payment.aggregate({ _sum: { amount: true } }),
         db.payment.aggregate({ where: { timestamp: { gte: todayStart, lte: todayEnd } }, _sum: { amount: true } }),
@@ -31,6 +34,7 @@ export async function GET(req: NextRequest) {
         db.payment.aggregate({ where: { payment_method: 'cash' }, _sum: { amount: true } }),
         db.payment.aggregate({ where: { payment_method: 'mobile_money' }, _sum: { amount: true } }),
         db.payment.aggregate({ where: { payment_method: 'cheque' }, _sum: { amount: true } }),
+        db.payment.aggregate({ where: { payment_method: 'bank_transfer' }, _sum: { amount: true } }),
       ]);
 
       return NextResponse.json({
@@ -43,9 +47,19 @@ export async function GET(req: NextRequest) {
             cash: cashTotal._sum.amount || 0,
             mobile_money: momoTotal._sum.amount || 0,
             cheque: chequeTotal._sum.amount || 0,
+            bank_transfer: bankTransferTotal._sum.amount || 0,
           },
         },
       });
+    }
+
+    // Classes dropdown (for filter)
+    if (action === 'classes') {
+      const classes = await db.school_class.findMany({
+        select: { class_id: true, name: true, name_numeric: true },
+        orderBy: [{ name_numeric: 'asc' }, { name: 'asc' }],
+      });
+      return NextResponse.json({ classes });
     }
 
     // Payment history
@@ -55,6 +69,7 @@ export async function GET(req: NextRequest) {
       where.OR = [
         { receipt_code: { contains: search } },
         { invoice_code: { contains: search } },
+        { title: { contains: search } },
         { student: { OR: [
           { name: { contains: search } },
           { student_code: { contains: search } },
@@ -62,17 +77,29 @@ export async function GET(req: NextRequest) {
       ];
     }
     if (method) where.payment_method = method;
+    if (paymentType) where.payment_type = paymentType;
     if (year) where.year = year;
     if (term) where.term = term;
+    if (classId) {
+      where.student = {
+        enrolls: {
+          some: {
+            class_id: parseInt(classId),
+            mute: 0,
+          },
+        },
+      };
+    }
+    if (studentId) where.student_id = parseInt(studentId);
     if (startDate && endDate) {
-      where.timestamp = { gte: new Date(startDate), lte: new Date(endDate) };
+      where.timestamp = { gte: new Date(startDate), lte: new Date(endDate + 'T23:59:59.999Z') };
     } else if (startDate) {
       where.timestamp = { gte: new Date(startDate) };
     } else if (endDate) {
-      where.timestamp = { lte: new Date(endDate) };
+      where.timestamp = { lte: new Date(endDate + 'T23:59:59.999Z') };
     }
 
-    const [payments, total, summary] = await Promise.all([
+    const [payments, total] = await Promise.all([
       db.payment.findMany({
         where,
         include: {
@@ -84,28 +111,18 @@ export async function GET(req: NextRequest) {
         take: limit,
       }),
       db.payment.count({ where }),
-      db.payment.aggregate({ where, _sum: { amount: true } }),
     ]);
 
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-    const monthStart = new Date(todayStart.getFullYear(), todayStart.getMonth(), 1);
-    const monthEnd = new Date(todayStart.getFullYear(), todayStart.getMonth() + 1, 0, 23, 59, 59, 999);
-
-    const [todayTotal, monthTotal] = await Promise.all([
-      db.payment.aggregate({ where: { timestamp: { gte: todayStart, lte: todayEnd } }, _sum: { amount: true } }),
-      db.payment.aggregate({ where: { timestamp: { gte: monthStart, lte: monthEnd } }, _sum: { amount: true } }),
-    ]);
+    const filteredSummary = await db.payment.aggregate({
+      where,
+      _sum: { amount: true },
+    });
 
     return NextResponse.json({
       payments,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
       summary: {
-        totalCollected: summary._sum.amount || 0,
-        todayTotal: todayTotal._sum.amount || 0,
-        monthTotal: monthTotal._sum.amount || 0,
+        filteredTotal: filteredSummary._sum.amount || 0,
       },
     });
   } catch (error) {
@@ -119,7 +136,20 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     // Take payment (matching CI3 take_payment)
-    const { studentId, amount, paymentMethod, receiptCode, year, term, classId, printReceipt } = body;
+    const {
+      studentId,
+      amount,
+      paymentMethod,
+      description,
+      receiptCode,
+      year,
+      term,
+      classId,
+      momoTransactionId,
+      bankName,
+      chequeNumber,
+      printReceipt,
+    } = body;
 
     if (!studentId || !amount || parseFloat(amount) <= 0) {
       return NextResponse.json({ error: 'Student and a valid amount are required' }, { status: 400 });
@@ -156,6 +186,9 @@ export async function POST(req: NextRequest) {
       const payable = Math.min(remaining, invoice.due);
       const rcptCode = receiptCode || `RCP-${String(Date.now()).slice(-6)}`;
 
+      // Build title from invoice or description
+      const paymentTitle = description || invoice.title || 'Fee Payment';
+
       // Create payment record
       const payment = await db.payment.create({
         data: {
@@ -163,10 +196,10 @@ export async function POST(req: NextRequest) {
           invoice_id: invoice.invoice_id,
           invoice_code: invoice.invoice_code,
           receipt_code: rcptCode,
-          title: invoice.title,
+          title: paymentTitle,
           amount: payable,
           due: invoice.due - payable,
-          payment_type: 'invoice',
+          payment_type: 'income',
           payment_method: paymentMethod || 'cash',
           year: year || invoice.year || '',
           term: term || invoice.term || '',
@@ -223,7 +256,7 @@ export async function POST(req: NextRequest) {
       receiptCode: mainRcptCode,
       printReceipt: printReceipt !== false,
       change: remaining > 0 ? remaining : 0,
-      message: `Payment of ${paymentAmount} recorded successfully${remaining > 0 ? `. Change: ${remaining.toFixed(2)}` : ''}`,
+      message: `Payment of ${paymentAmount.toFixed(2)} recorded successfully${remaining > 0 ? `. Change: ${remaining.toFixed(2)}` : ''}`,
     });
   } catch (error) {
     console.error('Error:', error);

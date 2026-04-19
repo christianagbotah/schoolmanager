@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const sectionId = searchParams.get('section_id')
+    const classId = searchParams.get('class_id')
 
     const where: Record<string, unknown> = {}
     if (sectionId) where.section_id = parseInt(sectionId)
@@ -13,13 +14,30 @@ export async function GET(request: NextRequest) {
     const routines = await db.class_routine.findMany({
       where,
       include: {
-        section: { select: { section_id: true, name: true } },
-        subject: { select: { subject_id: true, name: true } },
+        section: {
+          select: {
+            section_id: true,
+            name: true,
+            class: { select: { class_id: true, name: true } },
+          },
+        },
+        subject: {
+          select: {
+            subject_id: true,
+            name: true,
+            teacher: { select: { teacher_id: true, name: true } },
+          },
+        },
       },
       orderBy: [{ day: 'asc' }, { time_start: 'asc' }],
     })
 
-    return NextResponse.json({ routines })
+    // If classId filter, only return routines for sections belonging to that class
+    const filtered = classId
+      ? routines.filter(r => r.section?.class?.class_id === parseInt(classId))
+      : routines
+
+    return NextResponse.json({ routines: filtered })
   } catch (error) {
     console.error('Routine GET error:', error)
     return NextResponse.json({ error: 'Failed to fetch routines' }, { status: 500 })
@@ -46,8 +64,20 @@ export async function POST(request: NextRequest) {
         room: room || '',
       },
       include: {
-        section: { select: { section_id: true, name: true } },
-        subject: { select: { subject_id: true, name: true } },
+        section: {
+          select: {
+            section_id: true,
+            name: true,
+            class: { select: { class_id: true, name: true } },
+          },
+        },
+        subject: {
+          select: {
+            subject_id: true,
+            name: true,
+            teacher: { select: { teacher_id: true, name: true } },
+          },
+        },
       },
     })
 
@@ -79,8 +109,20 @@ export async function PUT(request: NextRequest) {
         room: room ?? undefined,
       },
       include: {
-        subject: { select: { subject_id: true, name: true } },
-        section: { select: { section_id: true, name: true } },
+        section: {
+          select: {
+            section_id: true,
+            name: true,
+            class: { select: { class_id: true, name: true } },
+          },
+        },
+        subject: {
+          select: {
+            subject_id: true,
+            name: true,
+            teacher: { select: { teacher_id: true, name: true } },
+          },
+        },
       },
     })
 

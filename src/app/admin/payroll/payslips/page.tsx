@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,13 +20,17 @@ import {
 
 interface Payslip {
   pay_id: number;
+  reference?: string;
   employee_code: string;
   month: string;
   year: string;
   basic_salary: number;
   gross_salary: number;
   net_salary: number;
+  total_allowances?: number;
+  total_deductions?: number;
   status: string;
+  account_number?: string;
   employee?: { name: string; designation?: { des_name: string } | null; department?: { dep_name: string } | null };
 }
 
@@ -182,7 +187,15 @@ export default function PayslipsPage() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div><h1 className="text-2xl font-bold text-slate-900 tracking-tight">Payslips</h1><p className="text-sm text-slate-500 mt-1">View and manage all generated employee payslips</p></div>
-          <Button variant="outline" className="min-h-[44px]" onClick={handleExportAll}><Download className="w-4 h-4 mr-2" />Export All</Button>
+          <div className="flex gap-2">
+            <Link href="/admin/payroll">
+              <Button className="min-h-[44px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
+                <DollarSign className="w-5 h-5 mr-2" />
+                Pay Salary
+              </Button>
+            </Link>
+            <Button variant="outline" className="min-h-[44px]" onClick={handleExportAll}><Download className="w-4 h-4 mr-2" />Export All</Button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -226,36 +239,41 @@ export default function PayslipsPage() {
             <Table>
               <TableHeader><TableRow className="bg-slate-50">
                 <TableHead className="w-12">#</TableHead>
-                <TableHead>Employee</TableHead>
-                <TableHead>Emp. Code</TableHead>
-                <TableHead>Month/Year</TableHead>
-                <TableHead>Basic</TableHead>
-                <TableHead>Gross</TableHead>
-                <TableHead>Net</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-24">Actions</TableHead>
+                <TableHead>Reference</TableHead>
+                <TableHead>ID No</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Account #</TableHead>
+                <TableHead>Month</TableHead>
+                <TableHead>Year</TableHead>
+                <TableHead className="text-right">Basic</TableHead>
+                <TableHead className="text-right">Allowances</TableHead>
+                <TableHead className="text-right">Gross</TableHead>
+                <TableHead className="text-right">Deductions</TableHead>
+                <TableHead className="text-right">Net</TableHead>
+                <TableHead className="text-center">Action</TableHead>
               </TableRow></TableHeader>
               <TableBody>
-                {loading ? Array.from({ length: 5 }).map((_, i) => <TableRow key={i}><TableCell colSpan={9}><Skeleton className="h-10" /></TableCell></TableRow>) :
-                  filteredPayslips.length === 0 ? <TableRow><TableCell colSpan={9} className="text-center py-12 text-slate-400"><FileText className="w-10 h-10 mx-auto mb-2 opacity-50" /><p className="font-medium">No payslips found</p></TableCell></TableRow> :
+                {loading ? Array.from({ length: 5 }).map((_, i) => <TableRow key={i}><TableCell colSpan={14}><Skeleton className="h-10" /></TableCell></TableRow>) :
+                  filteredPayslips.length === 0 ? <TableRow><TableCell colSpan={14} className="text-center py-12 text-slate-400"><FileText className="w-10 h-10 mx-auto mb-2 opacity-50" /><p className="font-medium">No payslips found</p></TableCell></TableRow> :
                     filteredPayslips.map((ps, i) => (
-                      <TableRow key={ps.pay_id}>
-                        <TableCell className="text-xs text-slate-400">{i + 1}</TableCell>
-                        <TableCell>
-                          <div><p className="font-medium text-sm">{ps.employee?.name || ps.employee_code}</p><p className="text-xs text-slate-500">{ps.employee?.designation?.des_name || ''}{ps.employee?.department?.dep_name ? ` · ${ps.employee.department.dep_name}` : ''}</p></div>
-                        </TableCell>
-                        <TableCell className="text-sm font-mono text-slate-500">{ps.employee_code}</TableCell>
-                        <TableCell><Badge variant="outline" className="text-xs">{months[parseInt(ps.month) - 1] || ps.month} {ps.year}</Badge></TableCell>
-                        <TableCell className="text-sm">GHS {ps.basic_salary.toLocaleString()}</TableCell>
-                        <TableCell className="text-sm">GHS {ps.gross_salary.toLocaleString()}</TableCell>
-                        <TableCell className="text-sm font-medium text-emerald-700">GHS {ps.net_salary.toLocaleString()}</TableCell>
-                        <TableCell><Badge className={`${ps.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : ps.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'} text-xs`}>{ps.status || 'pending'}</Badge></TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => handlePreview(ps)} title="Preview"><Eye className="w-3 h-3" /></Button>
-                            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => handleDownload(ps)} title="Download"><Download className="w-3 h-3" /></Button>
-                            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => handlePrint(ps)} title="Print"><Printer className="w-3 h-3" /></Button>
-                          </div>
+                      <TableRow key={ps.pay_id} className="hover:bg-gray-100">
+                        <TableCell className="px-4 py-3 text-xs text-slate-400">{i + 1}</TableCell>
+                        <TableCell className="px-4 py-3"><span className="font-medium">{ps.reference || `PAY-${ps.pay_id}`}</span></TableCell>
+                        <TableCell className="px-4 py-3 whitespace-nowrap text-sm font-mono text-slate-500">{ps.employee_code}</TableCell>
+                        <TableCell className="px-4 py-3 whitespace-nowrap text-sm font-medium">{ps.employee?.name || ps.employee_code}</TableCell>
+                        <TableCell className="px-4 py-3 text-sm text-slate-500">{ps.account_number || '—'}</TableCell>
+                        <TableCell className="px-4 py-3 text-sm">{months[parseInt(ps.month) - 1] || ps.month}</TableCell>
+                        <TableCell className="px-4 py-3 text-sm">{ps.year}</TableCell>
+                        <TableCell className="px-4 py-3 text-right text-sm">{ps.basic_salary.toLocaleString(undefined, { minimumFractionDigits: 2 })}</TableCell>
+                        <TableCell className="px-4 py-3 text-right text-sm text-emerald-600">{(ps.total_allowances || (ps.gross_salary - ps.basic_salary)).toLocaleString(undefined, { minimumFractionDigits: 2 })}</TableCell>
+                        <TableCell className="px-4 py-3 text-right text-sm font-medium">{ps.gross_salary.toLocaleString(undefined, { minimumFractionDigits: 2 })}</TableCell>
+                        <TableCell className="px-4 py-3 text-right text-sm text-red-600">{(ps.total_deductions || (ps.gross_salary - ps.net_salary)).toLocaleString(undefined, { minimumFractionDigits: 2 })}</TableCell>
+                        <TableCell className="px-4 py-3 text-right text-sm font-bold text-emerald-700">{ps.net_salary.toLocaleString(undefined, { minimumFractionDigits: 2 })}</TableCell>
+                        <TableCell className="px-4 py-3 text-center">
+                          <Button size="sm" className="py-2 px-3 font-medium text-center text-white bg-sky-600 hover:bg-sky-700 rounded-lg text-xs min-h-[36px]"
+                            onClick={() => handlePreview(ps)}>
+                            Preview
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}

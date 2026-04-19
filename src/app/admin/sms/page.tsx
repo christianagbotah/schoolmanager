@@ -28,7 +28,7 @@ import {
 import {
   Settings, Smartphone, Send, MessageSquare, Users, Clock, CheckCircle, XCircle,
   Plus, Pencil, Trash2, Zap, FileText, Bell, Archive, ToggleLeft, Loader2,
-  CheckCircle2,
+  CheckCircle2, Phone, GraduationCap, UserCheck, AlertCircle, Hash,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -103,8 +103,19 @@ function LogRowSkeleton() {
   );
 }
 
+interface UserOption { id: string; name: string; type: 'student' | 'teacher' | 'parent'; }
+
 export default function SMSPage() {
-  const [tab, setTab] = useState('settings');
+  const [tab, setTab] = useState('compose');
+
+  // Compose state
+  const [recipientMode, setRecipientMode] = useState('individual');
+  const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
+  const [phoneNumbers, setPhoneNumbers] = useState('');
+  const [composeMessage, setComposeMessage] = useState('');
+  const [sending, setSending] = useState(false);
+  const [users, setUsers] = useState<UserOption[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
 
   // Logs state
   const [logs, setLogs] = useState<SMSLog[]>([]);
@@ -184,8 +195,77 @@ export default function SMSPage() {
     setAutomationsLoading(false);
   }, []);
 
+  // Fetch users for compose
+  const fetchUsers = useCallback(async () => {
+    setUsersLoading(true);
+    try {
+      const res = await fetch('/api/admin/sms?action=users');
+      const data = await res.json();
+      setUsers(data.users || []);
+    } catch { /* empty */ }
+    setUsersLoading(false);
+  }, []);
+
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { fetchSettings(); fetchLogs(); fetchTemplates(); fetchAutomations(); }, [fetchSettings, fetchLogs, fetchTemplates, fetchAutomations]);
+  useEffect(() => { fetchSettings(); fetchLogs(); fetchTemplates(); fetchAutomations(); fetchUsers(); }, [fetchSettings, fetchLogs, fetchTemplates, fetchAutomations, fetchUsers]);
+
+  // Send SMS
+  const handleSendSMS = async () => {
+    if (recipientMode === 'individual' && selectedRecipients.length === 0) {
+      toast.error('Please select at least one recipient');
+      return;
+    }
+    if (recipientMode === 'phone' && !phoneNumbers.trim()) {
+      toast.error('Please enter at least one phone number');
+      return;
+    }
+    if (!composeMessage.trim()) {
+      toast.error('Please enter a message');
+      return;
+    }
+    setSending(true);
+    try {
+      const res = await fetch('/api/admin/sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'send_sms',
+          recipient_mode: recipientMode,
+          recipients: recipientMode === 'individual' ? selectedRecipients : undefined,
+          phone_numbers: recipientMode === 'phone' ? phoneNumbers : undefined,
+          message: composeMessage,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        toast.error(data.error);
+      } else {
+        toast.success(data.message || 'SMS sent successfully');
+        setSelectedRecipients([]);
+        setPhoneNumbers('');
+        setComposeMessage('');
+        fetchLogs();
+      }
+    } catch {
+      toast.error('Failed to send SMS. Check your SMS settings and credit balance.');
+    }
+    setSending(false);
+  };
+
+  const toggleRecipient = (id: string) => {
+    setSelectedRecipients(prev =>
+      prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]
+    );
+  };
+
+  const students = users.filter(u => u.type === 'student');
+  const teachers = users.filter(u => u.type === 'teacher');
+  const parents = users.filter(u => u.type === 'parent');
+  const recipientCount = recipientMode === 'individual'
+    ? selectedRecipients.length
+    : recipientMode === 'phone'
+      ? phoneNumbers.split(',').filter(p => p.trim()).length
+      : 0;
 
   // Save settings
   const saveSettings = async () => {
@@ -365,6 +445,9 @@ export default function SMSPage() {
         {/* Tabs */}
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="mb-4 bg-white border border-slate-200 p-1 rounded-xl h-auto flex w-full sm:w-auto">
+            <TabsTrigger value="compose" className="flex-1 min-w-[100px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
+              <Send className="w-4 h-4 mr-1.5 hidden sm:inline" /> Compose
+            </TabsTrigger>
             <TabsTrigger value="settings" className="flex-1 min-w-[100px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
               <Settings className="w-4 h-4 mr-1.5 hidden sm:inline" /> Settings
             </TabsTrigger>
@@ -378,6 +461,145 @@ export default function SMSPage() {
               <Archive className="w-4 h-4 mr-1.5 hidden sm:inline" /> Logs
             </TabsTrigger>
           </TabsList>
+
+          {/* ============ COMPOSE TAB ============ */}
+          <TabsContent value="compose">
+            <Card className="border-slate-200/60">
+              <CardContent className="p-6 space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                    <Send className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900">Write New SMS Message</h2>
+                    <p className="text-sm text-slate-500">Send SMS to students, teachers, parents, or custom numbers</p>
+                  </div>
+                </div>
+
+                {/* Recipient Selection */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold">Recipient</Label>
+                  <Select value={recipientMode} onValueChange={v => { setRecipientMode(v); setSelectedRecipients([]); }}>
+                    <SelectTrigger className="min-h-[44px] max-w-md"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="individual">Send Individually</SelectItem>
+                      <SelectItem value="teachers">All Active Teachers</SelectItem>
+                      <SelectItem value="students">All Active Students</SelectItem>
+                      <SelectItem value="parents">All Active Parents</SelectItem>
+                      <SelectItem value="phone">Enter Phone Number</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {recipientMode === 'individual' && (
+                    <div className="max-h-64 overflow-y-auto rounded-xl border border-slate-200 p-4 space-y-4">
+                      {usersLoading ? (
+                        <div className="space-y-2"><Skeleton className="h-6 w-full" /><Skeleton className="h-6 w-full" /><Skeleton className="h-6 w-3/4" /></div>
+                      ) : (
+                        <>
+                          {students.length > 0 && (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                <GraduationCap className="w-4 h-4 text-violet-500" />
+                                Active Students ({students.length})
+                                <button type="button" className="ml-auto text-xs text-emerald-600 hover:underline" onClick={() => setSelectedRecipients(prev => { const ids = students.map(s => s.id); return prev.length === ids.length && ids.every(id => prev.includes(id)) ? prev.filter(id => !ids.includes(id)) : [...new Set([...prev, ...ids])]; })}>
+                                  {students.every(s => selectedRecipients.includes(s.id)) ? 'Deselect All' : 'Select All'}
+                                </button>
+                              </div>
+                              {students.map(s => (
+                                <label key={s.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer">
+                                  <input type="checkbox" checked={selectedRecipients.includes(s.id)} onChange={() => toggleRecipient(s.id)} className="rounded border-slate-300" />
+                                  <span className="text-sm text-slate-700">{s.name}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                          {teachers.length > 0 && (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                <UserCheck className="w-4 h-4 text-emerald-500" />
+                                Active Teachers ({teachers.length})
+                                <button type="button" className="ml-auto text-xs text-emerald-600 hover:underline" onClick={() => setSelectedRecipients(prev => { const ids = teachers.map(t => t.id); return prev.length === ids.length && ids.every(id => prev.includes(id)) ? prev.filter(id => !ids.includes(id)) : [...new Set([...prev, ...ids])]; })}>
+                                  {teachers.every(t => selectedRecipients.includes(t.id)) ? 'Deselect All' : 'Select All'}
+                                </button>
+                              </div>
+                              {teachers.map(t => (
+                                <label key={t.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer">
+                                  <input type="checkbox" checked={selectedRecipients.includes(t.id)} onChange={() => toggleRecipient(t.id)} className="rounded border-slate-300" />
+                                  <span className="text-sm text-slate-700">{t.name}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                          {parents.length > 0 && (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                <Users className="w-4 h-4 text-amber-500" />
+                                Active Parents ({parents.length})
+                                <button type="button" className="ml-auto text-xs text-emerald-600 hover:underline" onClick={() => setSelectedRecipients(prev => { const ids = parents.map(p => p.id); return prev.length === ids.length && ids.every(id => prev.includes(id)) ? prev.filter(id => !ids.includes(id)) : [...new Set([...prev, ...ids])]; })}>
+                                  {parents.every(p => selectedRecipients.includes(p.id)) ? 'Deselect All' : 'Select All'}
+                                </button>
+                              </div>
+                              {parents.map(p => (
+                                <label key={p.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer">
+                                  <input type="checkbox" checked={selectedRecipients.includes(p.id)} onChange={() => toggleRecipient(p.id)} className="rounded border-slate-300" />
+                                  <span className="text-sm text-slate-700">{p.name}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                          {users.length === 0 && !usersLoading && (
+                            <p className="text-sm text-slate-400 text-center py-4">No active users found</p>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {recipientMode === 'phone' && (
+                    <div className="space-y-2">
+                      <p className="text-xs text-red-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> Separate each number with a comma</p>
+                      <Input type="tel" value={phoneNumbers} onChange={e => setPhoneNumbers(e.target.value)} placeholder="e.g., +233241234567, +233205556677" className="min-h-[44px] max-w-md font-mono" />
+                    </div>
+                  )}
+
+                  {(recipientMode === 'teachers' || recipientMode === 'students' || recipientMode === 'parents') && (
+                    <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+                      <p className="text-sm text-emerald-700">
+                        <Send className="w-4 h-4 inline mr-1" />
+                        This will send to all active <strong>{recipientMode === 'teachers' ? 'teachers' : recipientMode === 'students' ? 'students' : 'parents'}</strong>
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Message */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Message</Label>
+                  <Textarea value={composeMessage} onChange={e => setComposeMessage(e.target.value)} placeholder="Write your message here..." rows={5} className="min-h-[120px] resize-y" />
+                  <div className="flex items-center justify-between text-xs text-slate-400">
+                    <span>{composeMessage.length} / 160 characters</span>
+                    {composeMessage.length > 160 && (
+                      <Badge variant="outline" className="text-amber-600 border-amber-200 text-[10px]">
+                        <AlertCircle className="w-3 h-3 mr-1" />
+                        {Math.ceil(composeMessage.length / 160)} SMS parts
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2">
+                  <p className="text-sm text-slate-500">
+                    <Hash className="w-4 h-4 inline mr-1" />
+                    {recipientCount} recipient{recipientCount !== 1 ? 's' : ''} selected
+                  </p>
+                  <Button onClick={handleSendSMS} disabled={sending || !composeMessage.trim()} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm min-h-[44px] px-8">
+                    {sending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+                    {sending ? 'Sending...' : 'Send SMS'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* ============ SETTINGS TAB ============ */}
           <TabsContent value="settings">

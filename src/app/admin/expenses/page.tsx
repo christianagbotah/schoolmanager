@@ -375,11 +375,11 @@ export default function ExpensesPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-slate-50 hover:bg-slate-50">
-                      <TableHead className="text-xs font-semibold">Title</TableHead>
+                      <TableHead className="text-xs font-semibold">Date</TableHead>
+                      <TableHead>Title</TableHead>
                       <TableHead>Category</TableHead>
-                      <TableHead className="text-right">Amount</TableHead>
-                      <TableHead>Date</TableHead>
                       <TableHead>Method</TableHead>
+                      <TableHead className="text-right">Amount</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -401,11 +401,11 @@ export default function ExpensesPage() {
                         const sc = statusConfig[exp.status] || statusConfig.pending;
                         return (
                           <TableRow key={exp.id} className="hover:bg-slate-50/50">
+                            <TableCell className="text-xs text-slate-500 whitespace-nowrap">{fmtDate(exp.expense_date)}</TableCell>
                             <TableCell><p className="font-medium text-sm">{exp.title}</p>{exp.description && <p className="text-xs text-slate-400 truncate max-w-48">{exp.description}</p>}</TableCell>
                             <TableCell className="text-sm">{exp.expense_category?.expense_category_name || "\u2014"}</TableCell>
-                            <TableCell className="text-right font-mono text-sm font-medium text-red-600">{fmt(exp.amount)}</TableCell>
-                            <TableCell className="text-xs text-slate-500">{fmtDate(exp.expense_date)}</TableCell>
                             <TableCell><span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium capitalize ${methodColors[exp.payment_method] || "bg-gray-100 text-gray-600"}`}>{exp.payment_method.replace(/_/g, " ")}</span></TableCell>
+                            <TableCell className="text-right font-mono text-sm font-semibold text-red-600">{fmt(exp.amount)}</TableCell>
                             <TableCell><Badge variant="outline" className={sc.className}>{sc.label}</Badge></TableCell>
                             <TableCell className="text-right"><div className="flex items-center justify-end gap-1"><Button variant="ghost" size="icon" className="h-8 w-8 min-w-[32px]" onClick={() => handleEditExpense(exp)}><Pencil className="w-3.5 h-3.5" /></Button><Button variant="ghost" size="icon" className="h-8 w-8 min-w-[32px] text-red-500 hover:text-red-600" onClick={() => { setDeleteId(exp.id); setDeleteOpen(true); }}><Trash2 className="w-3.5 h-3.5" /></Button></div></TableCell>
                           </TableRow>

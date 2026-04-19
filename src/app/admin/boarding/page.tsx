@@ -31,10 +31,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
-interface BoardingHouse { house_id: number; house_name: string; house_description: string; house_capacity: number; }
-interface Dormitory { dormitory_id: number; dormitory_name: string; dormitory_description: string; number_of_rooms: number; number_of_beds: number; }
+interface BoardingHouse { house_id: number; house_name: string; house_description: string; house_capacity: number; house_master_id: number | null; house_year_established: string; house_gps_code: string; house_image_link: string; house_master?: { teacher_id: number; name: string } | null; }
+interface Dormitory { dormitory_id: number; dormitory_name: string; dormitory_description: string; number_of_rooms: number; number_of_beds: number; house_id: number | null; dormitory_type: string; dormitory_floor: string; dormitory_capacity: number; bed_code_prefix: string; }
 interface Assignment { id: number; student_id: number; house_id: number | null; dormitory_id: number | null; bed_number: string; academic_year: string; assigned_at: string | null; is_active: number; }
 interface Student { student_id: number; name: string; student_code: string; sex: string; class_name: string; active_status: number; }
+interface Teacher { teacher_id: number; name: string; }
 
 /* ─── Stat Card Skeleton ─── */
 function StatCardSkeleton() {
@@ -95,8 +96,9 @@ export default function BoardingPage() {
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [deleteType, setDeleteType] = useState('house');
 
-  const [houseForm, setHouseForm] = useState({ house_name: '', house_description: '', house_capacity: '' });
-  const [dormForm, setDormForm] = useState({ dormitory_name: '', dormitory_description: '', number_of_rooms: '', number_of_beds: '' });
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [houseForm, setHouseForm] = useState({ house_name: '', house_description: '', house_capacity: '', house_master_id: '', house_year_established: '', house_gps_code: '' });
+  const [dormForm, setDormForm] = useState({ dormitory_name: '', dormitory_description: '', number_of_rooms: '', number_of_beds: '', house_id: '', dormitory_type: 'Male', dormitory_floor: '', dormitory_capacity: '', bed_code_prefix: '' });
   const [assignForm, setAssignForm] = useState({ student_id: '', house_id: '', dormitory_id: '', bed_number: '', academic_year: '' });
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
@@ -110,6 +112,7 @@ export default function BoardingPage() {
       const data = await dataRes.json();
       setHouses(data.houses || []);
       setDormitories(data.dormitories || []);
+      setTeachers(data.teachers || []);
       const stData = await studentRes.json();
       setStudents(Array.isArray(stData) ? stData : []);
       // Load assignments separately for full data
@@ -125,25 +128,25 @@ export default function BoardingPage() {
 
   const openCreateHouse = () => {
     setSelectedHouse(null);
-    setHouseForm({ house_name: '', house_description: '', house_capacity: '' });
+    setHouseForm({ house_name: '', house_description: '', house_capacity: '', house_master_id: '', house_year_established: '', house_gps_code: '' });
     setHouseFormOpen(true);
   };
 
   const openEditHouse = (house: BoardingHouse) => {
     setSelectedHouse(house);
-    setHouseForm({ house_name: house.house_name, house_description: house.house_description, house_capacity: house.house_capacity.toString() });
+    setHouseForm({ house_name: house.house_name, house_description: house.house_description, house_capacity: house.house_capacity.toString(), house_master_id: house.house_master_id?.toString() || '', house_year_established: house.house_year_established || '', house_gps_code: house.house_gps_code || '' });
     setHouseFormOpen(true);
   };
 
   const openCreateDorm = () => {
     setSelectedDorm(null);
-    setDormForm({ dormitory_name: '', dormitory_description: '', number_of_rooms: '', number_of_beds: '' });
+    setDormForm({ dormitory_name: '', dormitory_description: '', number_of_rooms: '', number_of_beds: '', house_id: '', dormitory_type: 'Male', dormitory_floor: '', dormitory_capacity: '', bed_code_prefix: '' });
     setDormFormOpen(true);
   };
 
   const openEditDorm = (dorm: Dormitory) => {
     setSelectedDorm(dorm);
-    setDormForm({ dormitory_name: dorm.dormitory_name, dormitory_description: dorm.dormitory_description, number_of_rooms: dorm.number_of_rooms.toString(), number_of_beds: dorm.number_of_beds.toString() });
+    setDormForm({ dormitory_name: dorm.dormitory_name, dormitory_description: dorm.dormitory_description, number_of_rooms: dorm.number_of_rooms.toString(), number_of_beds: dorm.number_of_beds.toString(), house_id: dorm.house_id?.toString() || '', dormitory_type: dorm.dormitory_type || 'Male', dormitory_floor: dorm.dormitory_floor || '', dormitory_capacity: dorm.dormitory_capacity.toString(), bed_code_prefix: dorm.bed_code_prefix || '' });
     setDormFormOpen(true);
   };
 
@@ -169,6 +172,13 @@ export default function BoardingPage() {
       fetchData();
     } catch { toast.error('Failed to save dormitory'); }
     setSaving(false);
+  };
+
+  const getHouseMasterName = (house: BoardingHouse) => house.house_master?.name || 'N/A';
+  const getDormHouseName = (dorm: Dormitory) => {
+    if (!dorm.house_id) return '\u2014';
+    const h = houses.find(h => h.house_id === dorm.house_id);
+    return h?.house_name || '\u2014';
   };
 
   const handleAssign = async () => {
@@ -398,6 +408,16 @@ export default function BoardingPage() {
                             <p className="text-[10px] text-slate-500">Assigned</p>
                           </div>
                         </div>
+                        {(house.house_master_id || house.house_year_established) && (
+                          <div className="flex flex-wrap gap-1.5 mb-2 text-[10px] text-slate-500">
+                            {house.house_master_id && (
+                              <Badge variant="outline" className="text-[10px] border-slate-200"><Users className="w-3 h-3 mr-0.5" />{getHouseMasterName(house)}</Badge>
+                            )}
+                            {house.house_year_established && (
+                              <Badge variant="secondary" className="text-[10px]">{house.house_year_established}</Badge>
+                            )}
+                          </div>
+                        )}
                         {house.house_capacity > 0 && (
                           <div className="mb-3">
                             <div className="flex justify-between text-xs text-slate-500 mb-1">
@@ -465,6 +485,7 @@ export default function BoardingPage() {
                             <div className="min-w-0">
                               <h3 className="font-semibold text-slate-900">{dorm.dormitory_name}</h3>
                               <p className="text-xs text-slate-500 truncate">{dorm.dormitory_description || 'No description'}</p>
+                              {dorm.house_id && <p className="text-[10px] text-emerald-600 font-medium mt-0.5">{getDormHouseName(dorm)}</p>}
                             </div>
                           </div>
                         </div>
@@ -678,9 +699,31 @@ export default function BoardingPage() {
               <Label className="text-xs font-medium">Description</Label>
               <Textarea value={houseForm.house_description} onChange={e => setHouseForm({ ...houseForm, house_description: e.target.value })} rows={2} placeholder="Brief description" className="min-h-[44px]" />
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">Capacity</Label>
+                <Input type="number" value={houseForm.house_capacity} onChange={e => setHouseForm({ ...houseForm, house_capacity: e.target.value })} placeholder="Number of students" className="min-h-[44px]" />
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">Year Established</Label>
+                <Input value={houseForm.house_year_established} onChange={e => setHouseForm({ ...houseForm, house_year_established: e.target.value })} placeholder="e.g., 1995" className="min-h-[44px]" />
+              </div>
+            </div>
             <div className="grid gap-2">
-              <Label className="text-xs font-medium">Capacity</Label>
-              <Input type="number" value={houseForm.house_capacity} onChange={e => setHouseForm({ ...houseForm, house_capacity: e.target.value })} placeholder="Number of students" className="min-h-[44px]" />
+              <Label className="text-xs font-medium">House Master</Label>
+              <Select value={houseForm.house_master_id} onValueChange={v => setHouseForm({ ...houseForm, house_master_id: v })}>
+                <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="Select teacher" /></SelectTrigger>
+                <SelectContent className="max-h-60">
+                  <SelectItem value="">None</SelectItem>
+                  {teachers.map(t => (
+                    <SelectItem key={t.teacher_id} value={t.teacher_id.toString()}>{t.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label className="text-xs font-medium">GPS Code</Label>
+              <Input value={houseForm.house_gps_code} onChange={e => setHouseForm({ ...houseForm, house_gps_code: e.target.value })} placeholder="e.g., GA-123-4567" className="min-h-[44px]" />
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
@@ -711,18 +754,47 @@ export default function BoardingPage() {
               <Input value={dormForm.dormitory_name} onChange={e => setDormForm({ ...dormForm, dormitory_name: e.target.value })} placeholder="e.g., Block A" className="min-h-[44px]" />
             </div>
             <div className="grid gap-2">
-              <Label className="text-xs font-medium">Description</Label>
-              <Textarea value={dormForm.dormitory_description} onChange={e => setDormForm({ ...dormForm, dormitory_description: e.target.value })} rows={2} placeholder="Brief description" className="min-h-[44px]" />
+              <Label className="text-xs font-medium">Boarding House</Label>
+              <Select value={dormForm.house_id} onValueChange={v => setDormForm({ ...dormForm, house_id: v })}>
+                <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="Select house" /></SelectTrigger>
+                <SelectContent className="max-h-60">
+                  <SelectItem value="">None</SelectItem>
+                  {houses.map(h => (
+                    <SelectItem key={h.house_id} value={h.house_id.toString()}>{h.house_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label className="text-xs font-medium">Rooms</Label>
-                <Input type="number" value={dormForm.number_of_rooms} onChange={e => setDormForm({ ...dormForm, number_of_rooms: e.target.value })} className="min-h-[44px]" />
+                <Label className="text-xs font-medium">Bed Capacity</Label>
+                <Input type="number" value={dormForm.dormitory_capacity} onChange={e => setDormForm({ ...dormForm, dormitory_capacity: e.target.value })} placeholder="Max beds" className="min-h-[44px]" />
               </div>
               <div className="grid gap-2">
-                <Label className="text-xs font-medium">Beds</Label>
-                <Input type="number" value={dormForm.number_of_beds} onChange={e => setDormForm({ ...dormForm, number_of_beds: e.target.value })} className="min-h-[44px]" />
+                <Label className="text-xs font-medium">Type</Label>
+                <Select value={dormForm.dormitory_type} onValueChange={v => setDormForm({ ...dormForm, dormitory_type: v })}>
+                  <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="Mixed">Mixed</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">Floor</Label>
+                <Input value={dormForm.dormitory_floor} onChange={e => setDormForm({ ...dormForm, dormitory_floor: e.target.value })} placeholder="e.g., 1st Floor" className="min-h-[44px]" />
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-xs font-medium">Bed Code Prefix</Label>
+                <Input value={dormForm.bed_code_prefix} onChange={e => setDormForm({ ...dormForm, bed_code_prefix: e.target.value })} placeholder="e.g., A-" className="min-h-[44px]" />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label className="text-xs font-medium">Description</Label>
+              <Textarea value={dormForm.dormitory_description} onChange={e => setDormForm({ ...dormForm, dormitory_description: e.target.value })} rows={2} placeholder="Brief description" className="min-h-[44px]" />
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0">

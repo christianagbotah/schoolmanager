@@ -16,8 +16,10 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useRouter } from 'next/navigation';
 import {
   Tag, Plus, Edit, Trash2, Search, DollarSign, FolderOpen, TrendingDown,
+  ArrowLeft, Receipt, CheckCircle,
 } from 'lucide-react';
 
 interface ExpenseCategory {
@@ -33,7 +35,13 @@ export default function ExpenseCategoriesPage() {
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const router = useRouter();
   const [stats, setStats] = useState({ totalCategories: 0, totalExpenses: 0, totalSpent: 0 });
+
+  const activeCategories = categories.filter(c => c.expenseCount > 0).length;
+  const mostUsedCategory = categories.length > 0
+    ? categories.reduce((a, b) => a.expenseCount >= b.expenseCount ? a : b).expense_category_name
+    : '-';
 
   const [addOpen, setAddOpen] = useState(false);
   const [newName, setNewName] = useState('');
@@ -119,37 +127,66 @@ export default function ExpenseCategoriesPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => router.push('/admin/expenses')}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md">
               <Tag className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-900">Expense Categories</h1>
-              <p className="text-sm text-slate-500 mt-0.5">Manage expense groupings and classifications</p>
+              <p className="text-sm text-slate-500 mt-0.5">Organize and manage your expenditure categories</p>
             </div>
           </div>
-          <Button onClick={() => setAddOpen(true)} className="bg-amber-600 hover:bg-amber-700">
+          <Button onClick={() => setAddOpen(true)} className="bg-amber-600 hover:bg-amber-700 min-h-[44px]">
             <Plus className="w-4 h-4 mr-2" /> New Category
           </Button>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="border-l-4 border-l-amber-500">
-            <CardContent className="p-4">
-              <p className="text-xs text-slate-400">Total Categories</p>
-              <p className="text-xl font-bold">{stats.totalCategories}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <Card className="border-slate-200/60">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <Tag className="w-5 h-5 text-amber-600" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-slate-500">Total Categories</p>
+                <p className="text-xl font-bold">{stats.totalCategories}</p>
+              </div>
             </CardContent>
           </Card>
-          <Card className="border-l-4 border-l-red-500">
-            <CardContent className="p-4">
-              <p className="text-xs text-slate-400">Total Expenses</p>
-              <p className="text-xl font-bold">{stats.totalExpenses}</p>
+          <Card className="border-slate-200/60">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-5 h-5 text-sky-600" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-slate-500">Active</p>
+                <p className="text-xl font-bold">{activeCategories}</p>
+              </div>
             </CardContent>
           </Card>
-          <Card className="border-l-4 border-l-violet-500">
-            <CardContent className="p-4">
-              <p className="text-xs text-slate-400">Total Spent</p>
-              <p className="text-xl font-bold font-mono text-red-600">{fmt(stats.totalSpent)}</p>
+          <Card className="border-slate-200/60">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                <Receipt className="w-5 h-5 text-emerald-600" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-slate-500">Total Expenses</p>
+                <p className="text-xl font-bold">{stats.totalExpenses}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-slate-200/60">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
+                <TrendingDown className="w-5 h-5 text-violet-600" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-slate-500">Most Used</p>
+                <p className="text-base font-bold truncate">{mostUsedCategory}</p>
+              </div>
             </CardContent>
           </Card>
         </div>

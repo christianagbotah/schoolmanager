@@ -65,22 +65,33 @@ export async function PUT(
       10
     );
 
-    const classId = parseInt(body.class_id, 10);
+    const existingSubject = await db.subject.findUnique({
+      where: { subject_id: subjectId },
+    });
+
+    if (!existingSubject) {
+      return NextResponse.json({ error: "Subject not found" }, { status: 404 });
+    }
+
+    const classId = body.class_id ? parseInt(body.class_id, 10) : (existingSubject.class_id || null);
     const schoolClass = classId
       ? await db.school_class.findUnique({ where: { class_id: classId } })
       : null;
 
     const data: Record<string, unknown> = {
       name: body.name.trim(),
-      class_id: classId || undefined,
       teacher_id: body.teacher_id ? parseInt(body.teacher_id, 10) : null,
-      year: runningYear,
-      status: body.status ? 1 : 0,
+      status: body.status !== undefined ? (body.status ? 1 : 0) : existingSubject.status,
     };
+
+    // Only update class_id if explicitly provided
+    if (body.class_id !== undefined) {
+      data.class_id = classId;
+    }
 
     if (schoolClass?.name === "JHSS") {
       data.sem = runningSem;
-    } else {
+    } else if (schoolClass) {
       data.term = runningTerm;
     }
 

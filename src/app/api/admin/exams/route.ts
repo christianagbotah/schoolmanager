@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
-// GET /api/admin/exams - List all exams with filtering, pagination, and summary stats
+// GET /api/admin/exams - List all exams with filtering, pagination, categories, and summary stats
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
@@ -28,12 +28,15 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
-    const [exams, total, subjectsResult, avgResult, examIdsResult] = await Promise.all([
+    const [exams, total, subjectsResult, avgResult, examIdsResult, categories] = await Promise.all([
       db.exam.findMany({
         where,
         include: {
           class: {
             select: { class_id: true, name: true, category: true, name_numeric: true },
+          },
+          category: {
+            select: { exam_category_id: true, name: true },
           },
           _count: {
             select: { marks_list: true, exam_marks: true },
@@ -54,6 +57,10 @@ export async function GET(request: NextRequest) {
         where: { exam_id: { not: null } },
       }),
       db.exam.findMany({ where, select: { exam_id: true } }),
+      db.examCategory.findMany({
+        where: { is_active: 1 },
+        orderBy: { name: 'asc' },
+      }),
     ])
 
     // Get distinct subjects per exam
@@ -86,6 +93,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       exams: examsWithSubjects,
+      categories,
       summary,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     })
@@ -99,7 +107,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, date, comment, year, class_id, section_id, type } = body
+    const { name, date, comment, year, class_id, section_id, type, category_id, term, sem } = body
 
     if (!name) {
       return NextResponse.json({ error: 'Exam name is required' }, { status: 400 })
@@ -114,9 +122,13 @@ export async function POST(request: NextRequest) {
         class_id: class_id || null,
         section_id: section_id || null,
         type: type || '',
+        category_id: category_id || null,
+        term: term || 0,
+        sem: sem || 0,
       },
       include: {
         class: { select: { class_id: true, name: true, category: true, name_numeric: true } },
+        category: { select: { exam_category_id: true, name: true } },
       },
     })
 

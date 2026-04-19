@@ -234,12 +234,19 @@ function GradesModule() {
   }, [unifiedGrades, categoryFilter, search])
 
   // Stats
-  const stats = useMemo(() => ({
-    total: unifiedGrades.length,
-    basic: basicGrades.length,
-    jhs: jhsGrades.length,
-    creche: crecheGrades.length,
-  }), [unifiedGrades.length, basicGrades.length, jhsGrades.length, crecheGrades.length])
+  const stats = useMemo(() => {
+    const allMarks = unifiedGrades.flatMap(g => [g.grade_from, g.grade_to]).filter(m => m > 0);
+    const passGrades = unifiedGrades.filter(g => g.grade_from >= 50);
+    return {
+      total: unifiedGrades.length,
+      basic: basicGrades.length,
+      jhs: jhsGrades.length,
+      creche: crecheGrades.length,
+      highestGrade: allMarks.length > 0 ? Math.max(...allMarks) : 0,
+      lowestGrade: allMarks.length > 0 ? Math.min(...allMarks) : 0,
+      passMark: passGrades.length > 0 ? Math.min(...passGrades.map(g => g.grade_from)) : 50,
+    };
+  }, [unifiedGrades, basicGrades.length, jhsGrades.length, crecheGrades.length])
 
   // Active filters
   const activeFilters = [
@@ -456,28 +463,28 @@ function GradesModule() {
           borderColor="#10b981"
         />
         <StatCard
-          icon={Award}
-          label="Basic JHS"
-          value={stats.basic}
-          subValue={`${stats.total > 0 ? Math.round((stats.basic / stats.total) * 100) : 0}% of total`}
-          iconBg="bg-emerald-500"
-          borderColor="#059669"
-        />
-        <StatCard
           icon={BarChart3}
-          label="JHS (Graded)"
-          value={stats.jhs}
-          subValue="With grade points"
+          label="Highest Grade"
+          value={`${stats.highestGrade}%`}
+          subValue="Maximum mark range"
           iconBg="bg-sky-500"
           borderColor="#0ea5e9"
         />
         <StatCard
-          icon={Baby}
-          label="Creche / Nursery"
-          value={stats.creche}
-          subValue="Pre-school grades"
+          icon={Award}
+          label="Lowest Grade"
+          value={`${stats.lowestGrade}%`}
+          subValue="Minimum mark range"
           iconBg="bg-amber-500"
           borderColor="#f59e0b"
+        />
+        <StatCard
+          icon={CheckCircle2}
+          label="Pass Mark"
+          value={`${stats.passMark}%`}
+          subValue="Minimum passing grade"
+          iconBg="bg-emerald-500"
+          borderColor="#059669"
         />
       </div>
 

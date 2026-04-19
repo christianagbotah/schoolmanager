@@ -12,117 +12,125 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import {
-  ArrowLeft, Search, Printer, FileText, GraduationCap,
-  Users, Loader2, BarChart3, Award,
+  ArrowLeft, Printer, FileText, GraduationCap,
+  Users, Loader2, BarChart3, Award, Search, TrendingUp,
+  ChevronDown, Target, BookOpen, AlertCircle, CheckCircle2,
 } from 'lucide-react';
 import Link from 'next/link';
 
-interface Student {
-  student_id: number;
-  student_code: string;
-  name: string;
-  class?: { class_id: number; name: string };
+// ── Types ──
+interface ClassItem {
+  class_id: number; name: string; name_numeric: number; category: string;
 }
-
-interface MarksheetSubject {
-  subject_id: number;
-  subject_name: string;
-  mark_obtained: number;
-  grade_name: string;
-  grade_comment: string;
-  remark: string;
-  position: number;
-}
-
+interface SectionItem { section_id: number; name: string }
 interface ExamItem {
-  exam_id: number;
-  name: string;
-  year: string;
-  type: string;
-  date: string;
+  exam_id: number; name: string; year: string; term: number; sem: number; type: string; date: string;
 }
 
-interface MarksheetData {
-  student: {
-    student_id: number;
-    student_code: string;
-    name: string;
-    sex: string;
-    birthday: string;
-    parent: { name: string; phone: string } | null;
-  };
-  class: { class_id: number; name: string; section_name: string };
-  exam: { exam_id: number; name: string; date: string; year: string } | null;
-  subjects: MarksheetSubject[];
-  totalScore: number;
-  subjectsScored: number;
-  subjectsTotal: number;
-  average: number;
-  overallGrade: { name: string; comment: string };
-  otherStudents: { student_id: number; name: string }[];
-  availableExams: ExamItem[];
+interface SubjectItem { subject_id: number; name: string }
+
+interface StudentMark {
+  student_id: number; student_code: string; name: string; sex: string;
+  section_name: string; roll: string;
+  marks: { subject_id: number; subject_name: string; mark_obtained: number; grade: string }[];
+  total: number; subjects_taken: number; average: number; grade: string; position: number;
 }
+
+interface BulkMarksheetData {
+  class: ClassItem;
+  section: SectionItem | null;
+  exam: ExamItem | null;
+  subjects: SubjectItem[];
+  students: StudentMark[];
+  totalStudents: number;
+  classes: ClassItem[];
+  sections: SectionItem[];
+  availableExams: ExamItem[];
+  summary: {
+    highestScore: number; classAverage: string; studentsAboveAverage: number; totalSubjects: number;
+  };
+}
+
+const CLASS_GROUPS = ['CRECHE', 'NURSERY', 'KG', 'PRIMARY', 'JHS', 'JHSS'];
 
 export default function MarksheetsPage() {
-  const [students, setStudents] = useState<Student[]>([]);
-  const [studentSearch, setStudentSearch] = useState('');
-  const [searching, setSearching] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [marksheetData, setMarksheetData] = useState<MarksheetData | null>(null);
+  const [classes, setClasses] = useState<ClassItem[]>([]);
+  const [selectedClassId, setSelectedClassId] = useState('');
+  const [selectedSectionId, setSelectedSectionId] = useState('');
+  const [selectedExamId, setSelectedExamId] = useState('');
+  const [sections, setSections] = useState<SectionItem[]>([]);
+  const [availableExams, setAvailableExams] = useState<ExamItem[]>([]);
+  const [data, setData] = useState<BulkMarksheetData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingInitial, setLoadingInitial] = useState(true);
 
-  const searchStudents = async () => {
-    if (!studentSearch || studentSearch.length < 2) return;
-    setSearching(true);
-    try {
-      const res = await fetch(`/api/students?search=${encodeURIComponent(studentSearch)}&limit=20`);
-      const data = await res.json();
-      setStudents(data.students || []);
-    } catch {
-      toast.error('Search failed');
-    } finally {
-      setSearching(false);
+  // Load classes on mount
+  useEffect(() => {
+    fetch('/api/admin/classes?limit=200')
+      .then(r => r.json())
+      .then(d => {
+        setClasses(Array.isArray(d) ? d : []);
+        setLoadingInitial(false);
+      })
+      .catch(() => setLoadingInitial(false));
+  }, []);
+
+  // Load sections when class changes
+  useEffect(() => {
+    if (!selectedClassId) {
+      setSections([]);
+      setAvailableExams([]);
+      return;
     }
-  };
+    fetch(`/api/admin/sections?class_id=${selectedClassId}`)
+      .then(r => r.json())
+      .then(d => {
+        setSections(Array.isArray(d) ? d : []);
+        if (Array.isArray(d) && d.length > 0 && !selectedSectionId) {
+          setSelectedSectionId(String(d[0].section_id));
+        }
+      })
+      .catch(() => setSections([]));
 
-  const fetchMarksheet = useCallback(async (studentId: number, examId?: number) => {
+    fetch(`/api/admin/exams?class_id=${selectedClassId}`)
+      .then(r => r.json())
+      .then(d => {
+        setAvailableExams(Array.isArray(d) ? d : []);
+      })
+      .catch(() => setAvailableExams([]));
+  }, [selectedClassId]);
+
+  const fetchMarksheet = useCallback(async () => {
+    if (!selectedClassId || !selectedExamId) return;
     setLoading(true);
     try {
-      const params = new URLSearchParams({ student_id: String(studentId) });
-      if (examId) params.set('exam_id', String(examId));
-      const res = await fetch(`/api/admin/students/marksheet?${params}`);
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      setMarksheetData(data);
+      const params = new URLSearchParams({
+        class_id: selectedClassId,
+        exam_id: selectedExamId,
+      });
+      if (selectedSectionId) params.set('section_id', selectedSectionId);
+
+      const res = await fetch(`/api/admin/students/bulk-marksheet?${params}`);
+      const json = await res.json();
+      if (json.error) throw new Error(json.error);
+      setData(json);
     } catch (err: any) {
       toast.error(err.message || 'Failed to load marksheet');
-      setMarksheetData(null);
+      setData(null);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedClassId, selectedSectionId, selectedExamId]);
 
-  const handleSelectStudent = (student: Student) => {
-    setSelectedStudent(student);
-    setStudents([]);
-    setStudentSearch(student.name);
-    fetchMarksheet(student.student_id);
-  };
-
-  const handleSwitchStudent = (studentId: number) => {
-    const currentExam = marksheetData?.exam?.exam_id;
-    const s = marksheetData?.otherStudents.find(os => os.student_id === studentId);
-    if (s) {
-      setSelectedStudent({ student_id: studentId, name: s.name });
-      fetchMarksheet(studentId, currentExam);
+  // Auto-fetch when all selections are made
+  useEffect(() => {
+    if (selectedClassId && selectedExamId) {
+      fetchMarksheet();
     }
-  };
+  }, [fetchMarksheet]);
 
-  const handleExamChange = (examId: string) => {
-    if (selectedStudent) {
-      fetchMarksheet(selectedStudent.student_id, parseInt(examId));
-    }
-  };
+  const groupClasses = (g: string) =>
+    classes.filter(c => c.category === g).sort((a, b) => a.name_numeric - b.name_numeric);
 
   const handlePrint = () => window.print();
 
@@ -131,238 +139,269 @@ export default function MarksheetsPage() {
     if (grade === 'B' || grade === 'B2' || grade === 'B3') return 'bg-sky-100 text-sky-700 border-sky-200';
     if (grade === 'C' || grade === 'C4' || grade === 'C5' || grade === 'C6') return 'bg-amber-100 text-amber-700 border-amber-200';
     if (grade === 'D' || grade === 'D7') return 'bg-orange-100 text-orange-700 border-orange-200';
-    return 'bg-red-100 text-red-700 border-red-200';
+    if (grade === 'E' || grade === 'E8') return 'bg-red-100 text-red-700 border-red-200';
+    return 'bg-gray-100 text-gray-700 border-gray-200';
+  };
+
+  const getPositionBadge = (pos: number, total: number) => {
+    if (pos <= 0) return 'text-gray-300';
+    if (pos === 1) return 'text-amber-600 font-bold';
+    if (pos <= 3) return 'text-sky-600 font-semibold';
+    return 'text-slate-600';
   };
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 max-w-5xl mx-auto">
+      <div className="space-y-6 max-w-[1400px] mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/admin/students"><ArrowLeft className="w-5 h-5" /></Link>
           </Button>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Student Marksheets</h1>
-            <p className="text-sm text-slate-500 mt-1">View and print student mark sheets</p>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Bulk Marksheets</h1>
+            <p className="text-sm text-slate-500 mt-1">View class-wide mark sheets with student positions</p>
           </div>
-          {marksheetData && (
-            <Button variant="outline" onClick={handlePrint}>
-              <Printer className="w-4 h-4 mr-2" /> Print Marksheet
+          {data && (
+            <Button variant="outline" onClick={handlePrint} className="print:hidden">
+              <Printer className="w-4 h-4 mr-2" />Print Marksheet
             </Button>
           )}
         </div>
 
-        {/* Student Search & Selection */}
+        {/* Filters */}
         <Card>
-          <CardContent className="p-6 space-y-4">
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* Search */}
-              <div className="flex-1">
-                <Label className="text-xs text-slate-500">Search Student</Label>
-                <div className="relative mt-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    placeholder="Search by name or student code..."
-                    value={studentSearch}
-                    onChange={e => setStudentSearch(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && searchStudents()}
-                    className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                  />
-                  {searching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 animate-spin" />}
-                </div>
-                {students.length > 0 && (
-                  <div className="mt-2 border rounded-lg max-h-48 overflow-y-auto bg-white shadow-sm">
-                    {students.map(s => (
-                      <button
-                        key={s.student_id}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-violet-50 flex items-center gap-2 border-b last:border-b-0"
-                        onClick={() => handleSelectStudent(s)}
-                      >
-                        <GraduationCap className="w-3 h-3 text-violet-400" />
-                        <span>{s.name}</span>
-                        <span className="text-xs text-slate-400">({s.student_code})</span>
-                        <Badge variant="outline" className="text-[10px] ml-auto">{s.class?.name || ''}</Badge>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Exam Selector */}
-              {marksheetData && marksheetData.availableExams.length > 0 && (
-                <div className="w-full lg:w-56">
-                  <Label className="text-xs text-slate-500">Select Exam</Label>
-                  <Select onValueChange={handleExamChange}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder={marksheetData.exam?.name || 'Select exam'} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {marksheetData.availableExams.map(e => (
-                        <SelectItem key={e.exam_id} value={String(e.exam_id)}>
-                          {e.name} ({e.year})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-
-            {/* Student Switcher */}
-            {marksheetData && marksheetData.otherStudents.length > 0 && (
-              <div className="pt-2 border-t">
-                <Label className="text-xs text-slate-500 mb-1 block">Switch to Student:</Label>
-                <Select onValueChange={v => handleSwitchStudent(parseInt(v))}>
-                  <SelectTrigger className="h-8 text-sm">
-                    <SelectValue placeholder={marksheetData.student.name} />
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-violet-600" />
+              Select Class, Section &amp; Exam
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Class selector */}
+              <div>
+                <Label className="text-xs font-medium text-slate-500 mb-1.5 block">Class *</Label>
+                <Select value={selectedClassId} onValueChange={(v) => { setSelectedClassId(v); setSelectedSectionId(''); setSelectedExamId(''); setData(null); }}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={loadingInitial ? 'Loading...' : 'Select class'} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={String(marksheetData.student.student_id)}>
-                      {marksheetData.student.name} (current)
-                    </SelectItem>
-                    {marksheetData.otherStudents.map(os => (
-                      <SelectItem key={os.student_id} value={String(os.student_id)}>{os.name}</SelectItem>
+                    {CLASS_GROUPS.map(g => (
+                      <div key={g}>
+                        <div className="px-2 py-1.5 text-xs font-semibold text-slate-400 uppercase bg-slate-50">{g}</div>
+                        {groupClasses(g).map(c => (
+                          <SelectItem key={c.class_id} value={String(c.class_id)}>
+                            {c.name} {c.name_numeric}
+                          </SelectItem>
+                        ))}
+                      </div>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            )}
+
+              {/* Section selector */}
+              <div>
+                <Label className="text-xs font-medium text-slate-500 mb-1.5 block">Section</Label>
+                <Select value={selectedSectionId} onValueChange={(v) => { setSelectedSectionId(v === '__all__' ? '' : v); setData(null); }}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={sections.length === 0 ? 'Select class first' : 'All sections'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">All Sections</SelectItem>
+                    {sections.map(s => (
+                      <SelectItem key={s.section_id} value={String(s.section_id)}>{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Exam selector */}
+              <div>
+                <Label className="text-xs font-medium text-slate-500 mb-1.5 block">Exam *</Label>
+                <Select value={selectedExamId} onValueChange={(v) => { setSelectedExamId(v); setData(null); }}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={availableExams.length === 0 ? 'Select class first' : 'Choose exam'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableExams.length === 0 && (
+                      <div className="px-2 py-4 text-center text-sm text-slate-400">No exams found for this class</div>
+                    )}
+                    {availableExams.map(e => (
+                      <SelectItem key={e.exam_id} value={String(e.exam_id)}>
+                        {e.name} — Year {e.year?.split('-')?.[1] || ''} | {e.sem ? `Sem ${e.sem}` : `Term ${e.term}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Loading */}
+        {/* Loading State */}
         {loading && (
-          <Card>
-            <CardContent className="p-6 space-y-3">
-              <Skeleton className="h-6 w-48" />
-              {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
-            </CardContent>
-          </Card>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-20 rounded-xl" />
+              ))}
+            </div>
+            <Card>
+              <CardContent className="p-4 space-y-3">
+                <Skeleton className="h-6 w-64" />
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-full" />
+                ))}
+              </CardContent>
+            </Card>
+          </div>
         )}
 
-        {/* Marksheet */}
-        {!loading && marksheetData && (
-          <div id="marksheet" className="space-y-4">
-            {/* Stats Cards */}
+        {/* Marksheet Results */}
+        {!loading && data && (
+          <div id="marksheet" className="space-y-4 print:space-y-2">
+            {/* Summary Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <Card className="border-l-4 border-l-violet-500">
                 <CardContent className="p-3">
-                  <p className="text-xs text-slate-500">Total Score</p>
-                  <p className="text-xl font-bold text-slate-900">{marksheetData.totalScore}</p>
-                  <p className="text-xs text-slate-400">of {marksheetData.subjectsTotal} subjects</p>
-                </CardContent>
-              </Card>
-              <Card className="border-l-4 border-l-sky-500">
-                <CardContent className="p-3">
-                  <p className="text-xs text-slate-500">Average</p>
-                  <p className="text-xl font-bold text-sky-600">{marksheetData.average.toFixed(1)}%</p>
+                  <p className="text-xs text-slate-400 font-semibold">Total Students</p>
+                  <p className="text-xl font-bold text-slate-900">{data.totalStudents}</p>
                 </CardContent>
               </Card>
               <Card className="border-l-4 border-l-emerald-500">
                 <CardContent className="p-3">
-                  <p className="text-xs text-slate-500">Overall Grade</p>
-                  <Badge className={`mt-1 text-sm ${getGradeBadgeColor(marksheetData.overallGrade.name)}`}>
-                    {marksheetData.overallGrade.name}
-                  </Badge>
+                  <p className="text-xs text-slate-400 font-semibold">Highest Score</p>
+                  <p className="text-xl font-bold text-emerald-600">{data.summary.highestScore}</p>
+                </CardContent>
+              </Card>
+              <Card className="border-l-4 border-l-sky-500">
+                <CardContent className="p-3">
+                  <p className="text-xs text-slate-400 font-semibold">Class Average</p>
+                  <p className="text-xl font-bold text-sky-600">{data.summary.classAverage}%</p>
                 </CardContent>
               </Card>
               <Card className="border-l-4 border-l-amber-500">
                 <CardContent className="p-3">
-                  <p className="text-xs text-slate-500">Subjects Scored</p>
-                  <p className="text-xl font-bold text-amber-600">{marksheetData.subjectsScored}/{marksheetData.subjectsTotal}</p>
+                  <p className="text-xs text-slate-400 font-semibold">Above Average</p>
+                  <p className="text-xl font-bold text-amber-600">{data.summary.studentsAboveAverage}/{data.totalStudents}</p>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Marksheet Table */}
+            {/* Marksheet Header Info */}
             <Card className="print:shadow-none print:border-0">
-              <CardHeader className="print:hidden pb-2">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-violet-600" />
-                  Marksheet — {marksheetData.student.name}
-                  {marksheetData.exam && <Badge variant="outline">{marksheetData.exam.name}</Badge>}
-                </CardTitle>
-              </CardHeader>
               <CardContent className="p-4 print:p-2">
-                {/* Student Info */}
-                <div className="bg-gradient-to-r from-violet-50 to-sky-50 rounded-xl p-4 mb-4 print:bg-gray-100">
+                <div className="bg-gradient-to-r from-violet-50 to-sky-50 rounded-xl p-4 print:bg-gray-100">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
                     <div>
-                      <span className="text-slate-500 text-xs">Student:</span>
-                      <p className="font-semibold">{marksheetData.student.name}</p>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 text-xs">Code:</span>
-                      <p className="font-mono">{marksheetData.student.student_code}</p>
-                    </div>
-                    <div>
                       <span className="text-slate-500 text-xs">Class:</span>
-                      <p className="font-semibold">{marksheetData.class.name}</p>
+                      <p className="font-semibold">{data.class.name} {data.class.name_numeric}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 text-xs">Section:</span>
+                      <p className="font-semibold">{data.section?.name || 'All'}</p>
                     </div>
                     <div>
                       <span className="text-slate-500 text-xs">Exam:</span>
-                      <p className="font-semibold">{marksheetData.exam?.name || 'N/A'}</p>
+                      <p className="font-semibold">{data.exam?.name || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 text-xs">Year:</span>
+                      <p className="font-semibold">{data.exam?.year || 'N/A'}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Marks Table */}
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto mt-4">
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-slate-100">
-                        <TableHead className="text-xs font-semibold w-12 text-center">#</TableHead>
-                        <TableHead className="text-xs font-semibold">Subject</TableHead>
-                        <TableHead className="text-xs font-semibold text-center">Mark Obtained</TableHead>
-                        <TableHead className="text-xs font-semibold text-center">Grade</TableHead>
-                        <TableHead className="text-xs font-semibold text-center">Remark</TableHead>
-                        <TableHead className="text-xs font-semibold text-center">Position</TableHead>
+                      <TableRow className="bg-slate-800 print:bg-slate-200">
+                        <TableHead className="text-xs font-semibold text-slate-50 print:text-slate-800 w-12 text-center">#</TableHead>
+                        <TableHead className="text-xs font-semibold text-slate-50 print:text-slate-800 min-w-[180px]">Student Name</TableHead>
+                        <TableHead className="text-xs font-semibold text-slate-50 print:text-slate-800 w-16 text-center">ID</TableHead>
+                        <TableHead className="text-xs font-semibold text-slate-50 print:text-slate-800 w-16 text-center">Sex</TableHead>
+                        {data.subjects.map(s => (
+                          <TableHead key={s.subject_id} className="text-xs font-semibold text-slate-50 print:text-slate-800 min-w-[60px] text-center print:text-[10px]">
+                            <span className="hidden lg:inline">{s.name.length > 6 ? s.name.substring(0, 6) : s.name}</span>
+                            <span className="lg:hidden">{s.name.length > 4 ? s.name.substring(0, 4) : s.name}</span>
+                          </TableHead>
+                        ))}
+                        <TableHead className="text-xs font-semibold text-slate-50 print:text-slate-800 text-center min-w-[60px]">Total</TableHead>
+                        <TableHead className="text-xs font-semibold text-slate-50 print:text-slate-800 text-center min-w-[50px]">Avg</TableHead>
+                        <TableHead className="text-xs font-semibold text-slate-50 print:text-slate-800 text-center min-w-[50px]">Grade</TableHead>
+                        <TableHead className="text-xs font-semibold text-slate-50 print:text-slate-800 text-center min-w-[50px]">Pos</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {marksheetData.subjects.length === 0 ? (
+                      {data.students.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={6} className="text-center py-12 text-slate-400">
-                            No subjects or marks found. Enter marks first in Examination → Manage Exam Marks.
+                          <TableCell colSpan={5 + data.subjects.length + 4} className="text-center py-16 text-slate-400">
+                            <div className="flex flex-col items-center gap-2">
+                              <AlertCircle className="w-10 h-10 text-slate-300" />
+                              <p className="font-medium">No students found</p>
+                              <p className="text-sm">No students enrolled in this class for the selected filters.</p>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ) : (
                         <>
-                          {marksheetData.subjects.map((m, i) => (
-                            <TableRow key={m.subject_id} className={m.mark_obtained < 50 ? 'bg-red-50/50' : ''}>
-                              <TableCell className="text-sm text-slate-400 text-center">{i + 1}</TableCell>
-                              <TableCell className="font-medium text-sm">
-                                {m.subject_name.length <= 4 ? m.subject_name.toUpperCase() : m.subject_name}
+                          {data.students.map((student, idx) => (
+                            <TableRow
+                              key={student.student_id}
+                              className={`border-b hover:bg-slate-50 print:hover:bg-white ${
+                                student.position === 1 ? 'bg-amber-50/50 print:bg-amber-50' :
+                                student.position <= 3 ? 'bg-sky-50/30' : ''
+                              }`}
+                            >
+                              <TableCell className="text-sm text-slate-400 text-center">{idx + 1}</TableCell>
+                              <TableCell className="font-medium text-sm text-slate-800">
+                                {student.name}
+                              </TableCell>
+                              <TableCell className="text-xs text-slate-500 text-center font-mono">{student.student_code}</TableCell>
+                              <TableCell className="text-xs text-slate-500 text-center">
+                                {student.sex ? student.sex.charAt(0).toUpperCase() : '—'}
+                              </TableCell>
+                              {data.subjects.map(s => {
+                                const markEntry = student.marks.find(m => m.subject_id === s.subject_id);
+                                const score = markEntry?.mark_obtained || 0;
+                                const isLow = score > 0 && score < 50;
+                                return (
+                                  <TableCell
+                                    key={s.subject_id}
+                                    className={`text-center text-sm font-mono print:text-xs ${
+                                      isLow ? 'text-red-600 bg-red-50/50' :
+                                      score > 0 ? 'font-semibold text-slate-800' : 'text-slate-300'
+                                    }`}
+                                  >
+                                    {score > 0 ? score : '—'}
+                                  </TableCell>
+                                );
+                              })}
+                              <TableCell className="text-center font-bold text-sm text-slate-900 bg-slate-50 print:bg-slate-100">
+                                {student.total}
+                              </TableCell>
+                              <TableCell className={`text-center text-sm font-mono ${
+                                student.average >= 50 ? 'text-emerald-600' : student.average > 0 ? 'text-red-600' : 'text-slate-300'
+                              }`}>
+                                {student.average > 0 ? student.average.toFixed(1) : '—'}
                               </TableCell>
                               <TableCell className="text-center">
-                                <span className={`font-mono text-sm font-semibold ${m.mark_obtained > 0 ? '' : 'text-slate-300'}`}>
-                                  {m.mark_obtained > 0 ? m.mark_obtained : 'N/A'}
-                                </span>
+                                {student.total > 0 ? (
+                                  <Badge variant="outline" className={`text-[10px] print:text-[9px] ${getGradeBadgeColor(student.grade)}`}>
+                                    {student.grade}
+                                  </Badge>
+                                ) : (
+                                  <span className="text-slate-300 text-sm">—</span>
+                                )}
                               </TableCell>
                               <TableCell className="text-center">
-                                {m.mark_obtained > 0 ? (
-                                  <Badge variant="outline" className={getGradeBadgeColor(m.grade_name)}>
-                                    {m.grade_name}
-                                  </Badge>
-                                ) : (
-                                  <span className="text-slate-300 text-sm">N/A</span>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-center text-sm">
-                                {m.mark_obtained > 0 ? (
-                                  <Badge variant="outline" className={m.remark === 'Credit' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}>
-                                    {m.remark}
-                                  </Badge>
-                                ) : (
-                                  <span className="text-slate-300 text-sm">N/A</span>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-center text-sm">
-                                {m.position > 0 ? (
-                                  <span className={`font-semibold ${m.position === 1 ? 'text-emerald-600' : m.position <= 3 ? 'text-sky-600' : 'text-slate-600'}`}>
-                                    {m.position}
-                                    {m.position === 1 && <Award className="w-3 h-3 inline ml-1" />}
+                                {student.total > 0 ? (
+                                  <span className={`text-sm ${getPositionBadge(student.position, data.totalStudents)}`}>
+                                    {student.position}
+                                    {student.position === 1 && <Award className="w-3 h-3 inline ml-0.5 text-amber-500" />}
                                   </span>
                                 ) : (
                                   <span className="text-slate-300 text-sm">—</span>
@@ -370,21 +409,37 @@ export default function MarksheetsPage() {
                               </TableCell>
                             </TableRow>
                           ))}
-                          {/* Total Row */}
-                          <TableRow className="bg-slate-100 font-bold">
-                            <TableCell className="text-center" colSpan={2}>TOTAL</TableCell>
-                            <TableCell className="text-center font-mono">{marksheetData.totalScore}</TableCell>
-                            <TableCell className="text-center">
-                              <Badge className={getGradeBadgeColor(marksheetData.overallGrade.name)}>
-                                {marksheetData.overallGrade.name}
-                              </Badge>
+
+                          {/* Averages Row */}
+                          <TableRow className="bg-slate-100 font-bold print:bg-slate-200">
+                            <TableCell colSpan={4} className="text-center text-sm text-slate-600">
+                              Class Average
                             </TableCell>
-                            <TableCell className="text-center">
-                              <Badge variant="outline" className={marksheetData.average >= 50 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}>
-                                {marksheetData.average >= 50 ? 'Credit' : 'Fail'}
-                              </Badge>
+                            {data.subjects.map(s => {
+                              const subjectMarks = data.students
+                                .map(st => st.marks.find(m => m.subject_id === s.subject_id))
+                                .filter(m => m && m.mark_obtained > 0);
+                              const avg = subjectMarks.length > 0
+                                ? (subjectMarks.reduce((sum, m) => sum + m.mark_obtained, 0) / subjectMarks.length).toFixed(1)
+                                : '—';
+                              return (
+                                <TableCell key={s.subject_id} className="text-center text-sm text-slate-700 font-mono">
+                                  {avg}
+                                </TableCell>
+                              );
+                            })}
+                            <TableCell className="text-center text-sm text-slate-700">
+                              {data.summary.classAverage}%
                             </TableCell>
-                            <TableCell />
+                            <TableCell className="text-center text-sm text-slate-400">
+                              —
+                            </TableCell>
+                            <TableCell className="text-center text-sm text-slate-400">
+                              —
+                            </TableCell>
+                            <TableCell className="text-center text-sm text-slate-400">
+                              —
+                            </TableCell>
                           </TableRow>
                         </>
                       )}
@@ -409,11 +464,11 @@ export default function MarksheetsPage() {
         )}
 
         {/* Empty State */}
-        {!loading && !marksheetData && !selectedStudent && (
+        {!loading && !data && !loadingInitial && (
           <div className="text-center py-16 text-slate-400">
             <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p className="font-medium">Search for a student to view their marksheet</p>
-            <p className="text-sm mt-1">Enter a name or student code above</p>
+            <p className="font-medium">Select a class, section and exam to view the marksheet</p>
+            <p className="text-sm mt-1">Use the filters above to get started</p>
           </div>
         )}
       </div>
