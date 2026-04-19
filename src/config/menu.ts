@@ -76,15 +76,18 @@ export interface MenuSection {
 
 // ─── Full Admin Menu (CI3-matching, with permissions) ───────
 const adminMenus: MenuSection[] = [
+  // ── 1. DASHBOARD ──────────────────────────────────────────
   {
-    title: "Main",
+    title: "Dashboard",
     items: [
       { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, permission: null },
       { label: "Barcode Scanner", href: "/admin/barcode", icon: ScanBarcode, permission: "can_use_barcode_scanner" },
     ],
   },
+
+  // ── 2. PEOPLE MANAGEMENT ─────────────────────────────────
   {
-    title: "People",
+    title: "People Management",
     items: [
       { label: "Administrators", href: "/admin/admins", icon: UserCog, permission: "can_view_admins_list" },
       {
@@ -104,10 +107,12 @@ const adminMenus: MenuSection[] = [
       },
       { label: "Teachers", href: "/admin/teachers", icon: User, permission: "can_view_teachers_list" },
       { label: "Parents", href: "/admin/parents", icon: Users, permission: "can_view_parents_list" },
-      { label: "Librarians", href: "/admin/librarians", icon: LibraryIcon, permission: "can_manage_books" },
       { label: "Employees", href: "/admin/employees", icon: UserCog, permission: "can_manage_employees" },
+      { label: "Librarians", href: "/admin/librarians", icon: LibraryIcon, permission: "can_manage_books" },
     ],
   },
+
+  // ── 3. ACADEMICS ──────────────────────────────────────────
   {
     title: "Academics",
     items: [
@@ -131,19 +136,14 @@ const adminMenus: MenuSection[] = [
           { label: "Manage Marks", href: "/admin/exams/marks", icon: PenLine, permission: "can_enter_marks" },
           { label: "SMS/Email Marks", href: "/admin/exams/sms", icon: Smartphone, permission: "can_send_messages" },
           { label: "Question Papers", href: "/admin/exams/question-papers", icon: FileText, permission: "can_manage_exams" },
-          { label: "Tabulation", href: "/admin/exams/tabulation", icon: Table2, permission: "can_view_broadsheet" },
-          { label: "Weekly Report", href: "/admin/reports/weekly", icon: BarChart3, permission: "can_view_academic_reports" },
-          { label: "Annual Report", href: "/admin/reports/annual", icon: PieChart, permission: "can_view_academic_reports" },
-          { label: "Termly Report", href: "/admin/reports/termly", icon: Target, permission: "can_view_academic_reports" },
-          { label: "Cumulative Report", href: "/admin/reports/cumulative", icon: TrendingUp, permission: "can_view_academic_reports" },
           { label: "Create Online Exam", href: "/admin/exams/online/create", icon: Trophy, permission: "can_manage_exams" },
           { label: "Manage Online Exams", href: "/admin/exams/online/manage", icon: ListChecks, permission: "can_manage_exams" },
-          { label: "Assessment Analytics", href: "/admin/assessment-analytics", icon: LineChart, permission: "can_view_academic_reports" },
-          { label: "Portfolio / SBA", href: "/admin/portfolio", icon: Trophy, permission: "can_view_academic_reports" },
         ],
       },
     ],
   },
+
+  // ── 4. FINANCE ────────────────────────────────────────────
   {
     title: "Finance",
     items: [
@@ -165,13 +165,6 @@ const adminMenus: MenuSection[] = [
       { label: "Payment Plans", href: "/admin/payment-plans", icon: Wallet, permission: "can_bill_students" },
       { label: "Auto Billing", href: "/admin/auto-billing", icon: Calculator, permission: "can_bill_students" },
       { label: "Student Billing", href: "/admin/invoices", icon: Receipt, permission: "can_bill_students" },
-      {
-        label: "Credits", href: "/admin/credits", icon: Banknote, permission: "can_receive_payment",
-        children: [
-          { label: "Manage Credits", href: "/admin/credits", icon: Banknote, permission: "can_receive_payment" },
-          { label: "Credit Statistics", href: "/admin/credits/statistics", icon: BarChart3, permission: "can_view_financial_reports" },
-        ],
-      },
       {
         label: "Discounts", href: "/admin/discounts", icon: Percent, permission: "can_manage_discounts",
         children: [
@@ -197,21 +190,30 @@ const adminMenus: MenuSection[] = [
         ],
       },
       { label: "Receivables", href: "/admin/receivables", icon: Scale, permission: "can_view_invoices" },
-      { label: "Student Ledger", href: "/admin/ledger", icon: BookCheck, permission: "can_view_invoices" },
       { label: "Budget Management", href: "/admin/budgets", icon: PiggyBank, permission: "can_view_financial_reports" },
-      { label: "Fiscal Years", href: "/admin/fiscal-years", icon: CalendarDays, permission: "can_view_financial_reports" },
       { label: "Payroll", href: "/admin/payroll", icon: Banknote, permission: "can_manage_payroll" },
-      { label: "Payslips", href: "/admin/payroll/payslips", icon: FileText, permission: "can_view_financial_reports" },
-      { label: "SSNIT Reports", href: "/admin/payroll/ssnit", icon: Shield, permission: "can_manage_payroll" },
-      { label: "SSNIT Summary", href: "/admin/payroll/ssnit/summary", icon: BarChart3, permission: "can_view_financial_reports" },
-      { label: "Student Accounts", href: "/admin/reports/student-accounts", icon: FileText, permission: "can_view_financial_reports" },
-      { label: "Aging Report", href: "/admin/reports/aging", icon: TrendingUp, permission: "can_view_financial_reports" },
-      { label: "Reconciliation", href: "/admin/reconciliation", icon: Scale, permission: "can_view_financial_reports" },
-      { label: "Collection Efficiency", href: "/admin/collection-efficiency", icon: TrendingUp, permission: "can_view_financial_reports" },
-      { label: "Financial Alerts", href: "/admin/financial-alerts", icon: BellRing, permission: "can_view_financial_reports" },
-      { label: "Collector Handover", href: "/admin/collector-handover", icon: HandCoins, permission: "can_receive_daily_fees" },
+      {
+        label: "Financial Reports", href: "/admin/reports/finance", icon: BarChart3, permission: "can_view_financial_reports",
+        children: [
+          { label: "Student Ledger", href: "/admin/ledger", icon: BookCheck, permission: "can_view_invoices" },
+          { label: "Manage Credits", href: "/admin/credits", icon: Banknote, permission: "can_receive_payment" },
+          { label: "Credit Statistics", href: "/admin/credits/statistics", icon: BarChart3, permission: "can_view_financial_reports" },
+          { label: "Payslips", href: "/admin/payroll/payslips", icon: FileText, permission: "can_view_financial_reports" },
+          { label: "SSNIT Reports", href: "/admin/payroll/ssnit", icon: Shield, permission: "can_manage_payroll" },
+          { label: "SSNIT Summary", href: "/admin/payroll/ssnit/summary", icon: BarChart3, permission: "can_view_financial_reports" },
+          { label: "Student Accounts", href: "/admin/reports/student-accounts", icon: FileText, permission: "can_view_financial_reports" },
+          { label: "Aging Report", href: "/admin/reports/aging", icon: TrendingUp, permission: "can_view_financial_reports" },
+          { label: "Fiscal Years", href: "/admin/fiscal-years", icon: CalendarDays, permission: "can_view_financial_reports" },
+          { label: "Reconciliation", href: "/admin/reconciliation", icon: Scale, permission: "can_view_financial_reports" },
+          { label: "Collection Efficiency", href: "/admin/collection-efficiency", icon: TrendingUp, permission: "can_view_financial_reports" },
+          { label: "Financial Alerts", href: "/admin/financial-alerts", icon: BellRing, permission: "can_view_financial_reports" },
+          { label: "Collector Handover", href: "/admin/collector-handover", icon: HandCoins, permission: "can_receive_daily_fees" },
+        ],
+      },
     ],
   },
+
+  // ── 5. COMMUNICATION ─────────────────────────────────────
   {
     title: "Communication",
     items: [
@@ -223,6 +225,8 @@ const adminMenus: MenuSection[] = [
       { label: "Bill Reminders", href: "/admin/bill-reminders", icon: BellRing, permission: "can_send_sms" },
     ],
   },
+
+  // ── 6. OPERATIONS ─────────────────────────────────────────
   {
     title: "Operations",
     items: [
@@ -244,6 +248,22 @@ const adminMenus: MenuSection[] = [
       { label: "Maintenance", href: "/admin/maintenance", icon: Settings, permission: "can_manage_settings" },
     ],
   },
+
+  // ── 7. REPORTS ────────────────────────────────────────────
+  {
+    title: "Reports",
+    items: [
+      { label: "Tabulation", href: "/admin/exams/tabulation", icon: Table2, permission: "can_view_broadsheet" },
+      { label: "Weekly Report", href: "/admin/reports/weekly", icon: BarChart3, permission: "can_view_academic_reports" },
+      { label: "Annual Report", href: "/admin/reports/annual", icon: PieChart, permission: "can_view_academic_reports" },
+      { label: "Termly Report", href: "/admin/reports/termly", icon: Target, permission: "can_view_academic_reports" },
+      { label: "Cumulative Report", href: "/admin/reports/cumulative", icon: TrendingUp, permission: "can_view_academic_reports" },
+      { label: "Assessment Analytics", href: "/admin/assessment-analytics", icon: LineChart, permission: "can_view_academic_reports" },
+      { label: "Portfolio / SBA", href: "/admin/portfolio", icon: Trophy, permission: "can_view_academic_reports" },
+    ],
+  },
+
+  // ── 8. SYSTEM ─────────────────────────────────────────────
   {
     title: "System",
     items: [

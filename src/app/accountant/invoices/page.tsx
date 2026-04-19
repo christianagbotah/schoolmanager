@@ -103,8 +103,8 @@ export default function AccountantInvoicesPage() {
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [billItems, setBillItems] = useState<BillItem[]>([]);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [classFilter, setClassFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [classFilter, setClassFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState<{ totalBilled: number; totalCollected: number; outstanding: number } | null>(null);
@@ -131,8 +131,8 @@ export default function AccountantInvoicesPage() {
     try {
       const params = new URLSearchParams({ limit: "20", page: String(page) });
       if (search) params.set("search", search);
-      if (statusFilter) params.set("status", statusFilter);
-      if (classFilter) params.set("classId", classFilter);
+      if (statusFilter !== "all") params.set("status", statusFilter);
+      if (classFilter !== "all") params.set("classId", classFilter);
 
       const res = await fetch(`/api/accountant/invoices?${params}`);
       if (!res.ok) throw new Error("Failed");
@@ -268,7 +268,7 @@ export default function AccountantInvoicesPage() {
               </div>
               <div className="space-y-2">
                 <Label>Status</Label>
-                <Select value={statusFilter || "all"} onValueChange={(v) => { setStatusFilter(v === "all" ? "" : v); setPage(1); }}>
+                <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
                   <SelectTrigger><SelectValue placeholder="All statuses" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Statuses</SelectItem>
@@ -280,7 +280,7 @@ export default function AccountantInvoicesPage() {
               </div>
               <div className="space-y-2">
                 <Label>Class</Label>
-                <Select value={classFilter || "all"} onValueChange={(v) => { setClassFilter(v === "all" ? "" : v); setPage(1); }}>
+                <Select value={classFilter} onValueChange={(v) => { setClassFilter(v); setPage(1); }}>
                   <SelectTrigger><SelectValue placeholder="All classes" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Classes</SelectItem>

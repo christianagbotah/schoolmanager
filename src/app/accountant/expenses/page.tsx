@@ -115,8 +115,8 @@ export default function AccountantExpensesPage() {
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -146,8 +146,8 @@ export default function AccountantExpensesPage() {
     try {
       const params = new URLSearchParams({ limit: "100" });
       if (search) params.set("search", search);
-      if (statusFilter) params.set("status", statusFilter);
-      if (categoryFilter) params.set("categoryId", categoryFilter);
+      if (statusFilter !== "all") params.set("status", statusFilter);
+      if (categoryFilter !== "all") params.set("categoryId", categoryFilter);
 
       const [expRes, catRes] = await Promise.all([
         fetch(`/api/accountant/expenses?${params}`),
@@ -307,7 +307,7 @@ export default function AccountantExpensesPage() {
               </div>
               <div className="space-y-2">
                 <Label>Category</Label>
-                <Select value={categoryFilter || "all"} onValueChange={(v) => setCategoryFilter(v === "all" ? "" : v)}>
+                <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v)}>
                   <SelectTrigger><SelectValue placeholder="All categories" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
@@ -317,7 +317,7 @@ export default function AccountantExpensesPage() {
               </div>
               <div className="space-y-2">
                 <Label>Status</Label>
-                <Select value={statusFilter || "all"} onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}>
+                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v)}>
                   <SelectTrigger><SelectValue placeholder="All statuses" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Statuses</SelectItem>

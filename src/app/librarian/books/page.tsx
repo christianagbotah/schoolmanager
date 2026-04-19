@@ -71,8 +71,8 @@ export default function LibrarianBooksPage() {
   const [books, setBooks] = useState<BookItem[]>([]);
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -110,7 +110,7 @@ export default function LibrarianBooksPage() {
     try {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
-      if (categoryFilter) params.set("category", categoryFilter);
+      if (categoryFilter !== "all") params.set("category", categoryFilter);
 
       const [booksRes, classesRes] = await Promise.all([
         fetch(`/api/librarian/books?${params}`),
@@ -219,9 +219,7 @@ export default function LibrarianBooksPage() {
   };
 
   // Client-side status filter
-  const filteredBooks = statusFilter
-    ? books.filter((b) => b.status === statusFilter)
-    : books;
+  const filteredBooks = statusFilter !== "all" ? books.filter((b) => b.status === statusFilter) : books;
 
   return (
     <DashboardLayout>
@@ -294,7 +292,7 @@ export default function LibrarianBooksPage() {
                 />
               </div>
               <div>
-                <Select value={categoryFilter || "all"} onValueChange={(v) => setCategoryFilter(v === "all" ? "" : v)}>
+                <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v)}>
                   <SelectTrigger><SelectValue placeholder="All Categories" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
@@ -303,7 +301,7 @@ export default function LibrarianBooksPage() {
                 </Select>
               </div>
               <div>
-                <Select value={statusFilter || "all"} onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}>
+                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v)}>
                   <SelectTrigger><SelectValue placeholder="All Statuses" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Statuses</SelectItem>
@@ -313,16 +311,16 @@ export default function LibrarianBooksPage() {
                 </Select>
               </div>
             </div>
-            {(categoryFilter || statusFilter) && (
+            {(categoryFilter !== "all" || statusFilter !== "all") && (
               <div className="flex items-center gap-2 mt-3">
                 <span className="text-xs text-slate-500">Active filters:</span>
                 {categoryFilter && (
-                  <Badge variant="secondary" className="text-xs cursor-pointer" onClick={() => setCategoryFilter("")}>
+                  <Badge variant="secondary" className="text-xs cursor-pointer" onClick={() => setCategoryFilter("all")}>
                     {categoryFilter} <X className="w-3 h-3 ml-1" />
                   </Badge>
                 )}
                 {statusFilter && (
-                  <Badge variant="secondary" className="text-xs cursor-pointer" onClick={() => setStatusFilter("")}>
+                  <Badge variant="secondary" className="text-xs cursor-pointer" onClick={() => setStatusFilter("all")}>
                     {statusFilter} <X className="w-3 h-3 ml-1" />
                   </Badge>
                 )}

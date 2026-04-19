@@ -77,7 +77,7 @@ export default function InvoicesPage() {
   const [students, setStudents] = useState<StudentItem[]>([]);
   const [selectedStudent, setSelectedStudent] = useState("");
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceItem | null>(null);
@@ -96,7 +96,7 @@ export default function InvoicesPage() {
       } else {
         const params = new URLSearchParams();
         if (search) params.set("search", search);
-        if (statusFilter) params.set("status", statusFilter);
+        if (statusFilter !== "all") params.set("status", statusFilter);
         url = `/api/invoices?${params}&limit=50`;
       }
       const res = await fetch(url);
@@ -180,7 +180,7 @@ export default function InvoicesPage() {
               </div>
               <div className="space-y-2">
                 <Label>Status</Label>
-                <Select value={statusFilter || "all"} onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}>
+                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v)}>
                   <SelectTrigger><SelectValue placeholder="All statuses" /></SelectTrigger>
                   <SelectContent><SelectItem value="all">All Statuses</SelectItem><SelectItem value="paid">Paid</SelectItem><SelectItem value="partial">Partial</SelectItem><SelectItem value="unpaid">Unpaid</SelectItem></SelectContent>
                 </Select>

@@ -166,7 +166,7 @@ function PaymentStatusBadge({ status }: { status: string }) {
   return <Badge variant={variant}>{label}</Badge>;
 }
 
-// ─── Stat Card Component ─────────────────────────────────────
+// ─── Stat Card Component (CI3-style with left border) ─────────
 function StatCard({
   icon: Icon,
   label,
@@ -186,23 +186,23 @@ function StatCard({
 }) {
   return (
     <div
-      className="dashboard-card bg-white rounded-2xl shadow-sm p-7 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl transition-all duration-300"
+      className="dashboard-card h-full bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-7 hover:-translate-y-1 hover:shadow-lg hover:backdrop-blur-sm transition-all duration-200"
       style={{ borderLeft: `5px solid ${borderColor}` }}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between h-full">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-slate-500 mb-1">{label}</p>
-          <p className="text-3xl font-bold text-slate-900 tabular-nums">
+          <p className="text-xs sm:text-sm font-medium text-slate-500 mb-1">{label}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
             {value}
           </p>
           {subtext && (
-            <p className="text-xs text-slate-400 mt-1">{subtext}</p>
+            <p className="text-[10px] sm:text-xs text-slate-400 mt-1">{subtext}</p>
           )}
         </div>
         <div
-          className={`stat-icon w-16 h-16 rounded-2xl flex items-center justify-center text-3xl text-white bg-gradient-to-br ${gradientFrom} ${gradientTo} flex-shrink-0 ml-4`}
+          className={`stat-icon w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl md:text-3xl text-white bg-gradient-to-br ${gradientFrom} ${gradientTo} flex-shrink-0 ml-3 sm:ml-4`}
         >
-          <Icon className="w-8 h-8" />
+          <Icon className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
         </div>
       </div>
     </div>
@@ -212,13 +212,13 @@ function StatCard({
 // ─── Skeleton Loading ────────────────────────────────────────
 function StatCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-7 border-l-5 border-slate-200">
+    <div className="h-full bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-7 border-l-5 border-slate-200">
       <div className="flex items-center justify-between">
         <div className="flex-1 space-y-3">
           <Skeleton className="h-4 w-28" />
           <Skeleton className="h-9 w-20" />
         </div>
-        <Skeleton className="w-16 h-16 rounded-2xl flex-shrink-0 ml-4" />
+        <Skeleton className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex-shrink-0 ml-3 sm:ml-4" />
       </div>
     </div>
   );
@@ -226,13 +226,48 @@ function StatCardSkeleton() {
 
 function ChartSkeleton() {
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
+    <div className="h-full bg-white rounded-2xl shadow-sm border border-slate-100 p-4 sm:p-6">
       <div className="flex items-center gap-2 mb-6">
         <Skeleton className="w-6 h-6 rounded" />
         <Skeleton className="h-5 w-48" />
       </div>
-      <Skeleton className="h-[260px] w-full rounded-xl" />
+      <Skeleton className="h-[250px] w-full rounded-xl" />
     </div>
+  );
+}
+
+// ─── Mobile Payment Card ─────────────────────────────────────
+function MobilePaymentCard({
+  payment,
+  onClick,
+}: {
+  payment: RecentPayment;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full min-h-[56px] flex items-center justify-between px-4 py-3 border-b border-slate-100 last:border-b-0 hover:bg-slate-50 active:bg-slate-100 transition-colors text-left"
+    >
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-slate-900 truncate">
+          {payment.studentName || "Unknown"}
+        </p>
+        <p className="text-xs text-slate-400 mt-0.5">
+          {payment.date
+            ? format(new Date(payment.date), "MMM d, yyyy")
+            : "—"}
+        </p>
+      </div>
+      <div className="flex-shrink-0 ml-3 text-right">
+        <p className="text-sm font-bold text-slate-900 tabular-nums">
+          {formatCurrency(payment.amount)}
+        </p>
+        <p className="text-[10px] text-slate-400 capitalize mt-0.5">
+          {payment.method.replace(/_/g, " ")}
+        </p>
+      </div>
+    </button>
   );
 }
 
@@ -294,14 +329,14 @@ function QuickAction({
   return (
     <button
       onClick={() => onClick(href)}
-      className={`group flex flex-col items-center gap-3 p-5 rounded-xl bg-white border-2 border-slate-100 ${colors.hoverBorder} hover:${colors.hoverBg.replace("group-hover:", "")} hover:-translate-y-1 transition-all duration-300 cursor-pointer w-full`}
+      className={`group flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-5 rounded-xl bg-white border border-slate-100 ${colors.hoverBorder} hover:${colors.hoverBg.replace("group-hover:", "")} hover:-translate-y-1 hover:shadow-md transition-all duration-200 cursor-pointer w-full min-h-[88px] sm:min-h-[100px]`}
     >
       <div
-        className={`w-12 h-12 rounded-xl ${colors.bg} ${colors.hoverBg} flex items-center justify-center transition-colors duration-300`}
+        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl ${colors.bg} ${colors.hoverBg} flex items-center justify-center transition-colors duration-200`}
       >
-        <Icon className={`w-6 h-6 ${colors.iconColor}`} />
+        <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${colors.iconColor}`} />
       </div>
-      <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">
+      <span className="text-xs sm:text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors text-center leading-tight">
         {label}
       </span>
     </button>
@@ -365,7 +400,7 @@ export default function AdminDashboard() {
           </div>
           <h2 className="text-xl font-semibold text-slate-900">Something went wrong</h2>
           <p className="text-slate-500 text-center max-w-md">{error}</p>
-          <Button onClick={fetchDashboardData} variant="outline" className="mt-2">
+          <Button onClick={fetchDashboardData} variant="outline" className="mt-2 min-h-[44px] px-6">
             <Loader2 className="w-4 h-4 mr-2" />
             Try Again
           </Button>
@@ -378,7 +413,7 @@ export default function AdminDashboard() {
   if (authLoading || isLoading || !data) {
     return (
       <DashboardLayout>
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           {/* Title skeleton */}
           <div className="space-y-2">
             <Skeleton className="h-8 w-56" />
@@ -387,15 +422,15 @@ export default function AdminDashboard() {
 
           {/* Filter skeleton (super admin) */}
           {isSuperAdmin && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-10 w-full rounded-lg" />
+                <Skeleton key={i} className="h-11 w-full rounded-lg" />
               ))}
             </div>
           )}
 
           {/* Stat cards skeleton */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
             {Array.from({ length: 4 }).map((_, i) => (
               <StatCardSkeleton key={i} />
             ))}
@@ -403,7 +438,7 @@ export default function AdminDashboard() {
 
           {/* Financial skeleton */}
           {canViewFinance && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {Array.from({ length: 3 }).map((_, i) => (
                 <StatCardSkeleton key={i} />
               ))}
@@ -411,13 +446,13 @@ export default function AdminDashboard() {
           )}
 
           {/* Charts skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <ChartSkeleton />
             <ChartSkeleton />
           </div>
 
           {/* Gender + Residential skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <ChartSkeleton />
             <ChartSkeleton />
           </div>
@@ -428,22 +463,22 @@ export default function AdminDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* ─── Page Header ───────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 pb-4 border-b border-slate-100">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
               Dashboard Overview
             </h1>
-            <p className="text-slate-500 mt-1">
+            <p className="text-slate-500 mt-1 text-sm sm:text-base">
               Welcome back! Here&apos;s what&apos;s happening at your school today.
             </p>
-            <p className="text-sm text-slate-400 mt-0.5">{today}</p>
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">{today}</p>
           </div>
           <div className="flex items-center gap-2">
             <CalendarDays className="w-4 h-4 text-slate-400" />
             <Select value={filterYear} onValueChange={setFilterYear}>
-              <SelectTrigger className="w-[110px]" size="sm">
+              <SelectTrigger className="w-[100px] sm:w-[110px] min-h-[36px] sm:min-h-[44px]" size="sm">
                 <SelectValue placeholder="Year" />
               </SelectTrigger>
               <SelectContent>
@@ -456,7 +491,7 @@ export default function AdminDashboard() {
               </SelectContent>
             </Select>
             <Select value={filterTerm} onValueChange={setFilterTerm}>
-              <SelectTrigger className="w-[120px]" size="sm">
+              <SelectTrigger className="w-[110px] sm:w-[120px] min-h-[36px] sm:min-h-[44px]" size="sm">
                 <SelectValue placeholder="Term" />
               </SelectTrigger>
               <SelectContent>
@@ -470,8 +505,8 @@ export default function AdminDashboard() {
 
         {/* ─── Filter Section (Super Admin Only) ─────────────── */}
         {isSuperAdmin && (
-          <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Date
@@ -480,7 +515,7 @@ export default function AdminDashboard() {
                   type="date"
                   value={filterDate}
                   onChange={(e) => setFilterDate(e.target.value)}
-                  className="h-9"
+                  className="h-11 min-h-[44px]"
                 />
               </div>
               <div className="space-y-1.5">
@@ -488,7 +523,7 @@ export default function AdminDashboard() {
                   Term
                 </label>
                 <Select value={filterTerm} onValueChange={setFilterTerm}>
-                  <SelectTrigger className="h-9">
+                  <SelectTrigger className="h-11 min-h-[44px]">
                     <SelectValue placeholder="Select Term" />
                   </SelectTrigger>
                   <SelectContent>
@@ -503,7 +538,7 @@ export default function AdminDashboard() {
                   Year
                 </label>
                 <Select value={filterYear} onValueChange={setFilterYear}>
-                  <SelectTrigger className="h-9">
+                  <SelectTrigger className="h-11 min-h-[44px]">
                     <SelectValue placeholder="Select Year" />
                   </SelectTrigger>
                   <SelectContent>
@@ -527,7 +562,7 @@ export default function AdminDashboard() {
                     placeholder="Search students..."
                     value={filterSearch}
                     onChange={(e) => setFilterSearch(e.target.value)}
-                    className="h-9 pl-8"
+                    className="h-11 min-h-[44px] pl-8"
                   />
                 </div>
               </div>
@@ -535,8 +570,10 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* ─── Row 1: Key Metric Cards (4 columns) ──────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* ═══════════════════════════════════════════════════════
+            Row 1: Key Metric Cards (CI3-style, 4 columns)
+            ═══════════════════════════════════════════════════════ */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
           <StatCard
             icon={GraduationCap}
             label="Total Students"
@@ -572,106 +609,110 @@ export default function AdminDashboard() {
           />
         </div>
 
-        {/* ─── Row 2: Financial Overview (3 columns, admin only) ── */}
+        {/* ═══════════════════════════════════════════════════════
+            Row 2: Financial Overview (3 cards, permission-gated)
+            ═══════════════════════════════════════════════════════ */}
         {canViewFinance && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             {/* Total Revenue */}
             <div
-              className="dashboard-card bg-white rounded-2xl shadow-sm p-7 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl transition-all duration-300"
+              className="dashboard-card h-full bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-7 hover:-translate-y-1 hover:shadow-lg hover:backdrop-blur-sm transition-all duration-200"
               style={{ borderLeft: "5px solid #10b981" }}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between h-full">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-500 mb-1">
+                  <p className="text-xs sm:text-sm font-medium text-slate-500 mb-1">
                     Total Revenue
                   </p>
-                  <p className="text-2xl font-bold text-slate-900 tabular-nums">
+                  <p className="text-xl sm:text-2xl font-bold text-slate-900 tabular-nums">
                     {formatCurrency(data.financial.totalRevenue)}
                   </p>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-[10px] sm:text-xs text-slate-400 mt-1">
                     This term ({data.academicTerm.term})
                   </p>
                 </div>
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl text-white bg-gradient-to-br from-emerald-400 to-teal-400 flex-shrink-0 ml-4">
-                  <DollarSign className="w-8 h-8" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-emerald-400 to-teal-400 flex-shrink-0 ml-3 sm:ml-4">
+                  <DollarSign className="w-6 h-6 sm:w-8 sm:h-8" />
                 </div>
               </div>
             </div>
 
             {/* Collection Rate */}
             <div
-              className="dashboard-card bg-white rounded-2xl shadow-sm p-7 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl transition-all duration-300"
+              className="dashboard-card h-full bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-7 hover:-translate-y-1 hover:shadow-lg hover:backdrop-blur-sm transition-all duration-200"
               style={{ borderLeft: "5px solid #3b82f6" }}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between h-full">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-500 mb-1">
+                  <p className="text-xs sm:text-sm font-medium text-slate-500 mb-1">
                     Collection Rate
                   </p>
-                  <div className="flex items-center gap-3">
-                    <p className="text-2xl font-bold text-slate-900 tabular-nums">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <p className="text-xl sm:text-2xl font-bold text-slate-900 tabular-nums">
                       {data.financial.collectionRate}%
                     </p>
                     <Badge
                       variant="outline"
-                      className={`text-xs font-semibold border ${data.financial.collectionColor}`}
+                      className={`text-[10px] sm:text-xs font-semibold border ${data.financial.collectionColor}`}
                     >
                       {data.financial.collectionLabel}
                     </Badge>
                   </div>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-[10px] sm:text-xs text-slate-400 mt-1">
                     Academic year {data.academicTerm.year}
                   </p>
                 </div>
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl text-white bg-gradient-to-br from-blue-400 to-indigo-500 flex-shrink-0 ml-4">
-                  <TrendingUp className="w-8 h-8" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-blue-400 to-indigo-500 flex-shrink-0 ml-3 sm:ml-4">
+                  <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8" />
                 </div>
               </div>
             </div>
 
             {/* Pending Payments */}
             <div
-              className="dashboard-card bg-white rounded-2xl shadow-sm p-7 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-xl transition-all duration-300"
+              className="dashboard-card h-full bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-7 hover:-translate-y-1 hover:shadow-lg hover:backdrop-blur-sm transition-all duration-200"
               style={{ borderLeft: "5px solid #ec4899" }}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between h-full">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-500 mb-1">
+                  <p className="text-xs sm:text-sm font-medium text-slate-500 mb-1">
                     Pending Payments
                   </p>
-                  <p className="text-2xl font-bold text-slate-900 tabular-nums">
+                  <p className="text-xl sm:text-2xl font-bold text-slate-900 tabular-nums">
                     {data.financial.pendingPayments}
                   </p>
-                  <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                  <p className="text-[10px] sm:text-xs text-slate-400 mt-1 flex items-center gap-1">
                     <TrendingDown className="w-3 h-3" />
                     Students with unpaid invoices
                   </p>
                 </div>
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl text-white bg-gradient-to-br from-pink-400 to-rose-500 flex-shrink-0 ml-4">
-                  <AlertTriangle className="w-8 h-8" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-pink-400 to-rose-500 flex-shrink-0 ml-3 sm:ml-4">
+                  <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8" />
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* ─── Row 3: Charts (2 columns) ─────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ═══════════════════════════════════════════════════════
+            Row 3: Charts (2 columns, stack on mobile)
+            ═══════════════════════════════════════════════════════ */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Student Distribution by Class */}
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <div className="flex items-center justify-between mb-6">
+          <div className="h-full bg-white rounded-2xl shadow-sm border border-slate-100 p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
-                  <BarChart3 className="w-4 h-4 text-indigo-600" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                  <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600" />
                 </div>
-                <h3 className="text-base font-semibold text-slate-900">
+                <h3 className="text-sm sm:text-base font-semibold text-slate-900">
                   Student Distribution by Class
                 </h3>
               </div>
             </div>
             <ChartContainer
               config={classChartConfig}
-              className="h-[300px] w-full"
+              className="h-[250px] sm:h-[300px] w-full"
             >
               <BarChart
                 data={data.charts.studentDistribution}
@@ -686,46 +727,46 @@ export default function AdminDashboard() {
                   dataKey="name"
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 11, fill: "#94a3b8" }}
+                  tick={{ fontSize: 10, fill: "#94a3b8" }}
                   interval={0}
                   angle={-20}
                   textAnchor="end"
-                  height={60}
+                  height={50}
                 />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 12, fill: "#94a3b8" }}
+                  tick={{ fontSize: 11, fill: "#94a3b8" }}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar
                   dataKey="count"
                   fill="#667eea"
-                  radius={[8, 8, 0, 0]}
-                  maxBarSize={40}
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={36}
                 />
               </BarChart>
             </ChartContainer>
           </div>
 
           {/* Attendance Trend - Last 7 Days */}
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <div className="flex items-center justify-between mb-6">
+          <div className="h-full bg-white rounded-2xl shadow-sm border border-slate-100 p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-cyan-100 flex items-center justify-center">
-                  <Activity className="w-4 h-4 text-cyan-600" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-cyan-100 flex items-center justify-center">
+                  <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-600" />
                 </div>
-                <h3 className="text-base font-semibold text-slate-900">
+                <h3 className="text-sm sm:text-base font-semibold text-slate-900">
                   Attendance Trend
                 </h3>
               </div>
-              <span className="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
+              <span className="text-[10px] sm:text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
                 Last 7 days
               </span>
             </div>
             <ChartContainer
               config={attendanceChartConfig}
-              className="h-[300px] w-full"
+              className="h-[250px] sm:h-[300px] w-full"
             >
               <LineChart
                 data={data.charts.attendanceTrend}
@@ -740,12 +781,12 @@ export default function AdminDashboard() {
                   dataKey="day"
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 12, fill: "#94a3b8" }}
+                  tick={{ fontSize: 11, fill: "#94a3b8" }}
                 />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 12, fill: "#94a3b8" }}
+                  tick={{ fontSize: 11, fill: "#94a3b8" }}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Line
@@ -761,16 +802,18 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* ─── Row 4: Gender + Residential (2 columns) ───────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ═══════════════════════════════════════════════════════
+            Row 4: Demographics Charts (2 columns)
+            ═══════════════════════════════════════════════════════ */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Gender Distribution by Class (grouped bar - matches original CI3) */}
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <div className="flex items-center justify-between mb-6">
+          <div className="h-full bg-white rounded-2xl shadow-sm border border-slate-100 p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
-                  <Users className="w-4 h-4 text-purple-600" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                  <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600" />
                 </div>
-                <h3 className="text-base font-semibold text-slate-900">
+                <h3 className="text-sm sm:text-base font-semibold text-slate-900">
                   Gender Distribution by Class
                 </h3>
               </div>
@@ -778,30 +821,30 @@ export default function AdminDashboard() {
             </div>
             <ChartContainer
               config={genderChartConfig}
-              className="h-[300px] w-full"
+              className="h-[250px] sm:h-[300px] w-full"
             >
               <BarChart
                 data={data.charts.genderDistribution}
                 margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-slate-100" />
-                <XAxis dataKey="className" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} interval={0} angle={-20} textAnchor="end" height={60} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: "#94a3b8" }} />
+                <XAxis dataKey="className" tickLine={false} axisLine={false} tick={{ fontSize: 9, fill: "#94a3b8" }} interval={0} angle={-20} textAnchor="end" height={50} />
+                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="male" fill="rgba(54, 162, 235, 0.8)" radius={[4, 4, 0, 0]} maxBarSize={30} />
-                <Bar dataKey="female" fill="rgba(255, 99, 132, 0.8)" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                <Bar dataKey="male" fill="rgba(54, 162, 235, 0.8)" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                <Bar dataKey="female" fill="rgba(255, 99, 132, 0.8)" radius={[4, 4, 0, 0]} maxBarSize={28} />
               </BarChart>
             </ChartContainer>
           </div>
 
           {/* Residential Distribution by Class (matches original CI3) */}
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <div className="flex items-center justify-between mb-6">
+          <div className="h-full bg-white rounded-2xl shadow-sm border border-slate-100 p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
-                  <BarChart3 className="w-4 h-4 text-amber-600" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                  <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
                 </div>
-                <h3 className="text-base font-semibold text-slate-900">
+                <h3 className="text-sm sm:text-base font-semibold text-slate-900">
                   Residential Distribution by Class
                 </h3>
               </div>
@@ -815,7 +858,7 @@ export default function AdminDashboard() {
                   ])
                 )}
               }
-              className="h-[300px] w-full"
+              className="h-[250px] sm:h-[300px] w-full"
             >
               <BarChart
                 data={(() => {
@@ -833,40 +876,64 @@ export default function AdminDashboard() {
                 margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-slate-100" />
-                <XAxis dataKey="className" tickLine={false} axisLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} interval={0} angle={-20} textAnchor="end" height={60} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: "#94a3b8" }} />
+                <XAxis dataKey="className" tickLine={false} axisLine={false} tick={{ fontSize: 9, fill: "#94a3b8" }} interval={0} angle={-20} textAnchor="end" height={50} />
+                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 {[...new Set(data.charts.residentialDistribution.map(d => d.residenceType))].map((type, i) => (
-                  <Bar key={type} dataKey={type} fill={RESIDENTIAL_COLORS[i % RESIDENTIAL_COLORS.length]} radius={[4, 4, 0, 0]} maxBarSize={30} />
+                  <Bar key={type} dataKey={type} fill={RESIDENTIAL_COLORS[i % RESIDENTIAL_COLORS.length]} radius={[4, 4, 0, 0]} maxBarSize={28} />
                 ))}
               </BarChart>
             </ChartContainer>
           </div>
         </div>
 
-        {/* ─── Recent Payments Table ─────────────────────────── */}
+        {/* ═══════════════════════════════════════════════════════
+            Row 5: Recent Payments Table (permission-gated)
+            Desktop: full table | Mobile: card-based list
+            ═══════════════════════════════════════════════════════ */}
         {canViewFinance && (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between p-6 pb-0">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div className="flex items-center justify-between p-4 sm:p-6 pb-0 sm:pb-0">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                  <DollarSign className="w-4 h-4 text-emerald-600" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                  <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
                 </div>
-                <h3 className="text-base font-semibold text-slate-900">
+                <h3 className="text-sm sm:text-base font-semibold text-slate-900">
                   Recent Payments
                 </h3>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+                className="text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 min-h-[36px] sm:min-h-[44px]"
                 onClick={() => router.push("/admin/payments")}
               >
                 View All
                 <ArrowUpRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
-            <div className="p-6 pt-4">
+
+            {/* ─── Mobile Card View ─────────────────────────── */}
+            <div className="md:hidden p-4 pt-3">
+              {data.recentPayments.length === 0 ? (
+                <div className="text-center text-slate-400 py-12">
+                  No recent payments found
+                </div>
+              ) : (
+                <div className="max-h-96 overflow-y-auto rounded-xl border border-slate-100">
+                  {data.recentPayments.map((payment, idx) => (
+                    <MobilePaymentCard
+                      key={idx}
+                      payment={payment}
+                      onClick={() => router.push("/admin/payments")}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ─── Desktop Table View ──────────────────────── */}
+            <div className="hidden md:block p-4 sm:p-6 pt-4">
               <div className="max-h-96 overflow-y-auto rounded-xl border border-slate-100 custom-scrollbar">
                 <table className="w-full text-sm">
                   <thead>
@@ -874,16 +941,16 @@ export default function AdminDashboard() {
                       <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         Student
                       </th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">
                         Invoice
                       </th>
                       <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         Amount
                       </th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">
                         Method
                       </th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden xl:table-cell">
                         Date
                       </th>
                     </tr>
@@ -905,16 +972,16 @@ export default function AdminDashboard() {
                           <td className="px-4 py-3 font-medium text-slate-900">
                             {payment.studentName || "Unknown"}
                           </td>
-                          <td className="px-4 py-3 text-slate-500 font-mono hidden sm:table-cell">
+                          <td className="px-4 py-3 text-slate-500 font-mono hidden md:table-cell">
                             {payment.invoiceCode || "—"}
                           </td>
                           <td className="px-4 py-3 text-right font-semibold text-slate-900 tabular-nums">
                             {formatCurrency(payment.amount)}
                           </td>
-                          <td className="px-4 py-3 text-slate-500 capitalize hidden md:table-cell">
+                          <td className="px-4 py-3 text-slate-500 capitalize hidden lg:table-cell">
                             {payment.method.replace(/_/g, " ")}
                           </td>
-                          <td className="px-4 py-3 text-slate-500 hidden lg:table-cell">
+                          <td className="px-4 py-3 text-slate-500 hidden xl:table-cell">
                             {payment.date
                               ? format(new Date(payment.date), "MMM d, yyyy")
                               : "—"}
@@ -929,28 +996,30 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* ─── Financial Summary (Super Admin Only) ────────────── */}
+        {/* ═══════════════════════════════════════════════════════
+            Row 6: Financial Summary (Super Admin only, 3 gradient cards)
+            ═══════════════════════════════════════════════════════ */}
         {isSuperAdmin && data.financialSummary && (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <DollarSign className="w-4 h-4 text-emerald-600" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
               </div>
-              <h3 className="text-base font-semibold text-slate-900">
+              <h3 className="text-sm sm:text-base font-semibold text-slate-900">
                 Financial Summary
               </h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {/* Unpaid Invoices */}
               <button
                 onClick={() => router.push("/admin/invoices")}
-                className="text-left dashboard-card rounded-2xl shadow-sm p-6 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-white"
+                className="text-left dashboard-card h-full rounded-2xl shadow-sm border border-slate-100/50 p-5 sm:p-6 hover:-translate-y-1 hover:shadow-lg hover:backdrop-blur-sm transition-all duration-200 text-white"
                 style={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}
               >
-                <p className="text-sm font-medium text-white/80 mb-1">Unpaid Invoices</p>
-                <p className="text-2xl font-bold">{formatCurrency(data.financialSummary.unpaidInvoices.amount)}</p>
+                <p className="text-xs sm:text-sm font-medium text-white/80 mb-1">Unpaid Invoices</p>
+                <p className="text-xl sm:text-2xl font-bold">{formatCurrency(data.financialSummary.unpaidInvoices.amount)}</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-[10px] sm:text-xs">
                     {data.financialSummary.unpaidInvoices.count} invoices
                   </Badge>
                 </div>
@@ -958,13 +1027,13 @@ export default function AdminDashboard() {
 
               {/* Total Income */}
               <div
-                className="dashboard-card rounded-2xl shadow-sm p-6 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-white"
+                className="dashboard-card h-full rounded-2xl shadow-sm border border-slate-100/50 p-5 sm:p-6 hover:-translate-y-1 hover:shadow-lg hover:backdrop-blur-sm transition-all duration-200 text-white"
                 style={{ background: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)" }}
               >
-                <p className="text-sm font-medium text-white/80 mb-1">Total Income</p>
-                <p className="text-2xl font-bold">{formatCurrency(data.financialSummary.totalIncome.amount)}</p>
+                <p className="text-xs sm:text-sm font-medium text-white/80 mb-1">Total Income</p>
+                <p className="text-xl sm:text-2xl font-bold">{formatCurrency(data.financialSummary.totalIncome.amount)}</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-[10px] sm:text-xs">
                     {data.financialSummary.totalIncome.count} receipts
                   </Badge>
                 </div>
@@ -973,13 +1042,13 @@ export default function AdminDashboard() {
               {/* Total Expenses */}
               <button
                 onClick={() => router.push("/admin/expenses")}
-                className="text-left dashboard-card rounded-2xl shadow-sm p-6 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-white"
+                className="text-left dashboard-card h-full rounded-2xl shadow-sm border border-slate-100/50 p-5 sm:p-6 hover:-translate-y-1 hover:shadow-lg hover:backdrop-blur-sm transition-all duration-200 text-white"
                 style={{ background: "linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)" }}
               >
-                <p className="text-sm font-medium text-white/80 mb-1">Total Expenses</p>
-                <p className="text-2xl font-bold">{formatCurrency(data.financialSummary.totalExpenses.amount)}</p>
+                <p className="text-xs sm:text-sm font-medium text-white/80 mb-1">Total Expenses</p>
+                <p className="text-xl sm:text-2xl font-bold">{formatCurrency(data.financialSummary.totalExpenses.amount)}</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-[10px] sm:text-xs">
                     All time
                   </Badge>
                 </div>
@@ -988,17 +1057,20 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* ─── Quick Actions (6 columns) ─────────────────────── */}
-        <div className="space-y-4">
+        {/* ═══════════════════════════════════════════════════════
+            Row 7: Quick Actions (6 actions)
+            Mobile: 2 cols | Tablet: 3 cols | Desktop: 6 cols
+            ═══════════════════════════════════════════════════════ */}
+        <div className="space-y-3 sm:space-y-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
-              <ArrowUpRight className="w-4 h-4 text-slate-600" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+              <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600" />
             </div>
-            <h3 className="text-base font-semibold text-slate-900">
+            <h3 className="text-sm sm:text-base font-semibold text-slate-900">
               Quick Actions
             </h3>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
             <QuickAction
               icon={GraduationCap}
               label="Add Student"

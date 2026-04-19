@@ -36,7 +36,7 @@ export default function ReceivablesPage() {
   const [classBreakdown, setClassBreakdown] = useState<ClassBreakdown[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState("__all__");
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedInv, setSelectedInv] = useState<Receivable | null>(null);
 
@@ -45,7 +45,7 @@ export default function ReceivablesPage() {
     setError("");
     try {
       const params = new URLSearchParams();
-      if (status) params.set("status", status);
+      if (status !== "__all__") params.set("status", status);
       const res = await fetch(`/api/admin/receivables?${params}`);
       if (!res.ok) throw new Error("Failed to load receivables");
       const data = await res.json();
@@ -97,7 +97,7 @@ export default function ReceivablesPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <Select value={status} onValueChange={v => setStatus(v === "__all__" ? "" : v)}><SelectTrigger className="w-[160px] min-h-[44px]"><SelectValue placeholder="Filter status" /></SelectTrigger><SelectContent><SelectItem value="__all__">All Status</SelectItem><SelectItem value="unpaid">Unpaid</SelectItem><SelectItem value="partial">Partial</SelectItem><SelectItem value="overdue">Overdue (30d+)</SelectItem></SelectContent></Select>
+              <Select value={status} onValueChange={v => setStatus(v)}><SelectTrigger className="w-[160px] min-h-[44px]"><SelectValue placeholder="Filter status" /></SelectTrigger><SelectContent><SelectItem value="__all__">All Status</SelectItem><SelectItem value="unpaid">Unpaid</SelectItem><SelectItem value="partial">Partial</SelectItem><SelectItem value="overdue">Overdue (30d+)</SelectItem></SelectContent></Select>
               <p className="text-sm text-slate-500">{stats?.invoiceCount || 0} invoices</p>
             </div>
 

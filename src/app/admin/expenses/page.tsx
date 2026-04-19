@@ -48,10 +48,10 @@ export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [categoryId, setCategoryId] = useState("");
+  const [categoryId, setCategoryId] = useState("__all__");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState("__all__");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -60,12 +60,12 @@ export default function ExpensesPage() {
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   const [addOpen, setAddOpen] = useState(false);
-  const [addForm, setAddForm] = useState({ title: "", description: "", categoryId: "", amount: "", expenseDate: new Date().toISOString().split("T")[0], paymentMethod: "cash" });
+  const [addForm, setAddForm] = useState({ title: "", description: "", categoryId: "__none__", amount: "", expenseDate: new Date().toISOString().split("T")[0], paymentMethod: "cash" });
   const [adding, setAdding] = useState(false);
 
   const [editOpen, setEditOpen] = useState(false);
   const [editExpense, setEditExpense] = useState<Expense | null>(null);
-  const [editForm, setEditForm] = useState({ title: "", description: "", categoryId: "", amount: "", expenseDate: "", paymentMethod: "", status: "" });
+  const [editForm, setEditForm] = useState({ title: "", description: "", categoryId: "__none__", amount: "", expenseDate: "", paymentMethod: "", status: "" });
   const [editing, setEditing] = useState(false);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -81,10 +81,10 @@ export default function ExpensesPage() {
     setError("");
     try {
       const params = new URLSearchParams();
-      if (categoryId) params.set("categoryId", categoryId);
+      if (categoryId !== "__all__") params.set("categoryId", categoryId);
       if (startDate) params.set("startDate", startDate);
       if (endDate) params.set("endDate", endDate);
-      if (status) params.set("status", status);
+      if (status !== "__all__") params.set("status", status);
       params.set("page", String(page));
       params.set("limit", "15");
       const res = await fetch(`/api/expenses?${params}`);
@@ -112,11 +112,11 @@ export default function ExpensesPage() {
     if (!addForm.title || !addForm.amount) { toast({ title: "Title and amount are required", variant: "destructive" }); return; }
     setAdding(true);
     try {
-      const res = await fetch("/api/expenses", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: addForm.title, description: addForm.description, categoryId: addForm.categoryId || null, amount: addForm.amount, expenseDate: addForm.expenseDate, paymentMethod: addForm.paymentMethod }) });
+      const res = await fetch("/api/expenses", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: addForm.title, description: addForm.description, categoryId: addForm.categoryId !== "__none__" ? addForm.categoryId : null, amount: addForm.amount, expenseDate: addForm.expenseDate, paymentMethod: addForm.paymentMethod }) });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       toast({ title: "Expense created" }); setAddOpen(false);
-      setAddForm({ title: "", description: "", categoryId: "", amount: "", expenseDate: new Date().toISOString().split("T")[0], paymentMethod: "cash" });
+      setAddForm({ title: "", description: "", categoryId: "__none__", amount: "", expenseDate: new Date().toISOString().split("T")[0], paymentMethod: "cash" });
       fetchExpenses(); fetchCategories();
     } catch (e: any) { toast({ title: e.message || "Failed to create expense", variant: "destructive" }); }
     setAdding(false);
@@ -124,7 +124,7 @@ export default function ExpensesPage() {
 
   const handleEditExpense = (exp: Expense) => {
     setEditExpense(exp);
-    setEditForm({ title: exp.title, description: exp.description, categoryId: exp.category_id ? String(exp.category_id) : "", amount: String(exp.amount), expenseDate: exp.expense_date ? new Date(exp.expense_date).toISOString().split("T")[0] : "", paymentMethod: exp.payment_method, status: exp.status });
+    setEditForm({ title: exp.title, description: exp.description, categoryId: exp.category_id ? String(exp.category_id) : "__none__", amount: String(exp.amount), expenseDate: exp.expense_date ? new Date(exp.expense_date).toISOString().split("T")[0] : "", paymentMethod: exp.payment_method, status: exp.status });
     setEditOpen(true);
   };
 
@@ -132,7 +132,7 @@ export default function ExpensesPage() {
     if (!editExpense) return;
     setEditing(true);
     try {
-      const res = await fetch(`/api/expenses/${editExpense.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: editForm.title, description: editForm.description, categoryId: editForm.categoryId || null, amount: editForm.amount, expenseDate: editForm.expenseDate, paymentMethod: editForm.paymentMethod, status: editForm.status }) });
+      const res = await fetch(`/api/expenses/${editExpense.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: editForm.title, description: editForm.description, categoryId: editForm.categoryId !== "__none__" ? editForm.categoryId : null, amount: editForm.amount, expenseDate: editForm.expenseDate, paymentMethod: editForm.paymentMethod, status: editForm.status }) });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       toast({ title: "Expense updated" }); setEditOpen(false); fetchExpenses();
@@ -164,7 +164,7 @@ export default function ExpensesPage() {
     setCreatingCat(false);
   };
 
-  const hasFilters = categoryId || startDate || endDate || status;
+  const hasFilters = categoryId !== "__all__" || startDate || endDate || status !== "__all__";
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
@@ -199,11 +199,11 @@ export default function ExpensesPage() {
           <TabsContent value="expenses" className="space-y-4">
             {/* Filters */}
             <Card><CardContent className="p-4"><div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-              <Select value={categoryId} onValueChange={(v) => v === "__all__" ? setCategoryId("") : setCategoryId(v)}><SelectTrigger><SelectValue placeholder="All Categories" /></SelectTrigger><SelectContent><SelectItem value="__all__">All Categories</SelectItem>{categories.map((c) => (<SelectItem key={c.expense_category_id} value={String(c.expense_category_id)}>{c.expense_category_name}</SelectItem>))}</SelectContent></Select>
+              <Select value={categoryId} onValueChange={(v) => setCategoryId(v)}><SelectTrigger><SelectValue placeholder="All Categories" /></SelectTrigger><SelectContent><SelectItem value="__all__">All Categories</SelectItem>{categories.map((c) => (<SelectItem key={c.expense_category_id} value={String(c.expense_category_id)}>{c.expense_category_name}</SelectItem>))}</SelectContent></Select>
               <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
               <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-              <Select value={status} onValueChange={(v) => v === "__all__" ? setStatus("") : setStatus(v)}><SelectTrigger><SelectValue placeholder="All Status" /></SelectTrigger><SelectContent><SelectItem value="__all__">All Status</SelectItem><SelectItem value="approved">Approved</SelectItem><SelectItem value="pending">Pending</SelectItem><SelectItem value="rejected">Rejected</SelectItem></SelectContent></Select>
-              {hasFilters && <Button variant="outline" onClick={() => { setCategoryId(""); setStartDate(""); setEndDate(""); setStatus(""); }} className="gap-1"><X className="w-3.5 h-3.5" />Clear</Button>}
+              <Select value={status} onValueChange={(v) => setStatus(v)}><SelectTrigger><SelectValue placeholder="All Status" /></SelectTrigger><SelectContent><SelectItem value="__all__">All Status</SelectItem><SelectItem value="approved">Approved</SelectItem><SelectItem value="pending">Pending</SelectItem><SelectItem value="rejected">Rejected</SelectItem></SelectContent></Select>
+              {hasFilters && <Button variant="outline" onClick={() => { setCategoryId("__all__"); setStartDate(""); setEndDate(""); setStatus("__all__"); }} className="gap-1"><X className="w-3.5 h-3.5" />Clear</Button>}
             </div></CardContent></Card>
 
             {error && (
@@ -251,7 +251,7 @@ export default function ExpensesPage() {
       <Dialog open={addOpen} onOpenChange={setAddOpen}><DialogContent className="max-w-md"><DialogHeader><DialogTitle>Add Expense</DialogTitle><DialogDescription>Create a new expense record</DialogDescription></DialogHeader><div className="space-y-4">
         <div><Label className="text-xs">Title *</Label><Input value={addForm.title} onChange={(e) => setAddForm({ ...addForm, title: e.target.value })} placeholder="e.g., Office Supplies" className="mt-1" /></div>
         <div><Label className="text-xs">Description</Label><Input value={addForm.description} onChange={(e) => setAddForm({ ...addForm, description: e.target.value })} placeholder="Optional details" className="mt-1" /></div>
-        <div className="grid grid-cols-2 gap-3"><div><Label className="text-xs">Category</Label><Select value={addForm.categoryId} onValueChange={(v) => setAddForm({ ...addForm, categoryId: v === "__none__" ? "" : v })}><SelectTrigger className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="__none__">No category</SelectItem>{categories.map((c) => (<SelectItem key={c.expense_category_id} value={String(c.expense_category_id)}>{c.expense_category_name}</SelectItem>))}</SelectContent></Select></div><div><Label className="text-xs">Amount *</Label><Input type="number" value={addForm.amount} onChange={(e) => setAddForm({ ...addForm, amount: e.target.value })} placeholder="0" className="mt-1 font-mono" /></div></div>
+        <div className="grid grid-cols-2 gap-3"><div><Label className="text-xs">Category</Label><Select value={addForm.categoryId} onValueChange={(v) => setAddForm({ ...addForm, categoryId: v })}><SelectTrigger className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="__none__">No category</SelectItem>{categories.map((c) => (<SelectItem key={c.expense_category_id} value={String(c.expense_category_id)}>{c.expense_category_name}</SelectItem>))}</SelectContent></Select></div><div><Label className="text-xs">Amount *</Label><Input type="number" value={addForm.amount} onChange={(e) => setAddForm({ ...addForm, amount: e.target.value })} placeholder="0" className="mt-1 font-mono" /></div></div>
         <div className="grid grid-cols-2 gap-3"><div><Label className="text-xs">Date</Label><Input type="date" value={addForm.expenseDate} onChange={(e) => setAddForm({ ...addForm, expenseDate: e.target.value })} className="mt-1" /></div><div><Label className="text-xs">Payment Method</Label><Select value={addForm.paymentMethod} onValueChange={(v) => setAddForm({ ...addForm, paymentMethod: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="cash">Cash</SelectItem><SelectItem value="mobile_money">Mobile Money</SelectItem><SelectItem value="bank_transfer">Bank Transfer</SelectItem><SelectItem value="cheque">Cheque</SelectItem><SelectItem value="card">Card</SelectItem></SelectContent></Select></div></div>
       </div><DialogFooter><Button variant="outline" onClick={() => setAddOpen(false)}>Cancel</Button><Button onClick={handleAddExpense} disabled={adding} className="bg-amber-500 hover:bg-amber-600">{adding ? "Adding..." : "Add Expense"}</Button></DialogFooter></DialogContent></Dialog>
 
@@ -259,7 +259,7 @@ export default function ExpensesPage() {
       <Dialog open={editOpen} onOpenChange={setEditOpen}><DialogContent className="max-w-md"><DialogHeader><DialogTitle>Edit Expense</DialogTitle></DialogHeader><div className="space-y-4">
         <div><Label className="text-xs">Title</Label><Input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} className="mt-1" /></div>
         <div><Label className="text-xs">Description</Label><Input value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} className="mt-1" /></div>
-        <div className="grid grid-cols-2 gap-3"><div><Label className="text-xs">Category</Label><Select value={editForm.categoryId} onValueChange={(v) => setEditForm({ ...editForm, categoryId: v === "__none__" ? "" : v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="__none__">No category</SelectItem>{categories.map((c) => (<SelectItem key={c.expense_category_id} value={String(c.expense_category_id)}>{c.expense_category_name}</SelectItem>))}</SelectContent></Select></div><div><Label className="text-xs">Amount</Label><Input type="number" value={editForm.amount} onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })} className="mt-1 font-mono" /></div></div>
+        <div className="grid grid-cols-2 gap-3"><div><Label className="text-xs">Category</Label><Select value={editForm.categoryId} onValueChange={(v) => setEditForm({ ...editForm, categoryId: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="__none__">No category</SelectItem>{categories.map((c) => (<SelectItem key={c.expense_category_id} value={String(c.expense_category_id)}>{c.expense_category_name}</SelectItem>))}</SelectContent></Select></div><div><Label className="text-xs">Amount</Label><Input type="number" value={editForm.amount} onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })} className="mt-1 font-mono" /></div></div>
         <div className="grid grid-cols-3 gap-3"><div><Label className="text-xs">Date</Label><Input type="date" value={editForm.expenseDate} onChange={(e) => setEditForm({ ...editForm, expenseDate: e.target.value })} className="mt-1" /></div><div><Label className="text-xs">Method</Label><Select value={editForm.paymentMethod} onValueChange={(v) => setEditForm({ ...editForm, paymentMethod: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="cash">Cash</SelectItem><SelectItem value="mobile_money">Mobile Money</SelectItem><SelectItem value="bank_transfer">Bank Transfer</SelectItem><SelectItem value="cheque">Cheque</SelectItem><SelectItem value="card">Card</SelectItem></SelectContent></Select></div><div><Label className="text-xs">Status</Label><Select value={editForm.status} onValueChange={(v) => setEditForm({ ...editForm, status: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="approved">Approved</SelectItem><SelectItem value="pending">Pending</SelectItem><SelectItem value="rejected">Rejected</SelectItem></SelectContent></Select></div></div>
       </div><DialogFooter><Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button><Button onClick={handleSaveEdit} disabled={editing} className="bg-amber-500 hover:bg-amber-600">{editing ? "Saving..." : "Save Changes"}</Button></DialogFooter></DialogContent></Dialog>
 

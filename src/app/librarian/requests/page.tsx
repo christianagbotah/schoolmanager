@@ -74,7 +74,7 @@ export default function LibrarianRequestsPage() {
   const [stats, setStats] = useState<RequestStats | null>(null);
   const [students, setStudents] = useState<StudentItem[]>([]);
   const [books, setBooks] = useState<BookItem[]>([]);
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -109,7 +109,7 @@ export default function LibrarianRequestsPage() {
     setError(null);
     try {
       const params = new URLSearchParams();
-      if (statusFilter) params.set("status", statusFilter);
+      if (statusFilter !== "all") params.set("status", statusFilter);
       if (search) params.set("search", search);
       const res = await fetch(`/api/librarian/requests?${params}`);
       if (!res.ok) throw new Error("Failed");
@@ -323,7 +323,7 @@ export default function LibrarianRequestsPage() {
                 />
               </div>
               <div>
-                <Select value={statusFilter || "all"} onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}>
+                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v)}>
                   <SelectTrigger><SelectValue placeholder="All statuses" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Statuses</SelectItem>
@@ -334,9 +334,9 @@ export default function LibrarianRequestsPage() {
                   </SelectContent>
                 </Select>
               </div>
-              {(search || statusFilter) && (
+              {(search || (statusFilter !== "all")) && (
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" className="text-xs text-slate-500 min-h-[44px]" onClick={() => { setSearch(""); setStatusFilter(""); }}>
+                  <Button variant="ghost" size="sm" className="text-xs text-slate-500 min-h-[44px]" onClick={() => { setSearch(""); setStatusFilter("all"); }}>
                     <Filter className="w-3 h-3 mr-1" />Clear Filters
                   </Button>
                 </div>

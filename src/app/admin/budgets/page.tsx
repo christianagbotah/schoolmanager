@@ -97,15 +97,15 @@ export default function BudgetsPage() {
   const [summary, setSummary] = useState({ totalBudgets: 0, totalAmount: 0, totalBudgeted: 0, totalActual: 0, totalRemaining: 0 });
 
   // Filters
-  const [filterStatus, setFilterStatus] = useState("");
-  const [filterFiscalYear, setFilterFiscalYear] = useState("");
+  const [filterStatus, setFilterStatus] = useState("__all__");
+  const [filterFiscalYear, setFilterFiscalYear] = useState("__all__");
   const [search, setSearch] = useState("");
 
   // Create dialog
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createForm, setCreateForm] = useState({
-    name: "", fiscalYearId: "", totalAmount: "", description: "", status: "draft",
+    name: "", fiscalYearId: "__none__", totalAmount: "", description: "", status: "draft",
   });
   const [createLines, setCreateLines] = useState<BudgetLine[]>([
     { category: "", description: "", budgeted_amount: 0, actual_amount: 0, variance: 0 },
@@ -121,8 +121,8 @@ export default function BudgetsPage() {
     setError("");
     try {
       const params = new URLSearchParams();
-      if (filterStatus) params.set("status", filterStatus);
-      if (filterFiscalYear) params.set("fiscalYearId", filterFiscalYear);
+      if (filterStatus !== "__all__") params.set("status", filterStatus);
+      if (filterFiscalYear !== "__all__") params.set("fiscalYearId", filterFiscalYear);
       const res = await fetch(`/api/admin/budgets?${params}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -161,7 +161,7 @@ export default function BudgetsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: createForm.name,
-          fiscalYearId: createForm.fiscalYearId || null,
+          fiscalYearId: createForm.fiscalYearId !== "__none__" ? createForm.fiscalYearId : null,
           totalAmount: createForm.totalAmount || 0,
           status: createForm.status,
           description: createForm.description,
@@ -172,7 +172,7 @@ export default function BudgetsPage() {
       if (data.error) throw new Error(data.error);
       toast({ title: "Budget created successfully" });
       setCreateOpen(false);
-      setCreateForm({ name: "", fiscalYearId: "", totalAmount: "", description: "", status: "draft" });
+      setCreateForm({ name: "", fiscalYearId: "__none__", totalAmount: "", description: "", status: "draft" });
       setCreateLines([{ category: "", description: "", budgeted_amount: 0, actual_amount: 0, variance: 0 }]);
       fetchBudgets();
     } catch (e: unknown) {
@@ -217,7 +217,7 @@ export default function BudgetsPage() {
     setDeleting(false);
   };
 
-  const hasFilters = filterStatus || filterFiscalYear || search;
+  const hasFilters = filterStatus !== "__all__" || filterFiscalYear !== "__all__" || search;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
@@ -324,7 +324,7 @@ export default function BudgetsPage() {
                   className="pl-9"
                 />
               </div>
-              <Select value={filterFiscalYear} onValueChange={(v) => v === "__all__" ? setFilterFiscalYear("") : setFilterFiscalYear(v)}>
+              <Select value={filterFiscalYear} onValueChange={(v) => setFilterFiscalYear(v)}>
                 <SelectTrigger className="w-[180px]"><SelectValue placeholder="All Fiscal Years" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__all__">All Fiscal Years</SelectItem>
@@ -333,7 +333,7 @@ export default function BudgetsPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Select value={filterStatus} onValueChange={(v) => v === "__all__" ? setFilterStatus("") : setFilterStatus(v)}>
+              <Select value={filterStatus} onValueChange={(v) => setFilterStatus(v)}>
                 <SelectTrigger className="w-[150px]"><SelectValue placeholder="All Status" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__all__">All Status</SelectItem>
@@ -345,7 +345,7 @@ export default function BudgetsPage() {
                 </SelectContent>
               </Select>
               {hasFilters && (
-                <Button variant="outline" size="sm" onClick={() => { setFilterStatus(""); setFilterFiscalYear(""); setSearch(""); }} className="gap-1">
+                <Button variant="outline" size="sm" onClick={() => { setFilterStatus("__all__"); setFilterFiscalYear("__all__"); setSearch(""); }} className="gap-1">
                   <X className="w-3.5 h-3.5" />Clear
                 </Button>
               )}
@@ -492,7 +492,7 @@ export default function BudgetsPage() {
               </div>
               <div>
                 <Label className="text-xs">Fiscal Year</Label>
-                <Select value={createForm.fiscalYearId} onValueChange={(v) => setCreateForm({ ...createForm, fiscalYearId: v === "__none__" ? "" : v })}>
+                <Select value={createForm.fiscalYearId} onValueChange={(v) => setCreateForm({ ...createForm, fiscalYearId: v })}>
                   <SelectTrigger className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__none__">No fiscal year</SelectItem>
