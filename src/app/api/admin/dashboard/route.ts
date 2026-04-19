@@ -84,6 +84,14 @@ export async function GET(request: NextRequest) {
       // --- Chart Data ---
       enrollmentDetails,
       attendanceTrendRecords,
+
+      // --- Total Classes ---
+      totalClassesCount,
+
+      // --- Fee Collection Breakdown (for doughnut chart) ---
+      paidInvoicesAggregate,
+      partialInvoicesAggregate,
+      unpaidInvoicesCount,
     ] = await Promise.all([
       // ── 1a. Total Students: distinct student_id from enroll where mute=0 ──
       db.enroll.groupBy({
@@ -211,6 +219,49 @@ export async function GET(request: NextRequest) {
         },
         select: { timestamp: true },
       }),
+
+      // ── 6. Total Classes: count distinct classes with enrollments ──
+      db.enroll.groupBy({
+        by: ["class_id"],
+        where: { year: runningYear, term: runningTerm, mute: 0 },
+      }),
+
+      // ── 7a. Paid invoices aggregate (for fee collection doughnut) ──
+      db.invoice.aggregate({
+        _count: true,
+        _sum: { amount: true, paid: true },
+        where: {
+          year: runningYear,
+          term: runningTerm,
+          status: "paid",
+          mute: 0,
+          can_delete: { not: "trash" },
+        },
+      }),
+
+      // ── 7b. Partial invoices aggregate ──
+      db.invoice.aggregate({
+        _count: true,
+        _sum: { amount: true, paid: true },
+        where: {
+          year: runningYear,
+          term: runningTerm,
+          status: "partial",
+          mute: 0,
+          can_delete: { not: "trash" },
+        },
+      }),
+
+      // ── 7c. Unpaid invoices count ──
+      db.invoice.count({
+        where: {
+          year: runningYear,
+          term: runningTerm,
+          status: "unpaid",
+          mute: 0,
+          can_delete: { not: "trash" },
+        },
+      }),
     ]);
 
     // ─────────────────────────────────────────────
@@ -220,6 +271,7 @@ export async function GET(request: NextRequest) {
     // ── Key Metrics ──
     const totalStudents = studentEnrollmentGroups.length;
     const activeParents = parentEnrollmentGroups.length;
+    const totalClasses = totalClassesCount.length;
 
     // ── Financial Overview ──
     const totalRevenue = revenueAggregate._sum.amount ?? 0;
@@ -360,6 +412,22 @@ export async function GET(request: NextRequest) {
       invoiceCode: p.invoice_code || "",
     }));
 
+    // ── Fee Collection Breakdown (for doughnut chart) ──
+    const feeCollectionBreakdown = {
+      paid: {
+        count: paidInvoicesAggregate._count || 0,
+        amount: paidInvoicesAggregate._sum.amount ?? 0,
+      },
+      partial: {
+        count: partialInvoicesAggregate._count || 0,
+        amount: partialInvoicesAggregate._sum.amount ?? 0,
+      },
+      unpaid: {
+        count: unpaidInvoicesCount || 0,
+        amount: totalBilled - (paidInvoicesAggregate._sum.amount ?? 0) - (partialInvoicesAggregate._sum.paid ?? 0),
+      },
+    };
+
     // ─────────────────────────────────────────────
     // 3. Build response
     // ─────────────────────────────────────────────
@@ -372,6 +440,7 @@ export async function GET(request: NextRequest) {
         totalStudents,
         activeTeachers: activeTeachersCount,
         activeParents,
+        totalClasses,
         attendanceToday: attendanceTodayCount,
       },
       financial: {
@@ -388,6 +457,7 @@ export async function GET(request: NextRequest) {
         attendanceTrend,
         genderDistribution,
         residentialDistribution,
+        feeCollectionBreakdown,
       },
       recentPayments: formattedPayments,
     });
