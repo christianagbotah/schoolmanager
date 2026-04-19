@@ -477,7 +477,7 @@ export default function StudentProfilePage() {
                 <SelectValue placeholder="Select student" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={studentId}>{student.name} (Current)</SelectItem>
+                {studentId && <SelectItem value={studentId}>{student.name} (Current)</SelectItem>}
                 {otherStudents.map(s => (
                   <SelectItem key={s.student_id} value={String(s.student_id)}>
                     {s.name}

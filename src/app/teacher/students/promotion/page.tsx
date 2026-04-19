@@ -403,8 +403,8 @@ export default function TeacherPromotionPage() {
                                 >
                                   <SelectTrigger className="w-56 h-8 text-xs"><SelectValue /></SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value={toClassId}>Promote → {promotionData.toClass?.name} {promotionData.toClass?.name_numeric}</SelectItem>
-                                    <SelectItem value={fromClassId}>Retain in {promotionData.fromClass?.name} {promotionData.fromClass?.name_numeric}</SelectItem>
+                                    {toClassId && <SelectItem value={toClassId}>Promote → {promotionData.toClass?.name} {promotionData.toClass?.name_numeric}</SelectItem>}
+                                    {fromClassId && <SelectItem value={fromClassId}>Retain in {promotionData.fromClass?.name} {promotionData.fromClass?.name_numeric}</SelectItem>}
                                   </SelectContent>
                                 </Select>
                               )}

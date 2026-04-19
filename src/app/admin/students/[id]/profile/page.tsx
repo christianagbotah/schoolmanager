@@ -257,7 +257,7 @@ export default function EnhancedStudentProfile() {
           <Select value={studentId} onValueChange={handleSwitchStudent}>
             <SelectTrigger className="w-44 h-8 text-xs"><SelectValue placeholder="Select student" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value={studentId}>{student.name} (Current)</SelectItem>
+              {studentId && <SelectItem value={studentId}>{student.name} (Current)</SelectItem>}
               {otherStudents.map(s => <SelectItem key={s.student_id} value={String(s.student_id)}>{s.name}</SelectItem>)}
             </SelectContent>
           </Select>
