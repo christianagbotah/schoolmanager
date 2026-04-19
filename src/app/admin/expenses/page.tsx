@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import {
   TrendingDown, DollarSign, Plus, Pencil, Trash2, Tag, FolderOpen,
   X, Search, ChevronLeft, ChevronRight, AlertCircle, RefreshCw, Receipt,
@@ -167,20 +168,15 @@ export default function ExpensesPage() {
   const hasFilters = categoryId !== "__all__" || startDate || endDate || status !== "__all__";
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      <header className="bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center"><TrendingDown className="w-6 h-6" /></div>
-              <div><h1 className="text-lg font-bold">Expenses</h1><p className="text-amber-200 text-xs hidden sm:block">Track & manage school expenses</p></div>
-            </div>
-            <Button onClick={() => setAddOpen(true)} className="bg-white text-amber-600 hover:bg-white/90 min-h-[44px]"><Plus className="w-4 h-4 mr-2" /> Add Expense</Button>
+    <DashboardLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Expenses</h1>
+            <p className="text-sm text-slate-500 mt-1">Track & manage school expenses</p>
           </div>
+          <Button onClick={() => setAddOpen(true)} className="bg-amber-500 hover:bg-amber-600 min-h-[44px]"><Plus className="w-4 h-4 mr-2" /> Add Expense</Button>
         </div>
-      </header>
-
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         {/* Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <Card className="border-amber-100 bg-amber-50/50"><CardContent className="p-4"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center"><DollarSign className="w-5 h-5 text-amber-600" /></div><div><p className="text-xs text-slate-500">This Month Total</p><p className="text-lg font-bold text-red-600">{fmt(summary.monthTotal)}</p></div></div></CardContent></Card>
@@ -245,7 +241,7 @@ export default function ExpensesPage() {
             </div>
           </TabsContent>
         </Tabs>
-      </main>
+      </div>
 
       {/* Add Expense Dialog */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}><DialogContent className="max-w-md"><DialogHeader><DialogTitle>Add Expense</DialogTitle><DialogDescription>Create a new expense record</DialogDescription></DialogHeader><div className="space-y-4">
@@ -266,8 +262,6 @@ export default function ExpensesPage() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete Expense</AlertDialogTitle><AlertDialogDescription>Are you sure you want to delete this expense? This action cannot be undone.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDeleteExpense} disabled={deleting} variant="destructive">{deleting ? "Deleting..." : "Delete"}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
 
       <Dialog open={catOpen} onOpenChange={setCatOpen}><DialogContent className="max-w-sm"><DialogHeader><DialogTitle>New Expense Category</DialogTitle><DialogDescription>Category name for expense grouping</DialogDescription></DialogHeader><div><Label className="text-xs">Category Name</Label><Input value={newCatName} onChange={(e) => setNewCatName(e.target.value)} placeholder="e.g., Utilities" className="mt-1" onKeyDown={(e) => e.key === "Enter" && handleCreateCategory()} /></div><DialogFooter><Button variant="outline" onClick={() => setCatOpen(false)}>Cancel</Button><Button onClick={handleCreateCategory} disabled={creatingCat} className="bg-amber-500 hover:bg-amber-600">{creatingCat ? "Creating..." : "Create"}</Button></DialogFooter></DialogContent></Dialog>
-
-      <footer className="bg-white border-t border-slate-200 py-4 mt-auto"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"><p className="text-xs text-slate-400">&copy; {new Date().getFullYear()} School Manager</p></div></footer>
-    </div>
+    </DashboardLayout>
   );
 }

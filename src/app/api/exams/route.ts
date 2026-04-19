@@ -18,12 +18,15 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
-    const [exams, total] = await Promise.all([
+    const [exams, total, subjectsResult, avgResult, examIdsResult] = await Promise.all([
       db.exam.findMany({
         where,
         include: {
           class: {
             select: { class_id: true, name: true, category: true },
+          },
+          _count: {
+            select: { marks_list: true, exam_marks: true },
           },
         },
         orderBy: [{ date: 'desc' }, { exam_id: 'desc' }],
@@ -31,10 +34,50 @@ export async function GET(request: NextRequest) {
         take: limit,
       }),
       db.exam.count({ where }),
+      db.mark.groupBy({
+        by: ['subject_id'],
+        where: { exam_id: { not: null } },
+        _count: true,
+      }),
+      db.mark.aggregate({
+        _avg: { mark_obtained: true },
+        where: { exam_id: { not: null } },
+      }),
+      db.exam.findMany({ where, select: { exam_id: true } }),
     ])
 
+    // Get distinct subjects per exam
+    const examIdList = examIdsResult.map((e) => e.exam_id)
+    let subjectsPerExam: Record<number, number> = {}
+
+    if (examIdList.length > 0) {
+      const perExamSubjects = await db.mark.groupBy({
+        by: ['exam_id', 'subject_id'],
+        where: { exam_id: { in: examIdList } },
+      })
+      for (const entry of perExamSubjects) {
+        if (entry.exam_id) {
+          subjectsPerExam[entry.exam_id] = (subjectsPerExam[entry.exam_id] || 0) + 1
+        }
+      }
+    }
+
+    // Build response with subjects count
+    const examsWithSubjects = exams.map((exam) => ({
+      ...exam,
+      subjectsCount: subjectsPerExam[exam.exam_id] || 0,
+    }))
+
+    const summary = {
+      totalSubjects: subjectsResult.length,
+      avgScore: avgResult._avg.mark_obtained
+        ? Math.round(avgResult._avg.mark_obtained * 10) / 10
+        : 0,
+    }
+
     return NextResponse.json({
-      exams,
+      exams: examsWithSubjects,
+      summary,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     })
   } catch (error) {

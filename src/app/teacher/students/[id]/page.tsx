@@ -79,20 +79,22 @@ export default function TeacherStudentProfilePage() {
   // ─── Fetch student data ───────────────────────────────────
   useEffect(() => {
     if (!studentId || authLoading) return;
-    setIsLoading(true);
+    let cancelled = false;
     fetch(`/api/teacher/students/${studentId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load student");
         return res.json();
       })
       .then((data) => {
+        if (cancelled) return;
         setStudent(data.student);
         setAttendance(data.attendance);
         setMarks(data.marks || []);
         setFees(data.fees || { invoices: [], total_fees: 0, total_paid: 0, total_due: 0 });
       })
-      .catch((err) => setError(err.message))
-      .finally(() => setIsLoading(false));
+      .catch((err) => { if (!cancelled) setError(err.message); })
+      .finally(() => { if (!cancelled) setIsLoading(false); });
+    return () => { cancelled = true; };
   }, [studentId, authLoading]);
 
   // ─── Loading ──────────────────────────────────────────────

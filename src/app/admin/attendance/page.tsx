@@ -3,19 +3,16 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { format } from 'date-fns'
-import { useToast } from '@/hooks/use-toast'
 import {
   CalendarCheck, Users, UserCheck, UserX, Clock, Heart,
   ShieldCheck, Save, Download, ScanBarcode, CheckCheck, Zap,
-  BarChart3, Bell, ArrowRight, Loader2, FileText,
-  ChevronRight,
+  BarChart3, Bell, Loader2, FileText, Search, Filter,
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
@@ -26,6 +23,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
+import { toast } from 'sonner'
 
 // ===== Types =====
 interface ClassItem {
@@ -84,8 +82,7 @@ interface ClassStat {
   sick_clinic_students: string[]
 }
 
-// Status mapping (matching CI3):
-// 1 = Present, 2 = Absent, 3 = Late, 4 = Sick-Home, 5 = Sick-Clinic
+// Status mapping: 1=Present, 2=Absent, 3=Late, 4=Sick-Home, 5=Sick-Clinic
 const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: React.ElementType; badgeClass: string }> = {
   '1': { label: 'Present', color: 'text-emerald-700', bgColor: 'bg-emerald-100 hover:bg-emerald-200 border-emerald-300', icon: UserCheck, badgeClass: 'bg-emerald-100 text-emerald-700' },
   '2': { label: 'Absent', color: 'text-red-700', bgColor: 'bg-red-100 hover:bg-red-200 border-red-300', icon: UserX, badgeClass: 'bg-red-100 text-red-700' },
@@ -95,6 +92,102 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: str
 }
 
 const STATUS_KEYS = ['1', '2', '3', '4', '5']
+
+// ===== Skeleton Components =====
+
+function StatCardSkeleton() {
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200/60 p-4 sm:p-5 flex flex-col">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 space-y-2.5">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-8 w-16" />
+        </div>
+        <Skeleton className="w-11 h-11 rounded-xl flex-shrink-0" />
+      </div>
+    </div>
+  )
+}
+
+function ContentSkeleton() {
+  return (
+    <div className="space-y-5 sm:space-y-6">
+      <Skeleton className="h-11 w-64 rounded-lg" />
+      <div className="space-y-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-14 w-full rounded-lg" />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ===== Stat Card Component =====
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  subValue,
+  iconBg,
+  borderColor,
+  onClick,
+}: {
+  icon: React.ElementType
+  label: string
+  value: number
+  subValue?: string
+  iconBg: string
+  borderColor: string
+  onClick?: () => void
+}) {
+  return (
+    <div
+      className={`group relative bg-white rounded-2xl border border-slate-200/60 p-4 sm:p-5 hover:-translate-y-0.5 hover:shadow-lg hover:border-slate-300/80 transition-all duration-200 flex flex-col cursor-pointer ${onClick ? '' : 'cursor-default'}`}
+      style={{ borderLeft: `4px solid ${borderColor}` }}
+      onClick={onClick}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            {label}
+          </p>
+          <p className="text-2xl sm:text-3xl font-bold text-slate-900 mt-1.5 tabular-nums leading-tight">
+            {value}
+          </p>
+          {subValue && (
+            <p className="text-xs text-slate-500 mt-1.5">{subValue}</p>
+          )}
+        </div>
+        <div
+          className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}
+        >
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ===== Mini Stat =====
+
+function MiniStat({ label, value, color }: { label: string; value: number; color: string }) {
+  const bgMap: Record<string, string> = {
+    slate: 'bg-slate-50 text-slate-700 border-slate-200',
+    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    red: 'bg-red-50 text-red-700 border-red-200',
+    amber: 'bg-amber-50 text-amber-700 border-amber-200',
+    yellow: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    blue: 'bg-blue-50 text-blue-700 border-blue-200',
+  }
+
+  return (
+    <div className={`rounded-lg border p-2 text-center ${bgMap[color] || bgMap.slate}`}>
+      <p className="text-lg font-bold leading-tight">{value}</p>
+      <p className="text-[10px] font-medium opacity-70">{label}</p>
+    </div>
+  )
+}
 
 // ===== Main Component =====
 export default function AttendancePage() {
@@ -106,8 +199,6 @@ export default function AttendancePage() {
 }
 
 function AttendanceModule() {
-  const { toast } = useToast()
-
   // === Dashboard State ===
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [statsLoading, setStatsLoading] = useState(true)
@@ -133,7 +224,7 @@ function AttendanceModule() {
   const [quickMarkClass, setQuickMarkClass] = useState('')
   const [quickMarkDate, setQuickMarkDate] = useState(format(new Date(), 'yyyy-MM-dd'))
 
-  // Reload dashboard stats (called from event handlers, not effects)
+  // Reload dashboard stats
   const reloadDashboardStats = () => {
     setStatsLoading(true)
     fetch('/api/admin/attendance?action=stats')
@@ -180,7 +271,7 @@ function AttendanceModule() {
   // Load students when class+section+date selected
   const loadStudents = useCallback(async () => {
     if (!selectedClassId) {
-      toast({ title: 'Error', description: 'Please select a class', variant: 'destructive' })
+      toast.error('Please select a class')
       return
     }
 
@@ -197,39 +288,38 @@ function AttendanceModule() {
       const data = await res.json()
       if (data.status === 'success') {
         setStudents(data.students)
-        // Pre-fill from existing attendance
         const map: Record<number, string> = {}
         data.students.forEach((s: Student) => {
           if (s.status) map[s.student_id] = s.status
         })
         setAttendanceMap(map)
       } else {
-        toast({ title: 'Error', description: data.message || 'Failed to load students', variant: 'destructive' })
+        toast.error(data.message || 'Failed to load students')
       }
     } catch {
-      toast({ title: 'Error', description: 'Failed to load students', variant: 'destructive' })
+      toast.error('Failed to load students')
     }
     setStudentsLoading(false)
-  }, [selectedClassId, selectedSectionId, selectedDate, toast])
+  }, [selectedClassId, selectedSectionId, selectedDate])
 
   // Mark all present
   const markAllPresent = () => {
     const map: Record<number, string> = {}
     students.forEach(s => { map[s.student_id] = '1' })
     setAttendanceMap(map)
-    toast({ title: 'All Marked Present', description: `${students.length} students marked as present` })
+    toast.success(`${students.length} students marked as present`)
   }
 
   // Save attendance
   const saveAttendance = async () => {
     if (!selectedClassId) {
-      toast({ title: 'Error', description: 'Please select a class', variant: 'destructive' })
+      toast.error('Please select a class')
       return
     }
 
     const records = students.map(s => ({
       student_id: s.student_id,
-      status: attendanceMap[s.student_id] || '2', // Default to absent
+      status: attendanceMap[s.student_id] || '2',
     }))
 
     setSaving(true)
@@ -246,14 +336,13 @@ function AttendanceModule() {
       })
       const data = await res.json()
       if (data.status === 'success') {
-        toast({ title: 'Saved', description: data.message })
-        // Reload stats
+        toast.success(data.message)
         reloadDashboardStats()
       } else {
-        toast({ title: 'Error', description: data.message || 'Failed to save', variant: 'destructive' })
+        toast.error(data.message || 'Failed to save')
       }
     } catch {
-      toast({ title: 'Error', description: 'Failed to save attendance', variant: 'destructive' })
+      toast.error('Failed to save attendance')
     }
     setSaving(false)
   }
@@ -261,7 +350,7 @@ function AttendanceModule() {
   // Quick mark all present via API
   const quickMarkAllPresent = async () => {
     if (!quickMarkClass) {
-      toast({ title: 'Error', description: 'Please select a class', variant: 'destructive' })
+      toast.error('Please select a class')
       return
     }
 
@@ -277,14 +366,14 @@ function AttendanceModule() {
       })
       const data = await res.json()
       if (data.status === 'success') {
-        toast({ title: 'Quick Mark', description: data.message })
+        toast.success(data.message)
         setQuickMarkOpen(false)
         reloadDashboardStats()
       } else {
-        toast({ title: 'Error', description: data.message, variant: 'destructive' })
+        toast.error(data.message)
       }
     } catch {
-      toast({ title: 'Error', description: 'Failed to quick mark', variant: 'destructive' })
+      toast.error('Failed to quick mark')
     }
     setSaving(false)
   }
@@ -297,12 +386,12 @@ function AttendanceModule() {
         ...prev,
         [student.student_id]: prev[student.student_id] || '1',
       }))
-      toast({ title: 'Student Found', description: `${student.name} marked` })
+      toast.success(`${student.name} marked`)
       setBarcodeInput('')
     } else {
-      toast({ title: 'Not Found', description: `No student with code "${code}"`, variant: 'destructive' })
+      toast.error(`No student with code "${code}"`)
     }
-  }, [students, toast])
+  }, [students])
 
   // Export CSV
   const exportCSV = () => {
@@ -320,6 +409,7 @@ function AttendanceModule() {
     a.download = `attendance_${selectedDate}_class${selectedClassId}.csv`
     a.click()
     URL.revokeObjectURL(url)
+    toast.success('Attendance exported')
   }
 
   // Stats computed from current attendance map
@@ -338,26 +428,52 @@ function AttendanceModule() {
     setBreakdownOpen(true)
   }
 
+  // ===== Full-page loading state =====
+  if (statsLoading) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-5 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+            <div className="space-y-1.5">
+              <Skeleton className="h-8 w-56" />
+              <Skeleton className="h-4 w-72" />
+            </div>
+            <div className="flex gap-2">
+              <Skeleton className="h-11 w-32 rounded-lg" />
+              <Skeleton className="h-11 w-28 rounded-lg" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </div>
+          <ContentSkeleton />
+        </div>
+      </DashboardLayout>
+    )
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Page Header - matching CI3 dashboard */}
-      <div className="bg-gradient-to-r from-violet-600 to-purple-700 rounded-2xl p-6 md:p-8 text-white shadow-lg">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <DashboardLayout>
+      <div className="space-y-5 sm:space-y-6">
+        {/* ═══ Page Header ═══ */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
-              <CalendarCheck className="w-8 h-8" />
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Attendance Management
             </h1>
-            <p className="text-white/80 mt-1 text-sm md:text-base">
+            <p className="text-sm text-slate-500 mt-0.5">
               {format(new Date(), 'EEEE, MMMM d, yyyy')}
             </p>
           </div>
-          <div className="flex gap-3">
-            <Button onClick={() => setQuickMarkOpen(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 min-h-[44px]">
+          <div className="flex gap-2">
+            <Button onClick={() => setQuickMarkOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]">
               <Zap className="w-4 h-4 mr-2" />
               Quick Mark
             </Button>
-            <Button asChild variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white/20 min-h-[44px]">
+            <Button asChild variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 min-h-[44px]">
               <Link href="/admin/attendance/report">
                 <FileText className="w-4 h-4 mr-2" />
                 Reports
@@ -365,280 +481,318 @@ function AttendanceModule() {
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* Stats Cards - matching CI3 dashboard */}
-      {statsLoading ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-28 rounded-xl" />
-          ))}
-        </div>
-      ) : stats ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* ═══ Stats Cards ═══ */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <StatCard
+            icon={Users}
             label="Total Expected"
-            value={stats.total}
-            subtext="students"
-            colorClass="border-violet-400"
+            value={stats?.total || 0}
+            subValue="students today"
+            iconBg="bg-violet-500"
+            borderColor="#8b5cf6"
             onClick={() => showBreakdown('total')}
           />
           <StatCard
+            icon={UserCheck}
             label="Present"
-            value={stats.present}
-            subtext={`${stats.present_percent}% attendance`}
-            colorClass="border-emerald-400"
+            value={stats?.present || 0}
+            subValue={`${stats?.present_percent || 0}% attendance`}
+            iconBg="bg-emerald-500"
+            borderColor="#10b981"
             onClick={() => showBreakdown('present')}
           />
           <StatCard
+            icon={UserX}
             label="Absent + Sick"
-            value={stats.absent}
-            subtext={`${stats.absent_percent}% not present`}
-            colorClass="border-red-400"
+            value={stats?.absent || 0}
+            subValue={`${stats?.absent_percent || 0}% not present`}
+            iconBg="bg-red-500"
+            borderColor="#ef4444"
             onClick={() => showBreakdown('absent')}
           />
           <StatCard
+            icon={Clock}
             label="Late Arrivals"
-            value={stats.late}
-            subtext="needs follow up"
-            colorClass="border-amber-400"
+            value={stats?.late || 0}
+            subValue="needs follow up"
+            iconBg="bg-amber-500"
+            borderColor="#f59e0b"
             onClick={() => showBreakdown('late')}
           />
         </div>
-      ) : null}
 
-      {/* Quick Action Cards - matching CI3 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <ActionCard
-          icon={Users}
-          title="Student Attendance"
-          description="Mark by class"
-          color="violet"
-          onClick={() => {}}
-        />
-        <ActionCard
-          icon={BarChart3}
-          title="Analytics"
-          description="View trends"
-          color="amber"
-          onClick={() => window.location.href = '/admin/attendance/report'}
-        />
-        <ActionCard
-          icon={Bell}
-          title="Notifications"
-          description="Alert parents"
-          color="red"
-          onClick={() => toast({ title: 'Notifications', description: 'Absent notifications would be sent to parents' })}
-        />
-        <ActionCard
-          icon={Download}
-          title="Export Data"
-          description="Excel / PDF"
-          color="emerald"
-          onClick={exportCSV}
-        />
-      </div>
-
-      {/* Mark Attendance Tab Section - matching CI3 mark_attendance */}
-      <Card className="border-slate-200/60">
-        <CardHeader className="border-b bg-gradient-to-r from-violet-600 to-purple-700 rounded-t-xl">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 text-white">
-              <CalendarCheck className="w-5 h-5" />
-              <CardTitle className="text-lg text-white">Mark Attendance</CardTitle>
+        {/* ═══ Mark Attendance Card ═══ */}
+        <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
+          {/* Card Header */}
+          <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <CalendarCheck className="w-5 h-5 text-emerald-600" />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-slate-900">Mark Attendance</h2>
+                <p className="text-xs text-slate-500">Select class and date, then mark each student</p>
+              </div>
             </div>
-            <Badge variant="outline" className="bg-white/10 text-white border-white/20">
-              {currentStats.marked}/{currentStats.total} marked
-            </Badge>
+            {students.length > 0 && (
+              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">
+                {currentStats.marked}/{currentStats.total} marked
+              </Badge>
+            )}
           </div>
-        </CardHeader>
-        <CardContent className="p-4 md:p-6">
-          {/* Filters - matching CI3 mark_attendance filters */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Class</label>
-              <Select value={selectedClassId} onValueChange={v => { setSelectedClassId(v); setSelectedSectionId('') }}>
-                <SelectTrigger className="min-h-[44px]">
-                  <SelectValue placeholder="Select Class" />
-                </SelectTrigger>
-                <SelectContent>
-                  {classes.map(c => (
-                    <SelectItem key={c.class_id} value={c.class_id.toString()}>
-                      {c.name} {c.name_numeric ? c.name_numeric : ''} <span className="text-slate-400 ml-1">({c.category})</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+
+          <div className="p-4 sm:p-6">
+            {/* Filters */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Class</label>
+                <Select value={selectedClassId} onValueChange={v => { setSelectedClassId(v); setSelectedSectionId('') }}>
+                  <SelectTrigger className="min-h-[44px]">
+                    <SelectValue placeholder="Select Class" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {classes.map(c => (
+                      <SelectItem key={c.class_id} value={c.class_id.toString()}>
+                        {c.name} {c.name_numeric ? c.name_numeric : ''}{' '}
+                        <span className="text-slate-400 ml-1">({c.category})</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Section</label>
+                <Select value={selectedSectionId} onValueChange={setSelectedSectionId}>
+                  <SelectTrigger className="min-h-[44px]">
+                    <SelectValue placeholder="Select Section" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {classSections.map(s => (
+                      <SelectItem key={s.section_id} value={s.section_id.toString()}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</label>
+                <div className="relative">
+                  <CalendarCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input
+                    type="date"
+                    value={selectedDate}
+                    onChange={e => setSelectedDate(e.target.value)}
+                    className="pl-10 min-h-[44px]"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">&nbsp;</label>
+                <Button onClick={loadStudents} className="w-full min-h-[44px] bg-emerald-600 hover:bg-emerald-700" disabled={studentsLoading}>
+                  {studentsLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Users className="w-4 h-4 mr-2" />}
+                  Load Students
+                </Button>
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Section</label>
-              <Select value={selectedSectionId} onValueChange={setSelectedSectionId}>
-                <SelectTrigger className="min-h-[44px]">
-                  <SelectValue placeholder="Select Section" />
-                </SelectTrigger>
-                <SelectContent>
-                  {classSections.map(s => (
-                    <SelectItem key={s.section_id} value={s.section_id.toString()}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Date</label>
-              <div className="relative">
-                <CalendarCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+
+            {/* Barcode Scanner */}
+            <div className="mb-5">
+              <div className="relative max-w-sm">
+                <ScanBarcode className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input
-                  type="date"
-                  value={selectedDate}
-                  onChange={e => setSelectedDate(e.target.value)}
+                  placeholder="Scan barcode or type student code..."
+                  value={barcodeInput}
+                  onChange={e => setBarcodeInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleBarcodeScan(barcodeInput) }}
                   className="pl-10 min-h-[44px]"
                 />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">&nbsp;</label>
-              <Button onClick={loadStudents} className="w-full min-h-[44px] bg-gradient-to-r from-violet-600 to-purple-700 hover:from-violet-700 hover:to-purple-800 text-white border-0" disabled={studentsLoading}>
-                {studentsLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Users className="w-4 h-4 mr-2" />}
-                Load Students
-              </Button>
-            </div>
-          </div>
 
-          {/* Barcode Scanner - matching CI3 */}
-          <div className="mb-6">
-            <div className="relative max-w-sm">
-              <ScanBarcode className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="Scan barcode or type student code..."
-                value={barcodeInput}
-                onChange={e => setBarcodeInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') handleBarcodeScan(barcodeInput) }}
-                className="pl-10 min-h-[44px]"
-              />
-            </div>
-          </div>
-
-          {/* Current Stats Bar */}
-          {students.length > 0 && (
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-6">
-              <MiniStat label="Total" value={currentStats.total} color="slate" />
-              <MiniStat label="Present" value={currentStats.present} color="emerald" />
-              <MiniStat label="Absent" value={currentStats.absent} color="red" />
-              <MiniStat label="Late" value={currentStats.late} color="amber" />
-              <MiniStat label="Sick-Home" value={currentStats.sickHome} color="yellow" />
-              <MiniStat label="Sick-Clinic" value={currentStats.sickClinic} color="blue" />
-            </div>
-          )}
-
-          {/* Students Table */}
-          {studentsLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-14 w-full rounded-lg" />
-              ))}
-            </div>
-          ) : students.length === 0 && selectedClassId ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <Users className="w-12 h-12 text-slate-300 mb-4" />
-              <p className="text-slate-500">No students enrolled in this class/section</p>
-            </div>
-          ) : students.length > 0 ? (
-            <>
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                <Button onClick={markAllPresent} variant="outline" className="min-h-[44px]">
-                  <CheckCheck className="w-4 h-4 mr-2" />
-                  Mark All Present
-                </Button>
-                <Button onClick={saveAttendance} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]" disabled={saving}>
-                  {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                  Save Attendance
-                </Button>
-                <Button onClick={exportCSV} variant="outline" className="min-h-[44px]">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export
-                </Button>
+            {/* Current Stats Bar */}
+            {students.length > 0 && (
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-5">
+                <MiniStat label="Total" value={currentStats.total} color="slate" />
+                <MiniStat label="Present" value={currentStats.present} color="emerald" />
+                <MiniStat label="Absent" value={currentStats.absent} color="red" />
+                <MiniStat label="Late" value={currentStats.late} color="amber" />
+                <MiniStat label="Sick-Home" value={currentStats.sickHome} color="yellow" />
+                <MiniStat label="Sick-Clinic" value={currentStats.sickClinic} color="blue" />
               </div>
+            )}
 
-              <div className="max-h-[500px] overflow-y-auto rounded-lg border border-slate-200 custom-scrollbar">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-slate-50 hover:bg-slate-50">
-                      <TableHead className="w-[50px]">#</TableHead>
-                      <TableHead className="min-w-[180px]">Student</TableHead>
-                      <TableHead className="hidden sm:table-cell">Code</TableHead>
-                      <TableHead className="text-center min-w-[260px]">Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {students.map((student, idx) => {
-                      const currentStatus = attendanceMap[student.student_id] || ''
-                      return (
-                        <TableRow key={student.student_id} className="hover:bg-slate-50">
-                          <TableCell className="text-sm text-slate-500">{idx + 1}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center text-xs font-bold text-violet-700">
-                                {student.name?.charAt(0) || '?'}
-                              </div>
-                              <div>
-                                <p className="font-medium text-slate-900 text-sm">{student.name}</p>
-                                <p className="text-xs text-slate-500 sm:hidden">{student.student_code}</p>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell text-sm text-slate-500 font-mono">{student.student_code}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center justify-center gap-1">
-                              {STATUS_KEYS.map(statusKey => {
-                                const cfg = STATUS_CONFIG[statusKey]
-                                const isActive = currentStatus === statusKey
-                                return (
-                                  <button
-                                    key={statusKey}
-                                    onClick={() => setAttendanceMap(prev => ({
-                                      ...prev,
-                                      [student.student_id]: isActive ? '' : statusKey,
-                                    }))}
-                                    title={cfg.label}
-                                    className={`min-w-[40px] h-[40px] rounded-lg border-2 flex flex-col items-center justify-center transition-all duration-150 text-[10px] font-semibold gap-0.5 ${
-                                      isActive
-                                        ? `${cfg.bgColor} ${cfg.color} border-current scale-105 shadow-sm`
-                                        : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300'
-                                    }`}
-                                  >
-                                    <cfg.icon className="w-4 h-4" />
-                                    <span className="hidden xl:inline">{cfg.label}</span>
-                                  </button>
-                                )
-                              })}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )
-                    })}
-                  </TableBody>
-                </Table>
+            {/* Students Table */}
+            {studentsLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-14 w-full rounded-lg" />
+                ))}
               </div>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <CalendarCheck className="w-12 h-12 text-slate-300 mb-4" />
-              <h3 className="text-lg font-semibold text-slate-900 mb-1">Select a Class</h3>
-              <p className="text-sm text-slate-500 max-w-sm">Choose a class and optionally a section above, then click &ldquo;Load Students&rdquo; to start marking attendance</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            ) : students.length === 0 && selectedClassId ? (
+              /* Empty state: class selected but no students */
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                  <Users className="w-8 h-8 text-slate-400" />
+                </div>
+                <p className="font-semibold text-slate-500 text-base">No students found</p>
+                <p className="text-xs text-slate-400 mt-1">No students enrolled in this class/section</p>
+              </div>
+            ) : students.length > 0 ? (
+              <>
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Button onClick={markAllPresent} variant="outline" className="min-h-[44px] border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                    <CheckCheck className="w-4 h-4 mr-2" />
+                    Mark All Present
+                  </Button>
+                  <Button onClick={saveAttendance} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]" disabled={saving}>
+                    {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                    Save Attendance
+                  </Button>
+                  <Button onClick={exportCSV} variant="outline" className="min-h-[44px]">
+                    <Download className="w-4 h-4 mr-2" />
+                    Export
+                  </Button>
+                </div>
 
-      {/* Quick Mark Dialog */}
+                {/* Desktop Table */}
+                <div className="hidden md:block max-h-[500px] overflow-y-auto rounded-xl border border-slate-200">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-slate-50 hover:bg-slate-50">
+                        <TableHead className="w-[50px] text-xs font-semibold text-slate-600">#</TableHead>
+                        <TableHead className="min-w-[180px] text-xs font-semibold text-slate-600">Student</TableHead>
+                        <TableHead className="hidden sm:table-cell text-xs font-semibold text-slate-600">Code</TableHead>
+                        <TableHead className="text-center min-w-[260px] text-xs font-semibold text-slate-600">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {students.map((student, idx) => {
+                        const currentStatus = attendanceMap[student.student_id] || ''
+                        return (
+                          <TableRow key={student.student_id} className="hover:bg-slate-50/50 transition-colors">
+                            <TableCell className="text-sm text-slate-500">{idx + 1}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                                  {student.name?.charAt(0) || '?'}
+                                </div>
+                                <div>
+                                  <p className="font-medium text-sm text-slate-900">{student.name}</p>
+                                  <p className="text-xs text-slate-500 md:hidden">{student.student_code}</p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell text-sm text-slate-500 font-mono">{student.student_code}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center justify-center gap-1">
+                                {STATUS_KEYS.map(statusKey => {
+                                  const cfg = STATUS_CONFIG[statusKey]
+                                  const isActive = currentStatus === statusKey
+                                  return (
+                                    <button
+                                      key={statusKey}
+                                      onClick={() => setAttendanceMap(prev => ({
+                                        ...prev,
+                                        [student.student_id]: isActive ? '' : statusKey,
+                                      }))}
+                                      title={cfg.label}
+                                      className={`min-w-[40px] h-[40px] rounded-lg border-2 flex flex-col items-center justify-center transition-all duration-150 text-[10px] font-semibold gap-0.5 ${
+                                        isActive
+                                          ? `${cfg.bgColor} ${cfg.color} border-current scale-105 shadow-sm`
+                                          : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300'
+                                      }`}
+                                    >
+                                      <cfg.icon className="w-4 h-4" />
+                                      <span className="hidden xl:inline">{cfg.label}</span>
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-slate-100">
+                  {students.map((student) => {
+                    const currentStatus = attendanceMap[student.student_id] || ''
+                    const cfg = currentStatus ? STATUS_CONFIG[currentStatus] : null
+                    return (
+                      <div key={student.student_id} className="p-4 space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+                            {student.name?.charAt(0) || '?'}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm text-slate-900 truncate">{student.name}</p>
+                            <p className="text-xs text-slate-500 font-mono">{student.student_code}</p>
+                          </div>
+                          {cfg && (
+                            <Badge className={`${cfg.badgeClass} text-[10px] flex-shrink-0`}>
+                              {cfg.label}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                          {STATUS_KEYS.map(statusKey => {
+                            const sc = STATUS_CONFIG[statusKey]
+                            const isActive = currentStatus === statusKey
+                            return (
+                              <button
+                                key={statusKey}
+                                onClick={() => setAttendanceMap(prev => ({
+                                  ...prev,
+                                  [student.student_id]: isActive ? '' : statusKey,
+                                }))}
+                                title={sc.label}
+                                className={`min-w-[44px] h-[44px] rounded-lg border-2 flex flex-col items-center justify-center transition-all duration-150 text-[9px] font-semibold gap-0.5 flex-shrink-0 ${
+                                  isActive
+                                    ? `${sc.bgColor} ${sc.color} border-current scale-105 shadow-sm`
+                                    : 'bg-slate-50 text-slate-400 border-slate-200'
+                                }`}
+                              >
+                                <sc.icon className="w-4 h-4" />
+                                <span>{sc.label}</span>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </>
+            ) : (
+              /* Empty state: no class selected yet */
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                  <CalendarCheck className="w-8 h-8 text-slate-400" />
+                </div>
+                <p className="font-semibold text-slate-500 text-base">Select a Class</p>
+                <p className="text-xs text-slate-400 mt-1 max-w-sm">
+                  Choose a class and optionally a section above, then click &ldquo;Load Students&rdquo; to start marking attendance
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ Quick Mark Dialog ═══ */}
       <Dialog open={quickMarkOpen} onOpenChange={setQuickMarkOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-violet-600" />
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <Zap className="w-4 h-4 text-emerald-600" />
+              </div>
               Quick Mark Attendance
             </DialogTitle>
             <DialogDescription>
@@ -647,7 +801,7 @@ function AttendanceModule() {
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-600">Select Class</label>
+              <label className="text-xs font-semibold text-slate-500">Select Class</label>
               <Select value={quickMarkClass} onValueChange={setQuickMarkClass}>
                 <SelectTrigger className="min-h-[44px]">
                   <SelectValue placeholder="Select a class" />
@@ -662,13 +816,13 @@ function AttendanceModule() {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-600">Date</label>
+              <label className="text-xs font-semibold text-slate-500">Date</label>
               <Input type="date" value={quickMarkDate} onChange={e => setQuickMarkDate(e.target.value)} className="min-h-[44px]" />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setQuickMarkOpen(false)}>Cancel</Button>
-            <Button onClick={quickMarkAllPresent} disabled={saving || !quickMarkClass} className="bg-emerald-600 hover:bg-emerald-700">
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setQuickMarkOpen(false)} className="min-h-[44px]">Cancel</Button>
+            <Button onClick={quickMarkAllPresent} disabled={saving || !quickMarkClass} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]">
               {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
               Mark All Present
             </Button>
@@ -676,7 +830,7 @@ function AttendanceModule() {
         </DialogContent>
       </Dialog>
 
-      {/* Breakdown Dialog */}
+      {/* ═══ Breakdown Dialog ═══ */}
       <Dialog open={breakdownOpen} onOpenChange={setBreakdownOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[80vh]">
           <DialogHeader>
@@ -692,30 +846,29 @@ function AttendanceModule() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50 hover:bg-slate-50">
-                    <TableHead>Class</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-600">Class</TableHead>
                     {breakdownType === 'absent' ? (
                       <>
-                        <TableHead className="text-center">Absent</TableHead>
-                        <TableHead className="text-center">Sick-Home</TableHead>
-                        <TableHead className="text-center">Sick-Clinic</TableHead>
+                        <TableHead className="text-center text-xs font-semibold text-slate-600">Absent</TableHead>
+                        <TableHead className="text-center text-xs font-semibold text-slate-600">Sick-Home</TableHead>
+                        <TableHead className="text-center text-xs font-semibold text-slate-600">Sick-Clinic</TableHead>
                       </>
                     ) : breakdownType === 'present' ? (
                       <>
-                        <TableHead className="text-center">Count</TableHead>
-                        <TableHead className="text-center">Rate</TableHead>
+                        <TableHead className="text-center text-xs font-semibold text-slate-600">Count</TableHead>
+                        <TableHead className="text-center text-xs font-semibold text-slate-600">Rate</TableHead>
                       </>
                     ) : (
-                      <TableHead className="text-center">Count</TableHead>
+                      <TableHead className="text-center text-xs font-semibold text-slate-600">Count</TableHead>
                     )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {stats.by_class.map(cls => (
-                    <TableRow key={cls.class_id}>
+                    <TableRow key={cls.class_id} className="hover:bg-slate-50/50 transition-colors">
                       <TableCell>
                         <div>
-                          <p className="font-semibold text-slate-900">{cls.class_name}</p>
-                          {/* Student name badges */}
+                          <p className="font-semibold text-sm text-slate-900">{cls.class_name}</p>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {(breakdownType === 'present' ? cls.present_students :
                               breakdownType === 'absent' ? cls.absent_students :
@@ -745,7 +898,7 @@ function AttendanceModule() {
                           <TableCell className="text-center">
                             <Badge className="bg-emerald-100 text-emerald-700">{cls.present}/{cls.total}</Badge>
                           </TableCell>
-                          <TableCell className="text-center font-semibold">
+                          <TableCell className="text-center font-semibold text-sm">
                             {cls.total > 0 ? Math.round((cls.present / cls.total) * 1000) / 10 : 0}%
                           </TableCell>
                         </>
@@ -763,74 +916,17 @@ function AttendanceModule() {
                 </TableBody>
               </Table>
             ) : (
-              <p className="text-center text-slate-500 py-8">No data available</p>
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mb-3">
+                  <BarChart3 className="w-6 h-6 text-slate-400" />
+                </div>
+                <p className="text-sm text-slate-500 font-medium">No data available</p>
+                <p className="text-xs text-slate-400 mt-1">Attendance data will appear here once marked</p>
+              </div>
             )}
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  )
-}
-
-// ===== Stat Card =====
-function StatCard({ label, value, subtext, colorClass, onClick }: {
-  label: string; value: number; subtext: string; colorClass: string; onClick: () => void
-}) {
-  return (
-    <Card
-      className="cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all border-l-4 bg-white"
-      style={{ borderLeftColor: undefined }}
-      onClick={onClick}
-    >
-      <CardContent className={`p-4 rounded-xl border-l-4 ${colorClass}`}>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</p>
-        <p className="text-3xl font-bold mt-1">{value}</p>
-        <p className="text-xs text-slate-500 mt-1">{subtext}</p>
-      </CardContent>
-    </Card>
-  )
-}
-
-// ===== Action Card =====
-function ActionCard({ icon: Icon, title, description, color, onClick }: {
-  icon: React.ElementType; title: string; description: string; color: string; onClick: () => void
-}) {
-  const colorMap: Record<string, string> = {
-    violet: 'text-violet-600 hover:bg-violet-50',
-    amber: 'text-amber-600 hover:bg-amber-50',
-    red: 'text-red-600 hover:bg-red-50',
-    emerald: 'text-emerald-600 hover:bg-emerald-50',
-  }
-
-  return (
-    <Card
-      className={`cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all ${colorMap[color] || ''}`}
-      onClick={onClick}
-    >
-      <CardContent className="p-4 text-center">
-        <Icon className="w-8 h-8 mx-auto mb-2" />
-        <p className="font-semibold text-sm text-slate-900">{title}</p>
-        <p className="text-xs text-slate-500 mt-1">{description}</p>
-      </CardContent>
-    </Card>
-  )
-}
-
-// ===== Mini Stat =====
-function MiniStat({ label, value, color }: { label: string; value: number; color: string }) {
-  const bgMap: Record<string, string> = {
-    slate: 'bg-slate-50 text-slate-700 border-slate-200',
-    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    red: 'bg-red-50 text-red-700 border-red-200',
-    amber: 'bg-amber-50 text-amber-700 border-amber-200',
-    yellow: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-    blue: 'bg-blue-50 text-blue-700 border-blue-200',
-  }
-
-  return (
-    <div className={`rounded-lg border p-2 text-center ${bgMap[color] || bgMap.slate}`}>
-      <p className="text-lg font-bold leading-tight">{value}</p>
-      <p className="text-[10px] font-medium opacity-70">{label}</p>
-    </div>
+    </DashboardLayout>
   )
 }

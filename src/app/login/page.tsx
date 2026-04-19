@@ -74,6 +74,31 @@ function LoginForm() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [shakeError, setShakeError] = useState(false);
 
+  // ─── fetchWithRetry helper: 3 retries with 2s delay ───
+  const fetchWithRetry = useCallback(async (url: string, options?: RequestInit): Promise<Response> => {
+    let lastError: Error | null = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch(url, options);
+        return res;
+      } catch (err) {
+        lastError = err as Error;
+        if (attempt < 2) {
+          await new Promise((r) => setTimeout(r, 2000));
+        }
+      }
+    }
+    throw lastError;
+  }, []);
+
+  const gradientBg = `linear-gradient(135deg, ${themePrimary} 0%, ${themeSecondary} 100%)`;
+  const gradientBtn = { background: gradientBg };
+
+  const triggerShake = () => {
+    setShakeError(true);
+    setTimeout(() => setShakeError(false), 600);
+  };
+
   // Fetch school settings on mount
   useEffect(() => {
     async function fetchSettings() {
@@ -96,32 +121,7 @@ function LoginForm() {
       }
     }
     fetchSettings();
-  }, []);
-
-  const gradientBg = `linear-gradient(135deg, ${themePrimary} 0%, ${themeSecondary} 100%)`;
-  const gradientBtn = { background: gradientBg };
-
-  const triggerShake = () => {
-    setShakeError(true);
-    setTimeout(() => setShakeError(false), 600);
-  };
-
-  // ─── fetchWithRetry helper: 3 retries with 2s delay ───
-  const fetchWithRetry = useCallback(async (url: string, options?: RequestInit): Promise<Response> => {
-    let lastError: Error | null = null;
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        const res = await fetch(url, options);
-        return res;
-      } catch (err) {
-        lastError = err as Error;
-        if (attempt < 2) {
-          await new Promise((r) => setTimeout(r, 2000));
-        }
-      }
-    }
-    throw lastError;
-  }, []);
+  }, [fetchWithRetry]);
 
   // ─── Step 1: Verify Auth Key (matches original auth_verification AJAX) ───
   const verifyAuthKey = useCallback(async (key: string) => {

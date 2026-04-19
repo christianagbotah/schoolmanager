@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { requireTeacher } from "@/lib/teacher-auth";
+import bcrypt from "bcryptjs";
 
 // GET /api/teacher/profile — teacher's own profile
 export async function GET() {
@@ -31,7 +32,6 @@ export async function PUT(request: NextRequest) {
     if (address !== undefined) updateData.address = address;
 
     if (password && password.length >= 6) {
-      const bcrypt = require("bcryptjs");
       updateData.password = await bcrypt.hash(password, 10);
     }
 

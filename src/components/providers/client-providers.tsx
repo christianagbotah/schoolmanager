@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useState, ReactNode } from "react";
+import { useEffect, useState, useSyncExternalStore, ReactNode } from "react";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/toaster";
 
-export function ClientProviders({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false);
+const emptySubscribe = () => () => {};
+function useIsMounted() {
+  return useSyncExternalStore(emptySubscribe, () => true, () => false);
+}
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+export function ClientProviders({ children }: { children: ReactNode }) {
+  const mounted = useIsMounted();
 
   return (
     <SessionProvider>

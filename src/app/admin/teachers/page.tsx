@@ -50,6 +50,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
 import {
   Search,
@@ -66,10 +67,19 @@ import {
   Mail,
   Users,
   MoreHorizontal,
-  Ban,
+  Building2,
+  Download,
   CheckCircle2,
   XCircle,
   FileText,
+  Shield,
+  BookOpen,
+  IdCard,
+  CreditCard,
+  Globe,
+  Clock,
+  X,
+  Filter,
 } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -103,6 +113,12 @@ interface Department {
 interface Designation {
   id: number;
   des_name: string;
+}
+
+interface Subject {
+  subject_id: number;
+  name: string;
+  teacher_id?: number | null;
 }
 
 interface FormData {
@@ -151,13 +167,121 @@ const emptyForm: FormData = {
   linkedin: '',
 };
 
+// ─── Skeleton Components ─────────────────────────────────────────────────────
+
+function StatCardSkeleton() {
+  return (
+    <Card className="border-slate-200/60">
+      <CardContent className="p-5 flex items-center gap-4">
+        <Skeleton className="w-12 h-12 rounded-xl" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-3 w-20" />
+          <Skeleton className="h-6 w-12" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function TableSkeleton() {
+  return (
+    <>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <TableRow key={i}>
+          <TableCell>
+            <div className="flex items-center gap-3">
+              <Skeleton className="w-9 h-9 rounded-full flex-shrink-0" />
+              <div className="space-y-1.5">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+            </div>
+          </TableCell>
+          <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+          <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+          <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+          <TableCell className="hidden xl:table-cell"><Skeleton className="h-4 w-16" /></TableCell>
+          <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-32" /></TableCell>
+          <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+          <TableCell><Skeleton className="h-8 w-8 rounded-md ml-auto" /></TableCell>
+        </TableRow>
+      ))}
+    </>
+  );
+}
+
+function MobileCardSkeleton() {
+  return (
+    <div className="p-4 space-y-3">
+      <div className="flex items-center gap-3">
+        <Skeleton className="w-12 h-12 rounded-full flex-shrink-0" />
+        <div className="flex-1 space-y-1.5">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
+        </div>
+        <Skeleton className="h-5 w-14 rounded-full" />
+      </div>
+      <div className="space-y-1.5 pl-15">
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-3 w-3/4" />
+      </div>
+      <div className="flex gap-2 pt-1">
+        <Skeleton className="h-11 flex-1 rounded-lg" />
+        <Skeleton className="h-11 flex-1 rounded-lg" />
+        <Skeleton className="h-11 w-11 rounded-lg" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Filter Chip ─────────────────────────────────────────────────────────────
+
+function FilterChip({
+  label,
+  active,
+  onClick,
+  color = 'slate',
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  color?: string;
+}) {
+  const colorClasses: Record<string, string> = {
+    slate: active
+      ? 'bg-slate-900 text-white border-slate-900 hover:bg-slate-800'
+      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300',
+    emerald: active
+      ? 'bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700'
+      : 'bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50',
+    amber: active
+      ? 'bg-amber-500 text-white border-amber-500 hover:bg-amber-600'
+      : 'bg-white text-amber-700 border-amber-200 hover:bg-amber-50',
+    red: active
+      ? 'bg-red-600 text-white border-red-600 hover:bg-red-700'
+      : 'bg-white text-red-600 border-red-200 hover:bg-red-50',
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all min-h-[32px] ${colorClasses[color] || colorClasses.slate}`}
+    >
+      {label}
+    </button>
+  );
+}
+
 // ─── Page Component ──────────────────────────────────────────────────────────
 
 export default function TeachersPage() {
+  const { isAdmin, hasPermission } = useAuth();
+
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [genderFilter, setGenderFilter] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize] = useState(15);
@@ -168,6 +292,8 @@ export default function TeachersPage() {
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [designations, setDesignations] = useState<Designation[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [subjectFilter, setSubjectFilter] = useState('');
 
   // Form modal
   const [formOpen, setFormOpen] = useState(false);
@@ -190,7 +316,7 @@ export default function TeachersPage() {
     try {
       const params = new URLSearchParams();
       if (search) params.set('search', search);
-      if (genderFilter) params.set('gender', genderFilter);
+      if (departmentFilter) params.set('department', departmentFilter);
       if (statusFilter) params.set('status', statusFilter);
       params.set('page', String(page));
       params.set('pageSize', String(pageSize));
@@ -209,29 +335,62 @@ export default function TeachersPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, genderFilter, statusFilter, page, pageSize]);
+  }, [search, departmentFilter, statusFilter, page, pageSize]);
 
   useEffect(() => {
     fetchTeachers();
   }, [fetchTeachers]);
 
-  // Reset page on filter change
+  // Reset page on filter change (debounced for search)
   useEffect(() => {
     setPage(1);
-  }, [search, genderFilter, statusFilter]);
+  }, [departmentFilter, statusFilter]);
 
-  // Fetch departments/designations
+  useEffect(() => {
+    const timer = setTimeout(() => { setPage(1); }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Fetch departments, designations, and subjects
   useEffect(() => {
     Promise.all([
       fetch('/api/admin/departments').then((r) => r.json()),
       fetch('/api/admin/designations').then((r) => r.json()),
+      fetch('/api/subjects').then((r) => r.json()).catch(() => []),
     ])
-      .then(([depts, desigs]) => {
+      .then(([depts, desigs, subjs]) => {
         setDepartments(Array.isArray(depts) ? depts : []);
         setDesignations(Array.isArray(desigs) ? desigs : []);
+        setSubjects(Array.isArray(subjs) ? subjs : []);
       })
       .catch(() => {});
   }, []);
+
+  // ─── Computed values ──────────────────────────────────────────────────────
+
+  const activeCount = grandTotal > 0 && !statusFilter
+    ? grandTotal - teachers.filter(t => t.active_status !== 1).length
+    : teachers.filter(t => t.active_status === 1).length;
+
+  const onLeaveCount = teachers.filter(t => t.active_status !== 1 && t.block_limit < 3).length;
+
+  const hasActiveFilters = search || departmentFilter || statusFilter;
+
+  const uniqueSubjectNames = Array.from(
+    new Set(subjects.map(s => s.name).filter(Boolean))
+  ).sort();
+
+  const teacherIdsForSubject = subjectFilter
+    ? new Set(
+        subjects
+          .filter(s => s.name === subjectFilter && s.teacher_id)
+          .map(s => s.teacher_id)
+      )
+    : null;
+
+  const displayedTeachers = teacherIdsForSubject
+    ? teachers.filter(t => teacherIdsForSubject!.has(t.teacher_id))
+    : teachers;
 
   // ─── Form handlers ────────────────────────────────────────────────────────
 
@@ -243,13 +402,11 @@ export default function TeachersPage() {
 
   const openEditForm = async (teacher: Teacher) => {
     setEditingTeacher(teacher);
-    // Fetch full teacher data for edit
     try {
       const res = await fetch(`/api/admin/teachers/${teacher.teacher_id}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      // Parse social links if they exist
       let social = { facebook: '', twitter: '', linkedin: '' };
       if (data.social_links) {
         try {
@@ -392,234 +549,497 @@ export default function TeachersPage() {
     }
   };
 
-  // ─── Derived data ─────────────────────────────────────────────────────────
+  const handleExportCSV = () => {
+    const headers = ['Staff ID', 'Name', 'Gender', 'Email', 'Phone', 'Department', 'Designation', 'Status'];
+    const rows = teachers.map(t => [
+      t.teacher_code, t.name, t.gender, t.email, t.phone,
+      t.department?.dep_name || '', t.designation?.des_name || '',
+      t.active_status === 1 ? 'Active' : 'Inactive',
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `teachers-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('CSV exported successfully');
+  };
 
-  const filteredTeachers = teachers; // already server-side filtered
+  const clearFilters = () => {
+    setSearch('');
+    setDepartmentFilter('');
+    setStatusFilter('');
+    setSubjectFilter('');
+    setPage(1);
+  };
+
+  // ─── Status badge ─────────────────────────────────────────────────────────
+
+  function StatusBadge({ teacher }: { teacher: Teacher }) {
+    if (teacher.block_limit >= 3) {
+      return (
+        <Badge variant="outline" className="border-red-200 bg-red-50 text-red-700 gap-1">
+          <XCircle className="w-3 h-3" />
+          Blocked
+        </Badge>
+      );
+    }
+    if (teacher.active_status === 1) {
+      return (
+        <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700 gap-1">
+          <CheckCircle2 className="w-3 h-3" />
+          Active
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700 gap-1">
+        <Clock className="w-3 h-3" />
+        On Leave
+      </Badge>
+    );
+  }
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
+        {/* ─── Page Header ───────────────────────────────────────────────── */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Teacher Management</h1>
-            <p className="text-sm text-slate-500 mt-1">Manage teaching staff, assignments and accounts</p>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Teachers</h1>
+            <p className="text-sm text-slate-500 mt-1">Manage teaching staff, assignments &amp; accounts</p>
           </div>
-          <Button onClick={openAddForm} className="bg-emerald-600 hover:bg-emerald-700 shadow-lg">
-            <UserPlus className="w-4 h-4 mr-2" />
-            Add New Teacher
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={handleExportCSV}
+              className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 min-h-[44px]"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+            {(isAdmin || hasPermission('teachers.create')) && (
+              <Button
+                onClick={openAddForm}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white min-h-[44px] shadow-sm"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Add Teacher
+              </Button>
+            )}
+          </div>
         </div>
 
-        {/* Gender Summary - matching original CI3 table header */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-3 gap-3">
-              <div className="flex items-center gap-3 bg-blue-50 rounded-lg p-3">
-                <Users className="w-5 h-5 text-blue-600" />
-                <div>
-                  <p className="text-xs font-medium text-blue-700 uppercase">Males</p>
-                  <p className="text-lg font-bold text-blue-900">{totalMale}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 bg-pink-50 rounded-lg p-3">
-                <Users className="w-5 h-5 text-pink-600" />
-                <div>
-                  <p className="text-xs font-medium text-pink-700 uppercase">Females</p>
-                  <p className="text-lg font-bold text-pink-900">{totalFemale}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 bg-slate-100 rounded-lg p-3">
-                <GraduationCap className="w-5 h-5 text-slate-600" />
-                <div>
-                  <p className="text-xs font-medium text-slate-700 uppercase">Total</p>
-                  <p className="text-lg font-bold text-slate-900">{grandTotal}</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* ─── Stat Cards ───────────────────────────────────────────────── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {loading ? (
+            <>
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+            </>
+          ) : (
+            <>
+              {/* Total Teachers */}
+              <Card className="border-slate-200/80 hover:shadow-md transition-all duration-200">
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                    <GraduationCap className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Teachers</p>
+                    <p className="text-2xl font-bold text-slate-900 mt-0.5">{grandTotal}</p>
+                  </div>
+                </CardContent>
+              </Card>
 
-        {/* Filters */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  placeholder="Search by name, email, or staff ID..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10"
+              {/* Active */}
+              <Card className="border-slate-200/80 hover:shadow-md transition-all duration-200">
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                    <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Active</p>
+                    <p className="text-2xl font-bold text-emerald-700 mt-0.5">{activeCount}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Departments */}
+              <Card className="border-slate-200/80 hover:shadow-md transition-all duration-200">
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center flex-shrink-0">
+                    <Building2 className="w-6 h-6 text-sky-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Departments</p>
+                    <p className="text-2xl font-bold text-sky-700 mt-0.5">{departments.length}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* On Leave */}
+              <Card className="border-slate-200/80 hover:shadow-md transition-all duration-200">
+                <CardContent className="p-5 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">On Leave</p>
+                    <p className="text-2xl font-bold text-amber-700 mt-0.5">{onLeaveCount}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </div>
+
+        {/* ─── Search & Filters ─────────────────────────────────────────── */}
+        <Card className="border-slate-200/80">
+          <CardContent className="p-4 space-y-4">
+            {/* Search bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Search by name, email, or staff ID..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"
+              />
+            </div>
+
+            {/* Filter chips row */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-500 uppercase tracking-wide">
+                <Filter className="w-3.5 h-3.5" />
+                Filters
+              </div>
+
+              {/* Status chips */}
+              <div className="flex flex-wrap gap-2">
+                <FilterChip
+                  label="All Status"
+                  active={!statusFilter}
+                  onClick={() => setStatusFilter('')}
+                  color="slate"
+                />
+                <FilterChip
+                  label="Active"
+                  active={statusFilter === '1'}
+                  onClick={() => setStatusFilter(statusFilter === '1' ? '' : '1')}
+                  color="emerald"
+                />
+                <FilterChip
+                  label="Inactive"
+                  active={statusFilter === '0'}
+                  onClick={() => setStatusFilter(statusFilter === '0' ? '' : '0')}
+                  color="amber"
                 />
               </div>
-              <Select value={genderFilter} onValueChange={(v) => (v === '__all__' ? setGenderFilter('') : setGenderFilter(v))}>
-                <SelectTrigger className="w-full sm:w-36">
-                  <SelectValue placeholder="All Genders" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__all__">All Genders</SelectItem>
-                  <SelectItem value="Male">Male</SelectItem>
-                  <SelectItem value="Female">Female</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={statusFilter} onValueChange={(v) => (v === '__all__' ? setStatusFilter('') : setStatusFilter(v))}>
-                <SelectTrigger className="w-full sm:w-40">
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__all__">All Status</SelectItem>
-                  <SelectItem value="1">Active</SelectItem>
-                  <SelectItem value="0">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
+
+              {/* Department chips (scrollable) */}
+              {departments.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-slate-400 flex-shrink-0">Dept:</span>
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                    <FilterChip
+                      label="All"
+                      active={!departmentFilter}
+                      onClick={() => setDepartmentFilter('')}
+                      color="slate"
+                    />
+                    {departments.map((d) => (
+                      <FilterChip
+                        key={d.id}
+                        label={d.dep_name}
+                        active={departmentFilter === String(d.id)}
+                        onClick={() => setDepartmentFilter(
+                          departmentFilter === String(d.id) ? '' : String(d.id)
+                        )}
+                        color="sky"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Subject filter */}
+              {uniqueSubjectNames.length > 0 && (
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-medium text-slate-400 flex-shrink-0">Subject:</span>
+                  <Select
+                    value={subjectFilter}
+                    onValueChange={(v) => setSubjectFilter(v === '__all__' ? '' : v)}
+                  >
+                    <SelectTrigger className="w-full sm:w-56 min-h-[36px] h-9 text-xs bg-slate-50 border-slate-200">
+                      <SelectValue placeholder="All Subjects" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__all__">All Subjects</SelectItem>
+                      {uniqueSubjectNames.map((name) => (
+                        <SelectItem key={name} value={name}>{name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
+
+            {/* Active filter indicators */}
+            {hasActiveFilters && (
+              <div className="flex items-center flex-wrap gap-2 pt-2 border-t border-slate-100">
+                <span className="text-xs text-slate-400">Active:</span>
+                {departmentFilter && (
+                  <Badge
+                    variant="outline"
+                    className="gap-1 text-xs cursor-pointer hover:bg-slate-50"
+                    onClick={() => setDepartmentFilter('')}
+                  >
+                    {departments.find(d => String(d.id) === departmentFilter)?.dep_name || departmentFilter}
+                    <X className="w-3 h-3" />
+                  </Badge>
+                )}
+                {statusFilter && (
+                  <Badge
+                    variant="outline"
+                    className="gap-1 text-xs cursor-pointer hover:bg-slate-50"
+                    onClick={() => setStatusFilter('')}
+                  >
+                    {statusFilter === '1' ? 'Active' : 'Inactive'}
+                    <X className="w-3 h-3" />
+                  </Badge>
+                )}
+                {subjectFilter && (
+                  <Badge
+                    variant="outline"
+                    className="gap-1 text-xs cursor-pointer hover:bg-slate-50"
+                    onClick={() => setSubjectFilter('')}
+                  >
+                    {subjectFilter}
+                    <X className="w-3 h-3" />
+                  </Badge>
+                )}
+                {search && (
+                  <Badge
+                    variant="outline"
+                    className="gap-1 text-xs cursor-pointer hover:bg-slate-50"
+                    onClick={() => setSearch('')}
+                  >
+                    &ldquo;{search}&rdquo;
+                    <X className="w-3 h-3" />
+                  </Badge>
+                )}
+                <button
+                  onClick={clearFilters}
+                  className="text-xs text-red-500 hover:text-red-700 font-medium ml-2 transition-colors"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Data Table */}
-        <Card>
+        {/* ─── Results Count ─────────────────────────────────────────────── */}
+        {!loading && (
+          <div className="flex items-center justify-between px-1">
+            <p className="text-sm text-slate-500">
+              Showing{' '}
+              <span className="font-semibold text-slate-700">
+                {displayedTeachers.length}
+              </span>{' '}
+              of{' '}
+              <span className="font-semibold text-slate-700">{grandTotal}</span>{' '}
+              teachers
+            </p>
+          </div>
+        )}
+
+        {/* ─── Data Card ─────────────────────────────────────────────────── */}
+        <Card className="border-slate-200/80 overflow-hidden">
           <CardContent className="p-0">
             {/* Desktop Table */}
-            <div className="hidden lg:block overflow-x-auto">
+            <div className="hidden md:block">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-slate-50 hover:bg-slate-50">
-                    <TableHead className="px-4 py-3 text-xs font-semibold uppercase">Photo</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-semibold uppercase">Staff ID</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-semibold uppercase">Name</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-semibold uppercase">Gender</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-semibold uppercase">Qualification</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-semibold uppercase">Form Master</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-semibold uppercase">Email</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-semibold uppercase">Auth Key</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-semibold uppercase">Phone</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-semibold uppercase">Account Status</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-semibold uppercase text-right">Options</TableHead>
+                  <TableRow className="bg-slate-50/80 hover:bg-slate-50/80">
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Teacher</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Staff ID</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Department</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Designation</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden xl:table-cell">Form Master</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Email</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-right pr-4">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loading ? (
-                    Array.from({ length: 6 }).map((_, i) => (
-                      <TableRow key={i}>
-                        {Array.from({ length: 11 }).map((_, j) => (
-                          <TableCell key={j}>
-                            <Skeleton className="h-5 w-full" />
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : filteredTeachers.length === 0 ? (
+                    <TableSkeleton />
+                  ) : displayedTeachers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={11} className="text-center py-12 text-slate-400">
-                        <GraduationCap className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                        <p>No teachers found</p>
+                      <TableCell colSpan={8}>
+                        <div className="flex flex-col items-center justify-center py-20 text-center">
+                          <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                            <GraduationCap className="w-8 h-8 text-slate-300" />
+                          </div>
+                          <p className="font-semibold text-slate-600 text-base">No teachers found</p>
+                          <p className="text-sm text-slate-400 mt-1 max-w-sm">
+                            {hasActiveFilters
+                              ? 'No teachers match your current filters. Try adjusting or clearing them.'
+                              : 'Get started by adding your first teacher to the system.'}
+                          </p>
+                          {!hasActiveFilters && (isAdmin || hasPermission('teachers.create')) && (
+                            <Button
+                              onClick={openAddForm}
+                              className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                            >
+                              <UserPlus className="w-4 h-4 mr-2" />
+                              Add First Teacher
+                            </Button>
+                          )}
+                          {hasActiveFilters && (
+                            <Button
+                              variant="outline"
+                              onClick={clearFilters}
+                              className="mt-4 border-slate-200 text-slate-600 hover:bg-slate-50"
+                            >
+                              <X className="w-4 h-4 mr-2" />
+                              Clear Filters
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredTeachers.map((t) => (
-                      <TableRow key={t.teacher_id} className="hover:bg-slate-50/50">
-                        {/* Photo */}
-                        <TableCell className="px-4 py-3">
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white bg-gradient-to-br from-emerald-500 to-emerald-700">
-                            {t.name?.charAt(0) || '?'}
+                    displayedTeachers.map((t) => (
+                      <TableRow key={t.teacher_id} className="hover:bg-slate-50/50 transition-colors group">
+                        {/* Teacher Avatar + Name */}
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white bg-gradient-to-br from-emerald-500 to-emerald-700 flex-shrink-0 shadow-sm">
+                              {t.name?.charAt(0) || '?'}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm text-slate-900 truncate">{t.name}</p>
+                              <p className="text-xs text-slate-400">{t.phone || ''}</p>
+                            </div>
                           </div>
                         </TableCell>
                         {/* Staff ID */}
-                        <TableCell className="px-4 py-3 text-sm font-mono">{t.teacher_code || '—'}</TableCell>
-                        {/* Name */}
-                        <TableCell className="px-4 py-3 font-medium text-sm">{t.name}</TableCell>
-                        {/* Gender */}
-                        <TableCell className="px-4 py-3 text-sm">
-                          <Badge variant="outline" className={t.gender === 'Male' ? 'border-blue-200 text-blue-700 bg-blue-50' : 'border-pink-200 text-pink-700 bg-pink-50'}>
-                            {t.gender || '—'}
-                          </Badge>
+                        <TableCell>
+                          <code className="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">{t.teacher_code || '—'}</code>
                         </TableCell>
-                        {/* Qualification (designation) */}
-                        <TableCell className="px-4 py-3 text-sm">{t.designation?.des_name || '—'}</TableCell>
+                        {/* Department */}
+                        <TableCell>
+                          {t.department?.dep_name ? (
+                            <Badge variant="outline" className="border-slate-200 bg-white text-slate-600 text-xs font-normal">
+                              {t.department.dep_name}
+                            </Badge>
+                          ) : (
+                            <span className="text-sm text-slate-400">—</span>
+                          )}
+                        </TableCell>
+                        {/* Designation */}
+                        <TableCell>
+                          <span className="text-sm text-slate-700">{t.designation?.des_name || '—'}</span>
+                        </TableCell>
                         {/* Form Master */}
-                        <TableCell className="px-4 py-3 text-sm">
+                        <TableCell className="hidden xl:table-cell">
                           {t.form_master.length > 0 ? (
                             <div className="flex flex-wrap gap-1">
                               {t.form_master.map((fm, i) => (
-                                <Badge key={i} variant="outline" className="text-xs border-amber-200 text-amber-700 bg-amber-50">
+                                <Badge key={i} variant="outline" className="text-xs border-amber-200 text-amber-700 bg-amber-50 font-normal">
                                   {fm}
                                 </Badge>
                               ))}
                             </div>
                           ) : (
-                            <span className="text-slate-400">N/A</span>
+                            <span className="text-slate-400 text-sm">—</span>
                           )}
                         </TableCell>
                         {/* Email */}
-                        <TableCell className="px-4 py-3 text-sm">
-                          <a href={`mailto:${t.email}`} className="text-slate-600 hover:text-emerald-600 transition">
-                            {t.email}
-                          </a>
+                        <TableCell className="hidden lg:table-cell">
+                          <span className="text-sm text-slate-600 truncate block max-w-[200px]">{t.email}</span>
                         </TableCell>
-                        {/* Auth Key */}
-                        <TableCell className="px-4 py-3">
-                          <code className="text-sm font-bold tracking-widest text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
-                            {t.authentication_key}
-                          </code>
+                        {/* Status */}
+                        <TableCell>
+                          <StatusBadge teacher={t} />
                         </TableCell>
-                        {/* Phone */}
-                        <TableCell className="px-4 py-3 text-sm">{t.phone || '—'}</TableCell>
-                        {/* Account Status */}
-                        <TableCell className="px-4 py-3">
-                          {t.block_limit >= 3 ? (
-                            <Badge className="bg-red-100 text-red-700 border-red-200 hover:bg-red-100">
-                              <XCircle className="w-3 h-3 mr-1" />
-                              Blocked
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
-                              <CheckCircle2 className="w-3 h-3 mr-1" />
-                              Active
-                            </Badge>
-                          )}
-                        </TableCell>
-                        {/* Options */}
-                        <TableCell className="px-4 py-3 text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreHorizontal className="w-4 h-4" />
+                        {/* Actions */}
+                        <TableCell className="text-right pr-2">
+                          <div className="flex items-center justify-end gap-0.5">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-slate-400 hover:text-emerald-600"
+                              onClick={() => { setViewTeacher(t); setViewOpen(true); }}
+                              title="View Profile"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            {(isAdmin || hasPermission('teachers.update')) && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-slate-400 hover:text-sky-600"
+                                onClick={() => openEditForm(t)}
+                                title="Edit"
+                              >
+                                <Pencil className="w-4 h-4" />
                               </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => { setViewTeacher(t); setViewOpen(true); }}>
-                                <Eye className="w-4 h-4 mr-2 text-emerald-600" />
-                                <span>Profile</span>
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => openEditForm(t)}>
-                                <Pencil className="w-4 h-4 mr-2 text-emerald-600" />
-                                <span>Edit</span>
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              {t.block_limit >= 3 ? (
-                                <DropdownMenuItem onClick={() => handleUnblock(t)}>
-                                  <Unlock className="w-4 h-4 mr-2 text-emerald-600" />
-                                  <span>Unblock</span>
+                            )}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600" title="More actions">
+                                  <MoreHorizontal className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => { setViewTeacher(t); setViewOpen(true); }}>
+                                  <Eye className="w-4 h-4 mr-2 text-emerald-600" />
+                                  <span>View Profile</span>
                                 </DropdownMenuItem>
-                              ) : (
-                                <DropdownMenuItem onClick={() => handleBlock(t)} className="text-red-600">
-                                  <Lock className="w-4 h-4 mr-2" />
-                                  <span>Block</span>
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => setDeleteTarget(t)} className="text-red-600">
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                <span>Delete</span>
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                                {(isAdmin || hasPermission('teachers.update')) && (
+                                  <DropdownMenuItem onClick={() => openEditForm(t)}>
+                                    <Pencil className="w-4 h-4 mr-2 text-sky-600" />
+                                    <span>Edit</span>
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuSeparator />
+                                {(isAdmin || hasPermission('teachers.update')) && (
+                                  t.block_limit >= 3 ? (
+                                    <DropdownMenuItem onClick={() => handleUnblock(t)}>
+                                      <Unlock className="w-4 h-4 mr-2 text-emerald-600" />
+                                      <span>Unblock Account</span>
+                                    </DropdownMenuItem>
+                                  ) : (
+                                    <DropdownMenuItem onClick={() => handleBlock(t)} className="text-amber-600">
+                                      <Lock className="w-4 h-4 mr-2" />
+                                      <span>Block Account</span>
+                                    </DropdownMenuItem>
+                                  )
+                                )}
+                                {(isAdmin || hasPermission('teachers.delete')) && (
+                                  <>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={() => setDeleteTarget(t)} className="text-red-600 focus:text-red-600">
+                                      <Trash2 className="w-4 h-4 mr-2" />
+                                      <span>Delete</span>
+                                    </DropdownMenuItem>
+                                  </>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -628,74 +1048,112 @@ export default function TeachersPage() {
               </Table>
             </div>
 
-            {/* Mobile Cards */}
-            <div className="lg:hidden divide-y">
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-slate-100">
               {loading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="p-4 space-y-3">
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="w-10 h-10 rounded-full" />
-                      <div className="flex-1">
-                        <Skeleton className="h-4 w-3/4 mb-1" />
-                        <Skeleton className="h-3 w-1/2" />
-                      </div>
-                    </div>
+                <>
+                  <MobileCardSkeleton />
+                  <MobileCardSkeleton />
+                  <MobileCardSkeleton />
+                </>
+              ) : displayedTeachers.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-center px-6">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                    <GraduationCap className="w-8 h-8 text-slate-300" />
                   </div>
-                ))
-              ) : filteredTeachers.length === 0 ? (
-                <div className="text-center py-12 text-slate-400">
-                  <GraduationCap className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                  <p>No teachers found</p>
+                  <p className="font-semibold text-slate-600">No teachers found</p>
+                  <p className="text-sm text-slate-400 mt-1">
+                    {hasActiveFilters
+                      ? 'Try adjusting your filters.'
+                      : 'Add your first teacher to get started.'}
+                  </p>
+                  {!hasActiveFilters && (isAdmin || hasPermission('teachers.create')) && (
+                    <Button
+                      onClick={openAddForm}
+                      className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white min-h-[44px]"
+                    >
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Add Teacher
+                    </Button>
+                  )}
+                  {hasActiveFilters && (
+                    <Button
+                      variant="outline"
+                      onClick={clearFilters}
+                      className="mt-4 min-h-[44px]"
+                    >
+                      Clear Filters
+                    </Button>
+                  )}
                 </div>
               ) : (
-                filteredTeachers.map((t) => (
+                displayedTeachers.map((t) => (
                   <div key={t.teacher_id} className="p-4 space-y-3">
+                    {/* Teacher info row */}
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold text-white bg-gradient-to-br from-emerald-500 to-emerald-700">
+                      <div className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold text-white bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-sm">
                         {t.name?.charAt(0) || '?'}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <p className="font-medium text-sm truncate">{t.name}</p>
-                            <p className="text-xs text-slate-500">{t.designation?.des_name || ''}</p>
-                          </div>
-                          {t.block_limit >= 3 ? (
-                            <Badge className="bg-red-100 text-red-700 border-red-200 hover:bg-red-100 flex-shrink-0 ml-2">
-                              Blocked
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100 flex-shrink-0 ml-2">
-                              Active
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="mt-1 space-y-0.5 text-xs text-slate-500">
-                          <p>{t.email}</p>
-                          <p>{t.phone}</p>
-                          {t.form_master.length > 0 && (
-                            <p className="text-amber-600">
-                              Form Master: {t.form_master.join(', ')}
+                            <p className="font-semibold text-sm text-slate-900 truncate">{t.name}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              {[t.designation?.des_name, t.department?.dep_name].filter(Boolean).join(' · ') || 'No designation'}
                             </p>
-                          )}
+                          </div>
+                          <StatusBadge teacher={t} />
                         </div>
                       </div>
                     </div>
+
+                    {/* Details */}
+                    <div className="ml-15 space-y-1 text-xs text-slate-500">
+                      <p className="flex items-center gap-1.5">
+                        <Mail className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="truncate">{t.email}</span>
+                      </p>
+                      <p className="flex items-center gap-1.5">
+                        <Phone className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{t.phone}</span>
+                      </p>
+                      {t.form_master.length > 0 && (
+                        <div className="flex items-center gap-1.5 pt-0.5">
+                          <BookOpen className="w-3.5 h-3.5 text-amber-500" />
+                          <span className="text-amber-700 font-medium">Form Master: {t.form_master.join(', ')}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action buttons */}
                     <div className="flex gap-2 pt-1">
-                      <Button variant="outline" size="sm" className="flex-1 h-8 text-xs" onClick={() => { setViewTeacher(t); setViewOpen(true); }}>
-                        <Eye className="w-3 h-3 mr-1" />View
-                      </Button>
-                      <Button variant="outline" size="sm" className="flex-1 h-8 text-xs" onClick={() => openEditForm(t)}>
-                        <Pencil className="w-3 h-3 mr-1" />Edit
-                      </Button>
                       <Button
                         variant="outline"
-                        size="sm"
-                        className="h-8 text-xs text-red-600 border-red-200 hover:bg-red-50"
-                        onClick={() => setDeleteTarget(t)}
+                        className="flex-1 min-h-[44px] h-11 text-xs border-slate-200 text-slate-600 hover:bg-slate-50"
+                        onClick={() => { setViewTeacher(t); setViewOpen(true); }}
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Eye className="w-3.5 h-3.5 mr-1.5" />
+                        View
                       </Button>
+                      {(isAdmin || hasPermission('teachers.update')) && (
+                        <Button
+                          variant="outline"
+                          className="flex-1 min-h-[44px] h-11 text-xs border-slate-200 text-slate-600 hover:bg-slate-50"
+                          onClick={() => openEditForm(t)}
+                        >
+                          <Pencil className="w-3.5 h-3.5 mr-1.5" />
+                          Edit
+                        </Button>
+                      )}
+                      {(isAdmin || hasPermission('teachers.delete')) && (
+                        <Button
+                          variant="outline"
+                          className="min-h-[44px] min-w-[44px] h-11 w-11 text-xs text-red-500 border-red-200 hover:bg-red-50 p-0"
+                          onClick={() => setDeleteTarget(t)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))
@@ -704,16 +1162,33 @@ export default function TeachersPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t bg-slate-50/50">
-                <p className="text-xs text-slate-500">{grandTotal} teacher(s) total</p>
+              <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50">
+                <p className="text-xs text-slate-500 sm:hidden">
+                  Page {page} of {totalPages}
+                </p>
+                <p className="text-xs text-slate-500 hidden sm:block">
+                  Showing {(page - 1) * pageSize + 1}&ndash;{Math.min(page * pageSize, grandTotal)} of {grandTotal}
+                </p>
                 <div className="flex items-center gap-1">
-                  <Button variant="outline" size="icon" className="h-8 w-8" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 min-w-[32px]"
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => p - 1)}
+                  >
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
-                  <span className="text-sm px-2 text-slate-600">
+                  <span className="text-sm px-2.5 text-slate-600 font-medium min-w-[60px] text-center">
                     {page} / {totalPages}
                   </span>
-                  <Button variant="outline" size="icon" className="h-8 w-8" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 min-w-[32px]"
+                    disabled={page >= totalPages}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -723,12 +1198,14 @@ export default function TeachersPage() {
         </Card>
       </div>
 
-      {/* ─── Add/Edit Teacher Modal ─────────────────────────────────────────── */}
+      {/* ─── Add/Edit Teacher Dialog ────────────────────────────────────────── */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-lg">
-              <UserPlus className="w-5 h-5 text-emerald-600" />
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <UserPlus className="w-4 h-4 text-emerald-600" />
+              </div>
               {editingTeacher ? 'Edit Teacher' : 'Add Teacher'}
             </DialogTitle>
             <DialogDescription>
@@ -739,8 +1216,8 @@ export default function TeachersPage() {
           <div className="space-y-6">
             {/* Personal Information */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b-2 border-emerald-500 flex items-center gap-2">
-                <FileText className="w-4 h-4" />
+              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-emerald-200 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-emerald-600" />
                 Personal Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -760,7 +1237,7 @@ export default function TeachersPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
-                  <Label className="text-sm">Staff ID <span className="text-red-500">*</span></Label>
+                  <Label className="text-sm">Staff ID</Label>
                   <Input placeholder="e.g. TCH-0001" value={formData.teacher_code} onChange={(e) => setFormData({ ...formData, teacher_code: e.target.value })} className="mt-1" />
                 </div>
                 <div>
@@ -776,7 +1253,7 @@ export default function TeachersPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div>
                   <Label className="text-sm">Date of Birth <span className="text-red-500">*</span></Label>
                   <Input type="date" value={formData.birthday} onChange={(e) => setFormData({ ...formData, birthday: e.target.value })} className="mt-1" />
@@ -791,18 +1268,17 @@ export default function TeachersPage() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-
-              <div className="mt-4">
-                <Label className="text-sm">Address</Label>
-                <Input placeholder="Address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="mt-1" />
+                <div>
+                  <Label className="text-sm">Address</Label>
+                  <Input placeholder="Address" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="mt-1" />
+                </div>
               </div>
             </div>
 
             {/* Contact Information */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b-2 border-emerald-500 flex items-center gap-2">
-                <Phone className="w-4 h-4" />
+              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-emerald-200 flex items-center gap-2">
+                <Phone className="w-4 h-4 text-emerald-600" />
                 Contact Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -823,8 +1299,8 @@ export default function TeachersPage() {
 
             {/* Identification */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b-2 border-emerald-500 flex items-center gap-2">
-                <Ban className="w-4 h-4" />
+              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-emerald-200 flex items-center gap-2">
+                <IdCard className="w-4 h-4 text-emerald-600" />
                 Identification
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -845,8 +1321,8 @@ export default function TeachersPage() {
 
             {/* Department */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b-2 border-emerald-500 flex items-center gap-2">
-                <GraduationCap className="w-4 h-4" />
+              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-emerald-200 flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-emerald-600" />
                 Department
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -866,8 +1342,8 @@ export default function TeachersPage() {
 
             {/* Social Links */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b-2 border-emerald-500 flex items-center gap-2">
-                <Mail className="w-4 h-4" />
+              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-emerald-200 flex items-center gap-2">
+                <Globe className="w-4 h-4 text-emerald-600" />
                 Social Links
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -888,8 +1364,8 @@ export default function TeachersPage() {
 
             {/* Account Information */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b-2 border-emerald-500 flex items-center gap-2">
-                <FileText className="w-4 h-4" />
+              <h3 className="text-sm font-semibold text-slate-800 mb-3 pb-2 border-b border-emerald-200 flex items-center gap-2">
+                <CreditCard className="w-4 h-4 text-emerald-600" />
                 Account Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -912,108 +1388,125 @@ export default function TeachersPage() {
           </div>
 
           <DialogFooter className="pt-4 border-t">
-            <Button variant="outline" onClick={() => setFormOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setFormOpen(false)} className="min-h-[44px]">Cancel</Button>
             <Button
               onClick={handleSave}
               disabled={formSaving}
-              className="bg-emerald-600 hover:bg-emerald-700"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white min-h-[44px]"
             >
               {formSaving ? (
                 <>
-                  <span className="animate-spin mr-2">
+                  <span className="animate-spin mr-2 inline-block">
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
                   </span>
                   Saving...
                 </>
-              ) : editingTeacher ? (
-                'Update Teacher'
-              ) : (
-                'Add Teacher'
-              )}
+              ) : editingTeacher ? 'Update Teacher' : 'Add Teacher'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ─── View Teacher Modal ─────────────────────────────────────────────── */}
+      {/* ─── View Teacher Dialog ────────────────────────────────────────────── */}
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Teacher Profile</DialogTitle>
+            <DialogDescription>View detailed teacher information</DialogDescription>
           </DialogHeader>
           {viewTeacher && (
-            <div className="space-y-4 text-sm">
-              {/* Avatar and Name */}
+            <div className="space-y-5">
+              {/* Avatar header */}
               <div className="text-center pb-4 border-b">
-                <div className="w-20 h-20 mx-auto flex items-center justify-center text-2xl font-bold text-white rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 mb-3">
-                  {viewTeacher.name?.charAt(0) || '?'}
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-full mx-auto flex items-center justify-center mb-3 shadow-md">
+                  <span className="text-xl font-bold text-white">{viewTeacher.name?.charAt(0) || '?'}</span>
                 </div>
                 <p className="font-bold text-lg text-slate-900">{viewTeacher.name}</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-sm text-slate-500 mt-0.5">
                   {[viewTeacher.designation?.des_name, viewTeacher.department?.dep_name].filter(Boolean).join(' · ') || 'No designation'}
                 </p>
-                <div className="flex justify-center gap-2 mt-2">
-                  {viewTeacher.block_limit >= 3 ? (
-                    <Badge className="bg-red-100 text-red-700 border-red-200 hover:bg-red-100">
-                      <XCircle className="w-3 h-3 mr-1" />Blocked
-                    </Badge>
-                  ) : (
-                    <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
-                      <CheckCircle2 className="w-3 h-3 mr-1" />Active
-                    </Badge>
-                  )}
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <StatusBadge teacher={viewTeacher} />
                   <Badge variant="outline" className={viewTeacher.gender === 'Male' ? 'border-blue-200 text-blue-700 bg-blue-50' : 'border-pink-200 text-pink-700 bg-pink-50'}>
                     {viewTeacher.gender}
                   </Badge>
                 </div>
               </div>
 
-              {/* Details Grid */}
-              <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                <div>
-                  <p className="text-xs text-slate-400 uppercase">Staff ID</p>
-                  <p className="font-mono text-sm">{viewTeacher.teacher_code || '—'}</p>
+              {/* Info grid */}
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <IdCard className="w-4 h-4 text-slate-500" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-400 font-medium">Staff ID</p>
+                    <p className="font-mono text-xs text-slate-700 mt-0.5">{viewTeacher.teacher_code || '—'}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-slate-400 uppercase">Auth Key</p>
-                  <p className="font-mono text-sm tracking-widest">{viewTeacher.authentication_key}</p>
+                <div className="flex items-start gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Shield className="w-4 h-4 text-slate-500" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-400 font-medium">Auth Key</p>
+                    <p className="font-mono text-xs text-slate-700 mt-0.5 tracking-widest break-all">{viewTeacher.authentication_key}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-slate-400 uppercase">Email</p>
-                  <p className="truncate">{viewTeacher.email || '—'}</p>
+                <div className="flex items-start gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Mail className="w-4 h-4 text-slate-500" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-400 font-medium">Email</p>
+                    <p className="text-xs text-slate-700 mt-0.5 truncate">{viewTeacher.email || '—'}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-slate-400 uppercase">Phone</p>
-                  <p>{viewTeacher.phone || '—'}</p>
+                <div className="flex items-start gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Phone className="w-4 h-4 text-slate-500" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-400 font-medium">Phone</p>
+                    <p className="text-xs text-slate-700 mt-0.5">{viewTeacher.phone || '—'}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-slate-400 uppercase">Date of Birth</p>
-                  <p>{viewTeacher.birthday ? new Date(viewTeacher.birthday).toLocaleDateString() : '—'}</p>
+                <div className="flex items-start gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <FileText className="w-4 h-4 text-slate-500" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-400 font-medium">Date of Birth</p>
+                    <p className="text-xs text-slate-700 mt-0.5">{viewTeacher.birthday ? new Date(viewTeacher.birthday).toLocaleDateString() : '—'}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-slate-400 uppercase">Joining Date</p>
-                  <p>{viewTeacher.joining_date ? new Date(viewTeacher.joining_date).toLocaleDateString() : '—'}</p>
+                <div className="flex items-start gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <BookOpen className="w-4 h-4 text-slate-500" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-400 font-medium">Joined</p>
+                    <p className="text-xs text-slate-700 mt-0.5">{viewTeacher.joining_date ? new Date(viewTeacher.joining_date).toLocaleDateString() : '—'}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-slate-400 uppercase">Blood Group</p>
-                  <p>{viewTeacher.blood_group || '—'}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400 uppercase">Address</p>
-                  <p className="truncate">{viewTeacher.address || '—'}</p>
-                </div>
+              </div>
+
+              {/* Address */}
+              <div className="text-sm">
+                <p className="text-xs text-slate-400 font-medium mb-1">Address</p>
+                <p className="text-slate-700 text-sm">{viewTeacher.address || '—'}</p>
               </div>
 
               {/* Form Master */}
               {viewTeacher.form_master.length > 0 && (
-                <div className="border-t pt-3">
-                  <p className="text-xs text-slate-400 uppercase mb-1">Form Master</p>
-                  <div className="flex flex-wrap gap-1">
+                <div>
+                  <p className="text-xs text-slate-400 font-medium mb-1.5">Form Master</p>
+                  <div className="flex flex-wrap gap-1.5">
                     {viewTeacher.form_master.map((fm, i) => (
-                      <Badge key={i} variant="outline" className="text-xs border-amber-200 text-amber-700 bg-amber-50">
+                      <Badge key={i} variant="outline" className="border-amber-200 text-amber-700 bg-amber-50 text-xs">
                         {fm}
                       </Badge>
                     ))}
@@ -1022,6 +1515,18 @@ export default function TeachersPage() {
               )}
             </div>
           )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setViewOpen(false)} className="min-h-[44px]">Close</Button>
+            {viewTeacher && (isAdmin || hasPermission('teachers.update')) && (
+              <Button
+                onClick={() => { setViewOpen(false); openEditForm(viewTeacher); }}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white min-h-[44px]"
+              >
+                <Pencil className="w-4 h-4 mr-2" />
+                Edit
+              </Button>
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -1035,13 +1540,13 @@ export default function TeachersPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="min-h-[44px]">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleting}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 text-white min-h-[44px]"
             >
-              {deleting ? 'Deleting...' : 'Delete Teacher'}
+              {deleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

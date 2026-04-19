@@ -250,11 +250,11 @@ export default function AdminsPage() {
                 <Input
                   placeholder="Search admins by name, email, phone, or code..."
                   value={search} onChange={e => setSearch(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-40">
+                <SelectTrigger className="w-full sm:w-40 min-h-[44px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -264,7 +264,7 @@ export default function AdminsPage() {
                 </SelectContent>
               </Select>
               <Select value={levelFilter} onValueChange={setLevelFilter}>
-                <SelectTrigger className="w-full sm:w-48">
+                <SelectTrigger className="w-full sm:w-48 min-h-[44px]">
                   <SelectValue placeholder="Designation" />
                 </SelectTrigger>
                 <SelectContent>
