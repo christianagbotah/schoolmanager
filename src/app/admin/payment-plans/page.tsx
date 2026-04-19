@@ -335,73 +335,79 @@ export default function PaymentPlansPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b border-slate-100">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-              <CalendarRange className="w-6 h-6 text-emerald-600" /> Payment Plans
-            </h1>
-            <p className="text-sm text-slate-500 mt-1">Create and manage installment payment plans</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Payment Plans</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Create and manage installment payment plans</p>
           </div>
-          <Button onClick={handleCreate} className="bg-emerald-600 hover:bg-emerald-700">
+          <Button onClick={handleCreate} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]">
             <Plus className="w-4 h-4 mr-2" /> Create Payment Plan
           </Button>
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-l-4 border-l-emerald-500">
+        {loading && !paymentPlans.length ? (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i} className="border-l-4 border-l-slate-200"><CardContent className="p-4"><div className="flex items-center gap-3"><Skeleton className="w-11 h-11 rounded-xl" /><div className="flex-1 space-y-2"><Skeleton className="h-3 w-20" /><Skeleton className="h-6 w-16" /></div></div></CardContent></Card>
+            ))}
+          </div>
+        ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="border-l-4 border-l-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
-                  <CalendarRange className="w-5 h-5 text-emerald-600" />
+                <div className="bg-emerald-500 w-11 h-11 rounded-xl flex items-center justify-center">
+                  <CalendarRange className="w-5 h-5 text-white" />
                 </div>
-                <div>
-                  <p className="text-xs text-slate-500 font-medium">Active Plans</p>
-                  <p className="text-lg font-bold text-slate-900">{summary.active}</p>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Plans</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{summary.active}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="border-l-4 border-l-amber-500">
+          <Card className="border-l-4 border-l-amber-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                <div className="bg-amber-500 w-11 h-11 rounded-xl flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-white" />
                 </div>
-                <div>
-                  <p className="text-xs text-slate-500 font-medium">Overdue Amount</p>
-                  <p className="text-lg font-bold text-red-600">{fmt(summary.overdueAmount)}</p>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Overdue Amount</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{fmt(summary.overdueAmount)}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="border-l-4 border-l-sky-500">
+          <Card className="border-l-4 border-l-sky-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-sky-600" />
+                <div className="bg-sky-500 w-11 h-11 rounded-xl flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-white" />
                 </div>
-                <div>
-                  <p className="text-xs text-slate-500 font-medium">Collected</p>
-                  <p className="text-lg font-bold text-emerald-700">{fmt(summary.collectedAmount)}</p>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Collected</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{fmt(summary.collectedAmount)}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="border-l-4 border-l-purple-500">
+          <Card className="border-l-4 border-l-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
-                  <CreditCard className="w-5 h-5 text-purple-600" />
+                <div className="bg-violet-500 w-11 h-11 rounded-xl flex items-center justify-center">
+                  <CreditCard className="w-5 h-5 text-white" />
                 </div>
-                <div>
-                  <p className="text-xs text-slate-500 font-medium">Total Plans</p>
-                  <p className="text-lg font-bold text-slate-900">{summary.total}</p>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Plans</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{summary.total}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
+        )}
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -424,7 +430,7 @@ export default function PaymentPlansPage() {
                     <Input placeholder="Search plans, students..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
                   </div>
                   <Select value={statusFilter} onValueChange={(v) => v === '__all__' ? setStatusFilter('') : setStatusFilter(v)}>
-                    <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder="All Status" /></SelectTrigger>
+                    <SelectTrigger className="w-full sm:w-48 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="All Status" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__all__">All Status</SelectItem>
                       <SelectItem value="active">Active</SelectItem>
@@ -459,7 +465,9 @@ export default function PaymentPlansPage() {
                         <TableRow key={i}>{Array.from({ length: 8 }).map((_, j) => <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>)}</TableRow>
                       )) : filteredPlans.length === 0 ? (
                         <TableRow><TableCell colSpan={8} className="text-center py-12 text-slate-400">
-                          <CalendarRange className="w-10 h-10 mx-auto mb-2 opacity-50" /><p>No payment plans found</p>
+                          <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-3"><CalendarRange className="w-7 h-7 text-emerald-500" /></div>
+                          <p className="font-medium">No payment plans found</p>
+                          <p className="text-xs mt-0.5">Create a plan to get started</p>
                         </TableCell></TableRow>
                       ) : filteredPlans.map((plan) => {
                         const progress = plan.total_amount > 0 ? (plan.paid_amount / plan.total_amount) * 100 : 0;
@@ -510,7 +518,7 @@ export default function PaymentPlansPage() {
                 {/* Mobile */}
                 <div className="md:hidden divide-y">
                   {loading ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="p-4 space-y-3"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-3 w-1/2" /></div>)
-                  : filteredPlans.length === 0 ? <div className="text-center py-12 text-slate-400"><CalendarRange className="w-10 h-10 mx-auto mb-2 opacity-50" /><p>No payment plans found</p></div>
+                  : filteredPlans.length === 0 ? <div className="text-center py-12 text-slate-400"><div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-3"><CalendarRange className="w-7 h-7 text-emerald-500" /></div><p className="font-medium">No payment plans found</p></div>
                   : filteredPlans.map((plan) => {
                     const progress = plan.total_amount > 0 ? (plan.paid_amount / plan.total_amount) * 100 : 0;
                     const pc = planStatusConfig[plan.status] || planStatusConfig.active;
@@ -529,7 +537,7 @@ export default function PaymentPlansPage() {
                         </div>
                         <Progress value={progress} className="h-2" />
                         <div className="flex gap-1.5 pt-1">
-                          <Button variant="outline" size="sm" className="flex-1 h-8 text-xs" onClick={() => handleView(plan.payment_plan_id)}><Eye className="w-3 h-3 mr-1" />View</Button>
+                          <Button variant="outline" size="sm" className="flex-1 min-h-[44px] text-xs" onClick={() => handleView(plan.payment_plan_id)}><Eye className="w-3 h-3 mr-1" />View</Button>
                         </div>
                       </div>
                     );
@@ -584,8 +592,9 @@ export default function PaymentPlansPage() {
             ) : (
               <Card>
                 <CardContent className="p-12 text-center text-slate-400">
-                  <CalendarRange className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                  <p>No active payment plans</p>
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-3"><CalendarRange className="w-7 h-7 text-emerald-500" /></div>
+                  <p className="font-medium">No active payment plans</p>
+                  <p className="text-xs mt-0.5">Create a plan to track installments</p>
                 </CardContent>
               </Card>
             )}
@@ -647,7 +656,7 @@ export default function PaymentPlansPage() {
                     }
                   }
                 }}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select fee structure" /></SelectTrigger>
+                  <SelectTrigger className="mt-1 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select fee structure" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__none__">None</SelectItem>
                     {feeStructures.map((fs) => (
@@ -671,7 +680,7 @@ export default function PaymentPlansPage() {
                 <div>
                   <Label className="text-xs font-medium">Installments *</Label>
                   <Select value={form.numberOfPayments} onValueChange={(v) => setForm({ ...form, numberOfPayments: v })}>
-                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {[1, 2, 3, 4, 5, 6, 8, 10, 12].map((n) => (
                         <SelectItem key={n} value={String(n)}>{n}</SelectItem>
@@ -682,7 +691,7 @@ export default function PaymentPlansPage() {
                 <div>
                   <Label className="text-xs font-medium">Frequency *</Label>
                   <Select value={form.frequency} onValueChange={(v) => setForm({ ...form, frequency: v })}>
-                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="weekly">Weekly</SelectItem>
                       <SelectItem value="bi-weekly">Bi-Weekly</SelectItem>

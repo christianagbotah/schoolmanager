@@ -250,6 +250,49 @@ function getMethodBadge(method: string) {
   return { label: method, icon: CreditCard, cls: 'bg-slate-50 text-slate-700 border-slate-200' };
 }
 
+// =================== PAGE SKELETON ===================
+function DailyFeesSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Header skeleton */}
+      <div className="pb-4 border-b border-slate-100">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-32" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-11 w-36 rounded-lg" />
+        </div>
+      </div>
+      {/* Stat card skeletons */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="rounded-2xl border border-slate-200/60 bg-white p-4">
+            <div className="flex items-center gap-3">
+              <Skeleton className="w-11 h-11 rounded-xl flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <Skeleton className="h-3 w-20 mb-2" />
+                <Skeleton className="h-6 w-24" />
+                <Skeleton className="h-3 w-16 mt-1" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Tabs skeleton */}
+      <Skeleton className="h-10 w-full max-w-md rounded-xl" />
+      {/* Content skeleton */}
+      <div className="rounded-2xl border border-slate-200/60 bg-white">
+        <div className="p-4 space-y-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // =================== MAIN COMPONENT ===================
 export default function DailyFeesDashboard() {
   const [activeTab, setActiveTab] = useState('collection');
@@ -697,24 +740,35 @@ export default function DailyFeesDashboard() {
   const getRateForClass = (classId: number) => rates.find((r) => r.class_id === classId);
 
   const summary = cashierData?.summary;
+  const initialLoading = cashierLoading && ratesLoading;
+
+  // Active filter chips for transactions
+  const txActiveFilters: { label: string; onClear: () => void }[] = [];
+  if (txSearch) txActiveFilters.push({ label: `Search: "${txSearch}"`, onClear: () => setTxSearch('') });
+  if (txMethodFilter !== '__all__') {
+    const methodLabels: Record<string, string> = { cash: 'Cash', mobile_money: 'MoMo', bank_transfer: 'Bank', cheque: 'Cheque' };
+    txActiveFilters.push({ label: `Method: ${methodLabels[txMethodFilter] || txMethodFilter}`, onClear: () => setTxMethodFilter('__all__') });
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Daily Fees</h1>
-            <p className="text-sm text-slate-500 mt-1">Cashier portal \u2014 Collect and track daily fee payments</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={() => { resetQuickCollect(); setQuickCollectOpen(true); }}
-              className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]"
-            >
-              <UserPlus className="w-4 h-4 mr-2" />
-              Quick Collect
-            </Button>
+        <div className="pb-4 border-b border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Daily Fees</h1>
+              <p className="text-sm text-slate-500 mt-1">Cashier portal \u2014 Collect and track daily fee payments</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => { resetQuickCollect(); setQuickCollectOpen(true); }}
+                className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Quick Collect
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -722,26 +776,29 @@ export default function DailyFeesDashboard() {
         {cashierLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <Card key={i} className="border-slate-200/60">
-                <CardContent className="p-4">
-                  <Skeleton className="h-4 w-24 mb-2" />
-                  <Skeleton className="h-8 w-32" />
-                  <Skeleton className="h-3 w-20 mt-2" />
-                </CardContent>
-              </Card>
+              <div key={i} className="rounded-2xl border border-slate-200/60 p-4">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-11 h-11 rounded-xl" />
+                  <div className="flex-1">
+                    <Skeleton className="h-3 w-20 mb-2" />
+                    <Skeleton className="h-6 w-24" />
+                    <Skeleton className="h-3 w-16 mt-1" />
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {/* Today's Collections */}
-            <Card className="border-slate-200/60">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                  <Wallet className="w-5 h-5 text-emerald-600" />
+            <div className="rounded-2xl border border-slate-200/60 bg-white p-4 hover:-translate-y-0.5 hover:shadow-lg transition-all border-l-4 border-l-emerald-500">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                  <Wallet className="w-5 h-5 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-slate-500">Today&apos;s Collections</p>
-                  <p className="text-xl font-bold font-mono">{fmt(summary?.totalAmount || 0)}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Today&apos;s Collections</p>
+                  <p className="text-2xl font-bold font-mono tabular-nums">{fmt(summary?.totalAmount || 0)}</p>
                   {summary && summary.yesterdayChange !== 0 && (
                     <p className={`text-[10px] font-medium flex items-center gap-0.5 ${summary.yesterdayChange > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                       {summary.yesterdayChange > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
@@ -749,66 +806,66 @@ export default function DailyFeesDashboard() {
                     </p>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
             {/* Students Served */}
-            <Card className="border-slate-200/60">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center flex-shrink-0">
-                  <Users className="w-5 h-5 text-sky-600" />
+            <div className="rounded-2xl border border-slate-200/60 bg-white p-4 hover:-translate-y-0.5 hover:shadow-lg transition-all border-l-4 border-l-sky-500">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-sky-500 flex items-center justify-center flex-shrink-0">
+                  <Users className="w-5 h-5 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-slate-500">Students Served</p>
-                  <p className="text-xl font-bold">{summary?.uniqueStudents || 0}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Students Served</p>
+                  <p className="text-2xl font-bold tabular-nums">{summary?.uniqueStudents || 0}</p>
                   <p className="text-[10px] text-slate-400">{summary?.transactionCount || 0} transactions</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
             {/* Cash */}
-            <Card className="border-slate-200/60">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                  <Banknote className="w-5 h-5 text-amber-600" />
+            <div className="rounded-2xl border border-slate-200/60 bg-white p-4 hover:-translate-y-0.5 hover:shadow-lg transition-all border-l-4 border-l-amber-500">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
+                  <Banknote className="w-5 h-5 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-slate-500">Cash</p>
-                  <p className="text-xl font-bold font-mono">{fmt(summary?.cashTotal || 0)}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cash</p>
+                  <p className="text-2xl font-bold font-mono tabular-nums">{fmt(summary?.cashTotal || 0)}</p>
                   <p className="text-[10px] text-slate-400">{summary?.cashCount || 0} payments</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
             {/* Mobile Money */}
-            <Card className="border-slate-200/60">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
-                  <Smartphone className="w-5 h-5 text-violet-600" />
+            <div className="rounded-2xl border border-slate-200/60 bg-white p-4 hover:-translate-y-0.5 hover:shadow-lg transition-all border-l-4 border-l-violet-500">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-violet-500 flex items-center justify-center flex-shrink-0">
+                  <Smartphone className="w-5 h-5 text-white" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-slate-500">Mobile Money</p>
-                  <p className="text-xl font-bold font-mono">{fmt(summary?.momoTotal || 0)}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Mobile Money</p>
+                  <p className="text-2xl font-bold font-mono tabular-nums">{fmt(summary?.momoTotal || 0)}</p>
                   <p className="text-[10px] text-slate-400">{summary?.momoCount || 0} payments</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         )}
 
         {/* ========== MAIN TABS ========== */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4 bg-white border border-slate-200 p-1 rounded-xl h-auto flex w-full sm:w-auto">
-            <TabsTrigger value="collection" className="flex-1 min-w-[100px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
+            <TabsTrigger value="collection" className="flex-1 min-w-[80px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
               <HandCoins className="w-4 h-4 mr-1 hidden sm:inline" /> Collect
             </TabsTrigger>
-            <TabsTrigger value="transactions" className="flex-1 min-w-[100px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
+            <TabsTrigger value="transactions" className="flex-1 min-w-[80px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
               <Receipt className="w-4 h-4 mr-1 hidden sm:inline" /> Transactions
             </TabsTrigger>
-            <TabsTrigger value="overview" className="flex-1 min-w-[100px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
+            <TabsTrigger value="overview" className="flex-1 min-w-[80px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
               <BarChart3 className="w-4 h-4 mr-1 hidden sm:inline" /> Reports
             </TabsTrigger>
-            <TabsTrigger value="rates" className="flex-1 min-w-[100px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
+            <TabsTrigger value="rates" className="flex-1 min-w-[80px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
               <GraduationCap className="w-4 h-4 mr-1 hidden sm:inline" /> Rates
             </TabsTrigger>
-            <TabsTrigger value="handover" className="flex-1 min-w-[100px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
+            <TabsTrigger value="handover" className="flex-1 min-w-[80px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
               <ArrowRightLeft className="w-4 h-4 mr-1 hidden sm:inline" /> Handover
             </TabsTrigger>
           </TabsList>
@@ -834,7 +891,7 @@ export default function DailyFeesDashboard() {
                   <div className="space-y-2">
                     <Label className="text-xs font-medium">Or Filter by Class</Label>
                     <Select value={selectedClassId} onValueChange={handleClassSelect}>
-                      <SelectTrigger className="min-h-[44px]">
+                      <SelectTrigger className="min-h-[44px] bg-slate-50">
                         <SelectValue placeholder="Select class..." />
                       </SelectTrigger>
                       <SelectContent className="max-h-64">
@@ -988,7 +1045,7 @@ export default function DailyFeesDashboard() {
                           else if (v === 'both') setTransportFare(0);
                           else setTransportFare(0);
                         }}>
-                          <SelectTrigger className="min-h-[44px]">
+                          <SelectTrigger className="min-h-[44px] bg-slate-50">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -1087,7 +1144,7 @@ export default function DailyFeesDashboard() {
 
             {/* Empty State */}
             {!selectedStudent && (
-              <Card className="border-dashed">
+              <Card className="border-dashed border-slate-200">
                 <CardContent className="py-12 text-center">
                   <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
                     <Search className="w-8 h-8 text-slate-300" />
@@ -1109,40 +1166,64 @@ export default function DailyFeesDashboard() {
           {/* ========== TRANSACTIONS TAB ========== */}
           <TabsContent value="transactions" className="mt-4 space-y-4">
             {/* Filter Bar */}
-            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-              <div className="relative flex-1 w-full sm:max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  placeholder="Search by student name, code, or transaction #..."
-                  value={txSearch}
-                  onChange={(e) => setTxSearch(e.target.value)}
-                  className="pl-10 min-h-[44px]"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-slate-400" />
+            <div className="rounded-2xl border border-slate-200/60 bg-white p-4">
+              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                <div className="relative flex-1 w-full sm:max-w-sm">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <Input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="w-auto min-h-[44px]"
+                    placeholder="Search by student name, code, or transaction #..."
+                    value={txSearch}
+                    onChange={(e) => setTxSearch(e.target.value)}
+                    className="pl-10 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"
                   />
                 </div>
-                <Select value={txMethodFilter} onValueChange={setTxMethodFilter}>
-                  <SelectTrigger className="w-[140px] min-h-[44px]">
-                    <Filter className="w-4 h-4 mr-1 text-slate-400" />
-                    <SelectValue placeholder="Method" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__all__">All Methods</SelectItem>
-                    <SelectItem value="cash">Cash</SelectItem>
-                    <SelectItem value="mobile_money">Mobile Money</SelectItem>
-                    <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                    <SelectItem value="cheque">Cheque</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-slate-400" />
+                    <Input
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      className="w-auto min-h-[44px]"
+                    />
+                  </div>
+                  <Select value={txMethodFilter} onValueChange={setTxMethodFilter}>
+                    <SelectTrigger className="w-[140px] min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white">
+                      <Filter className="w-4 h-4 mr-1 text-slate-400" />
+                      <SelectValue placeholder="Method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__all__">All Methods</SelectItem>
+                      <SelectItem value="cash">Cash</SelectItem>
+                      <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                      <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                      <SelectItem value="cheque">Cheque</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+              {/* Active Filter Chips */}
+              {txActiveFilters.length > 0 && (
+                <div className="flex items-center gap-2 mt-3 flex-wrap">
+                  <span className="text-xs text-slate-400 font-medium">Active filters:</span>
+                  {txActiveFilters.map((f, i) => (
+                    <button
+                      key={i}
+                      onClick={f.onClear}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-medium hover:bg-emerald-100 transition-colors"
+                    >
+                      {f.label}
+                      <RotateCcw className="w-3 h-3" />
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => { setTxSearch(''); setTxMethodFilter('__all__'); }}
+                    className="text-xs text-slate-500 hover:text-slate-700 font-medium underline"
+                  >
+                    Clear all
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Desktop Table */}
@@ -1151,9 +1232,11 @@ export default function DailyFeesDashboard() {
                 <div className="p-6 space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
               </CardContent></Card>
             ) : filteredTransactions.length === 0 ? (
-              <Card className="border-dashed">
+              <Card className="border-dashed border-slate-200">
                 <CardContent className="py-12 text-center">
-                  <Receipt className="w-10 h-10 text-slate-300 mx-auto mb-4" />
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                    <Receipt className="w-8 h-8 text-slate-300" />
+                  </div>
                   <p className="font-semibold text-slate-500">No Transactions Found</p>
                   <p className="text-sm text-slate-400 mt-1">
                     {txSearch || txMethodFilter !== '__all__' ? 'Try adjusting your filters' : 'No fee collections recorded for this date yet'}
@@ -1162,11 +1245,13 @@ export default function DailyFeesDashboard() {
               </Card>
             ) : (
               <>
-                <p className="text-xs text-slate-500">{filteredTransactions.length} transaction{filteredTransactions.length !== 1 ? 's' : ''}</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-slate-500">Showing <span className="font-semibold">{filteredTransactions.length}</span> transaction{filteredTransactions.length !== 1 ? 's' : ''}</p>
+                </div>
                 {/* Desktop view */}
-                <Card className="border-slate-200/60 hidden md:block">
+                <Card className="hidden md:block rounded-2xl border-slate-200/60">
                   <CardContent className="p-0">
-                    <div className="max-h-[600px] overflow-y-auto">
+                    <div className="max-h-[600px] overflow-y-auto rounded-2xl">
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-slate-50">

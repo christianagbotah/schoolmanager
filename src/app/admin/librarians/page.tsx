@@ -119,15 +119,10 @@ export default function LibrariansPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b border-slate-100">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                <Library className="w-5 h-5 text-white" />
-              </div>
-              Manage Librarians
-            </h1>
-            <p className="text-sm text-slate-500 mt-1 ml-12">Library staff accounts and access management</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Manage Librarians</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Library staff accounts and access management</p>
           </div>
           <Button onClick={openAddForm} className="bg-violet-600 hover:bg-violet-700 min-h-[44px] shadow-sm">
             <Plus className="w-4 h-4 mr-2" /> Add Librarian
@@ -136,36 +131,36 @@ export default function LibrariansPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
-          <Card className="border-slate-200/60 shadow-none">
+          <Card className="border-l-4 border-l-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-violet-600" />
+              <div className="bg-violet-500 w-11 h-11 rounded-xl flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 leading-tight">Total Librarians</p>
-                <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Librarians</p>
+                <p className="text-2xl font-bold text-slate-900 tabular-nums">{stats.total}</p>
               </div>
             </CardContent>
           </Card>
-          <Card className="border-slate-200/60 shadow-none">
+          <Card className="border-l-4 border-l-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                <Users className="w-6 h-6 text-emerald-600" />
+              <div className="bg-emerald-500 w-11 h-11 rounded-xl flex items-center justify-center">
+                <Users className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 leading-tight">Active</p>
-                <p className="text-2xl font-bold text-emerald-700">{stats.active}</p>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active</p>
+                <p className="text-2xl font-bold text-emerald-700 tabular-nums">{stats.active}</p>
               </div>
             </CardContent>
           </Card>
-          <Card className="border-slate-200/60 shadow-none">
+          <Card className="border-l-4 border-l-red-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
-                <Lock className="w-6 h-6 text-red-600" />
+              <div className="bg-red-500 w-11 h-11 rounded-xl flex items-center justify-center">
+                <Lock className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 leading-tight">Blocked</p>
-                <p className="text-2xl font-bold text-red-700">{stats.blocked}</p>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Blocked</p>
+                <p className="text-2xl font-bold text-red-700 tabular-nums">{stats.blocked}</p>
               </div>
             </CardContent>
           </Card>
@@ -184,7 +179,7 @@ export default function LibrariansPage() {
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-40">
+                <SelectTrigger className="w-full sm:w-40 bg-slate-50 border-slate-200 focus:bg-white">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -221,7 +216,9 @@ export default function LibrariansPage() {
                   )) : librarians.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-16 text-slate-400">
-                        <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                        <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center mx-auto mb-3">
+                          <BookOpen className="w-7 h-7 text-violet-500" />
+                        </div>
                         <p className="font-medium">No librarians found</p>
                         <p className="text-xs mt-1">Add your first librarian to get started</p>
                       </TableCell>
@@ -367,7 +364,9 @@ export default function LibrariansPage() {
                 </div>
               )) : librarians.length === 0 ? (
                 <div className="text-center py-16 text-slate-400">
-                  <BookOpen className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                  <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center mx-auto mb-2">
+                    <BookOpen className="w-7 h-7 text-violet-500" />
+                  </div>
                   <p className="font-medium">No librarians found</p>
                 </div>
               ) : librarians.map(l => {
@@ -412,20 +411,20 @@ export default function LibrariansPage() {
                     </div>
                     <div className="flex items-center gap-2 pt-1">
                       {blocked ? (
-                        <Button variant="outline" size="sm" className="flex-1 h-9 text-xs text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                        <Button variant="outline" size="sm" className="flex-1 h-11 text-xs text-emerald-600 border-emerald-200 hover:bg-emerald-50"
                           onClick={() => { setBlockTarget(l); setBlockAction('unblock'); setBlockOpen(true); }}>
                           <Unlock className="w-3 h-3 mr-1" /> Unblock
                         </Button>
                       ) : (
-                        <Button variant="outline" size="sm" className="flex-1 h-9 text-xs text-amber-600 border-amber-200 hover:bg-amber-50"
+                        <Button variant="outline" size="sm" className="flex-1 h-11 text-xs text-amber-600 border-amber-200 hover:bg-amber-50"
                           onClick={() => { setBlockTarget(l); setBlockAction('block'); setBlockOpen(true); }}>
                           <Lock className="w-3 h-3 mr-1" /> Block
                         </Button>
                       )}
-                      <Button variant="outline" size="sm" className="flex-1 h-9 text-xs" onClick={() => openEditForm(l)}>
+                      <Button variant="outline" size="sm" className="flex-1 min-h-[44px] text-xs" onClick={() => openEditForm(l)}>
                         <Pencil className="w-3 h-3 mr-1" /> Edit
                       </Button>
-                      <Button variant="outline" size="sm" className="h-9 w-9 text-xs text-red-600 border-red-200 hover:bg-red-50 p-0"
+                      <Button variant="outline" size="sm" className="min-w-[44px] min-h-[44px] text-xs text-red-600 border-red-200 hover:bg-red-50 p-0"
                         onClick={() => { setDeleteTarget(l); setDeleteOpen(true); }}>
                         <Trash2 className="w-3 h-3" />
                       </Button>

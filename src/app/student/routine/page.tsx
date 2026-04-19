@@ -7,6 +7,7 @@ import {
   Clock,
   Loader2,
   GraduationCap,
+  LayoutGrid,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -123,8 +124,11 @@ export default function StudentRoutinePage() {
     return (
       <DashboardLayout>
         <div className="space-y-6">
-          <Skeleton className="h-8 w-48" />
-          <div className="space-y-4">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}</div>
+          <div className="pb-4 border-b border-slate-100">
+            <Skeleton className="h-8 w-56" />
+            <Skeleton className="h-4 w-72 mt-2" />
+          </div>
+          <div className="space-y-4">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-2xl" />)}</div>
         </div>
       </DashboardLayout>
     );
@@ -134,15 +138,20 @@ export default function StudentRoutinePage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* ─── Header ─────────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Class Routine</h1>
-            <p className="text-sm text-slate-500 mt-1">Your weekly class timetable</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center">
+              <LayoutGrid className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Class Routine</h1>
+              <p className="text-sm text-slate-500 mt-1">Your weekly class timetable</p>
+            </div>
           </div>
           {sections.length > 1 && (
             <div className="space-y-2 w-full sm:w-48">
               <Select value={selectedSectionId} onValueChange={setSelectedSectionId}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]">
                   <SelectValue placeholder="Section" />
                 </SelectTrigger>
                 <SelectContent>
@@ -169,7 +178,9 @@ export default function StudentRoutinePage() {
           <Card className="gap-4">
             <CardContent className="py-16">
               <div className="text-center">
-                <Calendar className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="w-8 h-8 text-slate-400" />
+                </div>
                 <h3 className="text-lg font-medium text-slate-600">No routine available</h3>
                 <p className="text-sm text-slate-400 mt-1">Your class routine has not been set up yet</p>
               </div>

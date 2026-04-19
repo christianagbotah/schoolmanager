@@ -163,10 +163,13 @@ export default function StudentProfilePage() {
     return (
       <DashboardLayout>
         <div className="space-y-6">
-          <Skeleton className="h-8 w-48" />
+          <div className="pb-4 border-b border-slate-100">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-64 mt-2" />
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Skeleton className="h-80 w-full rounded-xl" />
-            <Skeleton className="h-80 w-full rounded-xl lg:col-span-2" />
+            <Skeleton className="h-96 w-full rounded-2xl" />
+            <Skeleton className="h-96 w-full rounded-2xl lg:col-span-2" />
           </div>
         </div>
       </DashboardLayout>
@@ -177,11 +180,11 @@ export default function StudentProfilePage() {
     return (
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-2xl bg-red-100 flex items-center justify-center">
             <AlertTriangle className="w-8 h-8 text-red-600" />
           </div>
           <h2 className="text-xl font-semibold">{error}</h2>
-          <Button onClick={fetchProfile} variant="outline">Try Again</Button>
+          <Button onClick={fetchProfile} variant="outline" className="min-h-[44px]">Try Again</Button>
         </div>
       </DashboardLayout>
     );
@@ -192,9 +195,9 @@ export default function StudentProfilePage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">My Profile</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">My Profile</h1>
             <p className="text-sm text-slate-500 mt-1">Your personal information and account details</p>
           </div>
           <Dialog open={pwdDialogOpen} onOpenChange={setPwdDialogOpen}>

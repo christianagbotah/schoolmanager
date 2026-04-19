@@ -9,6 +9,10 @@ import {
   FileText,
   BarChart3,
   Download,
+  Sigma,
+  TrendingUp,
+  ArrowDown,
+  Target,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -61,7 +65,7 @@ function getGrade(score: number): string {
 
 function getGradeColor(score: number): string {
   if (score >= 80) return "bg-emerald-100 text-emerald-700";
-  if (score >= 60) return "bg-blue-100 text-blue-700";
+  if (score >= 60) return "bg-sky-100 text-sky-700";
   if (score >= 50) return "bg-amber-100 text-amber-700";
   return "bg-red-100 text-red-700";
 }
@@ -74,6 +78,46 @@ function getGradeRemark(grade: string): string {
   return remarks[grade] || "";
 }
 
+// ─── Full-Page Skeleton ─────────────────────────────────────
+function ResultsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="pb-4 border-b border-slate-100">
+        <Skeleton className="h-8 w-56" />
+        <Skeleton className="h-4 w-80 mt-2" />
+      </div>
+      <Skeleton className="h-20 w-full rounded-2xl" />
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Card key={i} className="py-4">
+            <CardContent className="px-4 pb-0 pt-0">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-7 w-12" />
+                </div>
+                <Skeleton className="h-9 w-9 rounded-lg" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Card className="gap-4">
+        <CardHeader>
+          <Skeleton className="h-6 w-40" />
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 // ─── Main Component ──────────────────────────────────────────
 export default function StudentResultsPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -81,6 +125,7 @@ export default function StudentResultsPage() {
   const [selectedExam, setSelectedExam] = useState("");
   const [marks, setMarks] = useState<MarkRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // ─── Fetch exams ───────────────────────────────────────────
@@ -101,6 +146,7 @@ export default function StudentResultsPage() {
       setError("Failed to load exams");
     } finally {
       setIsLoading(false);
+      setHasFetched(true);
     }
   }, [user?.id]);
 
@@ -139,6 +185,15 @@ export default function StudentResultsPage() {
   const lowest = marks.length > 0 ? Math.min(...marks.map(m => m.mark_obtained)) : 0;
   const subjectsPassed = marks.filter(m => m.mark_obtained >= 50).length;
 
+  // ─── Loading skeleton ──────────────────────────────────────
+  if (isLoading && !hasFetched) {
+    return (
+      <DashboardLayout>
+        <ResultsSkeleton />
+      </DashboardLayout>
+    );
+  }
+
   const handlePrint = () => {
     window.print();
   };
@@ -147,9 +202,9 @@ export default function StudentResultsPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* ─── Header ─────────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">My Results</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">My Results</h1>
             <p className="text-sm text-slate-500 mt-1">View your academic performance across all exams</p>
           </div>
           {marks.length > 0 && (
@@ -167,7 +222,7 @@ export default function StudentResultsPage() {
               <div className="space-y-2">
                 <Label>Select Exam</Label>
                 <Select value={selectedExam} onValueChange={setSelectedExam}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]">
                     <SelectValue placeholder="Choose an exam" />
                   </SelectTrigger>
                   <SelectContent>
@@ -196,34 +251,69 @@ export default function StudentResultsPage() {
           <>
             {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 print:grid-cols-5">
-              <Card className="py-3 text-center">
-                <CardContent className="px-3 pt-0 pb-0">
-                  <p className="text-xs text-slate-500">Total Score</p>
-                  <p className="text-xl font-bold text-slate-900 tabular-nums">{totalScore}</p>
+              <Card className="py-4 border-l-4 border-l-slate-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                <CardContent className="px-4 pb-0 pt-0">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Score</p>
+                      <p className="text-2xl font-bold text-slate-900 tabular-nums">{totalScore}</p>
+                    </div>
+                    <div className="w-9 h-9 rounded-lg bg-slate-500 flex items-center justify-center">
+                      <Sigma className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="py-3 text-center">
-                <CardContent className="px-3 pt-0 pb-0">
-                  <p className="text-xs text-slate-500">Average</p>
-                  <p className="text-xl font-bold text-emerald-600 tabular-nums">{average}</p>
+              <Card className="py-4 border-l-4 border-l-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                <CardContent className="px-4 pb-0 pt-0">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Average</p>
+                      <p className="text-2xl font-bold text-slate-900 tabular-nums">{average}</p>
+                    </div>
+                    <div className="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center">
+                      <TrendingUp className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="py-3 text-center">
-                <CardContent className="px-3 pt-0 pb-0">
-                  <p className="text-xs text-slate-500">Highest</p>
-                  <p className="text-xl font-bold text-blue-600 tabular-nums">{highest}</p>
+              <Card className="py-4 border-l-4 border-l-sky-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                <CardContent className="px-4 pb-0 pt-0">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Highest</p>
+                      <p className="text-2xl font-bold text-slate-900 tabular-nums">{highest}</p>
+                    </div>
+                    <div className="w-9 h-9 rounded-lg bg-sky-500 flex items-center justify-center">
+                      <ArrowDown className="w-4 h-4 text-white rotate-180" />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="py-3 text-center">
-                <CardContent className="px-3 pt-0 pb-0">
-                  <p className="text-xs text-slate-500">Lowest</p>
-                  <p className="text-xl font-bold text-amber-600 tabular-nums">{lowest}</p>
+              <Card className="py-4 border-l-4 border-l-amber-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                <CardContent className="px-4 pb-0 pt-0">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Lowest</p>
+                      <p className="text-2xl font-bold text-slate-900 tabular-nums">{lowest}</p>
+                    </div>
+                    <div className="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center">
+                      <ArrowDown className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="py-3 text-center">
-                <CardContent className="px-3 pt-0 pb-0">
-                  <p className="text-xs text-slate-500">Subjects Passed</p>
-                  <p className="text-xl font-bold text-purple-600">{subjectsPassed}/{marks.length}</p>
+              <Card className="py-4 border-l-4 border-l-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                <CardContent className="px-4 pb-0 pt-0">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Passed</p>
+                      <p className="text-2xl font-bold text-slate-900 tabular-nums">{subjectsPassed}/{marks.length}</p>
+                    </div>
+                    <div className="w-9 h-9 rounded-lg bg-violet-500 flex items-center justify-center">
+                      <Target className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -232,8 +322,8 @@ export default function StudentResultsPage() {
             <Card className="gap-4">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
-                    <Award className="w-4 h-4 text-purple-600" />
+                  <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                    <Award className="w-4 h-4 text-violet-600" />
                   </div>
                   <CardTitle className="text-base font-semibold">
                     {exams.find(e => e.exam_id === parseInt(selectedExam))?.name || "Exam"} Results
@@ -247,8 +337,11 @@ export default function StudentResultsPage() {
                   </div>
                 ) : marks.length === 0 ? (
                   <div className="text-center py-12">
-                    <BarChart3 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                    <p className="text-slate-400 text-sm">No results found for this exam</p>
+                    <div className="w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center mx-auto mb-3">
+                      <BarChart3 className="w-8 h-8 text-violet-400" />
+                    </div>
+                    <p className="text-slate-500 text-sm font-medium">No results found for this exam</p>
+                    <p className="text-slate-400 text-xs mt-1">Results may not have been published yet</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto rounded-lg border border-slate-200">
@@ -291,7 +384,9 @@ export default function StudentResultsPage() {
           <Card className="gap-4">
             <CardContent className="py-16">
               <div className="text-center">
-                <BarChart3 className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                  <BarChart3 className="w-8 h-8 text-slate-400" />
+                </div>
                 <h3 className="text-lg font-medium text-slate-600">Select an exam to view results</h3>
                 <p className="text-sm text-slate-400 mt-1">Choose an exam from the dropdown above</p>
               </div>

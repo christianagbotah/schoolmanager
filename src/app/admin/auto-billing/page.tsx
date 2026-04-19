@@ -292,12 +292,10 @@ export default function AutoBillingPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b border-slate-100">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-              <Zap className="w-6 h-6 text-emerald-600" /> Auto Billing System
-            </h1>
-            <p className="text-sm text-slate-500 mt-1">Generate invoices automatically based on fee structures</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Auto Billing System</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Generate invoices automatically based on fee structures</p>
           </div>
           <div className="flex gap-2">
             <Link href="/admin/auto-billing/history">
@@ -326,50 +324,50 @@ export default function AutoBillingPage() {
             {/* Summary Cards */}
             {loading ? (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {Array.from({ length: 4 }).map((_, i) => <Card key={i}><CardContent className="p-4"><Skeleton className="h-16" /></CardContent></Card>)}
+                {Array.from({ length: 4 }).map((_, i) => <Card key={i} className="border-l-4 border-l-slate-200"><CardContent className="p-4"><div className="flex items-center gap-3"><Skeleton className="w-11 h-11 rounded-xl" /><div className="flex-1 space-y-2"><Skeleton className="h-3 w-20" /><Skeleton className="h-6 w-16" /></div></div></CardContent></Card>)}
               </div>
             ) : (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="border-l-4 border-l-amber-500">
+                <Card className="border-l-4 border-l-amber-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center"><Clock className="w-5 h-5 text-amber-600" /></div>
-                      <div>
-                        <p className="text-xs text-slate-500 font-medium">Pending Invoices</p>
-                        <p className="text-xl font-bold text-slate-900">{summary.pendingInvoices}</p>
+                      <div className="bg-amber-500 w-11 h-11 rounded-xl flex items-center justify-center"><Clock className="w-5 h-5 text-white" /></div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pending Invoices</p>
+                        <p className="text-2xl font-bold text-slate-900 tabular-nums">{summary.pendingInvoices}</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="border-l-4 border-l-emerald-500">
+                <Card className="border-l-4 border-l-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center"><FileText className="w-5 h-5 text-emerald-600" /></div>
-                      <div>
-                        <p className="text-xs text-slate-500 font-medium">Generated This Month</p>
-                        <p className="text-xl font-bold text-slate-900">{summary.generatedThisMonth}</p>
+                      <div className="bg-emerald-500 w-11 h-11 rounded-xl flex items-center justify-center"><FileText className="w-5 h-5 text-white" /></div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Generated This Month</p>
+                        <p className="text-2xl font-bold text-slate-900 tabular-nums">{summary.generatedThisMonth}</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="border-l-4 border-l-sky-500">
+                <Card className="border-l-4 border-l-sky-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center"><DollarSign className="w-5 h-5 text-sky-600" /></div>
-                      <div>
-                        <p className="text-xs text-slate-500 font-medium">Total Billed</p>
-                        <p className="text-xl font-bold text-slate-900">{fmt(summary.totalBilled)}</p>
+                      <div className="bg-sky-500 w-11 h-11 rounded-xl flex items-center justify-center"><DollarSign className="w-5 h-5 text-white" /></div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Billed</p>
+                        <p className="text-2xl font-bold text-slate-900 tabular-nums">{fmt(summary.totalBilled)}</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="border-l-4 border-l-violet-500">
+                <Card className="border-l-4 border-l-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center"><TrendingUp className="w-5 h-5 text-violet-600" /></div>
-                      <div>
-                        <p className="text-xs text-slate-500 font-medium">Collection Rate</p>
-                        <p className="text-xl font-bold text-slate-900">{summary.collectionRate.toFixed(1)}%</p>
+                      <div className="bg-violet-500 w-11 h-11 rounded-xl flex items-center justify-center"><TrendingUp className="w-5 h-5 text-white" /></div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Collection Rate</p>
+                        <p className="text-2xl font-bold text-slate-900 tabular-nums">{summary.collectionRate.toFixed(1)}%</p>
                       </div>
                     </div>
                   </CardContent>
@@ -391,7 +389,7 @@ export default function AutoBillingPage() {
                     <div>
                       <Label className="text-xs font-medium">Fee Structure *</Label>
                       <Select value={formFeeStructureId} onValueChange={setFormFeeStructureId}>
-                        <SelectTrigger className="mt-1"><SelectValue placeholder="Select fee structure" /></SelectTrigger>
+                        <SelectTrigger className="mt-1 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select fee structure" /></SelectTrigger>
                         <SelectContent>
                           {configurations.filter(c => c.is_active === 1).map((fs) => (
                             <SelectItem key={fs.fee_structure_id} value={String(fs.fee_structure_id)}>
@@ -405,7 +403,7 @@ export default function AutoBillingPage() {
                     <div>
                       <Label className="text-xs font-medium">Class *</Label>
                       <Select value={formClassId} onValueChange={(v) => v === '__none__' ? setFormClassId('') : setFormClassId(v)}>
-                        <SelectTrigger className="mt-1"><SelectValue placeholder="Select class" /></SelectTrigger>
+                        <SelectTrigger className="mt-1 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select class" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="__none__">All Classes</SelectItem>
                           {classes.map((c) => <SelectItem key={c.class_id} value={String(c.class_id)}>{c.name}</SelectItem>)}
@@ -415,7 +413,7 @@ export default function AutoBillingPage() {
                     <div>
                       <Label className="text-xs font-medium">Academic Year</Label>
                       <Select value={formYear} onValueChange={setFormYear}>
-                        <SelectTrigger className="mt-1"><SelectValue placeholder="Select year" /></SelectTrigger>
+                        <SelectTrigger className="mt-1 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select year" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="2025/2026">2025/2026</SelectItem>
                           <SelectItem value="2024/2025">2024/2025</SelectItem>
@@ -425,7 +423,7 @@ export default function AutoBillingPage() {
                     <div>
                       <Label className="text-xs font-medium">Term</Label>
                       <Select value={formTerm} onValueChange={setFormTerm}>
-                        <SelectTrigger className="mt-1"><SelectValue placeholder="Select term" /></SelectTrigger>
+                        <SelectTrigger className="mt-1 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select term" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Term 1">Term 1</SelectItem>
                           <SelectItem value="Term 2">Term 2</SelectItem>
@@ -466,7 +464,13 @@ export default function AutoBillingPage() {
                 <CardContent className="p-0">
                   <div className="max-h-80 overflow-y-auto">
                     {configurations.filter(c => c.is_active === 1).length === 0 ? (
-                      <p className="text-sm text-slate-400 text-center py-8">No active configurations</p>
+                                      <div className="text-center py-8">
+                        <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center mx-auto mb-3">
+                          <Settings className="w-7 h-7 text-violet-500" />
+                        </div>
+                        <p className="text-sm text-slate-400">No active configurations</p>
+                        <p className="text-xs text-slate-400 mt-0.5">Create billing rules to get started</p>
+                      </div>
                     ) : configurations.filter(c => c.is_active === 1).map((fs) => (
                       <div key={fs.fee_structure_id} className="px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-slate-50/50">
                         <div className="flex items-start justify-between gap-2">
@@ -475,7 +479,7 @@ export default function AutoBillingPage() {
                             <p className="text-xs text-slate-400">{fs.class?.name || 'All'} &middot; {fs.year} &middot; {fs.term}</p>
                             <p className="text-sm font-bold text-emerald-700 mt-0.5">{fmt(fs.total_amount)}</p>
                           </div>
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditStructure(fs)}>
+                          <Button variant="ghost" size="icon" className="min-h-[44px] min-w-[44px]" onClick={() => handleEditStructure(fs)}>
                             <Settings className="w-3 h-3" />
                           </Button>
                         </div>
@@ -498,14 +502,14 @@ export default function AutoBillingPage() {
                   </div>
                   <div className="flex gap-2">
                     <Select value={filterClass} onValueChange={(v) => v === '__all__' ? setFilterClass('') : setFilterClass(v)}>
-                      <SelectTrigger className="h-8 w-[140px] text-xs"><SelectValue placeholder="All Classes" /></SelectTrigger>
+                      <SelectTrigger className="h-8 w-[140px] text-xs bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="All Classes" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__all__">All Classes</SelectItem>
                         {classes.map((c) => <SelectItem key={c.class_id} value={String(c.class_id)}>{c.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
                     <Select value={filterStatus} onValueChange={(v) => v === '__all__' ? setFilterStatus('') : setFilterStatus(v)}>
-                      <SelectTrigger className="h-8 w-[120px] text-xs"><SelectValue placeholder="All Status" /></SelectTrigger>
+                      <SelectTrigger className="h-8 w-[120px] text-xs bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="All Status" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__all__">All Status</SelectItem>
                         <SelectItem value="paid">Paid</SelectItem>
@@ -625,7 +629,7 @@ export default function AutoBillingPage() {
                   </div>
                   <div className="flex gap-2">
                     <Select value={filterBillingType} onValueChange={(v) => v === '__all__' ? setFilterBillingType('') : setFilterBillingType(v)}>
-                      <SelectTrigger className="h-8 w-[140px] text-xs"><SelectValue placeholder="All Types" /></SelectTrigger>
+                      <SelectTrigger className="h-8 w-[140px] text-xs bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="All Types" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__all__">All Types</SelectItem>
                         <SelectItem value="auto">Auto</SelectItem>
@@ -634,7 +638,7 @@ export default function AutoBillingPage() {
                       </SelectContent>
                     </Select>
                     <Select value={filterStatus} onValueChange={(v) => v === '__all__' ? setFilterStatus('') : setFilterStatus(v)}>
-                      <SelectTrigger className="h-8 w-[120px] text-xs"><SelectValue placeholder="All Status" /></SelectTrigger>
+                      <SelectTrigger className="h-8 w-[120px] text-xs bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="All Status" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__all__">All Status</SelectItem>
                         <SelectItem value="completed">Completed</SelectItem>

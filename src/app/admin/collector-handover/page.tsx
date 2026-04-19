@@ -11,19 +11,16 @@ import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import {
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter,
+} from '@/components/ui/dialog';
+import {
   ArrowRightLeft, CheckCircle, XCircle, Clock, Plus, Users,
-  Banknote, Smartphone, Building, Shield, Loader2, Calendar,
+  Banknote, Smartphone, Shield, Loader2, Calendar,
 } from 'lucide-react';
 
 interface Handover {
@@ -62,6 +59,25 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   verified: { label: 'Verified', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
   rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700 border-red-200' },
 };
+
+function CollectorHandoverSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <Skeleton className="h-7 w-52 mb-1" />
+        <Skeleton className="h-4 w-80" />
+        <div className="border-b border-slate-100 mt-3" />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-28 rounded-2xl" />
+        ))}
+      </div>
+      <Skeleton className="h-48 rounded-2xl" />
+      <Skeleton className="h-64 rounded-2xl" />
+    </div>
+  );
+}
 
 export default function CollectorHandoverPage() {
   const [handovers, setHandovers] = useState<Handover[]>([]);
@@ -140,39 +156,41 @@ export default function CollectorHandoverPage() {
     setForm(prev => ({ ...prev, from_collector: name }));
   };
 
+  if (loading && !handovers.length) return (
+    <DashboardLayout>
+      <CollectorHandoverSkeleton />
+    </DashboardLayout>
+  );
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-md">
-                <ArrowRightLeft className="w-5 h-5 text-white" />
-              </div>
-              Collector Handover
-            </h1>
-            <p className="text-sm text-slate-500 mt-1 ml-[52px]">Manage handover records between fee collectors</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Collector Handover</h1>
+            <p className="text-sm text-slate-500 mt-1">Manage handover records between fee collectors</p>
           </div>
-          <Button onClick={() => setCreateOpen(true)} className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white shadow-md">
+          <Button onClick={() => setCreateOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]">
             <Plus className="w-4 h-4 mr-2" />New Handover
           </Button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3">
+        {/* Stat Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { label: 'Pending', count: stats.pending, icon: Clock, color: 'from-amber-500 to-orange-500' },
-            { label: 'Verified', count: stats.verified, icon: CheckCircle, color: 'from-emerald-500 to-teal-500' },
-            { label: 'Total Records', count: stats.total, icon: Shield, color: 'from-sky-500 to-cyan-500' },
+            { label: 'Pending', count: stats.pending, icon: Clock, borderColor: 'border-amber-500', iconBg: 'bg-amber-500' },
+            { label: 'Verified', count: stats.verified, icon: CheckCircle, borderColor: 'border-emerald-500', iconBg: 'bg-emerald-500' },
+            { label: 'Total Records', count: stats.total, icon: Shield, borderColor: 'border-sky-500', iconBg: 'bg-sky-500' },
           ].map(s => (
-            <Card key={s.label}>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center shadow-sm`}>
+            <Card key={s.label} className={`rounded-2xl border-l-4 ${s.borderColor} hover:shadow-lg hover:-translate-y-0.5 transition-all`}>
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className={`w-11 h-11 rounded-xl ${s.iconBg} flex items-center justify-center flex-shrink-0`}>
                   <s.icon className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">{s.label}</p>
-                  <p className="text-xl font-bold text-slate-900">{s.count}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{s.label}</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{s.count}</p>
                 </div>
               </CardContent>
             </Card>
@@ -181,25 +199,27 @@ export default function CollectorHandoverPage() {
 
         {/* Today's Collector Summary */}
         {collectors.length > 0 && (
-          <Card>
+          <Card className="rounded-2xl border-slate-200/60">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2"><Users className="w-4 h-4 text-slate-400" />Today&apos;s Collections by Collector</CardTitle>
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <Users className="w-4 h-4 text-slate-400" />Today&apos;s Collections by Collector
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {collectors.map((c, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors" onClick={() => prefillFromCollector(c.name)}>
+                  <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors" onClick={() => prefillFromCollector(c.name)}>
                     <div>
                       <p className="text-sm font-semibold text-slate-800">{c.name}</p>
-                      <p className="text-[10px] text-slate-400">{c.count} transactions</p>
-                      <div className="flex gap-2 mt-1 text-[10px]">
-                        <span className="text-slate-400"><Banknote className="w-3 h-3 inline" /> {fmt(c.cash)}</span>
-                        <span className="text-slate-400"><Smartphone className="w-3 h-3 inline" /> {fmt(c.momo)}</span>
+                      <p className="text-xs text-slate-400">{c.count} transactions</p>
+                      <div className="flex gap-2 mt-1 text-xs text-slate-400">
+                        <span><Banknote className="w-3 h-3 inline" /> {fmt(c.cash)}</span>
+                        <span><Smartphone className="w-3 h-3 inline" /> {fmt(c.momo)}</span>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-bold font-mono text-emerald-600">{fmt(c.total)}</p>
-                      <Button variant="ghost" size="sm" className="text-[10px] h-6 mt-1">Use as From</Button>
+                      <Button variant="ghost" size="sm" className="text-xs min-h-[44px]">Use as From</Button>
                     </div>
                   </div>
                 ))}
@@ -209,17 +229,18 @@ export default function CollectorHandoverPage() {
         )}
 
         {/* Handover Records */}
-        <Card>
+        <Card className="rounded-2xl border-slate-200/60">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold">Handover Records</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            {loading ? (
-              <div className="p-4 space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
-            ) : handovers.length === 0 ? (
+            {handovers.length === 0 ? (
               <div className="text-center py-16 text-slate-400">
-                <ArrowRightLeft className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p className="text-sm">No handover records yet</p>
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 mx-auto flex items-center justify-center mb-3">
+                  <ArrowRightLeft className="w-8 h-8 text-slate-400" />
+                </div>
+                <p className="text-sm font-medium text-slate-700">No handover records yet</p>
+                <p className="text-xs text-slate-400 mt-1">Create a new handover record to get started</p>
               </div>
             ) : (
               <ScrollArea className="max-h-[500px]">
@@ -254,11 +275,11 @@ export default function CollectorHandoverPage() {
                             <TableCell>
                               {h.status === 'pending' && (
                                 <div className="flex gap-1">
-                                  <Button size="sm" className="h-7 bg-emerald-500 hover:bg-emerald-600 text-white" onClick={() => setActionDialog({ open: true, handover: h, action: 'verify' })}>
-                                    <CheckCircle className="w-3 h-3" />
+                                  <Button size="sm" className="h-9 min-w-[36px] bg-emerald-500 hover:bg-emerald-600 text-white" onClick={() => setActionDialog({ open: true, handover: h, action: 'verify' })}>
+                                    <CheckCircle className="w-3.5 h-3.5" />
                                   </Button>
-                                  <Button size="sm" variant="outline" className="h-7 text-red-600 hover:bg-red-50 border-red-200" onClick={() => setActionDialog({ open: true, handover: h, action: 'reject' })}>
-                                    <XCircle className="w-3 h-3" />
+                                  <Button size="sm" variant="outline" className="h-9 min-w-[36px] text-red-600 hover:bg-red-50 border-red-200" onClick={() => setActionDialog({ open: true, handover: h, action: 'reject' })}>
+                                    <XCircle className="w-3.5 h-3.5" />
                                   </Button>
                                 </div>
                               )}
@@ -286,18 +307,18 @@ export default function CollectorHandoverPage() {
                           <div className="text-xs text-slate-400">{formatDate(h.handover_date)}</div>
                           <p className="font-mono font-bold text-sm">{fmt(h.total_amount)}</p>
                         </div>
-                        <div className="flex gap-2 mt-2 text-[10px] text-slate-400">
+                        <div className="flex gap-2 mt-2 text-xs text-slate-400">
                           <span>Cash: {fmt(h.cash_amount)}</span>
                           <span>MoMo: {fmt(h.momo_amount)}</span>
                           <span>Bank: {fmt(h.bank_amount)}</span>
                         </div>
                         {h.status === 'pending' && (
                           <div className="flex gap-2 mt-3">
-                            <Button size="sm" className="h-7 bg-emerald-500 hover:bg-emerald-600 text-white flex-1" onClick={() => setActionDialog({ open: true, handover: h, action: 'verify' })}>
-                              <CheckCircle className="w-3 h-3 mr-1" />Verify
+                            <Button size="sm" className="h-11 flex-1 bg-emerald-500 hover:bg-emerald-600 text-white min-h-[44px]" onClick={() => setActionDialog({ open: true, handover: h, action: 'verify' })}>
+                              <CheckCircle className="w-3.5 h-3.5 mr-1" />Verify
                             </Button>
-                            <Button size="sm" variant="outline" className="h-7 text-red-600 hover:bg-red-50 border-red-200 flex-1" onClick={() => setActionDialog({ open: true, handover: h, action: 'reject' })}>
-                              <XCircle className="w-3 h-3 mr-1" />Reject
+                            <Button size="sm" variant="outline" className="h-11 flex-1 text-red-600 hover:bg-red-50 border-red-200 min-h-[44px]" onClick={() => setActionDialog({ open: true, handover: h, action: 'reject' })}>
+                              <XCircle className="w-3.5 h-3.5 mr-1" />Reject
                             </Button>
                           </div>
                         )}
@@ -314,44 +335,52 @@ export default function CollectorHandoverPage() {
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2"><Plus className="w-5 h-5 text-teal-500" />New Handover Record</DialogTitle>
+              <div className="flex items-center gap-3 mb-1">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center">
+                  <Plus className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <DialogTitle>New Handover Record</DialogTitle>
+                  <DialogDescription>Create a new collector handover</DialogDescription>
+                </div>
+              </div>
             </DialogHeader>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs">From Collector</Label>
-                  <Input value={form.from_collector} onChange={(e) => setForm(p => ({ ...p, from_collector: e.target.value }))} placeholder="Collector name" />
+                  <Input value={form.from_collector} onChange={(e) => setForm(p => ({ ...p, from_collector: e.target.value }))} placeholder="Collector name" className="bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs">To Collector</Label>
-                  <Input value={form.to_collector} onChange={(e) => setForm(p => ({ ...p, to_collector: e.target.value }))} placeholder="Recipient name" />
+                  <Input value={form.to_collector} onChange={(e) => setForm(p => ({ ...p, to_collector: e.target.value }))} placeholder="Recipient name" className="bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]" />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs">Cash Amount</Label>
-                  <Input type="number" value={form.cash_amount} onChange={(e) => setForm(p => ({ ...p, cash_amount: e.target.value }))} placeholder="0.00" />
+                  <Input type="number" value={form.cash_amount} onChange={(e) => setForm(p => ({ ...p, cash_amount: e.target.value }))} placeholder="0.00" className="bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs">MoMo Amount</Label>
-                  <Input type="number" value={form.momo_amount} onChange={(e) => setForm(p => ({ ...p, momo_amount: e.target.value }))} placeholder="0.00" />
+                  <Input type="number" value={form.momo_amount} onChange={(e) => setForm(p => ({ ...p, momo_amount: e.target.value }))} placeholder="0.00" className="bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs">Bank Amount</Label>
-                  <Input type="number" value={form.bank_amount} onChange={(e) => setForm(p => ({ ...p, bank_amount: e.target.value }))} placeholder="0.00" />
+                  <Input type="number" value={form.bank_amount} onChange={(e) => setForm(p => ({ ...p, bank_amount: e.target.value }))} placeholder="0.00" className="bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]" />
                 </div>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Notes</Label>
-                <Textarea value={form.notes} onChange={(e) => setForm(p => ({ ...p, notes: e.target.value }))} placeholder="Optional notes..." rows={2} />
+                <Textarea value={form.notes} onChange={(e) => setForm(p => ({ ...p, notes: e.target.value }))} placeholder="Optional notes..." rows={2} className="bg-slate-50 border-slate-200 focus:bg-white" />
               </div>
               <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                 <span className="text-sm font-medium">Total</span>
-                <span className="text-lg font-bold font-mono text-teal-600">{fmt((parseFloat(form.cash_amount) || 0) + (parseFloat(form.momo_amount) || 0) + (parseFloat(form.bank_amount) || 0))}</span>
+                <span className="text-lg font-bold font-mono text-emerald-600 tabular-nums">{fmt((parseFloat(form.cash_amount) || 0) + (parseFloat(form.momo_amount) || 0) + (parseFloat(form.bank_amount) || 0))}</span>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setCreateOpen(false)} className="flex-1">Cancel</Button>
-                <Button onClick={handleCreate} disabled={processing} className="flex-1 bg-teal-500 hover:bg-teal-600 text-white">
+                <Button variant="outline" onClick={() => setCreateOpen(false)} className="flex-1 min-h-[44px]">Cancel</Button>
+                <Button onClick={handleCreate} disabled={processing} className="flex-1 bg-emerald-600 hover:bg-emerald-700 min-h-[44px]">
                   {processing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Create Record
                 </Button>
               </div>
@@ -363,10 +392,15 @@ export default function CollectorHandoverPage() {
         <Dialog open={actionDialog.open} onOpenChange={(o) => setActionDialog({ open: o, handover: null, action: 'verify' })}>
           <DialogContent className="sm:max-w-sm">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                {actionDialog.action === 'verify' ? <CheckCircle className="w-5 h-5 text-emerald-500" /> : <XCircle className="w-5 h-5 text-red-500" />}
-                {actionDialog.action === 'verify' ? 'Verify Handover' : 'Reject Handover'}
-              </DialogTitle>
+              <div className="flex items-center gap-3 mb-1">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${actionDialog.action === 'verify' ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                  {actionDialog.action === 'verify' ? <CheckCircle className="w-5 h-5 text-white" /> : <XCircle className="w-5 h-5 text-white" />}
+                </div>
+                <div>
+                  <DialogTitle>{actionDialog.action === 'verify' ? 'Verify Handover' : 'Reject Handover'}</DialogTitle>
+                  <DialogDescription>{actionDialog.action === 'verify' ? 'Confirm this handover record' : 'Reject this handover record'}</DialogDescription>
+                </div>
+              </div>
             </DialogHeader>
             {actionDialog.handover && (
               <div className="space-y-4">
@@ -375,8 +409,8 @@ export default function CollectorHandoverPage() {
                   <p className="text-sm font-mono font-bold">{fmt(actionDialog.handover.total_amount)}</p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setActionDialog({ open: false, handover: null, action: 'verify' })} className="flex-1">Cancel</Button>
-                  <Button onClick={handleAction} disabled={processing} className={`flex-1 ${actionDialog.action === 'verify' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-red-500 hover:bg-red-600'} text-white`}>
+                  <Button variant="outline" onClick={() => setActionDialog({ open: false, handover: null, action: 'verify' })} className="flex-1 min-h-[44px]">Cancel</Button>
+                  <Button onClick={handleAction} disabled={processing} className={`flex-1 min-h-[44px] ${actionDialog.action === 'verify' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-red-500 hover:bg-red-600'} text-white`}>
                     {processing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     {actionDialog.action === 'verify' ? 'Verify' : 'Reject'}
                   </Button>

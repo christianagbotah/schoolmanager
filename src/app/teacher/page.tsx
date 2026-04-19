@@ -125,7 +125,7 @@ function StatCardSkeleton() {
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-8 w-16" />
           </div>
-          <Skeleton className="h-10 w-10 rounded-xl" />
+          <Skeleton className="h-11 w-11 rounded-xl" />
         </div>
       </CardContent>
     </Card>
@@ -233,7 +233,7 @@ export default function TeacherDashboard() {
     return (
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-2xl bg-red-100 flex items-center justify-center">
             <AlertTriangle className="w-8 h-8 text-red-600" />
           </div>
           <h2 className="text-xl font-semibold text-slate-900">Something went wrong</h2>
@@ -250,6 +250,19 @@ export default function TeacherDashboard() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        {/* ─── Page Header ────────────────────────────────── */}
+        <div className="border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Teacher Dashboard</h1>
+              <p className="text-sm text-slate-500">Your teaching overview and quick actions</p>
+            </div>
+          </div>
+        </div>
+
         {/* ─── Welcome Card ─────────────────────────────────── */}
         <Card className="bg-gradient-to-r from-emerald-600 to-teal-600 border-0 text-white overflow-hidden relative">
           <div className="absolute inset-0 opacity-10">
@@ -298,61 +311,61 @@ export default function TeacherDashboard() {
 
         {/* ─── Summary Stats ────────────────────────────────── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="gap-4 py-4 border-l-4 border-l-teal-500 hover:shadow-md transition-shadow">
+          <Card className="gap-4 py-4 border-l-4 border-l-teal-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-500">My Classes</p>
-                  <p className="text-2xl font-bold text-teal-600">{classes.length}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">My Classes</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{classes.length}</p>
                   <p className="text-[10px] text-slate-400">{classTeacherClasses.length} as class teacher</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-teal-600" />
+                <div className="w-11 h-11 rounded-xl bg-teal-500 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-white" />
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="gap-4 py-4 border-l-4 border-l-amber-500 hover:shadow-md transition-shadow">
+          <Card className="gap-4 py-4 border-l-4 border-l-amber-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-500">My Subjects</p>
-                  <p className="text-2xl font-bold text-amber-600">{subjects.length}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">My Subjects</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{subjects.length}</p>
                   <p className="text-[10px] text-slate-400">Teaching load</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                  <GraduationCap className="w-5 h-5 text-amber-600" />
+                <div className="w-11 h-11 rounded-xl bg-amber-500 flex items-center justify-center">
+                  <GraduationCap className="w-5 h-5 text-white" />
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="gap-4 py-4 border-l-4 border-l-emerald-500 hover:shadow-md transition-shadow">
+          <Card className="gap-4 py-4 border-l-4 border-l-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-500">Total Students</p>
-                  <p className="text-2xl font-bold text-emerald-600">{totalStudents}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Students</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{totalStudents}</p>
                   <p className="text-[10px] text-slate-400">Across all classes</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-emerald-600" />
+                <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-white" />
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="gap-4 py-4 border-l-4 border-l-violet-500 hover:shadow-md transition-shadow">
+          <Card className="gap-4 py-4 border-l-4 border-l-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-500">Today&apos;s Attendance</p>
-                  <p className="text-2xl font-bold text-violet-600">{stats?.todayPresent || 0}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Today&apos;s Attendance</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{stats?.todayPresent || 0}</p>
                   <div className="flex items-center gap-1">
                     <UserCheck className="w-3 h-3 text-emerald-500" />
                     <span className="text-[10px] text-emerald-600">{attendanceRate}%</span>
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center">
-                  <ClipboardCheck className="w-5 h-5 text-violet-600" />
+                <div className="w-11 h-11 rounded-xl bg-violet-500 flex items-center justify-center">
+                  <ClipboardCheck className="w-5 h-5 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -448,7 +461,9 @@ export default function TeacherDashboard() {
                   </div>
                 ) : subjects.length === 0 ? (
                   <div className="text-center py-12">
-                    <GraduationCap className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                    <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                      <GraduationCap className="w-8 h-8 text-slate-400" />
+                    </div>
                     <p className="text-slate-400 text-sm">No classes assigned yet</p>
                     <p className="text-slate-300 text-xs mt-1">Contact admin to get started</p>
                   </div>
@@ -511,7 +526,9 @@ export default function TeacherDashboard() {
               <div className="max-h-96 overflow-y-auto">
                 {notices.length === 0 ? (
                   <div className="text-center py-12">
-                    <Megaphone className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                    <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                      <Megaphone className="w-8 h-8 text-slate-400" />
+                    </div>
                     <p className="text-slate-400 text-sm">No notices</p>
                   </div>
                 ) : (
@@ -619,7 +636,9 @@ export default function TeacherDashboard() {
             <div className="max-h-72 overflow-y-auto">
               {classes.length === 0 ? (
                 <div className="text-center py-12">
-                  <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                    <BookOpen className="w-8 h-8 text-slate-400" />
+                  </div>
                   <p className="text-slate-400 text-sm">No classes assigned</p>
                 </div>
               ) : (

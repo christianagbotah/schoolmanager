@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +16,7 @@ import { toast } from 'sonner';
 import {
   Search, Plus, Pencil, Trash2, Shield, ChevronLeft, ChevronRight,
   KeyRound, Lock, Unlock, Eye, EyeOff, Copy, UserCog, Users,
-  ShieldCheck, ShieldAlert, CircleDot
+  ShieldCheck, ShieldAlert, CircleDot, X,
 } from 'lucide-react';
 
 interface Admin {
@@ -53,6 +52,37 @@ function getLevelColor(level: string) {
 function getLevelIcon(level: string) {
   const l = ADMIN_LEVELS.find(x => x.value === level);
   return l ? l.icon : Shield;
+}
+
+// ─── Page Skeleton ──────────────────────────────────────────────
+function AdminsSkeleton() {
+  return (
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Header skeleton */}
+      <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div className="space-y-1.5">
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-4 w-56" />
+        </div>
+        <Skeleton className="h-11 w-36" />
+      </div>
+      {/* Stat card skeletons */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-[88px] rounded-2xl" />
+        ))}
+      </div>
+      {/* Filter bar skeleton */}
+      <Skeleton className="h-14 rounded-2xl" />
+      {/* Table skeleton */}
+      <div className="rounded-2xl border">
+        <Skeleton className="h-10 w-full rounded-t-2xl" />
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-14 w-full" />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default function AdminsPage() {
@@ -98,7 +128,7 @@ export default function AdminsPage() {
       if (data.error) throw new Error(data.error);
       setAdmins(Array.isArray(data.data) ? data.data : []);
       if (data.stats) setStats(data.stats);
-    } catch { toast.error('Failed to load admins'); } finally { setLoading(false); }
+    } catch (err: any) { toast.error(err.message || 'Failed to load admins'); } finally { setLoading(false); }
   }, [search, statusFilter, levelFilter]);
 
   useEffect(() => { fetchAdmins(); }, [fetchAdmins]);
@@ -167,83 +197,83 @@ export default function AdminsPage() {
 
   const totalPages = Math.max(1, Math.ceil(admins.length / pageSize));
   const paged = admins.slice((page - 1) * pageSize, page * pageSize);
+  const hasActiveFilters = search || statusFilter !== 'all' || levelFilter !== 'all';
 
   const isBlocked = (a: Admin) => a.block_limit === 3;
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                <Users className="w-5 h-5 text-white" />
-              </div>
-              Manage Administrators
-            </h1>
-            <p className="text-sm text-slate-500 mt-1 ml-12">System admin users, access levels & authentication keys</p>
+      {loading && admins.length === 0 && !stats.total ? (
+        <AdminsSkeleton />
+      ) : (
+        <div className="space-y-6 animate-in fade-in duration-300">
+          {/* Page Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Manage Administrators</h1>
+              <p className="text-sm text-slate-500 mt-0.5">System admin users, access levels & authentication keys</p>
+            </div>
+            {currentAdminLevel === '1' && (
+              <Button onClick={openAddForm} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] shadow-sm">
+                <Plus className="w-4 h-4 mr-2" /> Add New Admin
+              </Button>
+            )}
           </div>
-          {currentAdminLevel === '1' && (
-            <Button onClick={openAddForm} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] shadow-sm">
-              <Plus className="w-4 h-4 mr-2" /> Add New Admin
-            </Button>
-          )}
-        </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <Card className="border-slate-200/60 shadow-none">
-            <CardContent className="p-3 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-                <Users className="w-5 h-5 text-slate-600" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 leading-tight">Total</p>
-                <p className="text-xl font-bold text-slate-900">{stats.total}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-slate-200/60 shadow-none">
-            <CardContent className="p-3 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <ShieldCheck className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 leading-tight">Active</p>
-                <p className="text-xl font-bold text-emerald-700">{stats.active}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-slate-200/60 shadow-none">
-            <CardContent className="p-3 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
-                <Lock className="w-5 h-5 text-red-600" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 leading-tight">Blocked</p>
-                <p className="text-xl font-bold text-red-700">{stats.blocked}</p>
-              </div>
-            </CardContent>
-          </Card>
-          {ADMIN_LEVELS.map(l => (
-            <Card key={l.value} className="border-slate-200/60 shadow-none">
-              <CardContent className="p-3 flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${l.color.split(' ')[0]}`}>
-                  <l.icon className={`w-5 h-5 ${l.color.split(' ')[1]}`} />
+          {/* Stat Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {/* Total */}
+            <div className="bg-white rounded-2xl border border-slate-200/60 p-4 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 border-l-4 border-l-slate-500">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-500 flex items-center justify-center flex-shrink-0">
+                  <Users className="w-5 h-5 text-white" />
                 </div>
-                <div>
-                  <p className="text-xs text-slate-500 leading-tight">{l.label}</p>
-                  <p className="text-xl font-bold text-slate-900">{admins.filter(a => a.level === l.value).length}</p>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Total Admins</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{stats.total}</p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              </div>
+            </div>
+            {/* Active */}
+            <div className="bg-white rounded-2xl border border-slate-200/60 p-4 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 border-l-4 border-l-emerald-500">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                  <ShieldCheck className="w-5 h-5 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Active</p>
+                  <p className="text-2xl font-bold text-emerald-600 tabular-nums">{stats.active}</p>
+                </div>
+              </div>
+            </div>
+            {/* Blocked */}
+            <div className="bg-white rounded-2xl border border-slate-200/60 p-4 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 border-l-4 border-l-red-500">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center flex-shrink-0">
+                  <Lock className="w-5 h-5 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Blocked</p>
+                  <p className="text-2xl font-bold text-red-600 tabular-nums">{stats.blocked}</p>
+                </div>
+              </div>
+            </div>
+            {/* Inactive */}
+            <div className="bg-white rounded-2xl border border-slate-200/60 p-4 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 border-l-4 border-l-amber-500">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
+                  <ShieldAlert className="w-5 h-5 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Inactive</p>
+                  <p className="text-2xl font-bold text-amber-600 tabular-nums">{stats.inactive}</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        {/* Search & Filters */}
-        <Card className="border-slate-200/60 shadow-none">
-          <CardContent className="p-4">
+          {/* Search & Filters */}
+          <div className="bg-white rounded-2xl border border-slate-200/60 p-4">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -254,7 +284,7 @@ export default function AdminsPage() {
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-40 min-h-[44px]">
+                <SelectTrigger className="w-full sm:w-40 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -264,7 +294,7 @@ export default function AdminsPage() {
                 </SelectContent>
               </Select>
               <Select value={levelFilter} onValueChange={setLevelFilter}>
-                <SelectTrigger className="w-full sm:w-48 min-h-[44px]">
+                <SelectTrigger className="w-full sm:w-48 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white">
                   <SelectValue placeholder="Designation" />
                 </SelectTrigger>
                 <SelectContent>
@@ -275,12 +305,36 @@ export default function AdminsPage() {
                 </SelectContent>
               </Select>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Admin Table */}
-        <Card className="border-slate-200/60 shadow-none">
-          <CardContent className="p-0">
+            {/* Active filter chips */}
+            {hasActiveFilters && (
+              <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-slate-100">
+                <span className="text-xs text-slate-400">Active filters:</span>
+                {search && (
+                  <Badge variant="outline" className="text-xs gap-1 bg-slate-50">
+                    Search: &ldquo;{search}&rdquo;
+                    <button onClick={() => setSearch('')} className="hover:text-red-600"><X className="w-3 h-3" /></button>
+                  </Badge>
+                )}
+                {statusFilter !== 'all' && (
+                  <Badge variant="outline" className="text-xs gap-1 capitalize bg-slate-50">
+                    {statusFilter}
+                    <button onClick={() => setStatusFilter('all')} className="hover:text-red-600"><X className="w-3 h-3" /></button>
+                  </Badge>
+                )}
+                {levelFilter !== 'all' && (
+                  <Badge variant="outline" className="text-xs gap-1 bg-slate-50">
+                    {ADMIN_LEVELS.find(l => l.value === levelFilter)?.label || levelFilter}
+                    <button onClick={() => setLevelFilter('all')} className="hover:text-red-600"><X className="w-3 h-3" /></button>
+                  </Badge>
+                )}
+                <button onClick={() => { setSearch(''); setStatusFilter('all'); setLevelFilter('all'); }} className="text-xs text-slate-500 hover:text-red-600 ml-1">Clear all</button>
+              </div>
+            )}
+          </div>
+
+          {/* Admin Table */}
+          <div className="rounded-2xl border border-slate-200/60 bg-white overflow-hidden">
             <div className="hidden md:block overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -301,10 +355,19 @@ export default function AdminsPage() {
                     ))}</TableRow>
                   )) : paged.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-16 text-slate-400">
-                        <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                        <p className="font-medium">No admins found</p>
-                        <p className="text-xs mt-1">Try adjusting your search or filters</p>
+                      <TableCell colSpan={7} className="text-center py-16">
+                        <div className="flex flex-col items-center">
+                          <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                            <Users className="w-8 h-8 text-slate-300" />
+                          </div>
+                          <p className="text-slate-500 font-medium">No admins found</p>
+                          <p className="text-slate-400 text-xs mt-1">Try adjusting your search or filters</p>
+                          {hasActiveFilters && (
+                            <Button variant="outline" size="sm" onClick={() => { setSearch(''); setStatusFilter('all'); setLevelFilter('all'); }} className="mt-4 min-h-[44px]">
+                              Clear Filters
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ) : paged.map(a => {
@@ -332,7 +395,7 @@ export default function AdminsPage() {
                             <TooltipProvider delayDuration={300}>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <button onClick={() => setViewKey(viewKey === a.admin_id ? null : a.admin_id)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                                  <button onClick={() => setViewKey(viewKey === a.admin_id ? null : a.admin_id)} className="text-slate-400 hover:text-slate-600 transition-colors min-h-[44px] min-w-[32px] flex items-center justify-center">
                                     {viewKey === a.admin_id ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                                   </button>
                                 </TooltipTrigger>
@@ -340,7 +403,7 @@ export default function AdminsPage() {
                               </Tooltip>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <button onClick={() => copyKey(a.authentication_key)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                                  <button onClick={() => copyKey(a.authentication_key)} className="text-slate-400 hover:text-slate-600 transition-colors min-h-[44px] min-w-[32px] flex items-center justify-center">
                                     <Copy className="w-3.5 h-3.5" />
                                   </button>
                                 </TooltipTrigger>
@@ -371,7 +434,7 @@ export default function AdminsPage() {
                               <TooltipProvider delayDuration={300}>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                    <Button variant="ghost" size="icon" className="min-w-[32px] h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                                       onClick={() => { setBlockTarget(a); setBlockAction('unblock'); setBlockOpen(true); }}>
                                       <Unlock className="w-3.5 h-3.5" />
                                     </Button>
@@ -383,7 +446,7 @@ export default function AdminsPage() {
                               <TooltipProvider delayDuration={300}>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                    <Button variant="ghost" size="icon" className="min-w-[32px] h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                                       onClick={() => { setBlockTarget(a); setBlockAction('block'); setBlockOpen(true); }}>
                                       <Lock className="w-3.5 h-3.5" />
                                     </Button>
@@ -395,7 +458,7 @@ export default function AdminsPage() {
                             <TooltipProvider delayDuration={300}>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100" onClick={() => openEditForm(a)}>
+                                  <Button variant="ghost" size="icon" className="min-w-[32px] h-8 w-8 hover:bg-slate-100" onClick={() => openEditForm(a)}>
                                     <Pencil className="w-3.5 h-3.5" />
                                   </Button>
                                 </TooltipTrigger>
@@ -405,7 +468,7 @@ export default function AdminsPage() {
                             <TooltipProvider delayDuration={300}>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                  <Button variant="ghost" size="icon" className="min-w-[32px] h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
                                     onClick={() => { setDeleteTarget(a); setDeleteOpen(true); }}>
                                     <Trash2 className="w-3.5 h-3.5" />
                                   </Button>
@@ -436,9 +499,11 @@ export default function AdminsPage() {
                   <Skeleton className="h-3 w-full" />
                 </div>
               )) : paged.length === 0 ? (
-                <div className="text-center py-16 text-slate-400">
-                  <Users className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                  <p className="font-medium">No admins found</p>
+                <div className="text-center py-16">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                    <Users className="w-8 h-8 text-slate-300" />
+                  </div>
+                  <p className="text-slate-500 font-medium">No admins found</p>
                 </div>
               ) : paged.map(a => {
                 const blocked = isBlocked(a);
@@ -473,29 +538,29 @@ export default function AdminsPage() {
                       <code className="font-mono font-bold tracking-widest">
                         {viewKey === a.admin_id ? a.authentication_key : '••••••'}
                       </code>
-                      <button onClick={() => setViewKey(viewKey === a.admin_id ? null : a.admin_id)} className="ml-auto text-slate-400">
+                      <button onClick={() => setViewKey(viewKey === a.admin_id ? null : a.admin_id)} className="ml-auto text-slate-400 min-h-[44px] min-w-[32px] flex items-center justify-center">
                         {viewKey === a.admin_id ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                       </button>
-                      <button onClick={() => copyKey(a.authentication_key)} className="text-slate-400">
+                      <button onClick={() => copyKey(a.authentication_key)} className="text-slate-400 min-h-[44px] min-w-[32px] flex items-center justify-center">
                         <Copy className="w-3 h-3" />
                       </button>
                     </div>
                     <div className="flex items-center gap-2 pt-1">
                       {blocked ? (
-                        <Button variant="outline" size="sm" className="flex-1 h-9 text-xs text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                        <Button variant="outline" size="sm" className="flex-1 h-11 text-xs text-emerald-600 border-emerald-200 hover:bg-emerald-50"
                           onClick={() => { setBlockTarget(a); setBlockAction('unblock'); setBlockOpen(true); }}>
                           <Unlock className="w-3 h-3 mr-1" /> Unblock
                         </Button>
                       ) : (
-                        <Button variant="outline" size="sm" className="flex-1 h-9 text-xs text-amber-600 border-amber-200 hover:bg-amber-50"
+                        <Button variant="outline" size="sm" className="flex-1 h-11 text-xs text-amber-600 border-amber-200 hover:bg-amber-50"
                           onClick={() => { setBlockTarget(a); setBlockAction('block'); setBlockOpen(true); }}>
                           <Lock className="w-3 h-3 mr-1" /> Block
                         </Button>
                       )}
-                      <Button variant="outline" size="sm" className="flex-1 h-9 text-xs" onClick={() => openEditForm(a)}>
+                      <Button variant="outline" size="sm" className="flex-1 h-11 text-xs" onClick={() => openEditForm(a)}>
                         <Pencil className="w-3 h-3 mr-1" /> Edit
                       </Button>
-                      <Button variant="outline" size="sm" className="h-9 w-9 text-xs text-red-600 border-red-200 hover:bg-red-50 p-0"
+                      <Button variant="outline" size="sm" className="h-11 w-11 text-xs text-red-600 border-red-200 hover:bg-red-50 p-0"
                         onClick={() => { setDeleteTarget(a); setDeleteOpen(true); }}>
                         <Trash2 className="w-3 h-3" />
                       </Button>
@@ -512,30 +577,29 @@ export default function AdminsPage() {
                   Showing {((page - 1) * pageSize) + 1}–{Math.min(page * pageSize, admins.length)} of {admins.length} admin(s)
                 </p>
                 <div className="flex items-center gap-1">
-                  <Button variant="outline" size="icon" className="h-8 w-8" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
+                  <Button variant="outline" size="icon" className="h-9 w-9 min-w-[36px]" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
                   <span className="text-sm px-3 font-medium">{page} / {totalPages}</span>
-                  <Button variant="outline" size="icon" className="h-8 w-8" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
+                  <Button variant="outline" size="icon" className="h-9 w-9 min-w-[36px]" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
+      )}
 
       {/* Add/Edit Form Dialog */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {editing ? (
-                <><Pencil className="w-5 h-5 text-amber-600" /> Edit Administrator</>
-              ) : (
-                <><Plus className="w-5 h-5 text-emerald-600" /> Add New Administrator</>
-              )}
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${editing ? 'bg-amber-100' : 'bg-emerald-100'}`}>
+                {editing ? <Pencil className="w-4 h-4 text-amber-600" /> : <Plus className="w-4 h-4 text-emerald-600" />}
+              </div>
+              {editing ? 'Edit Administrator' : 'Add New Administrator'}
             </DialogTitle>
             <DialogDescription>
               {editing ? 'Update admin account details and permissions' : 'Create a new administrator account with access level'}
@@ -546,26 +610,26 @@ export default function AdminsPage() {
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <Label className="text-xs font-medium">First Name <span className="text-red-500">*</span></Label>
-                <Input placeholder="John" value={formData.first_name} onChange={e => setFormData({ ...formData, first_name: e.target.value })} className="mt-1.5" />
+                <Input placeholder="John" value={formData.first_name} onChange={e => setFormData({ ...formData, first_name: e.target.value })} className="mt-1.5 min-h-[44px]" />
               </div>
               <div>
                 <Label className="text-xs font-medium">Other Name</Label>
-                <Input placeholder="Middle" value={formData.other_name} onChange={e => setFormData({ ...formData, other_name: e.target.value })} className="mt-1.5" />
+                <Input placeholder="Middle" value={formData.other_name} onChange={e => setFormData({ ...formData, other_name: e.target.value })} className="mt-1.5 min-h-[44px]" />
               </div>
               <div>
                 <Label className="text-xs font-medium">Last Name <span className="text-red-500">*</span></Label>
-                <Input placeholder="Doe" value={formData.last_name} onChange={e => setFormData({ ...formData, last_name: e.target.value })} className="mt-1.5" />
+                <Input placeholder="Doe" value={formData.last_name} onChange={e => setFormData({ ...formData, last_name: e.target.value })} className="mt-1.5 min-h-[44px]" />
               </div>
             </div>
             {/* Email & Phone */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs font-medium">Email <span className="text-red-500">*</span></Label>
-                <Input type="email" placeholder="admin@school.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="mt-1.5" />
+                <Input type="email" placeholder="admin@school.com" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="mt-1.5 min-h-[44px]" />
               </div>
               <div>
                 <Label className="text-xs font-medium">Phone</Label>
-                <Input placeholder="+233..." value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="mt-1.5" />
+                <Input placeholder="+233..." value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="mt-1.5 min-h-[44px]" />
               </div>
             </div>
             {/* Gender & Level */}
@@ -573,7 +637,7 @@ export default function AdminsPage() {
               <div>
                 <Label className="text-xs font-medium">Gender</Label>
                 <Select value={formData.gender} onValueChange={v => setFormData({ ...formData, gender: v })}>
-                  <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectTrigger className="mt-1.5 min-h-[44px]"><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
@@ -584,7 +648,7 @@ export default function AdminsPage() {
               <div>
                 <Label className="text-xs font-medium">Designation <span className="text-red-500">*</span></Label>
                 <Select value={formData.level} onValueChange={v => setFormData({ ...formData, level: v })}>
-                  <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select Level" /></SelectTrigger>
+                  <SelectTrigger className="mt-1.5 min-h-[44px]"><SelectValue placeholder="Select Level" /></SelectTrigger>
                   <SelectContent>
                     {ADMIN_LEVELS.map(l => (
                       <SelectItem key={l.value} value={l.value}>
@@ -601,7 +665,7 @@ export default function AdminsPage() {
             {/* Account Number */}
             <div>
               <Label className="text-xs font-medium">Account Number</Label>
-              <Input placeholder="Bank account number" value={formData.account_number} onChange={e => setFormData({ ...formData, account_number: e.target.value })} className="mt-1.5" />
+              <Input placeholder="Bank account number" value={formData.account_number} onChange={e => setFormData({ ...formData, account_number: e.target.value })} className="mt-1.5 min-h-[44px]" />
             </div>
             {/* Password */}
             <div>
@@ -614,8 +678,9 @@ export default function AdminsPage() {
                   placeholder={editing ? 'Leave blank to keep current password' : 'Set a secure password'}
                   value={formData.password}
                   onChange={e => setFormData({ ...formData, password: e.target.value })}
+                  className="min-h-[44px]"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 min-h-[44px] min-w-[32px] flex items-center justify-center">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -629,11 +694,11 @@ export default function AdminsPage() {
             )}
           </div>
           <DialogFooter className="gap-2 pt-2">
-            <Button variant="outline" onClick={() => setFormOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setFormOpen(false)} className="min-h-[44px]">Cancel</Button>
             <Button
               onClick={handleSave}
               disabled={formSaving || !formData.first_name || !formData.last_name || !formData.email || !formData.level || (!editing && !formData.password)}
-              className="bg-emerald-600 hover:bg-emerald-700 min-w-[120px]"
+              className="bg-emerald-600 hover:bg-emerald-700 min-w-[120px] min-h-[44px]"
             >
               {formSaving ? 'Saving...' : editing ? 'Update Admin' : 'Create Admin'}
             </Button>
@@ -645,8 +710,11 @@ export default function AdminsPage() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-red-700">
-              <Trash2 className="w-5 h-5" /> Delete Administrator
+            <AlertDialogTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </div>
+              Delete Administrator
             </AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to permanently remove <strong className="text-slate-900">{deleteTarget?.name}</strong>?
@@ -654,8 +722,8 @@ export default function AdminsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete Permanently</AlertDialogAction>
+            <AlertDialogCancel className="min-h-[44px]">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 min-h-[44px]">Delete Permanently</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -665,11 +733,10 @@ export default function AdminsPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              {blockAction === 'block' ? (
-                <><Lock className="w-5 h-5 text-amber-600" /> Block Administrator</>
-              ) : (
-                <><Unlock className="w-5 h-5 text-emerald-600" /> Unblock Administrator</>
-              )}
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${blockAction === 'block' ? 'bg-amber-100' : 'bg-emerald-100'}`}>
+                {blockAction === 'block' ? <Lock className="w-4 h-4 text-amber-600" /> : <Unlock className="w-4 h-4 text-emerald-600" />}
+              </div>
+              {blockAction === 'block' ? 'Block Administrator' : 'Unblock Administrator'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {blockAction === 'block'
@@ -678,10 +745,10 @@ export default function AdminsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="min-h-[44px]">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleBlock}
-              className={blockAction === 'block' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'}
+              className={`min-h-[44px] ${blockAction === 'block' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700'}`}
             >
               {blockAction === 'block' ? 'Block Account' : 'Unblock Account'}
             </AlertDialogAction>

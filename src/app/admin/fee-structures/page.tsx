@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import {
   FileText, Search, Plus, Eye, Pencil, Trash2, Users, DollarSign,
   ToggleLeft, ToggleRight, Info, X, Calendar, CheckCircle, Package,
-  ChevronDown, ChevronUp, GraduationCap, LayoutGrid,
+  Loader2, LayoutGrid,
 } from 'lucide-react';
 
 // ======== TYPES ========
@@ -74,6 +74,40 @@ const statusBadge: Record<string, { className: string; label: string }> = {
   archived: { className: 'bg-slate-100 text-slate-500 border-slate-200', label: 'Archived' },
   draft: { className: 'bg-amber-100 text-amber-700 border-amber-200', label: 'Draft' },
 };
+
+// ======== FULL PAGE SKELETON ========
+function FeeStructuresSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-48 rounded-lg" />
+          <Skeleton className="h-4 w-64 rounded-lg" />
+        </div>
+        <Skeleton className="h-11 w-44 rounded-lg" />
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="border-l-4 border-l-slate-200">
+            <CardContent className="p-4"><Skeleton className="h-16 w-full" /></CardContent>
+          </Card>
+        ))}
+      </div>
+      <Card className="border-slate-200/60">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-11 rounded-lg" />)}
+          </div>
+        </CardContent>
+      </Card>
+      <Card className="border-slate-200/60">
+        <CardContent className="p-6">
+          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-12 w-full rounded-lg mb-3" />)}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 // ======== MAIN COMPONENT ========
 export default function FeeStructuresPage() {
@@ -413,56 +447,59 @@ export default function FeeStructuresPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-              <FileText className="w-6 h-6 text-emerald-600" /> Fee Structures
-            </h1>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Fee Structures</h1>
             <p className="text-sm text-slate-500 mt-1">Define and manage fee structures for classes and terms</p>
           </div>
-          <Button onClick={handleCreate} className="bg-emerald-600 hover:bg-emerald-700">
+          <Button onClick={handleCreate} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]">
             <Plus className="w-4 h-4 mr-2" /> Create Fee Structure
           </Button>
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="border-l-4 border-l-emerald-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
-                  <ToggleRight className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 font-medium">Active Structures</p>
-                  <p className="text-lg font-bold text-slate-900">{summary.active}</p>
-                </div>
+        {/* Stat Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="border-l-4 border-l-emerald-500 hover:shadow-sm transition-all hover:-translate-y-0.5">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                <ToggleRight className="w-5 h-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Active</p>
+                <p className="text-xl font-bold text-slate-900 tabular-nums">{summary.active}</p>
               </div>
             </CardContent>
           </Card>
-          <Card className="border-l-4 border-l-amber-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-amber-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 font-medium">Total Structures</p>
-                  <p className="text-lg font-bold text-slate-900">{summary.total}</p>
-                </div>
+          <Card className="border-l-4 border-l-amber-500 hover:shadow-sm transition-all hover:-translate-y-0.5">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
+                <FileText className="w-5 h-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Total</p>
+                <p className="text-xl font-bold text-slate-900 tabular-nums">{summary.total}</p>
               </div>
             </CardContent>
           </Card>
-          <Card className="border-l-4 border-l-emerald-500">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 font-medium">Total Collectible</p>
-                  <p className="text-lg font-bold text-emerald-700">{fmt(summary.totalCollectible)}</p>
-                </div>
+          <Card className="border-l-4 border-l-sky-500 hover:shadow-sm transition-all hover:-translate-y-0.5">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-sky-500 flex items-center justify-center flex-shrink-0">
+                <DollarSign className="w-5 h-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Collectible</p>
+                <p className="text-xl font-bold text-slate-900 tabular-nums">{fmt(summary.totalCollectible)}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-l-4 border-l-violet-500 hover:shadow-sm transition-all hover:-translate-y-0.5">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center flex-shrink-0">
+                <Users className="w-5 h-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Payment Plans</p>
+                <p className="text-xl font-bold text-slate-900 tabular-nums">{feeStructures.reduce((a, b) => a + b._count.payment_plans, 0)}</p>
               </div>
             </CardContent>
           </Card>
@@ -470,7 +507,7 @@ export default function FeeStructuresPage() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="bg-white border border-slate-200 p-1 rounded-xl h-auto">
             <TabsTrigger value="structures" className="flex items-center gap-1.5">
               <LayoutGrid className="w-4 h-4" /> Fee Structures
             </TabsTrigger>
@@ -482,12 +519,12 @@ export default function FeeStructuresPage() {
           {/* TAB: Structures List */}
           <TabsContent value="structures" className="space-y-4">
             {/* Filters */}
-            <Card>
+            <Card className="border-slate-200/60">
               <CardContent className="p-4">
                 <div className="flex flex-col lg:flex-row gap-3">
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input placeholder="Search fee structures..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+                    <Input placeholder="Search fee structures..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]" />
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <Select value={classFilter} onValueChange={(v) => v === '__all__' ? setClassFilter('') : setClassFilter(v)}>
@@ -551,7 +588,16 @@ export default function FeeStructuresPage() {
                         <TableRow key={i}>{Array.from({ length: 8 }).map((_, j) => <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>)}</TableRow>
                       )) : feeStructures.length === 0 ? (
                         <TableRow><TableCell colSpan={8} className="text-center py-12 text-slate-400">
-                          <FileText className="w-10 h-10 mx-auto mb-2 opacity-50" /><p>No fee structures found</p>
+                          <div className="flex flex-col items-center justify-center">
+                            <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+                              <FileText className="w-8 h-8 text-slate-300" />
+                            </div>
+                            <p className="font-medium text-slate-900 mb-1">No fee structures found</p>
+                            <p className="text-sm text-slate-500">Create your first fee structure to get started</p>
+                            <Button variant="outline" className="mt-3 min-h-[44px] text-emerald-600 border-emerald-200 hover:bg-emerald-50" onClick={handleCreate}>
+                              <Plus className="w-4 h-4 mr-2" /> Create Fee Structure
+                            </Button>
+                          </div>
                         </TableCell></TableRow>
                       ) : feeStructures.map((item) => (
                         <>
@@ -596,7 +642,7 @@ export default function FeeStructuresPage() {
                 {/* Mobile */}
                 <div className="md:hidden divide-y">
                   {loading ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="p-4 space-y-3"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-3 w-1/2" /></div>)
-                  : feeStructures.length === 0 ? <div className="text-center py-12 text-slate-400"><FileText className="w-10 h-10 mx-auto mb-2 opacity-50" /><p>No fee structures found</p></div>
+                  : feeStructures.length === 0 ? <div className="text-center py-12 text-slate-400"><div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3"><FileText className="w-8 h-8 text-slate-300" /></div><p className="font-medium text-slate-900 mb-1">No fee structures found</p><p className="text-sm text-slate-500">Create your first fee structure to get started</p></div>
                   : feeStructures.map((item) => (
                     <div key={item.fee_structure_id} className="p-4 space-y-2">
                       <div className="flex items-start justify-between">
@@ -614,9 +660,9 @@ export default function FeeStructuresPage() {
                           <span className="text-xs text-slate-400">{item.installment_count} installments</span>
                         </div>
                         <div className="flex gap-1.5">
-                          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => handleView(item.fee_structure_id)}><Eye className="w-3 h-3" /></Button>
-                          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => handleEdit(item)}><Pencil className="w-3 h-3" /></Button>
-                          <Button variant="outline" size="sm" className="h-8 text-xs text-red-500" onClick={() => handleDelete(item.fee_structure_id)}><Trash2 className="w-3 h-3" /></Button>
+                          <Button variant="outline" size="sm" className="min-h-[44px] min-w-[44px]" onClick={() => handleView(item.fee_structure_id)}><Eye className="w-3.5 h-3.5" /></Button>
+                          <Button variant="outline" size="sm" className="min-h-[44px] min-w-[44px]" onClick={() => handleEdit(item)}><Pencil className="w-3.5 h-3.5" /></Button>
+                          <Button variant="outline" size="sm" className="min-h-[44px] min-w-[44px] text-red-500" onClick={() => handleDelete(item.fee_structure_id)}><Trash2 className="w-3.5 h-3.5" /></Button>
                         </div>
                       </div>
                     </div>
@@ -822,7 +868,7 @@ export default function FeeStructuresPage() {
             <DialogFooter>
               <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
               <Button onClick={handleSaveCreate} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
-                {saving ? 'Creating...' : 'Create Structure'}
+                {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}{saving ? 'Creating...' : 'Create Structure'}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -900,7 +946,7 @@ export default function FeeStructuresPage() {
             <DialogFooter>
               <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
               <Button onClick={handleSaveEdit} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
-                {saving ? 'Saving...' : 'Save Changes'}
+                {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}{saving ? 'Saving...' : 'Save Changes'}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1073,7 +1119,7 @@ export default function FeeStructuresPage() {
             <DialogFooter>
               <Button variant="outline" onClick={() => setAssignOpen(false)}>Cancel</Button>
               <Button onClick={handleAssignPlans} disabled={assigning || assignedStudents.length === 0} className="bg-emerald-600 hover:bg-emerald-700">
-                {assigning ? 'Assigning...' : `Assign to ${assignedStudents.length} Student(s)`}
+                {assigning && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}{assigning ? 'Assigning...' : `Assign to ${assignedStudents.length} Student(s)`}
               </Button>
             </DialogFooter>
           </DialogContent>

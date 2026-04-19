@@ -11,6 +11,8 @@ import {
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
+  ClipboardCheck,
+  Percent,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -104,9 +106,26 @@ export default function StudentAttendancePage() {
     return (
       <DashboardLayout>
         <div className="space-y-6">
-          <Skeleton className="h-8 w-48" />
-          <div className="grid grid-cols-4 gap-4">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24" />)}</div>
-          <Skeleton className="h-80 w-full" />
+          <div className="pb-4 border-b border-slate-100">
+            <Skeleton className="h-8 w-56" />
+            <Skeleton className="h-4 w-64 mt-2" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i} className="py-4">
+                <CardContent className="px-4 pb-0 pt-0">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2 flex-1">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-7 w-12" />
+                    </div>
+                    <Skeleton className="h-11 w-11 rounded-xl" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <Skeleton className="h-80 w-full rounded-2xl" />
         </div>
       </DashboardLayout>
     );
@@ -115,9 +134,9 @@ export default function StudentAttendancePage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">My Attendance</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">My Attendance</h1>
             <p className="text-sm text-slate-500 mt-1">View your attendance record</p>
           </div>
           <Button variant="outline" onClick={handlePrint} className="min-w-[44px] min-h-[44px] print:hidden">
@@ -133,28 +152,56 @@ export default function StudentAttendancePage() {
 
         {/* ─── Stats ───────────────────────────────────────── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="py-4 border-l-4 border-l-emerald-500">
+          <Card className="py-4 border-l-4 border-l-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
-              <p className="text-xs font-medium text-slate-500">Present</p>
-              <p className="text-2xl font-bold text-emerald-600">{presentDays}</p>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Present</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{presentDays}</p>
+                </div>
+                <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-white" />
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card className="py-4 border-l-4 border-l-red-500">
+          <Card className="py-4 border-l-4 border-l-red-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
-              <p className="text-xs font-medium text-slate-500">Absent</p>
-              <p className="text-2xl font-bold text-red-600">{absentDays}</p>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Absent</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{absentDays}</p>
+                </div>
+                <div className="w-11 h-11 rounded-xl bg-red-500 flex items-center justify-center">
+                  <XCircle className="w-5 h-5 text-white" />
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card className="py-4 border-l-4 border-l-amber-500">
+          <Card className="py-4 border-l-4 border-l-amber-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
-              <p className="text-xs font-medium text-slate-500">Late</p>
-              <p className="text-2xl font-bold text-amber-600">{lateDays}</p>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Late</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{lateDays}</p>
+                </div>
+                <div className="w-11 h-11 rounded-xl bg-amber-500 flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-white" />
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card className="py-4 border-l-4 border-l-blue-500">
+          <Card className="py-4 border-l-4 border-l-sky-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
-              <p className="text-xs font-medium text-slate-500">Percentage</p>
-              <p className={`text-2xl font-bold ${percentage >= 75 ? "text-emerald-600" : percentage >= 50 ? "text-amber-600" : "text-red-600"}`}>{percentage}%</p>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Percentage</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{percentage}%</p>
+                </div>
+                <div className="w-11 h-11 rounded-xl bg-sky-500 flex items-center justify-center">
+                  <Percent className="w-5 h-5 text-white" />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>

@@ -172,9 +172,16 @@ export default function TeacherStudentsPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Student Information</h1>
-          <p className="text-sm text-slate-500 mt-1">View students in your assigned classes</p>
+        <div className="border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Student Information</h1>
+              <p className="text-sm text-slate-500 mt-1">View students in your assigned classes</p>
+            </div>
+          </div>
         </div>
 
         {/* ─── Filters ─────────────────────────────────────── */}
@@ -184,7 +191,7 @@ export default function TeacherStudentsPage() {
               <div className="space-y-2">
                 <Label>Class</Label>
                 <Select value={selectedClassId} onValueChange={(v) => { setSelectedClassId(v); setSelectedSectionId(""); }}>
-                  <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
+                  <SelectTrigger className="bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select class" /></SelectTrigger>
                   <SelectContent>
                     {classes.map((c) => (
                       <SelectItem key={c.class_id} value={String(c.class_id)}>{c.name}</SelectItem>
@@ -195,7 +202,7 @@ export default function TeacherStudentsPage() {
               <div className="space-y-2">
                 <Label>Section</Label>
                 <Select value={selectedSectionId} onValueChange={setSelectedSectionId}>
-                  <SelectTrigger><SelectValue placeholder="Select section" /></SelectTrigger>
+                  <SelectTrigger className="bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select section" /></SelectTrigger>
                   <SelectContent>
                     {sections.map((s) => (
                       <SelectItem key={s.section_id} value={String(s.section_id)}>{s.name}</SelectItem>
@@ -207,7 +214,7 @@ export default function TeacherStudentsPage() {
                 <Label>Search</Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input placeholder="Search by name or code..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+                  <Input placeholder="Search by name or code..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-slate-50 border-slate-200 focus:bg-white" />
                 </div>
               </div>
             </div>
@@ -238,7 +245,9 @@ export default function TeacherStudentsPage() {
                 <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
               ) : filteredStudents.length === 0 ? (
                 <div className="text-center py-12">
-                  <GraduationCap className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                    <GraduationCap className="w-8 h-8 text-slate-400" />
+                  </div>
                   <p className="text-slate-400 text-sm">No students found</p>
                 </div>
               ) : (
@@ -292,7 +301,9 @@ export default function TeacherStudentsPage() {
           <Card className="gap-4">
             <CardContent className="py-16">
               <div className="text-center">
-                <Users className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-8 h-8 text-slate-400" />
+                </div>
                 <h3 className="text-lg font-medium text-slate-600">Select a class to view students</h3>
               </div>
             </CardContent>

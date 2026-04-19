@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
-import { useToast } from '@/hooks/use-toast'
 import {
   FileBarChart, Download, Printer, ArrowLeft, Loader2, Trophy,
   Users, BookOpen, Award, TrendingUp,
@@ -19,6 +18,7 @@ import {
 } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
+import { toast } from 'sonner'
 
 // ===== Types =====
 interface StudentReport {
@@ -58,6 +58,46 @@ interface ClassItem {
   category: string
 }
 
+// ===== Full Page Skeleton =====
+function TerminalSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Skeleton className="w-11 h-11 rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-48 rounded-lg" />
+            <Skeleton className="h-4 w-64 rounded-lg" />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-11 w-28 rounded-lg" />
+          <Skeleton className="h-11 w-32 rounded-lg" />
+        </div>
+      </div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-11 rounded-lg" />
+          ))}
+        </div>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="border-l-4 border-l-slate-200">
+            <CardContent className="p-3"><Skeleton className="h-16 w-full" /></CardContent>
+          </Card>
+        ))}
+      </div>
+      <Card className="border-slate-200/60">
+        <CardContent className="p-6">
+          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-12 w-full rounded-lg mb-3" />)}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 // ===== Main =====
 export default function TerminalReportPage() {
   return (
@@ -68,7 +108,6 @@ export default function TerminalReportPage() {
 }
 
 function TerminalReportModule() {
-  const { toast } = useToast()
   const printRef = useRef<HTMLDivElement>(null)
 
   const [classes, setClasses] = useState<ClassItem[]>([])
@@ -90,7 +129,7 @@ function TerminalReportModule() {
 
   const generateReport = useCallback(async () => {
     if (!selectedClassId) {
-      toast({ title: 'Error', description: 'Please select a class', variant: 'destructive' })
+      toast.error('Please select a class')
       return
     }
 
@@ -108,10 +147,10 @@ function TerminalReportModule() {
       setSubjects(data.subjects || [])
       setSubjectStats(data.subject_stats || [])
     } catch {
-      toast({ title: 'Error', description: 'Failed to generate report', variant: 'destructive' })
+      toast.error('Failed to generate report')
     }
     setLoading(false)
-  }, [selectedClassId, selectedTerm, selectedYear, toast])
+  }, [selectedClassId, selectedTerm, selectedYear])
 
   const handlePrint = () => {
     window.print()
@@ -119,7 +158,7 @@ function TerminalReportModule() {
 
   const getGradeColor = (grade: string): string => {
     if (grade.startsWith('A')) return 'bg-emerald-100 text-emerald-700'
-    if (grade.startsWith('B')) return 'bg-blue-100 text-blue-700'
+    if (grade.startsWith('B')) return 'bg-sky-100 text-sky-700'
     if (grade.startsWith('C')) return 'bg-amber-100 text-amber-700'
     if (grade.startsWith('D')) return 'bg-orange-100 text-orange-700'
     if (grade.startsWith('E') || grade.startsWith('F')) return 'bg-red-100 text-red-700'
@@ -129,7 +168,7 @@ function TerminalReportModule() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
           <Button asChild variant="outline" size="icon" className="min-h-[44px] min-w-[44px] print:hidden">
             <Link href="/admin/exams">
@@ -206,17 +245,22 @@ function TerminalReportModule() {
       {/* Report Content */}
       <div ref={printRef}>
         {loading ? (
-          <Card className="border-slate-200/60">
-            <CardContent className="p-6 space-y-4">
-              {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-12 w-full rounded-lg" />)}
-            </CardContent>
-          </Card>
+          <TerminalSkeleton />
         ) : students.length === 0 ? (
           <Card className="border-slate-200/60">
             <CardContent className="flex flex-col items-center justify-center py-16">
-              <FileBarChart className="w-12 h-12 text-slate-300 mb-4" />
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+                <FileBarChart className="w-7 h-7 text-slate-300" />
+              </div>
               <h3 className="text-lg font-semibold text-slate-900 mb-1">No Report Generated</h3>
               <p className="text-sm text-slate-500">Select a class and generate a report</p>
+              <Button
+                variant="outline"
+                className="mt-4 min-h-[44px] text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                onClick={() => document.querySelector<HTMLButtonElement>('button')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <FileBarChart className="w-4 h-4 mr-2" /> Select Class & Generate
+              </Button>
             </CardContent>
           </Card>
         ) : (
@@ -229,34 +273,50 @@ function TerminalReportModule() {
 
             {/* Stats Overview */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 print:hidden">
-              <Card className="border-slate-200 bg-emerald-50/50">
-                <CardContent className="p-3 text-center">
-                  <Users className="w-5 h-5 mx-auto mb-1 text-emerald-600" />
-                  <p className="text-lg font-bold text-emerald-700">{students.length}</p>
-                  <p className="text-xs text-emerald-600">Students</p>
+              <Card className="border-l-4 border-l-emerald-500 hover:shadow-sm transition-all hover:-translate-y-0.5">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                    <Users className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Students</p>
+                    <p className="text-lg font-bold text-slate-900 tabular-nums">{students.length}</p>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="border-slate-200 bg-blue-50/50">
-                <CardContent className="p-3 text-center">
-                  <BookOpen className="w-5 h-5 mx-auto mb-1 text-blue-600" />
-                  <p className="text-lg font-bold text-blue-700">{subjects.length}</p>
-                  <p className="text-xs text-blue-600">Subjects</p>
+              <Card className="border-l-4 border-l-sky-500 hover:shadow-sm transition-all hover:-translate-y-0.5">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-sky-500 flex items-center justify-center flex-shrink-0">
+                    <BookOpen className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Subjects</p>
+                    <p className="text-lg font-bold text-slate-900 tabular-nums">{subjects.length}</p>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="border-slate-200 bg-amber-50/50">
-                <CardContent className="p-3 text-center">
-                  <Trophy className="w-5 h-5 mx-auto mb-1 text-amber-600" />
-                  <p className="text-lg font-bold text-amber-700">{students[0]?.name || '—'}</p>
-                  <p className="text-xs text-amber-600">Top Student</p>
+              <Card className="border-l-4 border-l-amber-500 hover:shadow-sm transition-all hover:-translate-y-0.5">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0">
+                    <Trophy className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Top Student</p>
+                    <p className="text-sm font-bold text-slate-900 truncate">{students[0]?.name || '—'}</p>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="border-slate-200 bg-purple-50/50">
-                <CardContent className="p-3 text-center">
-                  <TrendingUp className="w-5 h-5 mx-auto mb-1 text-purple-600" />
-                  <p className="text-lg font-bold text-purple-700">
-                    {students.length > 0 ? Math.round(students.reduce((a, b) => a + b.average, 0) / students.length * 10) / 10 : '—'}
-                  </p>
-                  <p className="text-xs text-purple-600">Class Average</p>
+              <Card className="border-l-4 border-l-violet-500 hover:shadow-sm transition-all hover:-translate-y-0.5">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-violet-500 flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Class Avg</p>
+                    <p className="text-lg font-bold text-slate-900 tabular-nums">
+                      {students.length > 0 ? Math.round(students.reduce((a, b) => a + b.average, 0) / students.length * 10) / 10 : '—'}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -327,14 +387,19 @@ function TerminalReportModule() {
             {subjectStats.length > 0 && (
               <Card className="border-slate-200/60 print:hidden">
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-lg">Subject Statistics</CardTitle>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                      <Award className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    Subject Statistics
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto rounded-lg border border-slate-200">
                     <Table>
                       <TableHeader>
                         <TableRow className="bg-slate-50 hover:bg-slate-50">
-                          <TableHead>Subject</TableHead>
+                          <TableHead className="text-xs font-semibold">Subject</TableHead>
                           <TableHead className="text-center">Highest</TableHead>
                           <TableHead className="text-center">Lowest</TableHead>
                           <TableHead className="text-center">Average</TableHead>
@@ -363,7 +428,12 @@ function TerminalReportModule() {
             {/* Teacher Comments Section */}
             <Card className="border-slate-200/60 print:hidden">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg">Teacher Comments</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                    <FileBarChart className="w-4 h-4 text-violet-600" />
+                  </div>
+                  Teacher Comments
+                </CardTitle>
                 <CardDescription>Optional comments for the terminal report</CardDescription>
               </CardHeader>
               <CardContent>

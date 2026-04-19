@@ -272,15 +272,18 @@ export default function TeacherMessagesPage() {
     <DashboardLayout>
       <div className="space-y-4">
         {/* ─── Header ─────────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
           <div className="flex items-center gap-3">
             {showConversation && (
               <Button variant="ghost" size="sm" onClick={handleBack} className="min-w-[44px] min-h-[44px] lg:hidden">
                 <ArrowLeft className="w-4 h-4" />
               </Button>
             )}
+            <div className="w-10 h-10 rounded-xl bg-rose-500 flex items-center justify-center">
+              <MessageSquare className="w-5 h-5 text-white" />
+            </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Messages</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Messages</h1>
               <p className="text-sm text-slate-500 mt-1">Communication with parents and staff</p>
             </div>
           </div>
@@ -308,7 +311,7 @@ export default function TeacherMessagesPage() {
                 <div className="space-y-2">
                   <Label>Recipient Type</Label>
                   <Select value={composeRecipientType} onValueChange={(v) => { setComposeRecipientType(v); setComposeRecipientId(""); }}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-slate-50 border-slate-200 focus:bg-white">
                       <SelectValue placeholder="Select recipient type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -326,7 +329,7 @@ export default function TeacherMessagesPage() {
                       <Skeleton className="h-10 w-full" />
                     ) : studentRecipients.length > 0 ? (
                       <Select value={composeRecipientId} onValueChange={setComposeRecipientId}>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-slate-50 border-slate-200 focus:bg-white">
                           <SelectValue placeholder="Choose a student..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -402,13 +405,15 @@ export default function TeacherMessagesPage() {
               </div>
               <div className="relative mt-2">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input placeholder="Search threads..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+                <Input placeholder="Search threads..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-slate-50 border-slate-200 focus:bg-white" />
               </div>
             </CardHeader>
             <CardContent className="pt-0">
               {filteredThreads.length === 0 ? (
                 <div className="text-center py-12">
-                  <Inbox className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                    <Inbox className="w-8 h-8 text-slate-400" />
+                  </div>
                   <p className="text-slate-400 text-sm">No messages yet</p>
                   <p className="text-slate-300 text-xs mt-1">Start a new conversation</p>
                 </div>
@@ -463,7 +468,9 @@ export default function TeacherMessagesPage() {
             {!activeThread ? (
               <CardContent className="py-16 flex items-center justify-center h-full">
                 <div className="text-center">
-                  <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                    <MessageSquare className="w-8 h-8 text-slate-400" />
+                  </div>
                   <p className="text-slate-400 text-sm">Select a conversation to start</p>
                   <p className="text-slate-300 text-xs mt-1">Or compose a new message</p>
                 </div>

@@ -67,15 +67,10 @@ export default function CollectionEfficiencyPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b border-slate-100">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center shadow-md">
-                <Percent className="w-5 h-5 text-white" />
-              </div>
-              Collection Efficiency
-            </h1>
-            <p className="text-sm text-slate-500 mt-1 ml-[52px]">Track fee collection performance metrics</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Collection Efficiency</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Track fee collection performance metrics</p>
           </div>
           <div className="flex gap-2">
             {['today', 'week', 'month', 'quarter'].map(p => (
@@ -89,29 +84,31 @@ export default function CollectionEfficiencyPage() {
 
         {loading ? (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">{Array.from({ length: 4 }).map((_, i) => <Card key={i}><CardContent className="p-4"><Skeleton className="h-16 w-full" /></CardContent></Card>)}</div>
-            <Card><CardContent className="p-4"><Skeleton className="h-64 w-full" /></CardContent></Card>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">{Array.from({ length: 4 }).map((_, i) => <Card key={i} className="border-l-4 border-l-slate-200"><CardContent className="p-4"><div className="flex items-center gap-3"><Skeleton className="w-11 h-11 rounded-xl" /><div className="flex-1 space-y-2"><Skeleton className="h-3 w-20" /><Skeleton className="h-6 w-16" /></div></div><Skeleton className="h-3 w-28 mt-1" /></CardContent></Card>)}</div>
+            <Card className="border-slate-200/60"><CardContent className="p-4"><Skeleton className="h-64 w-full" /></CardContent></Card>
           </div>
         ) : data ? (
           <>
             {/* Summary Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
-                { label: 'Overall Efficiency', value: `${data.summary.overallEfficiency.toFixed(1)}%`, icon: Target, color: 'from-violet-500 to-purple-500', sub: `Expected: ${fmt(data.summary.totalExpected)}` },
-                { label: 'Total Collected', value: fmt(data.summary.totalActual), icon: Wallet, color: 'from-emerald-500 to-teal-500', sub: `${data.summary.totalTransactions} transactions` },
-                { label: 'Student Coverage', value: `${data.summary.studentCoverage.toFixed(1)}%`, icon: Users, color: 'from-sky-500 to-cyan-500', sub: `${data.summary.uniquePayers} / ${data.totalEnrolled} students` },
-                { label: 'School Days', value: String(data.schoolDays), icon: Clock, color: 'from-amber-500 to-orange-500', sub: `Period: ${period}` },
+                { label: 'Overall Efficiency', value: `${data.summary.overallEfficiency.toFixed(1)}%`, icon: Target, borderColor: 'border-l-violet-500', iconBg: 'bg-violet-500', sub: `Expected: ${fmt(data.summary.totalExpected)}` },
+                { label: 'Total Collected', value: fmt(data.summary.totalActual), icon: Wallet, borderColor: 'border-l-emerald-500', iconBg: 'bg-emerald-500', sub: `${data.summary.totalTransactions} transactions` },
+                { label: 'Student Coverage', value: `${data.summary.studentCoverage.toFixed(1)}%`, icon: Users, borderColor: 'border-l-sky-500', iconBg: 'bg-sky-500', sub: `${data.summary.uniquePayers} / ${data.totalEnrolled} students` },
+                { label: 'School Days', value: String(data.schoolDays), icon: Clock, borderColor: 'border-l-amber-500', iconBg: 'bg-amber-500', sub: `Period: ${period}` },
               ].map(s => (
-                <Card key={s.label}>
+                <Card key={s.label} className={`${s.borderColor} hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200`}>
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center`}>
-                        <s.icon className="w-4 h-4 text-white" />
+                    <div className="flex items-center gap-3 mb-1">
+                      <div className={`${s.iconBg} w-11 h-11 rounded-xl flex items-center justify-center`}>
+                        <s.icon className="w-5 h-5 text-white" />
                       </div>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">{s.label}</p>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{s.label}</p>
+                        <p className="text-2xl font-bold text-slate-900 tabular-nums">{s.value}</p>
+                      </div>
                     </div>
-                    <p className="text-lg font-bold font-mono text-slate-900">{s.value}</p>
-                    <p className="text-[10px] text-slate-400">{s.sub}</p>
+                    <p className="text-[10px] text-slate-400 ml-14">{s.sub}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -176,7 +173,12 @@ export default function CollectionEfficiencyPage() {
                     <ScrollArea className="max-h-[500px]">
                       <div className="divide-y">
                         {data.classEfficiency.length === 0 ? (
-                          <div className="text-center py-12 text-slate-400"><p className="text-sm">No class data available</p></div>
+                          <div className="text-center py-12 text-slate-400">
+                        <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center mx-auto mb-3">
+                          <GraduationCap className="w-7 h-7 text-violet-500" />
+                        </div>
+                        <p className="text-sm">No class data available</p>
+                      </div>
                         ) : (
                           data.classEfficiency.map((cls, i) => {
                             const eff = cls.efficiency;
@@ -215,7 +217,12 @@ export default function CollectionEfficiencyPage() {
                   </CardHeader>
                   <CardContent>
                     {data.dailyTrend.length === 0 ? (
-                      <p className="text-sm text-slate-400 text-center py-12">No trend data</p>
+                      <div className="text-center py-12 text-slate-400">
+                        <div className="w-16 h-16 rounded-2xl bg-sky-100 flex items-center justify-center mx-auto mb-3">
+                          <TrendingUp className="w-7 h-7 text-sky-500" />
+                        </div>
+                        <p className="text-sm">No trend data</p>
+                      </div>
                     ) : (
                       <ChartContainer config={lineChartConfig} className="h-[300px] w-full">
                         <LineChart data={data.dailyTrend} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>

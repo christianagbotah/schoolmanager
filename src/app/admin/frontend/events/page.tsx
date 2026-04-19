@@ -23,9 +23,9 @@ import {
 } from '@/components/ui/table';
 import {
   PartyPopper, Plus, Pencil, Trash2, Search, Eye, Calendar, Clock,
-  LayoutDashboard, Image,
+  LayoutDashboard, Image, Loader2,
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 interface Event {
@@ -39,12 +39,47 @@ interface Event {
 
 interface EventStats { total: number; upcoming: number; past: number; }
 
+function EventsSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Header skeleton */}
+      <div className="flex items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <Skeleton className="w-11 h-11 rounded-xl" />
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-28" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-11 w-28 rounded-lg" />
+          <Skeleton className="h-11 w-32 rounded-lg" />
+        </div>
+      </div>
+      {/* Stat cards skeleton */}
+      <div className="grid grid-cols-3 gap-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-[88px] rounded-xl" />
+        ))}
+      </div>
+      {/* Search skeleton */}
+      <Skeleton className="h-11 w-full rounded-lg" />
+      {/* Content skeleton */}
+      <div className="space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-28 rounded-xl" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function EventsPage() {
   const router = useRouter();
-  const { toast } = useToast();
   const [events, setEvents] = useState<Event[]>([]);
   const [stats, setStats] = useState<EventStats>({ total: 0, upcoming: 0, past: 0 });
   const [loading, setLoading] = useState(true);
+  const [hasFetched, setHasFetched] = useState(false);
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('all');
 
@@ -71,6 +106,7 @@ export default function EventsPage() {
       const data = await res.json();
       setEvents(data.events || []);
       setStats(data.stats || { total: 0, upcoming: 0, past: 0 });
+      setHasFetched(true);
     } catch { /* empty */ }
     setLoading(false);
   }, [search]);
@@ -102,7 +138,7 @@ export default function EventsPage() {
 
   const handleSave = async () => {
     if (!form.title.trim()) {
-      toast({ title: 'Error', description: 'Title is required', variant: 'destructive' });
+      toast.error('Title is required');
       return;
     }
     setSaving(true);
@@ -113,19 +149,19 @@ export default function EventsPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: editEvent.frontend_events_id, ...form }),
         });
-        toast({ title: 'Success', description: 'Event updated' });
+        toast.success('Event updated');
       } else {
         await fetch('/api/admin/frontend/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         });
-        toast({ title: 'Success', description: 'Event created' });
+        toast.success('Event created');
       }
       setFormOpen(false);
       fetchEvents();
     } catch {
-      toast({ title: 'Error', variant: 'destructive' });
+      toast.error('Something went wrong');
     }
     setSaving(false);
   };
@@ -134,25 +170,33 @@ export default function EventsPage() {
     if (!deleteEvent) return;
     try {
       await fetch(`/api/admin/frontend/events?id=${deleteEvent.frontend_events_id}`, { method: 'DELETE' });
-      toast({ title: 'Success', description: 'Event deleted' });
+      toast.success('Event deleted');
       setDeleteOpen(false);
       fetchEvents();
     } catch {
-      toast({ title: 'Error', variant: 'destructive' });
+      toast.error('Something went wrong');
     }
   };
+
+  if (loading && !hasFetched) {
+    return (
+      <DashboardLayout>
+        <EventsSkeleton />
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
-              <PartyPopper className="w-6 h-6 text-white" />
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
+              <PartyPopper className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Events</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Events</h1>
               <p className="text-sm text-slate-500">Manage school events and activities</p>
             </div>
           </div>
@@ -167,38 +211,41 @@ export default function EventsPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="border-slate-200/60 hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center">
-                <PartyPopper className="w-5 h-5 text-violet-600" />
-              </div>
-              <div><p className="text-xs text-slate-500">Total</p><p className="text-xl font-bold">{stats.total}</p></div>
-            </CardContent>
-          </Card>
-          <Card className="border-slate-200/60 hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <Clock className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div><p className="text-xs text-slate-500">Upcoming</p><p className="text-xl font-bold text-emerald-600">{stats.upcoming}</p></div>
-            </CardContent>
-          </Card>
-          <Card className="border-slate-200/60 hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-slate-500" />
-              </div>
-              <div><p className="text-xs text-slate-500">Past</p><p className="text-xl font-bold text-slate-500">{stats.past}</p></div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-violet-500 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+            <div className="w-11 h-11 rounded-xl bg-violet-500 flex items-center justify-center shrink-0">
+              <PartyPopper className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total</p>
+              <p className="text-2xl font-bold text-slate-900 tabular-nums">{stats.total}</p>
+            </div>
+          </div>
+          <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-emerald-500 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+            <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center shrink-0">
+              <Clock className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Upcoming</p>
+              <p className="text-2xl font-bold text-emerald-600 tabular-nums">{stats.upcoming}</p>
+            </div>
+          </div>
+          <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-slate-400 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+            <div className="w-11 h-11 rounded-xl bg-slate-500 flex items-center justify-center shrink-0">
+              <Calendar className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Past</p>
+              <p className="text-2xl font-bold text-slate-500 tabular-nums">{stats.past}</p>
+            </div>
+          </div>
         </div>
 
         {/* Search + Tabs */}
         <div className="space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input placeholder="Search events..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 min-h-[44px]" />
+            <Input placeholder="Search events..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white" />
           </div>
 
           <Tabs value={tab} onValueChange={setTab}>
@@ -212,13 +259,15 @@ export default function EventsPage() {
               {loading ? (
                 <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-xl" />)}</div>
               ) : filteredEvents.length === 0 ? (
-                <Card className="py-16">
-                  <CardContent className="flex flex-col items-center">
-                    <PartyPopper className="w-16 h-16 text-slate-200 mb-4" />
+                <div className="rounded-2xl border border-slate-200 bg-white py-16">
+                  <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
+                      <PartyPopper className="w-7 h-7 text-emerald-300" />
+                    </div>
                     <p className="text-slate-500 font-medium">No events found</p>
                     <p className="text-slate-400 text-sm mt-1">Click &quot;Add Event&quot; to create a new school event</p>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ) : (
                 <div className="space-y-3">
                   {/* Desktop Table */}
@@ -295,9 +344,9 @@ export default function EventsPage() {
                                 </p>
                               )}
                               <div className="flex gap-1 mt-2">
-                                <Button size="sm" variant="ghost" className="h-7 px-2 text-blue-600" onClick={() => { setViewEvent(ev); setViewOpen(true); }}><Eye className="w-3 h-3 mr-1" />View</Button>
-                                <Button size="sm" variant="ghost" className="h-7 px-2 text-emerald-600" onClick={() => openEdit(ev)}><Pencil className="w-3 h-3 mr-1" />Edit</Button>
-                                <Button size="sm" variant="ghost" className="h-7 px-2 text-red-600" onClick={() => { setDeleteEvent(ev); setDeleteOpen(true); }}><Trash2 className="w-3 h-3" /></Button>
+                                <Button size="sm" variant="ghost" className="min-h-[44px] px-3 text-blue-600" onClick={() => { setViewEvent(ev); setViewOpen(true); }}><Eye className="w-3.5 h-3.5 mr-1" />View</Button>
+                                <Button size="sm" variant="ghost" className="min-h-[44px] px-3 text-emerald-600" onClick={() => openEdit(ev)}><Pencil className="w-3.5 h-3.5 mr-1" />Edit</Button>
+                                <Button size="sm" variant="ghost" className="min-h-[44px] px-3 text-red-600" onClick={() => { setDeleteEvent(ev); setDeleteOpen(true); }}><Trash2 className="w-3.5 h-3.5" /></Button>
                               </div>
                             </div>
                           </div>
@@ -346,8 +395,9 @@ export default function EventsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setFormOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setFormOpen(false)} className="min-h-[44px]">Cancel</Button>
             <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] px-6" disabled={!form.title.trim() || saving}>
+              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {saving ? 'Saving...' : editEvent ? 'Update Event' : 'Create Event'}
             </Button>
           </DialogFooter>
@@ -360,7 +410,9 @@ export default function EventsPage() {
           {viewEvent && (
             <>
               <DialogHeader>
-                <DialogTitle>{viewEvent.title}</DialogTitle>
+                <DialogTitle className="flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-emerald-600" /> Event Details
+                </DialogTitle>
                 <DialogDescription className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
                   {viewEvent.date ? format(new Date(viewEvent.date), 'EEEE, dd MMMM yyyy') : 'No date set'}
@@ -388,12 +440,17 @@ export default function EventsPage() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Event</AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </div>
+              Delete Event
+            </AlertDialogTitle>
             <AlertDialogDescription>Are you sure you want to delete <strong className="text-slate-900">{deleteEvent?.title}</strong>? This cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+            <AlertDialogCancel className="min-h-[44px]">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 min-h-[44px]">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

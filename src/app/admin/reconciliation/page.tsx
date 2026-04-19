@@ -15,10 +15,10 @@ import {
 } from '@/components/ui/table';
 import { Bar, BarChart, XAxis, YAxis } from 'recharts';
 import {
-  ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent,
+  ChartContainer, ChartTooltip, ChartTooltipContent,
 } from '@/components/ui/chart';
 import {
-  Scale, TrendingUp, TrendingDown, AlertTriangle, Users, Clock,
+  Scale, TrendingUp, TrendingDown, Users, Clock,
   Banknote, Smartphone, Calendar, ArrowUpRight, ArrowDownRight, BarChart3,
 } from 'lucide-react';
 
@@ -37,6 +37,34 @@ const hourlyChartConfig = {
 };
 
 function fmt(n: number) { return `GH\u20B5 ${(n || 0).toFixed(2)}`; }
+
+function fmtShort(n: number) {
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  return n.toFixed(0);
+}
+
+function ReconciliationSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <Skeleton className="h-7 w-52 mb-1" />
+        <Skeleton className="h-4 w-80" />
+        <div className="border-b border-slate-100 mt-3" />
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-28 rounded-2xl" />
+        ))}
+      </div>
+      <Skeleton className="h-72 rounded-2xl" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Skeleton className="h-72 rounded-2xl" />
+        <Skeleton className="h-72 rounded-2xl" />
+      </div>
+      <Skeleton className="h-64 rounded-2xl" />
+    </div>
+  );
+}
 
 export default function ReconciliationPage() {
   const [data, setData] = useState<ReconciliationData | null>(null);
@@ -57,47 +85,51 @@ export default function ReconciliationPage() {
   const feeTypes = ['feeding', 'breakfast', 'classes', 'water', 'transport'] as const;
   const feeLabels: Record<string, string> = { feeding: 'Feeding', breakfast: 'Breakfast', classes: 'Classes', water: 'Water', transport: 'Transport' };
 
+  if (loading && !data) return (
+    <DashboardLayout>
+      <ReconciliationSkeleton />
+    </DashboardLayout>
+  );
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-cyan-500 flex items-center justify-center shadow-md">
-                <Scale className="w-5 h-5 text-white" />
-              </div>
-              Daily Reconciliation
-            </h1>
-            <p className="text-sm text-slate-500 mt-1 ml-[52px]">Compare expected vs actual collections</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Daily Reconciliation</h1>
+            <p className="text-sm text-slate-500 mt-1">Compare expected vs actual collections</p>
           </div>
-          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-40" />
+          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-40 bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]" />
         </div>
 
-        {loading ? (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">{Array.from({ length: 4 }).map((_, i) => <Card key={i}><CardContent className="p-4"><Skeleton className="h-16 w-full" /></CardContent></Card>)}</div>
-            <Card><CardContent className="p-4"><Skeleton className="h-64 w-full" /></CardContent></Card>
-          </div>
-        ) : data ? (
+        {data ? (
           <>
             {/* Summary Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { label: 'Expected', value: data.expected.total, icon: TrendingUp, color: 'from-sky-500 to-cyan-500' },
-                { label: 'Actual', value: data.actual.total, icon: BarChart3, color: 'from-emerald-500 to-teal-500' },
-                { label: 'Discrepancy', value: data.discrepancies.total, icon: data.discrepancies.total >= 0 ? ArrowUpRight : ArrowDownRight, color: data.discrepancies.total >= 0 ? 'from-emerald-500 to-teal-500' : 'from-red-500 to-rose-500' },
-                { label: 'Transactions', value: data.actual.count, icon: Users, color: 'from-violet-500 to-purple-500', isCount: true },
+                { label: 'Expected', value: fmt(data.expected.total), icon: TrendingUp, borderColor: 'border-sky-500', iconBg: 'bg-sky-500' },
+                { label: 'Actual', value: fmt(data.actual.total), icon: BarChart3, borderColor: 'border-emerald-500', iconBg: 'bg-emerald-500' },
+                {
+                  label: 'Discrepancy',
+                  value: fmt(Math.abs(data.discrepancies.total)),
+                  icon: data.discrepancies.total >= 0 ? ArrowUpRight : ArrowDownRight,
+                  borderColor: data.discrepancies.total >= 0 ? 'border-emerald-500' : 'border-red-500',
+                  iconBg: data.discrepancies.total >= 0 ? 'bg-emerald-500' : 'bg-red-500',
+                  valueClass: data.discrepancies.total < 0 ? 'text-red-600' : 'text-emerald-600',
+                },
+                { label: 'Transactions', value: data.actual.count.toString(), icon: Users, borderColor: 'border-violet-500', iconBg: 'bg-violet-500' },
               ].map(s => (
-                <Card key={s.label}>
+                <Card key={s.label} className={`rounded-2xl border-l-4 ${s.borderColor} hover:shadow-lg hover:-translate-y-0.5 transition-all`}>
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center`}>
-                        <s.icon className="w-4 h-4 text-white" />
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className={`w-11 h-11 rounded-xl ${s.iconBg} flex items-center justify-center flex-shrink-0`}>
+                        <s.icon className="w-5 h-5 text-white" />
                       </div>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-wide">{s.label}</p>
                     </div>
-                    <p className={`text-lg font-bold font-mono ${s.label === 'Discrepancy' && data.discrepancies.total < 0 ? 'text-red-600' : 'text-slate-900'}`}>
-                      {s.isCount ? s.value : fmt(s.value as number)}
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{s.label}</p>
+                    <p className={`text-2xl font-bold tabular-nums ${s.valueClass || 'text-slate-900'}`}>
+                      {s.value}
                     </p>
                   </CardContent>
                 </Card>
@@ -105,9 +137,11 @@ export default function ReconciliationPage() {
             </div>
 
             {/* Expected vs Actual by Fee Type */}
-            <Card>
+            <Card className="rounded-2xl border-slate-200/60">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2"><Scale className="w-4 h-4 text-slate-400" />Expected vs Actual by Fee Type</CardTitle>
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <Scale className="w-4 h-4 text-slate-400" />Expected vs Actual by Fee Type
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -138,7 +172,7 @@ export default function ReconciliationPage() {
                 <Separator className="my-4" />
                 <div className="flex justify-between text-sm">
                   <span className="font-semibold text-slate-600">Collection Rate</span>
-                  <span className="font-bold text-emerald-600 font-mono">{data.expected.total > 0 ? ((data.actual.total / data.expected.total) * 100).toFixed(1) : 0}%</span>
+                  <span className="font-bold text-emerald-600 font-mono tabular-nums">{data.expected.total > 0 ? ((data.actual.total / data.expected.total) * 100).toFixed(1) : 0}%</span>
                 </div>
                 <div className="flex justify-between text-xs text-slate-400 mt-1">
                   <span>Present: {data.expected.presentCount} / Enrolled: {data.expected.enrolledCount}</span>
@@ -149,9 +183,11 @@ export default function ReconciliationPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Hourly Breakdown */}
-              <Card>
+              <Card className="rounded-2xl border-slate-200/60">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2"><Clock className="w-4 h-4 text-slate-400" />Hourly Breakdown</CardTitle>
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-slate-400" />Hourly Breakdown
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ChartContainer config={hourlyChartConfig} className="h-[250px] w-full">
@@ -166,24 +202,31 @@ export default function ReconciliationPage() {
               </Card>
 
               {/* Collector Summaries */}
-              <Card>
+              <Card className="rounded-2xl border-slate-200/60">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2"><Users className="w-4 h-4 text-slate-400" />Collector Summaries</CardTitle>
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <Users className="w-4 h-4 text-slate-400" />Collector Summaries
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {data.collectors.length === 0 ? (
-                    <p className="text-sm text-slate-400 text-center py-8">No collections today</p>
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 rounded-2xl bg-slate-100 mx-auto flex items-center justify-center mb-3">
+                        <Users className="w-8 h-8 text-slate-400" />
+                      </div>
+                      <p className="text-sm text-slate-500">No collections today</p>
+                    </div>
                   ) : (
                     <div className="space-y-3">
                       {data.collectors.map((c, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
+                        <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
                           <div>
                             <p className="text-sm font-semibold text-slate-800">{c.name}</p>
-                            <p className="text-[10px] text-slate-400">{c.transactionCount} txns &middot; {c.uniqueStudents} students</p>
+                            <p className="text-xs text-slate-400">{c.transactionCount} txns &middot; {c.uniqueStudents} students</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm font-bold font-mono text-emerald-600">{fmt(c.totalCollected)}</p>
-                            <div className="flex gap-2 text-[10px] text-slate-400">
+                            <p className="text-sm font-bold font-mono text-emerald-600 tabular-nums">{fmt(c.totalCollected)}</p>
+                            <div className="flex gap-2 text-xs text-slate-400">
                               <span><Banknote className="w-3 h-3 inline" />{fmt(c.cashTotal)}</span>
                               <span><Smartphone className="w-3 h-3 inline" />{fmt(c.momoTotal)}</span>
                             </div>
@@ -197,9 +240,11 @@ export default function ReconciliationPage() {
             </div>
 
             {/* Recent Transactions */}
-            <Card>
+            <Card className="rounded-2xl border-slate-200/60">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2"><BarChart3 className="w-4 h-4 text-slate-400" />Recent Transactions ({data.transactions.length})</CardTitle>
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-slate-400" />Recent Transactions ({data.transactions.length})
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <ScrollArea className="max-h-96">
@@ -222,10 +267,10 @@ export default function ReconciliationPage() {
                           <TableRow key={i} className="hover:bg-slate-50/50">
                             <TableCell className="text-sm font-medium">{tx.student?.name}</TableCell>
                             <TableCell className="text-xs font-mono text-slate-500">{tx.student?.student_code}</TableCell>
-                            <TableCell className="text-xs font-mono text-right">{fmt(tx.feeding_amount)}</TableCell>
-                            <TableCell className="text-xs font-mono text-right">{fmt(tx.breakfast_amount)}</TableCell>
-                            <TableCell className="text-xs font-mono text-right">{fmt(tx.classes_amount)}</TableCell>
-                            <TableCell className="text-xs font-mono text-right font-bold">{fmt(tx.total_amount)}</TableCell>
+                            <TableCell className="text-xs font-mono text-right tabular-nums">{fmt(tx.feeding_amount)}</TableCell>
+                            <TableCell className="text-xs font-mono text-right tabular-nums">{fmt(tx.breakfast_amount)}</TableCell>
+                            <TableCell className="text-xs font-mono text-right tabular-nums">{fmt(tx.classes_amount)}</TableCell>
+                            <TableCell className="text-xs font-mono text-right font-bold tabular-nums">{fmt(tx.total_amount)}</TableCell>
                             <TableCell><Badge variant="outline" className="text-[10px]">{tx.payment_method}</Badge></TableCell>
                             <TableCell className="text-xs text-slate-500">{tx.collected_by}</TableCell>
                           </TableRow>
@@ -238,9 +283,9 @@ export default function ReconciliationPage() {
                       <div key={i} className="p-3 flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium">{tx.student?.name}</p>
-                          <p className="text-[10px] text-slate-400">{tx.payment_method} &middot; {tx.collected_by}</p>
+                          <p className="text-xs text-slate-400">{tx.payment_method} &middot; {tx.collected_by}</p>
                         </div>
-                        <p className="font-mono font-bold text-sm">{fmt(tx.total_amount)}</p>
+                        <p className="font-mono font-bold text-sm tabular-nums">{fmt(tx.total_amount)}</p>
                       </div>
                     ))}
                   </div>
@@ -252,9 +297,4 @@ export default function ReconciliationPage() {
       </div>
     </DashboardLayout>
   );
-}
-
-function fmtShort(n: number) {
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
-  return n.toFixed(0);
 }

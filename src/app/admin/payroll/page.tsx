@@ -2,6 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
+import { toast } from 'sonner';
+import {
+  Banknote, DollarSign, CheckCircle, Clock, Users, CalendarDays,
+  Eye, FileText, AlertCircle, RefreshCw, Loader2, TrendingUp,
+  CreditCard, Shield, ArrowUpRight, X,
+} from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,12 +19,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast } from 'sonner';
-import {
-  Banknote, DollarSign, CheckCircle, Clock, Users, CalendarDays,
-  Eye, FileText, AlertCircle, RefreshCw, Loader2, TrendingUp,
-  CreditCard, Shield, ArrowUpRight,
-} from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -43,15 +43,33 @@ function fmt(n: number) {
 
 function StatCardSkeleton() {
   return (
-    <Card className="border-slate-200/60">
-      <CardContent className="p-4 flex items-center gap-3">
-        <Skeleton className="w-10 h-10 rounded-lg flex-shrink-0" />
-        <div className="space-y-1.5 flex-1">
-          <Skeleton className="h-3 w-20" />
-          <Skeleton className="h-6 w-14" />
-        </div>
-      </CardContent>
-    </Card>
+    <div className="rounded-2xl border border-slate-200/60 bg-white p-4 flex items-center gap-3">
+      <Skeleton className="w-11 h-11 rounded-xl flex-shrink-0" />
+      <div className="space-y-2 flex-1 min-w-0">
+        <Skeleton className="h-3 w-24" />
+        <Skeleton className="h-6 w-16" />
+      </div>
+    </div>
+  );
+}
+
+function PageSkeleton() {
+  return (
+    <div className="space-y-6 animate-in fade-in duration-300">
+      <Skeleton className="h-8 w-56" />
+      <Skeleton className="h-3 w-72" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCardSkeleton /><StatCardSkeleton /><StatCardSkeleton /><StatCardSkeleton />
+      </div>
+      <Skeleton className="h-11 w-full rounded-2xl" />
+      <div className="rounded-2xl border border-slate-200/60 overflow-hidden">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="p-4 border-b border-slate-100 last:border-0">
+            <Skeleton className="h-10 w-full rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -182,11 +200,19 @@ export default function PayrollPage() {
 
   // ─── Render ────────────────────────────────────────────────────────────────
 
+  if (loading && salaries.length === 0) {
+    return (
+      <DashboardLayout>
+        <PageSkeleton />
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Payroll Management</h1>
             <p className="text-sm text-slate-500 mt-1">Salary processing, payslips &amp; reports</p>
@@ -195,64 +221,50 @@ export default function PayrollPage() {
 
         {/* Stat Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {loading ? (
-            <><StatCardSkeleton /><StatCardSkeleton /><StatCardSkeleton /><StatCardSkeleton /></>
-          ) : (
-            <>
-              <Card className="border-slate-200/60 hover:shadow-sm transition-shadow">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                    <Users className="w-5 h-5 text-emerald-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-500 truncate">Total Staff</p>
-                    <p className="text-xl font-bold text-slate-900">{employees.length}</p>
-                    <p className="text-[10px] text-slate-400">{activeEmployees} active</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="border-slate-200/60 hover:shadow-sm transition-shadow">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center flex-shrink-0">
-                    <CheckCircle className="w-5 h-5 text-sky-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-500 truncate">Processed</p>
-                    <p className="text-xl font-bold text-slate-900">{processed}</p>
-                    <p className="text-[10px] text-emerald-500 font-medium">
-                      {salaries.length > 0 ? `${Math.round((processed / salaries.length) * 100)}% done` : 'No records'}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="border-slate-200/60 hover:shadow-sm transition-shadow">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                    <Clock className="w-5 h-5 text-amber-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-500 truncate">Pending</p>
-                    <p className="text-xl font-bold text-slate-900">{pending}</p>
-                    <p className="text-[10px] text-amber-500 font-medium">
-                      {pending > 0 ? 'Needs processing' : 'All done'}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="border-slate-200/60 hover:shadow-sm transition-shadow">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
-                    <DollarSign className="w-5 h-5 text-violet-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-500 truncate">Net Total</p>
-                    <p className="text-xl font-bold text-slate-900">{fmt(totalNet)}</p>
-                    <p className="text-[10px] text-slate-400">{MONTHS[parseInt(selectedMonth) - 1]} {selectedYear}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
+          <div className="rounded-2xl border border-slate-200/60 bg-white p-4 border-l-4 border-l-emerald-500 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0"><Users className="w-5 h-5 text-white" /></div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Total Staff</p>
+                <p className="text-xl font-bold text-slate-900 tabular-nums">{employees.length}</p>
+                <p className="text-[10px] text-slate-400">{activeEmployees} active</p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-slate-200/60 bg-white p-4 border-l-4 border-l-sky-500 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-sky-500 flex items-center justify-center flex-shrink-0"><CheckCircle className="w-5 h-5 text-white" /></div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Processed</p>
+                <p className="text-xl font-bold text-slate-900 tabular-nums">{processed}</p>
+                <p className="text-[10px] text-emerald-500 font-medium">
+                  {salaries.length > 0 ? `${Math.round((processed / salaries.length) * 100)}% done` : 'No records'}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-slate-200/60 bg-white p-4 border-l-4 border-l-amber-500 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0"><Clock className="w-5 h-5 text-white" /></div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Pending</p>
+                <p className="text-xl font-bold text-slate-900 tabular-nums">{pending}</p>
+                <p className="text-[10px] text-amber-500 font-medium">
+                  {pending > 0 ? 'Needs processing' : 'All done'}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-slate-200/60 bg-white p-4 border-l-4 border-l-violet-500 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-violet-500 flex items-center justify-center flex-shrink-0"><DollarSign className="w-5 h-5 text-white" /></div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Net Total</p>
+                <p className="text-lg font-bold text-slate-900 tabular-nums">{fmt(totalNet)}</p>
+                <p className="text-[10px] text-slate-400">{MONTHS[parseInt(selectedMonth) - 1]} {selectedYear}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -269,213 +281,212 @@ export default function PayrollPage() {
           {/* ═══ Payroll Tab ═══ */}
           <TabsContent value="payroll">
             {/* Filter Bar */}
-            <Card className="border-slate-200/60 mb-4">
-              <CardContent className="p-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                  <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
-                    <CalendarDays className="w-5 h-5 text-slate-500" />
-                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                      <SelectTrigger className="w-[150px] min-h-[44px]"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {MONTHS.map((m, i) => <SelectItem key={i} value={(i + 1).toString()}>{m}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    <Select value={selectedYear} onValueChange={setSelectedYear}>
-                      <SelectTrigger className="w-[100px] min-h-[44px]"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    <Select value={filterStatus} onValueChange={setFilterStatus}>
-                      <SelectTrigger className="w-[140px] min-h-[44px]"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__all__">All Status</SelectItem>
-                        <SelectItem value="processed">Processed</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="sm:ml-auto flex gap-2 w-full sm:w-auto">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setPayForm({ employee_code: '', month: selectedMonth, year: selectedYear, basic_salary: '', allowance: '', deduction: '', net_salary: '' });
-                        setPayOpen(true);
-                      }}
-                      className="min-h-[44px] border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-                    >
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      <span className="hidden sm:inline">Record</span> Individual
-                    </Button>
-                    <Button
-                      onClick={handleBulkProcess}
-                      className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] shadow-sm"
-                      disabled={processing}
-                    >
-                      {processing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Banknote className="w-4 h-4 mr-2" />}
-                      {processing ? 'Processing...' : 'Process Payroll'}
-                    </Button>
-                  </div>
+            <div className="rounded-2xl bg-white border border-slate-200/60 p-4 mb-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                  <CalendarDays className="w-5 h-5 text-slate-500" />
+                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                    <SelectTrigger className="w-[150px] min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {MONTHS.map((m, i) => <SelectItem key={i} value={(i + 1).toString()}>{m}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-[100px] min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-[140px] min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__all__">All Status</SelectItem>
+                      <SelectItem value="processed">Processed</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              </CardContent>
-            </Card>
+                {/* Active filter chips */}
+                {filterStatus !== 'all' && (
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-700 min-h-[28px]">
+                      {filterStatus === 'processed' ? 'Processed' : 'Pending'}
+                      <button onClick={() => setFilterStatus('all')}><X className="w-3 h-3" /></button>
+                    </span>
+                  </div>
+                )}
+                <div className="sm:ml-auto flex gap-2 w-full sm:w-auto">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setPayForm({ employee_code: '', month: selectedMonth, year: selectedYear, basic_salary: '', allowance: '', deduction: '', net_salary: '' });
+                      setPayOpen(true);
+                    }}
+                    className="min-h-[44px] border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                  >
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    <span className="hidden sm:inline">Record</span> Individual
+                  </Button>
+                  <Button
+                    onClick={handleBulkProcess}
+                    className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] shadow-sm"
+                    disabled={processing}
+                  >
+                    {processing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Banknote className="w-4 h-4 mr-2" />}
+                    {processing ? 'Processing...' : 'Process Payroll'}
+                  </Button>
+                </div>
+              </div>
+            </div>
 
             {/* Error State */}
             {error && (
-              <Card className="border-red-200 mb-4">
-                <CardContent className="py-8 flex flex-col items-center text-center gap-3">
-                  <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center">
-                    <AlertCircle className="w-7 h-7 text-red-500" />
-                  </div>
-                  <p className="font-medium text-slate-900">{error}</p>
-                  <Button variant="outline" onClick={fetchData} className="mt-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50 min-h-[44px]">
-                    <RefreshCw className="w-4 h-4 mr-2" /> Retry
-                  </Button>
-                </CardContent>
-              </Card>
+              <div className="rounded-2xl border border-red-200 p-8 flex flex-col items-center text-center gap-3 mb-4">
+                <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center">
+                  <AlertCircle className="w-7 h-7 text-red-500" />
+                </div>
+                <p className="font-medium text-slate-900">{error}</p>
+                <Button variant="outline" onClick={fetchData} className="mt-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50 min-h-[44px]">
+                  <RefreshCw className="w-4 h-4 mr-2" /> Retry
+                </Button>
+              </div>
             )}
 
             {/* Payroll Data */}
             {loading ? (
-              <Card className="border-slate-200/60"><CardContent className="p-0">
+              <div className="rounded-2xl border border-slate-200/60 overflow-hidden">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <div key={i} className="p-4 border-b border-slate-100 last:border-0">
                     <Skeleton className="h-10 w-full rounded" />
                   </div>
                 ))}
-              </CardContent></Card>
+              </div>
             ) : salaries.length === 0 ? (
-              <Card className="py-16 border-slate-200/60">
-                <CardContent className="flex flex-col items-center gap-3">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
-                    <Banknote className="w-8 h-8 text-slate-300" />
-                  </div>
-                  <div className="text-center">
-                    <p className="text-slate-500 font-medium">No payroll records</p>
-                    <p className="text-sm text-slate-400 mt-1">
-                      {filterStatus !== 'all' ? 'Try changing the status filter' : `No records for ${MONTHS[parseInt(selectedMonth) - 1]} ${selectedYear}`}
-                    </p>
-                  </div>
-                  <div className="flex gap-2 mt-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setPayForm({ employee_code: '', month: selectedMonth, year: selectedYear, basic_salary: '', allowance: '', deduction: '', net_salary: '' });
-                        setPayOpen(true);
-                      }}
-                      className="min-h-[44px]"
-                    >
-                      <CreditCard className="w-4 h-4 mr-2" /> Record Salary
-                    </Button>
-                    <Button onClick={handleBulkProcess} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]" disabled={processing}>
-                      {processing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Banknote className="w-4 h-4 mr-2" />}
-                      Process Payroll
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="rounded-2xl border border-slate-200/60 py-16 flex flex-col items-center">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+                  <Banknote className="w-8 h-8 text-slate-300" />
+                </div>
+                <div className="text-center">
+                  <p className="text-slate-500 font-medium">No payroll records</p>
+                  <p className="text-sm text-slate-400 mt-1">
+                    {filterStatus !== 'all' ? 'Try changing the status filter' : `No records for ${MONTHS[parseInt(selectedMonth) - 1]} ${selectedYear}`}
+                  </p>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setPayForm({ employee_code: '', month: selectedMonth, year: selectedYear, basic_salary: '', allowance: '', deduction: '', net_salary: '' });
+                      setPayOpen(true);
+                    }}
+                    className="min-h-[44px]"
+                  >
+                    <CreditCard className="w-4 h-4 mr-2" /> Record Salary
+                  </Button>
+                  <Button onClick={handleBulkProcess} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]" disabled={processing}>
+                    {processing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Banknote className="w-4 h-4 mr-2" />}
+                    Process Payroll
+                  </Button>
+                </div>
+              </div>
             ) : (
               <>
                 {/* Desktop Table */}
-                <Card className="border-slate-200/60 hidden md:block">
-                  <CardContent className="p-0">
-                    <div className="max-h-[600px] overflow-y-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="bg-slate-50 hover:bg-slate-50">
-                            <TableHead className="text-xs font-semibold text-slate-600">Employee</TableHead>
-                            <TableHead className="text-xs font-semibold text-slate-600">Department</TableHead>
-                            <TableHead className="text-xs font-semibold text-slate-600 text-right">Basic</TableHead>
-                            <TableHead className="text-xs font-semibold text-slate-600 text-right">Gross</TableHead>
-                            <TableHead className="text-xs font-semibold text-slate-600 text-right">Net</TableHead>
-                            <TableHead className="text-xs font-semibold text-slate-600">Status</TableHead>
-                            <TableHead className="text-xs font-semibold text-slate-600 w-24"></TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {salaries.map(sal => (
-                            <TableRow key={sal.pay_id} className="hover:bg-slate-50/50">
-                              <TableCell>
-                                <div className="flex items-center gap-3">
-                                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${sal.status === 'processed' ? 'bg-emerald-500' : 'bg-amber-500'}`}>
-                                    {sal.employee?.name?.charAt(0) || sal.employee_code.charAt(0)}
-                                  </div>
-                                  <div className="min-w-0">
-                                    <p className="font-medium text-sm text-slate-900 truncate">{sal.employee?.name || sal.employee_code}</p>
-                                    <p className="text-xs text-slate-400">{sal.employee?.designation?.des_name || ''}</p>
-                                  </div>
+                <div className="rounded-2xl bg-white border border-slate-200/60 overflow-hidden hidden md:block">
+                  <div className="max-h-[600px] overflow-y-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-slate-50 hover:bg-slate-50">
+                          <TableHead className="text-xs font-semibold text-slate-600">Employee</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600">Department</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 text-right">Basic</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 text-right">Gross</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 text-right">Net</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600">Status</TableHead>
+                          <TableHead className="text-xs font-semibold text-slate-600 w-24"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {salaries.map(sal => (
+                          <TableRow key={sal.pay_id} className="hover:bg-slate-50/50">
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 ${sal.status === 'processed' ? 'bg-emerald-500' : 'bg-amber-500'}`}>
+                                  {sal.employee?.name?.charAt(0) || sal.employee_code.charAt(0)}
                                 </div>
-                              </TableCell>
-                              <TableCell className="text-xs text-slate-500">{sal.employee?.department?.dep_name || '\u2014'}</TableCell>
-                              <TableCell className="text-right text-sm">{fmt(sal.basic_salary)}</TableCell>
-                              <TableCell className="text-right text-sm">{fmt(sal.gross_salary)}</TableCell>
-                              <TableCell className="text-right text-sm font-semibold text-slate-900">{fmt(sal.net_salary)}</TableCell>
-                              <TableCell>
-                                <Badge className={`text-xs ${sal.status === 'processed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                                  {sal.status === 'processed' ? <CheckCircle className="w-3 h-3 mr-1" /> : <Clock className="w-3 h-3 mr-1" />}
-                                  {sal.status}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                <Button size="sm" variant="ghost" className="h-8 text-xs text-emerald-600 hover:bg-emerald-50 min-h-[36px]" onClick={() => { setSelectedSalary(sal); setPayslipOpen(true); }}>
-                                  <Eye className="w-3.5 h-3.5 mr-1" /> View
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </CardContent>
+                                <div className="min-w-0">
+                                  <p className="font-medium text-sm text-slate-900 truncate">{sal.employee?.name || sal.employee_code}</p>
+                                  <p className="text-xs text-slate-400">{sal.employee?.designation?.des_name || ''}</p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-xs text-slate-500">{sal.employee?.department?.dep_name || '\u2014'}</TableCell>
+                            <TableCell className="text-right text-sm">{fmt(sal.basic_salary)}</TableCell>
+                            <TableCell className="text-right text-sm">{fmt(sal.gross_salary)}</TableCell>
+                            <TableCell className="text-right text-sm font-semibold text-slate-900">{fmt(sal.net_salary)}</TableCell>
+                            <TableCell>
+                              <Badge className={`text-xs ${sal.status === 'processed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                {sal.status === 'processed' ? <CheckCircle className="w-3 h-3 mr-1" /> : <Clock className="w-3 h-3 mr-1" />}
+                                {sal.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Button size="sm" variant="ghost" className="h-8 text-xs text-emerald-600 hover:bg-emerald-50 min-h-[36px] min-w-[32px]" onClick={() => { setSelectedSalary(sal); setPayslipOpen(true); }}>
+                                <Eye className="w-3.5 h-3.5 mr-1" /> View
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                   <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50">
                     <p className="text-xs text-slate-500">Showing {salaries.length} record(s)</p>
                     <p className="text-xs font-medium text-emerald-700">Net Total: {fmt(totalNet)}</p>
                   </div>
-                </Card>
+                </div>
 
                 {/* Mobile Cards */}
                 <div className="md:hidden space-y-3">
                   {salaries.map(sal => (
-                    <Card key={sal.pay_id} className={`border-slate-200/60 hover:shadow-sm transition-shadow ${sal.status === 'pending' ? 'border-l-4 border-l-amber-400' : ''}`}>
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 ${sal.status === 'processed' ? 'bg-emerald-500' : 'bg-amber-500'}`}>
-                              {sal.employee?.name?.charAt(0) || sal.employee_code.charAt(0)}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-semibold text-sm text-slate-900 truncate">{sal.employee?.name || sal.employee_code}</p>
-                              <p className="text-xs text-slate-500">{sal.employee?.department?.dep_name || '\u2014'}</p>
-                            </div>
+                    <div key={sal.pay_id} className={`rounded-2xl border border-slate-200/60 hover:shadow-sm transition-shadow p-4 ${sal.status === 'pending' ? 'border-l-4 border-l-amber-400' : ''}`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 ${sal.status === 'processed' ? 'bg-emerald-500' : 'bg-amber-500'}`}>
+                            {sal.employee?.name?.charAt(0) || sal.employee_code.charAt(0)}
                           </div>
-                          <Badge className={`text-[10px] flex-shrink-0 ${sal.status === 'processed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                            {sal.status}
-                          </Badge>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2">
-                          <div className="bg-slate-50 rounded-lg p-2.5 text-center">
-                            <p className="text-[10px] text-slate-500">Basic</p>
-                            <p className="text-xs font-bold text-slate-900">{fmt(sal.basic_salary)}</p>
-                          </div>
-                          <div className="bg-slate-50 rounded-lg p-2.5 text-center">
-                            <p className="text-[10px] text-slate-500">Gross</p>
-                            <p className="text-xs font-bold text-slate-900">{fmt(sal.gross_salary)}</p>
-                          </div>
-                          <div className="bg-emerald-50 rounded-lg p-2.5 text-center">
-                            <p className="text-[10px] text-emerald-600">Net</p>
-                            <p className="text-xs font-bold text-emerald-700">{fmt(sal.net_salary)}</p>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-sm text-slate-900 truncate">{sal.employee?.name || sal.employee_code}</p>
+                            <p className="text-xs text-slate-500">{sal.employee?.department?.dep_name || '\u2014'}</p>
                           </div>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full mt-3 h-10 text-xs min-h-[44px]"
-                          onClick={() => { setSelectedSalary(sal); setPayslipOpen(true); }}
-                        >
-                          <Eye className="w-3.5 h-3.5 mr-1.5" /> View Payslip
-                        </Button>
-                      </CardContent>
-                    </Card>
+                        <Badge className={`text-[10px] flex-shrink-0 ${sal.status === 'processed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {sal.status}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="bg-slate-50 rounded-lg p-2.5 text-center">
+                          <p className="text-[10px] text-slate-500">Basic</p>
+                          <p className="text-xs font-bold text-slate-900">{fmt(sal.basic_salary)}</p>
+                        </div>
+                        <div className="bg-slate-50 rounded-lg p-2.5 text-center">
+                          <p className="text-[10px] text-slate-500">Gross</p>
+                          <p className="text-xs font-bold text-slate-900">{fmt(sal.gross_salary)}</p>
+                        </div>
+                        <div className="bg-emerald-50 rounded-lg p-2.5 text-center">
+                          <p className="text-[10px] text-emerald-600">Net</p>
+                          <p className="text-xs font-bold text-emerald-700">{fmt(sal.net_salary)}</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-3 h-10 text-xs min-h-[44px]"
+                        onClick={() => { setSelectedSalary(sal); setPayslipOpen(true); }}
+                      >
+                        <Eye className="w-3.5 h-3.5 mr-1.5" /> View Payslip
+                      </Button>
+                    </div>
                   ))}
                 </div>
 
@@ -491,96 +502,94 @@ export default function PayrollPage() {
           <TabsContent value="reports">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Summary Card */}
-              <Card className="border-slate-200/60">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4 text-emerald-600" />
-                    </div>
-                    <h3 className="font-semibold text-slate-900">
-                      Summary &mdash; {MONTHS[parseInt(selectedMonth) - 1]} {selectedYear}
-                    </h3>
+              <div className="rounded-2xl border border-slate-200/60 p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-emerald-600" />
                   </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-                      <span className="text-sm text-slate-600">Total Basic</span>
-                      <span className="font-mono font-bold text-slate-900">{fmt(totalBasic)}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-                      <span className="text-sm text-slate-600">Total Gross</span>
-                      <span className="font-mono font-bold text-slate-900">{fmt(totalGross)}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-emerald-50 rounded-lg border border-emerald-100">
-                      <span className="text-sm font-medium text-emerald-700">Total Net (Take Home)</span>
-                      <span className="font-mono font-bold text-emerald-700">{fmt(totalNet)}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-                      <div>
-                        <span className="text-sm text-slate-600">Processing Status</span>
-                        <p className="text-xs text-slate-400 mt-0.5">{processed} of {salaries.length} employees</p>
-                      </div>
-                      <span className="font-mono font-bold text-slate-900">{salaries.length > 0 ? `${Math.round((processed / salaries.length) * 100)}%` : '0%'}</span>
-                    </div>
-                    <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                        style={{ width: `${salaries.length ? (processed / salaries.length) * 100 : 0}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-                      <span className="text-sm text-slate-600">Total Deductions (approx.)</span>
-                      <span className="font-mono font-bold text-amber-600">{fmt(totalGross - totalNet)}</span>
-                    </div>
+                  <h3 className="font-semibold text-slate-900">
+                    Summary &mdash; {MONTHS[parseInt(selectedMonth) - 1]} {selectedYear}
+                  </h3>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-600">Total Basic</span>
+                    <span className="font-mono font-bold text-slate-900">{fmt(totalBasic)}</span>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-600">Total Gross</span>
+                    <span className="font-mono font-bold text-slate-900">{fmt(totalGross)}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                    <span className="text-sm font-medium text-emerald-700">Total Net (Take Home)</span>
+                    <span className="font-mono font-bold text-emerald-700">{fmt(totalNet)}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                    <div>
+                      <span className="text-sm text-slate-600">Processing Status</span>
+                      <p className="text-xs text-slate-400 mt-0.5">{processed} of {salaries.length} employees</p>
+                    </div>
+                    <span className="font-mono font-bold text-slate-900">{salaries.length > 0 ? `${Math.round((processed / salaries.length) * 100)}%` : '0%'}</span>
+                  </div>
+                  <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                      style={{ width: `${salaries.length ? (processed / salaries.length) * 100 : 0}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-600">Total Deductions (approx.)</span>
+                    <span className="font-mono font-bold text-amber-600">{fmt(totalGross - totalNet)}</span>
+                  </div>
+                </div>
+              </div>
 
               {/* Top Salaries Card */}
-              <Card className="border-slate-200/60">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
-                      <ArrowUpRight className="w-4 h-4 text-violet-600" />
-                    </div>
-                    <h3 className="font-semibold text-slate-900">Top Salaries</h3>
-                    <Badge variant="outline" className="text-xs ml-auto border-slate-200">Processed only</Badge>
+              <div className="rounded-2xl border border-slate-200/60 p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                    <ArrowUpRight className="w-4 h-4 text-violet-600" />
                   </div>
-                  <div className="space-y-1.5 max-h-[360px] overflow-y-auto">
-                    {salaries
+                  <h3 className="font-semibold text-slate-900">Top Salaries</h3>
+                  <Badge variant="outline" className="text-xs ml-auto border-slate-200">Processed only</Badge>
+                </div>
+                <div className="space-y-1.5 max-h-[360px] overflow-y-auto">
+                  {salaries
+                    .filter(s => s.status === 'processed')
+                    .sort((a, b) => b.net_salary - a.net_salary)
+                    .slice(0, 10)
+                    .length === 0 ? (
+                    <div className="text-center py-8 text-slate-400">
+                      <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-2">
+                        <Shield className="w-7 h-7 text-slate-300" />
+                      </div>
+                      <p className="text-sm">No processed salaries to display</p>
+                    </div>
+                  ) : (
+                    salaries
                       .filter(s => s.status === 'processed')
                       .sort((a, b) => b.net_salary - a.net_salary)
                       .slice(0, 10)
-                      .length === 0 ? (
-                      <div className="text-center py-8 text-slate-400">
-                        <Shield className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                        <p className="text-sm">No processed salaries to display</p>
-                      </div>
-                    ) : (
-                      salaries
-                        .filter(s => s.status === 'processed')
-                        .sort((a, b) => b.net_salary - a.net_salary)
-                        .slice(0, 10)
-                        .map((s, i) => (
-                          <div key={s.pay_id} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <span className={`text-xs font-bold w-5 text-center ${i < 3 ? 'text-emerald-600' : 'text-slate-400'}`}>
-                                {i + 1}
-                              </span>
-                              <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                                {s.employee?.name?.charAt(0) || '?'}
-                              </div>
-                              <div className="min-w-0">
-                                <p className="text-sm font-medium text-slate-900 truncate">{s.employee?.name || s.employee_code}</p>
-                                <p className="text-[10px] text-slate-400">{s.employee?.department?.dep_name || ''}</p>
-                              </div>
+                      .map((s, i) => (
+                        <div key={s.pay_id} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <span className={`text-xs font-bold w-5 text-center ${i < 3 ? 'text-emerald-600' : 'text-slate-400'}`}>
+                              {i + 1}
+                            </span>
+                            <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                              {s.employee?.name?.charAt(0) || '?'}
                             </div>
-                            <span className="font-mono text-sm font-bold text-slate-900">{fmt(s.net_salary)}</span>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-slate-900 truncate">{s.employee?.name || s.employee_code}</p>
+                              <p className="text-[10px] text-slate-400">{s.employee?.department?.dep_name || ''}</p>
+                            </div>
                           </div>
-                        ))
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                          <span className="font-mono text-sm font-bold text-slate-900">{fmt(s.net_salary)}</span>
+                        </div>
+                      ))
+                  )}
+                </div>
+              </div>
             </div>
           </TabsContent>
         </Tabs>

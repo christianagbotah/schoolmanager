@@ -28,6 +28,35 @@ interface RecentItem {
   date: string | null;
 }
 
+function FrontendSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Header skeleton */}
+      <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+        <Skeleton className="w-11 h-11 rounded-xl" />
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-36" />
+          <Skeleton className="h-4 w-52" />
+        </div>
+      </div>
+      {/* Stat cards skeleton */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-[88px] rounded-xl" />
+        ))}
+      </div>
+      {/* Section cards skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-48 rounded-xl" />
+        ))}
+      </div>
+      {/* Recent skeleton */}
+      <Skeleton className="h-64 rounded-xl" />
+    </div>
+  );
+}
+
 export default function FrontendDashboardPage() {
   const router = useRouter();
   const [stats, setStats] = useState<Stats>({ slides: 0, events: 0, news: 0, galleries: 0, images: 0, pages: 0 });
@@ -76,6 +105,15 @@ export default function FrontendDashboardPage() {
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  const statCards = [
+    { label: 'Slides', value: stats.slides, borderColor: 'border-l-violet-500', iconBg: 'bg-violet-500', valueColor: 'text-violet-600' },
+    { label: 'Events', value: stats.events, borderColor: 'border-l-emerald-500', iconBg: 'bg-emerald-500', valueColor: 'text-emerald-600' },
+    { label: 'News', value: stats.news, borderColor: 'border-l-amber-500', iconBg: 'bg-amber-500', valueColor: 'text-amber-600' },
+    { label: 'Albums', value: stats.galleries, borderColor: 'border-l-rose-500', iconBg: 'bg-rose-500', valueColor: 'text-rose-600' },
+    { label: 'Photos', value: stats.images, borderColor: 'border-l-pink-500', iconBg: 'bg-pink-500', valueColor: 'text-pink-600' },
+    { label: 'Pages', value: stats.pages, borderColor: 'border-l-sky-500', iconBg: 'bg-sky-500', valueColor: 'text-sky-600' },
+  ];
 
   const sections = [
     {
@@ -138,17 +176,25 @@ export default function FrontendDashboardPage() {
     return 'bg-rose-100 text-rose-700';
   };
 
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <FrontendSkeleton />
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
-              <Globe className="w-6 h-6 text-white" />
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <Globe className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Frontend CMS</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Frontend CMS</h1>
               <p className="text-sm text-slate-500">Manage your school website content</p>
             </div>
           </div>
@@ -156,65 +202,49 @@ export default function FrontendDashboardPage() {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {loading ? (
-            Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)
-          ) : (
-            <>
-              {[
-                { label: 'Slides', value: stats.slides, color: 'text-violet-600' },
-                { label: 'Events', value: stats.events, color: 'text-emerald-600' },
-                { label: 'News', value: stats.news, color: 'text-amber-600' },
-                { label: 'Albums', value: stats.galleries, color: 'text-rose-600' },
-                { label: 'Photos', value: stats.images, color: 'text-pink-600' },
-                { label: 'Pages', value: stats.pages, color: 'text-sky-600' },
-              ].map((s) => (
-                <Card key={s.label} className="border-slate-200/60 hover:shadow-md transition-shadow">
-                  <CardContent className="p-3 text-center">
-                    <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{s.label}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </>
-          )}
+          {statCards.map((s) => (
+            <div
+              key={s.label}
+              className={`rounded-xl border border-slate-200/60 border-l-4 ${s.borderColor} bg-white p-4 flex flex-col items-center gap-1 hover:-translate-y-0.5 hover:shadow-lg transition-all`}
+            >
+              <p className={`text-2xl font-bold tabular-nums ${s.valueColor}`}>{s.value}</p>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{s.label}</p>
+            </div>
+          ))}
         </div>
 
         {/* Content Sections Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {loading ? (
-            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-48 rounded-xl" />)
-          ) : (
-            sections.map((section) => (
-              <Card
-                key={section.href}
-                className="border-slate-200/60 hover:shadow-lg transition-all cursor-pointer group"
-                onClick={() => router.push(section.href)}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${section.color} flex items-center justify-center shadow-sm`}>
-                        <section.icon className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-base">{section.title}</CardTitle>
-                        <CardDescription className="text-xs mt-0.5">{section.description}</CardDescription>
-                      </div>
+          {sections.map((section) => (
+            <Card
+              key={section.href}
+              className="border-slate-200/60 hover:shadow-lg transition-all cursor-pointer group"
+              onClick={() => router.push(section.href)}
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${section.color} flex items-center justify-center shadow-sm`}>
+                      <section.icon className="w-5 h-5 text-white" />
                     </div>
-                    <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-500 transition-colors" />
+                    <div>
+                      <CardTitle className="text-base">{section.title}</CardTitle>
+                      <CardDescription className="text-xs mt-0.5">{section.description}</CardDescription>
+                    </div>
                   </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex items-center gap-2">
-                    <Badge className={`${section.badgeColor} text-xs`}>{section.count} items</Badge>
-                    {section.subCount && (
-                      <Badge variant="outline" className="text-xs">{section.subCount}</Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
+                  <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-500 transition-colors" />
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="flex items-center gap-2">
+                  <Badge className={`${section.badgeColor} text-xs`}>{section.count} items</Badge>
+                  {section.subCount && (
+                    <Badge variant="outline" className="text-xs">{section.subCount}</Badge>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {/* Recent Activity */}
@@ -230,10 +260,14 @@ export default function FrontendDashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            {loading ? (
-              <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10 rounded-lg" />)}</div>
-            ) : recent.length === 0 ? (
-              <p className="text-sm text-slate-400 text-center py-8">No content yet. Start by adding slides, events or news.</p>
+            {recent.length === 0 ? (
+              <div className="flex flex-col items-center py-10">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                  <Clock className="w-7 h-7 text-slate-300" />
+                </div>
+                <p className="text-sm text-slate-500 font-medium">No content yet</p>
+                <p className="text-slate-400 text-sm mt-1">Start by adding slides, events or news.</p>
+              </div>
             ) : (
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {recent.map((item, i) => (

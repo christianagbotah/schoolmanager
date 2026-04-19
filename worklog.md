@@ -1,4 +1,886 @@
 ---
+Task ID: 8b-14
+Agent: UI Rebuilder
+Task: Enhance 6 teacher pages (dashboard, classes, students, marks, attendance, messages) with modern UI patterns
+
+Work Log:
+- Read worklog.md and analyzed all 6 existing teacher pages:
+  - Dashboard (~655 lines): no useToast (clean), stat cards had light-bg icons, no page header border-b, old StatCardSkeleton, rounded-full error/empty icons
+  - Classes (~384 lines): no useToast, no page header border-b, stat cards missing icons/hover/uppercase, no bg-slate-50 on search
+  - Students (~387 lines): no useToast, no page header border-b, SelectTriggers missing bg-slate-50, search input missing bg-slate-50
+  - Marks (~461 lines): no useToast, no page header border-b, 4 SelectTriggers missing bg-slate-50
+  - Attendance (~411 lines): no useToast, no page header border-b, 2 SelectTriggers + date input missing bg-slate-50
+  - Messages (~562 lines): no useToast, no page header border-b, 2 dialog SelectTriggers + search input missing bg-slate-50
+
+**Teacher Dashboard** (`/src/app/teacher/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with `pb-4 border-b border-slate-100`, GraduationCap icon in emerald-500 bg
+- Updated StatCardSkeleton: h-10 w-10 → h-11 w-11
+- Upgraded 4 stat cards: solid colored bg icons (w-11 h-11), uppercase tracking-wider labels, tabular-nums values, hover lift
+- Error state: rounded-full → rounded-2xl
+- 3 empty states: plain icons → w-16 h-16 rounded-2xl bg-slate-100 icon containers
+
+**Teacher Classes** (`/src/app/teacher/classes/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with border-b + BookOpen icon in emerald-500 bg
+- Upgraded 3 stat cards: added icon containers, uppercase labels, tabular-nums, hover lift
+- Search input: added bg-slate-50 border-slate-200 focus:bg-white
+- 2 empty states: rounded-2xl bg-slate-100 icon containers
+
+**Teacher Students** (`/src/app/teacher/students/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with border-b + GraduationCap icon in emerald-500 bg
+- 2 SelectTriggers + search input: bg-slate-50 border-slate-200 focus:bg-white
+- 2 empty states: rounded-2xl bg-slate-100 icon containers
+
+**Teacher Marks** (`/src/app/teacher/marks/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with border-b + Award icon in violet-500 bg
+- 4 SelectTriggers: bg-slate-50 border-slate-200 focus:bg-white
+- 2 empty states: rounded-2xl bg-slate-100 icon containers
+
+**Teacher Attendance** (`/src/app/teacher/attendance/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with border-b + CheckCheck icon in emerald-500 bg
+- 2 SelectTriggers + date input: bg-slate-50 border-slate-200 focus:bg-white
+- 2 empty states: rounded-2xl bg-slate-100 icon containers
+
+**Teacher Messages** (`/src/app/teacher/messages/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with border-b + MessageSquare icon in rose-500 bg
+- 2 dialog SelectTriggers + search input: bg-slate-50 border-slate-200 focus:bg-white
+- 2 empty states: rounded-2xl bg-slate-100 icon containers
+
+- ESLint: 0 errors in all 6 modified files
+- Dev server running clean on port 3000
+
+Stage Summary:
+- All 6 teacher pages have consistent modern UI patterns
+- All have page headers with border-b border-slate-100 + solid colored icon headers
+- Dashboard/Classes have modern stat cards with border-l-4, solid bg icons, uppercase labels, hover lift
+- All SelectTriggers: bg-slate-50 border-slate-200 focus:bg-white
+- All empty states: w-16 h-16 rounded-2xl bg-slate-100 icon containers
+- All existing API calls, data structures, and functionality preserved
+- Zero lint errors across all 6 files
+---
+Task ID: 8b-13
+Agent: UI Rebuilder
+Task: Enhance 8 student pages (dashboard, profile, results, invoices, fees, attendance, routine, marksheet) with modern UI patterns
+
+Work Log:
+- Read worklog.md and analyzed all 8 existing student pages:
+  - Dashboard (~468 lines): no useToast (clean), stat cards had light-bg icons (bg-amber-100 etc.), no page header with border-b, basic skeleton, rounded-full error icon, no min-h-[44px] on buttons
+  - Profile (~322 lines): no useToast, no page header border-b, basic skeleton, rounded-full error icon
+  - Results (~304 lines): no useToast, no page header border-b, basic stat cards (no icons, no left border), partial inline skeleton only, plain empty states
+  - Invoices (~244 lines): no useToast, no page header border-b, stat cards had colored left borders but no icons, partial inline skeleton, plain empty states
+  - Fees (~694 lines): no useToast, no page header border-b, stat cards had left borders but no icons and lowercase labels, partial skeleton, plain empty states
+  - Attendance (~214 lines): no useToast, no page header border-b, stat cards had left borders but no icons and lowercase labels, partial skeleton, no empty state
+  - Routine (~226 lines): no useToast, no page header border-b, no stat cards, partial skeleton, plain empty state icon (no container)
+  - Marksheet (~443 lines): no useToast, no page header border-b, basic stat cards (no icons, no left border), partial inline skeleton, plain empty states
+
+**Student Dashboard** (`/src/app/student/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with `pb-4 border-b border-slate-100`, LayoutDashboard icon in amber-500 bg, responsive title
+- Replaced Bus import with LayoutDashboard
+- Replaced old StatSkeleton with full-page DashboardSkeleton (header + welcome card + 4 stat card skeletons + 2 content skeletons + notices skeleton)
+- Upgraded 4 stat cards: border-l-4, w-11 h-11 solid colored bg icons with white icons, text-xs font-semibold uppercase tracking-wider labels, text-2xl font-bold text-slate-900 tabular-nums values, hover:shadow-lg hover:-translate-y-0.5 transition-all
+- Replaced purple-500 border/icon with violet-500 (avoid blue/purple)
+- Replaced blue hover color with sky on Profile quick link button
+- Error state: rounded-full → rounded-2xl, added min-h-[44px] to Try Again button
+- Schedule empty state: added w-16 h-16 rounded-2xl bg-slate-100 icon container with contextual messaging
+- Quick Links buttons: added min-h-[44px] to all 4 buttons
+
+**Student Profile** (`/src/app/student/profile/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with `pb-4 border-b border-slate-100`, responsive title
+- Upgraded skeleton: added border-b border-slate-100 header skeleton, rounded-2xl content skeletons
+- Error state: rounded-full → rounded-2xl, added min-h-[44px] to Try Again button
+
+**Student Results** (`/src/app/student/results/page.tsx`) — FULL REWRITE:
+- Added page header with `pb-4 border-b border-slate-100`, responsive title
+- Added full-page ResultsSkeleton (header + selector + 5 stat card skeletons + table skeleton)
+- Added hasFetched state for initial loading skeleton (early return on first load)
+- Replaced 5 basic stat cards with modern pattern:
+  - Total Score (slate/Sigma), Average (emerald/TrendingUp), Highest (sky/ArrowDown rotated), Lowest (amber/ArrowDown), Passed (violet/Target)
+  - Each: border-l-4, w-9 h-9 solid colored bg icons, uppercase tracking-wider labels, hover:shadow-lg hover:-translate-y-0.5
+- Upgraded SelectTrigger: bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]
+- Replaced blue text with sky in getGradeColor
+- Empty state: added w-16 h-16 rounded-2xl bg-violet-50 icon container + contextual messaging
+- New imports: Sigma, TrendingUp, ArrowDown, Target
+
+**Student Invoices** (`/src/app/student/invoices/page.tsx`) — FULL REWRITE:
+- Added page header with `pb-4 border-b border-slate-100`
+- Added full-page InvoicesSkeleton (header + 3 stat card skeletons + table skeleton)
+- Replaced 3 stat cards with modern pattern:
+  - Total Billed (slate/FileText), Total Paid (emerald/CheckCircle), Outstanding (red/DollarSign)
+  - Each: border-l-4, w-11 h-11 solid colored bg icons, uppercase tracking-wider labels, hover lift
+- Empty state: added w-16 h-16 rounded-2xl bg-slate-100 icon container + contextual messaging
+- Added DialogDescription to invoice view dialog (was missing)
+- Removed unused imports (Download, CreditCard)
+
+**Student Fees** (`/src/app/student/fees/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with `pb-4 border-b border-slate-100`, responsive title
+- Replaced 4 stat cards with modern pattern:
+  - Total Billed (slate/FileText), Total Paid (emerald/CheckCircle), Outstanding (red/DollarSign), Active Plans (amber/Wallet)
+  - Each: border-l-4, w-11 h-11 solid colored bg icons, uppercase tracking-wider labels, text-2xl font-bold text-slate-900 tabular-nums, hover:shadow-lg hover:-translate-y-0.5
+- Upgraded skeleton: added border-b header skeleton, stat card skeletons with w-11 h-11 icon placeholders
+- Error state: rounded-full → rounded-2xl, added min-h-[44px] to Try Again button
+- All 4 tab empty states: added w-16 h-16 rounded-2xl bg-slate-100 icon containers + contextual messaging
+- View Invoice dialog: added icon header (red Receipt) + DialogDescription
+- Mobile Money dialog: added icon header (emerald Smartphone)
+- New imports: FileText, Wallet
+
+**Student Attendance** (`/src/app/student/attendance/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with `pb-4 border-b border-slate-100`, responsive title
+- Replaced 4 stat cards with modern pattern:
+  - Present (emerald/CheckCircle), Absent (red/XCircle), Late (amber/Clock), Percentage (sky/Percent)
+  - Each: border-l-4, w-11 h-11 solid colored bg icons, uppercase tracking-wider labels, text-2xl font-bold text-slate-900 tabular-nums, hover:shadow-lg hover:-translate-y-0.5
+- Replaced blue-500 border with sky-500 on Percentage card
+- Upgraded skeleton: added border-b header skeleton, stat card skeletons with w-11 h-11 icon placeholders, rounded-2xl content skeleton
+- New imports: ClipboardCheck, Percent (unused AlertTriangle/Loader2/Calendar/XCircle already imported)
+
+**Student Routine** (`/src/app/student/routine/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with `pb-4 border-b border-slate-100` + LayoutGrid icon in emerald-500 bg + responsive title
+- Upgraded skeleton: added border-b header skeleton, rounded-2xl day skeletons
+- SelectTrigger: added bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]
+- Empty state: plain icon → w-16 h-16 rounded-2xl bg-slate-100 icon container
+- New import: LayoutGrid
+
+**Student Marksheet** (`/src/app/student/marksheet/page.tsx`) — FULL REWRITE:
+- Added page header with `pb-4 border-b border-slate-100` + FileSpreadsheet icon in violet-500 bg + responsive title
+- Added hasFetched state for initial loading skeleton
+- Added full-page MarksheetSkeleton (header + selector + 5 stat card skeletons + banner + table skeleton)
+- Replaced 5 basic stat cards with modern pattern:
+  - Total Score (slate/Sigma), Average (emerald/TrendingUp), Highest (sky/ArrowDown rotated), Lowest (amber/ArrowDown), Passed (violet/Target)
+  - Each: border-l-4, w-9 h-9 solid colored bg icons, uppercase tracking-wider labels, hover:shadow-lg hover:-translate-y-0.5
+- Upgraded SelectTrigger: bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]
+- Replaced blue text with sky in getGradeColor
+- Empty state: added w-16 h-16 rounded-2xl bg-slate-100 icon container
+- Marks table empty state: added w-16 h-16 rounded-2xl bg-violet-50 icon container + contextual messaging
+- New imports: Sigma, TrendingUp, ArrowDown, Target, FileSpreadsheet
+
+- ESLint: 0 errors in all 8 modified files
+- Dev server running clean on port 3000
+
+Stage Summary:
+- All 8 student pages now have consistent modern UI patterns matching other rebuilt admin pages
+- No pages used useToast (all were already clean) — no migration needed
+- All pages have: page header with border-b border-slate-100, modern stat cards with colored left borders + white icons on solid colored bg, full-page loading skeletons
+- All empty states improved with rounded-2xl icon containers and contextual messaging
+- All error states improved with rounded-2xl icon containers
+- All mobile touch targets ≥44px (buttons, inputs)
+- All SelectTriggers use bg-slate-50 border-slate-200 focus:bg-white pattern
+- All existing API calls, data structures, and functionality preserved
+- Zero lint errors across all 8 files
+---
+Task ID: 8b-12
+Agent: UI Rebuilder
+Task: Enhance admin frontend management and misc pages (frontend, events, gallery, news, pages, slider, routine, marks) with modern UI patterns
+
+Work Log:
+- Read worklog.md and analyzed all 8 existing pages:
+  - Frontend Dashboard: ~260 lines, already used DashboardLayout, no toast, inline stat skeletons, no page header with border-b
+  - Events: ~402 lines, used `useToast` from `@/hooks/use-toast`, old Card-based stat cards with light-bg icons, partial skeleton only
+  - Gallery: ~460 lines, used `useToast` from `@/hooks/use-toast`, old Card-based stat cards with light-bg icons, partial skeleton only
+  - News: ~366 lines, used `useToast` from `@/hooks/use-toast`, old Card-based stat cards with light-bg icons, partial skeleton only
+  - Pages: ~497 lines, used `useToast` from `@/hooks/use-toast`, old gradient icon header, no full-page skeleton
+  - Slider: ~466 lines, used `useToast` from `@/hooks/use-toast`, old Card-based stat cards with light-bg icons, partial skeleton only
+  - Routine: ~497 lines, used `useToast` from `@/hooks/use-toast`, no page header, no stat cards, SelectTriggers missing bg-slate-50
+  - Marks: ~515 lines, used `useToast` from `@/hooks/use-toast`, no page header, light-bg stat boxes, SelectTriggers missing bg-slate-50
+
+**Frontend Dashboard Page** (`/src/app/admin/frontend/page.tsx`) — TARGETED ENHANCEMENTS:
+- Already had DashboardLayout — preserved
+- Added page header with `pb-4 border-b border-slate-100`
+- Replaced 6 old Card-based stat cards with 6 modern inline stat cards:
+  - Each: border-l-4 + colored border (violet/emerald/amber/rose/pink/sky), text-2xl font-bold tabular-nums value, text-xs font-semibold uppercase tracking-wider label, hover:shadow-lg hover:-translate-y-0.5
+- Added full-page FrontendSkeleton (header + 6 stat card skeletons + 4 section card skeletons + recent skeleton)
+- Early return skeleton on initial load
+- Improved empty state: w-16 h-16 rounded-2xl bg-slate-100 icon container + contextual messaging
+- All API calls preserved: GET `/api/admin/frontend/slider`, `/api/admin/frontend/events`, `/api/admin/frontend/news`, `/api/admin/frontend/gallery`, `/api/admin/frontend/pages`
+
+**Events Page** (`/src/app/admin/frontend/events/page.tsx`) — FULL REWRITE:
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Added page header with `pb-4 border-b border-slate-100`
+- Replaced 3 old Card-based stat cards with 3 modern stat cards:
+  - Total (violet), Upcoming (emerald), Past (slate)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), text-xs font-semibold uppercase tracking-wider label, text-2xl font-bold tabular-nums value, hover:-translate-y-0.5 + shadow-lg
+- Added full-page EventsSkeleton (header + stat cards + search + content skeleton)
+- Early return skeleton on initial load (`loading && !hasFetched`)
+- Improved empty state: w-16 h-16 rounded-2xl bg-emerald-50 icon container + contextual messaging
+- Search input: bg-slate-50 border-slate-200 focus:bg-white
+- Mobile card action buttons: h-7 → min-h-[44px]
+- Added Loader2 spinner to save button
+- Added icon headers to View/Delete dialogs (Eye/Trash2)
+- All API calls preserved: GET/POST/PUT/DELETE `/api/admin/frontend/events`
+
+**Gallery Page** (`/src/app/admin/frontend/gallery/page.tsx`) — FULL REWRITE:
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Added page header with `pb-4 border-b border-slate-100`
+- Replaced 2 old Card-based stat cards with 2 modern stat cards:
+  - Albums (rose), Total Photos (pink)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, text-2xl font-bold tabular-nums, hover lift
+- Added full-page GallerySkeleton (header + stat cards + search + gallery grid skeleton)
+- Early return skeleton on initial load
+- Improved empty states: w-16 h-16 rounded-2xl icon containers + contextual messaging
+- Search input: bg-slate-50 border-slate-200 focus:bg-white
+- Image manager dialog inputs: bg-slate-50 border-slate-200 focus:bg-white
+- Mobile Manage Photos button: min-h-[44px]
+- Added Loader2 spinner to save/add buttons
+- Added icon headers to delete dialogs (red Trash2)
+- All API calls preserved: GET/POST/PUT/DELETE `/api/admin/frontend/gallery`, PATCH add_image/remove_image
+
+**News Page** (`/src/app/admin/frontend/news/page.tsx`) — FULL REWRITE:
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Added page header with `pb-4 border-b border-slate-100`
+- Replaced 2 old Card-based stat cards with 2 modern stat cards:
+  - Total Articles (amber), This Month (emerald)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, text-2xl font-bold tabular-nums, hover lift
+- Added full-page NewsSkeleton (header + stat cards + search + content skeleton)
+- Early return skeleton on initial load
+- Improved empty state: w-16 h-16 rounded-2xl bg-amber-50 icon container + contextual messaging
+- Search input: bg-slate-50 border-slate-200 focus:bg-white
+- Mobile card action buttons: h-7 → min-h-[44px]
+- Added Loader2 spinner to save button
+- Added icon headers to View/Delete dialogs (Eye/Trash2)
+- All API calls preserved: GET/POST/PUT/DELETE `/api/admin/frontend/news`
+
+**Pages Page** (`/src/app/admin/frontend/pages/page.tsx`) — FULL REWRITE:
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Added page header with `pb-4 border-b border-slate-100`
+- Added full-page PagesSkeleton (header + tabs + card skeletons)
+- Early return skeleton on initial load
+- Improved Quick Edit button touch targets: min-h-[40px] → min-h-[44px]
+- Mobile card action buttons: h-7 → min-h-[44px]
+- View dialog empty content: rounded-full → rounded-2xl icon container
+- Added Loader2 spinners to save/create buttons
+- Added icon headers to Delete dialog (red Trash2)
+- All API calls preserved: GET/POST/PUT/DELETE `/api/admin/frontend/pages`
+
+**Slider Page** (`/src/app/admin/frontend/slider/page.tsx`) — FULL REWRITE:
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Added page header with `pb-4 border-b border-slate-100`
+- Replaced 3 old Card-based stat cards with 3 modern stat cards:
+  - Total (violet), Active (emerald), Inactive (slate)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, text-2xl font-bold tabular-nums, hover lift
+- Added full-page SliderSkeleton (header + stat cards + search + content skeleton)
+- Early return skeleton on initial load
+- Improved empty state: w-16 h-16 rounded-2xl bg-violet-50 icon container + contextual messaging
+- Search input: bg-slate-50 border-slate-200 focus:bg-white
+- Mobile card action buttons: h-7 → min-h-[44px]
+- Added Loader2 spinner to save button
+- Added icon headers to Preview/Delete dialogs (Eye/Trash2)
+- All API calls preserved: GET/POST/PUT/DELETE `/api/admin/frontend/slider`
+
+**Routine Page** (`/src/app/admin/routine/page.tsx`) — FULL REWRITE:
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Removed unused eslint-disable directive
+- Added page header with `pb-4 border-b border-slate-100` + gradient icon header
+- Added full-page RoutineSkeleton (header + selector + content skeleton)
+- Early return skeleton during initial loading
+- Improved empty states: w-16 h-16 rounded-2xl bg-emerald-50 icon containers + contextual messaging
+- Added routine stats (totalPeriods, subjectsUsed, daysActive) as compact badge pills in timetable header
+- All SelectTriggers upgraded to bg-slate-50 border-slate-200 focus:bg-white
+- Dialog form inputs upgraded to min-h-[44px]
+- Dialog footer buttons upgraded to min-h-[44px]
+- Replaced unused GripVertical import with LayoutGrid for header icon
+- All API calls preserved: GET `/api/classes`, GET `/api/sections`, GET `/api/subjects`, GET/POST/PUT/DELETE `/api/routine`
+
+**Marks Page** (`/src/app/admin/marks/page.tsx`) — FULL REWRITE:
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Added page header with `pb-4 border-b border-slate-100` + gradient icon header + back button
+- Replaced 3 old light-bg stat boxes with 3 modern stat cards:
+  - Marks Entered (emerald), Total Students (sky), Class Average (violet)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, text-2xl font-bold tabular-nums, hover lift
+- Added full-page MarksSkeleton (header + selector + stat cards + table skeleton)
+- Early return skeleton during initial loading
+- Improved empty states: rounded-full → rounded-2xl icon containers + contextual messaging
+- All 4 main SelectTriggers upgraded to bg-slate-50 border-slate-200 focus:bg-white
+- Mark input: min-h-[40px] → min-h-[44px]
+- Replaced blue/purple stat box colors with emerald/sky/violet
+- Replaced Search import with BarChart3 icon for average stat card
+- All API calls preserved: GET `/api/exams`, GET `/api/classes`, GET `/api/grades`, GET `/api/sections`, GET `/api/subjects`, GET `/api/admin/students`, GET/POST `/api/marks`
+
+- ESLint: 0 new errors in all 8 modified files (pre-existing set-state-in-effect warnings preserved from original code)
+- Dev server running clean on port 3000
+
+Stage Summary:
+- All 8 pages now have consistent modern UI patterns matching other rebuilt admin pages
+- 6 pages migrated from useToast to toast from sonner (frontend dashboard had no toast, routine & marks had useToast)
+- All pages have: page header with border-b border-slate-100, modern stat cards with colored left borders + white icons on solid bg, full-page loading skeletons
+- All empty states improved with rounded-2xl icon containers and contextual messaging
+- All SelectTriggers use bg-slate-50 border-slate-200 focus:bg-white pattern
+- All mobile touch targets ≥44px
+- All existing API calls, data structures, and functionality preserved
+---
+Task ID: 8b-11
+Agent: UI Rebuilder
+Task: Enhance remaining admin pages (barcode, bill-reminders, collector-handover, reconciliation, receivables, financial-alerts) with modern UI patterns
+
+Work Log:
+- Read worklog.md and analyzed all 6 existing pages:
+  - Barcode: 72 lines, already used DashboardLayout + toast from sonner, no page header, no stat cards, no skeleton
+  - Bill Reminders: 163 lines, standalone gradient header/footer, used `useToast` from `@/hooks/use-toast`, light-bg stat cards
+  - Collector Handover: 391 lines, already used DashboardLayout + toast from sonner, gradient icon header, gradient stat card icons, partial skeleton only
+  - Reconciliation: 260 lines, already used DashboardLayout + toast from sonner, gradient icon header, gradient stat card icons, partial skeleton only
+  - Receivables: 203 lines, standalone gradient header/footer, used `useToast` from `@/hooks/use-toast`, light-bg stat cards
+  - Financial Alerts: 205 lines, already used DashboardLayout + toast from sonner, gradient icon header, gradient stat card icons, partial skeleton only
+
+**Barcode Page** (`/src/app/admin/barcode/page.tsx`) — TARGETED ENHANCEMENTS:
+- Already had DashboardLayout + toast from sonner — preserved
+- Added page header with `pb-4 border-b border-slate-100` and responsive title `text-xl sm:text-2xl`
+- Improved scanner card icon: rounded-full → rounded-2xl with emerald-100 bg
+- Improved result card icon: rounded-full with light bg → rounded-xl with solid emerald-500 bg + white icon
+- Added "Ready to Scan" empty state with w-16 h-16 rounded-2xl bg-slate-100 icon container
+- Added 3 info stat cards (Students/emerald, Invoices/sky, Devices/violet) with modern pattern:
+  - border-l-4, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, hover:shadow-lg hover:-translate-y-0.5
+- Added searching state with skeleton in button
+- All inputs: bg-slate-50 border-slate-200 focus:bg-white, min-h-[44px]
+- All API calls preserved: GET `/api/students?search=&limit=1`
+
+**Bill Reminders Page** (`/src/app/admin/bill-reminders/page.tsx`) — FULL REWRITE:
+- Wrapped in DashboardLayout (removed standalone amber/orange gradient header + copyright footer)
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Added page header with `pb-4 border-b border-slate-100` (title + subtitle + Send All Reminders button)
+- Replaced 3 old light-bg stat cards with 3 modern cards:
+  - Overdue Invoices (amber), Total Outstanding (red), Parents with Debt (violet)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, text-2xl font-bold, hover:shadow-lg hover:-translate-y-0.5
+- Added full-page BillRemindersSkeleton (header + stat cards + search + table skeleton)
+- Early return skeleton on initial load (`loading && !data`)
+- Improved empty state: w-16 h-16 rounded-2xl bg-amber-100 icon container + contextual messaging
+- Search input: bg-slate-50 border-slate-200 focus:bg-white rounded-xl, min-h-[44px]
+- Send button in table: h-9 min-h-[44px]
+- Dialog buttons: min-h-[44px]
+- Bulk/Single dialog: added icon headers (amber BellRing/Send icons) + DialogDescription
+- All API calls preserved: GET/POST `/api/admin/bill-reminders`
+
+**Collector Handover Page** (`/src/app/admin/collector-handover/page.tsx`) — TARGETED ENHANCEMENTS:
+- Already had DashboardLayout + toast from sonner — preserved
+- Removed gradient icon header, added page header with `pb-4 border-b border-slate-100`
+- New Handover button: gradient → solid emerald-600, min-h-[44px]
+- Replaced 3 gradient stat card icons with 3 modern cards:
+  - Pending (amber), Verified (emerald), Total Records (sky)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), text-xs font-semibold uppercase tracking-wider label, text-2xl font-bold tabular-nums, hover:shadow-lg hover:-translate-y-0.5
+- Added full-page CollectorHandoverSkeleton (header + stat cards + collector summary + table skeleton)
+- Early return skeleton on initial load (`loading && !handovers.length`)
+- Improved empty state: w-16 h-16 rounded-2xl bg-slate-100 icon container + contextual messaging
+- Mobile verify/reject buttons: h-7 → h-11 min-h-[44px]
+- Desktop action buttons: h-7 → h-9 min-w-[36px]
+- Dialog inputs: bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]
+- Dialog buttons: min-h-[44px]
+- Create dialog: added icon header (emerald Plus) + DialogDescription
+- Verify/Reject dialog: added icon header (emerald CheckCircle / red XCircle) + DialogDescription
+- All API calls preserved: GET/POST `/api/admin/collector-handover`
+
+**Reconciliation Page** (`/src/app/admin/reconciliation/page.tsx`) — TARGETED ENHANCEMENTS:
+- Already had DashboardLayout + toast from sonner — preserved
+- Removed gradient icon header, added page header with `pb-4 border-b border-slate-100`
+- Date input: bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]
+- Replaced 4 gradient stat cards with 4 modern cards:
+  - Expected (sky), Actual (emerald), Discrepancy (dynamic emerald/red), Transactions (violet)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, text-2xl font-bold tabular-nums, hover:shadow-lg hover:-translate-y-0.5
+- Added full-page ReconciliationSkeleton (header + stat cards + fee type + charts + table skeleton)
+- Early return skeleton on initial load (`loading && !data`)
+- Improved empty state (collectors): w-16 h-16 rounded-2xl bg-slate-100 icon container
+- Added tabular-nums to all monetary values
+- Removed unused imports (ChartLegend, ChartLegendContent)
+- All API calls preserved: GET `/api/admin/reconciliation?date=`
+
+**Receivables Page** (`/src/app/admin/receivables/page.tsx`) — FULL REWRITE:
+- Wrapped in DashboardLayout (removed standalone rose/pink gradient header + copyright footer)
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Added page header with `pb-4 border-b border-slate-100`
+- Replaced 4 old light-bg stat cards with 4 modern cards:
+  - Total Receivable (rose), Total Billed (sky), Collected (emerald), Overdue (amber)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, text-2xl font-bold tabular-nums, hover:shadow-lg hover:-translate-y-0.5
+- Added full-page ReceivablesSkeleton (header + stat cards + filter + table + sidebar skeleton)
+- Early return skeleton on initial load (`loading && !receivables.length`)
+- Improved empty states: w-16 h-16 rounded-2xl icon containers + contextual messaging
+- Error state: rounded-2xl card with icon container + Retry CTA (min-h-[44px])
+- SelectTrigger: bg-slate-50 border-slate-200 focus:bg-white min-h-[44px]
+- Table view button: h-9 min-w-[44px]
+- All Cards: rounded-2xl border-slate-200/60
+- Added tabular-nums to all monetary values
+- Detail dialog: added icon header (rose FileText) + DialogDescription
+- All API calls preserved: GET `/api/admin/receivables?status=`
+
+**Financial Alerts Page** (`/src/app/admin/financial-alerts/page.tsx`) — TARGETED ENHANCEMENTS:
+- Already had DashboardLayout + toast from sonner — preserved
+- Removed gradient icon header, added page header with `pb-4 border-b border-slate-100`
+- Replaced 5 gradient stat card icons with 5 modern cards:
+  - Total (slate), Critical (red), High (amber), Medium (sky), Low (slate)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, text-2xl font-bold tabular-nums, hover:shadow-lg hover:-translate-y-0.5
+- Added full-page FinancialAlertsSkeleton (header + stat cards + tabs + alert list skeleton)
+- Early return skeleton on initial load (`loading && !summary`)
+- Improved empty state: w-16 h-16 rounded-2xl bg-emerald-100 icon container + contextual messaging
+- TabsTrigger: min-h-[44px]
+- Alert list container: rounded-2xl border-slate-200/60
+- Added tabular-nums to monetary values
+- All API calls preserved: GET `/api/admin/financial-alerts?type=`
+
+- ESLint: 0 errors in all 6 modified files
+- Dev server running clean on port 3000
+
+Stage Summary:
+- All 6 pages now have consistent modern UI patterns matching other rebuilt admin pages
+- Bill Reminders and Receivables pages migrated from standalone gradient layouts to DashboardLayout
+- Bill Reminders and Receivables pages migrated from useToast to toast from sonner
+- All pages have: page header with border-b border-slate-100, modern stat cards with colored left borders + white icons on solid bg, full-page loading skeletons
+- All empty states improved with rounded-2xl icon containers and contextual messaging
+- All inputs use bg-slate-50 border-slate-200 focus:bg-white pattern
+- All mobile touch targets ≥44px
+- All existing API calls, data structures, and functionality preserved
+- Zero lint errors across all 6 files
+---
+Task ID: 8b-10
+Agent: UI Rebuilder
+Task: Enhance remaining admin reports pages (student-accounts, weekly, cumulative, termly, aging) with modern UI patterns
+
+Work Log:
+- Read worklog.md and analyzed all 5 existing pages:
+  - Student Accounts: ~787 lines, already used toast from sonner, old light-bg stat cards, no full-page skeleton, no border-b header
+  - Weekly: ~509 lines, already used toast from sonner, stat cards had light-bg icons (bg-emerald-50), no border-b header, partial skeleton only
+  - Cumulative: ~291 lines, already used toast from sonner, no stat cards, no skeleton, no border-b header, filter SelectTriggers h-10
+  - Termly: ~504 lines, already used toast from sonner, stat cards had light-bg icons, partial skeleton, no border-b header
+  - Aging: ~190 lines, already used toast from sonner, plain bucket cards, no skeleton, no border-b header
+
+**Student Accounts Page** (`/src/app/admin/reports/student-accounts/page.tsx`) — TARGETED ENHANCEMENTS:
+- Removed gradient icon header, added page header with `pb-4 border-b border-slate-100`
+- Replaced 5 old light-bg stat cards with 4 modern primary cards + collection rate + 3 status distribution cards
+  - Primary: Students (emerald), Total Billed (sky), Collected (violet), Outstanding (red)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, tabular-nums, hover -translate-y-0.5 + shadow-lg
+  - Collection Rate card with progress bar
+  - Status distribution: Fully Paid (emerald border-l), Partial (amber border-l), Unpaid (red border-l)
+- Added full-page StudentAccountsSkeleton (header + stat cards + filter + table skeleton)
+- Early return skeleton on initial load (`loading && !data`)
+- Improved empty states: w-16 h-16 rounded-2xl icon containers + contextual messaging
+- Upgraded all filter SelectTriggers to bg-slate-50 border-slate-200 focus:bg-white
+- Fixed mobile touch targets: min-h-[40px] → min-h-[44px], min-w-[44px] on Send button
+- Upgraded pagination buttons to h-9
+- Dialog: added icon header (violet FileText icon)
+- Removed unused CardHeader, CardTitle imports; removed ArrowLeft import
+- All API calls preserved: GET `/api/admin/reports/student-accounts` with classId, sectionId, year, term, paymentStatus, search, page
+
+**Weekly Report Page** (`/src/app/admin/reports/weekly/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with `pb-4 border-b border-slate-100`
+- Upgraded 4 stat cards from light-bg icons to modern pattern:
+  - Attendance Rate (emerald), Fees Collected (sky), New Admissions (violet), Discipline Incidents (amber)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, tabular-nums, hover -translate-y-0.5 + shadow-lg
+- Added full-page WeeklyReportSkeleton (header + stat cards + filter + chart + performers + financial skeleton)
+- Early return skeleton on initial load (`loading && !summary`)
+- Improved empty states: w-16 h-16 rounded-2xl icon containers + contextual messaging
+- Upgraded all filter SelectTriggers and date inputs to bg-slate-50 focus:bg-white
+- Financial summary values: added tabular-nums class
+- Removed unused CalendarDays, Users, ChevronRight imports
+- All API calls preserved: GET `/api/classes`, GET `/api/admin/reports/weekly`
+
+**Cumulative Report Page** (`/src/app/admin/reports/cumulative/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with `pb-4 border-b border-slate-100`
+- Added 4 new stat cards with modern pattern (shown when data exists):
+  - Students (emerald), Avg Score (sky), Subjects (violet), Top Score (amber)
+  - Each: border-l-4, white icon on solid colored bg, uppercase tracking-wider label, tabular-nums, hover lift
+- Added full-page CumulativeReportSkeleton (header + stat cards + filter + table skeletons)
+- Early return skeleton on initial load (`loading && !hasFetched`)
+- Improved empty state: w-16 h-16 rounded-2xl icon container + contextual messaging
+- Fixed filter SelectTriggers: h-10 → min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white
+- Added table footer with student count and pass rate
+- Added computed stats: avgScore, topAvg, passCount
+- Added Target import for stat card icon
+- All API calls preserved: GET `/api/classes`, GET `/api/students`, GET `/api/admin/reports/cumulative`
+
+**Termly Report Page** (`/src/app/admin/reports/termly/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with `pb-4 border-b border-slate-100`
+- Upgraded 4 stat cards from light-bg icons to modern pattern:
+  - Class Average (emerald), Pass Rate (sky), Total Students (violet), Top Score (amber)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, tabular-nums, hover -translate-y-0.5 + shadow-lg
+- Added full-page TermlyReportSkeleton (header + filters + stat cards + top 3 + chart + table skeletons)
+- Early return skeleton on initial load (`loading && !hasFetched`)
+- Improved empty states: w-16 h-16 rounded-2xl icon containers for subject data, rankings, and pass rate
+- Upgraded all filter SelectTriggers to bg-slate-50 border-slate-200 focus:bg-white
+- All API calls preserved: GET `/api/classes`, GET `/api/admin/reports/termly`
+
+**Aging Report Page** (`/src/app/admin/reports/aging/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with `pb-4 border-b border-slate-100`
+- Upgraded 5 aging bucket cards + Grand Total to modern stat card pattern:
+  - Current 0-30 (emerald), 31-60 Days (amber), 61-90 Days (orange), 90+ Days (red), Grand Total (slate)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, tabular-nums, hover -translate-y-0.5 + shadow-lg
+- Added BUCKET_CONFIG with per-bucket icon components, border colors, and icon bg colors
+- Added full-page AgingReportSkeleton (header + buckets + bar + filter + table skeleton)
+- Early return skeleton on initial load (`loading && !hasFetched`)
+- Improved empty state: w-16 h-16 rounded-2xl icon container + contextual messaging
+- Upgraded filter inputs to bg-slate-50 border-slate-200 focus:bg-white
+- Fixed bucket filter to use empty string for "all" (was 'all' which didn't match any bucket key)
+- Added DollarSign, TrendingDown imports; removed unused ShieldAlert import (re-added via BUCKET_CONFIG)
+- All API calls preserved: GET `/api/admin/reports/aging`
+
+- ESLint: 0 errors on all 5 modified files
+- Dev server running clean on port 3000
+
+Stage Summary:
+- All 5 pages now have consistent modern UI patterns matching other rebuilt admin pages
+- All pages have: page header with border-b border-slate-100, modern stat cards with colored left borders + white icons on solid bg, full-page loading skeletons
+- All empty states improved with rounded-2xl icon containers and contextual messaging
+- All filter inputs and SelectTriggers use bg-slate-50 border-slate-200 focus:bg-white pattern
+- All mobile touch targets ≥44px
+- All existing API calls, data structures, and functionality preserved
+- Zero lint errors across all 5 files
+---
+Task ID: 8b-9
+Agent: UI Rebuilder
+Task: Enhance 3 admin financial pages (daily-fees, discounts, credits) with modern UI patterns
+
+Work Log:
+- Read worklog.md and analyzed all 3 existing pages:
+  - Daily Fees: ~1800+ lines, already used DashboardLayout + toast from sonner, had page header, old stat card sizes (w-10 h-10)
+  - Discounts: ~1200+ lines, already used DashboardLayout + toast from sonner, had page header, mixed stat card sizes, 4 dialog SelectTriggers missing bg-slate-50, JSX parsing error at line 552
+  - Credits: ~950+ lines, already used DashboardLayout + toast from sonner, had page header, old stat card sizes, 3 dialog SelectTriggers missing bg-slate-50
+
+**Daily Fees Page** (`/src/app/admin/daily-fees/page.tsx`) — TARGETED ENHANCEMENTS:
+- Updated page header title: `text-2xl` → `text-xl sm:text-2xl` responsive pattern
+- Upgraded 4 stat card icon containers: `w-10 h-10` → `w-11 h-11 rounded-xl` (emerald/sky/amber/violet)
+- Upgraded 4 stat card labels: `text-[10px] font-medium` → `text-xs font-semibold text-slate-400 uppercase tracking-wider`
+- Upgraded 4 stat card values: `text-xl font-bold` → `text-2xl font-bold` (with tabular-nums preserved)
+- Updated 3 SelectTriggers missing `bg-slate-50` (class filter, transport direction, payment method)
+- Updated skeleton icon containers: `w-10 h-10` → `w-11 h-11` (both DailyFeesSkeleton and inline stat card skeleton)
+- All API calls preserved: GET/POST `/api/admin/daily-fees/cashier`, GET/POST `/api/admin/daily-fees/rates`, GET/POST `/api/admin/daily-fees/collect`, GET/POST `/api/admin/daily-fees/transactions`, GET `/api/admin/daily-fees/report`, GET `/api/admin/daily-fees/handover`
+
+**Discounts Page** (`/src/app/admin/discounts/page.tsx`) — TARGETED ENHANCEMENTS:
+- Updated page header title: `text-2xl` → `text-xl sm:text-2xl` responsive pattern
+- Upgraded 5 main stat card icon containers: `w-10 h-10` → `w-11 h-11 rounded-xl` (via template literal)
+- Upgraded 4 assignment tab stat card icon containers: `w-10 h-10` → `w-11 h-11 rounded-xl`
+- Upgraded all stat card labels: `text-[10px] font-medium` → `text-xs font-semibold text-slate-400 uppercase tracking-wider`
+- Upgraded all stat card values: `text-xl font-bold` → `text-2xl font-bold text-slate-900 tabular-nums`
+- Added `bg-slate-50` to 4 dialog SelectTriggers (category, method, assign profile, edit assign profile)
+- Updated skeleton icon containers: `w-10 h-10` → `w-11 h-11`
+- Fixed pre-existing JSX parsing error (missing `}` after conditional filter chips block at line 552)
+- All API calls preserved: GET/POST/PUT/DELETE `/api/admin/discounts/profiles`, GET/POST/PUT/DELETE `/api/admin/discounts/assignments`, GET `/api/students`
+
+**Credits Page** (`/src/app/admin/credits/page.tsx`) — TARGETED ENHANCEMENTS:
+- Updated page header title: `text-2xl` → `text-xl sm:text-2xl` responsive pattern
+- Upgraded 4 stat card icon containers: `w-10 h-10` → `w-11 h-11 rounded-xl` (emerald/sky/amber/rose)
+- Upgraded 4 stat card labels: `text-[10px] font-medium` → `text-xs font-semibold text-slate-400 uppercase tracking-wider`
+- Upgraded 4 stat card values: `text-xl font-bold` → `text-2xl font-bold text-slate-900 tabular-nums`
+- Added `bg-slate-50` to 3 dialog SelectTriggers (student, type, wallet category)
+- Updated skeleton icon containers: `w-10 h-10` → `w-11 h-11`
+- All API calls preserved: GET/POST `/api/admin/credits`, GET `/api/admin/credits/statistics`
+
+- ESLint: 0 errors on all 3 modified files
+- Dev server running clean on port 3000
+
+Stage Summary:
+- All 3 pages now have consistent modern stat card pattern: border-l-4, w-11 h-11 colored icon bg with white w-5 h-5 icon, text-xs font-semibold uppercase tracking-wider label, text-2xl font-bold value, hover:shadow-lg hover:-translate-y-0.5
+- All SelectTriggers now have bg-slate-50 className
+- Page headers use responsive text-xl sm:text-2xl pattern
+- Full-page loading skeletons with updated icon container sizes
+- Fixed pre-existing JSX parsing error in discounts page
+- All existing API calls, data structures, and functionality preserved
+- Zero lint errors across all 3 files
+---
+Task ID: 8b-8
+Agent: UI Rebuilder
+Task: Rebuild admin audit-log, backup, admins, and permissions pages with improved modern UX/UI
+
+Work Log:
+- Read worklog.md and analyzed all 4 existing pages:
+  - Audit Log: 629 lines, used `useToast` from `@/hooks/use-toast`, old Card-based stat cards
+  - Backup: 576 lines, used `useToast` from `@/hooks/use-toast`, old Card-based stat cards
+  - Admins: 694 lines, already used `toast` from sonner, old Card-based stat cards, 6-column layout
+  - Permissions: 1227 lines, used `useToast` from `@/hooks/use-toast`, two views (roles + permission grid)
+
+**Audit Log Page** (`/src/app/admin/audit-log/page.tsx`) — FULL REWRITE:
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Removed gradient icon header, added page header with border-bottom (title + subtitle + auto-refresh toggle + refresh button)
+- Added full-page AuditLogSkeleton (header + 4 stat card skeletons + filter bar + table skeleton)
+- Replaced 4 old Card-based stat cards with modern pattern:
+  - Total Logs (slate), Today's Activity (emerald), Most Active User (sky), Error Count (red)
+  - White icon on solid colored bg, 4px colored left border, hover -translate-y-0.5 + shadow-lg
+  - Uppercase tracking-wider labels, tabular-nums values
+- Added active filter chips with dismiss buttons + "Clear all" link for search, action type, date range
+- Filter bar in rounded-2xl container with bg-slate-50 inputs
+- Desktop table in rounded-2xl container with border
+- Improved empty state: 16x16 rounded-2xl icon container + contextual message + Clear Filters CTA
+- Mobile cards: rounded-2xl border, 44px touch target View Details button
+- View dialog: icon header with Eye in rounded-lg container
+- All API calls preserved: GET `/api/admin/audit-log` with search, actionType, dateFrom, dateTo
+
+**Backup Page** (`/src/app/admin/backup/page.tsx`) — FULL REWRITE:
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Removed gradient icon header, added page header with border-bottom
+- Added full-page BackupSkeleton (header + stat cards + 2-col content skeleton)
+- Replaced 4 old Card-based stat cards with modern pattern:
+  - Total Backups (emerald), Latest Backup (sky), Database Size (violet), Auto-Backup (amber)
+  - White icon on solid colored bg, colored left border, hover lift
+  - Uppercase tracking-wider labels
+- Backup history table in rounded-2xl container with border
+- Sidebar cards (Database Info, Success Rate, Auto-Backup Settings) in rounded-2xl containers
+- Improved empty state: 16x16 rounded-2xl icon container + Create Backup CTA
+- Delete dialog: icon header with Trash2 in red rounded-lg
+- Mobile: 44px touch target Download and Delete buttons
+- All API calls preserved: GET/POST `/api/admin/backup`, DELETE `/api/admin/backup?id=`
+
+**Admins Page** (`/src/app/admin/admins/page.tsx`) — FULL REWRITE:
+- Already used `toast` from sonner (preserved)
+- Removed gradient icon header, added page header with border-bottom
+- Replaced 6 old Card-based stat cards (3 stats + 5 levels) with 4 modern stat cards:
+  - Total Admins (slate), Active (emerald), Blocked (red), Inactive (amber)
+  - White icon on solid colored bg, colored left border, hover lift
+  - Uppercase tracking-wider labels, tabular-nums values
+- Added full-page AdminsSkeleton (header + stat cards + filter bar + table skeleton)
+- Added active filter chips with dismiss + "Clear all" link for search, status, level filters
+- Filter bar in rounded-2xl container
+- Table in rounded-2xl container with border
+- Improved empty state: 16x16 rounded-2xl icon container + contextual Clear Filters CTA
+- All dialogs restyled with icon header pattern:
+  - Add/Edit: icon + title + description, all min-h-[44px] inputs
+  - Delete: red Trash2 icon in rounded-lg
+  - Block/Unblock: Lock/Unlock icon in colored rounded-lg
+- Mobile: 44px touch target action buttons (h-11), 36px pagination buttons
+- Auth key show/hide/copy buttons: min-h-[44px] min-w-[32px]
+- All API calls preserved: GET/POST/PUT/DELETE `/api/admin/admins`
+
+**Permissions Page** (`/src/app/admin/permissions/page.tsx`) — FULL REWRITE:
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Removed unused imports (CardDescription, CardTitle, CardHeader)
+- Added page header with border-bottom (title + subtitle + Create Role button)
+- Added full-page PermissionsSkeleton (header + stat cards + tabs + table skeleton)
+- Replaced old AccessDenied icon from rounded-full to rounded-2xl
+- Added reusable StatCard component with colored left border pattern
+- Permission grid view: 4 stat cards upgraded to modern pattern:
+  - Granted (emerald), Revoked (slate), Total (sky), Users (violet)
+  - Full-page skeleton on initial load, rounded-2xl permission module cards
+- Empty states: 16x16 rounded-2xl icon containers with contextual messaging + CTA
+- Roles tab: table in rounded-2xl container, rounded-2xl empty state with Create Role CTA
+- Permissions tab: summary card + module cards all in rounded-2xl containers
+- Create Role dialog: icon header (Plus/Pencil in colored rounded-lg), all min-h-[44px] inputs
+- Delete dialog: icon header with Trash2 in red rounded-lg
+- Permission items: min-h-[52px] for touch targets
+- Replaced purple/indigo colors with sky/violet to avoid blue restriction
+- All API calls preserved: GET/POST/PUT/DELETE `/api/roles`, GET `/api/permissions`, GET/PUT `/api/roles/[id]/permissions`
+
+- ESLint: 0 errors on all 4 modified files
+- Dev server running clean on port 3000
+
+Stage Summary:
+- All 4 pages fully rebuilt with consistent modern UI patterns
+- Audit Log & Backup pages migrated from useToast to toast from sonner
+- Permissions page migrated from useToast to toast from sonner
+- All pages have: page header with border-bottom, modern stat cards with colored left borders, full-page loading skeletons
+- Empty states improved with rounded-2xl icon containers and contextual CTAs
+- All table containers wrapped in rounded-2xl with border
+- All mobile touch targets ≥44px
+- All existing API calls, data structures, and functionality preserved
+- Zero lint errors across all 4 files
+---
+Task ID: 8b-7
+Agent: UI Rebuilder
+Task: Rebuild admin fee structures, budgets, and remaining reports pages with improved modern UX/UI
+
+Work Log:
+- Read worklog.md, studied existing patterns from terminal reports and SMS pages
+- Read all 4 existing pages:
+  - Fee Structures: ~1084 lines, had DashboardLayout + sonner toast, old Card-based stat cards with light bg icons, default TabsList
+  - Budgets: ~611 lines, standalone gradient header/footer, used `useToast` from `@/hooks/use-toast`, 5 stat cards with light bg icons
+  - Annual Reports: ~461 lines, had DashboardLayout + sonner toast, 8 stat cards (4 primary + 4 secondary) with light bg icons, partial skeleton
+  - Broadsheet: ~368 lines, had DashboardLayout but used `useToast` from `@/hooks/use-toast`, old stat cards with blue/purple/amber bg
+
+**Fee Structures Page** (`/src/app/admin/fee-structures/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with `pb-4 border-b border-slate-100` bottom border
+- Replaced 3 old stat cards with 4 modern ones (Active/emerald, Total/amber, Collectible/sky, Payment Plans/violet)
+- Each stat card: 4px colored left border, white icon on solid colored bg (rounded-xl), uppercase tracking-wider label, hover -translate-y-0.5 + shadow-sm
+- Added full-page FeeStructuresSkeleton component (header + stat cards + filter bar + content skeleton)
+- Updated TabsList to library-pattern (bg-white border rounded-xl)
+- Updated filter bar: bg-slate-50 border-slate-200 focus:bg-white on search input, min-h-[44px]
+- Improved empty states with rounded-2xl icon containers + contextual CTA buttons
+- Updated mobile card action buttons to min-h-[44px] min-w-[44px]
+- Added Loader2 spinner icons to Create/Edit/Assign save buttons
+- Replaced unused imports (ChevronDown, ChevronUp, GraduationCap) with Loader2
+- All API calls preserved: GET/POST/PUT/DELETE `/api/admin/fee-structures`, GET `/api/classes`, GET `/api/bill-items`, POST `/api/admin/payment-plans`, GET `/api/students`
+
+**Budgets Page** (`/src/app/admin/budgets/page.tsx`) — FULL REWRITE:
+- Wrapped in DashboardLayout (removed standalone emerald/teal gradient header + copyright footer)
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Removed unused `Filter` and `Table2` imports
+- Added page header with `pb-4 border-b border-slate-100` pattern (title + subtitle + Create Budget button)
+- Replaced 5 stat cards with 4 modern ones (Total Budgets/emerald, Budgeted/sky, Spent/amber, Remaining/violet)
+- Each stat card: 4px colored left border, white icon on solid bg, uppercase tracking-wider, hover lift
+- Added full-page BudgetsPageSkeleton component (header + stat cards + filter bar + content skeleton)
+- Updated filter bar: bg-slate-50 border-slate-200 focus:bg-white on all inputs, min-h-[44px] touch targets
+- Improved empty state with rounded-2xl icon container + contextual CTA button
+- Updated mobile card action buttons to min-h-[44px] min-w-[44px]
+- Desktop table action buttons updated to min-w-[32px]
+- Added icon header to Create Budget dialog (emerald Plus icon)
+- Added icon header to Delete AlertDialog (red Trash2 icon)
+- Added Loader2 spinner to Create/Cancel Budget buttons
+- All API calls preserved: GET/POST `/api/admin/budgets`, DELETE `/api/admin/budgets/:id`, GET `/api/admin/fiscal-years`
+
+**Annual Reports Page** (`/src/app/admin/reports/annual/page.tsx`) — FULL REWRITE:
+- Already had DashboardLayout + sonner toast — preserved
+- Added page header with `pb-4 border-b border-slate-100` and emerald FileBarChart icon
+- Replaced 8 stat cards (4 primary + 4 secondary) with 4 modern primary + 4 secondary compact cards
+- 4 primary stat cards (colored left border + white icon on solid bg): Students/emerald, Revenue/sky, Expenses/amber, Net Profit/violet (color-coded)
+- 4 secondary compact cards: Classes, Teachers, Outstanding, School Average
+- Added full-page AnnualReportSkeleton component (header + stat cards + chart skeletons)
+- Improved all empty states with rounded-2xl icon containers + contextual messaging
+- Added CardHeader with icon badges to Enrollment Trend, Income vs Expenses, Class Performance, Grade Distribution
+- Year select trigger updated to bg-slate-50 border-slate-200 focus:bg-white
+- All API calls preserved: GET `/api/admin/reports/annual?year=`
+
+**Broadsheet Page** (`/src/app/admin/reports/broadsheet/page.tsx`) — FULL REWRITE:
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Removed unused `Table2` import (re-added inside component), kept DashboardLayout
+- Added page header with `pb-4 border-b border-slate-100` pattern
+- Added full-page BroadsheetSkeleton component (header + filter bar + stat cards + table skeleton)
+- Replaced 4 old stat cards (bg-emerald-50/blue-50/amber-50/purple-50) with 4 modern ones (colored left border + white icon on solid bg):
+  - Students (emerald), Subjects (sky), Top Student (amber), Class Avg (violet)
+- Each stat card: uppercase tracking-wider label, tabular-nums values, hover lift
+- Improved empty state with rounded-2xl icon container + contextual CTA button
+- Updated all filter SelectTriggers to bg-slate-50 border-slate-200 focus:bg-white
+- Computed classAvg outside render for efficiency
+- Added CSV export success toast
+- All API calls preserved: GET `/api/classes`, GET `/api/reports/terminal`
+
+- ESLint: 0 errors on all 4 modified files
+- Dev server running clean on port 3000
+
+Stage Summary:
+- All 4 pages now have consistent modern UI patterns matching other rebuilt admin pages
+- Budgets page migrated from standalone gradient layout to DashboardLayout
+- Budgets and Broadsheet pages migrated from useToast to sonner toast
+- All pages have full-page loading skeletons with header + stat cards + content sections
+- All pages have modern stat cards with colored left borders, white icons on solid bg, hover lift, uppercase tracking-wider labels
+- All pages have page headers with `pb-4 border-b border-slate-100` bottom border
+- All empty states improved with rounded-2xl icon containers and contextual CTAs
+- All mobile touch targets ≥44px
+- All existing API calls, data structures, and functionality preserved
+- Zero lint errors across all 4 files
+---
+Task ID: 8b-5
+Agent: UI Rebuilder
+Task: Rebuild admin Expenses, Payroll, and Income pages with improved modern UX/UI
+
+Work Log:
+- Read worklog.md, studied existing page patterns from library/students/payroll pages
+- Read all 3 existing pages:
+  - Expenses: 267 lines, used DashboardLayout, used `useToast` from `@/hooks/use-toast`
+  - Payroll: 738 lines, used DashboardLayout, used `toast` from sonner, old Card-based stat cards
+  - Income: 920 lines, used DashboardLayout, used `toast` from sonner, gradient stat cards, default TabsList
+
+**Expenses Page** (`/src/app/admin/expenses/page.tsx`) — FULL REWRITE:
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Added page header with border-bottom (title + subtitle + Add Expense button)
+- Added 4 modern stat cards with colored left borders: This Month (emerald), Total Shown (sky), Approved (violet), Pending (amber)
+- Each stat card has white icon on colored bg (rounded-xl), hover -translate-y-0.5 + shadow-lg
+- Added full-page loading skeleton (title + stat card skeletons + filter bar + table skeleton)
+- Added search bar with Search icon (bg-slate-50 border-slate-200 focus:bg-white, min-h-[44px])
+- Added active filter chips with dismiss buttons + "Clear all" link
+- Category breakdown summary card preserved with rounded-2xl styling
+- Desktop table in rounded-2xl container with results count header
+- Mobile card view with 44px touch target action buttons (Edit + Delete)
+- Empty states with 16x16 rounded-2xl icon containers and contextual CTAs
+- All dialogs restyled with icon + title + description pattern:
+  - Add Expense: Plus icon, all min-h-[44px] inputs, Loader2 saving spinner
+  - Edit Expense: Pencil icon, Loader2 saving spinner
+  - Delete: Trash2 icon in red rounded-lg, min-h-[44px] buttons
+  - New Category: Tag icon, Enter key submit, Loader2 saving spinner
+- All API calls preserved: GET/POST/PUT/DELETE `/api/expenses`, GET/POST `/api/expense-categories`
+
+**Payroll Page** (`/src/app/admin/payroll/page.tsx`) — FULL REWRITE:
+- Added page header with border-bottom (title + subtitle)
+- Replaced old Card-based stat cards with modern pattern:
+  - 4px solid colored left border (emerald/sky/amber/violet)
+  - White icon on solid colored bg (rounded-xl)
+  - Uppercase tracking-wider label + tabular-nums values
+  - Hover -translate-y-0.5 + shadow-lg transition
+- Added full-page loading skeleton (PageSkeleton: header + stat cards + filter bar + content skeleton)
+- Replaced Card filter bar with rounded-2xl bg-white border pattern
+- Added active filter chips for status filter with dismiss button
+- Upgraded all SelectTriggers to bg-slate-50 border-slate-200 focus:bg-white styling
+- Replaced empty state from Card to rounded-2xl border with 16x16 rounded-2xl icon container
+- Reports tab: replaced Card containers with rounded-2xl border pattern
+- Reports tab: replaced empty Shield icon with 16x16 rounded-2xl icon container
+- Desktop table: min-w-[32px] action buttons
+- All API calls preserved: GET/PATCH/POST `/api/payroll`, GET `/api/employees`
+
+**Income Page** (`/src/app/admin/income/page.tsx`) — FULL REWRITE:
+- Added page header with border-bottom (title + subtitle + Invoice Management + Payments buttons)
+- Replaced 5 gradient stat cards with 4 modern colored left border cards:
+  - Total Collected (emerald), Total Invoiced (sky), Outstanding (amber), This Month (violet)
+  - White icon on colored bg, hover lift, tabular-nums values
+- Added full-page loading skeleton (PageSkeleton: header + stat cards + filter bar + content skeletons)
+- Replaced default TabsList grid with library-pattern (bg-white border rounded-xl, emerald active state)
+- Updated filter bars in Invoices and Payments tabs:
+  - Search input: bg-slate-50 border-slate-200 focus:bg-white, min-h-[44px]
+  - SelectTrigger: bg-slate-50 border-slate-200 focus:bg-white, min-h-[44px]
+- Added active filter chips with dismiss + "Clear all" link for Invoices and Payments tabs
+- Replaced Card containers with rounded-2xl border pattern throughout
+- Replaced empty state icons with 16x16 rounded-2xl icon containers + contextual messaging
+- Improved mobile touch targets: min-h-[44px] on header buttons, min-w-[32px] on pagination
+- All API calls preserved: GET `/api/admin/income`, GET `/api/admin/invoices`, GET `/api/admin/payments`, GET `/api/students`
+
+- ESLint: 0 errors on all 3 modified files
+- Dev server running clean on port 3000
+
+Stage Summary:
+- Expenses page fully rebuilt: migrated from useToast to sonner, modern stat cards, search bar, filter chips, full-page skeleton
+- Payroll page fully rebuilt: modern stat cards with colored left borders, full-page skeleton, filter chips, improved empty states
+- Income page fully rebuilt: modern stat cards replacing gradient cards, library-pattern TabsList, filter chips, full-page skeleton
+- All 3 pages have consistent modern UI patterns matching other rebuilt admin pages
+- All existing API calls, data structures, and functionality preserved
+- All mobile touch targets ≥44px
+- Zero lint errors across all 3 files
+---
+Task ID: 8b-6
+Agent: UI Rebuilder
+Task: Rebuild admin communication and reports pages with improved modern UX/UI
+
+Work Log:
+- Read worklog.md, studied existing page patterns from library/students pages
+- Read all 4 target files:
+  - SMS: ~904 lines, already used DashboardLayout + toast from sonner
+  - Finance Reports: ~761 lines, already used DashboardLayout + toast from sonner
+  - Terminal Reports: ~387 lines, used `useToast` from `@/hooks/use-toast`
+  - Settings: ~1156 lines, already used DashboardLayout + toast from sonner
+
+**SMS Page** (`/src/app/admin/sms/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with border-bottom pattern (pb-4 border-b border-slate-100)
+- Replaced old StatCardSkeleton with full-page SMSSkeleton (header + 4 stat card skeletons + tabs + card skeletons)
+- Upgraded 4 stat cards from Card-based (icon in light bg) to modern pattern:
+  - 4px solid colored left border (emerald/red/violet/amber)
+  - White icon on solid colored bg (rounded-lg)
+  - Uppercase tracking-wider label + tabular-nums values
+  - Hover -translate-y-0.5 + shadow-sm transition
+- Improved template action button touch targets from 36px to 44px (min-h-[44px] min-w-[44px])
+- All API calls preserved: GET/POST/DELETE `/api/admin/sms`
+
+**Finance Reports Page** (`/src/app/admin/reports/finance/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with border-bottom pattern (pb-4 border-b border-slate-100)
+- Added full-page FinancePageSkeleton (header + 4 stat cards + tabs + chart skeletons)
+- Upgraded 4 stat cards to modern pattern (colored left border + white icon on solid bg + hover lift):
+  - Total Revenue (emerald), Total Expenses (red), Net Income (emerald), Outstanding Fees (amber)
+  - Uppercase tracking-wider label + tabular-nums values
+- All API calls preserved: `/api/reports/finance`, `/api/reports/aging`
+
+**Terminal Reports Page** (`/src/app/admin/reports/terminal/page.tsx`) — FULL REWRITE:
+- Replaced `useToast` from `@/hooks/use-toast` with `toast` from 'sonner'
+- Removed unused imports (Download, Award)
+- Added page header with border-bottom pattern
+- Added full-page TerminalSkeleton component (header + filter bar + 4 stat card skeletons + content skeleton)
+- Upgraded 4 stat cards to modern pattern (colored left border + white icon on solid bg + hover lift):
+  - Students (emerald), Subjects (sky), Top Student (amber), Class Average (violet)
+  - Uppercase tracking-wider label + tabular-nums values
+- Improved empty state with rounded-2xl icon container + contextual CTA button
+- Added icon header to Subject Statistics card (emerald icon + Award)
+- Added icon header to Teacher Comments card (violet icon + FileBarChart)
+- Added DialogDescription to Teacher Comments card
+- All API calls preserved: `/api/classes`, `/api/reports/terminal`
+
+**Settings Page** (`/src/app/admin/settings/page.tsx`) — TARGETED ENHANCEMENTS:
+- Added page header with border-bottom pattern (pb-4 border-b border-slate-100)
+- Updated loading skeleton header to include border-bottom pattern
+- All API calls preserved: GET/POST `/api/admin/settings`, `/api/admin/settings/upload`
+
+- ESLint: 0 errors on all 4 modified files
+- Dev server running clean on port 3000
+
+Stage Summary:
+- All 4 pages now have consistent modern UI: page header with border-bottom, modern stat cards with colored left borders
+- Terminal reports page migrated from useToast to toast from sonner
+- Full-page loading skeletons on all pages
+- All mobile touch targets ≥44px
+- All existing API calls, data structures, and functionality preserved
+- Zero lint errors across all 4 files
+---
 Task ID: 8b-2
 Agent: UI Rebuilder
 Task: Rebuild admin Dormitory, Boarding, and Maintenance pages with improved modern UX/UI
@@ -1908,3 +2790,93 @@ Stage Summary:
 - Critical lint errors fixed
 - Dev server running on port 3000
 
+
+---
+Task ID: 8b-13
+Agent: UI Rebuilder
+Task: Enhance admin pages (auto-billing, payment-plans, assessment-analytics, collection-efficiency, approvals, librarians) with modern UI patterns
+
+Work Log:
+- Read worklog.md and analyzed all 6 existing pages:
+  - Auto Billing: ~831 lines, already used toast from sonner, had page header with border-b, stat cards already modern, inline skeletons, empty states needed improvement, settings button h-7
+  - Payment Plans: ~901 lines, already used toast from sonner, page header without border-b, OLD stat cards (w-10 h-10 light-bg icons, text-xs font-medium labels, text-lg values), no top-level skeleton, SelectTriggers missing bg-slate-50, mobile View button h-8
+  - Assessment Analytics: ~965 lines, already used toast from sonner, page header without border-b, OLD stat cards (w-10 h-10 light-bg icons), SkeletonSummary needed upgrade, empty states needed improvement, SelectTrigger missing bg-slate-50
+  - Collection Efficiency: ~248 lines, already used toast from sonner, page header close but missing gap-2/tracking-tight, stat cards already modern, inline skeleton, empty states already had rounded-2xl
+  - Approvals: ~239 lines, already used toast from sonner, page header close but missing gap-2/tracking-tight, stat cards already modern, inline loading, empty states already had rounded-2xl
+  - Librarians: ~573 lines, already used toast from sonner, BROKEN header nesting (extra flex div wrapping border-b div), stat cards already modern, inline loading, empty states already had rounded-2xl
+
+- None of the 6 files used `useToast` from `@/hooks/use-toast` (all already used `toast` from 'sonner')
+
+**Auto Billing Page** (`/src/app/admin/auto-billing/page.tsx`) — TARGETED ENHANCEMENTS:
+- Already had toast from sonner — preserved
+- Updated page header: gap-4 → gap-2, added tracking-tight, reordered border-b classes to standard pattern
+- Improved "No active configurations" empty state: plain text → w-16 h-16 rounded-2xl bg-violet-100 icon container + contextual messaging
+- Settings button: h-7 w-7 → min-h-[44px] min-w-[44px] for mobile touch target
+- All SelectTriggers already had bg-slate-50 — preserved
+- All stat cards already modern — preserved
+- All API calls preserved: GET/POST/PUT `/api/admin/auto-billing`, POST `/api/admin/auto-billing/generate`
+
+**Payment Plans Page** (`/src/app/admin/payment-plans/page.tsx`) — TARGETED ENHANCEMENTS:
+- Already had toast from sonner — preserved
+- Updated page header: added border-b border-slate-100 with gap-2, removed CalendarRange icon from title, text-2xl → text-xl sm:text-2xl, added tracking-tight
+- Replaced 4 OLD stat cards with 4 modern cards:
+  - Active Plans (emerald), Overdue Amount (amber), Collected (sky), Total Plans (violet)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), text-xs font-semibold text-slate-400 uppercase tracking-wider label, text-2xl font-bold text-slate-900 tabular-nums value, hover:shadow-lg hover:-translate-y-0.5
+- Added loading skeleton for stat cards (early return pattern: loading && !paymentPlans.length)
+- Improved 3 empty states: plain icons → w-16 h-16 rounded-2xl icon containers + contextual messaging
+- Added bg-slate-50 to 4 SelectTriggers: filter status, fee structure, installments, frequency
+- Mobile View button: h-8 → min-h-[44px]
+- Create Payment Plan button: min-h-[44px]
+- All API calls preserved: GET/POST/PUT `/api/admin/payment-plans`, GET `/api/admin/fee-structures`, GET/POST `/api/admin/payment-plans/:id/pay`
+
+**Assessment Analytics Page** (`/src/app/admin/assessment-analytics/page.tsx`) — TARGETED ENHANCEMENTS:
+- Already had toast from sonner — preserved
+- Updated page header: gap-4 → gap-2, text-2xl → text-xl sm:text-2xl, reordered border-b classes to standard pattern
+- Upgraded SkeletonSummary: flat skeleton cards → modern stat card skeletons (border-l-4, w-11 h-11 rounded-xl icon placeholders)
+- Replaced 4 OLD stat cards with 4 modern cards:
+  - Average Score (emerald), Pass Rate (sky), Distinction Rate (amber), Total Records (violet)
+  - Each: border-l-4, white icon on solid colored bg (rounded-xl), text-xs font-semibold text-slate-400 uppercase tracking-wider label, text-2xl font-bold text-slate-900 tabular-nums value, hover:shadow-lg hover:-translate-y-0.5
+- Improved 3 empty states with rounded-2xl icon containers: overview (sky), class data (sky), subject data (amber)
+- Added bg-slate-50 to subject class filter SelectTrigger
+- All API calls preserved: GET `/api/admin/assessment-analytics?type=*`, GET `/api/admin/assessment-analytics/student-trend`, GET `/api/admin/classes`
+
+**Collection Efficiency Page** (`/src/app/admin/collection-efficiency/page.tsx`) — TARGETED ENHANCEMENTS:
+- Already had toast from sonner — preserved
+- Fixed page header: removed extra wrapper div, added gap-2, reordered border-b classes to standard pattern
+- Added tracking-tight to h1
+- All stat cards already modern — preserved
+- All empty states already had rounded-2xl — preserved
+- All API calls preserved: GET `/api/admin/collection-efficiency?period=`
+
+**Approvals Page** (`/src/app/admin/approvals/page.tsx`) — TARGETED ENHANCEMENTS:
+- Already had toast from sonner — preserved
+- Fixed page header: removed extra wrapper div, added gap-2, reordered border-b classes to standard pattern
+- Added tracking-tight to h1
+- All stat cards already modern — preserved
+- All empty states already had rounded-2xl — preserved
+- All API calls preserved: GET/POST `/api/admin/approvals`
+
+**Librarians Page** (`/src/app/admin/librarians/page.tsx`) — TARGETED ENHANCEMENTS:
+- Already had toast from sonner — preserved
+- Fixed BROKEN header nesting: removed extra flex wrapper div, flattened to standard pattern
+- Added tracking-tight to h1, gap-2, reordered border-b classes
+- All stat cards already modern — preserved
+- All empty states already had rounded-2xl — preserved
+- All SelectTriggers already had bg-slate-50 — preserved
+- All API calls preserved: GET/POST/PUT/DELETE `/api/admin/librarians`
+
+- ESLint: 0 errors on all 6 modified files
+- Dev server running clean on port 3000
+
+Stage Summary:
+- All 6 pages now have consistent modern UI patterns matching other rebuilt admin pages
+- No useToast migrations needed (all already used toast from sonner)
+- Payment Plans and Assessment Analytics pages upgraded from old light-bg stat cards to modern pattern with solid colored icons, border-l-4, uppercase tracking-wider labels, text-2xl values
+- All pages have: page header with gap-2 pb-4 border-b border-slate-100, tracking-tight title, mt-0.5 subtitle
+- Payment Plans: added loading skeleton for stat cards, 4 SelectTriggers upgraded with bg-slate-50, mobile button min-h-[44px]
+- Assessment Analytics: SkeletonSummary upgraded to modern pattern, 4 stat cards upgraded, SelectTrigger upgraded, 3 empty states improved
+- Librarians: fixed broken HTML nesting in header
+- Collection Efficiency and Approvals: minor header alignment fixes
+- Auto Billing: improved empty state, settings button touch target
+- All existing API calls, data structures, and functionality preserved
+- Zero lint errors across all 6 files

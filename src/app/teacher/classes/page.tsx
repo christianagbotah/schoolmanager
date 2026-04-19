@@ -153,15 +153,18 @@ export default function TeacherClassesPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* ─── Header ─────────────────────────────────────── */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
           {selectedClass && (
             <Button variant="ghost" size="sm" onClick={handleBack} className="min-w-[44px] min-h-[44px]">
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </Button>
           )}
+          <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center">
+            <BookOpen className="w-5 h-5 text-white" />
+          </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               {selectedClass ? selectedClass.name : "My Classes"}
             </h1>
             <p className="text-sm text-slate-500 mt-1">
@@ -182,24 +185,45 @@ export default function TeacherClassesPage() {
           <>
             {/* Summary Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <Card className="py-4 border-l-4 border-l-teal-500">
+              <Card className="py-4 border-l-4 border-l-teal-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <CardContent className="px-4 pb-0 pt-0">
-                  <p className="text-xs font-medium text-slate-500">Total Classes</p>
-                  <p className="text-2xl font-bold text-teal-600">{classes.length}</p>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Classes</p>
+                      <p className="text-2xl font-bold text-slate-900 tabular-nums">{classes.length}</p>
+                    </div>
+                    <div className="w-11 h-11 rounded-xl bg-teal-500 flex items-center justify-center">
+                      <BookOpen className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="py-4 border-l-4 border-l-violet-500">
+              <Card className="py-4 border-l-4 border-l-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <CardContent className="px-4 pb-0 pt-0">
-                  <p className="text-xs font-medium text-slate-500">Class Teacher</p>
-                  <p className="text-2xl font-bold text-violet-600">{classTeacherClasses.length}</p>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Class Teacher</p>
+                      <p className="text-2xl font-bold text-slate-900 tabular-nums">{classTeacherClasses.length}</p>
+                    </div>
+                    <div className="w-11 h-11 rounded-xl bg-violet-500 flex items-center justify-center">
+                      <GraduationCap className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="py-4 border-l-4 border-l-amber-500 col-span-2 sm:col-span-1">
+              <Card className="py-4 border-l-4 border-l-amber-500 col-span-2 sm:col-span-1 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <CardContent className="px-4 pb-0 pt-0">
-                  <p className="text-xs font-medium text-slate-500">Total Students</p>
-                  <p className="text-2xl font-bold text-amber-600">
-                    {classes.reduce((sum, c) => sum + (c.student_count || c._count?.enrolls || 0), 0)}
-                  </p>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Students</p>
+                      <p className="text-2xl font-bold text-slate-900 tabular-nums">
+                        {classes.reduce((sum, c) => sum + (c.student_count || c._count?.enrolls || 0), 0)}
+                      </p>
+                    </div>
+                    <div className="w-11 h-11 rounded-xl bg-amber-500 flex items-center justify-center">
+                      <Users className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -211,7 +235,9 @@ export default function TeacherClassesPage() {
                   <Card className="gap-4">
                     <CardContent className="py-16">
                       <div className="text-center">
-                        <BookOpen className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+                        <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                          <BookOpen className="w-8 h-8 text-slate-400" />
+                        </div>
                         <h3 className="text-lg font-medium text-slate-600">No classes assigned</h3>
                         <p className="text-sm text-slate-400 mt-1">Contact the administrator to assign classes</p>
                       </div>
@@ -301,7 +327,7 @@ export default function TeacherClassesPage() {
                       placeholder="Search students..."
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      className="pl-9"
+                      className="pl-9 bg-slate-50 border-slate-200 focus:bg-white"
                     />
                   </div>
                 </div>
@@ -331,7 +357,9 @@ export default function TeacherClassesPage() {
                   </div>
                 ) : filteredStudents.length === 0 ? (
                   <div className="text-center py-12">
-                    <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                    <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                      <Users className="w-8 h-8 text-slate-400" />
+                    </div>
                     <p className="text-slate-400 text-sm">No students found</p>
                   </div>
                 ) : (

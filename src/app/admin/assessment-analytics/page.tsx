@@ -108,7 +108,7 @@ function SkeletonSummary() {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {Array.from({ length: 4 }).map((_, i) => (
-        <Card key={i} className="border-slate-200/60"><CardContent className="p-4"><Skeleton className="h-16 w-full" /></CardContent></Card>
+        <Card key={i} className="border-l-4 border-l-slate-200"><CardContent className="p-4"><div className="flex items-center gap-3"><Skeleton className="w-11 h-11 rounded-xl" /><div className="flex-1 space-y-2"><Skeleton className="h-3 w-20" /><Skeleton className="h-6 w-16" /></div></div></CardContent></Card>
       ))}
     </div>
   );
@@ -362,10 +362,10 @@ export default function AssessmentAnalyticsPage() {
     <DashboardLayout>
       <div className="space-y-6 print:space-y-4">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b border-slate-100 print:hidden">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Assessment Analytics</h1>
-            <p className="text-sm text-slate-500 mt-1">Comprehensive graphs and performance analytics</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Assessment Analytics</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Comprehensive graphs and performance analytics</p>
           </div>
           <Button variant="outline" size="sm" className="h-9" onClick={handlePrint}>
             <Printer className="w-4 h-4 mr-2" />Export to PDF
@@ -393,21 +393,21 @@ export default function AssessmentAnalyticsPage() {
               <>
                 {/* Summary Cards */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Card className="border-slate-200/60"><CardContent className="p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center"><Target className="w-5 h-5 text-emerald-600" /></div>
-                    <div><p className="text-xs text-slate-500">Average Score</p><p className={`text-xl font-bold ${scoreColor(overview.summary.avgScore)}`}>{overview.summary.avgScore}%</p></div>
+                  <Card className="border-l-4 border-l-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"><CardContent className="p-4 flex items-center gap-3">
+                    <div className="bg-emerald-500 w-11 h-11 rounded-xl flex items-center justify-center"><Target className="w-5 h-5 text-white" /></div>
+                    <div className="min-w-0"><p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Average Score</p><p className={`text-2xl font-bold text-slate-900 tabular-nums ${scoreColor(overview.summary.avgScore)}`}>{overview.summary.avgScore}%</p></div>
                   </CardContent></Card>
-                  <Card className="border-slate-200/60"><CardContent className="p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center"><TrendingUp className="w-5 h-5 text-sky-600" /></div>
-                    <div><p className="text-xs text-slate-500">Pass Rate</p><p className="text-xl font-bold text-sky-600">{overview.summary.passRate}%</p></div>
+                  <Card className="border-l-4 border-l-sky-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"><CardContent className="p-4 flex items-center gap-3">
+                    <div className="bg-sky-500 w-11 h-11 rounded-xl flex items-center justify-center"><TrendingUp className="w-5 h-5 text-white" /></div>
+                    <div className="min-w-0"><p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pass Rate</p><p className="text-2xl font-bold text-slate-900 tabular-nums">{overview.summary.passRate}%</p></div>
                   </CardContent></Card>
-                  <Card className="border-slate-200/60"><CardContent className="p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center"><Award className="w-5 h-5 text-amber-600" /></div>
-                    <div><p className="text-xs text-slate-500">Distinction Rate</p><p className="text-xl font-bold text-amber-600">{overview.summary.distinctionRate}%</p></div>
+                  <Card className="border-l-4 border-l-amber-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"><CardContent className="p-4 flex items-center gap-3">
+                    <div className="bg-amber-500 w-11 h-11 rounded-xl flex items-center justify-center"><Award className="w-5 h-5 text-white" /></div>
+                    <div className="min-w-0"><p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Distinction Rate</p><p className="text-2xl font-bold text-slate-900 tabular-nums">{overview.summary.distinctionRate}%</p></div>
                   </CardContent></Card>
-                  <Card className="border-slate-200/60"><CardContent className="p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center"><PieChart className="w-5 h-5 text-violet-600" /></div>
-                    <div><p className="text-xs text-slate-500">Total Records</p><p className="text-xl font-bold text-slate-800">{overview.summary.totalMarks.toLocaleString()}</p><p className="text-[10px] text-slate-400">{overview.summary.totalExams} exams &middot; {overview.summary.totalStudents} students</p></div>
+                  <Card className="border-l-4 border-l-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"><CardContent className="p-4 flex items-center gap-3">
+                    <div className="bg-violet-500 w-11 h-11 rounded-xl flex items-center justify-center"><PieChart className="w-5 h-5 text-white" /></div>
+                    <div className="min-w-0"><p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Records</p><p className="text-2xl font-bold text-slate-900 tabular-nums">{overview.summary.totalMarks.toLocaleString()}</p><p className="text-[10px] text-slate-400">{overview.summary.totalExams} exams &middot; {overview.summary.totalStudents} students</p></div>
                   </CardContent></Card>
                 </div>
 
@@ -491,7 +491,7 @@ export default function AssessmentAnalyticsPage() {
                 </Card>
               </>
             ) : (
-              <Card className="border-slate-200/60"><CardContent className="py-12 text-center text-slate-400">No assessment data found</CardContent></Card>
+              <Card className="border-slate-200/60"><CardContent className="py-12 text-center text-slate-400"><div className="w-16 h-16 rounded-2xl bg-sky-100 flex items-center justify-center mx-auto mb-3"><BarChart3 className="w-7 h-7 text-sky-500" /></div><p className="font-medium">No assessment data found</p><p className="text-xs mt-0.5">Import exam results to see analytics</p></CardContent></Card>
             )}
           </TabsContent>
 
@@ -500,7 +500,7 @@ export default function AssessmentAnalyticsPage() {
             {classLoading ? (
               <><SkeletonSummary /><SkeletonCard /></>
             ) : classData.length === 0 ? (
-              <Card className="border-slate-200/60"><CardContent className="py-12 text-center text-slate-400">No class performance data found</CardContent></Card>
+              <Card className="border-slate-200/60"><CardContent className="py-12 text-center text-slate-400"><div className="w-16 h-16 rounded-2xl bg-sky-100 flex items-center justify-center mx-auto mb-3"><Users className="w-7 h-7 text-sky-500" /></div><p className="font-medium">No class performance data found</p></CardContent></Card>
             ) : (
               <>
                 {/* Bar chart comparing class averages */}
@@ -569,7 +569,7 @@ export default function AssessmentAnalyticsPage() {
             <div className="flex items-center gap-3 print:hidden">
               <span className="text-sm text-slate-500">Filter by class:</span>
               <Select value={subjectClassFilter === '' ? '__all__' : subjectClassFilter} onValueChange={(v) => { const val = v === '__all__' ? '' : v; setSubjectClassFilter(val); fetchSubjectData(val || undefined); }}>
-                <SelectTrigger className="w-48 h-9"><SelectValue placeholder="All Classes" /></SelectTrigger>
+                <SelectTrigger className="w-48 h-9 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="All Classes" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__all__">All Classes</SelectItem>
                   {classes.map(c => <SelectItem key={c.class_id} value={String(c.class_id)}>{c.name}</SelectItem>)}
@@ -662,7 +662,7 @@ export default function AssessmentAnalyticsPage() {
                 )}
               </>
             ) : (
-              <Card className="border-slate-200/60"><CardContent className="py-12 text-center text-slate-400">No subject data found</CardContent></Card>
+              <Card className="border-slate-200/60"><CardContent className="py-12 text-center text-slate-400"><div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto mb-3"><BookOpen className="w-7 h-7 text-amber-500" /></div><p className="font-medium">No subject data found</p></CardContent></Card>
             )}
           </TabsContent>
 

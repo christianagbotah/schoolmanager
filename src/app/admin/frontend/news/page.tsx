@@ -22,9 +22,9 @@ import {
 } from '@/components/ui/table';
 import {
   Newspaper, Plus, Pencil, Trash2, Search, Eye, Calendar, LayoutDashboard,
-  Image, FileText,
+  Image, FileText, Loader2,
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 interface NewsArticle {
@@ -38,12 +38,47 @@ interface NewsArticle {
 
 interface NewsStats { total: number; thisMonth: number; }
 
+function NewsSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Header skeleton */}
+      <div className="flex items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <Skeleton className="w-11 h-11 rounded-xl" />
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-4 w-56" />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-11 w-28 rounded-lg" />
+          <Skeleton className="h-11 w-36 rounded-lg" />
+        </div>
+      </div>
+      {/* Stat cards skeleton */}
+      <div className="grid grid-cols-2 gap-4">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <Skeleton key={i} className="h-[88px] rounded-xl" />
+        ))}
+      </div>
+      {/* Search skeleton */}
+      <Skeleton className="h-11 w-full rounded-lg" />
+      {/* Content skeleton */}
+      <div className="space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-28 rounded-xl" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function NewsPage() {
   const router = useRouter();
-  const { toast } = useToast();
   const [news, setNews] = useState<NewsArticle[]>([]);
   const [stats, setStats] = useState<NewsStats>({ total: 0, thisMonth: 0 });
   const [loading, setLoading] = useState(true);
+  const [hasFetched, setHasFetched] = useState(false);
   const [search, setSearch] = useState('');
 
   // Form dialog
@@ -69,6 +104,7 @@ export default function NewsPage() {
       const data = await res.json();
       setNews(data.news || []);
       setStats(data.stats || { total: 0, thisMonth: 0 });
+      setHasFetched(true);
     } catch { /* empty */ }
     setLoading(false);
   }, [search]);
@@ -94,7 +130,7 @@ export default function NewsPage() {
 
   const handleSave = async () => {
     if (!form.title.trim()) {
-      toast({ title: 'Error', description: 'Title is required', variant: 'destructive' });
+      toast.error('Title is required');
       return;
     }
     setSaving(true);
@@ -105,19 +141,19 @@ export default function NewsPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: editArticle.frontend_news_id, ...form }),
         });
-        toast({ title: 'Success', description: 'Article updated' });
+        toast.success('Article updated');
       } else {
         await fetch('/api/admin/frontend/news', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         });
-        toast({ title: 'Success', description: 'Article published' });
+        toast.success('Article published');
       }
       setFormOpen(false);
       fetchNews();
     } catch {
-      toast({ title: 'Error', variant: 'destructive' });
+      toast.error('Something went wrong');
     }
     setSaving(false);
   };
@@ -126,27 +162,35 @@ export default function NewsPage() {
     if (!deleteArticle) return;
     try {
       await fetch(`/api/admin/frontend/news?id=${deleteArticle.frontend_news_id}`, { method: 'DELETE' });
-      toast({ title: 'Success', description: 'Article deleted' });
+      toast.success('Article deleted');
       setDeleteOpen(false);
       fetchNews();
     } catch {
-      toast({ title: 'Error', variant: 'destructive' });
+      toast.error('Something went wrong');
     }
   };
 
   const truncateText = (text: string, len: number) => text.length > len ? text.substring(0, len) + '...' : text;
 
+  if (loading && !hasFetched) {
+    return (
+      <DashboardLayout>
+        <NewsSkeleton />
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg">
-              <Newspaper className="w-6 h-6 text-white" />
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg">
+              <Newspaper className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">News & Articles</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">News & Articles</h1>
               <p className="text-sm text-slate-500">Publish news and announcements for the website</p>
             </div>
           </div>
@@ -162,41 +206,43 @@ export default function NewsPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4">
-          <Card className="border-slate-200/60 hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                <Newspaper className="w-5 h-5 text-amber-600" />
-              </div>
-              <div><p className="text-xs text-slate-500">Total Articles</p><p className="text-xl font-bold">{stats.total}</p></div>
-            </CardContent>
-          </Card>
-          <Card className="border-slate-200/60 hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div><p className="text-xs text-slate-500">This Month</p><p className="text-xl font-bold text-emerald-600">{stats.thisMonth}</p></div>
-            </CardContent>
-          </Card>
+          <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-amber-500 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+            <div className="w-11 h-11 rounded-xl bg-amber-500 flex items-center justify-center shrink-0">
+              <Newspaper className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Articles</p>
+              <p className="text-2xl font-bold text-slate-900 tabular-nums">{stats.total}</p>
+            </div>
+          </div>
+          <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-emerald-500 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+            <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center shrink-0">
+              <Calendar className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">This Month</p>
+              <p className="text-2xl font-bold text-emerald-600 tabular-nums">{stats.thisMonth}</p>
+            </div>
+          </div>
         </div>
 
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input placeholder="Search articles..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 min-h-[44px]" />
+          <Input placeholder="Search articles..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white" />
         </div>
 
         {/* News List */}
-        {loading ? (
-          <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-xl" />)}</div>
-        ) : news.length === 0 ? (
-          <Card className="py-16">
-            <CardContent className="flex flex-col items-center">
-              <Newspaper className="w-16 h-16 text-slate-200 mb-4" />
+        {news.length === 0 ? (
+          <div className="rounded-2xl border border-slate-200 bg-white py-16">
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mb-4">
+                <Newspaper className="w-7 h-7 text-amber-300" />
+              </div>
               <p className="text-slate-500 font-medium">No articles found</p>
               <p className="text-slate-400 text-sm mt-1">Click &quot;Publish Article&quot; to create your first article</p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ) : (
           <div className="space-y-3">
             {/* Desktop Table */}
@@ -262,9 +308,9 @@ export default function NewsPage() {
                           </p>
                         )}
                         <div className="flex gap-1 mt-2">
-                          <Button size="sm" variant="ghost" className="h-7 px-2 text-blue-600" onClick={() => { setViewArticle(n); setViewOpen(true); }}><Eye className="w-3 h-3 mr-1" />View</Button>
-                          <Button size="sm" variant="ghost" className="h-7 px-2 text-amber-600" onClick={() => openEdit(n)}><Pencil className="w-3 h-3 mr-1" />Edit</Button>
-                          <Button size="sm" variant="ghost" className="h-7 px-2 text-red-600" onClick={() => { setDeleteArticle(n); setDeleteOpen(true); }}><Trash2 className="w-3 h-3" /></Button>
+                          <Button size="sm" variant="ghost" className="min-h-[44px] px-3 text-blue-600" onClick={() => { setViewArticle(n); setViewOpen(true); }}><Eye className="w-3.5 h-3.5 mr-1" />View</Button>
+                          <Button size="sm" variant="ghost" className="min-h-[44px] px-3 text-amber-600" onClick={() => openEdit(n)}><Pencil className="w-3.5 h-3.5 mr-1" />Edit</Button>
+                          <Button size="sm" variant="ghost" className="min-h-[44px] px-3 text-red-600" onClick={() => { setDeleteArticle(n); setDeleteOpen(true); }}><Trash2 className="w-3.5 h-3.5" /></Button>
                         </div>
                       </div>
                     </div>
@@ -310,8 +356,9 @@ export default function NewsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setFormOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setFormOpen(false)} className="min-h-[44px]">Cancel</Button>
             <Button onClick={handleSave} className="bg-amber-600 hover:bg-amber-700 min-h-[44px] px-6" disabled={!form.title.trim() || saving}>
+              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {saving ? 'Saving...' : editArticle ? 'Update Article' : 'Publish Article'}
             </Button>
           </DialogFooter>
@@ -324,7 +371,9 @@ export default function NewsPage() {
           {viewArticle && (
             <>
               <DialogHeader>
-                <DialogTitle>{viewArticle.title}</DialogTitle>
+                <DialogTitle className="flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-amber-600" /> Article Details
+                </DialogTitle>
                 <DialogDescription className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
                   {viewArticle.date ? format(new Date(viewArticle.date), 'EEEE, dd MMMM yyyy') : 'No date'}
@@ -352,12 +401,17 @@ export default function NewsPage() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Article</AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </div>
+              Delete Article
+            </AlertDialogTitle>
             <AlertDialogDescription>Are you sure you want to delete <strong className="text-slate-900">{deleteArticle?.title}</strong>? This cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+            <AlertDialogCancel className="min-h-[44px]">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 min-h-[44px]">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

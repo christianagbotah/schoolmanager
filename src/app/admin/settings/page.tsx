@@ -376,7 +376,7 @@ export default function SettingsPage() {
       <DashboardLayout>
         <div className="space-y-6">
           {/* Title skeleton */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
             <div className="space-y-2">
               <Skeleton className="h-8 w-48 rounded-lg" />
               <Skeleton className="h-4 w-72 rounded-lg" />
@@ -453,7 +453,7 @@ export default function SettingsPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* ── Page Header ──────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">System Settings</h1>
             <p className="text-sm text-slate-500 mt-1">Configure school information, academic calendar, and preferences</p>

@@ -21,8 +21,8 @@ import {
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useAuth } from "@/hooks/use-auth";
-import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { toast } from "sonner";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -117,7 +117,7 @@ const BUILTIN_ROLES = [
 // Module icons and colors
 const MODULE_CONFIG: Record<string, { icon: string; color: string; bgColor: string }> = {
   users: { icon: "👥", color: "text-blue-700", bgColor: "bg-blue-50" },
-  academics: { icon: "📚", color: "text-purple-700", bgColor: "bg-purple-50" },
+  academics: { icon: "📚", color: "text-violet-700", bgColor: "bg-violet-50" },
   attendance: { icon: "📊", color: "text-emerald-700", bgColor: "bg-emerald-50" },
   examination: { icon: "📝", color: "text-amber-700", bgColor: "bg-amber-50" },
   finance: { icon: "💰", color: "text-green-700", bgColor: "bg-green-50" },
@@ -127,7 +127,7 @@ const MODULE_CONFIG: Record<string, { icon: string; color: string; bgColor: stri
   inventory: { icon: "📦", color: "text-violet-700", bgColor: "bg-violet-50" },
   boarding: { icon: "🏠", color: "text-teal-700", bgColor: "bg-teal-50" },
   settings: { icon: "⚙️", color: "text-slate-700", bgColor: "bg-slate-50" },
-  reports: { icon: "📈", color: "text-indigo-700", bgColor: "bg-indigo-50" },
+  reports: { icon: "📈", color: "text-sky-700", bgColor: "bg-sky-50" },
   self_service: { icon: "🔐", color: "text-pink-700", bgColor: "bg-pink-50" },
 };
 
@@ -147,7 +147,7 @@ function AccessDenied() {
   return (
     <DashboardLayout>
       <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center">
+        <div className="w-20 h-20 rounded-2xl bg-red-100 flex items-center justify-center">
           <Lock className="w-10 h-10 text-red-600" />
         </div>
         <h2 className="text-2xl font-bold text-slate-900">Access Denied</h2>
@@ -157,7 +157,7 @@ function AccessDenied() {
         </p>
         <Button
           variant="outline"
-          className="mt-4"
+          className="mt-4 min-h-[44px]"
           onClick={() => (window.location.href = "/admin")}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -168,10 +168,63 @@ function AccessDenied() {
   );
 }
 
+// ─── Page Skeleton ──────────────────────────────────────────────
+function PermissionsSkeleton() {
+  return (
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Header skeleton */}
+      <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div className="space-y-1.5">
+          <Skeleton className="h-6 w-52" />
+          <Skeleton className="h-4 w-60" />
+        </div>
+        <Skeleton className="h-11 w-32" />
+      </div>
+      {/* Stat card skeletons */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-[88px] rounded-2xl" />
+        ))}
+      </div>
+      {/* Tabs skeleton */}
+      <Skeleton className="h-11 w-64 rounded-xl" />
+      {/* Table skeleton */}
+      <div className="rounded-2xl border">
+        <Skeleton className="h-10 w-full rounded-t-2xl" />
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-14 w-full" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Stat Card Component ─────────────────────────────────────────
+function StatCard({ icon: Icon, label, value, color, borderColor }: {
+  icon: typeof CheckCircle2;
+  label: string;
+  value: string | number;
+  color: string;
+  borderColor: string;
+}) {
+  return (
+    <div className={`bg-white rounded-2xl border border-slate-200/60 p-4 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 border-l-4 ${borderColor}`}>
+      <div className="flex items-center gap-3">
+        <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center flex-shrink-0`}>
+          <Icon className="w-5 h-5 text-white" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{label}</p>
+          <p className="text-2xl font-bold text-slate-900 tabular-nums">{value}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ──────────────────────────────────────────────
 export default function PermissionsPage() {
   const { isLoading: authLoading, isSuperAdmin, hasPermission } = useAuth();
-  const { toast } = useToast();
 
   // Page state
   const [activeTab, setActiveTab] = useState<string>("roles");
@@ -219,11 +272,11 @@ export default function PermissionsPage() {
       }
     } catch (err) {
       console.error("Error fetching roles:", err);
-      toast({ title: "Error", description: "Failed to load roles", variant: "destructive" });
+      toast.error("Failed to load roles");
     } finally {
       setIsLoadingRoles(false);
     }
-  }, [toast]);
+  }, []);
 
   // ─── Fetch All Permissions ──────────────────────────────────
   const fetchPermissions = useCallback(async () => {
@@ -238,11 +291,11 @@ export default function PermissionsPage() {
       }
     } catch (err) {
       console.error("Error fetching permissions:", err);
-      toast({ title: "Error", description: "Failed to load permissions", variant: "destructive" });
+      toast.error("Failed to load permissions");
     } finally {
       setIsLoadingPermissions(false);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     if (!authLoading) {
@@ -257,9 +310,7 @@ export default function PermissionsPage() {
   if (authLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
-        </div>
+        <PermissionsSkeleton />
       </DashboardLayout>
     );
   }
@@ -299,7 +350,7 @@ export default function PermissionsPage() {
 
   const handleSaveRole = async () => {
     if (!roleForm.name.trim() || !roleForm.slug.trim()) {
-      toast({ title: "Validation Error", description: "Name and slug are required", variant: "destructive" });
+      toast.error("Name and slug are required");
       return;
     }
 
@@ -320,20 +371,17 @@ export default function PermissionsPage() {
       const json = await res.json();
 
       if (json.success) {
-        toast({
-          title: "Success",
-          description: editingRole
-            ? `Role "${roleForm.name}" updated successfully`
-            : `Role "${roleForm.name}" created successfully`,
-        });
+        toast.success(editingRole
+          ? `Role "${roleForm.name}" updated successfully`
+          : `Role "${roleForm.name}" created successfully`);
         setRoleDialogOpen(false);
         fetchRoles();
       } else {
-        toast({ title: "Error", description: json.error || "Failed to save role", variant: "destructive" });
+        toast.error(json.error || "Failed to save role");
       }
     } catch (err) {
       console.error("Error saving role:", err);
-      toast({ title: "Error", description: "Failed to save role", variant: "destructive" });
+      toast.error("Failed to save role");
     } finally {
       setIsSavingRole(false);
     }
@@ -353,16 +401,16 @@ export default function PermissionsPage() {
       const json = await res.json();
 
       if (json.success) {
-        toast({ title: "Success", description: `Role "${deletingRole.name}" deleted successfully` });
+        toast.success(`Role "${deletingRole.name}" deleted successfully`);
         setDeleteDialogOpen(false);
         setDeletingRole(null);
         fetchRoles();
       } else {
-        toast({ title: "Error", description: json.error || "Failed to delete role", variant: "destructive" });
+        toast.error(json.error || "Failed to delete role");
       }
     } catch (err) {
       console.error("Error deleting role:", err);
-      toast({ title: "Error", description: "Failed to delete role", variant: "destructive" });
+      toast.error("Failed to delete role");
     } finally {
       setIsDeleting(false);
     }
@@ -379,7 +427,6 @@ export default function PermissionsPage() {
       const json = await res.json();
 
       if (json.success) {
-        // The grouped data from API has the format: { module: [RolePermission...] }
         const grouped: PermissionGroup = {};
         for (const [mod, perms] of Object.entries(json.data.grouped)) {
           grouped[mod] = (perms as Array<{ permission: PermissionItem; isGranted: boolean }>).map(
@@ -397,7 +444,7 @@ export default function PermissionsPage() {
       }
     } catch (err) {
       console.error("Error fetching role permissions:", err);
-      toast({ title: "Error", description: "Failed to load role permissions", variant: "destructive" });
+      toast.error("Failed to load role permissions");
     } finally {
       setIsLoadingRolePerms(false);
     }
@@ -432,7 +479,6 @@ export default function PermissionsPage() {
   const handleSavePermissions = async () => {
     if (!selectedRole || !hasUnsavedChanges) return;
 
-    // Build the permissions object using all permissions in the role
     const allRolePerms = Object.values(rolePermissions).flat();
     const permissionsMap: Record<string, boolean> = {};
 
@@ -456,21 +502,16 @@ export default function PermissionsPage() {
       const json = await res.json();
 
       if (json.success) {
-        toast({
-          title: "Success",
-          description: json.message || `Permissions updated for "${selectedRole.name}"`,
-        });
+        toast.success(json.message || `Permissions updated for "${selectedRole.name}"`);
         setPermissionChanges({});
-        // Refresh the permission grid
         await openPermissionGrid(selectedRole);
-        // Also refresh roles to update permission count
         fetchRoles();
       } else {
-        toast({ title: "Error", description: json.error || "Failed to update permissions", variant: "destructive" });
+        toast.error(json.error || "Failed to update permissions");
       }
     } catch (err) {
       console.error("Error saving permissions:", err);
-      toast({ title: "Error", description: "Failed to update permissions", variant: "destructive" });
+      toast.error("Failed to update permissions");
     } finally {
       setIsSavingPermissions(false);
     }
@@ -483,14 +524,12 @@ export default function PermissionsPage() {
     for (const perm of modulePerms) {
       const key = String(perm.id);
       if (permissionChanges.hasOwnProperty(key)) {
-        // Already changed this permission, skip
         continue;
       }
       newChanges[key] = !currentAllGranted;
     }
 
     setPermissionChanges((prev) => {
-      // Remove previous changes for this module's already-toggled permissions
       const cleaned = { ...prev };
       for (const perm of modulePerms) {
         const key = String(perm.id);
@@ -520,12 +559,12 @@ export default function PermissionsPage() {
       <DashboardLayout>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9"
+                className="h-9 w-9 min-w-[36px]"
                 onClick={() => {
                   setSelectedRole(null);
                   setRolePermissions({});
@@ -572,77 +611,51 @@ export default function PermissionsPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Card className="gap-2 py-3">
-              <CardContent className="px-4 pb-0 pt-0">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500">Granted</p>
-                    <p className="text-lg font-bold text-emerald-700">
-                      {Object.values(rolePermissions)
-                        .flat()
-                        .filter((p) => getEffectivePermissionState(p, permissionChanges)).length}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="gap-2 py-3">
-              <CardContent className="px-4 pb-0 pt-0">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
-                    <XCircle className="w-4 h-4 text-slate-500" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500">Revoked</p>
-                    <p className="text-lg font-bold text-slate-600">
-                      {Object.values(rolePermissions)
-                        .flat()
-                        .filter((p) => !getEffectivePermissionState(p, permissionChanges)).length}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="gap-2 py-3">
-              <CardContent className="px-4 pb-0 pt-0">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                    <KeyRound className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500">Total</p>
-                    <p className="text-lg font-bold text-blue-700">
-                      {Object.values(rolePermissions).flat().length}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="gap-2 py-3">
-              <CardContent className="px-4 pb-0 pt-0">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
-                    <Users className="w-4 h-4 text-purple-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500">Users</p>
-                    <p className="text-lg font-bold text-purple-700">{selectedRole.userCount}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {isLoadingRolePerms ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-[88px] rounded-2xl" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <StatCard
+                icon={CheckCircle2}
+                label="Granted"
+                value={Object.values(rolePermissions).flat().filter((p) => getEffectivePermissionState(p, permissionChanges)).length}
+                color="bg-emerald-500"
+                borderColor="border-l-emerald-500"
+              />
+              <StatCard
+                icon={XCircle}
+                label="Revoked"
+                value={Object.values(rolePermissions).flat().filter((p) => !getEffectivePermissionState(p, permissionChanges)).length}
+                color="bg-slate-400"
+                borderColor="border-l-slate-400"
+              />
+              <StatCard
+                icon={KeyRound}
+                label="Total"
+                value={Object.values(rolePermissions).flat().length}
+                color="bg-sky-500"
+                borderColor="border-l-sky-500"
+              />
+              <StatCard
+                icon={Users}
+                label="Users"
+                value={selectedRole.userCount}
+                color="bg-violet-500"
+                borderColor="border-l-violet-500"
+              />
+            </div>
+          )}
 
           {/* Search */}
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
               placeholder="Search permissions..."
-              className="pl-10"
+              className="pl-10 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -652,13 +665,13 @@ export default function PermissionsPage() {
           {isLoadingRolePerms ? (
             <div className="space-y-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Card key={i}>
-                  <CardContent className="p-4 space-y-3">
+                <div key={i} className="rounded-2xl border">
+                  <div className="p-4 space-y-3">
                     <Skeleton className="h-6 w-40" />
                     <Skeleton className="h-10 w-full" />
                     <Skeleton className="h-10 w-full" />
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
@@ -672,14 +685,10 @@ export default function PermissionsPage() {
                 const allGranted = modulePerms.every(
                   (p) => getEffectivePermissionState(p, permissionChanges)
                 );
-                const allRevoked = modulePerms.every(
-                  (p) => !getEffectivePermissionState(p, permissionChanges)
-                );
                 const grantedCount = modulePerms.filter(
                   (p) => getEffectivePermissionState(p, permissionChanges)
                 ).length;
 
-                // Filter permissions by search
                 const filteredPerms = searchQuery.trim()
                   ? modulePerms.filter(
                       (p) =>
@@ -691,7 +700,7 @@ export default function PermissionsPage() {
                 if (filteredPerms.length === 0) return null;
 
                 return (
-                  <Card key={module} className="overflow-hidden">
+                  <div key={module} className="rounded-2xl border border-slate-200/60 bg-white overflow-hidden">
                     {/* Module Header */}
                     <div className={`flex items-center justify-between px-4 py-3 ${config.bgColor} border-b`}>
                       <div className="flex items-center gap-3">
@@ -708,7 +717,7 @@ export default function PermissionsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-xs h-8"
+                        className="text-xs h-9 min-h-[36px]"
                         onClick={() => toggleModule(module, allGranted)}
                       >
                         {allGranted ? (
@@ -728,7 +737,7 @@ export default function PermissionsPage() {
                         return (
                           <div
                             key={permission.id}
-                            className={`flex items-center justify-between px-4 py-3 gap-4 transition-colors ${
+                            className={`flex items-center justify-between px-4 py-3 gap-4 transition-colors min-h-[52px] ${
                               isChanged
                                 ? effectiveState
                                   ? "bg-emerald-50/60"
@@ -768,17 +777,20 @@ export default function PermissionsPage() {
                         );
                       })}
                     </div>
-                  </Card>
+                  </div>
                 );
               })}
 
               {filteredModules.length === 0 && (
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <Search className="w-8 h-8 mx-auto text-slate-300 mb-3" />
-                    <p className="text-slate-500">No permissions match your search</p>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl border border-slate-200/60 bg-white py-16">
+                  <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                      <Search className="w-8 h-8 text-slate-300" />
+                    </div>
+                    <p className="text-slate-500 font-medium">No permissions match your search</p>
+                    <p className="text-slate-400 text-sm mt-1">Try a different search term</p>
+                  </div>
+                </div>
               )}
             </div>
           )}
@@ -791,304 +803,309 @@ export default function PermissionsPage() {
   const levelBadgeColor = (level: number) => {
     if (level <= 1) return "bg-red-100 text-red-700 border-red-200";
     if (level <= 2) return "bg-amber-100 text-amber-700 border-amber-200";
-    if (level <= 4) return "bg-blue-100 text-blue-700 border-blue-200";
+    if (level <= 4) return "bg-sky-100 text-sky-700 border-sky-200";
     if (level <= 6) return "bg-emerald-100 text-emerald-700 border-emerald-200";
     return "bg-slate-100 text-slate-700 border-slate-200";
   };
 
+  const mainLoading = isLoadingRoles || isLoadingPermissions;
+
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                <Shield className="w-5 h-5 text-emerald-700" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                  Permissions Management
-                </h1>
-                <p className="text-sm text-slate-500 mt-0.5">
-                  Manage roles and control access to system features
-                </p>
-              </div>
+      {mainLoading && roles.length === 0 ? (
+        <PermissionsSkeleton />
+      ) : (
+        <div className="space-y-6 animate-in fade-in duration-300">
+          {/* Page Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                Permissions Management
+              </h1>
+              <p className="text-sm text-slate-500 mt-0.5">
+                Manage roles and control access to system features
+              </p>
             </div>
+            <Button
+              onClick={openCreateDialog}
+              className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] shadow-sm"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Role
+            </Button>
           </div>
-          <Button
-            onClick={openCreateDialog}
-            className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Role
-          </Button>
-        </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-white border border-slate-200 p-1 rounded-xl h-auto flex w-full sm:w-auto">
-            <TabsTrigger
-              value="roles"
-              className="flex-1 min-w-[120px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm"
-            >
-              <Users className="w-4 h-4 mr-1.5 hidden sm:inline" />
-              Roles
-            </TabsTrigger>
-            <TabsTrigger
-              value="permissions"
-              className="flex-1 min-w-[120px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm"
-            >
-              <KeyRound className="w-4 h-4 mr-1.5 hidden sm:inline" />
-              All Permissions
-            </TabsTrigger>
-          </TabsList>
+          {/* Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="bg-white border border-slate-200 p-1 rounded-xl h-auto flex w-full sm:w-auto">
+              <TabsTrigger
+                value="roles"
+                className="flex-1 min-w-[120px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm min-h-[44px]"
+              >
+                <Users className="w-4 h-4 mr-1.5 hidden sm:inline" />
+                Roles
+              </TabsTrigger>
+              <TabsTrigger
+                value="permissions"
+                className="flex-1 min-w-[120px] data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm min-h-[44px]"
+              >
+                <KeyRound className="w-4 h-4 mr-1.5 hidden sm:inline" />
+                All Permissions
+              </TabsTrigger>
+            </TabsList>
 
-          {/* ─── Roles Tab ──────────────────────────────────── */}
-          <TabsContent value="roles">
-            {isLoadingRoles ? (
-              <Card>
-                <CardContent className="p-6 space-y-3">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-4">
-                      <Skeleton className="h-5 w-32" />
-                      <Skeleton className="h-5 w-24" />
-                      <Skeleton className="h-5 w-16" />
-                      <Skeleton className="h-5 w-12" />
-                      <Skeleton className="h-8 w-8 ml-auto" />
-                      <Skeleton className="h-8 w-8" />
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            ) : (
-              <Card>
-                <CardHeader className="pb-3">
+            {/* ─── Roles Tab ──────────────────────────────────── */}
+            <TabsContent value="roles">
+              <div className="rounded-2xl border border-slate-200/60 bg-white overflow-hidden">
+                <div className="px-4 py-3 border-b border-slate-100">
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-base">System Roles</CardTitle>
-                      <CardDescription>
+                      <p className="text-base font-semibold">System Roles</p>
+                      <p className="text-xs text-slate-500">
                         {roles.length} role{roles.length !== 1 ? "s" : ""} configured
-                      </CardDescription>
+                      </p>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="rounded-lg border overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-slate-50 hover:bg-slate-50">
-                          <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                            Role Name
-                          </TableHead>
-                          <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell">
-                            Slug
-                          </TableHead>
-                          <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider hidden md:table-cell">
-                            Level
-                          </TableHead>
-                          <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider text-center">
-                            Users
-                          </TableHead>
-                          <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider text-center hidden sm:table-cell">
-                            Permissions
-                          </TableHead>
-                          <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider text-right">
-                            Actions
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {roles.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={6} className="text-center py-12 text-slate-400">
-                              No roles found. Click &quot;Create Role&quot; to add one.
-                            </TableCell>
+                </div>
+                <div className="overflow-hidden">
+                  {isLoadingRoles ? (
+                    <div className="p-6 space-y-3">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="flex items-center gap-4">
+                          <Skeleton className="h-5 w-32" />
+                          <Skeleton className="h-5 w-24" />
+                          <Skeleton className="h-5 w-16" />
+                          <Skeleton className="h-5 w-12" />
+                          <Skeleton className="h-8 w-8 ml-auto" />
+                          <Skeleton className="h-8 w-8" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-slate-50 hover:bg-slate-50">
+                            <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                              Role Name
+                            </TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell">
+                              Slug
+                            </TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider hidden md:table-cell">
+                              Level
+                            </TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider text-center">
+                              Users
+                            </TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider text-center hidden sm:table-cell">
+                              Permissions
+                            </TableHead>
+                            <TableHead className="text-xs font-semibold text-slate-600 uppercase tracking-wider text-right">
+                              Actions
+                            </TableHead>
                           </TableRow>
-                        ) : (
-                          roles.map((role) => {
-                            const isBuiltin = BUILTIN_ROLES.includes(role.slug);
-                            return (
-                              <TableRow key={role.id} className="cursor-pointer group" onClick={() => openPermissionGrid(role)}>
-                                <TableCell className="font-medium">
-                                  <div className="flex items-center gap-2">
-                                    <Shield className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
-                                    <div>
-                                      <span className="text-sm text-slate-900">{role.name}</span>
-                                      {role.isDefault && (
-                                        <Badge variant="secondary" className="text-[10px] ml-2 px-1.5 py-0">
-                                          Default
-                                        </Badge>
-                                      )}
-                                    </div>
+                        </TableHeader>
+                        <TableBody>
+                          {roles.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={6} className="text-center py-16">
+                                <div className="flex flex-col items-center">
+                                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                                    <Shield className="w-8 h-8 text-slate-300" />
                                   </div>
-                                </TableCell>
-                                <TableCell className="hidden sm:table-cell">
-                                  <code className="text-xs bg-slate-100 px-2 py-1 rounded font-mono text-slate-600">
-                                    {role.slug}
-                                  </code>
-                                </TableCell>
-                                <TableCell className="hidden md:table-cell">
-                                  <Badge variant="outline" className={`text-[10px] px-2 py-0 ${levelBadgeColor(role.level)}`}>
-                                    Level {role.level}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell className="text-center">
-                                  <span className="text-sm text-slate-700 font-medium tabular-nums">
-                                    {role.userCount}
-                                  </span>
-                                </TableCell>
-                                <TableCell className="text-center hidden sm:table-cell">
-                                  <span className="text-sm text-slate-700 font-medium tabular-nums">
-                                    {role.grantedPermissionCount}
-                                  </span>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-8 w-8"
-                                      onClick={() => openPermissionGrid(role)}
-                                      title="View/Edit Permissions"
-                                    >
-                                      <Eye className="w-3.5 h-3.5 text-emerald-600" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-8 w-8"
-                                      onClick={() => openEditDialog(role)}
-                                      title="Edit Role"
-                                    >
-                                      <Pencil className="w-3.5 h-3.5 text-slate-500" />
-                                    </Button>
-                                    {!isBuiltin && (
+                                  <p className="text-slate-500 font-medium">No roles found</p>
+                                  <p className="text-slate-400 text-sm mt-1">Click &quot;Create Role&quot; to add one</p>
+                                  <Button variant="outline" size="sm" onClick={openCreateDialog} className="mt-4 min-h-[44px]">
+                                    <Plus className="w-4 h-4 mr-1.5" /> Create Role
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ) : (
+                            roles.map((role) => {
+                              const isBuiltin = BUILTIN_ROLES.includes(role.slug);
+                              return (
+                                <TableRow key={role.id} className="cursor-pointer group" onClick={() => openPermissionGrid(role)}>
+                                  <TableCell className="font-medium">
+                                    <div className="flex items-center gap-2">
+                                      <Shield className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+                                      <div>
+                                        <span className="text-sm text-slate-900">{role.name}</span>
+                                        {role.isDefault && (
+                                          <Badge variant="secondary" className="text-[10px] ml-2 px-1.5 py-0">
+                                            Default
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="hidden sm:table-cell">
+                                    <code className="text-xs bg-slate-100 px-2 py-1 rounded font-mono text-slate-600">
+                                      {role.slug}
+                                    </code>
+                                  </TableCell>
+                                  <TableCell className="hidden md:table-cell">
+                                    <Badge variant="outline" className={`text-[10px] px-2 py-0 ${levelBadgeColor(role.level)}`}>
+                                      Level {role.level}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    <span className="text-sm text-slate-700 font-medium tabular-nums">
+                                      {role.userCount}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell className="text-center hidden sm:table-cell">
+                                    <span className="text-sm text-slate-700 font-medium tabular-nums">
+                                      {role.grantedPermissionCount}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                                       <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-8 w-8 hover:bg-red-50 hover:text-red-600"
-                                        onClick={() => openDeleteDialog(role)}
-                                        title="Delete Role"
-                                        disabled={role.userCount > 0}
+                                        className="min-w-[32px] h-8 w-8"
+                                        onClick={() => openPermissionGrid(role)}
+                                        title="View/Edit Permissions"
                                       >
-                                        <Trash2 className="w-3.5 h-3.5" />
+                                        <Eye className="w-3.5 h-3.5 text-emerald-600" />
                                       </Button>
-                                    )}
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          {/* ─── Permissions Overview Tab ────────────────────── */}
-          <TabsContent value="permissions">
-            {isLoadingPermissions ? (
-              <div className="space-y-4">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Card key={i}>
-                    <CardContent className="p-4 space-y-3">
-                      <Skeleton className="h-6 w-40" />
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-64" />
-                        <Skeleton className="h-4 w-48" />
-                        <Skeleton className="h-4 w-56" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="min-w-[32px] h-8 w-8"
+                                        onClick={() => openEditDialog(role)}
+                                        title="Edit Role"
+                                      >
+                                        <Pencil className="w-3.5 h-3.5 text-slate-500" />
+                                      </Button>
+                                      {!isBuiltin && (
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="min-w-[32px] h-8 w-8 hover:bg-red-50 hover:text-red-600"
+                                          onClick={() => openDeleteDialog(role)}
+                                          title="Delete Role"
+                                          disabled={role.userCount > 0}
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </Button>
+                                      )}
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Summary Card */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-base">System Permissions Overview</CardTitle>
-                        <CardDescription>
-                          {allPermissions.length} permissions across {modules.length} modules
-                        </CardDescription>
+            </TabsContent>
+
+            {/* ─── Permissions Overview Tab ────────────────────── */}
+            <TabsContent value="permissions">
+              {isLoadingPermissions ? (
+                <div className="space-y-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="rounded-2xl border">
+                      <div className="p-4 space-y-3">
+                        <Skeleton className="h-6 w-40" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-64" />
+                          <Skeleton className="h-4 w-48" />
+                          <Skeleton className="h-4 w-56" />
+                        </div>
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-                      {modules.map((mod) => {
-                        const config = MODULE_CONFIG[mod] || { icon: "📋", color: "text-slate-700", bgColor: "bg-slate-50" };
-                        const count = permissionsGrouped[mod]?.length || 0;
-                        return (
-                          <div
-                            key={mod}
-                            className={`rounded-lg border px-3 py-2.5 text-center ${config.bgColor} border-slate-200/60 hover:shadow-sm transition-shadow cursor-default`}
-                          >
-                            <span className="text-lg">{config.icon}</span>
-                            <p className={`text-xs font-semibold capitalize mt-1 ${config.color}`}>
-                              {mod.replace(/_/g, " ")}
-                            </p>
-                            <p className="text-[10px] text-slate-500">{count} perm{count !== 1 ? "s" : ""}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* All Permissions by Module */}
-                {modules.map((mod) => {
-                  const config = MODULE_CONFIG[mod] || { icon: "📋", color: "text-slate-700", bgColor: "bg-slate-50" };
-                  const perms = permissionsGrouped[mod] || [];
-
-                  return (
-                    <Card key={mod} className="overflow-hidden">
-                      <div className={`flex items-center gap-3 px-4 py-3 ${config.bgColor} border-b`}>
-                        <span className="text-xl">{config.icon}</span>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Summary Card */}
+                  <div className="rounded-2xl border border-slate-200/60 bg-white overflow-hidden">
+                    <div className="px-4 py-3 border-b border-slate-100">
+                      <div className="flex items-center justify-between">
                         <div>
-                          <h3 className={`font-semibold text-sm capitalize ${config.color}`}>
-                            {mod.replace(/_/g, " ")}
-                          </h3>
+                          <p className="text-base font-semibold">System Permissions Overview</p>
                           <p className="text-xs text-slate-500">
-                            {perms.length} permission{perms.length !== 1 ? "s" : ""}
+                            {allPermissions.length} permissions across {modules.length} modules
                           </p>
                         </div>
                       </div>
-                      <div className="divide-y">
-                        {perms.map((perm) => (
-                          <div key={perm.id} className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors">
-                            <code className="text-xs font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded flex-shrink-0">
-                              {perm.name}
-                            </code>
-                            <span className="text-sm text-slate-700">{perm.displayName}</span>
-                          </div>
-                        ))}
+                    </div>
+                    <div className="p-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+                        {modules.map((mod) => {
+                          const config = MODULE_CONFIG[mod] || { icon: "📋", color: "text-slate-700", bgColor: "bg-slate-50" };
+                          const count = permissionsGrouped[mod]?.length || 0;
+                          return (
+                            <div
+                              key={mod}
+                              className={`rounded-xl border px-3 py-2.5 text-center ${config.bgColor} border-slate-200/60 hover:shadow-sm transition-shadow cursor-default`}
+                            >
+                              <span className="text-lg">{config.icon}</span>
+                              <p className={`text-xs font-semibold capitalize mt-1 ${config.color}`}>
+                                {mod.replace(/_/g, " ")}
+                              </p>
+                              <p className="text-[10px] text-slate-500">{count} perm{count !== 1 ? "s" : ""}</p>
+                            </div>
+                          );
+                        })}
                       </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
-      </div>
+                    </div>
+                  </div>
+
+                  {/* All Permissions by Module */}
+                  {modules.map((mod) => {
+                    const config = MODULE_CONFIG[mod] || { icon: "📋", color: "text-slate-700", bgColor: "bg-slate-50" };
+                    const perms = permissionsGrouped[mod] || [];
+
+                    return (
+                      <div key={mod} className="rounded-2xl border border-slate-200/60 bg-white overflow-hidden">
+                        <div className={`flex items-center gap-3 px-4 py-3 ${config.bgColor} border-b`}>
+                          <span className="text-xl">{config.icon}</span>
+                          <div>
+                            <h3 className={`font-semibold text-sm capitalize ${config.color}`}>
+                              {mod.replace(/_/g, " ")}
+                            </h3>
+                            <p className="text-xs text-slate-500">
+                              {perms.length} permission{perms.length !== 1 ? "s" : ""}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="divide-y">
+                          {perms.map((perm) => (
+                            <div key={perm.id} className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors">
+                              <code className="text-xs font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded flex-shrink-0">
+                                {perm.name}
+                              </code>
+                              <span className="text-sm text-slate-700">{perm.displayName}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
+      )}
 
       {/* ─── Create/Edit Role Dialog ─────────────────────────── */}
       <Dialog open={roleDialogOpen} onOpenChange={setRoleDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {editingRole ? (
-                <><Pencil className="w-4 h-4 text-emerald-600" /> Edit Role</>
-              ) : (
-                <><Plus className="w-4 h-4 text-emerald-600" /> Create Role</>
-              )}
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${editingRole ? 'bg-amber-100' : 'bg-emerald-100'}`}>
+                {editingRole ? <Pencil className="w-4 h-4 text-amber-600" /> : <Plus className="w-4 h-4 text-emerald-600" />}
+              </div>
+              {editingRole ? "Edit Role" : "Create Role"}
             </DialogTitle>
             <DialogDescription>
               {editingRole
@@ -1104,6 +1121,7 @@ export default function PermissionsPage() {
                 placeholder="e.g., HR Manager"
                 value={roleForm.name}
                 onChange={(e) => handleRoleFormChange("name", e.target.value)}
+                className="min-h-[44px]"
               />
             </div>
             <div className="space-y-2">
@@ -1113,7 +1131,7 @@ export default function PermissionsPage() {
                 placeholder="e.g., hr-manager"
                 value={roleForm.slug}
                 onChange={(e) => handleRoleFormChange("slug", e.target.value)}
-                className="font-mono text-sm"
+                className="font-mono text-sm min-h-[44px]"
               />
               <p className="text-xs text-slate-400">
                 Auto-generated from name. Used for internal identification.
@@ -1132,7 +1150,7 @@ export default function PermissionsPage() {
             <div className="space-y-2">
               <Label htmlFor="role-level">Access Level</Label>
               <Select value={String(roleForm.level)} onValueChange={(v) => handleRoleFormChange("level", Number(v))}>
-                <SelectTrigger>
+                <SelectTrigger className="min-h-[44px]">
                   <SelectValue placeholder="Select level" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1182,7 +1200,9 @@ export default function PermissionsPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </div>
               Delete Role
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -1206,7 +1226,7 @@ export default function PermissionsPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting} className="min-h-[44px]">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteRole}
               disabled={isDeleting || (deletingRole?.userCount ?? 0) > 0}

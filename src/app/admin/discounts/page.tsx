@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Select,
@@ -88,6 +89,51 @@ interface Assignment {
 
 function fmt(n: number) {
   return `GH₵ ${(n || 0).toFixed(2)}`;
+}
+
+// ── Page Skeleton ────────────────────────────────────────────────────
+function DiscountsSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Header skeleton */}
+      <div className="pb-4 border-b border-slate-100">
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-52" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+      </div>
+      {/* Stat card skeletons */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="rounded-2xl border border-slate-200/60 bg-white p-4">
+            <div className="flex items-center gap-3">
+              <Skeleton className="w-11 h-11 rounded-xl flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <Skeleton className="h-3 w-20 mb-2" />
+                <Skeleton className="h-6 w-12" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Tabs skeleton */}
+      <Skeleton className="h-10 w-full max-w-sm rounded-xl" />
+      {/* Content skeleton */}
+      <div className="rounded-2xl border border-slate-200/60 bg-white">
+        <div className="p-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-11 w-full max-w-sm rounded-lg" />
+            <Skeleton className="h-11 w-36 rounded-lg" />
+          </div>
+        </div>
+        <div className="p-4 space-y-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-10 w-full" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function DiscountsPage() {
@@ -396,51 +442,46 @@ export default function DiscountsPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-md">
-              <Percent className="w-5 h-5 text-white" />
-            </div>
+        <div className="pb-4 border-b border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Discount Management</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Discount Management</h1>
               <p className="text-sm text-slate-500 mt-1">Discount profiles, student assignments, and application</p>
             </div>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
           {[
-            { label: 'Total Profiles', value: profileStats.total, icon: Tag, color: 'text-violet-600', bg: 'bg-violet-50' },
-            { label: 'Active', value: profileStats.active, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-            { label: 'Invoice Discounts', value: profileStats.invoice, icon: FileText, color: 'text-sky-600', bg: 'bg-sky-50' },
-            { label: 'Daily Fees Discounts', value: profileStats.daily_fees, icon: CalendarCheck, color: 'text-amber-600', bg: 'bg-amber-50' },
-            { label: 'Total Assignments', value: profileStats.assignments, icon: Users, color: 'text-rose-600', bg: 'bg-rose-50' },
+            { label: 'Total Profiles', value: profileStats.total, icon: Tag, borderColor: 'border-l-violet-500', bg: 'bg-violet-500' },
+            { label: 'Active', value: profileStats.active, icon: CheckCircle, borderColor: 'border-l-emerald-500', bg: 'bg-emerald-500' },
+            { label: 'Invoice Discounts', value: profileStats.invoice, icon: FileText, borderColor: 'border-l-sky-500', bg: 'bg-sky-500' },
+            { label: 'Daily Fees Discounts', value: profileStats.daily_fees, icon: CalendarCheck, borderColor: 'border-l-amber-500', bg: 'bg-amber-500' },
+            { label: 'Total Assignments', value: profileStats.assignments, icon: Users, borderColor: 'border-l-rose-500', bg: 'bg-rose-500' },
           ].map((s) => (
-            <Card key={s.label}>
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-lg ${s.bg} flex items-center justify-center`}>
-                    <s.icon className={`w-4 h-4 ${s.color}`} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">{s.label}</p>
-                    <p className="text-lg font-bold text-slate-900">{s.value}</p>
-                  </div>
+            <div key={s.label} className={`rounded-2xl border border-slate-200/60 bg-white p-4 hover:-translate-y-0.5 hover:shadow-lg transition-all border-l-4 ${s.borderColor}`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-11 h-11 rounded-xl ${s.bg} flex items-center justify-center flex-shrink-0`}>
+                  <s.icon className="w-5 h-5 text-white" />
                 </div>
-              </CardContent>
-            </Card>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{s.label}</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{s.value}</p>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="profiles">
+          <TabsList className="bg-white border border-slate-200 p-1 rounded-xl h-auto w-full sm:w-auto">
+            <TabsTrigger value="profiles" className="flex-1 data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
               <Tag className="w-3.5 h-3.5 mr-1.5" />
               Discount Profiles
             </TabsTrigger>
-            <TabsTrigger value="assignments">
+            <TabsTrigger value="assignments" className="flex-1 data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-lg py-2 text-sm">
               <Users className="w-3.5 h-3.5 mr-1.5" />
               Student Assignments
             </TabsTrigger>
@@ -459,7 +500,7 @@ export default function DiscountsPage() {
                   </button>
                 </div>
                 <Select value={categoryFilter === '' ? '__all__' : categoryFilter} onValueChange={(v) => setCategoryFilter(v === '__all__' ? '' : v)}>
-                  <SelectTrigger className="w-40 h-9 text-xs"><Filter className="w-3 h-3 mr-1" /><SelectValue placeholder="All Categories" /></SelectTrigger>
+                  <SelectTrigger className="w-40 min-h-[44px] text-xs bg-slate-50 border-slate-200 focus:bg-white"><Filter className="w-3 h-3 mr-1" /><SelectValue placeholder="All Categories" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__all__">All Categories</SelectItem>
                     <SelectItem value="invoice">Invoice</SelectItem>
@@ -467,7 +508,7 @@ export default function DiscountsPage() {
                   </SelectContent>
                 </Select>
                 <Select value={statusFilter === '' ? '__all__' : statusFilter} onValueChange={(v) => setStatusFilter(v === '__all__' ? '' : v)}>
-                  <SelectTrigger className="w-36 h-9 text-xs"><SelectValue placeholder="All Status" /></SelectTrigger>
+                  <SelectTrigger className="w-36 min-h-[44px] text-xs bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="All Status" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__all__">All Status</SelectItem>
                     <SelectItem value="1">Active</SelectItem>
@@ -475,34 +516,60 @@ export default function DiscountsPage() {
                   </SelectContent>
                 </Select>
                 <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                  <Input placeholder="Search profiles..." value={profileSearch} onChange={(e) => setProfileSearch(e.target.value)} className="pl-8 h-9 w-48 text-xs" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input placeholder="Search profiles..." value={profileSearch} onChange={(e) => setProfileSearch(e.target.value)} className="pl-10 min-h-[44px] w-48 bg-slate-50 border-slate-200 focus:bg-white" />
                 </div>
               </div>
-              <Button onClick={openCreateProfile} className="bg-violet-600 hover:bg-violet-700 h-9 text-sm shadow-sm">
+              <Button onClick={openCreateProfile} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] text-sm">
                 <Plus className="w-4 h-4 mr-1.5" /> Create Profile
               </Button>
             </div>
 
+            {/* Active Filter Chips */}
+            {(categoryFilter || statusFilter || profileSearch) && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-slate-400 font-medium">Active filters:</span>
+                {profileSearch && (
+                  <button onClick={() => setProfileSearch('')} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-medium hover:bg-emerald-100 transition-colors">
+                    Search: &quot;{profileSearch}&quot;
+                    <RotateCcw className="w-3 h-3" />
+                  </button>
+                )}
+                {categoryFilter && (
+                  <button onClick={() => setCategoryFilter('')} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-medium hover:bg-emerald-100 transition-colors">
+                    Category: {categoryFilter === 'invoice' ? 'Invoice' : 'Daily Fees'}
+                    <RotateCcw className="w-3 h-3" />
+                  </button>
+                )}
+                {statusFilter && (
+                  <button onClick={() => setStatusFilter('')} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-medium hover:bg-emerald-100 transition-colors">
+                    Status: {statusFilter === '1' ? 'Active' : 'Inactive'}
+                    <RotateCcw className="w-3 h-3" />
+                  </button>
+                )}
+                <button onClick={() => { setProfileSearch(''); setCategoryFilter(''); setStatusFilter(''); }} className="text-xs text-slate-500 hover:text-slate-700 font-medium underline">Clear all</button>
+              </div>
+            )}
+
             {profilesLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-40 rounded-xl" />)}
+                {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-40 rounded-2xl" />)}
               </div>
             ) : profiles.length === 0 ? (
-              <Card>
-                <CardContent className="py-16 text-center text-slate-400">
-                  <Gift className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p className="text-sm font-medium">No discount profiles found</p>
-                  <p className="text-xs mt-1">Create your first discount profile to get started</p>
-                  <Button onClick={openCreateProfile} className="mt-4 bg-violet-600 hover:bg-violet-700" size="sm">
-                    <Plus className="w-3.5 h-3.5 mr-1" /> Create Profile
-                  </Button>
-                </CardContent>
-              </Card>
+              <div className="rounded-2xl border border-slate-200/60 bg-white py-16 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                  <Gift className="w-8 h-8 text-slate-300" />
+                </div>
+                <p className="text-sm font-medium text-slate-500">No discount profiles found</p>
+                <p className="text-xs mt-1 text-slate-400">Create your first discount profile to get started</p>
+                <Button onClick={openCreateProfile} variant="outline" className="mt-4 min-h-[44px]">
+                  <Plus className="w-3.5 h-3.5 mr-1" /> Create Profile
+                </Button>
+              </div>
             ) : profileViewMode === 'table' ? (
-              <Card>
+              <Card className="rounded-2xl border-slate-200/60">
                 <CardContent className="p-0">
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto rounded-2xl">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b bg-slate-50">
@@ -557,10 +624,10 @@ export default function DiscountsPage() {
                             </td>
                             <td className="py-3 px-4">
                               <div className="flex items-center justify-center gap-1">
-                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditProfile(p)}>
+                                <Button variant="ghost" size="icon" className="h-8 min-w-[32px] w-8" onClick={() => openEditProfile(p)}>
                                   <Edit className="w-3.5 h-3.5" />
                                 </Button>
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => { setDeletingProfile(p); setDeleteDialogOpen(true); }}>
+                                <Button variant="ghost" size="icon" className="h-8 min-w-[32px] w-8 text-red-500" onClick={() => { setDeletingProfile(p); setDeleteDialogOpen(true); }}>
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </Button>
                               </div>
@@ -623,44 +690,41 @@ export default function DiscountsPage() {
           {/* ===================== ASSIGNMENTS TAB ===================== */}
           <TabsContent value="assignments" className="mt-4">
             {/* Assignment Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
               {[
-                { label: 'Total Assignments', value: assignmentStats.total, icon: Users, color: 'text-violet-600', bg: 'bg-violet-50', borderColor: 'border-violet-200' },
-                { label: 'Active Discounts', value: assignmentStats.active, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50', borderColor: 'border-emerald-200' },
-                { label: 'Inactive Discounts', value: assignmentStats.inactive, icon: XCircle, color: 'text-red-500', bg: 'bg-red-50', borderColor: 'border-red-200' },
-                { label: 'Unique Students', value: assignmentStats.uniqueStudents, icon: GraduationCap, color: 'text-sky-600', bg: 'bg-sky-50', borderColor: 'border-sky-200' },
+                { label: 'Total Assignments', value: assignmentStats.total, icon: Users, borderColor: 'border-l-violet-500', bg: 'bg-violet-500' },
+                { label: 'Active Discounts', value: assignmentStats.active, icon: CheckCircle, borderColor: 'border-l-emerald-500', bg: 'bg-emerald-500' },
+                { label: 'Inactive Discounts', value: assignmentStats.inactive, icon: XCircle, borderColor: 'border-l-red-500', bg: 'bg-red-500' },
+                { label: 'Unique Students', value: assignmentStats.uniqueStudents, icon: GraduationCap, borderColor: 'border-l-sky-500', bg: 'bg-sky-500' },
               ].map((s) => (
-                <Card key={s.label} className={`border ${s.borderColor}`}>
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-8 h-8 rounded-lg ${s.bg} flex items-center justify-center`}>
-                        <s.icon className={`w-4 h-4 ${s.color}`} />
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">{s.label}</p>
-                        <p className="text-lg font-bold text-slate-900">{s.value}</p>
-                      </div>
+                <div key={s.label} className={`rounded-2xl border border-slate-200/60 bg-white p-4 hover:-translate-y-0.5 hover:shadow-lg transition-all border-l-4 ${s.borderColor}`}>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-11 h-11 rounded-xl ${s.bg} flex items-center justify-center flex-shrink-0`}>
+                      <s.icon className="w-5 h-5 text-white" />
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{s.label}</p>
+                      <p className="text-2xl font-bold text-slate-900 tabular-nums">{s.value}</p>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
 
             {/* Toolbar */}
-            <Card className="mb-4">
-              <CardContent className="p-3">
+            <div className="rounded-2xl border border-slate-200/60 bg-white p-4 mb-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex items-center gap-2 flex-wrap flex-1">
                     <div className="relative flex-1 min-w-[200px]">
-                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                      <Input placeholder="Search by student, code, or profile..." value={assignmentSearch} onChange={(e) => setAssignmentSearch(e.target.value)} className="pl-8 h-9 w-full text-xs" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input placeholder="Search by student, code, or profile..." value={assignmentSearch} onChange={(e) => setAssignmentSearch(e.target.value)} className="pl-10 min-h-[44px] w-full bg-slate-50 border-slate-200 focus:bg-white" />
                     </div>
                     <Select value={filterYear === '' ? '__all__' : filterYear} onValueChange={(v) => setFilterYear(v === '__all__' ? '' : v)}>
-                      <SelectTrigger className="w-32 h-9 text-xs"><SelectValue placeholder="Year" /></SelectTrigger>
+                      <SelectTrigger className="min-h-[44px] w-32 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Year" /></SelectTrigger>
                       <SelectContent><SelectItem value="__all__">All Years</SelectItem></SelectContent>
                     </Select>
                     <Select value={filterTerm === '' ? '__all__' : filterTerm} onValueChange={(v) => setFilterTerm(v === '__all__' ? '' : v)}>
-                      <SelectTrigger className="w-28 h-9 text-xs"><SelectValue placeholder="Term" /></SelectTrigger>
+                      <SelectTrigger className="min-h-[44px] w-28 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Term" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__all__">All Terms</SelectItem>
                         <SelectItem value="1">Term 1</SelectItem>
@@ -669,14 +733,14 @@ export default function DiscountsPage() {
                       </SelectContent>
                     </Select>
                     <Select value={filterProfile === '' ? '__all__' : filterProfile} onValueChange={(v) => setFilterProfile(v === '__all__' ? '' : v)}>
-                      <SelectTrigger className="w-40 h-9 text-xs"><SelectValue placeholder="All Profiles" /></SelectTrigger>
+                      <SelectTrigger className="min-h-[44px] w-40 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="All Profiles" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__all__">All Profiles</SelectItem>
                         {profilesList.map((p) => <SelectItem key={p.profile_id} value={String(p.profile_id)}>{p.profile_name}</SelectItem>)}
                       </SelectContent>
                     </Select>
                     <Select value={filterStatus === '' ? '__all__' : filterStatus} onValueChange={(v) => setFilterStatus(v === '__all__' ? '' : v)}>
-                      <SelectTrigger className="w-32 h-9 text-xs"><SelectValue placeholder="All Status" /></SelectTrigger>
+                      <SelectTrigger className="min-h-[44px] w-32 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="All Status" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__all__">All Status</SelectItem>
                         <SelectItem value="1">Active</SelectItem>
@@ -685,16 +749,56 @@ export default function DiscountsPage() {
                     </Select>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <Button variant="outline" size="sm" className="h-9 text-xs" onClick={handleBulkToggleAssignments} disabled={selectedAssignments.length === 0}>
+                    <Button variant="outline" className="min-h-[44px] text-xs" onClick={handleBulkToggleAssignments} disabled={selectedAssignments.length === 0}>
                       <ArrowUpDown className="w-3.5 h-3.5 mr-1" /> Bulk Toggle ({selectedAssignments.length})
                     </Button>
-                    <Button onClick={handleOpenAssign} className="bg-violet-600 hover:bg-violet-700 h-9 text-sm shadow-sm">
+                    <Button onClick={handleOpenAssign} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px] text-sm">
                       <UserPlus className="w-4 h-4 mr-1.5" /> Assign Students
                     </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+            </div>
+
+            {/* Active Filter Chips */}
+            {(assignmentSearch || filterStatus || filterYear || filterTerm || filterProfile) && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-slate-400 font-medium">Active filters:</span>
+                {assignmentSearch && (
+                  <button onClick={() => setAssignmentSearch('')} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-medium hover:bg-emerald-100 transition-colors">
+                    Search: &quot;{assignmentSearch}&quot;
+                    <RotateCcw className="w-3 h-3" />
+                  </button>
+                )}
+                {filterStatus && (
+                  <button onClick={() => setFilterStatus('')} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-medium hover:bg-emerald-100 transition-colors">
+                    Status: {filterStatus === '1' ? 'Active' : 'Inactive'}
+                    <RotateCcw className="w-3 h-3" />
+                  </button>
+                )}
+                {filterYear && (
+                  <button onClick={() => setFilterYear('')} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-medium hover:bg-emerald-100 transition-colors">
+                    Year: {filterYear}
+                    <RotateCcw className="w-3 h-3" />
+                  </button>
+                )}
+                {filterTerm && (
+                  <button onClick={() => setFilterTerm('')} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-medium hover:bg-emerald-100 transition-colors">
+                    Term: {filterTerm}
+                    <RotateCcw className="w-3 h-3" />
+                  </button>
+                )}
+                {filterProfile && (() => {
+                  const p = profilesList.find(x => x.profile_id === parseInt(filterProfile));
+                  return p ? (
+                    <button key="profile" onClick={() => setFilterProfile('')} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-medium hover:bg-emerald-100 transition-colors">
+                      Profile: {p.profile_name}
+                      <RotateCcw className="w-3 h-3" />
+                    </button>
+                  ) : null;
+                })()}
+                <button onClick={() => { setAssignmentSearch(''); setFilterStatus(''); setFilterYear(''); setFilterTerm(''); setFilterProfile(''); }} className="text-xs text-slate-500 hover:text-slate-700 font-medium underline">Clear all</button>
+              </div>
+            )}
 
             {/* View Toggle */}
             <div className="flex bg-slate-100 rounded-lg p-0.5 w-fit mb-4">
@@ -710,16 +814,20 @@ export default function DiscountsPage() {
             {assignmentsLoading ? (
               <div className="p-4 space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
             ) : filteredAssignments.length === 0 ? (
-              <Card>
-                <CardContent className="py-16 text-center text-slate-400">
-                  <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p className="text-sm">No assignments found</p>
-                </CardContent>
-              </Card>
+              <div className="rounded-2xl border border-slate-200/60 bg-white py-16 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-8 h-8 text-slate-300" />
+                </div>
+                <p className="text-sm font-medium text-slate-500">No assignments found</p>
+                <p className="text-xs mt-1 text-slate-400">Assign discount profiles to students to get started</p>
+                <Button onClick={handleOpenAssign} variant="outline" className="mt-4 min-h-[44px]">
+                  <UserPlus className="w-3.5 h-3.5 mr-1.5" /> Assign Students
+                </Button>
+              </div>
             ) : assignmentViewMode === 'table' ? (
-              <Card>
+              <Card className="rounded-2xl border-slate-200/60">
                 <CardContent className="p-0">
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto rounded-2xl">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b bg-slate-50">
@@ -782,10 +890,10 @@ export default function DiscountsPage() {
                             </td>
                             <td className="py-3 px-4 text-center">
                               <div className="flex items-center justify-center gap-1">
-                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditAssignment(a)}>
+                                <Button variant="ghost" size="icon" className="h-8 min-w-[32px] w-8" onClick={() => openEditAssignment(a)}>
                                   <Edit className="w-3.5 h-3.5" />
                                 </Button>
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => handleUnassign(a.assignment_id)}>
+                                <Button variant="ghost" size="icon" className="h-8 min-w-[32px] w-8 text-red-500" onClick={() => handleUnassign(a.assignment_id)}>
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </Button>
                               </div>
@@ -852,18 +960,28 @@ export default function DiscountsPage() {
         <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>{editingProfile ? 'Edit Discount Profile' : 'Create Discount Profile'}</DialogTitle>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center">
+                  <Tag className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <DialogTitle>{editingProfile ? 'Edit Discount Profile' : 'Create Discount Profile'}</DialogTitle>
+                  <DialogDescription>
+                    {editingProfile ? 'Update the discount profile details below.' : 'Create a new discount profile for students.'}
+                  </DialogDescription>
+                </div>
+              </div>
             </DialogHeader>
             <div className="space-y-4 py-2">
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium">Profile Name *</Label>
-                <Input placeholder="e.g., Staff Children Discount" value={profileForm.profile_name} onChange={(e) => setProfileForm({ ...profileForm, profile_name: e.target.value })} />
+                <Input placeholder="e.g., Staff Children Discount" value={profileForm.profile_name} onChange={(e) => setProfileForm({ ...profileForm, profile_name: e.target.value })} className="min-h-[44px]" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium">Category *</Label>
                   <Select value={profileForm.discount_category} onValueChange={(v) => setProfileForm({ ...profileForm, discount_category: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="min-h-[44px] bg-slate-50"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="daily_fees">📅 Daily Fees</SelectItem>
                       <SelectItem value="invoice">📄 Invoice</SelectItem>
@@ -873,7 +991,7 @@ export default function DiscountsPage() {
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium">Method</Label>
                   <Select value={profileForm.discount_method} onValueChange={(v) => setProfileForm({ ...profileForm, discount_method: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="min-h-[44px] bg-slate-50"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="percentage">📊 Percentage (%)</SelectItem>
                       <SelectItem value="fixed">💰 Fixed (GH₵)</SelectItem>
@@ -884,11 +1002,11 @@ export default function DiscountsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium">Value *</Label>
-                  <Input type="number" step="0.01" min="0" placeholder={profileForm.discount_method === 'percentage' ? 'e.g. 50' : 'e.g. 10.00'} value={profileForm.discount_value} onChange={(e) => setProfileForm({ ...profileForm, discount_value: e.target.value })} />
+                  <Input type="number" step="0.01" min="0" placeholder={profileForm.discount_method === 'percentage' ? 'e.g. 50' : 'e.g. 10.00'} value={profileForm.discount_value} onChange={(e) => setProfileForm({ ...profileForm, discount_value: e.target.value })} className="min-h-[44px]" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium">Fee Types</Label>
-                  <Input placeholder="feeding,classes,transport" value={profileForm.discount_type} onChange={(e) => setProfileForm({ ...profileForm, discount_type: e.target.value })} />
+                  <Input placeholder="feeding,classes,transport" value={profileForm.discount_type} onChange={(e) => setProfileForm({ ...profileForm, discount_type: e.target.value })} className="min-h-[44px]" />
                 </div>
               </div>
               <div className="space-y-1.5">
@@ -905,8 +1023,8 @@ export default function DiscountsPage() {
               )}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setProfileDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleSaveProfile} disabled={savingProfile || !profileForm.profile_name} className="bg-violet-600 hover:bg-violet-700">
+              <Button variant="outline" onClick={() => setProfileDialogOpen(false)} className="min-h-[44px]">Cancel</Button>
+              <Button onClick={handleSaveProfile} disabled={savingProfile || !profileForm.profile_name} className="bg-violet-600 hover:bg-violet-700 min-h-[44px]">
                 {savingProfile ? 'Saving...' : editingProfile ? 'Update Profile' : 'Create Profile'}
               </Button>
             </DialogFooter>
@@ -917,14 +1035,21 @@ export default function DiscountsPage() {
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Discount Profile</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete &quot;{deletingProfile?.profile_name}&quot;? This will also remove all student assignments for this profile. This action cannot be undone.
-              </AlertDialogDescription>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <AlertDialogTitle>Delete Discount Profile</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete &quot;{deletingProfile?.profile_name}&quot;? This will also remove all student assignments for this profile. This action cannot be undone.
+                  </AlertDialogDescription>
+                </div>
+              </div>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteProfile} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+              <AlertDialogCancel className="min-h-[44px]">Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteProfile} className="bg-red-600 hover:bg-red-700 min-h-[44px]">Delete</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -933,17 +1058,22 @@ export default function DiscountsPage() {
         <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
           <DialogContent className="sm:max-w-2xl max-h-[80vh]">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-violet-600" />
-                Assign Discount to Students
-              </DialogTitle>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center">
+                  <UserPlus className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <DialogTitle>Assign Discount to Students</DialogTitle>
+                  <DialogDescription>Select a discount profile and students to apply it to.</DialogDescription>
+                </div>
+              </div>
             </DialogHeader>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium">Discount Profile *</Label>
                   <Select value={assignProfileId} onValueChange={setAssignProfileId}>
-                    <SelectTrigger><SelectValue placeholder="Select profile" /></SelectTrigger>
+                    <SelectTrigger className="min-h-[44px] bg-slate-50"><SelectValue placeholder="Select profile" /></SelectTrigger>
                     <SelectContent>
                       {profilesList.map((p) => <SelectItem key={p.profile_id} value={String(p.profile_id)}>{p.profile_name}</SelectItem>)}
                     </SelectContent>
@@ -951,7 +1081,7 @@ export default function DiscountsPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium">Search Students</Label>
-                  <Input placeholder="Name or code..." value={assignSearch} onChange={(e) => setAssignSearch(e.target.value)} />
+                  <Input placeholder="Name or code..." value={assignSearch} onChange={(e) => setAssignSearch(e.target.value)} className="min-h-[44px]" />
                 </div>
               </div>
               <div className="flex items-center justify-between">
@@ -988,8 +1118,8 @@ export default function DiscountsPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleBulkAssign} disabled={assigning || selectedStudentIds.length === 0 || !assignProfileId} className="bg-violet-600 hover:bg-violet-700">
+              <Button variant="outline" onClick={() => setAssignDialogOpen(false)} className="min-h-[44px]">Cancel</Button>
+              <Button onClick={handleBulkAssign} disabled={assigning || selectedStudentIds.length === 0 || !assignProfileId} className="bg-violet-600 hover:bg-violet-700 min-h-[44px]">
                 {assigning ? 'Assigning...' : `Assign to ${selectedStudentIds.length} Student(s)`}
               </Button>
             </DialogFooter>
@@ -1000,10 +1130,15 @@ export default function DiscountsPage() {
         <Dialog open={editAssignDialogOpen} onOpenChange={setEditAssignDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Edit className="w-5 h-5 text-violet-600" />
-                Edit Assignment
-              </DialogTitle>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center">
+                  <Edit className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <DialogTitle>Edit Assignment</DialogTitle>
+                  <DialogDescription>Change the discount profile for this student assignment.</DialogDescription>
+                </div>
+              </div>
             </DialogHeader>
             <div className="space-y-4 py-2">
               {editingAssignment && (
@@ -1016,7 +1151,7 @@ export default function DiscountsPage() {
                   <div className="space-y-1.5">
                     <Label className="text-xs font-medium">Discount Profile *</Label>
                     <Select value={editAssignProfileId} onValueChange={setEditAssignProfileId}>
-                      <SelectTrigger><SelectValue placeholder="Select profile" /></SelectTrigger>
+                      <SelectTrigger className="min-h-[44px] bg-slate-50"><SelectValue placeholder="Select profile" /></SelectTrigger>
                       <SelectContent>
                         {profilesList.map((p) => <SelectItem key={p.profile_id} value={String(p.profile_id)}>{p.profile_name}</SelectItem>)}
                       </SelectContent>
@@ -1026,8 +1161,8 @@ export default function DiscountsPage() {
               )}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setEditAssignDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleSaveEditAssignment} disabled={savingAssignEdit || !editAssignProfileId} className="bg-violet-600 hover:bg-violet-700">
+              <Button variant="outline" onClick={() => setEditAssignDialogOpen(false)} className="min-h-[44px]">Cancel</Button>
+              <Button onClick={handleSaveEditAssignment} disabled={savingAssignEdit || !editAssignProfileId} className="bg-violet-600 hover:bg-violet-700 min-h-[44px]">
                 {savingAssignEdit ? 'Updating...' : 'Update Assignment'}
               </Button>
             </DialogFooter>
@@ -1038,14 +1173,21 @@ export default function DiscountsPage() {
         <AlertDialog open={unassignDialogOpen} onOpenChange={setUnassignDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Remove Discount Assignment</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to remove this discount assignment? The student will no longer receive this discount.
-              </AlertDialogDescription>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <AlertDialogTitle>Remove Discount Assignment</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to remove this discount assignment? The student will no longer receive this discount.
+                  </AlertDialogDescription>
+                </div>
+              </div>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmUnassign} className="bg-red-600 hover:bg-red-700">Remove</AlertDialogAction>
+              <AlertDialogCancel className="min-h-[44px]">Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmUnassign} className="bg-red-600 hover:bg-red-700 min-h-[44px]">Remove</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -11,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import {
   AlertTriangle, AlertCircle, Clock, DollarSign, Shield, CreditCard,
-  TrendingDown, FileText, Wallet, Bell, Info,
+  TrendingDown, Wallet, Bell, Info,
 } from 'lucide-react';
 
 interface Alert {
@@ -60,6 +59,25 @@ const typeConfig: Record<string, { label: string; icon: any; color: string; bg: 
   pending_approvals: { label: 'Pending Approval', icon: Shield, color: 'text-emerald-600', bg: 'bg-emerald-50' },
 };
 
+function FinancialAlertsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <Skeleton className="h-7 w-48 mb-1" />
+        <Skeleton className="h-4 w-80" />
+        <div className="border-b border-slate-100 mt-3" />
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-28 rounded-2xl" />
+        ))}
+      </div>
+      <Skeleton className="h-10 rounded-xl" />
+      <Skeleton className="h-64 rounded-2xl" />
+    </div>
+  );
+}
+
 export default function FinancialAlertsPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [summary, setSummary] = useState<AlertSummary | null>(null);
@@ -79,36 +97,40 @@ export default function FinancialAlertsPage() {
 
   useEffect(() => { fetchAlerts(); }, [fetchAlerts]);
 
+  if (loading && !summary) return (
+    <DashboardLayout>
+      <FinancialAlertsSkeleton />
+    </DashboardLayout>
+  );
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center shadow-md">
-              <AlertTriangle className="w-5 h-5 text-white" />
-            </div>
-            Financial Alerts
-          </h1>
-          <p className="text-sm text-slate-500 mt-1 ml-[52px]">Monitor overdue payments, high balances, and unusual activity</p>
+        {/* Page Header */}
+        <div className="border-b border-slate-100 pb-4">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Financial Alerts</h1>
+          <p className="text-sm text-slate-500 mt-1">Monitor overdue payments, high balances, and unusual activity</p>
         </div>
 
         {/* Severity Summary */}
         {summary && (
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
             {[
-              { label: 'Total', value: summary.total, color: 'from-slate-500 to-slate-600', icon: Bell },
-              { label: 'Critical', value: summary.critical, color: 'from-red-500 to-rose-500', icon: AlertCircle },
-              { label: 'High', value: summary.high, color: 'from-amber-500 to-orange-500', icon: AlertTriangle },
-              { label: 'Medium', value: summary.medium, color: 'from-sky-500 to-cyan-500', icon: Info },
-              { label: 'Low', value: summary.low, color: 'from-slate-400 to-slate-500', icon: Bell },
+              { label: 'Total', value: summary.total, icon: Bell, borderColor: 'border-slate-500', iconBg: 'bg-slate-500' },
+              { label: 'Critical', value: summary.critical, icon: AlertCircle, borderColor: 'border-red-500', iconBg: 'bg-red-500' },
+              { label: 'High', value: summary.high, icon: AlertTriangle, borderColor: 'border-amber-500', iconBg: 'bg-amber-500' },
+              { label: 'Medium', value: summary.medium, icon: Info, borderColor: 'border-sky-500', iconBg: 'bg-sky-500' },
+              { label: 'Low', value: summary.low, icon: Bell, borderColor: 'border-slate-400', iconBg: 'bg-slate-400' },
             ].map(s => (
-              <Card key={s.label}>
-                <CardContent className="p-3 text-center">
-                  <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center mx-auto mb-1`}>
-                    <s.icon className="w-4 h-4 text-white" />
+              <Card key={s.label} className={`rounded-2xl border-l-4 ${s.borderColor} hover:shadow-lg hover:-translate-y-0.5 transition-all`}>
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className={`w-11 h-11 rounded-xl ${s.iconBg} flex items-center justify-center flex-shrink-0`}>
+                    <s.icon className="w-5 h-5 text-white" />
                   </div>
-                  <p className="text-xl font-bold text-slate-900">{s.value}</p>
-                  <p className="text-[10px] text-slate-400 uppercase">{s.label}</p>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{s.label}</p>
+                    <p className="text-2xl font-bold text-slate-900 tabular-nums">{s.value}</p>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -118,24 +140,27 @@ export default function FinancialAlertsPage() {
         {/* Type Filter Tabs */}
         <Tabs value={activeType} onValueChange={setActiveType}>
           <TabsList className="flex-wrap h-auto gap-1">
-            <TabsTrigger value="all" className="gap-1.5"><Bell className="w-3.5 h-3.5" />All</TabsTrigger>
-            <TabsTrigger value="overdue" className="gap-1.5"><Clock className="w-3.5 h-3.5" />Overdue</TabsTrigger>
-            <TabsTrigger value="high_balance" className="gap-1.5"><Wallet className="w-3.5 h-3.5" />High Balance</TabsTrigger>
-            <TabsTrigger value="unusual" className="gap-1.5"><TrendingDown className="w-3.5 h-3.5" />Unusual</TabsTrigger>
-            <TabsTrigger value="shortfall" className="gap-1.5"><DollarSign className="w-3.5 h-3.5" />Shortfall</TabsTrigger>
-            <TabsTrigger value="pending_approvals" className="gap-1.5"><Shield className="w-3.5 h-3.5" />Pending</TabsTrigger>
+            <TabsTrigger value="all" className="gap-1.5 min-h-[44px]"><Bell className="w-3.5 h-3.5" />All</TabsTrigger>
+            <TabsTrigger value="overdue" className="gap-1.5 min-h-[44px]"><Clock className="w-3.5 h-3.5" />Overdue</TabsTrigger>
+            <TabsTrigger value="high_balance" className="gap-1.5 min-h-[44px]"><Wallet className="w-3.5 h-3.5" />High Balance</TabsTrigger>
+            <TabsTrigger value="unusual" className="gap-1.5 min-h-[44px]"><TrendingDown className="w-3.5 h-3.5" />Unusual</TabsTrigger>
+            <TabsTrigger value="shortfall" className="gap-1.5 min-h-[44px]"><DollarSign className="w-3.5 h-3.5" />Shortfall</TabsTrigger>
+            <TabsTrigger value="pending_approvals" className="gap-1.5 min-h-[44px]"><Shield className="w-3.5 h-3.5" />Pending</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeType} className="mt-4">
-            <Card>
+            <Card className="rounded-2xl border-slate-200/60">
               <CardContent className="p-0">
                 <ScrollArea className="max-h-[700px]">
                   {loading ? (
                     <div className="p-4 space-y-3">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}</div>
                   ) : alerts.length === 0 ? (
-                    <div className="text-center py-16 text-slate-400">
-                      <AlertTriangle className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                      <p className="text-sm">No alerts found</p>
+                    <div className="text-center py-16">
+                      <div className="w-16 h-16 rounded-2xl bg-emerald-100 mx-auto flex items-center justify-center mb-3">
+                        <AlertCircle className="w-8 h-8 text-emerald-500" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-700">No alerts found</p>
+                      <p className="text-xs text-slate-400 mt-1">Everything looks good — no financial issues detected</p>
                     </div>
                   ) : (
                     <div className="divide-y">
@@ -165,7 +190,7 @@ export default function FinancialAlertsPage() {
                                     </span>
                                   )}
                                   {alert.amount !== undefined && (
-                                    <span className="text-[10px] font-mono font-semibold text-red-600">{fmt(alert.amount)}</span>
+                                    <span className="text-[10px] font-mono font-semibold text-red-600 tabular-nums">{fmt(alert.amount)}</span>
                                   )}
                                   {alert.days !== undefined && (
                                     <span className="text-[10px] text-slate-400">{alert.days} days</span>

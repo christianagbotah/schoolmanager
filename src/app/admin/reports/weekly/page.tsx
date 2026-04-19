@@ -10,8 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import {
-  CalendarDays, Users, DollarSign, TrendingUp, TrendingDown, Printer, Download,
-  UserCheck, AlertTriangle, UserPlus, BarChart3, FileBarChart, ChevronRight,
+  CalendarDays, DollarSign, TrendingUp, TrendingDown, Printer, Download,
+  UserCheck, AlertTriangle, UserPlus, BarChart3,
   Clock, CreditCard,
 } from 'lucide-react';
 
@@ -39,6 +39,34 @@ function getWeekRanges() {
     });
   }
   return ranges;
+}
+
+/* ---------- loading skeleton ---------- */
+
+function WeeklyReportSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+        <Skeleton className="w-10 h-10 rounded-xl" />
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-60" />
+          <Skeleton className="h-4 w-80" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-24 rounded-xl" />
+        ))}
+      </div>
+      <Skeleton className="h-14 rounded-xl" />
+      <Skeleton className="h-72 rounded-xl" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Skeleton className="h-64 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+      <Skeleton className="h-40 rounded-xl" />
+    </div>
+  );
 }
 
 export default function WeeklyReportPage() {
@@ -127,19 +155,20 @@ export default function WeeklyReportPage() {
     toast.success('Weekly report exported as CSV');
   };
 
+  if (loading && !summary) return (
+    <DashboardLayout>
+      <WeeklyReportSkeleton />
+    </DashboardLayout>
+  );
+
   return (
     <DashboardLayout>
       <div className="space-y-6 print:p-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center flex-shrink-0">
-              <CalendarDays className="w-5 h-5 text-sky-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Weekly Academic Summary</h1>
-              <p className="text-sm text-slate-500 mt-0.5">Attendance, fee collection, and performance overview</p>
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden pb-4 border-b border-slate-100">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Weekly Academic Summary</h1>
+            <p className="text-sm text-slate-500 mt-1">Attendance, fee collection, and performance overview</p>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={handleExportCSV} className="min-h-[44px]">
@@ -175,7 +204,7 @@ export default function WeeklyReportPage() {
                       else { setUseCustomRange(false); setWeekIndex(v); }
                     }}
                   >
-                    <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {weekRanges.map((r, i) => (
                         <SelectItem key={i} value={String(i)}>{r.label}</SelectItem>
@@ -192,7 +221,7 @@ export default function WeeklyReportPage() {
                         type="date"
                         value={customStart}
                         onChange={(e) => setCustomStart(e.target.value)}
-                        className="w-full min-h-[44px] px-3 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
+                        className="w-full min-h-[44px] px-3 rounded-md border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 focus:bg-white"
                       />
                     </div>
                     <div>
@@ -201,7 +230,7 @@ export default function WeeklyReportPage() {
                         type="date"
                         value={customEnd}
                         onChange={(e) => setCustomEnd(e.target.value)}
-                        className="w-full min-h-[44px] px-3 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
+                        className="w-full min-h-[44px] px-3 rounded-md border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 focus:bg-white"
                       />
                     </div>
                   </>
@@ -209,7 +238,7 @@ export default function WeeklyReportPage() {
                 <div>
                   <label className="text-xs font-medium text-slate-500 mb-1 block">Class</label>
                   <Select value={classFilter} onValueChange={(v) => v === '__all__' ? setClassFilter('') : setClassFilter(v)}>
-                    <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="All Classes" /></SelectTrigger>
+                    <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="All Classes" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__all__">All Classes</SelectItem>
                       {classes.map((c) => <SelectItem key={c.class_id} value={String(c.class_id)}>{c.name}</SelectItem>)}
@@ -222,68 +251,60 @@ export default function WeeklyReportPage() {
         </Card>
 
         {/* Summary Cards */}
-        {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Card key={i} className="border-l-4 border-l-slate-200"><CardContent className="p-4"><Skeleton className="h-16 w-full" /></CardContent></Card>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="border-l-4 border-l-emerald-500 hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                    <UserCheck className="w-5 h-5 text-emerald-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-500 font-medium">Attendance Rate</p>
-                    <p className="text-xl font-bold text-slate-900">{summary?.attendanceRate || 0}%</p>
-                  </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="border-l-4 border-l-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                  <UserCheck className="w-5 h-5 text-white" />
                 </div>
-              </CardContent>
-            </Card>
-            <Card className="border-l-4 border-l-sky-500 hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center flex-shrink-0">
-                    <DollarSign className="w-5 h-5 text-sky-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-500 font-medium">Fees Collected</p>
-                    <p className="text-xl font-bold text-slate-900">{fmt(summary?.feesCollected || 0)}</p>
-                  </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Attendance Rate</p>
+                  <p className="text-xl font-bold text-slate-900 tabular-nums">{summary?.attendanceRate || 0}%</p>
                 </div>
-              </CardContent>
-            </Card>
-            <Card className="border-l-4 border-l-violet-500 hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center flex-shrink-0">
-                    <UserPlus className="w-5 h-5 text-violet-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-500 font-medium">New Admissions</p>
-                    <p className="text-xl font-bold text-slate-900">{summary?.newAdmissions || 0}</p>
-                  </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-l-4 border-l-sky-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-sky-500 flex items-center justify-center flex-shrink-0">
+                  <DollarSign className="w-5 h-5 text-white" />
                 </div>
-              </CardContent>
-            </Card>
-            <Card className="border-l-4 border-l-amber-500 hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
-                    <AlertTriangle className="w-5 h-5 text-amber-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-500 font-medium">Discipline Incidents</p>
-                    <p className="text-xl font-bold text-slate-900">{summary?.incidents || 0}</p>
-                  </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Fees Collected</p>
+                  <p className="text-xl font-bold text-slate-900 tabular-nums">{fmt(summary?.feesCollected || 0)}</p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-l-4 border-l-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center flex-shrink-0">
+                  <UserPlus className="w-5 h-5 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">New Admissions</p>
+                  <p className="text-xl font-bold text-slate-900 tabular-nums">{summary?.newAdmissions || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-l-4 border-l-amber-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Discipline Incidents</p>
+                  <p className="text-xl font-bold text-slate-900 tabular-nums">{summary?.incidents || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Attendance Chart */}
         <Card className="border-slate-200/60">
@@ -298,8 +319,11 @@ export default function WeeklyReportPage() {
               <Skeleton className="h-48 w-full" />
             ) : chartData.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-                <Clock className="w-10 h-10 mb-2 opacity-40" />
-                <p className="text-sm">No attendance data for this period</p>
+                <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-3">
+                  <Clock className="w-8 h-8 text-slate-300" />
+                </div>
+                <p className="text-sm font-medium text-slate-600">No attendance data for this period</p>
+                <p className="text-xs text-slate-400 mt-1">Try selecting a different week range</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -344,8 +368,10 @@ export default function WeeklyReportPage() {
                 <div className="p-4 space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
               ) : topPerformers.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-                  <TrendingUp className="w-10 h-10 mb-2 opacity-40" />
-                  <p className="text-sm">No performance data</p>
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
+                    <TrendingUp className="w-8 h-8 text-emerald-300" />
+                  </div>
+                  <p className="text-sm font-medium text-slate-600">No performance data</p>
                 </div>
               ) : (
                 <>
@@ -409,8 +435,10 @@ export default function WeeklyReportPage() {
                 <div className="p-4 space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
               ) : bottomPerformers.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-                  <TrendingUp className="w-10 h-10 mb-2 opacity-40" />
-                  <p className="text-sm">No students need improvement</p>
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
+                    <TrendingUp className="w-8 h-8 text-emerald-300" />
+                  </div>
+                  <p className="text-sm font-medium text-slate-600">No students need improvement</p>
                 </div>
               ) : (
                 <>
@@ -476,21 +504,23 @@ export default function WeeklyReportPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="text-center p-4 bg-sky-50 rounded-xl border border-sky-100">
                   <p className="text-xs text-slate-500 font-medium mb-1">Total Invoiced</p>
-                  <p className="text-lg font-bold text-sky-700">{fmt(summary.totalInvoiced)}</p>
+                  <p className="text-lg font-bold text-sky-700 tabular-nums">{fmt(summary.totalInvoiced)}</p>
                 </div>
                 <div className="text-center p-4 bg-emerald-50 rounded-xl border border-emerald-100">
                   <p className="text-xs text-slate-500 font-medium mb-1">Fees Collected</p>
-                  <p className="text-lg font-bold text-emerald-700">{fmt(summary.feesCollected)}</p>
+                  <p className="text-lg font-bold text-emerald-700 tabular-nums">{fmt(summary.feesCollected)}</p>
                 </div>
                 <div className="text-center p-4 bg-amber-50 rounded-xl border border-amber-100">
                   <p className="text-xs text-slate-500 font-medium mb-1">Outstanding</p>
-                  <p className="text-lg font-bold text-amber-700">{fmt(summary.totalPending)}</p>
+                  <p className="text-lg font-bold text-amber-700 tabular-nums">{fmt(summary.totalPending)}</p>
                 </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-8 text-slate-400">
-                <CreditCard className="w-10 h-10 mb-2 opacity-40" />
-                <p className="text-sm">No financial data</p>
+                <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-3">
+                  <CreditCard className="w-8 h-8 text-slate-300" />
+                </div>
+                <p className="text-sm font-medium text-slate-600">No financial data</p>
               </div>
             )}
           </CardContent>

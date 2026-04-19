@@ -102,31 +102,28 @@ export default function ApprovalsPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            Approval Requests
-          </h1>
-          <p className="text-sm text-slate-500 mt-1 ml-[52px]">Review and manage pending modification requests</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b border-slate-100">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Approval Requests</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Review and manage pending modification requests</p>
+          </div>
         </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Pending', count: statusCounts.pending || 0, icon: Clock, color: 'from-amber-500 to-orange-500', bg: 'bg-amber-50' },
-            { label: 'Approved', count: statusCounts.approved || 0, icon: CheckCircle, color: 'from-emerald-500 to-teal-500', bg: 'bg-emerald-50' },
-            { label: 'Rejected', count: statusCounts.rejected || 0, icon: XCircle, color: 'from-red-500 to-rose-500', bg: 'bg-red-50' },
+            { label: 'Pending', count: statusCounts.pending || 0, icon: Clock, borderColor: 'border-l-amber-500', iconBg: 'bg-amber-500' },
+            { label: 'Approved', count: statusCounts.approved || 0, icon: CheckCircle, borderColor: 'border-l-emerald-500', iconBg: 'bg-emerald-500' },
+            { label: 'Rejected', count: statusCounts.rejected || 0, icon: XCircle, borderColor: 'border-l-red-500', iconBg: 'bg-red-500' },
           ].map(s => (
-            <Card key={s.label}>
+            <Card key={s.label} className={`${s.borderColor} hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200`}>
               <CardContent className="p-4 flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center shadow-sm`}>
+                <div className={`${s.iconBg} w-11 h-11 rounded-xl flex items-center justify-center`}>
                   <s.icon className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">{s.label}</p>
-                  <p className="text-xl font-bold text-slate-900">{s.count}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{s.label}</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{s.count}</p>
                 </div>
               </CardContent>
             </Card>
@@ -149,7 +146,9 @@ export default function ApprovalsPage() {
                     <div className="p-4 space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}</div>
                   ) : requests.length === 0 ? (
                     <div className="text-center py-16 text-slate-400">
-                      <Shield className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                      <div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto mb-3">
+                        <Shield className="w-7 h-7 text-amber-500" />
+                      </div>
                       <p className="text-sm">No {activeTab} requests</p>
                     </div>
                   ) : (
@@ -187,10 +186,10 @@ export default function ApprovalsPage() {
                               </div>
                               {req.status === 'pending' && (
                                 <div className="flex gap-1.5 flex-shrink-0">
-                                  <Button size="sm" className="h-8 bg-emerald-500 hover:bg-emerald-600 text-white" onClick={() => setActionDialog({ open: true, request: req, action: 'approve' })}>
+                                  <Button size="sm" className="min-h-[44px] bg-emerald-500 hover:bg-emerald-600 text-white" onClick={() => setActionDialog({ open: true, request: req, action: 'approve' })}>
                                     <CheckCircle className="w-3.5 h-3.5 mr-1" />Approve
                                   </Button>
-                                  <Button size="sm" variant="outline" className="h-8 text-red-600 hover:bg-red-50 border-red-200" onClick={() => setActionDialog({ open: true, request: req, action: 'reject' })}>
+                                  <Button size="sm" variant="outline" className="min-h-[44px] text-red-600 hover:bg-red-50 border-red-200" onClick={() => setActionDialog({ open: true, request: req, action: 'reject' })}>
                                     <XCircle className="w-3.5 h-3.5 mr-1" />Reject
                                   </Button>
                                 </div>
@@ -224,8 +223,8 @@ export default function ApprovalsPage() {
                   <Textarea value={reason} onChange={(e) => setReason(e.target.value)} placeholder={actionDialog.action === 'approve' ? 'Optional reason for approval...' : 'Reason for rejection...'} rows={3} />
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setActionDialog({ open: false, request: null, action: 'approve' })} className="flex-1">Cancel</Button>
-                  <Button onClick={handleAction} disabled={processing} className={`flex-1 ${actionDialog.action === 'approve' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-red-500 hover:bg-red-600'} text-white`}>
+                  <Button variant="outline" onClick={() => setActionDialog({ open: false, request: null, action: 'approve' })} className="flex-1 min-h-[44px]">Cancel</Button>
+                  <Button onClick={handleAction} disabled={processing} className={`flex-1 min-h-[44px] ${actionDialog.action === 'approve' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-red-500 hover:bg-red-600'} text-white`}>
                     {processing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     {actionDialog.action === 'approve' ? 'Approve' : 'Reject'}
                   </Button>

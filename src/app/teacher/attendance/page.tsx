@@ -205,9 +205,16 @@ export default function TeacherAttendancePage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* ─── Header ─────────────────────────────────────── */}
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Mark Attendance</h1>
-          <p className="text-sm text-slate-500 mt-1">Record daily student attendance for your classes</p>
+        <div className="border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center">
+              <CheckCheck className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Mark Attendance</h1>
+              <p className="text-sm text-slate-500 mt-1">Record daily student attendance for your classes</p>
+            </div>
+          </div>
         </div>
 
         {/* ─── Filters ────────────────────────────────────── */}
@@ -217,7 +224,7 @@ export default function TeacherAttendancePage() {
               <div className="space-y-2">
                 <Label>Class</Label>
                 <Select value={selectedClassId} onValueChange={(v) => { setSelectedClassId(v); setSelectedSectionId(""); }}>
-                  <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
+                  <SelectTrigger className="bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select class" /></SelectTrigger>
                   <SelectContent>
                     {classes.map((c) => (
                       <SelectItem key={c.class_id} value={String(c.class_id)}>{c.name}</SelectItem>
@@ -228,7 +235,7 @@ export default function TeacherAttendancePage() {
               <div className="space-y-2">
                 <Label>Section</Label>
                 <Select value={selectedSectionId} onValueChange={setSelectedSectionId}>
-                  <SelectTrigger><SelectValue placeholder="Select section" /></SelectTrigger>
+                  <SelectTrigger className="bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select section" /></SelectTrigger>
                   <SelectContent>
                     {sections.map((s) => (
                       <SelectItem key={s.section_id} value={String(s.section_id)}>{s.name}</SelectItem>
@@ -238,7 +245,7 @@ export default function TeacherAttendancePage() {
               </div>
               <div className="space-y-2">
                 <Label>Date</Label>
-                <Input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+                <Input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="bg-slate-50 border-slate-200 focus:bg-white" />
               </div>
             </div>
           </CardContent>
@@ -292,7 +299,9 @@ export default function TeacherAttendancePage() {
                 </div>
               ) : students.length === 0 ? (
                 <div className="text-center py-12">
-                  <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                    <Users className="w-8 h-8 text-slate-400" />
+                  </div>
                   <p className="text-slate-400 text-sm">No students found in this class</p>
                 </div>
               ) : (
@@ -397,7 +406,9 @@ export default function TeacherAttendancePage() {
           <Card className="gap-4">
             <CardContent className="py-16">
               <div className="text-center">
-                <Users className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-8 h-8 text-slate-400" />
+                </div>
                 <h3 className="text-lg font-medium text-slate-600">Select a class to begin</h3>
                 <p className="text-sm text-slate-400 mt-1">Choose a class and section above to mark attendance</p>
               </div>

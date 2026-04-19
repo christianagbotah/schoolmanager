@@ -16,7 +16,7 @@ import {
   GraduationCap,
   User,
   Bell,
-  Bus,
+  LayoutDashboard,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -112,20 +112,36 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-// ─── Stat Skeleton ───────────────────────────────────────────
-function StatSkeleton() {
+// ─── Full-Page Skeleton ─────────────────────────────────────
+function DashboardSkeleton() {
   return (
-    <Card className="gap-4 py-4">
-      <CardContent className="px-4 pb-0 pt-0">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2 flex-1">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-8 w-16" />
-          </div>
-          <Skeleton className="h-10 w-10 rounded-xl" />
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <div className="pb-4 border-b border-slate-100">
+        <Skeleton className="h-8 w-56" />
+        <Skeleton className="h-4 w-80 mt-2" />
+      </div>
+      <Skeleton className="h-36 w-full rounded-2xl" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="py-4">
+            <CardContent className="px-4 pb-0 pt-0">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-8 w-16" />
+                </div>
+                <Skeleton className="h-11 w-11 rounded-xl" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Skeleton className="h-80 w-full rounded-2xl" />
+        <Skeleton className="h-80 w-full rounded-2xl" />
+      </div>
+      <Skeleton className="h-48 w-full rounded-2xl" />
+    </div>
   );
 }
 
@@ -169,18 +185,7 @@ export default function StudentDashboard() {
   if (authLoading || isLoading) {
     return (
       <DashboardLayout>
-        <div className="space-y-6">
-          <Skeleton className="h-32 w-full rounded-xl" />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <StatSkeleton key={i} />
-            ))}
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Skeleton className="h-80 w-full rounded-xl" />
-            <Skeleton className="h-80 w-full rounded-xl" />
-          </div>
-        </div>
+        <DashboardSkeleton />
       </DashboardLayout>
     );
   }
@@ -190,12 +195,12 @@ export default function StudentDashboard() {
     return (
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-2xl bg-red-100 flex items-center justify-center">
             <AlertTriangle className="w-8 h-8 text-red-600" />
           </div>
           <h2 className="text-xl font-semibold text-slate-900">Something went wrong</h2>
           <p className="text-slate-500">{error}</p>
-          <Button onClick={fetchData} variant="outline">
+          <Button onClick={fetchData} variant="outline" className="min-h-[44px]">
             <Loader2 className="w-4 h-4 mr-2" />
             Try Again
           </Button>
@@ -207,6 +212,17 @@ export default function StudentDashboard() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        {/* ─── Page Header ─────────────────────────────────── */}
+        <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+          <div className="w-11 h-11 rounded-xl bg-amber-500 flex items-center justify-center">
+            <LayoutDashboard className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
+            <p className="text-sm text-slate-500">Welcome back! Here&apos;s your overview.</p>
+          </div>
+        </div>
+
         {/* ─── Welcome Card ─────────────────────────────────── */}
         <Card className="bg-gradient-to-r from-amber-500 to-orange-500 border-0 text-white">
           <CardContent className="p-6">
@@ -240,57 +256,57 @@ export default function StudentDashboard() {
 
         {/* ─── Stat Cards ──────────────────────────────────── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="gap-4 py-4 border-l-4 border-l-amber-500 hover:shadow-md transition-shadow">
+          <Card className="py-4 border-l-4 border-l-amber-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-500">My Subjects</p>
-                  <p className="text-2xl font-bold text-amber-600">{subjects}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">My Subjects</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{subjects}</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-amber-600" />
+                <div className="w-11 h-11 rounded-xl bg-amber-500 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-white" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="gap-4 py-4 border-l-4 border-l-emerald-500 hover:shadow-md transition-shadow">
+          <Card className="py-4 border-l-4 border-l-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-500">Attendance</p>
-                  <p className="text-2xl font-bold text-emerald-600">{attendancePct}%</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Attendance</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{attendancePct}%</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                  <ClipboardCheck className="w-5 h-5 text-emerald-600" />
+                <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center">
+                  <ClipboardCheck className="w-5 h-5 text-white" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="gap-4 py-4 border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
+          <Card className="py-4 border-l-4 border-l-red-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-500">Fee Balance</p>
-                  <p className="text-2xl font-bold text-red-600">{formatCurrency(feeBalance)}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Fee Balance</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{formatCurrency(feeBalance)}</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
-                  <Receipt className="w-5 h-5 text-red-600" />
+                <div className="w-11 h-11 rounded-xl bg-red-500 flex items-center justify-center">
+                  <Receipt className="w-5 h-5 text-white" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="gap-4 py-4 border-l-4 border-l-purple-500 hover:shadow-md transition-shadow">
+          <Card className="py-4 border-l-4 border-l-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-slate-500">Recent Marks</p>
-                  <p className="text-2xl font-bold text-purple-600">{data?.recentMarks?.length || 0}</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Recent Marks</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{data?.recentMarks?.length || 0}</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
-                  <Award className="w-5 h-5 text-purple-600" />
+                <div className="w-11 h-11 rounded-xl bg-violet-500 flex items-center justify-center">
+                  <Award className="w-5 h-5 text-white" />
                 </div>
               </div>
             </CardContent>
@@ -369,8 +385,11 @@ export default function StudentDashboard() {
               <div className="max-h-80 overflow-y-auto">
                 {(!data?.todayRoutines || data.todayRoutines.length === 0) ? (
                   <div className="text-center py-12">
-                    <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                    <p className="text-slate-400 text-sm">No classes scheduled for today</p>
+                    <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                      <Calendar className="w-8 h-8 text-slate-400" />
+                    </div>
+                    <p className="text-slate-500 text-sm font-medium">No classes scheduled for today</p>
+                    <p className="text-slate-400 text-xs mt-1">Enjoy your free time!</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -435,25 +454,25 @@ export default function StudentDashboard() {
           </CardHeader>
           <CardContent className="pt-0">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <Button variant="outline" className="h-auto py-4 flex flex-col items-center gap-2.5 rounded-xl border-slate-200 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 transition-all group" onClick={() => router.push("/student/results")}>
+              <Button variant="outline" className="h-auto py-4 min-h-[44px] flex flex-col items-center gap-2.5 rounded-xl border-slate-200 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 transition-all group" onClick={() => router.push("/student/results")}>
                 <div className="w-10 h-10 rounded-xl bg-slate-100 group-hover:bg-amber-100 flex items-center justify-center transition-colors">
                   <Award className="w-5 h-5" />
                 </div>
                 <span className="text-xs font-medium">View Results</span>
               </Button>
-              <Button variant="outline" className="h-auto py-4 flex flex-col items-center gap-2.5 rounded-xl border-slate-200 hover:border-red-300 hover:bg-red-50 hover:text-red-700 transition-all group" onClick={() => router.push("/student/invoices")}>
+              <Button variant="outline" className="h-auto py-4 min-h-[44px] flex flex-col items-center gap-2.5 rounded-xl border-slate-200 hover:border-red-300 hover:bg-red-50 hover:text-red-700 transition-all group" onClick={() => router.push("/student/invoices")}>
                 <div className="w-10 h-10 rounded-xl bg-slate-100 group-hover:bg-red-100 flex items-center justify-center transition-colors">
                   <Receipt className="w-5 h-5" />
                 </div>
                 <span className="text-xs font-medium">My Invoices</span>
               </Button>
-              <Button variant="outline" className="h-auto py-4 flex flex-col items-center gap-2.5 rounded-xl border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 transition-all group" onClick={() => router.push("/student/routine")}>
+              <Button variant="outline" className="h-auto py-4 min-h-[44px] flex flex-col items-center gap-2.5 rounded-xl border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 transition-all group" onClick={() => router.push("/student/routine")}>
                 <div className="w-10 h-10 rounded-xl bg-slate-100 group-hover:bg-emerald-100 flex items-center justify-center transition-colors">
                   <Calendar className="w-5 h-5" />
                 </div>
                 <span className="text-xs font-medium">Class Routine</span>
               </Button>
-              <Button variant="outline" className="h-auto py-4 flex flex-col items-center gap-2.5 rounded-xl border-slate-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-all group" onClick={() => router.push("/student/profile")}>
+              <Button variant="outline" className="h-auto py-4 min-h-[44px] flex flex-col items-center gap-2.5 rounded-xl border-slate-200 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 transition-all group" onClick={() => router.push("/student/profile")}>
                 <div className="w-10 h-10 rounded-xl bg-slate-100 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
                   <User className="w-5 h-5" />
                 </div>

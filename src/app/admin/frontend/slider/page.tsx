@@ -22,9 +22,9 @@ import {
 } from '@/components/ui/table';
 import {
   Image, Plus, Pencil, Trash2, Search, Eye, ArrowUpDown, GripVertical, LayoutDashboard,
-  Globe, Lock,
+  Globe, Lock, Loader2,
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 interface Slide {
@@ -41,12 +41,47 @@ interface Slide {
 
 interface SlideStats { total: number; active: number; inactive: number; }
 
+function SliderSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Header skeleton */}
+      <div className="flex items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <Skeleton className="w-11 h-11 rounded-xl" />
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-52" />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-11 w-28 rounded-lg" />
+          <Skeleton className="h-11 w-28 rounded-lg" />
+        </div>
+      </div>
+      {/* Stat cards skeleton */}
+      <div className="grid grid-cols-3 gap-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-[88px] rounded-xl" />
+        ))}
+      </div>
+      {/* Search skeleton */}
+      <Skeleton className="h-11 w-full rounded-lg" />
+      {/* Content skeleton */}
+      <div className="space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-28 rounded-xl" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function SliderPage() {
   const router = useRouter();
-  const { toast } = useToast();
   const [slides, setSlides] = useState<Slide[]>([]);
   const [stats, setStats] = useState<SlideStats>({ total: 0, active: 0, inactive: 0 });
   const [loading, setLoading] = useState(true);
+  const [hasFetched, setHasFetched] = useState(false);
   const [search, setSearch] = useState('');
 
   // Form dialog
@@ -75,6 +110,7 @@ export default function SliderPage() {
       const data = await res.json();
       setSlides(data.slides || []);
       setStats(data.stats || { total: 0, active: 0, inactive: 0 });
+      setHasFetched(true);
     } catch { /* empty */ }
     setLoading(false);
   }, [search]);
@@ -103,7 +139,7 @@ export default function SliderPage() {
 
   const handleSave = async () => {
     if (!form.title.trim()) {
-      toast({ title: 'Error', description: 'Title is required', variant: 'destructive' });
+      toast.error('Title is required');
       return;
     }
     setSaving(true);
@@ -114,19 +150,19 @@ export default function SliderPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: editSlide.frontend_slider_id, ...form }),
         });
-        toast({ title: 'Success', description: 'Slide updated successfully' });
+        toast.success('Slide updated successfully');
       } else {
         await fetch('/api/admin/frontend/slider', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         });
-        toast({ title: 'Success', description: 'Slide created successfully' });
+        toast.success('Slide created successfully');
       }
       setFormOpen(false);
       fetchSlides();
     } catch {
-      toast({ title: 'Error', variant: 'destructive' });
+      toast.error('Something went wrong');
     }
     setSaving(false);
   };
@@ -135,11 +171,11 @@ export default function SliderPage() {
     if (!deleteSlide) return;
     try {
       await fetch(`/api/admin/frontend/slider?id=${deleteSlide.frontend_slider_id}`, { method: 'DELETE' });
-      toast({ title: 'Success', description: 'Slide deleted' });
+      toast.success('Slide deleted');
       setDeleteOpen(false);
       fetchSlides();
     } catch {
-      toast({ title: 'Error', variant: 'destructive' });
+      toast.error('Something went wrong');
     }
   };
 
@@ -150,24 +186,32 @@ export default function SliderPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: slide.frontend_slider_id, status: slide.status === 1 ? 0 : 1 }),
       });
-      toast({ title: 'Success', description: `Slide ${slide.status === 1 ? 'deactivated' : 'activated'}` });
+      toast.success(`Slide ${slide.status === 1 ? 'deactivated' : 'activated'}`);
       fetchSlides();
     } catch {
-      toast({ title: 'Error', variant: 'destructive' });
+      toast.error('Something went wrong');
     }
   };
+
+  if (loading && !hasFetched) {
+    return (
+      <DashboardLayout>
+        <SliderSkeleton />
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
-              <Image className="w-6 h-6 text-white" />
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <Image className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Hero Slider</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Hero Slider</h1>
               <p className="text-sm text-slate-500">Manage homepage hero banner slides</p>
             </div>
           </div>
@@ -182,50 +226,53 @@ export default function SliderPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="border-slate-200/60 hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center">
-                <Image className="w-5 h-5 text-violet-600" />
-              </div>
-              <div><p className="text-xs text-slate-500">Total</p><p className="text-xl font-bold">{stats.total}</p></div>
-            </CardContent>
-          </Card>
-          <Card className="border-slate-200/60 hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <Globe className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div><p className="text-xs text-slate-500">Active</p><p className="text-xl font-bold text-emerald-600">{stats.active}</p></div>
-            </CardContent>
-          </Card>
-          <Card className="border-slate-200/60 hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-                <Lock className="w-5 h-5 text-slate-500" />
-              </div>
-              <div><p className="text-xs text-slate-500">Inactive</p><p className="text-xl font-bold text-slate-500">{stats.inactive}</p></div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-violet-500 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+            <div className="w-11 h-11 rounded-xl bg-violet-500 flex items-center justify-center shrink-0">
+              <Image className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total</p>
+              <p className="text-2xl font-bold text-slate-900 tabular-nums">{stats.total}</p>
+            </div>
+          </div>
+          <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-emerald-500 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+            <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center shrink-0">
+              <Globe className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active</p>
+              <p className="text-2xl font-bold text-emerald-600 tabular-nums">{stats.active}</p>
+            </div>
+          </div>
+          <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-slate-400 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+            <div className="w-11 h-11 rounded-xl bg-slate-500 flex items-center justify-center shrink-0">
+              <Lock className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Inactive</p>
+              <p className="text-2xl font-bold text-slate-500 tabular-nums">{stats.inactive}</p>
+            </div>
+          </div>
         </div>
 
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input placeholder="Search slides..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 min-h-[44px]" />
+          <Input placeholder="Search slides..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white" />
         </div>
 
         {/* Slide List */}
-        {loading ? (
-          <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-xl" />)}</div>
-        ) : slides.length === 0 ? (
-          <Card className="py-16">
-            <CardContent className="flex flex-col items-center">
-              <Image className="w-16 h-16 text-slate-200 mb-4" />
+        {slides.length === 0 ? (
+          <div className="rounded-2xl border border-slate-200 bg-white py-16">
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center mb-4">
+                <Image className="w-7 h-7 text-violet-300" />
+              </div>
               <p className="text-slate-500 font-medium">No slides found</p>
               <p className="text-slate-400 text-sm mt-1">Click &quot;Add Slide&quot; to create your first hero slide</p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ) : (
           <div className="space-y-3">
             {/* Desktop Table */}
@@ -325,14 +372,14 @@ export default function SliderPage() {
                           </Badge>
                         </div>
                         <div className="flex gap-1 mt-2">
-                          <Button size="sm" variant="ghost" className="h-7 px-2 text-blue-600" onClick={() => { setPreviewSlide(slide); setPreviewOpen(true); }}>
-                            <Eye className="w-3 h-3 mr-1" /> View
+                          <Button size="sm" variant="ghost" className="min-h-[44px] px-3 text-blue-600" onClick={() => { setPreviewSlide(slide); setPreviewOpen(true); }}>
+                            <Eye className="w-3.5 h-3.5 mr-1" /> View
                           </Button>
-                          <Button size="sm" variant="ghost" className="h-7 px-2 text-violet-600" onClick={() => openEdit(slide)}>
-                            <Pencil className="w-3 h-3 mr-1" /> Edit
+                          <Button size="sm" variant="ghost" className="min-h-[44px] px-3 text-violet-600" onClick={() => openEdit(slide)}>
+                            <Pencil className="w-3.5 h-3.5 mr-1" /> Edit
                           </Button>
-                          <Button size="sm" variant="ghost" className="h-7 px-2 text-red-600" onClick={() => { setDeleteSlide(slide); setDeleteOpen(true); }}>
-                            <Trash2 className="w-3 h-3" />
+                          <Button size="sm" variant="ghost" className="min-h-[44px] px-3 text-red-600" onClick={() => { setDeleteSlide(slide); setDeleteOpen(true); }}>
+                            <Trash2 className="w-3.5 h-3.5" />
                           </Button>
                         </div>
                       </div>
@@ -399,8 +446,9 @@ export default function SliderPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setFormOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setFormOpen(false)} className="min-h-[44px]">Cancel</Button>
             <Button onClick={handleSave} className="bg-violet-600 hover:bg-violet-700 min-h-[44px] px-6" disabled={!form.title.trim() || saving}>
+              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {saving ? 'Saving...' : editSlide ? 'Update Slide' : 'Create Slide'}
             </Button>
           </DialogFooter>
@@ -413,7 +461,9 @@ export default function SliderPage() {
           {previewSlide && (
             <>
               <DialogHeader>
-                <DialogTitle>{previewSlide.title}</DialogTitle>
+                <DialogTitle className="flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-violet-600" /> Slide Preview
+                </DialogTitle>
                 <DialogDescription>Slide preview</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
@@ -450,14 +500,19 @@ export default function SliderPage() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Slide</AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </div>
+              Delete Slide
+            </AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete <strong className="text-slate-900">{deleteSlide?.title}</strong>? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+            <AlertDialogCancel className="min-h-[44px]">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 min-h-[44px]">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

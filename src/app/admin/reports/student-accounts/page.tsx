@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import {
   FileText, Download, Printer, User, DollarSign, AlertCircle,
-  CheckCircle, Clock, ArrowLeft, Send, Search, Filter, Eye,
+  CheckCircle, Clock, Send, Search, Filter, Eye,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -100,6 +100,30 @@ function formatDate(iso: string | null) {
   } catch {
     return '—';
   }
+}
+
+/* ---------- loading skeleton ---------- */
+
+function StudentAccountsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+        <Skeleton className="w-10 h-10 rounded-xl" />
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-56" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-24 rounded-xl" />
+        ))}
+      </div>
+      <Skeleton className="h-16 rounded-xl" />
+      <Skeleton className="h-14 rounded-xl" />
+      <Skeleton className="h-80 rounded-xl" />
+    </div>
+  );
 }
 
 /* ---------- main component ---------- */
@@ -211,23 +235,24 @@ export default function StudentAccountsReportPage() {
     ? ((data.summary.total_collected / data.summary.total_billed) * 100).toFixed(1)
     : '0';
 
+  if (loading && !data) return (
+    <DashboardLayout>
+      <StudentAccountsSkeleton />
+    </DashboardLayout>
+  );
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-teal-700" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                Student Account Statements
-              </h1>
-              <p className="text-sm text-slate-500">
-                Per-student financial summary and detailed statements
-              </p>
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+              Student Account Statements
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Per-student financial summary and detailed statements
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={handleExportCSV} className="min-h-[44px]">
@@ -242,125 +267,115 @@ export default function StudentAccountsReportPage() {
         </div>
 
         {/* Summary Cards */}
-        {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 rounded-xl" />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            <Card className="border-teal-100 bg-teal-50/50">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center">
-                  <User className="w-5 h-5 text-teal-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Students</p>
-                  <p className="text-xl font-bold text-teal-700">
-                    {data?.summary.total_students || 0}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-sky-100 bg-sky-50/50">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center">
-                  <DollarSign className="w-5 h-5 text-sky-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Total Billed</p>
-                  <p className="text-lg font-bold text-sky-700">
-                    {fmt(data?.summary.total_billed || 0)}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-emerald-100 bg-emerald-50/50">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Collected</p>
-                  <p className="text-lg font-bold text-emerald-700">
-                    {fmt(data?.summary.total_collected || 0)}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-red-100 bg-red-50/50">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
-                  <AlertCircle className="w-5 h-5 text-red-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Outstanding</p>
-                  <p className="text-lg font-bold text-red-700">
-                    {fmt(data?.summary.total_outstanding || 0)}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-slate-200/60 bg-slate-50 col-span-2 md:col-span-1">
-              <CardContent className="p-4 text-center">
-                <p className="text-xs text-slate-500 mb-1">Collection Rate</p>
-                <p className="text-2xl font-bold text-slate-900">{collectionRate}%</p>
-                <div className="h-1.5 bg-slate-200 rounded-full mt-2 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all ${
-                      parseFloat(collectionRate) >= 70
-                        ? 'bg-emerald-500'
-                        : parseFloat(collectionRate) >= 40
-                        ? 'bg-amber-500'
-                        : 'bg-red-500'
-                    }`}
-                    style={{ width: `${Math.min(100, parseFloat(collectionRate))}%` }}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="border-l-4 border-l-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                <User className="w-5 h-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Students</p>
+                <p className="text-xl font-bold text-slate-900 tabular-nums">
+                  {data?.summary.total_students || 0}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-l-4 border-l-sky-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-sky-500 flex items-center justify-center flex-shrink-0">
+                <DollarSign className="w-5 h-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Total Billed</p>
+                <p className="text-xl font-bold text-slate-900 tabular-nums">
+                  {fmt(data?.summary.total_billed || 0)}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-l-4 border-l-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-5 h-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Collected</p>
+                <p className="text-xl font-bold text-slate-900 tabular-nums">
+                  {fmt(data?.summary.total_collected || 0)}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-l-4 border-l-red-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center flex-shrink-0">
+                <AlertCircle className="w-5 h-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Outstanding</p>
+                <p className="text-xl font-bold text-slate-900 tabular-nums">
+                  {fmt(data?.summary.total_outstanding || 0)}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Status Distribution */}
-        {data && !loading && (
-          <div className="grid grid-cols-3 gap-4">
-            <Card className="border-emerald-100">
-              <CardContent className="p-3 text-center">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <CheckCircle className="w-3 h-3 text-emerald-500" />
-                  <span className="text-xs text-slate-500">Fully Paid</span>
-                </div>
-                <p className="text-lg font-bold text-emerald-600">
-                  {data.summary.paid_count}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="border-amber-100">
-              <CardContent className="p-3 text-center">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <Clock className="w-3 h-3 text-amber-500" />
-                  <span className="text-xs text-slate-500">Partial</span>
-                </div>
-                <p className="text-lg font-bold text-amber-600">
-                  {data.summary.partial_count}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="border-red-100">
-              <CardContent className="p-3 text-center">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <AlertCircle className="w-3 h-3 text-red-500" />
-                  <span className="text-xs text-slate-500">Unpaid</span>
-                </div>
-                <p className="text-lg font-bold text-red-600">
-                  {data.summary.unpaid_count}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        {/* Collection Rate + Status Distribution */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="lg:col-span-1 col-span-2">
+            <CardContent className="p-4 text-center">
+              <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider mb-1">Collection Rate</p>
+              <p className="text-2xl font-bold text-slate-900 tabular-nums">{collectionRate}%</p>
+              <div className="h-1.5 bg-slate-200 rounded-full mt-2 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${
+                    parseFloat(collectionRate) >= 70
+                      ? 'bg-emerald-500'
+                      : parseFloat(collectionRate) >= 40
+                      ? 'bg-amber-500'
+                      : 'bg-red-500'
+                  }`}
+                  style={{ width: `${Math.min(100, parseFloat(collectionRate))}%` }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-l-4 border-l-emerald-500">
+            <CardContent className="p-3 text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <CheckCircle className="w-3 h-3 text-emerald-500" />
+              </div>
+              <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Fully Paid</p>
+              <p className="text-lg font-bold text-emerald-600 tabular-nums">
+                {data?.summary.paid_count || 0}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-l-4 border-l-amber-500">
+            <CardContent className="p-3 text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <Clock className="w-3 h-3 text-amber-500" />
+              </div>
+              <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Partial</p>
+              <p className="text-lg font-bold text-amber-600 tabular-nums">
+                {data?.summary.partial_count || 0}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-l-4 border-l-red-500">
+            <CardContent className="p-3 text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <AlertCircle className="w-3 h-3 text-red-500" />
+              </div>
+              <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Unpaid</p>
+              <p className="text-lg font-bold text-red-600 tabular-nums">
+                {data?.summary.unpaid_count || 0}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Filters */}
         <Card className="border-slate-200/60">
@@ -371,7 +386,7 @@ export default function StudentAccountsReportPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
               <Select value={classId} onValueChange={(v) => setClassId(v === '__all__' ? '' : v)}>
-                <SelectTrigger className="min-h-[44px]">
+                <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white">
                   <SelectValue placeholder="All Classes" />
                 </SelectTrigger>
                 <SelectContent>
@@ -385,7 +400,7 @@ export default function StudentAccountsReportPage() {
               </Select>
 
               <Select value={sectionId} onValueChange={(v) => setSectionId(v === '__all__' ? '' : v)}>
-                <SelectTrigger className="min-h-[44px]">
+                <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white">
                   <SelectValue placeholder="All Sections" />
                 </SelectTrigger>
                 <SelectContent>
@@ -399,7 +414,7 @@ export default function StudentAccountsReportPage() {
               </Select>
 
               <Select value={year} onValueChange={(v) => setYear(v === '__all__' ? '' : v)}>
-                <SelectTrigger className="min-h-[44px]">
+                <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white">
                   <SelectValue placeholder="All Years" />
                 </SelectTrigger>
                 <SelectContent>
@@ -413,7 +428,7 @@ export default function StudentAccountsReportPage() {
               </Select>
 
               <Select value={term} onValueChange={(v) => setTerm(v === '__all__' ? '' : v)}>
-                <SelectTrigger className="min-h-[44px]">
+                <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white">
                   <SelectValue placeholder="All Terms" />
                 </SelectTrigger>
                 <SelectContent>
@@ -427,7 +442,7 @@ export default function StudentAccountsReportPage() {
               </Select>
 
               <Select value={paymentStatus} onValueChange={(v) => setPaymentStatus(v === '__all__' ? '' : v)}>
-                <SelectTrigger className="min-h-[44px]">
+                <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -446,7 +461,7 @@ export default function StudentAccountsReportPage() {
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    className="pl-10 min-h-[44px]"
+                    className="pl-10 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"
                   />
                 </div>
                 <Button
@@ -463,17 +478,17 @@ export default function StudentAccountsReportPage() {
 
         {/* Results Table */}
         <Card className="border-slate-200/60">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-base font-medium text-slate-800">
-              Student Accounts
-            </CardTitle>
-            {data && (
-              <span className="text-xs text-slate-400">
-                {data.pagination.total} students found
-              </span>
-            )}
-          </CardHeader>
           <CardContent className="p-0">
+            <div className="px-4 py-3 flex items-center justify-between border-b border-slate-100">
+              <span className="text-sm font-medium text-slate-800">
+                Student Accounts
+              </span>
+              {data && (
+                <span className="text-xs text-slate-400">
+                  {data.pagination.total} students found
+                </span>
+              )}
+            </div>
             <div className="max-h-[500px] overflow-y-auto">
               {/* Desktop Table */}
               <div className="hidden md:block">
@@ -503,9 +518,13 @@ export default function StudentAccountsReportPage() {
                     ) : students.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={9} className="text-center py-12 text-slate-400">
-                          <CheckCircle className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                          <p className="font-medium">No students found</p>
-                          <p className="text-xs mt-1">Try adjusting your filters</p>
+                          <div className="flex flex-col items-center">
+                            <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
+                              <CheckCircle className="w-8 h-8 text-emerald-300" />
+                            </div>
+                            <p className="font-medium text-slate-600">No students found</p>
+                            <p className="text-xs mt-1 text-slate-400">Try adjusting your filters</p>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -546,7 +565,7 @@ export default function StudentAccountsReportPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="h-8 w-8 p-0"
+                                className="h-8 w-8 p-0 min-w-[32px]"
                                 onClick={() => handleViewStatement(s)}
                                 title="View Statement"
                               >
@@ -555,7 +574,7 @@ export default function StudentAccountsReportPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="h-8 w-8 p-0"
+                                className="h-8 w-8 p-0 min-w-[32px]"
                                 onClick={() => handleSendReminder(s)}
                                 title="Send Reminder"
                               >
@@ -580,8 +599,13 @@ export default function StudentAccountsReportPage() {
                   ))
                 ) : students.length === 0 ? (
                   <div className="text-center py-12 text-slate-400">
-                    <CheckCircle className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                    <p>No students found</p>
+                    <div className="flex flex-col items-center">
+                      <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
+                        <CheckCircle className="w-8 h-8 text-emerald-300" />
+                      </div>
+                      <p className="font-medium text-slate-600">No students found</p>
+                      <p className="text-xs mt-1 text-slate-400">Try adjusting your filters</p>
+                    </div>
                   </div>
                 ) : (
                   students.map((s) => (
@@ -617,7 +641,7 @@ export default function StudentAccountsReportPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="flex-1 min-h-[40px] text-xs"
+                          className="flex-1 min-h-[44px] text-xs"
                           onClick={() => handleViewStatement(s)}
                         >
                           <Eye className="w-3 h-3 mr-1" /> View Statement
@@ -625,7 +649,7 @@ export default function StudentAccountsReportPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="min-h-[40px] px-3"
+                          className="min-h-[44px] min-w-[44px] px-3"
                           onClick={() => handleSendReminder(s)}
                         >
                           <Send className="w-3 h-3" />
@@ -650,7 +674,7 @@ export default function StudentAccountsReportPage() {
                     variant="outline"
                     disabled={page <= 1}
                     onClick={() => setPage((p) => p - 1)}
-                    className="h-8"
+                    className="h-9"
                   >
                     Previous
                   </Button>
@@ -664,7 +688,7 @@ export default function StudentAccountsReportPage() {
                           size="sm"
                           variant={page === pNum ? 'default' : 'outline'}
                           onClick={() => setPage(pNum)}
-                          className="h-8 w-8 p-0"
+                          className="h-9 w-9 p-0"
                         >
                           {pNum}
                         </Button>
@@ -675,7 +699,7 @@ export default function StudentAccountsReportPage() {
                     variant="outline"
                     disabled={page >= (data?.pagination.totalPages || 1)}
                     onClick={() => setPage((p) => p + 1)}
-                    className="h-8"
+                    className="h-9"
                   >
                     Next
                   </Button>
@@ -689,18 +713,20 @@ export default function StudentAccountsReportPage() {
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-teal-600" />
-                Account Summary
-              </DialogTitle>
+              <div className="flex items-center gap-3 mb-1">
+                <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-violet-600" />
+                </div>
+                <DialogTitle>Account Summary</DialogTitle>
+              </div>
             </DialogHeader>
             {selectedStudent && (
               <div className="space-y-4">
                 {/* Student Header */}
                 <div className="bg-slate-50 rounded-lg p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center">
-                      <User className="w-6 h-6 text-teal-700" />
+                    <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                      <User className="w-6 h-6 text-emerald-700" />
                     </div>
                     <div>
                       <p className="font-semibold text-slate-900">

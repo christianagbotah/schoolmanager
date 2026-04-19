@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import {
   Calendar, Plus, Clock, MapPin, BookOpen, Trash2, Pencil,
-  Loader2, GripVertical,
+  Loader2, GripVertical, LayoutGrid,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -57,16 +57,44 @@ const DAY_SHORT: Record<string, string> = {
 // Color palette for subjects
 const SUBJECT_COLORS = [
   'bg-emerald-100 text-emerald-800 border-emerald-200',
-  'bg-blue-100 text-blue-800 border-blue-200',
+  'bg-sky-100 text-sky-800 border-sky-200',
   'bg-amber-100 text-amber-800 border-amber-200',
-  'bg-purple-100 text-purple-800 border-purple-200',
+  'bg-violet-100 text-violet-800 border-violet-200',
   'bg-rose-100 text-rose-800 border-rose-200',
   'bg-teal-100 text-teal-800 border-teal-200',
   'bg-orange-100 text-orange-800 border-orange-200',
   'bg-cyan-100 text-cyan-800 border-cyan-200',
   'bg-pink-100 text-pink-800 border-pink-200',
-  'bg-indigo-100 text-indigo-800 border-indigo-200',
+  'bg-slate-100 text-slate-800 border-slate-200',
 ]
+
+function RoutineSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Header skeleton */}
+      <div className="flex items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+            <LayoutGrid className="w-5 h-5 text-white" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-44" />
+          </div>
+        </div>
+        <Skeleton className="h-11 w-32 rounded-lg" />
+      </div>
+      {/* Selector skeleton */}
+      <Skeleton className="h-24 w-full rounded-xl" />
+      {/* Content skeleton */}
+      <div className="space-y-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-16 w-full rounded-lg" />
+        ))}
+      </div>
+    </div>
+  )
+}
 
 // ===== Main =====
 export default function RoutinePage() {
@@ -78,8 +106,6 @@ export default function RoutinePage() {
 }
 
 function RoutineModule() {
-  const { toast } = useToast()
-
   const [classes, setClasses] = useState<ClassItem[]>([])
   const [sections, setSections] = useState<Section[]>([])
   const [subjects, setSubjects] = useState<Subject[]>([])
@@ -88,6 +114,7 @@ function RoutineModule() {
   const [selectedClassId, setSelectedClassId] = useState('')
   const [selectedSectionId, setSelectedSectionId] = useState('')
   const [loading, setLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
   const [formOpen, setFormOpen] = useState(false)
@@ -105,7 +132,7 @@ function RoutineModule() {
       setClasses(Array.isArray(cls) ? cls : [])
       setSections(Array.isArray(sec) ? sec : [])
       setSubjects(Array.isArray(sub) ? sub : [])
-    }).catch(() => {})
+    }).catch(() => {}).finally(() => setInitialLoading(false))
   }, [])
 
   const refreshRoutines = async () => {
@@ -124,7 +151,6 @@ function RoutineModule() {
   useEffect(() => {
     const load = async () => { await refreshRoutines() }
     load()
-    // eslint-disable-next-line react-hooks/set-state-in-effect
   }, [selectedSectionId])
 
   const openCreate = (day?: string) => {
@@ -155,7 +181,7 @@ function RoutineModule() {
 
   const handleSave = async () => {
     if (!form.subject_id || !form.time_start || !form.time_end || !form.day) {
-      toast({ title: 'Error', description: 'Please fill in all required fields', variant: 'destructive' })
+      toast.error('Please fill in all required fields')
       return
     }
 
@@ -167,19 +193,19 @@ function RoutineModule() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ class_routine_id: selectedRoutine.class_routine_id, ...form }),
         })
-        toast({ title: 'Updated', description: 'Routine updated' })
+        toast.success('Routine updated')
       } else {
         await fetch('/api/routine', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         })
-        toast({ title: 'Created', description: 'Routine item added' })
+        toast.success('Routine item added')
       }
       setFormOpen(false)
       refreshRoutines()
-    } catch (err) {
-      toast({ title: 'Error', description: 'Failed to save routine', variant: 'destructive' })
+    } catch {
+      toast.error('Failed to save routine')
     }
     setSaving(false)
   }
@@ -187,10 +213,10 @@ function RoutineModule() {
   const handleDelete = async (id: number) => {
     try {
       await fetch(`/api/routine/${id}`, { method: 'DELETE' })
-      toast({ title: 'Deleted', description: 'Routine item removed' })
+      toast.success('Routine item removed')
       refreshRoutines()
     } catch {
-      toast({ title: 'Error', description: 'Failed to delete', variant: 'destructive' })
+      toast.error('Failed to delete')
     }
   }
 
@@ -233,13 +259,30 @@ function RoutineModule() {
     }).map(r => r.time_start)
   }, [routines])
 
+  // Stat cards data
+  const routineStats = useMemo(() => {
+    const totalPeriods = routines.length
+    const subjectsUsed = new Set(routines.map(r => r.subject_id)).size
+    const daysActive = new Set(routines.map(r => r.day)).size
+    return { totalPeriods, subjectsUsed, daysActive }
+  }, [routines])
+
+  if (initialLoading) {
+    return <RoutineSkeleton />
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Class Routine</h1>
-          <p className="text-sm text-slate-500 mt-1">Weekly timetable management</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
+            <LayoutGrid className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Class Routine</h1>
+            <p className="text-sm text-slate-500">Weekly timetable management</p>
+          </div>
         </div>
         <Button
           onClick={() => openCreate()}
@@ -257,7 +300,7 @@ function RoutineModule() {
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-slate-600">Class</label>
               <Select value={selectedClassId} onValueChange={v => { setSelectedClassId(v); setSelectedSectionId('') }}>
-                <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="Select class" /></SelectTrigger>
+                <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select class" /></SelectTrigger>
                 <SelectContent>
                   {classes.map(c => (
                     <SelectItem key={c.class_id} value={c.class_id.toString()}>{c.name}</SelectItem>
@@ -268,7 +311,7 @@ function RoutineModule() {
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-slate-600">Section</label>
               <Select value={selectedSectionId} onValueChange={setSelectedSectionId}>
-                <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="Select section" /></SelectTrigger>
+                <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select section" /></SelectTrigger>
                 <SelectContent>
                   {sections.map(s => (
                     <SelectItem key={s.section_id} value={s.section_id.toString()}>{s.name}</SelectItem>
@@ -282,13 +325,15 @@ function RoutineModule() {
 
       {/* Timetable Grid */}
       {!selectedSectionId ? (
-        <Card className="border-slate-200/60">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <Calendar className="w-12 h-12 text-slate-300 mb-4" />
+        <div className="rounded-2xl border border-slate-200 bg-white">
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
+              <Calendar className="w-7 h-7 text-emerald-300" />
+            </div>
             <h3 className="text-lg font-semibold text-slate-900 mb-1">Select a Section</h3>
             <p className="text-sm text-slate-500">Choose a class and section to view the timetable</p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ) : loading ? (
         <Card className="border-slate-200/60">
           <CardContent className="p-6 space-y-4">
@@ -296,30 +341,43 @@ function RoutineModule() {
           </CardContent>
         </Card>
       ) : routines.length === 0 ? (
-        <Card className="border-slate-200/60">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <Calendar className="w-12 h-12 text-slate-300 mb-4" />
+        <div className="rounded-2xl border border-slate-200 bg-white">
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
+              <Calendar className="w-7 h-7 text-emerald-300" />
+            </div>
             <h3 className="text-lg font-semibold text-slate-900 mb-1">No Routine Set</h3>
             <p className="text-sm text-slate-500 mb-4">Add periods to create the weekly timetable</p>
-            <Button onClick={() => openCreate()} className="bg-emerald-600 hover:bg-emerald-700">
+            <Button onClick={() => openCreate()} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]">
               <Plus className="w-4 h-4 mr-2" /> Add First Period
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ) : (
         <Card className="border-slate-200/60">
           <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
                 <CardTitle className="text-lg">Weekly Timetable</CardTitle>
                 <CardDescription>{routines.length} periods per week</CardDescription>
               </div>
-              <div className="hidden sm:flex items-center gap-2 flex-wrap">
-                {subjects.filter(s => routines.some(r => r.subject_id === s.subject_id)).map((s, i) => (
-                  <Badge key={s.subject_id} className={`text-xs ${SUBJECT_COLORS[i % SUBJECT_COLORS.length]}`}>
-                    {s.name}
-                  </Badge>
-                ))}
+              {/* Compact stat badges */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-100">
+                  <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="text-xs font-semibold text-emerald-700">{routineStats.totalPeriods}</span>
+                </div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 border border-sky-100">
+                  <Calendar className="w-3.5 h-3.5 text-sky-600" />
+                  <span className="text-xs font-semibold text-sky-700">{routineStats.daysActive} days</span>
+                </div>
+                <div className="hidden sm:flex items-center gap-2 flex-wrap">
+                  {subjects.filter(s => routines.some(r => r.subject_id === s.subject_id)).map((s, i) => (
+                    <Badge key={s.subject_id} className={`text-xs ${SUBJECT_COLORS[i % SUBJECT_COLORS.length]}`}>
+                      {s.name}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -436,7 +494,10 @@ function RoutineModule() {
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{selectedRoutine ? 'Edit Period' : 'Add Period'}</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedRoutine ? <Pencil className="w-5 h-5 text-emerald-600" /> : <Plus className="w-5 h-5 text-emerald-600" />}
+              {selectedRoutine ? 'Edit Period' : 'Add Period'}
+            </DialogTitle>
             <DialogDescription>
               {selectedRoutine ? 'Update routine details' : 'Add a new period to the timetable'}
             </DialogDescription>
@@ -445,7 +506,7 @@ function RoutineModule() {
             <div className="grid gap-2">
               <Label>Subject *</Label>
               <Select value={form.subject_id} onValueChange={v => setForm({ ...form, subject_id: v })}>
-                <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
+                <SelectTrigger className="bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select subject" /></SelectTrigger>
                 <SelectContent>
                   {subjects.map(s => <SelectItem key={s.subject_id} value={s.subject_id.toString()}>{s.name}</SelectItem>)}
                 </SelectContent>
@@ -454,7 +515,7 @@ function RoutineModule() {
             <div className="grid gap-2">
               <Label>Day *</Label>
               <Select value={form.day} onValueChange={v => setForm({ ...form, day: v })}>
-                <SelectTrigger><SelectValue placeholder="Select day" /></SelectTrigger>
+                <SelectTrigger className="bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select day" /></SelectTrigger>
                 <SelectContent>
                   {DAYS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                 </SelectContent>
@@ -463,29 +524,30 @@ function RoutineModule() {
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label>Start Time *</Label>
-                <Input type="time" value={form.time_start} onChange={e => setForm({ ...form, time_start: e.target.value })} />
+                <Input type="time" value={form.time_start} onChange={e => setForm({ ...form, time_start: e.target.value })} className="min-h-[44px]" />
               </div>
               <div className="grid gap-2">
                 <Label>End Time *</Label>
-                <Input type="time" value={form.time_end} onChange={e => setForm({ ...form, time_end: e.target.value })} />
+                <Input type="time" value={form.time_end} onChange={e => setForm({ ...form, time_end: e.target.value })} className="min-h-[44px]" />
               </div>
             </div>
             <div className="grid gap-2">
               <Label>Room</Label>
-              <Input value={form.room} onChange={e => setForm({ ...form, room: e.target.value })} placeholder="e.g., Room 101" />
+              <Input value={form.room} onChange={e => setForm({ ...form, room: e.target.value })} placeholder="e.g., Room 101" className="min-h-[44px]" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setFormOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setFormOpen(false)} className="min-h-[44px]">Cancel</Button>
             {selectedRoutine && (
               <Button
                 variant="destructive"
                 onClick={() => { handleDelete(selectedRoutine.class_routine_id); setFormOpen(false) }}
+                className="min-h-[44px]"
               >
                 <Trash2 className="w-4 h-4 mr-2" /> Delete
               </Button>
             )}
-            <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700" disabled={saving}>
+            <Button onClick={handleSave} className="bg-emerald-600 hover:bg-emerald-700 min-h-[44px]" disabled={saving}>
               {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {selectedRoutine ? 'Update' : 'Add'}
             </Button>

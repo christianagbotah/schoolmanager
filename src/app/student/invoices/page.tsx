@@ -10,6 +10,7 @@ import {
   DollarSign,
   CheckCircle,
   Clock,
+  FileText,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
@@ -70,10 +72,49 @@ function formatCurrency(amount: number): string {
 function statusBadge(status: string) {
   switch (status) {
     case "paid": return <Badge className="bg-emerald-100 text-emerald-700">Paid</Badge>;
-    case "partial": return <Badge className="bg-blue-100 text-blue-700">Partial</Badge>;
+    case "partial": return <Badge className="bg-sky-100 text-sky-700">Partial</Badge>;
     case "unpaid": return <Badge className="bg-red-100 text-red-700">Unpaid</Badge>;
     default: return <Badge variant="secondary">{status}</Badge>;
   }
+}
+
+// ─── Full-Page Skeleton ─────────────────────────────────────
+function InvoicesSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="pb-4 border-b border-slate-100">
+        <Skeleton className="h-8 w-56" />
+        <Skeleton className="h-4 w-72 mt-2" />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Card key={i} className="py-4">
+            <CardContent className="px-4 pb-0 pt-0">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-7 w-20" />
+                </div>
+                <Skeleton className="h-11 w-11 rounded-xl" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Card className="gap-4">
+        <CardHeader>
+          <Skeleton className="h-6 w-40" />
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
 
 // ─── Main Component ──────────────────────────────────────────
@@ -106,6 +147,15 @@ export default function StudentInvoicesPage() {
     if (!authLoading) fetchData();
   }, [authLoading, fetchData]);
 
+  // ─── Loading skeleton ──────────────────────────────────────
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <InvoicesSkeleton />
+      </DashboardLayout>
+    );
+  }
+
   const totalBilled = invoices.reduce((s, i) => s + (i.amount || 0), 0);
   const totalPaid = invoices.reduce((s, i) => s + (i.amount_paid || 0), 0);
   const totalDue = invoices.reduce((s, i) => s + (i.due || 0), 0);
@@ -114,29 +164,50 @@ export default function StudentInvoicesPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* ─── Header ─────────────────────────────────────── */}
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">My Invoices</h1>
+        <div className="pb-4 border-b border-slate-100">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">My Invoices</h1>
           <p className="text-sm text-slate-500 mt-1">View your fee invoices and payment history</p>
         </div>
 
         {/* ─── Summary ────────────────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="py-4 border-l-4 border-l-slate-400">
+          <Card className="py-4 border-l-4 border-l-slate-400 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
-              <p className="text-xs font-medium text-slate-500">Total Billed</p>
-              <p className="text-2xl font-bold text-slate-900 tabular-nums">{formatCurrency(totalBilled)}</p>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Billed</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{formatCurrency(totalBilled)}</p>
+                </div>
+                <div className="w-11 h-11 rounded-xl bg-slate-400 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-white" />
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card className="py-4 border-l-4 border-l-emerald-500">
+          <Card className="py-4 border-l-4 border-l-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
-              <p className="text-xs font-medium text-slate-500">Total Paid</p>
-              <p className="text-2xl font-bold text-emerald-600 tabular-nums">{formatCurrency(totalPaid)}</p>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Paid</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{formatCurrency(totalPaid)}</p>
+                </div>
+                <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-white" />
+                </div>
+              </div>
             </CardContent>
           </Card>
-          <Card className="py-4 border-l-4 border-l-red-500">
+          <Card className="py-4 border-l-4 border-l-red-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
             <CardContent className="px-4 pb-0 pt-0">
-              <p className="text-xs font-medium text-slate-500">Outstanding Balance</p>
-              <p className="text-2xl font-bold text-red-600 tabular-nums">{formatCurrency(totalDue)}</p>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Outstanding</p>
+                  <p className="text-2xl font-bold text-slate-900 tabular-nums">{formatCurrency(totalDue)}</p>
+                </div>
+                <div className="w-11 h-11 rounded-xl bg-red-500 flex items-center justify-center">
+                  <DollarSign className="w-5 h-5 text-white" />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -159,12 +230,13 @@ export default function StudentInvoicesPage() {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            {isLoading ? (
-              <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
-            ) : invoices.length === 0 ? (
+            {invoices.length === 0 ? (
               <div className="text-center py-12">
-                <Receipt className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-400 text-sm">No invoices found</p>
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                  <Receipt className="w-8 h-8 text-slate-400" />
+                </div>
+                <p className="text-slate-500 text-sm font-medium">No invoices found</p>
+                <p className="text-slate-400 text-xs mt-1">Your fee invoices will appear here once generated</p>
               </div>
             ) : (
               <div className="overflow-x-auto rounded-lg border border-slate-200">

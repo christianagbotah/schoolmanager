@@ -1,57 +1,97 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import Link from 'next/link'
-import { useToast } from '@/hooks/use-toast'
+import { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
+import { toast } from 'sonner';
 import {
   Table2, ArrowLeft, Loader2, Printer, Download, FileBarChart,
   TrendingUp, Trophy, Users, BookOpen,
-} from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui/select';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table'
-import { DashboardLayout } from '@/components/layout/dashboard-layout'
+} from '@/components/ui/table';
+import { DashboardLayout } from '@/components/layout/dashboard-layout';
 
 // ===== Types =====
 interface StudentReport {
-  student_id: number
-  student_code: string
-  name: string
-  first_name: string
-  last_name: string
-  sex: string
-  roll: string
-  marks: Record<number, number>
-  total_score: number
-  average: number
-  grade: string
-  rank: number
+  student_id: number;
+  student_code: string;
+  name: string;
+  first_name: string;
+  last_name: string;
+  sex: string;
+  roll: string;
+  marks: Record<number, number>;
+  total_score: number;
+  average: number;
+  grade: string;
+  rank: number;
 }
 
 interface Subject {
-  subject_id: number
-  name: string
+  subject_id: number;
+  name: string;
 }
 
 interface SubjectStats {
-  subject_id: number
-  name: string
-  highest: number
-  lowest: number
-  average: number
+  subject_id: number;
+  name: string;
+  highest: number;
+  lowest: number;
+  average: number;
 }
 
 interface ClassItem {
-  class_id: number
-  name: string
-  category: string
+  class_id: number;
+  name: string;
+  category: string;
+}
+
+// ===== Full Page Skeleton =====
+function BroadsheetSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <Skeleton className="w-11 h-11 rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-48 rounded-lg" />
+            <Skeleton className="h-4 w-64 rounded-lg" />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-11 w-36 rounded-lg" />
+          <Skeleton className="h-11 w-32 rounded-lg" />
+        </div>
+      </div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-11 rounded-lg" />
+          ))}
+        </div>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="border-l-4 border-l-slate-200">
+            <CardContent className="p-3"><Skeleton className="h-16 w-full" /></CardContent>
+          </Card>
+        ))}
+      </div>
+      <Card className="border-slate-200/60">
+        <CardContent className="p-6">
+          {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-12 w-full rounded-lg mb-3" />)}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
 
 // ===== Main =====
@@ -60,79 +100,81 @@ export default function BroadsheetPage() {
     <DashboardLayout>
       <BroadsheetModule />
     </DashboardLayout>
-  )
+  );
 }
 
 function BroadsheetModule() {
-  const { toast } = useToast()
-  const printRef = useRef<HTMLDivElement>(null)
+  const printRef = useRef<HTMLDivElement>(null);
 
-  const [classes, setClasses] = useState<ClassItem[]>([])
-  const [subjects, setSubjects] = useState<Subject[]>([])
-  const [students, setStudents] = useState<StudentReport[]>([])
-  const [subjectStats, setSubjectStats] = useState<SubjectStats[]>([])
-  const [loading, setLoading] = useState(false)
+  const [classes, setClasses] = useState<ClassItem[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [students, setStudents] = useState<StudentReport[]>([]);
+  const [subjectStats, setSubjectStats] = useState<SubjectStats[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const [selectedClassId, setSelectedClassId] = useState('')
-  const [selectedTerm, setSelectedTerm] = useState('Term 1')
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString())
+  const [selectedClassId, setSelectedClassId] = useState('');
+  const [selectedTerm, setSelectedTerm] = useState('Term 1');
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
 
   useEffect(() => {
     fetch('/api/classes')
       .then(r => r.json())
       .then(data => setClasses(Array.isArray(data) ? data : []))
-      .catch(() => {})
-  }, [])
+      .catch(() => {});
+  }, []);
 
   const generateBroadsheet = useCallback(async () => {
     if (!selectedClassId) {
-      toast({ title: 'Error', description: 'Please select a class', variant: 'destructive' })
-      return
+      toast.error('Please select a class');
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
       const params = new URLSearchParams({
         class_id: selectedClassId,
         term: selectedTerm,
         year: selectedYear,
-      })
-      const res = await fetch(`/api/reports/terminal?${params.toString()}`)
-      const data = await res.json()
+      });
+      const res = await fetch(`/api/reports/terminal?${params.toString()}`);
+      const data = await res.json();
 
-      setStudents(data.students || [])
-      setSubjects(data.subjects || [])
-      setSubjectStats(data.subject_stats || [])
+      setStudents(data.students || []);
+      setSubjects(data.subjects || []);
+      setSubjectStats(data.subject_stats || []);
     } catch {
-      toast({ title: 'Error', description: 'Failed to generate broadsheet', variant: 'destructive' })
+      toast.error('Failed to generate broadsheet');
     }
-    setLoading(false)
-  }, [selectedClassId, selectedTerm, selectedYear, toast])
+    setLoading(false);
+  }, [selectedClassId, selectedTerm, selectedYear]);
 
-  const handlePrint = () => window.print()
+  const handlePrint = () => window.print();
 
   const exportCSV = () => {
-    if (students.length === 0) return
-    const headers = ['#', 'Student Code', 'Name', ...subjects.map(s => s.name), 'Total', 'Average', 'Grade', 'Position']
+    if (students.length === 0) return;
+    const headers = ['#', 'Student Code', 'Name', ...subjects.map(s => s.name), 'Total', 'Average', 'Grade', 'Position'];
     const rows = students.map((s, i) => [
       i + 1, s.student_code, s.name,
       ...subjects.map(sub => s.marks[sub.subject_id] || ''),
       s.total_score, s.average, s.grade, s.rank,
-    ])
-    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `broadsheet_${selectedClassId}_${selectedYear}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `broadsheet_${selectedClassId}_${selectedYear}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Broadsheet exported as CSV');
+  };
+
+  const classAvg = students.length > 0 ? Math.round(students.reduce((a, b) => a + b.average, 0) / students.length * 10) / 10 : 0;
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
           <Button asChild variant="outline" size="icon" className="min-h-[44px] min-w-[44px] print:hidden">
             <Link href="/admin/exams">
@@ -170,7 +212,7 @@ function BroadsheetModule() {
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-slate-600">Class</label>
               <Select value={selectedClassId} onValueChange={setSelectedClassId}>
-                <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="Select class" /></SelectTrigger>
+                <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select class" /></SelectTrigger>
                 <SelectContent>
                   {classes.map(c => <SelectItem key={c.class_id} value={c.class_id.toString()}>{c.name}</SelectItem>)}
                 </SelectContent>
@@ -179,7 +221,7 @@ function BroadsheetModule() {
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-slate-600">Term</label>
               <Select value={selectedTerm} onValueChange={setSelectedTerm}>
-                <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Term 1">Term 1</SelectItem>
                   <SelectItem value="Term 2">Term 2</SelectItem>
@@ -190,7 +232,7 @@ function BroadsheetModule() {
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-slate-600">Year</label>
               <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger className="min-h-[44px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {[2024, 2025, 2026, 2027].map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}
                 </SelectContent>
@@ -209,17 +251,22 @@ function BroadsheetModule() {
       {/* Content */}
       <div ref={printRef}>
         {loading ? (
-          <Card className="border-slate-200/60">
-            <CardContent className="p-6 space-y-4">
-              {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-12 w-full rounded-lg" />)}
-            </CardContent>
-          </Card>
+          <BroadsheetSkeleton />
         ) : students.length === 0 ? (
           <Card className="border-slate-200/60">
             <CardContent className="flex flex-col items-center justify-center py-16">
-              <Table2 className="w-12 h-12 text-slate-300 mb-4" />
+              <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+                <Table2 className="w-8 h-8 text-slate-300" />
+              </div>
               <h3 className="text-lg font-semibold text-slate-900 mb-1">No Broadsheet Generated</h3>
               <p className="text-sm text-slate-500">Select a class and generate a broadsheet</p>
+              <Button
+                variant="outline"
+                className="mt-4 min-h-[44px] text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                onClick={() => document.querySelector<HTMLSelectElement>('select')?.focus()}
+              >
+                <Table2 className="w-4 h-4 mr-2" /> Select Class & Generate
+              </Button>
             </CardContent>
           </Card>
         ) : (
@@ -232,34 +279,48 @@ function BroadsheetModule() {
 
             {/* Summary Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 print:hidden">
-              <Card className="border-slate-200 bg-emerald-50/50">
-                <CardContent className="p-3 text-center">
-                  <Users className="w-5 h-5 mx-auto mb-1 text-emerald-600" />
-                  <p className="text-lg font-bold text-emerald-700">{students.length}</p>
-                  <p className="text-xs text-emerald-600">Students</p>
+              <Card className="border-l-4 border-l-emerald-500 hover:shadow-sm transition-all hover:-translate-y-0.5">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                    <Users className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Students</p>
+                    <p className="text-lg font-bold text-slate-900 tabular-nums">{students.length}</p>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="border-slate-200 bg-blue-50/50">
-                <CardContent className="p-3 text-center">
-                  <BookOpen className="w-5 h-5 mx-auto mb-1 text-blue-600" />
-                  <p className="text-lg font-bold text-blue-700">{subjects.length}</p>
-                  <p className="text-xs text-blue-600">Subjects</p>
+              <Card className="border-l-4 border-l-sky-500 hover:shadow-sm transition-all hover:-translate-y-0.5">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-sky-500 flex items-center justify-center flex-shrink-0">
+                    <BookOpen className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Subjects</p>
+                    <p className="text-lg font-bold text-slate-900 tabular-nums">{subjects.length}</p>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="border-slate-200 bg-amber-50/50">
-                <CardContent className="p-3 text-center">
-                  <Trophy className="w-5 h-5 mx-auto mb-1 text-amber-600" />
-                  <p className="text-lg font-bold text-amber-700">{students[0]?.name || '—'}</p>
-                  <p className="text-xs text-amber-600">Top: {students[0]?.total_score || 0}</p>
+              <Card className="border-l-4 border-l-amber-500 hover:shadow-sm transition-all hover:-translate-y-0.5">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0">
+                    <Trophy className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Top Student</p>
+                    <p className="text-sm font-bold text-slate-900 truncate">{students[0]?.name || '—'}</p>
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="border-slate-200 bg-purple-50/50">
-                <CardContent className="p-3 text-center">
-                  <TrendingUp className="w-5 h-5 mx-auto mb-1 text-purple-600" />
-                  <p className="text-lg font-bold text-purple-700">
-                    {Math.round(students.reduce((a, b) => a + b.average, 0) / students.length * 10) / 10}
-                  </p>
-                  <p className="text-xs text-purple-600">Class Avg</p>
+              <Card className="border-l-4 border-l-violet-500 hover:shadow-sm transition-all hover:-translate-y-0.5">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-violet-500 flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider font-medium">Class Avg</p>
+                    <p className="text-lg font-bold text-slate-900 tabular-nums">{classAvg}</p>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -279,7 +340,7 @@ function BroadsheetModule() {
                           </TableHead>
                         ))}
                         <TableHead className="text-center font-bold bg-emerald-50 min-w-[65px]">Total</TableHead>
-                        <TableHead className="text-center font-bold bg-blue-50 min-w-[55px]">Avg</TableHead>
+                        <TableHead className="text-center font-bold bg-sky-50 min-w-[55px]">Avg</TableHead>
                         <TableHead className="text-center min-w-[50px]">Grade</TableHead>
                         <TableHead className="text-center font-bold min-w-[40px]">#</TableHead>
                       </TableRow>
@@ -299,17 +360,17 @@ function BroadsheetModule() {
                             </div>
                           </TableCell>
                           {subjects.map(s => {
-                            const mark = student.marks[s.subject_id] || 0
+                            const mark = student.marks[s.subject_id] || 0;
                             return (
                               <TableCell key={s.subject_id} className="text-center text-sm tabular-nums px-2">
                                 {mark > 0 ? mark : <span className="text-slate-300">—</span>}
                               </TableCell>
-                            )
+                            );
                           })}
                           <TableCell className="text-center font-bold text-sm bg-emerald-50/50 tabular-nums">
                             {student.total_score}
                           </TableCell>
-                          <TableCell className="text-center text-sm bg-blue-50/50 tabular-nums">
+                          <TableCell className="text-center text-sm bg-sky-50/50 tabular-nums">
                             {student.average}
                           </TableCell>
                           <TableCell className="text-center">
@@ -364,5 +425,5 @@ function BroadsheetModule() {
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -26,6 +26,35 @@ interface StudentRanking {
 
 interface ClassInfo { name: string; name_numeric: number; }
 
+/* ---------- loading skeleton ---------- */
+
+function TermlyReportSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+        <Skeleton className="w-10 h-10 rounded-xl" />
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+      </div>
+      <Skeleton className="h-14 rounded-xl" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-24 rounded-xl" />
+        ))}
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-28 rounded-xl" />
+        ))}
+      </div>
+      <Skeleton className="h-72 rounded-xl" />
+      <Skeleton className="h-80 rounded-xl" />
+    </div>
+  );
+}
+
 export default function TermlyReportPage() {
   const [loading, setLoading] = useState(true);
   const [classes, setClasses] = useState<{ class_id: number; name: string }[]>([]);
@@ -38,6 +67,7 @@ export default function TermlyReportPage() {
   const [subjectAverages, setSubjectAverages] = useState<SubjectAverage[]>([]);
   const [studentRankings, setStudentRankings] = useState<StudentRanking[]>([]);
   const [totalStudents, setTotalStudents] = useState(0);
+  const [hasFetched, setHasFetched] = useState(false);
 
   const fetchClasses = useCallback(async () => {
     try {
@@ -67,6 +97,7 @@ export default function TermlyReportPage() {
       setSubjectAverages(data.subjectAverages || []);
       setStudentRankings(data.studentRankings || []);
       setTotalStudents(data.totalStudents || 0);
+      setHasFetched(true);
     } catch {
       toast.error('Failed to load termly report');
     }
@@ -103,19 +134,20 @@ export default function TermlyReportPage() {
 
   const maxSubjectAvg = Math.max(...subjectAverages.map((s) => s.average), 100);
 
+  if (loading && !hasFetched) return (
+    <DashboardLayout>
+      <TermlyReportSkeleton />
+    </DashboardLayout>
+  );
+
   return (
     <DashboardLayout>
       <div className="space-y-6 print:p-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
-              <FileBarChart className="w-5 h-5 text-violet-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Termly Report</h1>
-              <p className="text-sm text-slate-500 mt-0.5">Subject averages, class rankings, and pass rates</p>
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden pb-4 border-b border-slate-100">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Termly Report</h1>
+            <p className="text-sm text-slate-500 mt-1">Subject averages, class rankings, and pass rates</p>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={handleExportCSV} className="min-h-[44px]" disabled={!classId}>
@@ -129,7 +161,7 @@ export default function TermlyReportPage() {
 
         {/* Print header */}
         <div className="hidden print:block text-center mb-6">
-          <h1 className="text-xl font-bold">Termly Report \u2014 {classInfo?.name}</h1>
+          <h1 className="text-xl font-bold">Termly Report — {classInfo?.name}</h1>
           <p className="text-sm text-slate-500">Term: {term || 'All'} | Year: {year || 'All'} | Generated: {new Date().toLocaleDateString()}</p>
         </div>
 
@@ -145,7 +177,7 @@ export default function TermlyReportPage() {
                 <div>
                   <label className="text-xs font-medium text-slate-500 mb-1 block">Class *</label>
                   <Select value={classId} onValueChange={setClassId}>
-                    <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="Select class" /></SelectTrigger>
+                    <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select class" /></SelectTrigger>
                     <SelectContent>
                       {classes.map((c) => <SelectItem key={c.class_id} value={String(c.class_id)}>{c.name}</SelectItem>)}
                     </SelectContent>
@@ -154,7 +186,7 @@ export default function TermlyReportPage() {
                 <div>
                   <label className="text-xs font-medium text-slate-500 mb-1 block">Term</label>
                   <Select value={term} onValueChange={(v) => v === '__all__' ? setTerm('') : setTerm(v)}>
-                    <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="All Terms" /></SelectTrigger>
+                    <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="All Terms" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__all__">All Terms</SelectItem>
                       <SelectItem value="Term 1">Term 1</SelectItem>
@@ -166,7 +198,7 @@ export default function TermlyReportPage() {
                 <div>
                   <label className="text-xs font-medium text-slate-500 mb-1 block">Year</label>
                   <Select value={year} onValueChange={(v) => v === '__all__' ? setYear('') : setYear(v)}>
-                    <SelectTrigger className="min-h-[44px]"><SelectValue placeholder="All Years" /></SelectTrigger>
+                    <SelectTrigger className="min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="All Years" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="__all__">All Years</SelectItem>
                       <SelectItem value="2025/2026">2025/2026</SelectItem>
@@ -197,7 +229,7 @@ export default function TermlyReportPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Card key={i} className="border-l-4 border-l-slate-200"><CardContent className="p-4"><Skeleton className="h-16 w-full" /></CardContent></Card>
+                <Skeleton key={i} className="h-24 rounded-xl" />
               ))}
             </div>
             <Skeleton className="h-64 w-full rounded-xl" />
@@ -210,54 +242,54 @@ export default function TermlyReportPage() {
           <>
             {/* Summary Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="border-l-4 border-l-emerald-500 hover:shadow-md transition-shadow">
+              <Card className="border-l-4 border-l-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                      <Target className="w-5 h-5 text-emerald-600" />
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                      <Target className="w-5 h-5 text-white" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs text-slate-500 font-medium">Class Average</p>
-                      <p className="text-xl font-bold text-slate-900">{classAverage}</p>
+                      <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Class Average</p>
+                      <p className="text-xl font-bold text-slate-900 tabular-nums">{classAverage}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card className="border-l-4 border-l-sky-500 hover:shadow-md transition-shadow">
+              <Card className="border-l-4 border-l-sky-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-5 h-5 text-sky-600" />
+                    <div className="w-10 h-10 rounded-xl bg-sky-500 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-5 h-5 text-white" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs text-slate-500 font-medium">Pass Rate</p>
-                      <p className="text-xl font-bold text-slate-900">{overallPassRate}%</p>
+                      <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Pass Rate</p>
+                      <p className="text-xl font-bold text-slate-900 tabular-nums">{overallPassRate}%</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card className="border-l-4 border-l-violet-500 hover:shadow-md transition-shadow">
+              <Card className="border-l-4 border-l-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center flex-shrink-0">
-                      <Users className="w-5 h-5 text-violet-600" />
+                    <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center flex-shrink-0">
+                      <Users className="w-5 h-5 text-white" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs text-slate-500 font-medium">Total Students</p>
-                      <p className="text-xl font-bold text-slate-900">{totalStudents}</p>
+                      <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Total Students</p>
+                      <p className="text-xl font-bold text-slate-900 tabular-nums">{totalStudents}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-              <Card className="border-l-4 border-l-amber-500 hover:shadow-md transition-shadow">
+              <Card className="border-l-4 border-l-amber-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
-                      <Trophy className="w-5 h-5 text-amber-600" />
+                    <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
+                      <Trophy className="w-5 h-5 text-white" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs text-slate-500 font-medium">Top Score</p>
-                      <p className="text-xl font-bold text-slate-900">{studentRankings.length > 0 ? studentRankings[0].average : '-'}</p>
+                      <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Top Score</p>
+                      <p className="text-xl font-bold text-slate-900 tabular-nums">{studentRankings.length > 0 ? studentRankings[0].average : '-'}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -302,8 +334,10 @@ export default function TermlyReportPage() {
               <CardContent className="p-4">
                 {subjectAverages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-                    <BarChart3 className="w-10 h-10 mb-2 opacity-40" />
-                    <p className="text-sm">No subject data available</p>
+                    <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-3">
+                      <BarChart3 className="w-8 h-8 text-slate-300" />
+                    </div>
+                    <p className="text-sm font-medium text-slate-600">No subject data available</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -345,8 +379,10 @@ export default function TermlyReportPage() {
               <CardContent className="p-0">
                 {studentRankings.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-                    <Trophy className="w-10 h-10 mb-2 opacity-40" />
-                    <p className="text-sm">No ranking data available</p>
+                    <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-3">
+                      <Trophy className="w-8 h-8 text-slate-300" />
+                    </div>
+                    <p className="text-sm font-medium text-slate-600">No ranking data available</p>
                   </div>
                 ) : (
                   <>
@@ -466,8 +502,10 @@ export default function TermlyReportPage() {
               <CardContent className="p-4">
                 {subjectAverages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-                    <Target className="w-10 h-10 mb-2 opacity-40" />
-                    <p className="text-sm">No pass rate data available</p>
+                    <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-3">
+                      <Target className="w-8 h-8 text-slate-300" />
+                    </div>
+                    <p className="text-sm font-medium text-slate-600">No pass rate data available</p>
                   </div>
                 ) : (
                   <div className="space-y-2">

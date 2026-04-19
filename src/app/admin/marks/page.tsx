@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import {
   GraduationCap, Save, Loader2, ArrowLeft, AlertCircle, CheckCircle2,
-  BookOpen, FileText, Search,
+  BookOpen, FileText, Users, BarChart3,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -64,6 +64,41 @@ interface Section {
   name: string
 }
 
+function MarksSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Header skeleton */}
+      <div className="flex items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <Skeleton className="w-11 h-11 rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-60" />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-11 w-24 rounded-lg" />
+          <Skeleton className="h-11 w-32 rounded-lg" />
+        </div>
+      </div>
+      {/* Selector skeleton */}
+      <Skeleton className="h-24 w-full rounded-xl" />
+      {/* Stat cards skeleton */}
+      <div className="grid grid-cols-3 gap-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-[88px] rounded-xl" />
+        ))}
+      </div>
+      {/* Table skeleton */}
+      <div className="space-y-3">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-12 w-full rounded-lg" />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ===== Main =====
 export default function MarkEntryPage() {
   return (
@@ -74,8 +109,6 @@ export default function MarkEntryPage() {
 }
 
 function MarkEntryModule() {
-  const { toast } = useToast()
-
   // Dropdown data
   const [exams, setExams] = useState<Exam[]>([])
   const [classes, setClasses] = useState<ClassItem[]>([])
@@ -215,7 +248,7 @@ function MarkEntryModule() {
 
   const handleSave = async () => {
     if (!selectedExamId || !selectedSubjectId || !selectedClassId) {
-      toast({ title: 'Error', description: 'Please select exam, class, and subject', variant: 'destructive' })
+      toast.error('Please select exam, class, and subject')
       return
     }
 
@@ -239,9 +272,9 @@ function MarkEntryModule() {
 
       if (!res.ok) throw new Error('Failed to save marks')
       const result = await res.json()
-      toast({ title: 'Saved', description: `Marks saved for ${result.count || records.length} students` })
+      toast.success(`Marks saved for ${result.count || records.length} students`)
     } catch (err) {
-      toast({ title: 'Error', description: (err as Error).message, variant: 'destructive' })
+      toast.error((err as Error).message || 'Failed to save marks')
     }
     setSaving(false)
   }
@@ -255,7 +288,7 @@ function MarkEntryModule() {
   const getGradeColor = (name: string): string => {
     const n = name.toLowerCase()
     if (n.startsWith('a') || n.startsWith('1')) return 'bg-emerald-100 text-emerald-700'
-    if (n.startsWith('b') || n.startsWith('2')) return 'bg-blue-100 text-blue-700'
+    if (n.startsWith('b') || n.startsWith('2')) return 'bg-sky-100 text-sky-700'
     if (n.startsWith('c') || n.startsWith('3')) return 'bg-amber-100 text-amber-700'
     if (n.startsWith('d') || n.startsWith('4')) return 'bg-orange-100 text-orange-700'
     return 'bg-red-100 text-red-700'
@@ -275,19 +308,26 @@ function MarkEntryModule() {
 
   const canSave = selectedExamId && selectedSubjectId && selectedClassId && students.length > 0
 
+  if (initialLoading) {
+    return <MarksSkeleton />
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
           <Button asChild variant="outline" size="icon" className="min-h-[44px] min-w-[44px]">
             <Link href="/admin/exams">
               <ArrowLeft className="w-4 h-4" />
             </Link>
           </Button>
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
+            <GraduationCap className="w-5 h-5 text-white" />
+          </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Manage Exam Marks</h1>
-            <p className="text-sm text-slate-500 mt-1">Enter and manage student examination marks</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Manage Exam Marks</h1>
+            <p className="text-sm text-slate-500">Enter and manage student examination marks</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -310,7 +350,7 @@ function MarkEntryModule() {
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-slate-600 uppercase">Exam</Label>
               <Select value={selectedExamId} onValueChange={setSelectedExamId}>
-                <SelectTrigger className="min-h-[52px] text-lg font-bold uppercase">
+                <SelectTrigger className="min-h-[52px] text-lg font-bold uppercase bg-slate-50 border-slate-200 focus:bg-white">
                   <SelectValue placeholder="Select Exam" />
                 </SelectTrigger>
                 <SelectContent>
@@ -325,7 +365,7 @@ function MarkEntryModule() {
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-slate-600 uppercase">Class</Label>
               <Select value={selectedClassId} onValueChange={v => { setSelectedClassId(v); setSelectedSubjectId('') }}>
-                <SelectTrigger className="min-h-[52px] text-lg font-bold uppercase">
+                <SelectTrigger className="min-h-[52px] text-lg font-bold uppercase bg-slate-50 border-slate-200 focus:bg-white">
                   <SelectValue placeholder="Select Class" />
                 </SelectTrigger>
                 <SelectContent>
@@ -340,7 +380,7 @@ function MarkEntryModule() {
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-slate-600 uppercase">Section</Label>
               <Select value={selectedSectionId} onValueChange={setSelectedSectionId}>
-                <SelectTrigger className="min-h-[52px] text-lg font-bold uppercase">
+                <SelectTrigger className="min-h-[52px] text-lg font-bold uppercase bg-slate-50 border-slate-200 focus:bg-white">
                   <SelectValue placeholder={selectedClassId ? 'Select Section' : 'Select Class First'} />
                 </SelectTrigger>
                 <SelectContent>
@@ -355,7 +395,7 @@ function MarkEntryModule() {
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-slate-600 uppercase">Subject</Label>
               <Select value={selectedSubjectId} onValueChange={setSelectedSubjectId} disabled={subjectsLoading}>
-                <SelectTrigger className="min-h-[52px] text-lg font-bold uppercase">
+                <SelectTrigger className="min-h-[52px] text-lg font-bold uppercase bg-slate-50 border-slate-200 focus:bg-white">
                   <SelectValue placeholder={selectedClassId ? 'Select Subject' : 'Select Class First'} />
                 </SelectTrigger>
                 <SelectContent>
@@ -386,18 +426,33 @@ function MarkEntryModule() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-xl border border-slate-200 bg-emerald-50 p-3 text-center">
-          <p className="text-lg font-bold text-emerald-700">{stats.entered}</p>
-          <p className="text-xs text-emerald-600 font-medium">Marks Entered</p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-emerald-500 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+          <div className="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Marks Entered</p>
+            <p className="text-2xl font-bold text-emerald-600 tabular-nums">{stats.entered}</p>
+          </div>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
-          <p className="text-lg font-bold text-slate-700">{stats.total}</p>
-          <p className="text-xs text-slate-600 font-medium">Total Students</p>
+        <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-sky-500 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+          <div className="w-11 h-11 rounded-xl bg-sky-500 flex items-center justify-center shrink-0">
+            <Users className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Students</p>
+            <p className="text-2xl font-bold text-slate-900 tabular-nums">{stats.total}</p>
+          </div>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-blue-50 p-3 text-center">
-          <p className="text-lg font-bold text-blue-700">{stats.avg}</p>
-          <p className="text-xs text-blue-600 font-medium">Class Average</p>
+        <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-violet-500 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+          <div className="w-11 h-11 rounded-xl bg-violet-500 flex items-center justify-center shrink-0">
+            <BarChart3 className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Class Average</p>
+            <p className="text-2xl font-bold text-violet-600 tabular-nums">{stats.avg}</p>
+          </div>
         </div>
       </div>
 
@@ -418,23 +473,23 @@ function MarkEntryModule() {
             </div>
           ) : !selectedClassId ? (
             <div className="flex flex-col items-center justify-center py-16">
-              <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                <BookOpen className="w-8 h-8 text-slate-300" />
+              <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                <BookOpen className="w-7 h-7 text-slate-300" />
               </div>
               <p className="text-sm text-slate-500 font-medium">Select a class to load students</p>
             </div>
           ) : students.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16">
-              <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mb-4">
-                <AlertCircle className="w-8 h-8 text-amber-400" />
+              <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mb-4">
+                <AlertCircle className="w-7 h-7 text-amber-400" />
               </div>
               <p className="text-sm text-amber-700 font-medium">No students enrolled in this class</p>
               <p className="text-xs text-amber-600 mt-1">Make sure students are enrolled before entering marks</p>
             </div>
           ) : !selectedSubjectId ? (
             <div className="flex flex-col items-center justify-center py-16">
-              <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                <GraduationCap className="w-8 h-8 text-slate-300" />
+              <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+                <GraduationCap className="w-7 h-7 text-slate-300" />
               </div>
               <p className="text-sm text-slate-500 font-medium">Select a subject to enter marks</p>
             </div>
@@ -472,7 +527,7 @@ function MarkEntryModule() {
                             value={marksMap[student.student_id] || ''}
                             onChange={e => setMarksMap(prev => ({ ...prev, [student.student_id]: e.target.value }))}
                             placeholder="0"
-                            className="min-h-[40px] text-center font-bold tabular-nums text-lg border-green-200 focus:border-emerald-500"
+                            className="min-h-[44px] text-center font-bold tabular-nums text-lg border-green-200 focus:border-emerald-500"
                           />
                         </TableCell>
                         <TableCell className="text-center">

@@ -22,9 +22,9 @@ import {
 } from '@/components/ui/table';
 import {
   Layers, Plus, Pencil, Trash2, Search, Eye, Calendar, LayoutDashboard,
-  Image, X, Upload, Camera,
+  Image, X, Upload, Camera, Loader2,
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 interface GalleryImage {
@@ -46,12 +46,47 @@ interface Gallery {
 
 interface GalleryStats { total: number; totalImages: number; }
 
+function GallerySkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Header skeleton */}
+      <div className="flex items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <Skeleton className="w-11 h-11 rounded-xl" />
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-36" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-11 w-28 rounded-lg" />
+          <Skeleton className="h-11 w-32 rounded-lg" />
+        </div>
+      </div>
+      {/* Stat cards skeleton */}
+      <div className="grid grid-cols-2 gap-4">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <Skeleton key={i} className="h-[88px] rounded-xl" />
+        ))}
+      </div>
+      {/* Search skeleton */}
+      <Skeleton className="h-11 w-full rounded-lg" />
+      {/* Gallery grid skeleton */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-48 rounded-xl" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function GalleryPage() {
   const router = useRouter();
-  const { toast } = useToast();
   const [galleries, setGalleries] = useState<Gallery[]>([]);
   const [stats, setStats] = useState<GalleryStats>({ total: 0, totalImages: 0 });
   const [loading, setLoading] = useState(true);
+  const [hasFetched, setHasFetched] = useState(false);
   const [search, setSearch] = useState('');
 
   // Album form dialog
@@ -82,6 +117,7 @@ export default function GalleryPage() {
       const data = await res.json();
       setGalleries(data.galleries || []);
       setStats(data.stats || { total: 0, totalImages: 0 });
+      setHasFetched(true);
     } catch { /* empty */ }
     setLoading(false);
   }, [search]);
@@ -106,7 +142,7 @@ export default function GalleryPage() {
 
   const handleSaveAlbum = async () => {
     if (!form.title.trim()) {
-      toast({ title: 'Error', description: 'Album title is required', variant: 'destructive' });
+      toast.error('Album title is required');
       return;
     }
     setSaving(true);
@@ -117,19 +153,19 @@ export default function GalleryPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: editGallery.frontend_gallery_id, ...form }),
         });
-        toast({ title: 'Success', description: 'Album updated' });
+        toast.success('Album updated');
       } else {
         await fetch('/api/admin/frontend/gallery', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         });
-        toast({ title: 'Success', description: 'Album created' });
+        toast.success('Album created');
       }
       setFormOpen(false);
       fetchGalleries();
     } catch {
-      toast({ title: 'Error', variant: 'destructive' });
+      toast.error('Something went wrong');
     }
     setSaving(false);
   };
@@ -138,11 +174,11 @@ export default function GalleryPage() {
     if (!deleteGallery) return;
     try {
       await fetch(`/api/admin/frontend/gallery?id=${deleteGallery.frontend_gallery_id}`, { method: 'DELETE' });
-      toast({ title: 'Success', description: `Album "${deleteGallery.title}" deleted with all images` });
+      toast.success(`Album "${deleteGallery.title}" deleted with all images`);
       setDeleteOpen(false);
       fetchGalleries();
     } catch {
-      toast({ title: 'Error', variant: 'destructive' });
+      toast.error('Something went wrong');
     }
   };
 
@@ -164,7 +200,7 @@ export default function GalleryPage() {
           caption: newImageCaption,
         }),
       });
-      toast({ title: 'Success', description: 'Image added' });
+      toast.success('Image added');
       setNewImageUrl('');
       setNewImageCaption('');
       fetchGalleries();
@@ -177,7 +213,7 @@ export default function GalleryPage() {
         if (gal) setCurrentGallery(gal);
       }
     } catch {
-      toast({ title: 'Error', variant: 'destructive' });
+      toast.error('Something went wrong');
     }
     setAddingImage(false);
   };
@@ -190,7 +226,7 @@ export default function GalleryPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image_id: deleteImage.frontend_gallery_image_id }),
       });
-      toast({ title: 'Success', description: 'Image removed' });
+      toast.success('Image removed');
       setDeleteImageOpen(false);
       fetchGalleries();
       // Refresh
@@ -201,21 +237,29 @@ export default function GalleryPage() {
         if (gal) setCurrentGallery(gal);
       }
     } catch {
-      toast({ title: 'Error', variant: 'destructive' });
+      toast.error('Something went wrong');
     }
   };
+
+  if (loading && !hasFetched) {
+    return (
+      <DashboardLayout>
+        <GallerySkeleton />
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg">
-              <Layers className="w-6 h-6 text-white" />
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg">
+              <Layers className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Photo Gallery</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Photo Gallery</h1>
               <p className="text-sm text-slate-500">Manage albums and photo uploads</p>
             </div>
           </div>
@@ -231,43 +275,43 @@ export default function GalleryPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4">
-          <Card className="border-slate-200/60 hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center">
-                <Layers className="w-5 h-5 text-rose-600" />
-              </div>
-              <div><p className="text-xs text-slate-500">Albums</p><p className="text-xl font-bold">{stats.total}</p></div>
-            </CardContent>
-          </Card>
-          <Card className="border-slate-200/60 hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-pink-100 flex items-center justify-center">
-                <Camera className="w-5 h-5 text-pink-600" />
-              </div>
-              <div><p className="text-xs text-slate-500">Total Photos</p><p className="text-xl font-bold text-pink-600">{stats.totalImages}</p></div>
-            </CardContent>
-          </Card>
+          <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-rose-500 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+            <div className="w-11 h-11 rounded-xl bg-rose-500 flex items-center justify-center shrink-0">
+              <Layers className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Albums</p>
+              <p className="text-2xl font-bold text-slate-900 tabular-nums">{stats.total}</p>
+            </div>
+          </div>
+          <div className="rounded-xl border border-slate-200/60 border-l-4 border-l-pink-500 bg-white p-4 flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-lg transition-all">
+            <div className="w-11 h-11 rounded-xl bg-pink-500 flex items-center justify-center shrink-0">
+              <Camera className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Photos</p>
+              <p className="text-2xl font-bold text-pink-600 tabular-nums">{stats.totalImages}</p>
+            </div>
+          </div>
         </div>
 
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input placeholder="Search albums..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 min-h-[44px]" />
+          <Input placeholder="Search albums..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white" />
         </div>
 
         {/* Gallery Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-48 rounded-xl" />)}
-          </div>
-        ) : galleries.length === 0 ? (
-          <Card className="py-16">
-            <CardContent className="flex flex-col items-center">
-              <Layers className="w-16 h-16 text-slate-200 mb-4" />
+        {galleries.length === 0 ? (
+          <div className="rounded-2xl border border-slate-200 bg-white py-16">
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 rounded-2xl bg-rose-50 flex items-center justify-center mb-4">
+                <Layers className="w-7 h-7 text-rose-300" />
+              </div>
               <p className="text-slate-500 font-medium">No albums found</p>
               <p className="text-slate-400 text-sm mt-1">Click &quot;New Album&quot; to create your first photo album</p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {galleries.map((gal) => (
@@ -282,7 +326,7 @@ export default function GalleryPage() {
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                     <Button
                       size="sm"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 hover:bg-white text-slate-800"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 hover:bg-white text-slate-800 min-h-[44px]"
                       onClick={() => openImageManager(gal)}
                     >
                       <Camera className="w-4 h-4 mr-1" /> Manage Photos
@@ -347,8 +391,9 @@ export default function GalleryPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setFormOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setFormOpen(false)} className="min-h-[44px]">Cancel</Button>
             <Button onClick={handleSaveAlbum} className="bg-rose-600 hover:bg-rose-700 min-h-[44px] px-6" disabled={!form.title.trim() || saving}>
+              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {saving ? 'Saving...' : editGallery ? 'Update Album' : 'Create Album'}
             </Button>
           </DialogFooter>
@@ -376,18 +421,19 @@ export default function GalleryPage() {
             <CardContent className="px-4 pb-4 space-y-3">
               <div className="grid gap-2">
                 <Label className="text-xs text-slate-500">Image URL *</Label>
-                <Input value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} placeholder="https://example.com/photo.jpg" className="h-9" />
+                <Input value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} placeholder="https://example.com/photo.jpg" className="h-9 bg-slate-50 border-slate-200 focus:bg-white" />
               </div>
               <div className="grid gap-2">
                 <Label className="text-xs text-slate-500">Caption</Label>
-                <Input value={newImageCaption} onChange={(e) => setNewImageCaption(e.target.value)} placeholder="Photo description" className="h-9" />
+                <Input value={newImageCaption} onChange={(e) => setNewImageCaption(e.target.value)} placeholder="Photo description" className="h-9 bg-slate-50 border-slate-200 focus:bg-white" />
               </div>
               {newImageUrl && (
                 <div className="w-full h-24 rounded-lg bg-slate-100 overflow-hidden">
                   <img src={newImageUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
                 </div>
               )}
-              <Button size="sm" onClick={handleAddImage} disabled={!newImageUrl.trim() || addingImage} className="bg-rose-600 hover:bg-rose-700">
+              <Button size="sm" onClick={handleAddImage} disabled={!newImageUrl.trim() || addingImage} className="bg-rose-600 hover:bg-rose-700 min-h-[44px]">
+                {addingImage && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
                 <Plus className="w-3 h-3 mr-1" />{addingImage ? 'Adding...' : 'Add Photo'}
               </Button>
             </CardContent>
@@ -397,7 +443,9 @@ export default function GalleryPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto">
             {currentGallery?.images?.length === 0 ? (
               <div className="col-span-full text-center py-8">
-                <Image className="w-12 h-12 text-slate-200 mx-auto mb-2" />
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                  <Image className="w-7 h-7 text-slate-300" />
+                </div>
                 <p className="text-sm text-slate-400">No photos yet</p>
               </div>
             ) : (
@@ -430,14 +478,19 @@ export default function GalleryPage() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Album</AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </div>
+              Delete Album
+            </AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete <strong className="text-slate-900">{deleteGallery?.title}</strong>? This will also delete all {deleteGallery?.images?.length || 0} photos in this album. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteAlbum} className="bg-red-600 hover:bg-red-700">Delete Album</AlertDialogAction>
+            <AlertDialogCancel className="min-h-[44px]">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteAlbum} className="bg-red-600 hover:bg-red-700 min-h-[44px]">Delete Album</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -446,12 +499,17 @@ export default function GalleryPage() {
       <AlertDialog open={deleteImageOpen} onOpenChange={setDeleteImageOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove Photo</AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </div>
+              Remove Photo
+            </AlertDialogTitle>
             <AlertDialogDescription>Are you sure you want to remove this photo from the album?</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteImage} className="bg-red-600 hover:bg-red-700">Remove</AlertDialogAction>
+            <AlertDialogCancel className="min-h-[44px]">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteImage} className="bg-red-600 hover:bg-red-700 min-h-[44px]">Remove</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

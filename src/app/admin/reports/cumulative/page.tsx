@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import {
   Printer, TrendingUp, TrendingDown, Minus, BarChart3, Users,
-  GraduationCap, ArrowUpRight, ArrowDownRight, Equal,
+  GraduationCap, ArrowUpRight, ArrowDownRight, Equal, Target,
 } from 'lucide-react';
 
 interface SubjectScore { subjectId: number; subjectName: string; average: number; trend: 'up' | 'down' | 'stable' | 'none'; }
@@ -30,6 +30,29 @@ function TrendIcon({ trend }: { trend: string }) {
   return <Minus className="w-3.5 h-3.5 text-slate-300" />;
 }
 
+/* ---------- loading skeleton ---------- */
+
+function CumulativeReportSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-64" />
+          <Skeleton className="h-4 w-80" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-24 rounded-xl" />
+        ))}
+      </div>
+      <Skeleton className="h-14 rounded-xl" />
+      <Skeleton className="h-64 rounded-xl" />
+      <Skeleton className="h-48 rounded-xl" />
+    </div>
+  );
+}
+
 export default function CumulativeReportPage() {
   const [loading, setLoading] = useState(true);
   const [students, setStudents] = useState<StudentData[]>([]);
@@ -40,6 +63,7 @@ export default function CumulativeReportPage() {
   const [filterType, setFilterType] = useState<'class' | 'student'>('class');
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedStudent, setSelectedStudent] = useState('');
+  const [hasFetched, setHasFetched] = useState(false);
 
   const fetchClasses = useCallback(async () => {
     try {
@@ -78,6 +102,7 @@ export default function CumulativeReportPage() {
       setStudents(data.students || []);
       setSubjects(data.subjects || []);
       setGradeDistribution(data.gradeDistribution || {});
+      setHasFetched(true);
     } catch {
       toast.error('Failed to load cumulative report');
     }
@@ -93,11 +118,26 @@ export default function CumulativeReportPage() {
   const gradeColors: Record<string, string> = { A: 'bg-emerald-500', B: 'bg-sky-500', C: 'bg-amber-500', D: 'bg-orange-500', F: 'bg-red-500' };
   const totalGrades = Object.values(gradeDistribution).reduce((s, v) => s + v, 0) || 1;
 
+  // Computed stats
+  const avgScore = students.length > 0
+    ? (students.reduce((s, st) => s + st.cumulativeAverage, 0) / students.length).toFixed(1)
+    : '0';
+  const topAvg = students.length > 0
+    ? Math.max(...students.map((s) => s.cumulativeAverage))
+    : 0;
+  const passCount = students.filter((s) => s.cumulativeAverage >= 50).length;
+
+  if (loading && !hasFetched) return (
+    <DashboardLayout>
+      <CumulativeReportSkeleton />
+    </DashboardLayout>
+  );
+
   return (
     <DashboardLayout>
       <div className="space-y-6 print:p-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden pb-4 border-b border-slate-100">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Cumulative Student Performance</h1>
             <p className="text-sm text-slate-500 mt-1">Subject-wise cumulative scores with trend indicators</p>
@@ -119,7 +159,7 @@ export default function CumulativeReportPage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex gap-2">
                 <Select value={filterType} onValueChange={(v) => setFilterType(v as 'class' | 'student')}>
-                  <SelectTrigger className="w-36 h-10"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-36 min-h-[44px] bg-slate-50 border-slate-200 focus:bg-white"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="class">By Class</SelectItem>
                     <SelectItem value="student">By Student</SelectItem>
@@ -128,7 +168,7 @@ export default function CumulativeReportPage() {
               </div>
               {filterType === 'class' ? (
                 <Select value={selectedClass} onValueChange={(v) => v === '__all__' ? setSelectedClass('') : setSelectedClass(v)}>
-                  <SelectTrigger className="h-10 flex-1"><SelectValue placeholder="Select class" /></SelectTrigger>
+                  <SelectTrigger className="min-h-[44px] flex-1 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select class" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__all__">All Classes</SelectItem>
                     {classes.map((c) => <SelectItem key={c.class_id} value={String(c.class_id)}>{c.name}</SelectItem>)}
@@ -136,7 +176,7 @@ export default function CumulativeReportPage() {
                 </Select>
               ) : (
                 <Select value={selectedStudent} onValueChange={setSelectedStudent}>
-                  <SelectTrigger className="h-10 flex-1"><SelectValue placeholder="Select student" /></SelectTrigger>
+                  <SelectTrigger className="min-h-[44px] flex-1 bg-slate-50 border-slate-200 focus:bg-white"><SelectValue placeholder="Select student" /></SelectTrigger>
                   <SelectContent>
                     {allStudents.map((s) => <SelectItem key={s.student_id} value={String(s.student_id)}>{s.name} ({s.student_code})</SelectItem>)}
                   </SelectContent>
@@ -146,16 +186,77 @@ export default function CumulativeReportPage() {
           </CardContent>
         </Card>
 
+        {/* Stat Cards - shown when data exists */}
+        {students.length > 0 && !loading && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="border-l-4 border-l-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Students</p>
+                    <p className="text-xl font-bold text-slate-900 tabular-nums">{students.length}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-l-4 border-l-sky-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-sky-500 flex items-center justify-center flex-shrink-0">
+                    <Target className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Avg Score</p>
+                    <p className="text-xl font-bold text-slate-900 tabular-nums">{avgScore}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-l-4 border-l-violet-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center flex-shrink-0">
+                    <GraduationCap className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Subjects</p>
+                    <p className="text-xl font-bold text-slate-900 tabular-nums">{subjects.length}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-l-4 border-l-amber-500 hover:shadow-lg hover:-translate-y-0.5 transition-all">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
+                    <TrendingUp className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Top Score</p>
+                    <p className="text-xl font-bold text-slate-900 tabular-nums">{topAvg}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Content */}
         {loading ? (
           <div className="space-y-4">
-            <Skeleton className="h-64" />
-            <Skeleton className="h-48" />
+            <Skeleton className="h-64 rounded-xl" />
+            <Skeleton className="h-48 rounded-xl" />
           </div>
         ) : students.length === 0 ? (
           <Card className="border-slate-200/60"><CardContent className="py-16 text-center">
-            <GraduationCap className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-            <p className="text-slate-500">Select a class or student to view cumulative performance data</p>
+            <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4">
+              <GraduationCap className="w-8 h-8 text-slate-300" />
+            </div>
+            <p className="text-slate-600 font-medium">Select a class or student to view cumulative performance data</p>
+            <p className="text-sm text-slate-400 mt-1">Use the filter above to choose a class or individual student</p>
           </CardContent></Card>
         ) : (
           <>
@@ -212,6 +313,13 @@ export default function CumulativeReportPage() {
                       ))}
                     </TableBody>
                   </Table>
+                </div>
+                {/* Table Footer */}
+                <div className="px-4 py-3 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+                  <span className="text-xs text-slate-500">{students.length} students</span>
+                  <span className="text-xs text-slate-500">
+                    Pass Rate: <strong>{students.length > 0 ? ((passCount / students.length) * 100).toFixed(0) : 0}%</strong>
+                  </span>
                 </div>
               </CardContent>
             </Card>
