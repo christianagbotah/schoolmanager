@@ -50,7 +50,6 @@ import {
   Edit, Trash2, Download, Eye, DollarSign, TrendingUp, TrendingDown,
   FileText, Info, CheckCircle, XCircle, Activity, Users, HeartPulse,
   School, ClipboardList, CircleDollarSign, Receipt, ArrowLeft,
-  Ban, Unlock, IdCard, Printer, MessageSquare, BarChart3, Monitor,
 } from 'lucide-react';
 
 // Types
@@ -245,13 +244,7 @@ function formatCurrency(amount: number): string {
 }
 
 // Info card component for the profile tabs
-function InfoCard({
-  icon: Icon,
-  iconColor,
-  label,
-  value,
-  className = '',
-}: {
+function InfoCard({ icon: Icon, iconColor, label, value, className = '' }: {
   icon: React.ElementType;
   iconColor: string;
   label: string;
@@ -270,12 +263,7 @@ function InfoCard({
 }
 
 // Gradient info card (parent tab)
-function GradientInfoCard({
-  icon: Icon,
-  bgColor,
-  label,
-  value,
-}: {
+function GradientInfoCard({ icon: Icon, bgColor, label, value }: {
   icon: React.ElementType;
   bgColor: string;
   label: string;
@@ -471,7 +459,7 @@ export default function StudentProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      //  Sticky Header 
+      {/* Sticky Header */}
       <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-sm border-b">
         <div className="p-4 md:px-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -503,7 +491,7 @@ export default function StudentProfilePage() {
 
       <div className="p-4 md:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          //  Left Sidebar - Student Card 
+          {/* Left Sidebar - Student Card */}
           <div className="lg:col-span-1">
             <Card className="p-5 lg:sticky lg:top-24 overflow-hidden">
               <div className="text-center">
@@ -547,35 +535,6 @@ export default function StudentProfilePage() {
                     <Edit className="h-4 w-4 mr-2" />
                     Edit Profile
                   </Button>
-                  <Button variant="outline" className="w-full" asChild>
-                    <Link href={`/admin/students/${studentId}/profile`}>
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Profile
-                    </Link>
-                  </Button>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" size="sm" className="text-xs" asChild>
-                      <Link href={`/admin/students/${studentId}/profile?tab=academic`}>
-                        <BarChart3 className="h-3.5 w-3.5 mr-1" />
-                        Marksheet
-                      </Link>
-                    </Button>
-                    <Button variant="outline" size="sm" className="text-xs" asChild>
-                      <Link href={`/admin/students/${studentId}/profile?tab=financial`}>
-                        <Receipt className="h-3.5 w-3.5 mr-1" />
-                        Receipts
-                      </Link>
-                    </Button>
-                    <Button variant="outline" size="sm" className="text-xs">
-                      <IdCard className="h-3.5 w-3.5 mr-1" />
-                      Generate ID
-                    </Button>
-                    <Button variant="outline" size="sm" className="text-xs">
-                      <Printer className="h-3.5 w-3.5 mr-1" />
-                      Print
-                    </Button>
-                  </div>
-                  <Separator />
                   <Button variant="outline" className="w-full text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => setDeleteOpen(true)}>
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete Student
@@ -583,7 +542,7 @@ export default function StudentProfilePage() {
                 </div>
               </div>
 
-              //  Quick Info 
+              {/* Quick Info */}
               <Separator className="my-4" />
               <div className="space-y-3 text-sm">
                 {student.email && (
@@ -606,7 +565,7 @@ export default function StudentProfilePage() {
                 )}
               </div>
 
-              //  Enrollment History 
+              {/* Enrollment History */}
               {data.enrolls.length > 0 && (
                 <>
                   <Separator className="my-4" />
@@ -627,7 +586,7 @@ export default function StudentProfilePage() {
             </Card>
           </div>
 
-          //  Right Content Area 
+          {/* Right Content Area */}
           <div className="lg:col-span-3">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <Card className="mb-6 sticky top-[52px] z-10">
@@ -659,8 +618,9 @@ export default function StudentProfilePage() {
                 </CardContent>
               </Card>
 
+              {/* ========== TAB 1: BASIC INFO ========== */}
               <TabsContent value="basic_info" className="space-y-6 mt-0">
-                //  Personal Information 
+                {/* Personal Information */}
                 <Card className="p-5">
                   <CardHeader className="p-0 pb-4">
                     <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -681,13 +641,11 @@ export default function StudentProfilePage() {
                       <InfoCard icon={Baby} iconColor="pink" label="Place of Birth" value={student.place_of_birth} />
                       <InfoCard icon={Home} iconColor="teal" label="Hometown" value={student.hometown} />
                       <InfoCard icon={Calendar} iconColor="cyan" label="Admission Date" value={formatDate(student.admission_date)} />
-                      <InfoCard icon={Flag} iconColor="emerald" label="Religion" value={student.religion} />
-                      <InfoCard icon={Users} iconColor="amber" label="Tribe" value={student.tribe} />
                     </div>
                   </CardContent>
                 </Card>
 
-                //  Contact Information 
+                {/* Contact Information */}
                 <Card className="p-5">
                   <CardHeader className="p-0 pb-4">
                     <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -714,7 +672,7 @@ export default function StudentProfilePage() {
                   </CardContent>
                 </Card>
 
-                //  Academic Information 
+                {/* Academic Information */}
                 <Card className="p-5">
                   <CardHeader className="p-0 pb-4">
                     <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -732,12 +690,11 @@ export default function StudentProfilePage() {
                       <InfoCard icon={Heart} iconColor="green" label="Special Diet" value={student.special_diet === 1 ? 'YES' : 'NO'} />
                       <InfoCard icon={School} iconColor="teal" label="Former School" value={student.former_school} />
                       <InfoCard icon={ClipboardList} iconColor="indigo" label="Class Reached" value={student.class_reached} />
-                      <InfoCard icon={ClipboardList} iconColor="amber" label="Roll Number" value={currentEnroll?.roll || 'N/A'} />
                     </div>
                   </CardContent>
                 </Card>
 
-                //  Health & Medical Information 
+                {/* Health & Medical Information */}
                 {(student.medical_conditions || student.allergies || student.disability_status === 1 || student.nhis_number) && (
                   <Card className="p-5 border-l-4 border-l-red-500">
                     <CardHeader className="p-0 pb-4">
@@ -805,25 +762,52 @@ export default function StudentProfilePage() {
                   </Card>
                 )}
 
-                {/* Digital Literacy & Technology */
-                <Card className="p-5">
-                  <CardHeader className="p-0 pb-4">
-                    <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center">
-                        <Monitor className="h-5 w-5 text-violet-600" />
+                {/* Terminal Reports Summary */}
+                {terminalReports.length > 0 && (
+                  <Card className="p-5">
+                    <CardHeader className="p-0 pb-4">
+                      <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                          <FileText className="h-5 w-5 text-emerald-600" />
+                        </div>
+                        Terminal Reports
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b bg-gray-50">
+                              <th className="px-4 py-3 text-left font-semibold text-gray-600">Year</th>
+                              <th className="px-4 py-3 text-left font-semibold text-gray-600">Term</th>
+                              <th className="px-4 py-3 text-left font-semibold text-gray-600">Class</th>
+                              <th className="px-4 py-3 text-right font-semibold text-gray-600">Total Score</th>
+                              <th className="px-4 py-3 text-center font-semibold text-gray-600">Grade</th>
+                              <th className="px-4 py-3 text-center font-semibold text-gray-600">Position</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {terminalReports.map((r) => (
+                              <tr key={r.report_id} className="border-b hover:bg-gray-50">
+                                <td className="px-4 py-3">{r.year}</td>
+                                <td className="px-4 py-3">Term {r.term}</td>
+                                <td className="px-4 py-3">{r.class ? `${r.class.name} ${r.class.name_numeric}` : 'N/A'}</td>
+                                <td className="px-4 py-3 text-right font-semibold">{r.total_score}</td>
+                                <td className="px-4 py-3 text-center">
+                                  <Badge variant={r.grade ? 'default' : 'outline'}>{r.grade || 'N/A'}</Badge>
+                                </td>
+                                <td className="px-4 py-3 text-center font-semibold">{r.position || r.rank || 'N/A'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                      Digital Literacy & Technology
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <InfoCard icon={GraduationCap} iconColor="violet" label="Digital Literacy" value={(student as any).digital_literacy || 'Beginner'} />
-                      <InfoCard icon={Monitor} iconColor="purple" label="Home Technology Access" value={(student as any).home_technology_access === '1' ? 'Available' : ((student as any).home_technology_access === '0' ? 'Not Available' : 'N/A')} />
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
-              {/* Next tab */}
+
+              {/* ========== TAB 2: PARENT INFO ========== */}
               <TabsContent value="parent_info" className="mt-0">
                 {!parent ? (
                   <Card className="p-12 text-center">
@@ -832,7 +816,7 @@ export default function StudentProfilePage() {
                   </Card>
                 ) : (
                   <div className="space-y-6">
-                    //  Primary Guardian 
+                    {/* Primary Guardian */}
                     <Card className="p-5 border-l-4 border-l-primary">
                       <div className="flex items-center justify-between mb-5">
                         <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -851,7 +835,7 @@ export default function StudentProfilePage() {
                       </div>
                     </Card>
 
-                    //  Father&apos;s Information 
+                    {/* Father&apos;s Information */}
                     <Card className="p-5 border-l-4 border-l-blue-600">
                       <div className="flex items-center justify-between mb-5">
                         <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -870,7 +854,7 @@ export default function StudentProfilePage() {
                       </div>
                     </Card>
 
-                    //  Mother&apos;s Information 
+                    {/* Mother&apos;s Information */}
                     <Card className="p-5 border-l-4 border-l-pink-500">
                       <div className="flex items-center justify-between mb-5">
                         <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -889,7 +873,7 @@ export default function StudentProfilePage() {
                       </div>
                     </Card>
 
-                    //  Family Address 
+                    {/* Family Address */}
                     <Card className="p-5 border-l-4 border-l-purple-500">
                       <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2 mb-4">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center">
@@ -910,7 +894,7 @@ export default function StudentProfilePage() {
                       </div>
                     </Card>
 
-                    //  Parent Portal Access 
+                    {/* Parent Portal Access */}
                     <Card className="p-5 border-l-4 border-l-primary">
                       <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2 mb-4">
                         <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
@@ -943,6 +927,7 @@ export default function StudentProfilePage() {
                 )}
               </TabsContent>
 
+              {/* ========== TAB 3: EXAM MARKS ========== */}
               <TabsContent value="exam_marks" className="mt-0">
                 {exams.length === 0 ? (
                   <Card className="p-12 text-center">
@@ -958,7 +943,7 @@ export default function StudentProfilePage() {
 
                       return (
                         <Card key={exam.exam_id}>
-                          //  Exam Header 
+                          {/* Exam Header */}
                           <div className="p-4 rounded-t-xl bg-gradient-to-r from-primary to-purple-600 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                             <div className="flex items-center gap-3">
                               <GraduationCap className="h-6 w-6 opacity-80" />
@@ -971,7 +956,7 @@ export default function StudentProfilePage() {
                             </div>
                           </div>
 
-                          //  Marks Table 
+                          {/* Marks Table */}
                           <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                               <thead>
@@ -1021,6 +1006,7 @@ export default function StudentProfilePage() {
                 )}
               </TabsContent>
 
+              {/* ========== TAB 4: LOGIN ========== */}
               <TabsContent value="login" className="mt-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Card className="p-5">
@@ -1067,8 +1053,9 @@ export default function StudentProfilePage() {
                 </div>
               </TabsContent>
 
+              {/* ========== TAB 5: ACCOUNTS ========== */}
               <TabsContent value="accounts" className="mt-0 space-y-6">
-                //  Accounts Receivables 
+                {/* Accounts Receivables */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <div>
@@ -1119,7 +1106,7 @@ export default function StudentProfilePage() {
                   </Card>
                 </div>
 
-                //  Accounts Payables 
+                {/* Accounts Payables */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <div>
@@ -1166,7 +1153,7 @@ export default function StudentProfilePage() {
                   </Card>
                 </div>
 
-                //  Payment History 
+                {/* Payment History */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <div>
@@ -1218,13 +1205,14 @@ export default function StudentProfilePage() {
         </div>
       </div>
 
+      {/* ========== EDIT DIALOG ========== */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Edit Student Profile</DialogTitle>
           </DialogHeader>
           <div className="space-y-6 py-4">
-            //  Personal Info 
+            {/* Personal Info */}
             <div>
               <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
                 <User className="h-4 w-4" /> Personal Information
@@ -1293,7 +1281,7 @@ export default function StudentProfilePage() {
 
             <Separator />
 
-            //  Contact Info 
+            {/* Contact Info */}
             <div>
               <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
                 <Phone className="h-4 w-4" /> Contact Information
@@ -1324,7 +1312,7 @@ export default function StudentProfilePage() {
 
             <Separator />
 
-            //  Medical Info 
+            {/* Medical Info */}
             <div>
               <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
                 <HeartPulse className="h-4 w-4" /> Health & Medical
@@ -1401,6 +1389,7 @@ export default function StudentProfilePage() {
         </DialogContent>
       </Dialog>
 
+      {/* ========== DELETE DIALOG ========== */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -1424,5 +1413,4 @@ export default function StudentProfilePage() {
       </AlertDialog>
     </div>
   );
-}
 }
