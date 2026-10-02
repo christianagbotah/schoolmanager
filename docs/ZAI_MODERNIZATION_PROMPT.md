@@ -2,15 +2,32 @@
 
 ## Mission
 
-Modernize the existing SchoolManager application **in place**, one page/workflow at a time, using the existing CodeIgniter 3 / PHP application as the functional source of truth. The result must look and feel like a modern, professional, responsive enterprise school-management product **without changing existing business logic, calculations, permissions, workflow semantics, routes, posted field names, AJAX contracts, session behavior, or database meaning**.
+Modernize the existing SchoolManager CodeIgniter 3 application **only inside the SchoolManager working/deployment tree**, one page/workflow at a time, while using the legacy production application only as a read-only functional reference. The result must look and feel like a modern, professional, responsive enterprise school-management product **without changing existing business logic, calculations, permissions, workflow semantics, routes, posted field names, AJAX contracts, session behavior, or database meaning**.
 
 This is an enhancement project, not a rewrite.
+
+## CRITICAL PRODUCTION SAFETY BOUNDARY
+
+`/home/lightworld/webapps/rochas` is a **live production directory and is permanently READ-ONLY for this modernization project**.
+
+You may inspect files under `/home/lightworld/webapps/rochas` when necessary to understand legacy behavior or compare parity, but you must NEVER:
+- edit, create, delete, rename, move, copy into, patch or format files there;
+- run package installs, builds, migrations, seeders or code generators there;
+- run Git operations that modify its working tree, index, branches or remotes;
+- deploy, rsync, SCP or otherwise write application artifacts there;
+- change permissions, ownership, environment/config files, uploads, caches, logs or runtime data there;
+- execute SQL or maintenance commands against it for modernization purposes.
+
+All implementation, generated files, Git changes, builds and deployments for this project must target **`/home/lightworld/webapps/schoolmanager` only**.
+
+If any instruction, script or deployment configuration would write to `rochas`, stop that operation and redirect it to `schoolmanager`. Never use `rochas` as a deployment target, even temporarily.
 
 ## Authoritative project targets
 
 - GitHub: `https://github.com/christianagbotah/schoolmanager.git`
 - Framework: existing CodeIgniter 3 / PHP application. **Keep CodeIgniter 3.**
 - VPS deployment directory: `/home/lightworld/webapps/schoolmanager`
+- Read-only legacy production reference: `/home/lightworld/webapps/rochas` — **NEVER WRITE OR DEPLOY HERE**
 - URL: `https://schoolmanager.lightworldtech.com`
 - Production database name: `lightworld_schoolmanager_db`
 - Production database user: `lightworld_db_user`
