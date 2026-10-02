@@ -423,7 +423,6 @@ class Cashier extends CI_Controller {
         $page_data['account_type'] = $this->session->userdata('login_type');
         $this->load->view('backend/main', $page_data);
     }
-}
 
     /****DAILY FEE RATES MANAGEMENT*****/
     function daily_fee_rates($param1 = '', $param2 = '') {

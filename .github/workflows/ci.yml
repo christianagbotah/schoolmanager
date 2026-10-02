@@ -87,11 +87,48 @@ jobs:
             echo "::error::Unexpected SQL file in schema/ — production data is not allowed"
             exit 1
           fi
-          # Row data must never be committed outside migration sql
-          if git grep -qn -I -E "^(INSERT|REPLACE) INTO" -- 'application/*.sql' 2>/dev/null; then
-            echo "::error::application/ contains SQL with row data"
-            exit 1
-          fi
+          # Production user data must never be committed. Seed/reference data
+          # (grading scales, language phrases, SMS templates) is legitimate, so
+          # the check targets PII: Ghana phone numbers, emails, Ghana Card IDs,
+          # password/bcrypt hashes inside INSERT/REPLACE statements.
+          python3 - <<'PY'
+          import subprocess, re, sys
+
+          files = subprocess.run(
+              ['git', 'ls-files', 'application/**/*.sql', 'application/*.sql'],
+              capture_output=True, text=True).stdout.split()
+
+          PII = re.compile(
+              r"\+233\d{9,10}"              # Ghana international phone
+              r"|\b0[2-5]\d{8}\b"            # Ghana local phone
+              r"|GHA-\d{9}-\d"               # Ghana Card
+              r"|\$2y\$[./A-Za-z0-9]{53}"    # bcrypt hash
+              r"|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|org|edu|net|gh)"  # email
+              r"|\b[0-9a-f]{32}\b"           # md5-like hex
+          )
+          TRIGGER = re.compile(r"\bNEW\.|\bOLD\.|\bUSER\(\)")
+
+          offenders = []
+          for path in files:
+              try:
+                  lines = open(path, encoding='utf-8', errors='replace').read().splitlines()
+              except OSError:
+                  continue
+              for i, line in enumerate(lines):
+                  if re.match(r'^\s*(INSERT|REPLACE)\s+INTO\b', line, re.I):
+                      context = '\n'.join(lines[i:i + 12])
+                      if TRIGGER.search(context):
+                          continue  # trigger definition, not row data
+                      match = PII.search(context)
+                      if match:
+                          offenders.append(f'{path}:{i + 1}: {match.group(0)[:30]}')
+
+          if offenders:
+              print('::error::application/ SQL contains PII-looking row data:')
+              print('\n'.join(offenders[:20]))
+              sys.exit(1)
+          print(f'Checked {len(files)} SQL files — no PII row data found')
+          PY
 
   js-syntax:
     name: JS syntax spot check
@@ -128,13 +165,8 @@ jobs:
         run: |
           set -euo pipefail
           for f in assets/css/design-system.css assets/css/shell-modern.css; do
-            python3 - "$f" <<'PY'
-            import sys
-            css = open(sys.argv[1]).read()
-            o, c = css.count('{'), css.count('}')
-            if o != c:
-                print(f"::error file={sys.argv[1]}::Unbalanced braces {o}/{c}")
-                sys.exit(1)
-            print(f"{sys.argv[1]}: OK ({o} rules)")
-            PY
+            if ! python3 -c 'import sys; css = open(sys.argv[1]).read(); o = css.count("{"); c = css.count("}"); print("%s: %d rules" % (sys.argv[1], o)); sys.exit(0 if o == c else 1)' "$f"; then
+              echo "::error file=$f::Unbalanced braces"
+              exit 1
+            fi
           done

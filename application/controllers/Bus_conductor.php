@@ -348,7 +348,6 @@ class Bus_conductor extends CI_Controller {
         $page_data['page_title'] = get_phrase('bus_attendance_report');
         $this->load->view('backend/main', $page_data);
     }
-}
 
     /**
      * Daily Fees Discount Profiles Management (Restricted to daily_fees category only)
