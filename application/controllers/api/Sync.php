@@ -4,9 +4,29 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /**
  * Sync API Controller
  * Handles bidirectional sync between local and server databases
+ *
+ * SECURITY (sync hardening P0):
+ * - Device identity alone is not authentication. All requests must additionally
+ *   present the global sync API key (X-API-Key header), resolved from
+ *   config/sync.php → settings table → SYNC_API_KEY env var (same chain used by
+ *   Sync_api controller). If no key is configured, this API fails CLOSED.
+ * - push()/batch_push() enforce a server-side table allowlist ("dynamic table
+ *   safety"); client-supplied table names are never passed through unchecked.
+ * - The device token column does not exist in the current schema (migration
+ *   proposal pending), so token verification remains an accepted gap for the
+ *   dedicated sync-contract PR, not for arbitrary anonymous access.
  */
 class Sync extends CI_Controller {
-    
+
+    /**
+     * Tables accepted by this API surface. Mirrors the browser offline surface.
+     * Extend deliberately — never accept arbitrary client-supplied table names.
+     */
+    const ALLOWED_SYNC_TABLES = [
+        'student', 'teacher', 'class', 'invoice', 'payment',
+        'students', 'teachers', 'classes', 'invoices', 'payments'
+    ];
+
     private $device_id;
     private $auth_token;
     
@@ -15,18 +35,28 @@ class Sync extends CI_Controller {
         $this->load->library('Offline_sync');
         $this->load->database();
         
-        // Authenticate device
+        // Authenticate device (requires BOTH device credentials and the global API key)
         $this->authenticate();
     }
     
     /**
-     * Authenticate device using token
+     * Authenticate device using token + global API key
      */
     private function authenticate() {
         $this->device_id = $this->input->get_request_header('X-Device-ID');
         $this->auth_token = $this->input->get_request_header('X-Auth-Token');
         
         if(!$this->device_id || !$this->auth_token) {
+            $this->output->set_status_header(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            exit;
+        }
+
+        // Global API key gate (fail closed when unconfigured)
+        $api_key = $this->resolve_api_key();
+        $provided_key = $this->input->get_request_header('X-API-Key');
+        if(empty($api_key) || !is_string($provided_key) || !hash_equals((string)$api_key, (string)$provided_key)) {
+            log_message('error', 'api/Sync: request rejected — missing or invalid X-API-Key for device ' . $this->device_id);
             $this->output->set_status_header(401);
             echo json_encode(['error' => 'Unauthorized']);
             exit;
@@ -39,6 +69,41 @@ class Sync extends CI_Controller {
             echo json_encode(['error' => 'Invalid device']);
             exit;
         }
+    }
+
+    /**
+     * Resolve the global sync API key: config file → database settings → env.
+     * Same resolution order as Sync_api::get_config_api_key().
+     */
+    private function resolve_api_key() {
+        $config_key = $this->config->item('sync_api_key');
+        if(!empty($config_key)) {
+            return $config_key;
+        }
+        $setting = $this->db->get_where('settings', ['type' => 'sync_api_key'])->row();
+        if($setting && !empty($setting->description)) {
+            return $setting->description;
+        }
+        return getenv('SYNC_API_KEY') ?: null;
+    }
+
+    /**
+     * Normalize and validate a client-supplied table name against the allowlist.
+     * Returns the normalized (singular) table name, or NULL when not allowed.
+     */
+    private function resolve_allowed_table($table) {
+        if(!is_string($table) || $table === '') {
+            return null;
+        }
+        $table = strtolower(trim($table));
+        if(!in_array($table, self::ALLOWED_SYNC_TABLES, true)) {
+            return null;
+        }
+        $plural_map = [
+            'students' => 'student', 'teachers' => 'teacher', 'classes' => 'class',
+            'invoices' => 'invoice', 'payments' => 'payment'
+        ];
+        return $plural_map[$table] ?? $table;
     }
     
     /**
@@ -57,6 +122,19 @@ class Sync extends CI_Controller {
         $results = [];
         foreach($data['queue'] as $item) {
             try {
+                // Enforce server-side table allowlist before any write
+                $resolved_table = $this->resolve_allowed_table($item['table_name'] ?? null);
+                if($resolved_table === null) {
+                    log_message('error', 'api/Sync push blocked disallowed table: ' . var_export($item['table_name'] ?? null, true));
+                    $results[] = [
+                        'id' => $item['id'] ?? null,
+                        'status' => 'error',
+                        'message' => 'Table not allowed'
+                    ];
+                    continue;
+                }
+                $item['table_name'] = $resolved_table;
+
                 $result = $this->Sync_model->process_push_item($item, $this->device_id);
                 $results[] = $result;
             } catch(Exception $e) {
@@ -93,9 +171,18 @@ class Sync extends CI_Controller {
         
         $changes = [];
         foreach($tables as $table) {
-            $records = $this->Sync_model->get_changes_since($table, $last_sync, $this->device_id);
+            // get_syncable_tables() returns rows like ['table_name' => 'x']
+            if(is_array($table) && isset($table['table_name'])) {
+                $table = $table['table_name'];
+            }
+            // PULL: enforce the same allowlist (defense in depth)
+            $resolved_table = $this->resolve_allowed_table($table);
+            if($resolved_table === null) {
+                continue;
+            }
+            $records = $this->Sync_model->get_changes_since($resolved_table, $last_sync, $this->device_id);
             if(!empty($records)) {
-                $changes[$table] = $records;
+                $changes[$resolved_table] = $records;
             }
         }
         
@@ -193,11 +280,28 @@ class Sync extends CI_Controller {
                 $table = $record['table_name'];
                 $record_data = $record['data'];
                 $record_id = $record['record_id'] ?? null;
-                
+
+                // Enforce server-side table allowlist before any write
+                $resolved_table = $this->resolve_allowed_table($table);
+                if($resolved_table === null) {
+                    log_message('error', 'api/Sync batch_push blocked disallowed table: ' . var_export($table, true));
+                    $results[] = [
+                        'table' => $table,
+                        'record_id' => $record_id,
+                        'status' => 'failed',
+                        'error' => 'Table not allowed'
+                    ];
+                    $failed_count++;
+                    continue;
+                }
+                $table = $resolved_table;
+
                 // Use REPLACE INTO for atomic insert/update
                 // This handles the edge case where a record is inserted and updated
                 // offline before first sync - whether the record exists or not,
                 // REPLACE INTO will insert or update it correctly
+                // NOTE: replacing REPLACE semantics with version-checked upserts is
+                // scheduled for the dedicated sync-contract PR (docs/sync-gap-analysis.md §8).
                 $result = $this->process_batch_record($table, $record_data, $record_id);
                 
                 $results[] = [

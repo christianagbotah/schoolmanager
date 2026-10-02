@@ -160,14 +160,16 @@ No index will be added without an EXPLAIN proof per the query-optimization rules
 
 ## 8. Immediate hardening backlog (ordered)
 
-| Priority | Item | Risk if unfixed |
-|---|---|---|
-| P0 | Re-enable auth on `Sync::cache_data()` (smallest compatible fix; code already exists commented) | Public PII/finance exposure |
-| P0 | Make `verify_device()` actually verify the token (store hash at enrollment; keep response shape) | Device impersonation |
-| P1 | Replace `db->replace()` in `api/Sync.php::batch_push()` with Gen1-style insert-or-update | Silent FK/audit damage |
-| P1 | Enforce server-side allowlist (sync_metadata sync_enabled=1) in all client-driven write paths | Arbitrary table writes |
-| P2 | Kill or feature-flag Gen2 hard-delete path in favor of tombstones | Data loss across devices |
-| P2 | Consolidate client offline JS into one versioned storage abstraction | Race conditions, double queues |
+| Priority | Item | Risk if unfixed | Status |
+|---|---|---|---|
+| P0 | Re-enable auth on `Sync::cache_data()` (smallest compatible fix; code already exists commented) | Public PII/finance exposure | **DONE 2026-10-03** — session auth via correct keys (login_type/login_user_id) |
+| P0 | Make `verify_device()` actually verify the token (store hash at enrollment; keep response shape) | Device impersonation | **PARTIALLY DONE** — global X-API-Key gate added to api/Sync (fail-closed); full token verification blocked on missing schema column (migration proposal §6.6) |
+| P1 | Replace `db->replace()` in `api/Sync.php::batch_push()` with Gen1-style insert-or-update | Silent FK/audit damage | OPEN — scheduled for sync-contract PR (now guarded by API key + allowlist) |
+| P1 | Enforce server-side allowlist (sync_metadata sync_enabled=1) in all client-driven write paths | Arbitrary table writes | **DONE 2026-10-03** — static allowlist (5 offline tables + plural aliases) on Sync::push, api/Sync::push/batch_push/pull; metadata-driven allowlist deferred to sync-contract PR |
+| P2 | Kill or feature-flag Gen2 hard-delete path in favor of tombstones | Data loss across devices | OPEN |
+| P2 | Consolidate client offline JS into one versioned storage abstraction | Race conditions, double queues | OPEN |
+
+Also fixed 2026-10-03: `Sync::pull()` session-key bug (`user_id` never set by this app → used `login_user_id`), and `Sync::complete()` now requires an authenticated session.
 
 Each item ships behind tests; per the brief, propose → test → merge. No broad schema change yet.
 
