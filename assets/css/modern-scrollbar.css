@@ -1,0 +1,167 @@
+/**
+ * Modern Slim Scrollbar Styling
+ * Professional, unobtrusive scrollbars that work well with touchpads
+ * Red color scheme for visibility
+ */
+
+/* ===== Webkit Browsers (Chrome, Safari, Edge) ===== */
+::-webkit-scrollbar {
+    width: 8px;  /* Slim width for vertical scrollbar */
+    height: 8px; /* Slim height for horizontal scrollbar */
+    z-index: 99999 !important; /* Above header and all elements */
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #dc3545; /* Red color */
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #c82333; /* Darker red on hover */
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: #bd2130; /* Even darker red when active */
+}
+
+/* ===== Firefox ===== */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #dc3545 #f1f1f1; /* Red thumb, light gray track */
+}
+
+/* ===== Ensure scrollbars are always visible ===== */
+body::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb {
+    background: #dc3545; /* Always show red scrollbar */
+}
+
+body:hover ::-webkit-scrollbar-thumb {
+    background: #dc3545; /* Red on hover */
+}
+
+/* ===== Sidebar scrollbar styling ===== */
+.sidebar::-webkit-scrollbar,
+.page-sidebar::-webkit-scrollbar,
+.sidebar-menu::-webkit-scrollbar,
+.nano-content::-webkit-scrollbar,
+.sidebar-menu-inner::-webkit-scrollbar {
+    width: 8px !important;
+    display: block !important;
+    z-index: 99999 !important;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.page-sidebar::-webkit-scrollbar-thumb,
+.sidebar-menu::-webkit-scrollbar-thumb,
+.nano-content::-webkit-scrollbar-thumb,
+.sidebar-menu-inner::-webkit-scrollbar-thumb {
+    background: #dc3545 !important; /* Red scrollbar for sidebar */
+    border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.page-sidebar::-webkit-scrollbar-thumb:hover,
+.sidebar-menu::-webkit-scrollbar-thumb:hover,
+.nano-content::-webkit-scrollbar-thumb:hover,
+.sidebar-menu-inner::-webkit-scrollbar-thumb:hover {
+    background: #c82333 !important; /* Darker red on hover */
+}
+
+/* ===== Main content and body scrollbars ===== */
+body, html, .main-content, .page-container {
+    scrollbar-width: thin !important;
+    scrollbar-color: #dc3545 #f1f1f1 !important;
+}
+
+body::-webkit-scrollbar,
+html::-webkit-scrollbar,
+.main-content::-webkit-scrollbar,
+.page-container::-webkit-scrollbar {
+    width: 8px !important;
+    display: block !important;
+    z-index: 99999 !important;
+}
+
+body::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb,
+.main-content::-webkit-scrollbar-thumb,
+.page-container::-webkit-scrollbar-thumb {
+    background: #dc3545 !important;
+    border-radius: 10px;
+}
+
+/* ===== Ensure scrollbar appears above header ===== */
+body, html {
+    position: relative;
+    z-index: 1;
+}
+
+::-webkit-scrollbar-corner {
+    background: #f1f1f1;
+}
+
+/* ===== Specific styling for modal scrollbars ===== */
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #d1d1d1;
+    border-radius: 10px;
+}
+
+/* ===== Table container scrollbars ===== */
+.table-responsive::-webkit-scrollbar {
+    height: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #dee2e6;
+    border-radius: 5px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #adb5bd;
+}
+
+/* ===== FORCE SHOW Navigation Menu Scrollbars ===== */
+/* Override any hiding rules from other CSS files */
+.sidebar,
+.page-sidebar,
+.sidebar-menu,
+.nano-content,
+.sidebar-menu-inner {
+    -ms-overflow-style: auto !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #dc3545 #f1f1f1 !important;
+}
+
+.sidebar::-webkit-scrollbar,
+.page-sidebar::-webkit-scrollbar,
+.sidebar-menu::-webkit-scrollbar,
+.nano-content::-webkit-scrollbar,
+.sidebar-menu-inner::-webkit-scrollbar {
+    display: block !important;
+    width: 8px !important;
+    visibility: visible !important;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.page-sidebar::-webkit-scrollbar-track,
+.sidebar-menu::-webkit-scrollbar-track,
+.nano-content::-webkit-scrollbar-track,
+.sidebar-menu-inner::-webkit-scrollbar-track {
+    background: #f1f1f1 !important;
+    border-radius: 10px;
+}

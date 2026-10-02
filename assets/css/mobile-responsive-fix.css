@@ -1,0 +1,170 @@
+/* Mobile Responsive Fixes */
+@media (max-width: 768px) {
+    /* Remove any top margin/padding that causes blank space */
+    body, html {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .page-container {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    
+    .main-content {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+    
+    /* Adjust main page content to account for fixed header */
+    #main_page {
+        margin-top: 160px !important;
+    }
+    
+    /* Ensure header stays at top */
+    #top {
+        top: 0 !important;
+        margin-top: 0 !important;
+    }
+    
+    /* Mobile menu toggle button - always visible */
+    .sidebar-mobile-menu {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: fixed !important;
+        top: 15px !important;
+        left: 15px !important;
+        z-index: 101 !important;
+        padding: 8px 12px !important;
+        border-radius: 8px !important;
+        background: rgba(255,255,255,0.15) !important;
+        backdrop-filter: blur(10px) !important;
+    }
+    
+    .sidebar-mobile-menu a {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #fff !important;
+        text-decoration: none !important;
+    }
+    
+    .sidebar-mobile-menu a i {
+        font-size: 28px !important;
+        color: #fff !important;
+    }
+    
+    /* Center year and term row contents on mobile */
+    .flex.gap-2.flex-shrink-0 {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+    
+    .flex.gap-2.flex-shrink-0 ul {
+        width: auto !important;
+    }
+}
+
+/* Hide duplicate connection-status */
+#connection-status {
+    display: none !important;
+}
+
+/* Online/Offline badge - icon only */
+#offline-status-badge {
+    padding: 8px !important;
+    border-radius: 50% !important;
+    font-size: 10px !important;
+    width: 20px !important;
+    height: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    line-height: 1 !important;
+    text-align: center !important;
+}
+
+#offline-status-badge::after {
+    content: none !important;
+}
+
+/* Hide duplicate connection-status */
+#connection-status {
+    display: none !important;
+}
+
+/* Header positioning for medium to large screens */
+@media (min-width: 769px) {
+    #top {
+        left: 260px !important;
+        right: 0 !important;
+        width: auto !important;
+        z-index: 100 !important;
+        transition: left 0.3s ease-in-out !important;
+        will-change: left !important;
+        position: fixed !important;
+        top: 0 !important;
+    }
+    
+    /* Add proper spacing for main content to prevent header overlap */
+    #main_page {
+        margin-top: 160px !important;
+        padding-top: 0 !important;
+    }
+    
+    body.sidebar-collapsed #top,
+    .page-container.sidebar-collapsed #top {
+        left: 70px !important;
+    }
+    
+    .sidebar-menu {
+        z-index: 100 !important;
+    }
+    
+    /* Keep logo and menu icon section sticky on medium to large screens */
+    .sidebar-menu .logo-env {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 101 !important;
+        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    
+    .sidebar-menu #main-menu #search {
+        position: sticky !important;
+        top: 109px !important;
+        z-index: 101 !important;
+        background: #c62828 !important;
+        margin-top: -1px !important;
+        padding-top: 0 !important;
+    }
+    
+    /* Right align action buttons and user profile */
+    .list-inline.links-list.flex.flex-wrap.items-center.justify-end {
+        margin-left: auto !important;
+        justify-content: flex-end !important;
+    }
+    
+    /* Show button text on medium to large screens */
+    .list-inline.links-list button span {
+        display: inline !important;
+    }
+    
+    /* Show user name and role on medium to large screens */
+    #user_profile_btn .flex-col {
+        display: flex !important;
+    }
+    
+    /* Logo with white rounded background */
+    .sidebar-menu .logo-env .logo a {
+        background: #ffffff !important;
+        padding: 12px !important;
+        border-radius: 9999px !important;
+        display: inline-block !important;
+    }
+
+    .sidebar-mobile-menu { display: none !important; visibility: hidden !important; }
+}

@@ -1,0 +1,172 @@
+/* Fee Collection Mobile Responsive CSS - v2.0 */
+/* Load this AFTER all other CSS including Tailwind */
+
+@media (max-width: 768px) {
+    /* CRITICAL: Override everything with maximum specificity */
+    
+    /* Page Headers */
+    body .pos-left h2.text-xl,
+    body .pos-middle h2.text-xl,
+    body .transaction-header h2.text-xl {
+        font-size: 19px !important;
+        font-weight: 800 !important;
+        margin-bottom: 14px !important;
+        line-height: 1.25 !important;
+        color: #0f172a !important;
+    }
+    
+    /* Transaction Header */
+    body .transaction-header {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%) !important;
+        padding: 14px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+    }
+    
+    body .transaction-header-buttons {
+        width: 100% !important;
+        display: flex !important;
+        gap: 8px !important;
+    }
+    
+    body .transaction-header-buttons button {
+        flex: 1 !important;
+        font-size: 13px !important;
+        padding: 10px 8px !important;
+        min-height: 44px !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Student Info Card */
+    body #student_info {
+        padding: 16px !important;
+        border-radius: 12px !important;
+        margin-bottom: 16px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+        border: 1px solid #e0e7ff !important;
+    }
+    
+    body #student_info .font-bold.text-lg {
+        font-size: 17px !important;
+        font-weight: 800 !important;
+        color: #1e293b !important;
+    }
+    
+    /* FEE CARDS - COMPLETE REDESIGN */
+    body #fee_items {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+    }
+    
+    body .fee-item {
+        padding: 16px !important;
+        margin-bottom: 0 !important;
+        border-radius: 12px !important;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+        border: 2px solid #e2e8f0 !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    }
+    
+    body .fee-item.active {
+        border-color: #3b82f6 !important;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+        box-shadow: 0 4px 12px rgba(59,130,246,0.25) !important;
+    }
+    
+    /* Fee Card Title */
+    body .fee-item .font-bold {
+        font-size: 16px !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+    }
+    
+    /* Due Amount - Red Badge */
+    body .fee-item .text-sm.text-red-600 {
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        color: #dc2626 !important;
+        background: #fee2e2 !important;
+        padding: 3px 8px !important;
+        border-radius: 4px !important;
+        display: inline-block !important;
+        width: fit-content !important;
+    }
+    
+    /* Payment Amount - Green Badge */
+    body .fee-item .text-right {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
+        padding: 10px 12px !important;
+        border-radius: 10px !important;
+        border: 2px solid #86efac !important;
+    }
+    
+    body .fee-item .text-2xl {
+        font-size: 22px !important;
+        font-weight: 900 !important;
+        color: #15803d !important;
+    }
+    
+    body .fee-item.active .text-2xl {
+        color: #1d4ed8 !important;
+    }
+    
+    /* PAYMENT SUMMARY */
+    body .bg-gray-100.p-4 {
+        padding: 18px !important;
+        border-radius: 12px !important;
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%) !important;
+        border: 2px solid #e5e7eb !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+    }
+    
+    body .bg-gray-100 .text-xl {
+        font-size: 17px !important;
+        font-weight: 900 !important;
+        padding: 12px 0 !important;
+        border-bottom: 3px solid #d1d5db !important;
+    }
+    
+    body #amount_paying_display {
+        color: #1d4ed8 !important;
+        background: #dbeafe !important;
+        padding: 4px 10px !important;
+        border-radius: 6px !important;
+    }
+    
+    body #amount_tendered_display {
+        color: #15803d !important;
+        background: #dcfce7 !important;
+        padding: 4px 10px !important;
+        border-radius: 6px !important;
+    }
+    
+    body #change_display {
+        color: #dc2626 !important;
+        background: #fee2e2 !important;
+        padding: 4px 10px !important;
+        border-radius: 6px !important;
+    }
+    
+    /* BUTTONS */
+    body .transaction-buttons-container {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+    
+    body .transaction-buttons-container button {
+        width: 100% !important;
+        padding: 16px !important;
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        min-height: 52px !important;
+        border-radius: 10px !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12) !important;
+    }
+}

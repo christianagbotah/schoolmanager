@@ -1,0 +1,127 @@
+/* Modal Z-Index Fix - Reduce sidebar z-index so modals appear over it */
+/* Standard Bootstrap modal z-index is 1050, sidebar was at 99999 which is too high */
+
+/* Reduce sidebar z-index to allow modals to appear over it */
+.sidebar-menu,
+.sidebar,
+.sidebar-menu.mobile-open,
+.left-side,
+aside.main-sidebar,
+aside.left-sidebar {
+    z-index: 100 !important;
+}
+
+/* Reduce top navigation bar z-index */
+#top,
+.header_bar,
+.header_top_bar {
+    z-index: 100 !important;
+}
+
+/* Keep modals at standard Bootstrap z-index */
+.modal {
+    z-index: 1050 !important;
+}
+
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+.modal-open .modal {
+    z-index: 1050 !important;
+}
+
+/* Ensure modal dialogs are properly layered */
+.modal-dialog {
+    position: relative;
+    z-index: 1051;
+}
+
+/* For nested modals or multiple modals */
+.modal.in {
+    z-index: 1052 !important;
+}
+
+/* Select2 dropdown */
+.select2-dropdown {
+    z-index: 1060 !important;
+}
+
+.select2-container--open .select2-dropdown {
+    z-index: 1060 !important;
+}
+
+/* Datepicker */
+.datepicker,
+.datepicker-dropdown,
+.ui-datepicker,
+.bootstrap-datetimepicker-widget,
+.daterangepicker {
+    z-index: 1070 !important;
+}
+
+/* jQuery UI Datepicker */
+.ui-datepicker,
+.ui-datepicker-div,
+div.ui-datepicker {
+    z-index: 1070 !important;
+}
+
+/* Bootstrap Datepicker */
+.datepicker-dropdown,
+.datepicker.dropdown-menu,
+div.datepicker,
+div.datepicker-dropdown {
+    z-index: 1070 !important;
+}
+
+/* Air Datepicker */
+.air-datepicker,
+.datepicker--pointer {
+    z-index: 1070 !important;
+}
+
+/* Ensure datepicker appears in modals */
+.modal .datepicker,
+.modal .datepicker-dropdown,
+.modal .ui-datepicker,
+.modal-body .datepicker,
+.modal-body .datepicker-dropdown {
+    z-index: 1070 !important;
+}
+
+/* Bootstrap dropdown menus */
+.dropdown-menu {
+    z-index: 1060 !important;
+}
+
+/* Popover and tooltip */
+.popover {
+    z-index: 1060 !important;
+}
+
+.tooltip {
+    z-index: 1061 !important;
+}
+
+/* SweetAlert2 Modals */
+.swal2-container {
+    z-index: 9999 !important;
+}
+
+.swal2-popup {
+    z-index: 10000 !important;
+}
+
+/* Ensure SweetAlert2 buttons are visible */
+.swal2-actions {
+    display: flex !important;
+    gap: 10px;
+}
+
+.swal2-confirm,
+.swal2-cancel {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}

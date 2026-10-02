@@ -1,0 +1,242 @@
+/* Enterprise Inventory System - Enhanced Readability Styles */
+/* SCOPED TO .inventory-content - Does not affect global navigation, header, or sidebar */
+
+/* Page Titles - Extra Large */
+.inventory-content h1 {
+    font-size: 3.5rem !important; /* 56px */
+    line-height: 1.2 !important;
+}
+
+/* Section Headers */
+.inventory-content h2 {
+    font-size: 2rem !important; /* 32px */
+    line-height: 1.3 !important;
+}
+
+.inventory-content h3 {
+    font-size: 1.5rem !important; /* 24px */
+    line-height: 1.4 !important;
+}
+
+/* Paragraphs and Body Text - Exclude navigation/header elements */
+.inventory-content p, 
+.inventory-content div:not(.sidebar):not(.header):not(.navigation), 
+.inventory-content span:not([class*="text-"]), 
+.inventory-content td, 
+.inventory-content th, 
+.inventory-content li {
+    font-size: 1.125rem !important; /* 18px */
+    line-height: 1.7 !important;
+}
+
+/* Table Headers - Larger and Bold */
+.inventory-content thead th {
+    font-size: 1rem !important; /* 16px */
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    padding: 1.5rem 2rem !important;
+}
+
+/* Table Cells - Larger Text */
+.inventory-content tbody td {
+    font-size: 1.125rem !important; /* 18px */
+    padding: 1.5rem 2rem !important;
+    line-height: 1.7 !important;
+}
+
+/* Form Labels - Larger */
+.inventory-content label {
+    font-size: 1.125rem !important; /* 18px */
+    font-weight: 600 !important;
+    margin-bottom: 0.75rem !important;
+}
+
+/* Form Inputs - Larger */
+.inventory-content input[type="text"],
+.inventory-content input[type="email"],
+.inventory-content input[type="number"],
+.inventory-content input[type="date"],
+.inventory-content input[type="password"],
+.inventory-content select,
+.inventory-content textarea {
+    font-size: 1.125rem !important; /* 18px */
+    padding: 1rem 1.25rem !important;
+    line-height: 1.7 !important;
+    min-height: 3.5rem !important;
+}
+
+/* Buttons - Larger Text */
+.inventory-content button,
+.inventory-content .btn,
+.inventory-content a.btn {
+    font-size: 1.125rem !important; /* 18px */
+    padding: 1rem 1.5rem !important;
+    font-weight: 600 !important;
+    min-height: 3.5rem !important;
+}
+
+/* Badges - Larger - but don't override Tailwind utility classes */
+.inventory-content .badge {
+    font-size: 0.9375rem !important; /* 15px */
+    padding: 0.5rem 1rem !important;
+    font-weight: 600 !important;
+}
+
+/* Links within content - Larger */
+.inventory-content a:not(.btn) {
+    font-size: 1.125rem !important; /* 18px */
+}
+
+/* DON'T override Tailwind text utilities - Remove the text-4xl, text-5xl rules that conflict */
+/* Users can still use Tailwind classes normally */
+
+/* Card Titles */
+.inventory-content .card-title {
+    font-size: 1.5rem !important; /* 24px */
+    font-weight: 700 !important;
+}
+
+/* Placeholder Text */
+.inventory-content ::placeholder {
+    font-size: 1.0625rem !important; /* 17px */
+}
+
+/* Select Dropdowns */
+.inventory-content select option {
+    font-size: 1.125rem !important; /* 18px */
+    padding: 0.75rem !important;
+}
+
+/* Status Indicators */
+.inventory-content .status-badge {
+    font-size: 1rem !important; /* 16px */
+    padding: 0.625rem 1.25rem !important;
+}
+
+/* Price/Currency Display */
+.inventory-content .price,
+.inventory-content .currency {
+    font-size: 1.25rem !important; /* 20px */
+    font-weight: 600 !important;
+}
+
+/* Search Inputs */
+.inventory-content input[type="search"] {
+    font-size: 1.125rem !important; /* 18px */
+    padding: 1rem 1.25rem !important;
+}
+
+/* Checkbox and Radio Labels */
+.inventory-content input[type="checkbox"] + label,
+.inventory-content input[type="radio"] + label {
+    font-size: 1.125rem !important; /* 18px */
+}
+
+/* Checkbox and Radio Inputs - Larger */
+.inventory-content input[type="checkbox"],
+.inventory-content input[type="radio"] {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+}
+
+/* Loading Text */
+.inventory-content .loading-text {
+    font-size: 1.125rem !important; /* 18px */
+}
+
+/* Empty State Text */
+.inventory-content .empty-state h3 {
+    font-size: 1.5rem !important; /* 24px */
+}
+
+.inventory-content .empty-state p {
+    font-size: 1.125rem !important; /* 18px */
+}
+
+/* Pagination */
+.inventory-content .pagination a,
+.inventory-content .pagination span {
+    font-size: 1.125rem !important; /* 18px */
+    padding: 0.875rem 1.25rem !important;
+}
+
+/* Tabs */
+.inventory-content .tab-link {
+    font-size: 1.125rem !important; /* 18px */
+    padding: 1rem 1.5rem !important;
+}
+
+/* Card Descriptions */
+.inventory-content .card-description {
+    font-size: 1.0625rem !important; /* 17px */
+    line-height: 1.7 !important;
+}
+
+/* Icon Sizes - Proportional to Text */
+.inventory-content svg,
+.inventory-content i.fa,
+.inventory-content i.fas,
+.inventory-content i.far {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+}
+
+/* Larger Icons for Buttons */
+.inventory-content button svg,
+.inventory-content .btn svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+}
+
+/* Extra Large Icons for Empty States */
+.inventory-content .empty-state svg {
+    width: 4rem !important;
+    height: 4rem !important;
+}
+
+/* Ensure Minimum Touch Target Size */
+.inventory-content button,
+.inventory-content input[type="submit"],
+.inventory-content input[type="button"] {
+    min-height: 3.5rem !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .inventory-content h1 {
+        font-size: 2.5rem !important; /* 40px on mobile */
+    }
+    
+    .inventory-content h2 {
+        font-size: 1.75rem !important; /* 28px on mobile */
+    }
+    
+    .inventory-content p, 
+    .inventory-content div, 
+    .inventory-content span, 
+    .inventory-content td, 
+    .inventory-content th {
+        font-size: 1.0625rem !important; /* 17px on mobile */
+    }
+}
+
+/* Print Styles - Maintain Readability */
+@media print {
+    .inventory-content {
+        font-size: 14pt !important;
+    }
+    
+    .inventory-content h1 {
+        font-size: 24pt !important;
+    }
+    
+    .inventory-content h2 {
+        font-size: 18pt !important;
+    }
+    
+    .inventory-content p, 
+    .inventory-content td, 
+    .inventory-content th {
+        font-size: 12pt !important;
+    }
+}

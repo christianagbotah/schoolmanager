@@ -1,0 +1,340 @@
+/**
+ * Daily Revenue Modal - Mobile Responsive Styles
+ * Makes the daily revenue modal fully responsive on all screen sizes
+ * Author: System
+ * Date: 2026-07-13
+ */
+
+/* Base Modal Adjustments for Mobile */
+@media (max-width: 768px) {
+    #modal_alert .modal-dialog {
+        margin: 10px !important;
+        max-width: calc(100% - 20px) !important;
+        width: calc(100% - 20px) !important;
+    }
+    
+    #modal_alert .modal-content {
+        border-radius: 12px !important;
+    }
+    
+    #modal_alert .modal-body {
+        padding: 15px !important;
+        max-height: calc(100vh - 120px) !important;
+        overflow-y: auto !important;
+    }
+    
+    #modal_alert .modal-header {
+        padding: 12px 15px !important;
+    }
+    
+    #modal_alert .modal-header .modal-title {
+        font-size: 16px !important;
+    }
+}
+
+/* Daily Revenue Modal Mobile Styles */
+.daily-revenue-modal {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* Summary Cards - Responsive Grid */
+.daily-revenue-modal .summary-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 992px) {
+    .daily-revenue-modal .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .daily-revenue-modal .summary-cards {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .daily-revenue-modal .summary-card {
+        padding: 12px !important;
+    }
+    
+    .daily-revenue-modal .summary-card .card-value {
+        font-size: 18px !important;
+    }
+}
+
+/* Filters Row - Stack on Mobile */
+.daily-revenue-modal .filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    align-items: flex-end;
+}
+
+@media (max-width: 768px) {
+    .daily-revenue-modal .filters-row {
+        padding: 12px;
+        gap: 10px;
+    }
+    
+    .daily-revenue-modal .filter-group {
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .daily-revenue-modal .filter-group label {
+        font-size: 11px !important;
+    }
+    
+    .daily-revenue-modal .filter-group .form-control,
+    .daily-revenue-modal .filter-group .btn {
+        font-size: 14px !important;
+        height: 40px !important;
+    }
+}
+
+/* Export Buttons - Stack on Small Screens */
+.daily-revenue-modal .export-buttons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 576px) {
+    .daily-revenue-modal .export-buttons {
+        flex-direction: column;
+    }
+    
+    .daily-revenue-modal .export-buttons .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Table Responsiveness */
+.daily-revenue-modal .table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    .daily-revenue-modal .table-responsive {
+        max-height: 350px;
+        border-radius: 6px;
+    }
+}
+
+.daily-revenue-modal .transactions-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    min-width: 800px; /* Minimum width for horizontal scroll */
+}
+
+@media (max-width: 768px) {
+    .daily-revenue-modal .transactions-table {
+        font-size: 11px;
+        min-width: 700px;
+    }
+    
+    .daily-revenue-modal .transactions-table thead th {
+        padding: 8px 6px !important;
+        font-size: 11px !important;
+    }
+    
+    .daily-revenue-modal .transactions-table tbody td {
+        padding: 8px 6px !important;
+        font-size: 11px !important;
+    }
+    
+    .daily-revenue-modal .transactions-table tfoot td {
+        padding: 8px 6px !important;
+        font-size: 11px !important;
+    }
+}
+
+/* Source Badge - Adjust for Mobile */
+.daily-revenue-modal .source-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+    .daily-revenue-modal .source-badge {
+        padding: 3px 6px;
+        font-size: 9px;
+        gap: 2px;
+    }
+    
+    .daily-revenue-modal .source-badge i {
+        font-size: 8px;
+    }
+}
+
+/* Header Adjustments */
+.daily-revenue-modal h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+@media (max-width: 576px) {
+    .daily-revenue-modal h4 {
+        font-size: 16px !important;
+    }
+    
+    .daily-revenue-modal h4 i {
+        font-size: 14px;
+    }
+}
+
+/* Amount Cell - Better Visibility */
+.daily-revenue-modal .amount-cell {
+    font-weight: 600;
+    color: #2e7d32;
+    white-space: nowrap;
+}
+
+/* Button Adjustments for Touch */
+@media (max-width: 768px) {
+    .daily-revenue-modal .btn {
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+        min-height: 40px;
+        touch-action: manipulation;
+    }
+    
+    .daily-revenue-modal .btn-print-receipt {
+        padding: 6px 10px !important;
+        font-size: 11px !important;
+        min-height: auto;
+    }
+}
+
+/* No Data Message */
+.daily-revenue-modal .no-data {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+}
+
+@media (max-width: 576px) {
+    .daily-revenue-modal .no-data {
+        padding: 30px 15px;
+    }
+    
+    .daily-revenue-modal .no-data i {
+        font-size: 36px !important;
+    }
+}
+
+/* Sticky Header for Table */
+.daily-revenue-modal .transactions-table thead th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    z-index: 10;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Improve Touch Targets */
+@media (max-width: 768px) {
+    .daily-revenue-modal select.form-control,
+    .daily-revenue-modal input.form-control {
+        font-size: 16px !important; /* Prevents zoom on iOS */
+        height: 44px !important;
+    }
+}
+
+/* Scrollbar Styling for Webkit Browsers */
+.daily-revenue-modal .table-responsive::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+.daily-revenue-modal .table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.daily-revenue-modal .table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.daily-revenue-modal .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Better Table Footer on Mobile */
+@media (max-width: 768px) {
+    .daily-revenue-modal .tfoot-total td {
+        font-size: 12px !important;
+        font-weight: 700;
+    }
+}
+
+/* Landscape Orientation Adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+    .daily-revenue-modal .table-responsive {
+        max-height: 250px;
+    }
+    
+    #modal_alert .modal-body {
+        max-height: calc(100vh - 80px) !important;
+    }
+}
+
+/* Very Small Screens (< 360px) */
+@media (max-width: 360px) {
+    .daily-revenue-modal .summary-card .card-value {
+        font-size: 16px !important;
+    }
+    
+    .daily-revenue-modal .summary-card .card-label {
+        font-size: 10px !important;
+    }
+    
+    .daily-revenue-modal .transactions-table {
+        min-width: 600px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .daily-revenue-modal .filters-row,
+    .daily-revenue-modal .export-buttons {
+        display: none !important;
+    }
+    
+    .daily-revenue-modal .table-responsive {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    
+    .daily-revenue-modal .transactions-table {
+        min-width: 100% !important;
+        font-size: 10px !important;
+    }
+}

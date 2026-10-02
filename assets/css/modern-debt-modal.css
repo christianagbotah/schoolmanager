@@ -1,0 +1,655 @@
+/**
+ * Modern Debt Modal Styles (Shared)
+ * Professional, contemporary UI/UX design
+ * Used by: Bad Debt Modal & Outstanding Debt Modal
+ * Date: May 1, 2026
+ */
+
+/* ============================================
+   MODAL CONTAINER
+   ============================================ */
+.debt-modal-container {
+    font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+/* Bad Debt Theme (Purple) - Default */
+.bad-debt-modal-container {
+    font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+/* Outstanding Debt Theme (Blue) */
+.outstanding-debt-theme {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+/* ============================================
+   HEADER SECTION
+   ============================================ */
+.debt-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+/* Outstanding Debt Header (Blue gradient) */
+.outstanding-debt-theme .debt-header {
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    box-shadow: 0 10px 30px rgba(14, 165, 233, 0.3);
+}
+
+.bad-debt-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.debt-header h3,
+.bad-debt-header h3 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.debt-header h3 i,
+.bad-debt-header h3 i {
+    font-size: 28px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.debt-header p,
+.bad-debt-header p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.95;
+    font-weight: 400;
+}
+
+/* ============================================
+   BULK ACTION BAR
+   ============================================ */
+.bulk-action-bar {
+    background: white;
+    padding: 20px 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.bulk-action-bar .btn-group {
+    display: flex;
+    gap: 12px;
+}
+
+/* Modern Button Styles */
+.btn-modern {
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.btn-modern:hover::before {
+    left: 100%;
+}
+
+.btn-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn-modern:active {
+    transform: translateY(0);
+}
+
+.btn-modern:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-modern-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.btn-modern-danger {
+    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    color: white;
+}
+
+.btn-modern-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-modern-secondary {
+    background: linear-gradient(135deg, #e0e7ff 0%, #cfd9ff 100%);
+    color: #4c51bf;
+}
+
+.btn-modern .badge-count {
+    background: rgba(255, 255, 255, 0.3);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* ============================================
+   MODERN TABLE
+   ============================================ */
+.modern-table-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.modern-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+/* Outstanding Debt Table Header (Blue gradient) */
+.outstanding-debt-theme .modern-table thead {
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+}
+
+.modern-table thead th {
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+.modern-table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.modern-table tbody tr:hover {
+    background: linear-gradient(90deg, #f8f9ff 0%, #f0f4ff 100%);
+    transform: scale(1.005);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.08);
+}
+
+/* Outstanding Debt Row Hover (Blue tint) */
+.outstanding-debt-theme .modern-table tbody tr:hover {
+    background: linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%);
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.08);
+}
+
+.modern-table tbody td {
+    padding: 10px 15px;
+    font-size: 13px;
+    color: #2d3748;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+
+.modern-table tfoot {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    font-weight: 700;
+}
+
+.modern-table tfoot td {
+    padding: 15px;
+    font-size: 14px;
+    color: #2d3748;
+}
+
+/* ============================================
+   CUSTOM CHECKBOX
+   ============================================ */
+.custom-checkbox-container {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+}
+
+.custom-checkbox-container input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.custom-checkbox {
+    position: relative;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: white;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-checkbox-container:hover .custom-checkbox {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Outstanding Debt Checkbox Hover (Blue) */
+.outstanding-debt-theme .custom-checkbox-container:hover .custom-checkbox {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.custom-checkbox-container input[type="checkbox"]:checked ~ .custom-checkbox {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Outstanding Debt Checkbox Checked (Blue) */
+.outstanding-debt-theme .custom-checkbox-container input[type="checkbox"]:checked ~ .custom-checkbox {
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    border-color: #0ea5e9;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.custom-checkbox::after {
+    content: '';
+    position: absolute;
+    display: none;
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 11px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.custom-checkbox-container input[type="checkbox"]:checked ~ .custom-checkbox::after {
+    display: block;
+    animation: checkmark 0.3s ease;
+}
+
+@keyframes checkmark {
+    0% {
+        transform: rotate(45deg) scale(0);
+    }
+    50% {
+        transform: rotate(45deg) scale(1.2);
+    }
+    100% {
+        transform: rotate(45deg) scale(1);
+    }
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge-modern {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    white-space: nowrap;
+}
+
+.badge-modern-danger {
+    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    color: white;
+}
+
+.badge-modern-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.badge-modern-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.badge-modern i {
+    font-size: 11px;
+}
+
+/* ============================================
+   AMOUNT DISPLAY
+   ============================================ */
+.amount-display {
+    font-weight: 700;
+    font-size: 14px;
+    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.total-amount-display {
+    font-size: 18px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Outstanding Debt Total Amount (Blue) */
+.outstanding-debt-theme .total-amount-display {
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ============================================
+   ACTION DROPDOWN
+   ============================================ */
+.action-dropdown-modern {
+    position: relative;
+}
+
+.action-dropdown-modern .btn-modern-action {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 11px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+}
+
+/* Outstanding Debt Action Button (Blue) */
+.outstanding-debt-theme .action-dropdown-modern .btn-modern-action {
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.25);
+}
+
+.action-dropdown-modern .btn-modern-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+}
+
+.outstanding-debt-theme .action-dropdown-modern .btn-modern-action:hover {
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+}
+
+.action-dropdown-modern .dropdown-menu {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    padding: 6px;
+    margin-top: 6px;
+    min-width: 180px;
+}
+
+.action-dropdown-modern .dropdown-menu li a {
+    padding: 8px 12px;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.action-dropdown-modern .dropdown-menu li a:hover {
+    background: linear-gradient(90deg, #f8f9ff 0%, #f0f4ff 100%);
+    transform: translateX(3px);
+}
+
+.outstanding-debt-theme .action-dropdown-modern .dropdown-menu li a:hover {
+    background: linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+.action-dropdown-modern .dropdown-menu li a i {
+    font-size: 14px;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+    border-radius: 12px;
+}
+
+.empty-state i {
+    font-size: 64px;
+    color: #26c6da;
+    margin-bottom: 20px;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.empty-state h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #00838f;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    font-size: 14px;
+    color: #00695c;
+}
+
+/* ============================================
+   EXPORT BUTTONS
+   ============================================ */
+.export-buttons-container {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-export {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn-export-excel {
+    background: linear-gradient(135deg, #1e7e34 0%, #28a745 100%);
+    color: white;
+}
+
+.btn-export-pdf {
+    background: linear-gradient(135deg, #c82333 0%, #dc3545 100%);
+    color: white;
+}
+
+.btn-export-print {
+    background: linear-gradient(135deg, #117a8b 0%, #17a2b8 100%);
+    color: white;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+    .debt-modal-container,
+    .bad-debt-modal-container {
+        padding: 15px;
+    }
+    
+    .debt-header,
+    .bad-debt-header {
+        padding: 20px;
+    }
+    
+    .bulk-action-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .bulk-action-bar .btn-group {
+        flex-direction: column;
+    }
+    
+    .btn-modern {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .modern-table {
+        font-size: 12px;
+    }
+    
+    .modern-table thead th,
+    .modern-table tbody td {
+        padding: 12px 10px;
+    }
+}
+
+/* ============================================
+   LOADING ANIMATION
+   ============================================ */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Outstanding Debt Spinner (Blue) */
+.outstanding-debt-theme .loading-spinner {
+    border-top-color: #0ea5e9;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ============================================
+   SMOOTH TRANSITIONS
+   ============================================ */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+.modern-table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.modern-table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.modern-table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+}
+
+.outstanding-debt-theme .modern-table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+}
+
+.modern-table-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.outstanding-debt-theme .modern-table-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+}

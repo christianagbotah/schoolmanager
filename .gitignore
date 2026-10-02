@@ -1,0 +1,37 @@
+# Runtime / secrets
+application/config/database.php
+application/config/email.php
+application/config/emailerror.php
+application/cache/*
+!application/cache/.gitkeep
+application/logs/*
+!application/logs/.gitkeep
+.env
+.env.*
+!.env.example
+.user.ini
+
+# User-generated/runtime data
+uploads/*
+!uploads/**/.gitkeep
+backup/
+backups/
+schema/*.sql
+!schema/schoolmanager_schema_redacted.sql
+!schema/redacted_schema_template.sql
+database/*.db
+database/*.sqlite
+database/*.sqlite3
+
+# Dependencies/build outputs
+vendor/
+node_modules/
+*.zip
+*.tar
+*.tar.gz
+
+# IDE/OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

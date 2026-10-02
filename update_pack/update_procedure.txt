@@ -1,0 +1,20 @@
+As it is a major update you have to replace your old files carefully as described below,
+Please follow the steps strictly:
+1. First of all open your ‘database.php’ file from application > config > database.php
+2. Copy your database credentials from “database.php” which are 'hostname’, 'username’, 'password’, 'database’, to a text file which will be needed after some time.
+3. Open the project folder which you have downloaded from codecanyon.
+4. Extract the project.
+5. After extracting, open up your project and copy the ‘application’, 'assets', ‘update_pack’ folder.
+6. Replace those copied folder with your existing ‘application’ 'assets', and ‘update_pack’ folder.
+7. Now open your ‘database.php’ file from application > config > database.php.
+8. Replace the 'hostname’, 'username’, 'password’, 'database’ values by the copied values which you did on step2.
+9. Open your ‘routes.php’ file from application > config > routes.php. Move to line number 52 and make your default controller “home” instead of “install”
+Now, Login to your application as Admin user and,
+- Go to general settings from settings menu in admin panel
+- Move to the section 'Update Product' on that page
+- Upload the file 'update_5.4.zip' from your copy of ekattor app downloaded from codecanyon inside the “update_pack” folder.
+- Hit the button 'install update'
+- That's it
+
+PLEASE MAKE SURE THAT YOU ARE RUNNING THE 5.3 VERSION BEFORE UPDATING TO 5.4
+IF YOU ARE ALREADY RUNNING THE 5.4 VERSION THERE IS NO NEED TO UPDATE… Thank You

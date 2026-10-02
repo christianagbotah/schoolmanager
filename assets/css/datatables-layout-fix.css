@@ -1,0 +1,290 @@
+/**
+ * DataTables Layout Fix - Global Override
+ * Fixes pagination and search box alignment issues across all DataTables
+ * Supports both legacy (dataTables_*) and modern (dt-*) class names
+ * Author: System
+ * Date: 2026-07-13
+ */
+
+/* ====================================
+   DATATABLE STANDARD LAYOUT FIX
+   Supports BOTH old and new DataTables versions
+   ==================================== */
+
+/* Pagination - Force to RIGHT and INLINE (both versions) */
+.dataTables_wrapper .dataTables_paginate,
+.dataTables_wrapper .dt-paging,
+.dataTables_wrapper .dataTables_paginate.paging_simple,
+.dataTables_wrapper .dataTables_paginate.paging_simple_numbers,
+.dataTables_wrapper .dataTables_paginate.paging_full,
+.dataTables_wrapper .dataTables_paginate.paging_full_numbers,
+.dataTables_wrapper .dt-paging.paging_simple,
+.dataTables_wrapper .dt-paging.paging_simple_numbers,
+.dataTables_wrapper .dt-paging.paging_full,
+.dataTables_wrapper .dt-paging.paging_full_numbers {
+    text-align: right !important;
+    float: right !important;
+    margin-top: 0 !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    display: inline-block !important;
+    justify-content: flex-end !important;
+}
+
+/* Info Text - Force to LEFT and INLINE (both versions) */
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dt-info {
+    text-align: left !important;
+    float: left !important;
+    padding-top: 8px !important;
+    display: inline-block !important;
+}
+
+/* Search Box - Force to RIGHT (both versions) */
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dt-search {
+    text-align: right !important;
+    float: right !important;
+}
+
+/* Length Menu - Force to LEFT (both versions) */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dt-length {
+    text-align: left !important;
+    float: left !important;
+}
+
+/* Bottom Row Layout Fix - Works with Bootstrap grid */
+.dataTables_wrapper .dt-layout-row,
+.dataTables_wrapper .row {
+    display: block !important;
+    width: 100% !important;
+    overflow: auto !important;
+}
+
+/* Force info and pagination columns to behave correctly */
+.dataTables_wrapper .dt-layout-cell,
+.dataTables_wrapper .col-sm-12,
+.dataTables_wrapper .col-sm-5,
+.dataTables_wrapper .col-sm-7,
+.dataTables_wrapper .col-md-5,
+.dataTables_wrapper .col-md-7 {
+    float: none !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+/* Specific width for info column (left side) */
+.dataTables_wrapper .dt-layout-cell:has(.dt-info),
+.dataTables_wrapper .dt-layout-cell:has(.dataTables_info),
+.dataTables_wrapper .col-sm-5,
+.dataTables_wrapper .col-md-5 {
+    width: 45% !important;
+    float: left !important;
+    text-align: left !important;
+}
+
+/* Specific width for pagination column (right side) */
+.dataTables_wrapper .dt-layout-cell:has(.dt-paging),
+.dataTables_wrapper .dt-layout-cell:has(.dataTables_paginate),
+.dataTables_wrapper .col-sm-7,
+.dataTables_wrapper .col-md-7 {
+    width: 55% !important;
+    float: right !important;
+    text-align: right !important;
+}
+
+/* NUCLEAR OPTION: Force everything inside pagination column to right */
+.dataTables_wrapper .col-sm-7 > *,
+.dataTables_wrapper .col-md-7 > *,
+.dataTables_wrapper .dt-layout-cell:has(.dt-paging) > *,
+.dataTables_wrapper .dt-layout-cell:has(.dataTables_paginate) > * {
+    text-align: right !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    float: right !important;
+}
+
+/* Ensure proper spacing */
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate,
+.dataTables_wrapper .dt-info,
+.dataTables_wrapper .dt-paging {
+    padding-top: 0.75em !important;
+    padding-bottom: 0.75em !important;
+    margin: 0 !important;
+}
+
+/* ====================================
+   RESPONSIVE FIXES
+   ==================================== */
+
+@media (max-width: 767px) {
+    .dataTables_wrapper .dataTables_paginate,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dt-paging,
+    .dataTables_wrapper .dt-info,
+    .dataTables_wrapper .dt-search,
+    .dataTables_wrapper .dt-length {
+        text-align: center !important;
+        float: none !important;
+        width: 100% !important;
+    }
+    
+    .dataTables_wrapper .dt-layout-cell,
+    .dataTables_wrapper .col-sm-5,
+    .dataTables_wrapper .col-sm-7,
+    .dataTables_wrapper .col-md-5,
+    .dataTables_wrapper .col-md-7 {
+        width: 100% !important;
+        float: none !important;
+        text-align: center !important;
+    }
+}
+
+/* ====================================
+   PAGINATION BUTTON STYLING
+   ==================================== */
+
+/* Force pagination container alignment */
+.dataTables_wrapper .dataTables_paginate span,
+.dataTables_wrapper .dt-paging span {
+    text-align: right !important;
+    justify-content: flex-end !important;
+    display: inline-flex !important;
+}
+
+/* Modern pagination buttons */
+.dataTables_wrapper .dt-paging .dt-paging-button,
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 0.5em 1em;
+    margin-left: 2px;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.dataTables_wrapper .dt-paging .dt-paging-button:hover,
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #f0f0f0 !important;
+    border-radius: 3px;
+}
+
+.dataTables_wrapper .dt-paging .dt-paging-button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #667eea !important;
+    color: white !important;
+    border-radius: 3px;
+}
+
+.dataTables_wrapper .dt-paging .dt-paging-button.disabled,
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+}
+
+/* ====================================
+   CLEAR FLOAT FIXES
+   ==================================== */
+
+.dataTables_wrapper .dt-layout-row::after,
+.dataTables_wrapper .row::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* ====================================
+   ABSOLUTE POSITIONING FIX FOR PAGINATION
+   Force pagination to the right side NO MATTER WHAT
+   ==================================== */
+   
+/* Target all possible pagination class combinations */
+div.dataTables_wrapper div.dataTables_paginate,
+div.dataTables_wrapper div.dataTables_paginate.paging_simple,
+div.dataTables_wrapper div.dataTables_paginate.paging_simple_numbers,
+div.dataTables_wrapper div.dataTables_paginate.paging_full,
+div.dataTables_wrapper div.dataTables_paginate.paging_full_numbers,
+div.dataTables_wrapper div.dt-paging,
+div.dataTables_wrapper div.dt-paging.paging_simple,
+div.dataTables_wrapper div.dt-paging.paging_simple_numbers,
+div.dataTables_wrapper div.dt-paging.paging_full,
+div.dataTables_wrapper div.dt-paging.paging_full_numbers {
+    float: right !important;
+    text-align: right !important;
+    margin-left: auto !important;
+    padding-left: 0 !important;
+    justify-content: flex-end !important;
+    display: inline-block !important;
+}
+
+/* Ensure pagination span containers are right-aligned */
+div.dataTables_wrapper div.dataTables_paginate span,
+div.dataTables_wrapper div.dt-paging span {
+    float: right !important;
+    text-align: right !important;
+    justify-content: flex-end !important;
+    display: inline-flex !important;
+}
+
+/* ====================================
+   SEARCH AND LENGTH INPUTS
+   ==================================== */
+
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dt-search input,
+.dataTables_wrapper .dt-length select {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin-left: 5px;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus,
+.dataTables_wrapper .dataTables_length select:focus,
+.dataTables_wrapper .dt-search input:focus,
+.dataTables_wrapper .dt-length select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+/* ====================================
+   TABLE HEADER FIXES
+   ==================================== */
+
+.dataTables_wrapper table.dataTable thead th,
+.dataTables_wrapper table.dataTable thead td {
+    border-bottom: 2px solid #ddd;
+}
+
+.dataTables_wrapper table.dataTable thead .sorting,
+.dataTables_wrapper table.dataTable thead .sorting_asc,
+.dataTables_wrapper table.dataTable thead .sorting_desc,
+.dataTables_wrapper table.dataTable thead .dt-orderable-asc,
+.dataTables_wrapper table.dataTable thead .dt-orderable-desc,
+.dataTables_wrapper table.dataTable thead .dt-ordering-asc,
+.dataTables_wrapper table.dataTable thead .dt-ordering-desc {
+    cursor: pointer;
+    position: relative;
+}
+
+/* ====================================
+   PROCESSING INDICATOR
+   ==================================== */
+
+.dataTables_wrapper .dataTables_processing,
+.dataTables_wrapper .dt-processing {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 1em;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 1000;
+}

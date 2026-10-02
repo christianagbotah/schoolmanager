@@ -1,0 +1,150 @@
+/**
+ * Modal Button Professional Styling
+ * Applies consistent font-weight and font-size to all modal buttons
+ * for a more professional appearance across the entire system
+ */
+
+/* Primary Action Buttons in Modals */
+.modal-footer .btn-primary,
+.modal-body .btn-primary,
+.modal-content .btn-primary,
+.modal .btn-primary {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* Secondary/Default Buttons in Modals */
+.modal-footer .btn-default,
+.modal-body .btn-default,
+.modal-content .btn-default,
+.modal .btn-default,
+.modal-footer .btn-secondary,
+.modal-body .btn-secondary,
+.modal-content .btn-secondary,
+.modal .btn-secondary {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* Success Buttons in Modals */
+.modal-footer .btn-success,
+.modal-body .btn-success,
+.modal-content .btn-success,
+.modal .btn-success {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* Warning Buttons in Modals */
+.modal-footer .btn-warning,
+.modal-body .btn-warning,
+.modal-content .btn-warning,
+.modal .btn-warning {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* Danger/Delete Buttons in Modals */
+.modal-footer .btn-danger,
+.modal-body .btn-danger,
+.modal-content .btn-danger,
+.modal .btn-danger {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* Info Buttons in Modals */
+.modal-footer .btn-info,
+.modal-body .btn-info,
+.modal-content .btn-info,
+.modal .btn-info {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* Custom Modal Buttons (for any custom styled buttons) */
+.modal button[type="submit"],
+.modal button[type="button"],
+.modal input[type="submit"] {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* SweetAlert2 Modal Buttons */
+.swal2-confirm,
+.swal2-cancel,
+.swal2-deny {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* Bootstrap Modal Action Buttons */
+.modal-footer button,
+.modal-footer input[type="submit"],
+.modal-footer input[type="button"] {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* Custom Modal Class Buttons (if any modals use custom wrapper classes) */
+.custom-modal .btn,
+.custom-modal button,
+.custom-modal input[type="submit"] {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* Toastr Close Buttons */
+.toast-close-button {
+    font-weight: 700 !important;
+}
+
+/* Custom Confirm and Alert Modal Buttons (from modal.php) */
+#modal_confirm .btn,
+#modal_confirm button,
+#modal_confirm2 .btn,
+#modal_confirm2 button,
+#modal_alert .btn,
+#modal_alert button,
+#modal_confirm_staff .btn,
+#modal_confirm_staff button,
+#modal_idle_user .btn,
+#modal_idle_user button,
+#modal_user_blocked .btn,
+#modal_user_blocked button,
+#modal_display .btn,
+#modal_display button {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* Generic Confirmation Modal Buttons */
+#confirm_modal .btn,
+#confirm_modal button,
+#generic_confirmation .btn,
+#generic_confirmation button {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* All Modal IDs that might contain confirmation/alert dialogs */
+[id^="modal_"] .btn,
+[id^="modal_"] button,
+[id^="modal_"] input[type="submit"],
+[id^="modal_"] input[type="button"] {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* Bootbox.js Alert/Confirm Dialogs */
+.bootbox .modal-footer .btn,
+.bootbox button {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+/* jQuery UI Dialog Buttons */
+.ui-dialog .ui-dialog-buttonpane button {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
