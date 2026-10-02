@@ -58,7 +58,27 @@ Companion documents produced in this wave:
 - Junk-name controllers: `get_bulk_invoices_function.php`, `getValue())`, `result_array()`,
   plus `.txt` method notes in `controllers/`
 
-Removal is deferred: these files might be referenced by include/require — verification pass needed first.
+Removal was deferred at Wave 0 (include/require verification pass needed first) and completed in
+commit `2554715` after that verification.
+
+**Owner verification (2026-10-03):** the integration-fragment removals in `2554715` are accepted
+and classified as **retired integration fragments — functionality already integrated or
+superseded by active implementation.** Do not restore them and do not create duplicate copies
+under `docs/legacy-reference/`. Verified by the owner:
+
+| Retired fragment | Superseded by (active implementation) |
+|---|---|
+| `controllers/Student_termly_bill.php` | newer Admin terminal-bills workflow |
+| `models/Finance_model_extended.php` | `Finance_model.php` (extensions integrated) |
+| `controllers/Admin_credit_methods.php` | `Admin.php` (credit methods integrated) |
+| `controllers/Admin_credit_integration.php` | `Admin.php` (credit methods integrated) |
+| `controllers/transaction_sync_handlers.php` | `Sync_financial` / `Sync_daily_fees` / `Sync_server` architecture |
+| `controllers/api/Sync_additional_methods.php` | active Sync/API controllers |
+| `views/backend/admin/credit_integration_hooks.php` | instruction/template fragment; functionality already incorporated |
+
+Deletion rule going forward: never treat "no grep references" alone as proof that a CI3
+controller/model/view is unused — fragment-method integration in target files and supersession
+by newer workflows must be verified as well.
 
 ## 4. CI3 boot & environment config
 
