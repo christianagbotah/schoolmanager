@@ -2,7 +2,7 @@
 
 This repository is the sanitized source baseline for the existing CodeIgniter 3 school management system.
 
-> **Production safety:** `/home/lightworld/webapps/rochas` is the live legacy production directory. It is read-only reference material only and must never be edited, written to, built in, migrated, or used as a deployment target. All modernization work belongs in `/home/lightworld/webapps/schoolmanager`.
+> **Production safety:** `/home/lightworld/webapps/rochas` is the live legacy production directory and is completely out of scope for this project. Do not inspect, read, modify, build in, migrate, deploy to, or otherwise use it unless the owner explicitly re-authorizes access. All modernization work belongs in `/home/lightworld/webapps/schoolmanager` and the GitHub repository.
 
 - Framework: CodeIgniter 3 / PHP
 - Production target: `/home/lightworld/webapps/schoolmanager`
