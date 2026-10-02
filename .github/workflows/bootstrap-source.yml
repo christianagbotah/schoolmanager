@@ -1,0 +1,53 @@
+name: Bootstrap sanitized CI3 source
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/bootstrap-source.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-source:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download sanitized source bundle
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3             "https://schoolmanager.lightworldtech.com/_bootstrap/schoolmanager-source.tar.gz"             --output /tmp/schoolmanager-source.tar.gz
+          echo "98a4478c4d9d5a586d7e5ea26ff0a17c51d4808daf462e74f8f17f94c9a49c93  /tmp/schoolmanager-source.tar.gz" | sha256sum -c -
+
+      - name: Import source
+        run: |
+          set -euo pipefail
+          tar -xzf /tmp/schoolmanager-source.tar.gz -C .
+          rm -f /tmp/schoolmanager-source.tar.gz
+
+      - name: Safety checks
+        run: |
+          set -euo pipefail
+          test ! -f application/config/database.php
+          test ! -f application/config/email.php
+          test ! -f application/config/emailerror.php
+          ! grep -RIl --exclude='*.min.js' --exclude='*.map' 'Myjesus4me' . | grep -q .
+          ! find . -type f -size +95M -print -quit | grep -q .
+
+      - name: Commit imported source
+        run: |
+          set -euo pipefail
+          git config user.name "schoolmanager-bootstrap"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No source changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: import sanitized CodeIgniter 3 baseline"
+          git push origin HEAD:main
