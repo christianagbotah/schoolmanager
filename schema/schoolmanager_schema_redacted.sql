@@ -997,7 +997,8 @@ CREATE TABLE `boarding_house` (
   `house_gps_code` text COLLATE utf8mb4_unicode_520_ci,
   `house_prefect_id` int DEFAULT NULL,
   `house_capacity` bigint NOT NULL DEFAULT '0',
-  `house_year_established` text COLLATE utf8mb4_unicode_520_ci,  `house_user_fee` double NOT NULL DEFAULT '0',
+  `house_year_established` text COLLATE utf8mb4_unicode_520_ci,
+  `house_user_fee` double NOT NULL DEFAULT '0',
   `house_status` enum('Available','Assigned','Maintenance','Unknown') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'Available',
   `sync` enum('yes','no') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'no'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
@@ -1996,7 +1997,8 @@ CREATE TABLE `earned_leave` (
 
 -- --------------------------------------------------------
 
----- Table structure for table `education`
+--
+-- Table structure for table `education`
 --
 
 CREATE TABLE `education` (
@@ -2996,6 +2998,7 @@ CREATE TABLE `group_message` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 -- --------------------------------------------------------
+
 --
 -- Table structure for table `group_message_other`
 --
@@ -3994,7 +3997,8 @@ CREATE TABLE `lesson_note_resources` (
   `id` int NOT NULL,
   `lesson_note_id` int NOT NULL,
   `resource_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `resource_details` text COLLATE utf8mb4_unicode_ci,  `quantity` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `resource_details` text COLLATE utf8mb4_unicode_ci,
+  `quantity` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `is_custom` tinyint DEFAULT '0' COMMENT '1 if custom entry, 0 if from predefined list'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -4993,7 +4997,8 @@ CREATE TABLE `portfolio_audit_trail` (
   `action_type` enum('create','update','delete','compute','sync_sba') COLLATE utf8mb4_general_ci NOT NULL,
   `entity_type` enum('header','score','aggregate','sba') COLLATE utf8mb4_general_ci NOT NULL,
   `entity_id` bigint NOT NULL,
-  `old_value` text COLLATE utf8mb4_general_ci,  `new_value` text COLLATE utf8mb4_general_ci,
+  `old_value` text COLLATE utf8mb4_general_ci,
+  `new_value` text COLLATE utf8mb4_general_ci,
   `user_id` int NOT NULL,
   `ip_address` varchar(45) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `user_agent` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
@@ -5992,7 +5997,8 @@ CREATE TABLE `student_ledger` (
   `sync_status` enum('PENDING','SYNCED','FAILED','MANUAL_REVIEW') COLLATE utf8mb4_general_ci DEFAULT 'PENDING',
   `last_modified_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `last_modified_by` int DEFAULT NULL,
-  `device_id` varchar(50) COLLATE utf8mb4_general_ci DEFAULT 'local-server-001',  `version` int DEFAULT '1',
+  `device_id` varchar(50) COLLATE utf8mb4_general_ci DEFAULT 'local-server-001',
+  `version` int DEFAULT '1',
   `retry_count` int DEFAULT '0',
   `sync_error` text COLLATE utf8mb4_general_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -6991,7 +6997,8 @@ ALTER TABLE `attendance`
 --
 -- Indexes for table `attendance_billing_log`
 --
-ALTER TABLE `attendance_billing_log`  ADD PRIMARY KEY (`id`),
+ALTER TABLE `attendance_billing_log`
+  ADD PRIMARY KEY (`id`),
   ADD KEY `idx_operation_date` (`operation_type`,`created_at`),
   ADD KEY `idx_student_log` (`student_id`),
   ADD KEY `idx_sync_status` (`sync_status`),
@@ -7990,7 +7997,8 @@ ALTER TABLE `inventory_purchases`
   ADD KEY `idx_reference` (`reference_number`),
   ADD KEY `idx_purchase_status_date` (`status`,`purchase_date`),
   ADD KEY `fk_purchase_receiver` (`received_by`),
-  ADD KEY `idx_payment_status` (`payment_status`),  ADD KEY `idx_last_payment_date` (`last_payment_date`),
+  ADD KEY `idx_payment_status` (`payment_status`),
+  ADD KEY `idx_last_payment_date` (`last_payment_date`),
   ADD KEY `idx_payment_status_date` (`payment_status`,`last_payment_date`);
 
 --
@@ -8989,7 +8997,8 @@ ALTER TABLE `sync_conflicts`
 
 --
 -- Indexes for table `sync_deletions`
---ALTER TABLE `sync_deletions`
+--
+ALTER TABLE `sync_deletions`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_sync_status_table` (`sync_status`,`table_name`),
   ADD KEY `idx_table_deleted_at` (`table_name`,`deleted_at`),
@@ -9988,6 +9997,7 @@ ALTER TABLE `holiday`
 --
 ALTER TABLE `hubtel_transaction_logs`
   MODIFY `log_id` int NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `incomplete_fee_transactions`
 --
@@ -10987,7 +10997,8 @@ ALTER TABLE `fiscal_periods`
 -- Constraints for table `hod_subjects`
 --
 ALTER TABLE `hod_subjects`
-  ADD CONSTRAINT `fk_hs_admin` FOREIGN KEY (`assigned_by`) REFERENCES `admin` (`admin_id`) ON DELETE CASCADE,  ADD CONSTRAINT `fk_hs_subject` FOREIGN KEY (`subject_id`) REFERENCES `subject` (`subject_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_hs_admin` FOREIGN KEY (`assigned_by`) REFERENCES `admin` (`admin_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_hs_subject` FOREIGN KEY (`subject_id`) REFERENCES `subject` (`subject_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_hs_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teacher` (`teacher_id`) ON DELETE CASCADE;
 
 --
