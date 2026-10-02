@@ -162,152 +162,186 @@ $classes = $this->db->get('class')->result_array();
 ?>
 
 <style>
+/* Admin Dashboard - modern presentation layer (design-system tokens) */
 .currency-symbol { font-size: 0.6em; vertical-align: super; margin-right: 2px; }
 .form-label { font-weight: 600; color: #374151; font-size: 13px; margin-bottom: 8px; display: block; }
-.form-control { border: 2px solid #e5e7eb; border-radius: 10px; padding: 10px 14px; font-size: 14px; transition: all 0.3s; height: 42px; width: 100%; }
-.form-control:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); outline: none; }
-.btn-modern { padding: 10px 20px; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; }
-.btn-primary-modern { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
-.btn-primary-modern:hover { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4); transform: translateY(-2px); }
+.form-control { border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 10px 14px; font-size: 14px; transition: border-color .15s ease, box-shadow .15s ease; height: 42px; width: 100%; background: #fff; color: #111827; }
+.form-control:focus { border-color: var(--sm-primary-500, #3b82f6); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; }
+.btn-modern { padding: 10px 20px; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; }
+.btn-primary-modern { background: var(--sm-primary-600, #2563eb); color: white; box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35); }
+.btn-primary-modern:hover { background: var(--sm-primary-700, #1d4ed8); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35); }
+.btn-modern:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4); }
 @keyframes fadeInUp {
-	from { opacity: 0; transform: translateY(20px); }
-	to { opacity: 1; transform: translateY(0); }
-}
-@keyframes shimmer {
-	0% { background-position: -1000px 0; }
-	100% { background-position: 1000px 0; }
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
 }
 @keyframes pulse {
-	0%, 100% { opacity: 1; }
-	50% { opacity: 0.8; }
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.78; }
 }
 .dashboard-card {
-	background: #fff;
-	border-radius: 16px;
-	box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-	padding: 28px;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	position: relative;
-	overflow: hidden;
-	animation: fadeInUp 0.6s ease-out;
-}
-.dashboard-card::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: -100%;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-	transition: left 0.5s;
+        background: #fff;
+        border: 1px solid var(--sm-border, #e5e7eb);
+        border-radius: 16px;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+        padding: 24px;
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp .4s ease-out;
 }
 .dashboard-card:hover {
-	transform: translateY(-8px) scale(1.02);
-	box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(16, 24, 40, 0.10);
+        border-color: #cbd5e1;
 }
-.dashboard-card:hover::before {
-	left: 100%;
+a:focus-visible { outline: none; }
+a:focus-visible .dashboard-card {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4), 0 10px 24px rgba(16, 24, 40, 0.10);
 }
 .stat-icon {
-	width: 64px;
-	height: 64px;
-	border-radius: 16px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 30px;
-	color: #fff;
-	box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-	transition: transform 0.3s;
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(16, 24, 40, 0.14);
+        transition: transform .18s ease;
 }
-.dashboard-card:hover .stat-icon {
-	transform: rotate(5deg) scale(1.1);
-}
+.dashboard-card:hover .stat-icon { transform: scale(1.06); }
 .quick-action-btn {
-	background: #fff;
-	border: 2px solid #e5e7eb;
-	border-radius: 12px;
-	padding: 24px;
-	text-align: center;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	cursor: pointer;
-	position: relative;
-	overflow: hidden;
-}
-.quick-action-btn::after {
-	content: '';
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	width: 0;
-	height: 0;
-	border-radius: 50%;
-	background: rgba(59, 130, 246, 0.1);
-	transform: translate(-50%, -50%);
-	transition: width 0.6s, height 0.6s;
-}
-.quick-action-btn:hover::after {
-	width: 300px;
-	height: 300px;
+        background: #fff;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 20px 16px;
+        text-align: center;
+        transition: all .18s ease;
+        cursor: pointer;
+        position: relative;
 }
 .quick-action-btn:hover {
-	border-color: #3b82f6;
-	background: #eff6ff;
-	transform: translateY(-4px);
-	box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+        border-color: var(--sm-primary-500, #3b82f6);
+        background: var(--sm-primary-50, #eff6ff);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 18px rgba(37, 99, 235, 0.14);
 }
-.quick-action-btn i {
-	transition: transform 0.3s;
+.quick-action-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4); }
+.quick-action-btn i { transition: transform .18s ease; }
+.quick-action-btn:hover i { transform: scale(1.12); }
+.chart-container { position: relative; height: 320px; }
+.metric-badge { animation: pulse 2.4s infinite; }
+
+/* Page head chips */
+.dash-chip {
+        display: inline-flex; align-items: center; gap: 6px; background: #fff;
+        border: 1px solid #e5e7eb; border-radius: 999px; padding: 6px 14px;
+        font-size: 13px; font-weight: 600; color: #374151;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
 }
-.quick-action-btn:hover i {
-	transform: scale(1.2);
+.dash-chip .fa { color: var(--sm-primary-600, #2563eb); }
+
+/* Financial summary hero (Termly Fees Collection) */
+.dash-hero {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%);
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        padding: 28px;
+        box-shadow: 0 12px 32px rgba(79, 70, 229, 0.25);
 }
-.chart-container {
-	position: relative;
-	height: 320px;
+.dash-hero::before {
+        content: ''; position: absolute; top: -70px; right: -70px;
+        width: 240px; height: 240px; background: rgba(255,255,255,0.06); border-radius: 50%;
 }
-.metric-badge {
-	animation: pulse 2s infinite;
+.dash-hero::after {
+        content: ''; position: absolute; bottom: -50px; left: -50px;
+        width: 180px; height: 180px; background: rgba(255,255,255,0.05); border-radius: 50%;
 }
-.gradient-card {
-	position: relative;
-	overflow: hidden;
+.dash-hero-icon {
+        width: 72px; height: 72px; background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.18); border-radius: 18px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
-.gradient-card::after {
-	content: '';
-	position: absolute;
-	top: -50%;
-	right: -50%;
-	width: 200%;
-	height: 200%;
-	background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-	opacity: 0;
-	transition: opacity 0.3s;
+.dash-hero-icon i { color: white; font-size: 34px; }
+.dash-hero-eyebrow {
+        color: rgba(255,255,255,0.95); text-transform: uppercase; letter-spacing: 1.2px;
+        font-size: 13px; font-weight: 700; margin-bottom: 6px;
 }
-.gradient-card:hover::after {
-	opacity: 1;
+.dash-hero-value { color: white; margin: 0; line-height: 1.15; font-size: 44px; font-weight: 800; }
+.dash-hero-period {
+        background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.12);
+        padding: 12px 24px; border-radius: 12px;
 }
+.dash-hero-period p { margin: 0; color: white; }
+.dash-hero-period .dash-period-label { color: rgba(255,255,255,0.92); font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.dash-hero-period .dash-period-value { font-size: 20px; font-weight: 800; }
+.dash-hero-modules {
+        background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.35);
+        padding: 8px 16px; border-radius: 10px;
+}
+.dash-hero-modules p { color: #6ee7b7; margin: 0; font-weight: 700; font-size: 13px; }
+.dash-hero-tile {
+        background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 14px; padding: 16px;
+        transition: background .18s ease, transform .18s ease;
+}
+.dash-hero-tile:hover { background: rgba(255,255,255,0.17); transform: translateY(-3px); }
+.dash-hero-tile-icon {
+        width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center;
+        justify-content: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+.dash-hero-tile-icon i { color: white; font-size: 16px; }
+.dash-hero-bar { margin-top: 8px; height: 5px; background: rgba(255,255,255,0.22); border-radius: 3px; overflow: hidden; }
+
+/* Daily fee module tiles */
+.dash-fee-tile {
+        border-radius: 16px; color: white; padding: 20px;
+        box-shadow: 0 6px 18px rgba(16, 24, 40, 0.14);
+        transition: transform .18s ease, box-shadow .18s ease;
+        display: flex; flex-direction: column;
+}
+.dash-fee-tile:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(16, 24, 40, 0.20); }
+
+/* Unpaid balances alert card */
+.dash-alert-card {
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 60%, #f97316 100%);
+        border-radius: 16px; color: white; padding: 24px;
+        box-shadow: 0 10px 26px rgba(220, 38, 38, 0.28);
+        transition: transform .18s ease, box-shadow .18s ease;
+}
+.dash-alert-card:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(220, 38, 38, 0.34); }
+
 @media (max-width: 768px) {
-	.chart-container { height: 280px; }
-	.dashboard-card { padding: 20px; }
-	.stat-icon { width: 56px; height: 56px; font-size: 26px; }
+        .chart-container { height: 260px; }
+        .dashboard-card { padding: 18px; border-radius: 14px; }
+        .dash-hero { padding: 20px; }
+        .dash-hero-value { font-size: 34px; }
+}
+@media (max-width: 400px) {
+        .dashboard-card { padding: 15px; }
+        .dash-chip { padding: 5px 10px; font-size: 12px; }
 }
 </style>
 
 <div class="p-4 md:p-6 bg-gray-50 min-h-screen">
-	<!-- Header Section -->
-	<div class="mb-6 md:mb-8">
-		<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-			<div>
-				<h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-1">Dashboard Overview</h1>
-				<p class="text-lg sm:text-base lg:text-lg text-gray-600">Welcome back! Here's what's happening in your school today.</p>
-			</div>
-			<div class="flex items-center gap-2 text-lg text-gray-600">
-				<i class="fa fa-calendar"></i>
-				<span class="font-medium"><?php echo date('l, F d, Y'); ?></span>
-			</div>
-		</div>
-	</div>
+
+        <!-- Header Section -->
+        <div class="mb-6 md:mb-8">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div>
+                                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-1">Dashboard Overview</h1>
+                                <p class="text-base lg:text-lg text-gray-600">Welcome back! Here's what's happening in your school today.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                                <span class="dash-chip"><i class="fa fa-calendar" aria-hidden="true"></i> <?php echo date('l, F d, Y'); ?></span>
+                                <span class="dash-chip"><i class="fa fa-graduation-cap" aria-hidden="true"></i> Year <?php echo $un_year; ?> &middot; Term <?php echo $un_term; ?></span>
+                        </div>
+                </div>
+        </div>
 
 	<!-- Filter Section (Super Admin Only) -->
 	<?php if ($account_type == 'admin' && $admin_level == 1): ?>
@@ -610,8 +644,6 @@ $classes = $this->db->get('class')->result_array();
 	</div>
 	<?php endif; ?>
 
-
-
 	<!-- Financial Summary (Super Admin Only) -->
 	<?php if ($account_type == 'admin' && $admin_level == 1): ?>
 	<?php
@@ -776,83 +808,84 @@ $classes = $this->db->get('class')->result_array();
 	}
 	?>
 
-	<div class="mb-6">
-		<h2 class="text-2xl font-bold text-gray-800 mb-4">Financial Summary</h2>
-		
-		<!-- Main Financial Cards -->
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
-			<!-- Total Invoices Due (FIRST) - No Link -->
-			<div class="dashboard-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; height: 100%; display: flex; flex-direction: column;">
-				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="flex: 1;">
-					<div class="flex flex-col items-start gap-2">
-						<div class="stat-icon" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px; font-size: 26px;">
-							<i class="fa fa-file-invoice-dollar" style="color: white;"></i>
-						</div>
-						<h3 class="font-medium" style="color: white; font-size: 13px;">Total Due Invoices</h3>
-					</div>
-					<div class="text-right ml-auto">
-						<p class="text-4xl font-extrabold leading-none mb-1" style="color: white;"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_invoices_due_combined, 2); ?></p>
-						<p style="color: white; font-size: 14px;">Outstanding as of this term</p>
-					</div>
-				</div>
-			</div>
 
-			<!-- Total Income (SECOND) -->
-			<a href="<?php echo site_url('admin/financial_reports/payments'); ?>" class="block" target="_blank" style="height: 100%;">
-				<div class="dashboard-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 20px; height: 100%; display: flex; flex-direction: column;">
-					<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="flex: 1;">
-						<div class="flex flex-col items-start gap-2">
-							<div class="stat-icon" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px; font-size: 26px;">
-								<i class="fa fa-wallet" style="color: white;"></i>
-							</div>
-							<h3 class="font-medium" style="color: white; font-size: 13px;">Total Income</h3>
-						</div>
-						<div class="text-right ml-auto">
-							<p class="text-4xl font-extrabold leading-none mb-1" style="color: white;"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_income_raw, 2); ?></p>
-							<p style="color: white; font-size: 12px;">Received this term</p>
-							<span class="text-xs font-semibold bg-white bg-opacity-20 px-2 py-1 rounded-full mt-1 inline-block" style="color: white;">Receipts: <?php echo $receipt_count; ?></span>
-						</div>
-					</div>
-				</div>
-			</a>
+        <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Financial Summary</h2>
 
-			<!-- Unpaid Invoices (THIRD) -->
-			<a href="#" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_unpaid_invoices/'.$un_term .'/'. $un_year.'/'. $un_sem);?>', 'modal_unpaid_invoices');" class="block" style="height: 100%;">
-				<div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; height: 100%; display: flex; flex-direction: column;">
-					<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="flex: 1;">
-						<div class="flex flex-col items-start gap-2">
-							<div class="stat-icon" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px; font-size: 26px;">
-								<i class="fa fa-credit-card" style="color: white;"></i>
-							</div>
-							<h3 class="font-medium" style="color: white; font-size: 13px;">Unpaid Invoices</h3>
-						</div>
-						<div class="text-right ml-auto">
-							<p class="text-4xl font-extrabold leading-none mb-1" style="color: white;"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($unpaid_amount, 2); ?></p>
-							<p style="color: white; font-size: 12px;">Outstanding payments</p>
-							<span class="text-xs font-semibold bg-white bg-opacity-20 px-2 py-1 rounded-full mt-1 inline-block" style="color: white;">Qty: <?php echo $unpaid_invoices_count; ?></span>
-						</div>
-					</div>
-				</div>
-			</a>
+                <!-- Main Financial Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
+                        <!-- Total Invoices Due (FIRST) - No Link -->
+                        <div class="dashboard-card" style="border-left: 5px solid #f43f5e; padding: 20px; height: 100%; display: flex; align-items: center;">
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="width: 100%;">
+                                        <div class="flex flex-col items-start gap-2">
+                                                <div class="stat-icon" style="background: linear-gradient(135deg, #fda4af 0%, #e11d48 100%);">
+                                                        <i class="fa fa-file-invoice-dollar" aria-hidden="true"></i>
+                                                </div>
+                                                <h3 class="text-gray-700 font-medium" style="font-size: 13px;">Total Due Invoices</h3>
+                                        </div>
+                                        <div class="text-right ml-auto">
+                                                <p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_invoices_due_combined, 2); ?></p>
+                                                <p class="text-gray-600" style="font-size: 12px;">Outstanding as of this term</p>
+                                        </div>
+                                </div>
+                        </div>
 
-			<!-- Total Expenses (FOURTH) -->
-			<a href="<?php echo site_url('admin/expense'); ?>" class="block" target="_blank" style="height: 100%;">
-				<div class="dashboard-card" style="background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%); color: white; padding: 20px; height: 100%; display: flex; flex-direction: column;">
-					<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="flex: 1;">
-						<div class="flex flex-col items-start gap-2">
-							<div class="stat-icon" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px; font-size: 26px;">
-								<i class="fa fa-tags" style="color: white;"></i>
-							</div>
-							<h3 class="font-medium" style="color: white; font-size: 13px;">Total Termly Expenses</h3>
-						</div>
-						<div class="text-right ml-auto">
-							<p class="text-4xl font-extrabold leading-none mb-1" style="color: white;"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_expense_raw, 2); ?></p>
-							<p style="color: white; font-size: 12px;">Spent this term</p>
-						</div>
-					</div>
-				</div>
-			</a>
-		</div>
+                        <!-- Total Income (SECOND) -->
+                        <a href="<?php echo site_url('admin/financial_reports/payments'); ?>" class="block" target="_blank" rel="noopener noreferrer" style="height: 100%; text-decoration: none;">
+                                <div class="dashboard-card" style="border-left: 5px solid #10b981; padding: 20px; height: 100%; display: flex; align-items: center;">
+                                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="width: 100%;">
+                                                <div class="flex flex-col items-start gap-2">
+                                                        <div class="stat-icon" style="background: linear-gradient(135deg, #6ee7b7 0%, #059669 100%);">
+                                                                <i class="fa fa-wallet" aria-hidden="true"></i>
+                                                        </div>
+                                                        <h3 class="text-gray-700 font-medium" style="font-size: 13px;">Total Income</h3>
+                                                </div>
+                                                <div class="text-right ml-auto">
+                                                        <p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_income_raw, 2); ?></p>
+                                                        <p class="text-gray-600" style="font-size: 12px;">Received this term</p>
+                                                        <span class="text-xs font-bold px-2 py-1 rounded-full bg-green-100 text-green-700 mt-1 inline-block">Receipts: <?php echo $receipt_count; ?></span>
+                                                </div>
+                                        </div>
+                                </div>
+                        </a>
+
+                        <!-- Unpaid Invoices (THIRD) -->
+                        <a href="#" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_unpaid_invoices/'.$un_term .'/'. $un_year.'/'. $un_sem);?>', 'modal_unpaid_invoices');" class="block" style="height: 100%; text-decoration: none;">
+                                <div class="dashboard-card" style="border-left: 5px solid #8b5cf6; padding: 20px; height: 100%; display: flex; align-items: center;">
+                                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="width: 100%;">
+                                                <div class="flex flex-col items-start gap-2">
+                                                        <div class="stat-icon" style="background: linear-gradient(135deg, #c4b5fd 0%, #7c3aed 100%);">
+                                                                <i class="fa fa-credit-card" aria-hidden="true"></i>
+                                                        </div>
+                                                        <h3 class="text-gray-700 font-medium" style="font-size: 13px;">Unpaid Invoices</h3>
+                                                </div>
+                                                <div class="text-right ml-auto">
+                                                        <p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($unpaid_amount, 2); ?></p>
+                                                        <p class="text-gray-600" style="font-size: 12px;">Outstanding payments</p>
+                                                        <span class="text-xs font-bold px-2 py-1 rounded-full bg-orange-100 text-orange-700 mt-1 inline-block">Qty: <?php echo $unpaid_invoices_count; ?></span>
+                                                </div>
+                                        </div>
+                                </div>
+                        </a>
+
+                        <!-- Total Expenses (FOURTH) -->
+                        <a href="<?php echo site_url('admin/expense'); ?>" class="block" target="_blank" rel="noopener noreferrer" style="height: 100%; text-decoration: none;">
+                                <div class="dashboard-card" style="border-left: 5px solid #f97316; padding: 20px; height: 100%; display: flex; align-items: center;">
+                                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="width: 100%;">
+                                                <div class="flex flex-col items-start gap-2">
+                                                        <div class="stat-icon" style="background: linear-gradient(135deg, #fdba74 0%, #ea580c 100%);">
+                                                                <i class="fa fa-tags" aria-hidden="true"></i>
+                                                        </div>
+                                                        <h3 class="text-gray-700 font-medium" style="font-size: 13px;">Total Termly Expenses</h3>
+                                                </div>
+                                                <div class="text-right ml-auto">
+                                                        <p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_expense_raw, 2); ?></p>
+                                                        <p class="text-gray-600" style="font-size: 12px;">Spent this term</p>
+                                                </div>
+                                        </div>
+                                </div>
+                        </a>
+                </div>
 
 		<!-- Total Daily Fees Summary Card - Enterprise Grade -->
 		<?php
@@ -894,62 +927,58 @@ $classes = $this->db->get('class')->result_array();
 			$module_breakdown[] = ['name' => 'Breakfast', 'amount' => $breakfast_paid, 'icon' => 'fa-coffee', 'color' => '#f093fb'];
 		}
 		?>
-		
-		<?php if (!empty($enabled_fee_modules)): ?>
-		<div class="mb-6">
-			<div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; overflow: hidden; position: relative;">
-				<!-- Decorative Background Pattern -->
-				<div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
-				<div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
-				
-				<div style="position: relative; z-index: 1;">
-					<!-- Header Section -->
-					<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-						<div class="flex items-center gap-4">
-							<div style="width: 80px; height: 80px; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
-								<i class="fa fa-chart-line" style="color: white; font-size: 40px;"></i>
-							</div>
-							<div>
-								<p class="text-base font-bold" style="color: rgba(255,255,255,0.95); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;">Termly Fees Collection</p>
-								<h2 class="text-5xl md:text-6xl font-extrabold" style="color: white; margin: 0; line-height: 1.2;"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_daily_fees_collected, 2); ?></h2>
-							</div>
-						</div>
-						<div class="flex flex-col items-end gap-2">
-							<div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 12px 24px; border-radius: 12px;">
-								<p class="text-sm font-bold" style="color: rgba(255,255,255,0.95); margin-bottom: 6px;">Academic Period</p>
-								<p class="text-xl font-extrabold" style="color: white; margin: 0;">Year <?php echo $un_year; ?> • Term <?php echo $un_term; ?></p>
-							</div>
-							<div style="background: rgba(16, 185, 129, 0.2); backdrop-filter: blur(10px); padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3);">
-								<p class="text-ms font-bold" style="color: #00ffab; margin: 0;"><?php echo count($enabled_fee_modules); ?> Active Modules</p>
-							</div>
-						</div>
-					</div>
-					
-					<!-- Module Breakdown Grid -->
-					<div class="grid grid-cols-2 md:grid-cols-<?php echo min(count($module_breakdown), 5); ?> gap-3">
-						<?php foreach ($module_breakdown as $module): ?>
-						<div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 12px; padding: 16px; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.transform='translateY(-4px)';" onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.transform='translateY(0)';">
-							<div class="flex items-center gap-3 mb-2">
-								<div style="width: 36px; height: 36px; background: <?php echo $module['color']; ?>; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-									<i class="fa <?php echo $module['icon']; ?>" style="color: white; font-size: 16px;"></i>
-								</div>
-								<p class="text-base font-bold" style="color: white; margin: 0;"><?php echo $module['name']; ?></p>
-							</div>
-							<p class="text-3xl font-extrabold" style="color: white; margin: 0;"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($module['amount'], 0); ?></p>
-							<?php if ($total_daily_fees_collected > 0): ?>
-							<div style="margin-top: 8px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; overflow: hidden;">
-								<div style="height: 100%; background: <?php echo $module['color']; ?>; width: <?php echo round(($module['amount'] / $total_daily_fees_collected) * 100); ?>%; transition: width 0.5s;"></div>
-							</div>
-							<p class="text-sm font-semibold" style="color: rgba(255,255,255,0.9); margin-top: 4px;"><?php echo round(($module['amount'] / $total_daily_fees_collected) * 100, 1); ?>% of total</p>
-							<?php endif; ?>
-						</div>
-						<?php endforeach; ?>
-					</div>
-				</div>
-			</div>
-		</div>
-		<?php endif; ?>
-		
+
+               <?php if (!empty($enabled_fee_modules)): ?>
+                <div class="mb-6">
+                        <div class="dash-hero">
+                                <div style="position: relative; z-index: 1;">
+                                        <!-- Header Section -->
+                                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                                                <div class="flex items-center gap-4">
+                                                        <div class="dash-hero-icon">
+                                                                <i class="fa fa-chart-line" aria-hidden="true"></i>
+                                                        </div>
+                                                        <div>
+                                                                <p class="dash-hero-eyebrow">Termly Fees Collection</p>
+                                                                <h2 class="dash-hero-value"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_daily_fees_collected, 2); ?></h2>
+                                                        </div>
+                                                </div>
+                                                <div class="flex flex-col items-end gap-2">
+                                                        <div class="dash-hero-period">
+                                                                <p class="dash-period-label">Academic Period</p>
+                                                                <p class="dash-period-value">Year <?php echo $un_year; ?> &bull; Term <?php echo $un_term; ?></p>
+                                                        </div>
+                                                        <div class="dash-hero-modules">
+                                                                <p><?php echo count($enabled_fee_modules); ?> Active Modules</p>
+                                                        </div>
+                                                </div>
+                                        </div>
+
+                                        <!-- Module Breakdown Grid -->
+                                        <div class="grid grid-cols-2 md:grid-cols-<?php echo min(count($module_breakdown), 5); ?> gap-3">
+                                                <?php foreach ($module_breakdown as $module): ?>
+                                                <div class="dash-hero-tile">
+                                                        <div class="flex items-center gap-3 mb-2">
+                                                                <div class="dash-hero-tile-icon" style="background: <?php echo $module['color']; ?>;">
+                                                                        <i class="fa <?php echo $module['icon']; ?>" aria-hidden="true"></i>
+                                                                </div>
+                                                                <p class="text-base font-bold" style="color: white; margin: 0;"><?php echo $module['name']; ?></p>
+                                                        </div>
+                                                        <p class="text-3xl font-extrabold" style="color: white; margin: 0;"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($module['amount'], 0); ?></p>
+                                                        <?php if ($total_daily_fees_collected > 0): ?>
+                                                        <div class="dash-hero-bar">
+                                                                <div style="height: 100%; background: <?php echo $module['color']; ?>; width: <?php echo round(($module['amount'] / $total_daily_fees_collected) * 100); ?>%; transition: width 0.5s;"></div>
+                                                        </div>
+                                                        <p class="text-sm font-semibold" style="color: rgba(255,255,255,0.9); margin-top: 4px;"><?php echo round(($module['amount'] / $total_daily_fees_collected) * 100, 1); ?>% of total</p>
+                                                        <?php endif; ?>
+                                                </div>
+                                                <?php endforeach; ?>
+                                        </div>
+                                </div>
+                        </div>
+                </div>
+                <?php endif; ?>
+
 		<!-- Fee Collection Cards -->
 		<?php
 		$daily_fees = [];
@@ -1099,33 +1128,34 @@ $classes = $this->db->get('class')->result_array();
 		$fee_count = count($daily_fees);
 		$grid_class = $fee_count == 1 ? 'grid-cols-1' : ($fee_count == 2 ? 'grid-cols-1 sm:grid-cols-2' : ($fee_count == 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : ($fee_count == 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-5')));
 		?>
-		
-		<?php if (!empty($daily_fees)): ?>
-		<div class="grid <?php echo $grid_class; ?> gap-4 md:gap-6 mb-6">
-			<?php foreach ($daily_fees as $fee): ?>
-			<a href="<?php echo site_url('admin/cashier_dashboard_admin'); ?>" target="_blank" class="block h-full">
-				<div class="dashboard-card h-full flex flex-col" style="background: <?php echo $fee['gradient']; ?>; color: white; padding: 20px;">
-					<div class="flex items-center justify-between mb-3">
-						<div class="stat-icon" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px; font-size: 26px;">
-							<i class="fa <?php echo $fee['icon']; ?>" style="color: white;"></i>
-						</div>
-						<div class="text-right">
-							<p class="text-4xl font-extrabold leading-none" style="color: white;"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($fee['amount'], 2); ?></p>
-							<?php if (isset($fee['change']) && $fee['change'] != 0): ?>
-							<span class="text-xs font-bold px-2 py-1 rounded-full <?php echo $fee['change'] > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'; ?> mt-1 inline-block" data-toggle="tooltip" title="Compared to previous day">
-								<?php echo $fee['change'] > 0 ? '↑' : '↓'; ?> <?php echo abs($fee['change']); ?>%
-							</span>
-							<?php endif; ?>
-						</div>
-					</div>
-					<h3 class="font-medium mb-2" style="color: white; font-size: 13px;"><?php echo $fee['name']; ?></h3>
-					<p style="color: white; font-size: 12px;">Received today <?= date('D M j, Y') ?></p>
-				</div>
-			</a>
-			<?php endforeach; ?>
-		</div>
-		<?php endif; ?>
-		
+
+
+                <?php if (!empty($daily_fees)): ?>
+                <div class="grid <?php echo $grid_class; ?> gap-4 md:gap-6 mb-6">
+                        <?php foreach ($daily_fees as $fee): ?>
+                        <a href="<?php echo site_url('admin/cashier_dashboard_admin'); ?>" target="_blank" rel="noopener noreferrer" class="block h-full" style="text-decoration: none;" aria-label="<?php echo $fee['name']; ?> details">
+                                <div class="dash-fee-tile h-full" style="background: <?php echo $fee['gradient']; ?>;">
+                                        <div class="flex items-center justify-between mb-3">
+                                                <div class="stat-icon" style="background: rgba(255,255,255,0.2);">
+                                                        <i class="fa <?php echo $fee['icon']; ?>" aria-hidden="true" style="color: white;"></i>
+                                                </div>
+                                                <div class="text-right">
+                                                        <p class="text-3xl md:text-4xl font-extrabold leading-none" style="color: white;"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($fee['amount'], 2); ?></p>
+                                                        <?php if (isset($fee['change']) && $fee['change'] != 0): ?>
+                                                        <span class="text-xs font-bold px-2 py-1 rounded-full <?php echo $fee['change'] > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'; ?> mt-1 inline-block" data-toggle="tooltip" title="Compared to previous day">
+                                                                <?php echo $fee['change'] > 0 ? '↑' : '↓'; ?> <?php echo abs($fee['change']); ?>%
+                                                        </span>
+                                                        <?php endif; ?>
+                                                </div>
+                                        </div>
+                                        <h3 class="font-medium mb-2" style="color: white; font-size: 13px;"><?php echo $fee['name']; ?></h3>
+                                        <p style="color: white; font-size: 12px;">Received today <?= date('D M j, Y') ?></p>
+                                </div>
+                        </a>
+                        <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
+
 		<!-- Unpaid Balances -->
 		<?php
 		$unpaid_items = [];
@@ -1161,29 +1191,31 @@ $classes = $this->db->get('class')->result_array();
 			}
 		}
 		?>
-		
-		<?php if (!empty($unpaid_items)): ?>
-		<div class="grid grid-cols-1 gap-4 md:gap-6">
-			<a href="<?php echo site_url('admin/cashier_dashboard_admin'); ?>" class="block" title="Debtors List">
-				<div class="dashboard-card" style="background: linear-gradient(135deg, #f85032 0%, #e73827 100%); color: white;">
-					<div class="flex items-center justify-between mb-4">
-						<h3 class="text-xl font-semibold" style="color: white;">Daily Fees - Unpaid Balances</h3>
-						<div class="stat-icon" style="background: rgba(255,255,255,0.2); width: 56px; height: 56px;">
-							<i class="fa fa-exclamation-triangle" style="color: white; font-size: 24px;"></i>
-						</div>
-					</div>
-					<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-<?php echo min(count($unpaid_items), 5); ?> gap-4">
-						<?php foreach ($unpaid_items as $item): ?>
-						<div class="text-center p-4 bg-white bg-opacity-10 rounded-lg">
-							<p class="text-lg font-bold mb-2" style="color: white;"><?php echo $item['label']; ?></p>
-							<p class="text-3xl md:text-4xl font-extrabold" style="color: white;"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($item['amount'], 2); ?></p>
-						</div>
-						<?php endforeach; ?>
-					</div>
-				</div>
-			</a>
-		</div>
-		<?php endif; ?>
+
+
+                <?php if (!empty($unpaid_items)): ?>
+                <div class="grid grid-cols-1 gap-4 md:gap-6">
+                        <a href="<?php echo site_url('admin/cashier_dashboard_admin'); ?>" class="block" title="Debtors List" style="text-decoration: none;">
+                                <div class="dash-alert-card">
+                                        <div class="flex items-center justify-between mb-4">
+                                                <h3 class="text-xl font-semibold" style="color: white;">Daily Fees - Unpaid Balances</h3>
+                                                <div class="stat-icon" style="background: rgba(255,255,255,0.2);">
+                                                        <i class="fa fa-exclamation-triangle" aria-hidden="true" style="color: white; font-size: 24px;"></i>
+                                                </div>
+                                        </div>
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-<?php echo min(count($unpaid_items), 5); ?> gap-4">
+                                                <?php foreach ($unpaid_items as $item): ?>
+                                                <div class="text-center p-4 bg-white bg-opacity-10 rounded-lg">
+                                                        <p class="text-lg font-bold mb-2" style="color: white;"><?php echo $item['label']; ?></p>
+                                                        <p class="text-3xl md:text-4xl font-extrabold" style="color: white;"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($item['amount'], 2); ?></p>
+                                                </div>
+                                                <?php endforeach; ?>
+                                        </div>
+                                </div>
+                        </a>
+                </div>
+        <?php endif; ?>
+
 	</div>
 	<?php endif; ?>
 </div>
