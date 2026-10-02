@@ -10,6 +10,7 @@ application/logs/*
 .env.*
 !.env.example
 .user.ini
+error_log
 
 # User-generated/runtime data
 uploads/*
