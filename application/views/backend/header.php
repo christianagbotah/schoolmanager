@@ -1294,9 +1294,6 @@ a.text-primary:hover {
 
 </style>
 
-<hr style="margin-top:0px;" />
-<table class="table table-h"></table>
-
 <script type="text/javascript">
 	$ = jQuery;
 

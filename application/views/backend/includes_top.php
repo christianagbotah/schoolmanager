@@ -57,6 +57,10 @@
 <!-- DataTables Layout Fix - Global Override -->
 <link rel="stylesheet" type="text/css" href="<?php echo base_url('assets/css/datatables-layout-fix.css');?>?v=<?php echo time(); ?>"/>
 
+<!-- Wave 1 shell modernization: design tokens + reskin layer (loaded last by design) -->
+<link rel="stylesheet" href="<?php echo base_url('assets/css/design-system.css');?>?v=<?php echo time(); ?>"/>
+<link rel="stylesheet" href="<?php echo base_url('assets/css/shell-modern.css');?>?v=<?php echo time(); ?>"/>
+
 
 
 <style>

@@ -1,0 +1,563 @@
+/* ============================================================
+   SchoolManager — Shell Modernization Layer (Wave 1)
+   ------------------------------------------------------------
+   PURPOSE: modernize the existing shell (topbar, content area,
+   sidebar, tables, forms, modals) WITHOUT touching any HTML
+   structure, JS hooks, IDs, or PHP logic.
+
+   STRATEGY: pure CSS overrides loaded LAST (after neon/tailwind/
+   custom). Uses ID selectors where the legacy markup has them
+   (#top, #main_page, #main-menu) and !important ONLY where legacy
+   inline styles / utility classes must be beaten.
+
+   CONTRACT: docs/ZAI_MODERNIZATION_PROMPT.md — preserve all
+   behavior; presentation-only change. Dynamic school theme colors
+   (theme_primary/secondary/accent from DB settings) continue to
+   drive gradients defined in header.php; this layer does NOT
+   fight them.
+
+   PAIRS WITH: assets/css/design-system.css (tokens + sm- parts)
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. Base & typography
+   ------------------------------------------------------------ */
+body.page-body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Global focus visibility (accessibility contract) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ------------------------------------------------------------
+   2. Topbar — compact, professional single-purpose rows
+   (legacy markup kept: #top fixed banner + Year/Term pills +
+   quick actions + bell + profile. We shrink spacing & noise.)
+   ------------------------------------------------------------ */
+#top {
+    /* beat the utility classes py-3 md:py-5 and the red border-b-4 */
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.25);
+}
+
+/* School name: disciplined scale instead of 4xl banner text */
+#top #sys_name {
+    font-weight: 600 !important;
+    letter-spacing: -0.01em;
+}
+#top #sys_name .font-bold,
+#top #sys_name .md\:font-extrabold {
+    font-size: 1.05rem;
+    line-height: 1.3;
+}
+@media (min-width: 768px) {
+    #top #sys_name .font-bold,
+    #top #sys_name .md\:font-extrabold {
+        font-size: 1.35rem;
+    }
+}
+
+/* Remove the extra vertical jump between rows inside the topbar */
+#top > .col-md-12 {
+    margin-bottom: 0 !important;
+}
+#top .flex.flex-wrap.gap-2.md\:gap-4 {
+    margin-top: 0.375rem !important;
+}
+
+/* Year / Term pills — compact chips with clear affordance */
+#session_static,
+#term_static {
+    background: rgba(255, 255, 255, 0.16) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: none;
+    transition: background 120ms ease, border-color 120ms ease;
+    padding: 0.25rem 0.75rem !important;
+}
+#session_static:hover,
+#term_static:hover {
+    background: rgba(255, 255, 255, 0.28) !important;
+}
+#session_static h4,
+#term_static h4 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+#session_static a,
+#term_static a,
+#session_static span,
+#term_static h4 span {
+    color: #f8fafc !important;
+}
+#term_static a,
+#term_static span {
+    color: #f8fafc !important;
+}
+
+/* Quick action buttons — flatter, tidier, aligned */
+#top ul.links-list button {
+    padding: 0.4rem 0.9rem !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18) !important;
+    transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+}
+#top ul.links-list button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22) !important;
+}
+#top ul.links-list button:active {
+    transform: translateY(0);
+}
+
+/* Legacy links list alignment inside topbar */
+#top .list-inline.links-list {
+    margin: 0;
+    padding: 0;
+}
+
+/* Hamburger (mobile) — compact and aligned with the name row */
+#top .sidebar-mobile-menu {
+    margin-top: 0.25rem !important;
+}
+#top .sidebar-mobile-menu a i {
+    font-size: 1.35rem !important;
+}
+
+/* Profile trigger — keep white-on-color legibility */
+#top #user_profile_btn {
+    border-radius: 10px;
+}
+#top #user_profile_btn > div.w-12.h-12 {
+    width: 2.35rem !important;
+    height: 2.35rem !important;
+    font-size: 0.95rem !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Notification bell sizing */
+#top .notification-bell-trigger .fa-bell {
+    font-size: 1.15rem;
+}
+
+/* Promotion-term notice keeps its blink but stops pushing layout */
+#top #notice_term,
+#top #notice_sem {
+    font-size: 0.7rem;
+    top: -10px;
+}
+
+/* ------------------------------------------------------------
+   3. Content area — consistent page rhythm
+   ------------------------------------------------------------ */
+#main_page {
+    /* beat p-10 pt-24 utilities: match the compact topbar height
+       (topbar ≈ 96-110px desktop, ~150px mobile with wraps) */
+    padding: 1.25rem 1.25rem 3rem 1.25rem !important;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+@media (min-width: 768px) {
+    #main_page {
+        padding: 1.75rem 2rem 3rem 2rem !important;
+        /* clear the fixed topbar (2 compact rows + name row) */
+        padding-top: 7.5rem !important;
+    }
+}
+@media (max-width: 767px) {
+    #main_page {
+        padding-top: 9.5rem !important; /* stacked topbar on small screens */
+    }
+}
+@media (max-width: 400px) {
+    #main_page {
+        padding: 0.75rem 0.75rem 2.5rem 0.75rem !important;
+        padding-top: 9.5rem !important;
+    }
+}
+
+/* Legacy panels get a modern card face (opt-out: .no-sm-card) */
+#main_page .panel {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.07);
+    background: #fff;
+    overflow: hidden;
+}
+#main_page .panel > .panel-heading {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    padding: 0.9rem 1.25rem;
+}
+#main_page .panel > .panel-body {
+    padding: 1.25rem;
+}
+#main_page .no-sm-card,
+#main_page .panel.no-sm-card {
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+}
+
+/* ------------------------------------------------------------
+   4. Sidebar — polish the existing dark gradient menu
+   (structure & all .sidebar-menu/#main-menu behavior unchanged)
+   ------------------------------------------------------------ */
+.sidebar-menu {
+    /* subtle separation from content */
+    box-shadow: 2px 0 16px rgba(15, 23, 42, 0.18) !important;
+}
+.sidebar-menu .logo-env {
+    padding-bottom: 0.75rem !important;
+}
+.sidebar-menu .logo-env .logo img {
+    max-height: 44px !important;
+    width: auto;
+    object-fit: contain;
+    border-radius: 8px;
+}
+/* Search row: tidier field */
+.sidebar-menu #search .search-input {
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(15, 23, 42, 0.45);
+    color: #e2e8f0;
+    transition: border-color 120ms ease, background 120ms ease;
+}
+.sidebar-menu #search .search-input::placeholder {
+    color: #94a3b8;
+}
+.sidebar-menu #search .search-input:focus {
+    border-color: rgba(59, 130, 246, 0.65);
+    background: rgba(15, 23, 42, 0.65);
+    outline: none;
+}
+.sidebar-menu #search button {
+    border-radius: 8px;
+}
+
+/* Slim scrollbars inside the sidebar & main content */
+.sidebar-menu::-webkit-scrollbar,
+#main-menu::-webkit-scrollbar,
+.main-content::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.sidebar-menu::-webkit-scrollbar-thumb,
+#main-menu::-webkit-scrollbar-thumb,
+.main-content::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.45);
+    border-radius: 8px;
+}
+.sidebar-menu::-webkit-scrollbar-track,
+#main-menu::-webkit-scrollbar-track,
+.main-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* ------------------------------------------------------------
+   5. Tables — density, legibility, horizontal scroll safety
+   ------------------------------------------------------------ */
+#main_page .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+#main_page table.table {
+    font-size: 0.875rem;
+    margin-bottom: 0;
+}
+#main_page table.table > thead > tr > th {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.045em;
+    font-weight: 700;
+    color: #64748b;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0 !important;
+    white-space: nowrap;
+    padding: 0.65rem 0.75rem;
+}
+#main_page table.table > tbody > tr > td {
+    padding: 0.6rem 0.75rem;
+    vertical-align: middle;
+}
+#main_page table.table > tbody > tr:hover > td {
+    background: #f8fafc;
+}
+/* Money / numeric alignment helper for legacy pages */
+#main_page table.table td.num,
+#main_page table.table th.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* ------------------------------------------------------------
+   6. Forms — consistent control sizing & validation affordance
+   ------------------------------------------------------------ */
+#main_page .form-control,
+#main_page select.form-control,
+#main_page textarea.form-control {
+    min-height: 2.4rem;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    box-shadow: none;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+    color: #1f2937;
+    font-size: 0.9rem;
+}
+#main_page .form-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+    outline: none;
+}
+#main_page .form-control[readonly] {
+    background: #f8fafc;
+    color: #475569;
+}
+#main_page label.control-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #334155;
+}
+#main_page .has-error .form-control {
+    border-color: #dc2626;
+}
+#main_page .has-error .control-label {
+    color: #b91c1c;
+}
+/* Clickable dates everywhere (JS hook already global) */
+input[type="date"] {
+    cursor: pointer;
+}
+
+/* ------------------------------------------------------------
+   7. Buttons — restrained elevation, consistent radii
+   ------------------------------------------------------------ */
+#main_page .btn {
+    border-radius: 8px;
+    font-weight: 600;
+    transition: filter 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+#main_page .btn:active {
+    transform: translateY(1px);
+}
+#main_page .btn-primary {
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.12);
+}
+#main_page .btn-default,
+#main_page .btn-success,
+#main_page .btn-info,
+#main_page .btn-warning,
+#main_page .btn-danger {
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.10);
+}
+#main_page .btn-sm {
+    padding: 0.25rem 0.7rem;
+    font-size: 0.8rem;
+}
+#main_page .btn i.fa {
+    opacity: 0.9;
+}
+
+/* ------------------------------------------------------------
+   8. Modals — cleaner surfaces (legacy Bootstrap modals stay)
+   ------------------------------------------------------------ */
+.modal-content {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.28);
+}
+.modal-header {
+    border-bottom: 1px solid #eef1f5;
+    padding: 1rem 1.35rem;
+}
+.modal-footer {
+    border-top: 1px solid #eef1f5;
+    padding: 0.85rem 1.35rem;
+}
+.modal-body {
+    padding: 1.35rem;
+}
+@media (max-width: 640px) {
+    .modal-dialog {
+        margin: 0.5rem auto;
+        width: calc(100vw - 1rem);
+    }
+    .modal-content {
+        max-height: calc(100vh - 1.5rem);
+        overflow-y: auto;
+    }
+}
+
+/* ------------------------------------------------------------
+   9. Connectivity indicator — quieter, professional
+   (offline-sync.js creates #connection-status; keep behavior,
+   restyle placement so it stops covering the topbar actions)
+   ------------------------------------------------------------ */
+#connection-status {
+    top: auto !important;
+    right: 0.75rem !important;
+    bottom: 0.75rem !important;
+    padding: 5px 12px !important;
+    font-size: 11px !important;
+    border-radius: 999px !important;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.35);
+    opacity: 0.92;
+}
+
+/* ------------------------------------------------------------
+   10. Skeleton loader — neutral, brand-agnostic
+   ------------------------------------------------------------ */
+.skeleton-loader {
+    background: #f8fafc !important;
+}
+.skeleton-box {
+    border-radius: 8px !important;
+}
+
+/* ------------------------------------------------------------
+   11. Pagination — clearer affordance
+   ------------------------------------------------------------ */
+#main_page .pagination > li > a,
+#main_page .pagination > li > span {
+    border-radius: 6px;
+    margin: 0 2px;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    min-width: 2.1rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+#main_page .pagination > .active > a,
+#main_page .pagination > .active > span,
+#main_page .pagination > .active > a:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+}
+
+/* ------------------------------------------------------------
+   12. Labels / badges — softer corners, modern palette
+   ------------------------------------------------------------ */
+#main_page .label,
+#main_page .badge {
+    border-radius: 999px;
+    font-weight: 600;
+    padding: 0.25em 0.7em;
+    font-size: 0.72rem;
+}
+#main_page .label-success { background: #059669; }
+#main_page .label-danger  { background: #dc2626; }
+#main_page .label-warning { background: #d97706; color: #fff; }
+#main_page .label-info    { background: #0284c7; }
+#main_page .label-primary  { background: #2563eb; }
+#main_page .label-default  { background: #64748b; }
+
+/* ------------------------------------------------------------
+   13. Alerts — semantic, flat, readable
+   ------------------------------------------------------------ */
+#main_page .alert {
+    border-radius: 10px;
+    border: 1px solid transparent;
+    box-shadow: none;
+    font-size: 0.9rem;
+}
+#main_page .alert-success { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+#main_page .alert-danger  { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+#main_page .alert-warning { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+#main_page .alert-info    { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+
+/* ------------------------------------------------------------
+   14. Small screens (360px) — keep everything reachable
+   ------------------------------------------------------------ */
+@media (max-width: 400px) {
+    #top {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    #top #sys_name .font-bold,
+    #top #sys_name .md\:font-extrabold {
+        font-size: 0.9rem !important;
+    }
+    /* quick action buttons collapse to icons with hit-area kept */
+    #top ul.links-list button {
+        padding: 0.45rem 0.6rem !important;
+        min-width: 2.4rem;
+    }
+    #session_static h4,
+    #term_static h4 {
+        font-size: 0.72rem;
+    }
+    #main_page table.table > thead > tr > th,
+    #main_page table.table > tbody > tr > td {
+        padding: 0.45rem 0.55rem;
+    }
+    #main_page .modal-dialog {
+        margin: 0.4rem auto;
+    }
+}
+
+/* ------------------------------------------------------------
+   15. Print — hide navigation chrome; keep page content
+   (dedicated print views render their own layouts)
+   ------------------------------------------------------------ */
+@media print {
+    .sidebar-menu,
+    #top,
+    .mobile-backdrop,
+    #connection-status,
+    .metro-toggle-btn,
+    #mega_overlay,
+    #mega_panel {
+        display: none !important;
+    }
+    .page-container {
+        margin: 0 !important;
+    }
+    .main-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        height: auto !important;
+    }
+    #main_page {
+        padding: 0 !important;
+        max-width: none !important;
+    }
+}
+
+/* ------------------------------------------------------------
+   16. Reduced motion
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+    #top ul.links-list button,
+    .sidebar-menu,
+    .modal-content,
+    #connection-status {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* ------------------------------------------------------------
+   17. RTL guard — legacy RTL mode must not mirror paddings
+   ------------------------------------------------------------ */
+html[dir="rtl"] #main_page {
+    text-align: right;
+}
