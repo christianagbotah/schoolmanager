@@ -1,0 +1,160 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      verify_only:
+        description: 'Run deployment verification only (no file sync)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  DEPLOY_PATH: /home/lightworld/webapps/schoolmanager
+  APP_URL: https://schoolmanager.lightworldtech.com
+
+jobs:
+  deploy:
+    name: Deploy to production VPS
+    runs-on: ubuntu-latest
+    # Deploy only succeeds after CI-style sanity checks pass here as well
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preflight — PHP syntax gate
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+
+      - name: Lint changed PHP files
+        run: |
+          set -euo pipefail
+          FAIL=0
+          while IFS= read -r -d '' f; do
+            if ! php -l "$f" > /dev/null 2>&1; then
+              echo "::error file=$f::Syntax error"
+              FAIL=1
+            fi
+          done < <(find application -name '*.php' -not -path '*/third_party/*' -print0)
+          php -l index.php
+          exit $FAIL
+
+      - name: Setup SSH
+        run: |
+          install -m 600 /dev/null ~/.ssh/id_ed25519
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          ssh-keyscan -p ${{ vars.SSH_PORT || 22 }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          echo "SSH ready"
+
+      - name: Verify target directory (never rochas)
+        run: |
+          TARGET="${DEPLOY_PATH}"
+          if [[ "$TARGET" == *"rochas"* ]]; then
+            echo "::error::Deployment target must be schoolmanager, never rochas"
+            exit 1
+          fi
+          ssh -p ${{ vars.SSH_PORT || 22 }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "test -d '${DEPLOY_PATH}' && echo 'Target directory exists' || mkdir -p '${DEPLOY_PATH}' && echo 'Target directory created'"
+
+      - name: Pre-deploy backup
+        if: ${{ github.event.inputs.verify_only != 'true' }}
+        run: |
+          ssh -p ${{ vars.SSH_PORT || 22 }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "\
+            if [ -f '${DEPLOY_PATH}/index.php' ]; then
+              BACKUP_DIR=\"\${HOME}/webapps/schoolmanager_backups\"
+              mkdir -p \"\$BACKUP_DIR\"
+              STAMP=\$(date +%Y%m%d_%H%M%S)
+              tar -czf \"\$BACKUP_DIR/pre_deploy_\${STAMP}.tar.gz\" \
+                --exclude='\${DEPLOY_PATH}/node_modules' \
+                --exclude='\${DEPLOY_PATH}/vendor' \
+                -C \"\$(dirname '${DEPLOY_PATH}')\" \"\$(basename '${DEPLOY_PATH}')\" \
+                && echo \"Backup created: pre_deploy_\${STAMP}.tar.gz\" \
+                || echo '::error file=deploy.yml::Backup failed — aborting' && exit 1
+              ls -1t \"\$BACKUP_DIR\" | head -5
+            else
+              echo 'First deployment — no previous release to back up'
+            fi"
+
+      - name: Sync application files
+        if: ${{ github.event.inputs.verify_only != 'true' }}
+        run: |
+          rsync -az --delete \
+            -e "ssh -p ${{ vars.SSH_PORT || 22 }}" \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.env' \
+            --exclude='.env.*' \
+            --exclude='!/.env.example' \
+            --exclude='application/config/database.php' \
+            --exclude='application/config/email.php' \
+            --exclude='application/config/emailerror.php' \
+            --exclude='application/logs/' \
+            --exclude='application/cache/' \
+            --exclude='uploads/' \
+            --exclude='node_modules/' \
+            --exclude='vendor/' \
+            --exclude='.user.ini' \
+            --exclude='*.zip' \
+            --exclude='*.tar' \
+            --exclude='*.tar.gz' \
+            ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${DEPLOY_PATH}/"
+          echo "Files synced"
+
+      - name: Ensure writable runtime directories exist
+        if: ${{ github.event.inputs.verify_only != 'true' }}
+        run: |
+          ssh -p ${{ vars.SSH_PORT || 22 }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "\
+            mkdir -p '${DEPLOY_PATH}/application/cache' \
+                     '${DEPLOY_PATH}/application/logs' \
+                     '${DEPLOY_PATH}/uploads' \
+            && echo 'Runtime directories ready'"
+
+      - name: Server-side PHP syntax verification
+        run: |
+          ssh -p ${{ vars.SSH_PORT || 22 }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "\
+            if command -v php >/dev/null 2>&1; then
+              FAIL=0
+              php -l '${DEPLOY_PATH}/index.php' >/dev/null || FAIL=1
+              for f in \$(find '${DEPLOY_PATH}/application/controllers' '${DEPLOY_PATH}/application/models' -name '*.php' 2>/dev/null); do
+                php -l \"\$f\" >/dev/null 2>&1 || { echo \"Syntax error: \$f\"; FAIL=1; }
+              done
+              [ \$FAIL -eq 0 ] && echo 'Server-side syntax OK' || { echo 'Server-side syntax FAILED'; exit 1; }
+            else
+              echo 'PHP not available in non-interactive SSH — skipping (CI lint already gated)'
+            fi"
+
+      - name: Post-deploy health check
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "${APP_URL}/login" || echo "000")
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ] && [ "$STATUS" != "301" ] && [ "$STATUS" != "302" ]; then
+            echo "::error::Health check failed for ${APP_URL}/login (status $STATUS)"
+            exit 1
+          fi
+          echo "Health check passed"
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo "## Deployment summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Target: \`${DEPLOY_PATH}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- URL: ${APP_URL}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: \`${GITHUB_SHA}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Mode: ${{ github.event.inputs.verify_only == 'true' && 'verification only' || 'full sync' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Rollback" >> $GITHUB_STEP_SUMMARY
+          echo "Backups are stored in \`~/webapps/schoolmanager_backups/pre_deploy_*.tar.gz\` on the VPS. Restore with:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "tar -xzf ~/webapps/schoolmanager_backups/pre_deploy_<stamp>.tar.gz -C ~/webapps/schoolmanager --strip-components=0" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

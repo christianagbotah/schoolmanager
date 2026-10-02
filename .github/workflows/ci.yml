@@ -1,0 +1,140 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  php-syntax:
+    name: PHP syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+
+      - name: Lint application PHP files
+        run: |
+          set -euo pipefail
+          FAIL=0
+          COUNT=0
+          while IFS= read -r -d '' f; do
+            COUNT=$((COUNT+1))
+            if ! php -l "$f" > /dev/null 2>&1; then
+              echo "::error file=$f::Syntax error"
+              php -l "$f" || true
+              FAIL=1
+            fi
+          done < <(find application -name '*.php' -not -path '*/third_party/*' -print0)
+          echo "Checked $COUNT PHP files"
+          exit $FAIL
+
+      - name: Lint index and root PHP files
+        run: php -l index.php
+
+  secret-scan:
+    name: Secret & sensitive data scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fail on live config files
+        run: |
+          if git ls-files | grep -E '^application/config/(database|email|emailerror)\.php$'; then
+            echo "::error::Live config file is tracked in git — remove it and use *.example.php"
+            exit 1
+          fi
+
+      - name: Scan for hardcoded secrets
+        run: |
+          set -euo pipefail
+          # Look for likely real credentials (long, specific patterns)
+          PATTERNS=(
+            '(password|passwd|smtp_pass)\s*=>?\s*["'"'"'][^$"'"'"']{10,}["'"'"']'
+            'AKIA[0-9A-Z]{16}'
+            'github_pat_[A-Za-z0-9_]{20,}'
+            'ghp_[A-Za-z0-9]{30,}'
+            '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----'
+            'sk_live_[A-Za-z0-9]{20,}'
+          )
+          FAIL=0
+          for p in "${PATTERNS[@]}"; do
+            HITS=$(git grep -n -I -E "$p" -- ':!*.example.php' ':!*.md' ':!*lock*' 2>/dev/null | \
+              grep -v -E "(replace_me|your_|placeholder|changeme|\$\{|->post\(|->get\(|input->|session->|flashdata|config->item|env\()" || true)
+            if [ -n "${HITS}" ]; then
+              echo "::error::Possible secret found:"
+              echo "${HITS}"
+              FAIL=1
+            fi
+          done
+          exit $FAIL
+
+      - name: Verify no production data dumps
+        run: |
+          # Only whitelisted schema files may exist under schema/
+          if git ls-files 'schema/*.sql' | grep -v -E 'schoolmanager_schema_redacted|redacted_schema_template'; then
+            echo "::error::Unexpected SQL file in schema/ — production data is not allowed"
+            exit 1
+          fi
+          # Row data must never be committed outside migration sql
+          if git grep -qn -I -E "^(INSERT|REPLACE) INTO" -- 'application/*.sql' 2>/dev/null; then
+            echo "::error::application/ contains SQL with row data"
+            exit 1
+          fi
+
+  js-syntax:
+    name: JS syntax spot check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check custom JS files parse
+        run: |
+          set -euo pipefail
+          FAIL=0
+          for f in assets/js/offline-db.js assets/js/offline-sync.js assets/js/offline-crud.js \
+                   assets/js/offline-cache.js assets/js/sync-helpers.js assets/js/sync-manager.js \
+                   assets/js/service-worker.js assets/js/notification_polling.js; do
+            if ! node --check "$f" 2>/tmp/js_err; then
+              echo "::error file=$f::JS syntax error"
+              cat /tmp/js_err
+              FAIL=1
+            fi
+          done
+          exit $FAIL
+
+  css-lint:
+    name: CSS sanity (brace balance)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify braces balanced in core stylesheets
+        run: |
+          set -euo pipefail
+          for f in assets/css/design-system.css assets/css/shell-modern.css; do
+            python3 - "$f" <<'PY'
+            import sys
+            css = open(sys.argv[1]).read()
+            o, c = css.count('{'), css.count('}')
+            if o != c:
+                print(f"::error file={sys.argv[1]}::Unbalanced braces {o}/{c}")
+                sys.exit(1)
+            print(f"{sys.argv[1]}: OK ({o} rules)")
+            PY
+          done
