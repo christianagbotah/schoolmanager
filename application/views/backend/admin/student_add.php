@@ -11,10 +11,10 @@ $currency = $this->db->get_where('settings', array('type' => 'currency'))->row()
 <style>
 * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 html, body { margin: 0; padding: 0; overflow-x: hidden; }
-body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-.admission-container { max-width: 1400px; margin: 20px auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; width: 100%; box-sizing: border-box; }
+body { background: #f9fafb; min-height: 100vh; }
+.admission-container { max-width: 1400px; margin: 16px auto; background: white; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 24px rgba(16, 24, 40, 0.08); overflow: hidden; width: 100%; box-sizing: border-box; }
 @media (max-width: 640px) { .admission-container { margin: 5px; border-radius: 10px; width: calc(100% - 10px); } }
-.admission-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; position: relative; overflow: hidden; }
+.admission-header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%); color: white; padding: 32px 30px; text-align: center; position: relative; overflow: hidden; box-shadow: 0 12px 32px rgba(79, 70, 229, 0.25); }
 .admission-header::before { content: ''; position: absolute; top: -50%; right: -10%; width: 300px; height: 300px; background: rgba(255,255,255,0.1); border-radius: 50%; }
 .admission-header::after { content: ''; position: absolute; bottom: -30%; left: -5%; width: 200px; height: 200px; background: rgba(255,255,255,0.08); border-radius: 50%; }
 @media (max-width: 640px) { .admission-header { padding: 60px 15px 30px; } }
@@ -24,11 +24,11 @@ body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height
 @media (max-width: 640px) { .admission-header p { font-size: 14px; } }
 .form-content { padding: 0 40px; box-sizing: border-box; background: #e8e8e8; }
 @media (max-width: 640px) { .form-content { padding: 0 10px; } }
-.section-card { background: white; border-radius: 12px; padding: 25px; margin: 25px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.section-card { background: white; border: 1px solid #e5e7eb; border-radius: 16px; padding: 25px; margin: 25px 0; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); }
 @media (max-width: 640px) { .section-card { padding: 15px; margin: 15px 0; border-radius: 10px; } }
-.section-header { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 18px 24px; margin: 0 0 25px 0; border-radius: 12px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 20px rgba(79, 172, 254, 0.3); display: flex; align-items: center; gap: 12px; transition: all 0.3s; }
-.section-header:hover { transform: translateX(5px); box-shadow: 0 6px 25px rgba(79, 172, 254, 0.4); }
-.section-header i { font-size: 22px; }
+.section-header { background: #f9fafb; color: #111827; border: 1px solid #e5e7eb; border-left: 5px solid #4f46e5; padding: 16px 20px; margin: 0 0 25px 0; border-radius: 12px; font-weight: 700; font-size: 17px; box-shadow: none; display: flex; align-items: center; gap: 12px; transition: border-color 0.18s ease; }
+.section-header:hover { border-color: #cbd5e1; }
+.section-header i { font-size: 20px; color: #4f46e5; }
 @media (max-width: 640px) { .section-header { padding: 15px 18px; margin: 25px 0 20px; font-size: 16px; } .section-header i { font-size: 20px; } }
 .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; gap: 18px; } }
@@ -37,22 +37,22 @@ body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height
 .form-field label { display: block; margin-bottom: 10px; font-weight: 600; color: #1f2937; font-size: 14px; letter-spacing: 0.2px; }
 .form-field input, .form-field select, .form-field textarea { width: 100%; padding: 13px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px; transition: all 0.3s; box-sizing: border-box; background: #ffffff; color: #1f2937; font-weight: 500; }
 .form-field input:hover, .form-field select:hover, .form-field textarea:hover { border-color: #d1d5db; }
-.form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); background: #fafbff; }
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); background: #ffffff; }
 .form-field input::placeholder, .form-field textarea::placeholder { color: #9ca3af; font-weight: 400; }
-.submit-btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff !important; padding: 16px 48px; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); transition: all 0.3s; margin: 40px 0; letter-spacing: 0.3px; }
+.submit-btn { background: #2563eb; color: #ffffff !important; padding: 14px 44px; border: none; border-radius: 12px; font-size: 17px; font-weight: 700; cursor: pointer; box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35); transition: all 0.3s; margin: 40px 0; letter-spacing: 0.3px; }
 @media (max-width: 640px) { .submit-btn { padding: 14px 36px; font-size: 16px; margin: 30px 0; width: 100%; } }
-.submit-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4); background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35); background: #1d4ed8; }
 .submit-btn:active { transform: translateY(-1px); }
 .submit-btn i { color: #ffffff !important; margin-right: 8px; }
-.alert-note { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 5px solid #f59e0b; padding: 24px; margin: 25px 0; border-radius: 12px; box-sizing: border-box; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15); }
+.alert-note { background: #fef3c7; border-left: 5px solid #f59e0b; padding: 24px; margin: 25px 0; border-radius: 12px; box-sizing: border-box; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); }
 @media (max-width: 640px) { .alert-note { padding: 12px; margin: 15px 0; font-size: 13px; border-radius: 8px; } }
 .alert-note strong { color: #92400e; font-weight: 700; }
-.photo-upload { text-align: center; padding: 30px; border: 3px dashed #d1d5db; border-radius: 12px; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); transition: all 0.3s; }
-.photo-upload:hover { border-color: #9ca3af; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); }
+.photo-upload { text-align: center; padding: 30px; border: 2px dashed #d1d5db; border-radius: 14px; background: #f9fafb; transition: all 0.3s; }
+.photo-upload:hover { border-color: #4f46e5; background: #eff6ff; }
 @media (max-width: 640px) { .photo-upload { padding: 20px; } }
 
 /* Bill Preview Section */
-.bill-preview-container { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 16px; padding: 30px; margin: 30px 0; box-shadow: 0 8px 25px rgba(14, 165, 233, 0.15); display: block; }
+.bill-preview-container { background: #f0f9ff; border: 1px solid #bae6fd; border-left: 5px solid #0ea5e9; border-radius: 16px; padding: 30px; margin: 30px 0; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); display: block; }
 @media (max-width: 640px) { .bill-preview-container { padding: 12px; margin: 15px 0; border-radius: 10px; } }
 .residence-billing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
 @media (max-width: 768px) { .residence-billing-grid { grid-template-columns: 1fr; gap: 20px; padding: 0; } }
@@ -74,7 +74,7 @@ body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height
 
 .remove-bill-item, .remove-admission-fee { transition: all 0.3s; }
 .remove-bill-item:hover, .remove-admission-fee:hover { transform: scale(1.2); opacity: 0.7; }
-.bill-total { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); border-radius: 12px; margin-top: 20px; box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3); }
+.bill-total { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: #0284c7; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3); }
 @media (max-width: 640px) { .bill-total { flex-direction: column; align-items: flex-end; gap: 8px; padding: 16px; } }
 .bill-total-label { font-size: 16px; font-weight: 700; color: white; letter-spacing: 0.3px; }
 .bill-total-amount { font-size: 20px; font-weight: 800; color: white; }
@@ -106,7 +106,7 @@ body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height
 	<div class="admission-header">
 		<h2><i class="entypo-graduation-cap"></i> Student Admission Form</h2>
 		<p>Complete all required fields to admit a new student</p>
-		<button type="button" onclick="openFormCustomizer()" class="customize-form-btn" style="position: absolute; top: 20px; right: 20px; background: white; color: #667eea; padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; z-index: 100; transition: all 0.3s;">
+		<button type="button" onclick="openFormCustomizer()" class="customize-form-btn" style="position: absolute; top: 20px; right: 20px; background: white; color: #4f46e5; padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; z-index: 100; transition: all 0.3s;">
 			<i class="fa fa-sliders" style="pointer-events: none;"></i>
 			<span class="btn-text" style="pointer-events: none;">Customize Form</span>
 		</button>
@@ -1458,10 +1458,10 @@ $(document).ready(function() {
 <!-- Form Customizer Modal -->
 <div id="formCustomizerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; overflow-y: auto;">
 	<div style="max-width: 800px; margin: 50px auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-		<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px 30px; border-radius: 20px 20px 0 0; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);">
+		<div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%); color: white; padding: 25px 30px; border-radius: 16px 16px 0 0; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);">
 			<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
 				<h3 style="margin: 0; font-size: 24px; font-weight: 700; color: white;"><i class="fa fa-sliders"></i> Customize Admission Form</h3>
-				<button onclick="closeFormCustomizer()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 20px;">&times;</button>
+				<button onclick="closeFormCustomizer()" aria-label="Close form customizer" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 20px;">&times;</button>
 			</div>
 			<div style="display: flex; gap: 10px; align-items: center;">
 				<input type="text" id="fieldSearchInput" placeholder="Search fields..." onkeyup="filterFields()" style="flex: 1; padding: 10px 15px; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.15); color: white; border-radius: 8px; font-size: 14px;">
@@ -1699,6 +1699,18 @@ input:disabled + .toggle-slider { opacity: 0.5; cursor: not-allowed; }
 /* Fixed Submit Button Responsive */
 @media (max-width: 640px) {
 	.submit-btn { position: fixed !important; bottom: 10px !important; right: 10px !important; left: 10px !important; width: calc(100% - 20px) !important; margin: 0 !important; }
+}
+
+/* ---- family design-language alignment additions ---- */
+.submit-btn:focus-visible, .customize-form-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+.form-field input:focus-visible, .form-field select:focus-visible, .form-field textarea:focus-visible {
+    outline: none;
+}
+@media (prefers-reduced-motion: reduce) {
+    .section-header, .submit-btn, .remove-bill-item, .remove-admission-fee { transition: none; }
 }
 </style>
 
