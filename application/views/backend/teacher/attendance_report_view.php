@@ -4,14 +4,14 @@
 .form-control { width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; height: 46px; transition: all 0.3s; }
 .form-control:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
 .btn-enterprise { padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; height: 46px; font-size: 15px; }
-.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+.btn-primary { background: #764ba2; color: white; }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
-.btn-print { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+.btn-print { background: #059669; color: white; }
 .btn-print:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
 label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px; }
 .select2-container--default .select2-selection--multiple { border: 2px solid #e5e7eb !important; border-radius: 8px !important; min-height: 46px !important; padding: 4px 8px !important; }
 .select2-container--default.select2-container--focus .select2-selection--multiple { border-color: #667eea !important; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important; }
-.select2-container--default .select2-selection--multiple .select2-selection__choice { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; border: none !important; color: white !important; border-radius: 6px !important; padding: 4px 10px !important; margin: 4px 4px 0 0 !important; }
+.select2-container--default .select2-selection--multiple .select2-selection__choice { background: #764ba2 !important; border: none !important; color: white !important; border-radius: 6px !important; padding: 4px 10px !important; margin: 4px 4px 0 0 !important; }
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: white !important; margin-right: 6px !important; }
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover { color: #fecaca !important; }
 @media print { .filter-card, .btn-enterprise { display: none !important; } }
