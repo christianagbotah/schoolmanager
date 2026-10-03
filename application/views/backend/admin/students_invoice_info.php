@@ -9,6 +9,32 @@
 
 ?>
 
+<style type="text/css">
+/* ---- family design-language alignment (presentation only) ---- */
+#all_students_invoices { font-size: 13px; }
+#all_students_invoices thead th { font-size: 12px; letter-spacing: .3px; }
+#all_students_invoices th, #all_students_invoices td { padding: .6rem .75rem; }
+#all_students_invoices td { color: #374151; }
+#all_students_invoices tbody tr { border-color: #f3f4f6; }
+#all_students_invoices tbody tr:hover td { background: #f8fafc; }
+#all_students_invoices th:nth-child(5), #all_students_invoices td:nth-child(5) { text-align: right; white-space: nowrap; }
+#all_students_invoices tfoot td { background: #f9fafb; border-top: 2px solid #e5e7eb; }
+#all_students_invoices .dropdown-menu {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, .12);
+    padding: .25rem 0;
+    min-width: 200px;
+}
+#all_students_invoices .dropdown-menu > li > a { font-size: 13.5px; padding: 6px 14px; color: #374151; }
+#all_students_invoices .dropdown-menu > li > a:hover { background: #f3f4f6; color: #111827; }
+#all_students_invoices .dropdown-menu > li > a i { width: 18px; }
+#all_students_invoices .dropdown-menu > .divider { background: #f3f4f6; height: 1px; }
+@media (max-width: 640px) {
+    #all_students_invoices th, #all_students_invoices td { padding: .45rem .55rem; font-size: 12.5px; }
+    #all_students_invoices thead th { font-size: 11px; }
+}
+</style>
 <section class="bg-gray-50 dark:bg-gray-900 py-3 sm:py-5">
   <div class="px-2 mx-auto max-w-screen-2xl">
       <div class="relative  bg-white shadow-md dark:bg-gray-800 p-4 sm:rounded-lg">
@@ -104,26 +130,26 @@
                                     
                                         // Hide "Take Payment" if fully paid
                                         if ($is_owing_amount <= 0) {
-                                            $payment_option = '<li><a href="#" onclick="view_receipts_modal('.$row['student_id'].')" style="color: #d803f8;"><i class="entypo-eye"></i>&nbsp;View Receipts</a></li><li class="divider"></li>';
+                                            $payment_option = '<li><a href="#" onclick="view_receipts_modal('.$row['student_id'].')" style="color: #2563eb;"><i class="entypo-eye"></i>&nbsp;View Receipts</a></li><li class="divider"></li>';
                                         } else {
-                                            $payment_option = '<li><a href="#" onclick="invoice_pay_modal('.$row['student_id'].')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a></li><li class="divider"></li><li><a href="#" onclick="view_receipts_modal('.$row['student_id'].')" style="color: #d803f8;"><i class="entypo-eye"></i>&nbsp;View Receipts</a></li><li class="divider"></li>';
+                                            $payment_option = '<li><a href="#" onclick="invoice_pay_modal('.$row['student_id'].')" style="color: #2563eb;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a></li><li class="divider"></li><li><a href="#" onclick="view_receipts_modal('.$row['student_id'].')" style="color: #2563eb;"><i class="entypo-eye"></i>&nbsp;View Receipts</a></li><li class="divider"></li>';
                                         }
 
                                     $options = '<div class="btn-group">'.get_action_button().'
-                                        <ul class="dropdown-menu dropdown-default pull-right" role="menu">'.$payment_option.'<li><a href="#" onclick="invoice_view_modal(\''.$invoice_code.'\')" style="color: blue;"><i class="entypo-credit-card"></i>&nbsp;'.get_phrase('view_invoice').'</a></li><li class="divider"></li>
+                                        <ul class="dropdown-menu dropdown-default pull-right" role="menu">'.$payment_option.'<li><a href="#" onclick="invoice_view_modal(\''.$invoice_code.'\')" style="color: #2563eb;"><i class="entypo-credit-card"></i>&nbsp;'.get_phrase('view_invoice').'</a></li><li class="divider"></li>
 
-                                        <li><a href="#" onclick="bulk_invoice_view_modal('.$row['student_id'].')" style="color: black;"><i class="entypo-credit-card"></i>&nbsp;'.get_phrase('view_bulk_invoice').'</a></li><li class="divider"></li>
+                                        <li><a href="#" onclick="bulk_invoice_view_modal('.$row['student_id'].')" style="color: #111827;"><i class="entypo-credit-card"></i>&nbsp;'.get_phrase('view_bulk_invoice').'</a></li><li class="divider"></li>
 
                                         <!-- SMS LINK -->
                                         <li>
-                                            <a href="#" class="pt_link" onclick="check_sms_status(); navigation('.site_url('admin/message/sms_send?si='.$row['student_id']).')" style="color: green;"><i class="glyphicon glyphicon-envelope"></i>&nbsp;'.get_phrase('send_sMS').' 
+                                            <a href="#" class="pt_link" onclick="check_sms_status(); navigation('.site_url('admin/message/sms_send?si='.$row['student_id']).')" style="color: #059669;"><i class="glyphicon glyphicon-envelope"></i>&nbsp;'.get_phrase('send_sMS').' 
                                             </a>
                                         </li>
                                         <li class="divider"></li>
 
                                         <!-- STUDENT PROFILE LINK -->
                                         <li>
-                                            <a href="#" style="color: #0029ff;" onclick="invoice_load('.$row['student_id'].')">
+                                            <a href="#" style="color: #2563eb;" onclick="invoice_load('.$row['student_id'].')">
                                                 <i class="entypo-credit-card"></i>&nbsp;'.get_phrase('view_student\'s_invoices').'
                                                 </a>
                                         </li>
