@@ -1,4 +1,118 @@
-<div class="bg-white min-h-screen p-6">
+<style>
+/* Attendance selector — enterprise density and readability */
+body { background: #f8fafc; }
+.attendance-selector-workspace {
+    background: #f8fafc !important; min-height: 100vh; padding: 24px 28px 40px !important;
+}
+.attendance-selector-workspace > .max-w-7xl { max-width: 1480px !important; }
+
+#filter_card {
+    margin-bottom: 16px !important; padding: 18px 20px !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 14px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important; background: rgba(255,255,255,.98) !important;
+}
+#filter_card > .flex.items-center {
+    gap: 12px !important; margin-bottom: 16px !important;
+}
+#filter_card > .flex.items-center > .bg-blue-600 {
+    width: 44px; height: 44px; padding: 0 !important; border-radius: 11px !important;
+    display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto;
+}
+#filter_card > .flex.items-center > .bg-blue-600 svg {
+    width: 22px !important; height: 22px !important;
+}
+#filter_card h1 {
+    margin: 0; color: #0f172a !important; font-size: 28px !important; line-height: 1.2;
+    font-weight: 800 !important; letter-spacing: -.02em;
+}
+#filter_card h1 + p {
+    margin-top: 4px !important; color: #64748b !important; font-size: 14px !important; line-height: 1.45;
+}
+#filter_card form + .grid,
+#filter_card .grid.grid-cols-1.md\:grid-cols-4 {
+    gap: 14px !important;
+}
+#filter_card label {
+    margin-bottom: 7px !important; color: #334155 !important; font-size: 14px !important;
+    line-height: 1.35; font-weight: 700 !important;
+}
+#filter_card select,
+#filter_card input[type="text"] {
+    min-height: 46px !important; height: 46px !important; max-height: 46px !important;
+    padding: 9px 12px !important; border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
+    background: #fff !important; color: #0f172a !important; font-size: 15px !important; line-height: 1.4;
+}
+#filter_card select:focus,
+#filter_card input[type="text"]:focus {
+    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important; outline: none;
+}
+#filter_card #submit {
+    min-height: 46px !important; height: 46px !important; padding: 9px 16px !important;
+    border-radius: 9px !important; font-size: 14px !important; font-weight: 800 !important; line-height: 1.35;
+}
+#filter_card #submit svg { width: 18px !important; height: 18px !important; margin-right: 7px !important; }
+
+#students_holder { margin-top: 0 !important; }
+#students_holder > div {
+    border: 1px solid #e2e8f0 !important; border-radius: 14px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+}
+#student_header {
+    border: 1px solid #e2e8f0 !important; border-radius: 12px !important;
+    box-shadow: 0 4px 14px rgba(15,23,42,.08) !important; background: rgba(255,255,255,.98) !important;
+}
+#student_header h2,
+#student_header h3 { font-size: 18px !important; font-weight: 800 !important; color: #0f172a !important; }
+#student_header label { font-size: 14px !important; font-weight: 700 !important; color: #334155 !important; }
+#student_header input[type="search"],
+#student_header input[type="text"] {
+    min-height: 42px; padding: 8px 11px; border: 1px solid #cbd5e1; border-radius: 8px;
+    font-size: 14px; color: #0f172a; background: #fff;
+}
+#student_header button {
+    min-height: 40px !important; padding: 8px 13px !important; border-radius: 8px !important;
+    font-size: 14px !important; line-height: 1.35; font-weight: 700 !important;
+}
+#student_header .text-xs { font-size: 13px !important; }
+#student_header .text-sm { font-size: 14px !important; }
+#selected_count, #student_count { font-weight: 800; }
+
+#students_holder .student-card {
+    border: 1px solid #e2e8f0 !important; border-radius: 12px !important;
+    box-shadow: none !important; transition: border-color .15s ease, box-shadow .15s ease !important;
+}
+#students_holder .student-card:hover {
+    border-color: #93c5fd !important; box-shadow: 0 3px 10px rgba(15,23,42,.06) !important;
+    transform: none !important;
+}
+#students_holder .student-card .text-xs { font-size: 13px !important; line-height: 1.4 !important; }
+#students_holder .student-card .text-sm { font-size: 14px !important; line-height: 1.45 !important; }
+#students_holder .student-card .text-lg,
+#students_holder .student-card .text-xl { font-size: 15px !important; line-height: 1.4 !important; }
+#students_holder .student-card input[type="checkbox"] {
+    width: 18px; height: 18px; accent-color: #2563eb;
+}
+
+.attendance-selector-workspace .datepicker-dropdown { font-size: 14px; }
+
+@media (max-width: 991px) {
+    #filter_card .grid.grid-cols-1.md\:grid-cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+}
+@media (max-width: 767px) {
+    .attendance-selector-workspace { padding: 18px 14px 32px !important; }
+    #filter_card { padding: 16px !important; }
+    #filter_card h1 { font-size: 24px !important; }
+    #filter_card .grid.grid-cols-1.md\:grid-cols-4 { grid-template-columns: 1fr !important; }
+    #filter_card #submit { width: 100%; }
+    #student_header { position: relative !important; top: auto !important; left: auto !important; transform: none !important; width: 100% !important; }
+}
+@media (max-width: 400px) {
+    .attendance-selector-workspace { padding: 12px 10px 28px !important; }
+    #filter_card > .flex.items-center { align-items: flex-start !important; }
+}
+</style>
+
+<div class="bg-white min-h-screen p-6 attendance-selector-workspace">
 	<div class="max-w-7xl mx-auto">
 		<!-- Header Card -->
 		<div id="filter_card" class="bg-white rounded-xl shadow-md border border-gray-200 p-8 mb-6 transition-all duration-300">
