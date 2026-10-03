@@ -142,7 +142,118 @@
                 opacity: 1.0
             }
         }
-       </style>
+       
+
+        /* ---- Teachers workspace — modern enterprise presentation layer ---- */
+        .teachers-workspace { padding: 24px 28px 40px; }
+        .teachers-page-head {
+            display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+            margin: 0 0 18px; padding-bottom: 18px; border-bottom: 1px solid #e2e8f0;
+        }
+        .teachers-eyebrow {
+            margin: 0 0 4px; color: #2563eb; font-size: 13px; font-weight: 800;
+            letter-spacing: .08em; text-transform: uppercase;
+        }
+        .teachers-page-title {
+            margin: 0; color: #0f172a; font-size: 30px; line-height: 1.2;
+            font-weight: 800; letter-spacing: -.02em;
+        }
+        .teachers-page-subtitle { margin: 7px 0 0; color: #64748b; font-size: 15px; line-height: 1.5; }
+        .teachers-page-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+        .teachers-page-actions a {
+            min-height: 42px; padding: 9px 16px !important; border-radius: 9px !important;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 14px !important; font-weight: 700 !important; text-decoration: none !important;
+        }
+        .teachers-report-btn { background: #7c3aed; color: #fff !important; border: 1px solid #7c3aed; }
+        .teachers-report-btn:hover { background: #6d28d9; color: #fff !important; }
+
+        .teachers-bulk-row { margin: 0 0 16px !important; padding: 0 !important; }
+        .teachers-bulk-row > div { width: 100%; padding: 0; }
+        .teachers-bulk-toggle {
+            float: none !important; min-height: 42px !important; padding: 9px 16px !important;
+            border: 1px solid #ddd6fe !important; border-radius: 9px !important;
+            background: #f5f3ff !important; color: #6d28d9 !important;
+            font-size: 14px !important; font-weight: 800 !important; box-shadow: none !important;
+        }
+        .teachers-bulk-toggle:hover { background: #ede9fe !important; color: #5b21b6 !important; transform: none !important; }
+
+        #add_bulk_teacher {
+            margin-top: 12px !important; border: 1px solid #e2e8f0; border-radius: 14px;
+            overflow: hidden; box-shadow: 0 1px 2px rgba(15,23,42,.04); background: #fff;
+        }
+        #add_bulk_teacher > .bg-white { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+        #add_bulk_teacher .bg-gradient-to-r { background-image: none !important; }
+        #add_bulk_teacher .from-purple-600 { background-color: #6d28d9 !important; }
+        #generate_csv { min-height: 46px; background: #2563eb !important; font-size: 14px !important; transform: none !important; }
+        #import_csv { min-height: 46px; background: #7c3aed !important; font-size: 14px !important; transform: none !important; }
+        #add_bulk_teacher label.w-full {
+            min-height: 46px; background: #059669 !important; font-size: 14px !important;
+            transform: none !important; display: inline-flex !important; align-items: center; justify-content: center;
+        }
+        #add_bulk_teacher .text-sm { font-size: 13px !important; line-height: 1.45 !important; }
+        #add_bulk_teacher .text-lg { font-size: 16px !important; }
+        #add_bulk_teacher .text-2xl { font-size: 19px !important; }
+
+        .teachers-table-card {
+            width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+            border: 1px solid #e2e8f0; border-radius: 14px; background: #fff;
+            box-shadow: 0 1px 2px rgba(15,23,42,.04);
+        }
+        .teachers-table-card #teachers { min-width: 1180px; margin: 0 !important; font-size: 14px !important; }
+        .teachers-table-card #teachers > thead > tr > th {
+            padding: 12px 13px !important; background: #f8fafc !important; color: #475569 !important;
+            font-size: 13px !important; font-weight: 800 !important; letter-spacing: .035em;
+            border-bottom: 1px solid #e2e8f0 !important; vertical-align: middle;
+        }
+        .teachers-table-card #teachers > tbody > tr > td {
+            padding: 12px 13px !important; color: #334155; font-size: 14px !important;
+            line-height: 1.45; vertical-align: middle; border-bottom: 1px solid #eef2f7;
+        }
+        .teachers-table-card #teachers > tbody > tr:hover > td { background: #f8fbff; }
+        .teachers-table-card #teachers thead tr:first-child th { padding: 12px 14px !important; }
+        .teachers-table-card #teachers thead tr:first-child .grid {
+            display: flex !important; align-items: center; gap: 8px !important; padding: 0 !important; text-transform: none;
+        }
+        .teachers-table-card #teachers thead tr:first-child .grid > div {
+            display: inline-flex; align-items: center; gap: 6px; min-height: 34px;
+            padding: 6px 11px; border-radius: 999px; background: #f8fafc;
+            border: 1px solid #e2e8f0; color: #475569; font-size: 13px; font-weight: 700;
+        }
+        .teachers-table-card #teachers thead tr:first-child strong {
+            padding: 0 !important; background: transparent !important; border-radius: 0 !important;
+            color: #0f172a; font-size: 14px;
+        }
+
+        .teachers-workspace .dataTables_wrapper { padding: 14px; }
+        .teachers-workspace .dataTables_wrapper .dataTables_length,
+        .teachers-workspace .dataTables_wrapper .dataTables_filter,
+        .teachers-workspace .dataTables_wrapper .dataTables_info,
+        .teachers-workspace .dataTables_wrapper .dataTables_paginate { font-size: 14px; color: #475569; }
+        .teachers-workspace .dataTables_wrapper select,
+        .teachers-workspace .dataTables_wrapper input[type="search"] {
+            min-height: 40px; padding: 8px 10px; border: 1px solid #cbd5e1;
+            border-radius: 8px; font-size: 14px; background: #fff; color: #0f172a;
+        }
+        .teachers-workspace .dataTables_wrapper input[type="search"]:focus,
+        .teachers-workspace .dataTables_wrapper select:focus {
+            outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+        }
+        .teachers-workspace .alert { font-size: 14px; border-radius: 10px; }
+        .teachers-workspace .btn { min-height: 42px; font-size: 14px; font-weight: 700; border-radius: 9px; }
+
+        @media (max-width: 767px) {
+            .teachers-workspace { padding: 18px 14px 32px; }
+            .teachers-page-head { align-items: flex-start; flex-direction: column; }
+            .teachers-page-actions { width: 100%; justify-content: flex-start; }
+            .teachers-page-title { font-size: 26px; }
+            #add_bulk_teacher .p-8 { padding: 18px !important; }
+        }
+        @media (max-width: 400px) {
+            .teachers-page-actions a { width: 100%; }
+            .teachers-bulk-toggle { width: 100%; }
+        }
+</style>
     <div id="preloader2" style="display: none; width: 100%; min-height: 1920px; background-color: #fff; text-align: center; z-index: 99999; position: absolute;">
        <center>
             <img id="loader_logo2" src="<?php echo base_url();?>assets/images/lightworldtech.png" width="80px">
@@ -151,9 +262,27 @@
        </center>
     </div>
 
-        <div class="row mb-10 p-5">
+        <div class="teachers-workspace">
+        <div class="teachers-page-head">
+            <div>
+                <p class="teachers-eyebrow">People</p>
+                <h1 class="teachers-page-title">Teachers</h1>
+                <p class="teachers-page-subtitle">Manage teaching staff, account access, contact details, and staff onboarding.</p>
+            </div>
+            <div class="teachers-page-actions">
+                <a href="<?= base_url().'admin/teachers_gender_report/';?>" target="_blank" class="teachers-report-btn">
+                    <i class="fa fa-chart-pie"></i> Gender Report
+                </a>
+                <a href="javascript:;" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_teacher_add/');?>');" class="btn btn-primary">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <?php echo get_phrase('add_new_teacher');?>
+                </a>
+            </div>
+        </div>
+
+        <div class="row mb-10 p-5 teachers-bulk-row">
             <div class="col-sm-8 col-md-8">
-                <button class="btn bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white pull-right h-16 rounded-lg text-xl font-bold content-center shadow-lg transition-all" data-toggle="collapse" data-target="#add_bulk_teacher">
+                <button class="btn bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white pull-right h-16 rounded-lg text-xl font-bold content-center shadow-lg transition-all teachers-bulk-toggle" data-toggle="collapse" data-target="#add_bulk_teacher">
                     <i class="fa fa-users"></i><sup><i class="fa fa-plus text-xs"></i></sup> Bulk Add Teachers
                 </button>
 
@@ -256,23 +385,8 @@
                        <strong> <?php echo $feedback; ?></strong>
                     </div>
 
-                    <!-- Action Buttons Row -->
-                    <div class="row mb-10 p-5">
-                        <div class="col-md-12 col-sm-12">
-                            <div class="py-5 flex gap-3">
-                                <a href="<?= base_url().'admin/teachers_gender_report/';?>" target="_blank" class="p-3 bg-purple-400 text-white font-bold text-2xl rounded-lg">
-                                    <i class="fa fa-print"></i> Print Gender Report
-                                </a>
-                                <a href="javascript:;" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_teacher_add/');?>');"
-                                class="btn btn-primary h-16 rounded-lg text-xl font-bold content-center p-3">
-                                    <i class="fa-solid fa-user-plus"></i>
-                                    <?php echo get_phrase('add_new_teacher');?>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
                     <caption></caption>
+                    <div class="teachers-table-card">
                     <table class="table table-hover table-striped table-active w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-600 datatable" id="teachers">
                       <thead class="text-lg font-bold text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                           <tr>
@@ -298,6 +412,8 @@
                           </tr>
                       </thead>
                 </table>
+                    </div>
+        </div>
 
 
 <!-----  DATA TABLE EXPORT CONFIGURATIONS ---->
