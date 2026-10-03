@@ -217,7 +217,164 @@ $system_currency = get_settings('currency');
             padding-top: 20px;
             border-top: 2px solid #e5e7eb;
         }
-    </style>
+    
+/* Direct UI/UX refinement — Payroll Statutory Settings */
+.settings-container {
+    max-width: 1450px !important;
+    margin: 0 auto !important;
+    padding: 24px 28px 40px !important;
+}
+.settings-header {
+    margin-bottom: 16px !important;
+    padding: 20px 22px !important;
+    border-radius: 14px !important;
+    background: #0f172a !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.10) !important;
+}
+.settings-header h1 {
+    font-size: 24px !important;
+    line-height: 1.25;
+    font-weight: 800 !important;
+}
+.settings-header p {
+    margin-top: 6px !important;
+    color: #cbd5e1 !important;
+    font-size: 14px !important;
+    line-height: 1.5;
+    opacity: 1 !important;
+}
+.settings-card {
+    margin-bottom: 16px !important;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+}
+.settings-card-header {
+    padding: 14px 18px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    background: #f8fafc !important;
+}
+.settings-card-header h2 {
+    font-size: 17px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+}
+.settings-card-body {
+    padding: 0 !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.settings-table {
+    min-width: 1000px;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+}
+.settings-table thead {
+    background: #f8fafc !important;
+    color: #475569 !important;
+}
+.settings-table th {
+    padding: 12px 13px !important;
+    border-bottom: 1px solid #e2e8f0;
+    color: #475569 !important;
+    font-size: 13px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+    letter-spacing: .03em;
+}
+.settings-table td {
+    padding: 12px 13px !important;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.45;
+    vertical-align: middle;
+}
+.settings-table tbody tr:hover { background: #f8fbff !important; }
+.setting-name {
+    color: #0f172a !important;
+    font-size: 14px !important;
+    line-height: 1.4;
+    font-weight: 800 !important;
+}
+.setting-description {
+    margin-top: 3px !important;
+    color: #64748b !important;
+    font-size: 13px !important;
+    line-height: 1.4;
+}
+.settings-table td strong[style*="font-size"] {
+    color: #2563eb !important;
+    font-size: 16px !important;
+}
+.setting-input {
+    width: 110px !important;
+    min-height: 42px;
+    padding: 8px 10px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+}
+.setting-input:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+}
+.status-badge {
+    padding: 5px 9px !important;
+    border-radius: 999px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+}
+.settings-table small { font-size: 13px !important; }
+.btn {
+    min-height: 40px;
+    padding: 8px 13px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    transition: background-color .15s ease, box-shadow .15s ease !important;
+}
+.btn-primary {
+    background: #2563eb !important;
+    box-shadow: none !important;
+}
+.btn-primary:hover {
+    background: #1d4ed8 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+.btn-success { background: #059669 !important; }
+.btn-success:hover { background: #047857 !important; }
+.btn-sm {
+    min-height: 36px;
+    padding: 7px 10px !important;
+    font-size: 13px !important;
+}
+.action-buttons {
+    gap: 8px !important;
+    margin-top: 0 !important;
+    padding: 14px 16px !important;
+    border-top: 1px solid #e2e8f0 !important;
+    background: #f8fafc;
+}
+.alert {
+    margin-bottom: 14px !important;
+    padding: 12px 14px !important;
+    border-radius: 10px !important;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.alert i.fa-2x { font-size: 18px !important; }
+.history-link { font-size: 13px !important; color: #2563eb !important; }
+@media (max-width: 767px) {
+    .settings-container { padding: 18px 14px 32px !important; }
+    .settings-header { padding: 18px !important; }
+    .settings-header h1 { font-size: 21px !important; }
+    .action-buttons { flex-direction: column; }
+    .action-buttons .btn { width: 100%; justify-content: center; }
+}
+</style>
 </head>
 <body>
 
