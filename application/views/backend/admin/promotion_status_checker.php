@@ -9,7 +9,7 @@
     }
     
     .status-card-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #764ba2;
         color: white;
         padding: 20px;
         border-bottom: 3px solid #5a67d8;
@@ -103,7 +103,7 @@
     }
     
     .page-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #764ba2;
         color: white;
         padding: 30px;
         border-radius: 8px;
@@ -188,7 +188,7 @@
     }
     
     .tab-button.active {
-        background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+        background: rgba(102,126,234,0.1);
         border-left-color: #667eea;
         font-weight: 600;
         color: #667eea;

@@ -1,7 +1,7 @@
 <!-- Modern Teacher Remarks Templates Page -->
 <style>
 .page-header-gradient {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     color: white;
     padding: 32px;
     border-radius: 16px;
@@ -78,7 +78,7 @@
 }
 
 .modern-table thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     color: white;
 }
 
