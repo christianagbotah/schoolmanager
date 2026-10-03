@@ -1,3 +1,86 @@
+<style type="text/css">
+/* ---- family design-language alignment (presentation only) ---- */
+.nav-tabs > li > a {
+    border-radius: 10px 10px 0 0;
+    font-weight: 600;
+    color: #374151;
+}
+.nav-tabs > li.active > a { color: #111827; }
+.panel {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+.panel > .panel-heading {
+    background: transparent;
+    border-bottom: 1px solid #f3f4f6;
+    border-radius: 16px 16px 0 0;
+    color: #111827;
+}
+.panel > .panel-heading .panel-title { font-size: 15px; font-weight: 700; color: #111827; }
+.panel > .panel-body { padding: 18px; }
+.btn {
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all .2s;
+}
+.btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+.btn-success { background: #059669; border-color: #059669; }
+.btn-danger { background: #dc2626; border-color: #dc2626; }
+.btn-info { background: #0284c7; border-color: #0284c7; }
+.btn-info:hover { background: #0369a1; border-color: #0369a1; }
+.form-control, select.form-control {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    height: 42px;
+    font-size: 14px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    outline: none;
+}
+#student_invoice {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    border-collapse: separate;
+}
+#student_invoice th {
+    background: #f9fafb;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-bottom: 1px solid #e5e7eb !important;
+    padding: 12px 10px;
+}
+#student_invoice td {
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+}
+.dropdown-menu {
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 24px rgba(16, 24, 40, 0.12);
+}
+.dropdown-menu > li > a { padding: 10px 16px; }
+.dropdown-menu > li > a:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+@media (prefers-reduced-motion: reduce) { .btn, .form-control { transition: none; } }
+@media (max-width: 400px) {
+    .panel > .panel-body { padding: 14px; }
+    .form-control, select.form-control { height: 40px; }
+}
+</style>
 <div class="row">
 	<div class="col-md-12">
     
