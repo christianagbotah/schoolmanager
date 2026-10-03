@@ -1771,3 +1771,221 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 </style>
+
+<style>
+/* Final POS readability layer — presentation only */
+@media screen {
+  body { background: #f8fafc; }
+  .pos-container {
+    width: 100%; max-width: 1680px; margin: 0 auto;
+    grid-template-columns: 300px minmax(440px,1fr) 340px;
+    gap: 16px; padding: 16px 20px 28px;
+  }
+  .pos-left, .pos-middle, .pos-right {
+    border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  }
+  .pos-left, .pos-middle {
+    padding: 18px; border: 1px solid #e2e8f0; background: #fff;
+  }
+  .pos-right {
+    padding: 16px; top: 16px; background: #0f172a;
+    border: 1px solid #1e293b;
+  }
+
+  .pos-left h2.text-xl,
+  .pos-middle h2.text-xl,
+  .transaction-header h2.text-xl {
+    margin: 0 0 12px !important; color: #0f172a !important;
+    font-size: 18px !important; line-height: 1.3; font-weight: 800 !important;
+  }
+  .transaction-header {
+    margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;
+  }
+  .transaction-header-buttons { gap: 8px; }
+  .transaction-header-buttons button {
+    min-height: 40px; padding: 8px 12px !important;
+    border-radius: 8px !important; font-size: 13px !important; font-weight: 700 !important;
+    box-shadow: none !important;
+  }
+
+  #class_search, #student_search {
+    min-height: 44px !important; height: 44px; padding: 9px 11px !important;
+    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
+    background: #fff; color: #0f172a; font-size: 15px !important; line-height: 1.4;
+  }
+  #class_search:focus, #student_search:focus {
+    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
+  }
+
+  .student-card {
+    min-height: 56px; padding: 10px 11px !important; margin-bottom: 7px !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 9px !important;
+    background: #fff !important; box-shadow: none !important;
+  }
+  .student-card:hover {
+    border-color: #93c5fd !important; background: #f8fbff !important;
+    transform: none !important; box-shadow: 0 2px 8px rgba(15,23,42,.05) !important;
+  }
+  .student-card .font-bold { color: #0f172a; font-size: 14px !important; line-height: 1.4; }
+  .student-card .text-xs { color: #64748b !important; font-size: 13px !important; line-height: 1.35; }
+
+  .payment-history {
+    margin-top: 12px; padding: 10px; border: 1px solid #e2e8f0;
+    border-radius: 10px; background: #fff;
+  }
+  .payment-history > div:first-child { color: #0f172a; font-size: 14px; font-weight: 800 !important; }
+  .payment-item { padding: 9px 6px; gap: 8px; }
+  .payment-item div[style*="font-size:12px"] { font-size: 13px !important; line-height: 1.35; }
+  .payment-item div[style*="font-size:10px"] { font-size: 13px !important; line-height: 1.4; color: #64748b !important; }
+  .payment-item .btn-xs {
+    min-width: 36px; min-height: 34px; padding: 6px 9px !important;
+    border-radius: 7px; font-size: 13px !important;
+  }
+
+  #student_info {
+    padding: 13px 14px !important; margin-bottom: 14px !important;
+    border: 1px solid #bfdbfe; border-radius: 10px !important; background: #eff6ff !important;
+  }
+  #student_info .font-bold.text-lg { font-size: 16px !important; line-height: 1.35; color: #0f172a !important; }
+  #student_info .text-sm { font-size: 14px !important; line-height: 1.45; color: #475569 !important; }
+  #student_info .text-xs { font-size: 13px !important; line-height: 1.4; }
+
+  #fee_items { display: flex; flex-direction: column; gap: 9px; margin-bottom: 12px; }
+  .fee-item {
+    margin-bottom: 0 !important; padding: 12px 13px !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 10px !important;
+    background: #fff !important; box-shadow: none !important;
+  }
+  .fee-item:hover { border-color: #93c5fd !important; transform: none !important; }
+  .fee-item.active {
+    border-color: #2563eb !important; background: #eff6ff !important;
+    box-shadow: 0 0 0 2px rgba(37,99,235,.10) !important; transform: none !important;
+  }
+  .fee-item .font-bold { color: #0f172a !important; font-size: 15px !important; line-height: 1.35; }
+  .fee-item .text-sm.text-red-600 {
+    margin-top: 2px; padding: 0 !important; background: transparent !important;
+    color: #dc2626 !important; font-size: 13px !important; line-height: 1.35; font-weight: 700 !important;
+  }
+  .fee-item div[id^="amount_"] {
+    color: #15803d !important; font-size: 20px !important; line-height: 1.2; font-weight: 800 !important;
+  }
+  .fee-item select#transport_direction {
+    min-height: 40px; padding: 7px 9px !important; border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important; font-size: 14px !important; font-weight: 600 !important;
+  }
+
+  #transaction_area > .bg-gray-100 {
+    padding: 14px !important; margin-top: 12px !important;
+    border: 1px solid #e2e8f0; border-radius: 10px !important; background: #f8fafc !important;
+    box-shadow: none !important;
+  }
+  #transaction_area > .bg-gray-100 .flex.justify-between {
+    margin-bottom: 8px !important; padding: 2px 0 !important;
+  }
+  #transaction_area > .bg-gray-100 .text-xl > span {
+    font-size: 16px !important; font-weight: 800 !important;
+  }
+  #transaction_area > .bg-gray-100 .text-lg > span:first-child {
+    font-size: 14px !important; font-weight: 700 !important;
+  }
+  #transaction_area > .bg-gray-100 .text-lg > span:last-child {
+    font-size: 15px !important; font-weight: 800 !important;
+  }
+
+  #fee_items .bg-gray-50.border-2 {
+    margin-top: 10px !important; padding: 12px !important;
+    border: 1px solid #cbd5e1 !important; border-radius: 10px !important;
+    background: #fff !important; box-shadow: none !important;
+  }
+  #fee_items .bg-gray-50.border-2 label {
+    margin-bottom: 7px !important; color: #334155 !important;
+    font-size: 14px !important; font-weight: 700 !important;
+  }
+  #amount_tendered_input {
+    min-height: 46px !important; padding: 9px 11px !important;
+    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
+    background: #fff !important; color: #0f172a !important; font-size: 16px !important; font-weight: 700 !important;
+    box-shadow: none !important;
+  }
+  #amount_tendered_input:focus {
+    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important; outline: none;
+  }
+
+  #transaction_area .grid.grid-cols-2 {
+    display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; margin-top: 12px !important;
+  }
+  #payment_method, #payment_date {
+    min-height: 44px; padding: 9px 11px !important;
+    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
+    background: #fff !important; color: #0f172a !important; font-size: 15px !important; font-weight: 600 !important;
+    box-shadow: none !important;
+  }
+  #date_indicator { font-size: 12px !important; border-radius: 6px; }
+
+  #backdate_warning { padding: 10px 12px !important; border-radius: 9px; }
+  #backdate_warning .text-sm { font-size: 13px !important; }
+  #backdate_warning .text-xs { font-size: 13px !important; line-height: 1.4; }
+
+  .transaction-buttons-container {
+    display: flex !important; flex-direction: row !important; gap: 10px !important; margin-top: 14px !important;
+  }
+  .transaction-buttons-container button {
+    min-height: 46px !important; padding: 10px 14px !important;
+    border-radius: 9px !important; font-size: 14px !important; font-weight: 800 !important;
+    box-shadow: none !important;
+  }
+
+  .pos-display {
+    padding: 14px !important; margin-bottom: 14px !important;
+    border: 1px solid #334155; border-radius: 10px !important; background: #111827 !important;
+  }
+  .pos-display .text-sm {
+    margin-bottom: 5px !important; color: #94a3b8 !important;
+    font-size: 13px !important; line-height: 1.35; font-weight: 700 !important;
+    text-transform: none !important; letter-spacing: 0 !important;
+  }
+  #selected_fee_type { font-size: 15px !important; line-height: 1.35; }
+  #selected_fee_due { font-size: 18px !important; line-height: 1.3; }
+  #keypad_display { font-size: 30px !important; line-height: 1.15; }
+
+  .pos-keypad { gap: 8px !important; }
+  .pos-key {
+    min-height: 50px; padding: 12px 8px !important;
+    border-radius: 9px !important; font-size: 18px !important; font-weight: 800 !important;
+    box-shadow: none !important;
+  }
+  .pos-key:hover { transform: none !important; background: #475569; }
+
+  @media (max-width: 1200px) {
+    .pos-container { grid-template-columns: 280px minmax(400px,1fr) 320px; gap: 12px; padding: 12px; }
+  }
+  @media (max-width: 1024px) {
+    .pos-container { grid-template-columns: 1fr !important; padding: 10px !important; }
+    .pos-left, .pos-middle { max-height: none !important; }
+    .student-card .text-xs,
+    .pos-display .text-sm,
+    #backdate_warning .text-xs { font-size: 13px !important; }
+  }
+  @media (max-width: 768px) {
+    .pos-left, .pos-middle { padding: 14px !important; }
+    .transaction-header { align-items: stretch !important; }
+    .transaction-header-buttons { display: grid !important; grid-template-columns: 1fr 1fr !important; }
+    .transaction-header-buttons button { min-height: 44px !important; font-size: 13px !important; }
+    #transaction_area .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
+    .transaction-buttons-container { flex-direction: column !important; }
+    .transaction-buttons-container button { width: 100%; min-height: 48px !important; }
+    .fee-item { padding: 13px !important; }
+    .fee-item div[id^="amount_"] { font-size: 20px !important; }
+    #class_search, #student_search { font-size: 16px !important; }
+    .payment-item div[style*="font-size:10px"],
+    .payment-item div[style*="font-size:12px"] { font-size: 13px !important; }
+  }
+  @media (max-width: 480px) {
+    .pos-container { padding: 8px !important; gap: 10px !important; }
+    .transaction-header-buttons { grid-template-columns: 1fr !important; }
+    .student-card .text-xs { font-size: 13px !important; }
+    .pos-display .text-sm { font-size: 13px !important; }
+  }
+}
+</style>
+
