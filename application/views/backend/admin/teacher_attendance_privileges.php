@@ -49,6 +49,113 @@ table tbody tr:hover { background: #f9fafb; }
   table { font-size: 13px; }
   table th, table td { padding: 8px; }
 }
+
+/* Direct UX refinement — Teacher Attendance Privileges */
+body { background: #f8fafc; }
+.privileges-container { padding: 24px 28px 40px; }
+.privileges-header {
+    margin-bottom: 18px !important; padding: 20px 24px !important;
+    border-radius: 14px !important; background: #0f172a !important;
+    box-shadow: 0 8px 22px rgba(15,23,42,.16) !important;
+}
+.privileges-header h1 {
+    font-size: 27px !important; line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em;
+}
+.privileges-header p { margin-top: 5px !important; font-size: 14px !important; color: #cbd5e1 !important; }
+
+.stats-grid { gap: 14px !important; margin-bottom: 18px !important; }
+.stat-card {
+    padding: 17px 18px !important; border-radius: 12px !important;
+    border: 1px solid #e2e8f0; border-left: 4px solid #2563eb !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+}
+.stat-card h3 { margin-bottom: 4px !important; font-size: 27px !important; line-height: 1.2; }
+.stat-card p { font-size: 14px !important; line-height: 1.4; }
+
+.privileges-card {
+    padding: 18px !important; border: 1px solid #e2e8f0;
+    border-radius: 14px !important; box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+}
+.privileges-card-title {
+    margin-bottom: 14px !important; padding-bottom: 12px !important;
+    border-bottom: 1px solid #e5e7eb !important; font-size: 18px !important; font-weight: 800 !important;
+}
+.privileges-card-title .btn { min-height: 40px; }
+
+.search-filter-bar { gap: 10px !important; margin-bottom: 14px !important; }
+.search-filter-bar input,
+.search-filter-bar select {
+    min-height: 42px; padding: 8px 11px !important; border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important; font-size: 14px !important; color: #0f172a;
+}
+.search-filter-bar input:focus,
+.search-filter-bar select:focus {
+    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
+}
+
+.bulk-actions {
+    gap: 10px !important; margin-bottom: 14px !important; padding: 10px 12px !important;
+    border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc;
+}
+.bulk-actions label, .bulk-actions span { font-size: 14px !important; }
+.bulk-actions select {
+    min-height: 40px; padding: 7px 10px !important; border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important; font-size: 14px !important;
+}
+
+.btn {
+    min-height: 40px; padding: 8px 13px !important; border-radius: 8px !important;
+    font-size: 14px !important; line-height: 1.35; font-weight: 700 !important;
+}
+.btn-primary { background: #2563eb !important; }
+.btn-primary:hover { background: #1d4ed8 !important; transform: translateY(-1px) !important; box-shadow: 0 3px 10px rgba(37,99,235,.16) !important; }
+.btn-sm { min-height: 36px; padding: 7px 11px !important; font-size: 13px !important; }
+.badge {
+    min-height: 30px; padding: 6px 10px !important; border-radius: 999px !important;
+    display: inline-flex; align-items: center; font-size: 13px !important; font-weight: 700 !important;
+}
+
+.privileges-card > div[style*="overflow-x"] { border: 1px solid #e2e8f0; border-radius: 12px; }
+#teachers-table { min-width: 920px; }
+#teachers-table th {
+    padding: 12px 13px !important; background: #f8fafc; color: #475569 !important;
+    font-size: 13px !important; font-weight: 800 !important; letter-spacing: .035em;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+#teachers-table td {
+    padding: 12px 13px !important; color: #334155; font-size: 14px !important;
+    line-height: 1.45; vertical-align: middle;
+}
+#teachers-table tbody tr:hover { background: #f8fbff !important; }
+.teacher-avatar { width: 42px; height: 42px; background: #2563eb !important; font-size: 15px !important; }
+.teacher-details h4 { font-size: 14px !important; font-weight: 800 !important; color: #0f172a !important; }
+.teacher-details p { margin-top: 2px !important; font-size: 13px !important; color: #64748b !important; }
+#teachers-table td div[style*="font-size: 12px"] { font-size: 13px !important; }
+.action-buttons { gap: 7px !important; }
+.action-buttons button { min-height: 36px; padding: 7px 10px !important; font-size: 13px !important; }
+
+#modal_ajax .form-control { min-height: 44px; font-size: 15px; border-radius: 8px; }
+#modal_ajax textarea.form-control { min-height: 96px; }
+
+@media (max-width: 768px) {
+    .privileges-container { padding: 16px 14px 32px; }
+    .privileges-header { padding: 18px !important; }
+    .privileges-header h1 { font-size: 23px !important; }
+    .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 10px !important; }
+    .stat-card { padding: 14px !important; }
+    .stat-card h3 { font-size: 24px !important; }
+    .search-filter-bar { flex-direction: column; }
+    .search-filter-bar input { min-width: 100% !important; width: 100%; }
+    .search-filter-bar select { width: 100%; }
+    .bulk-actions { align-items: stretch !important; flex-direction: column; }
+    .bulk-actions .btn { width: 100%; justify-content: center; }
+    #teachers-table { font-size: 14px !important; }
+    #teachers-table th { padding: 9px 10px !important; font-size: 13px !important; }
+    #teachers-table td { padding: 10px !important; font-size: 14px !important; }
+}
+@media (max-width: 400px) {
+    .stats-grid { grid-template-columns: 1fr !important; }
+}
 </style>
 
 <div class="privileges-container">
