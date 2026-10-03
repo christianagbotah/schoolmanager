@@ -14,7 +14,7 @@
 }
 
 .content-standards-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     border-radius: 16px;
     padding: 32px;
     margin-bottom: 32px;
@@ -78,19 +78,19 @@
 }
 
 .stat-card.purple::before {
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: #764ba2;
 }
 
 .stat-card.blue::before {
-    background: linear-gradient(90deg, #3b82f6, #2563eb);
+    background: #2563eb;
 }
 
 .stat-card.green::before {
-    background: linear-gradient(90deg, #10b981, #059669);
+    background: #059669;
 }
 
 .stat-card.orange::before {
-    background: linear-gradient(90deg, #f59e0b, #d97706);
+    background: #d97706;
 }
 
 .stat-card:hover {
@@ -110,22 +110,22 @@
 }
 
 .stat-icon.purple {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     color: #fff;
 }
 
 .stat-icon.blue {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: #2563eb;
     color: #fff;
 }
 
 .stat-icon.green {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: #059669;
     color: #fff;
 }
 
 .stat-icon.orange {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: #d97706;
     color: #fff;
 }
 
@@ -198,7 +198,7 @@
 }
 
 .modern-btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     color: #fff;
 }
 
@@ -209,12 +209,12 @@
 }
 
 .modern-btn-info {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: #1d4ed8;
     color: #fff;
 }
 
 .modern-btn-danger {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    background: #b91c1c;
     color: #fff;
 }
 
@@ -332,7 +332,7 @@
 }
 
 .modern-modal-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     border: none;
     padding: 24px 30px;
     border-radius: 16px 16px 0 0;

@@ -7,7 +7,7 @@ $icon = $is_edit ? 'pencil' : 'plus-circled';
 ?>
 
 <!-- Modern Modal Header -->
-<div class="modal-header" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border:none;padding:24px 30px;border-radius:12px 12px 0 0;">
+<div class="modal-header" style="background:#764ba2;border:none;padding:24px 30px;border-radius:12px 12px 0 0;">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color:#fff;opacity:0.9;font-size:32px;font-weight:300;text-shadow:none;">&times;</button>
     <div style="display:flex;align-items:center;gap:16px;">
         <div style="width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -173,7 +173,7 @@ $icon = $is_edit ? 'pencil' : 'plus-circled';
             <i class="entypo-cancel" style="margin-right:6px;"></i> 
             <?php echo get_phrase('cancel'); ?>
         </button>
-        <button type="submit" class="btn modern-btn-primary" id="remark-submit-btn" style="padding:12px 24px;border-radius:10px;border:none;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-weight:600;font-size:15px;transition:all 0.2s;box-shadow:0 4px 12px rgba(102,126,234,0.3);min-width:110px;">
+        <button type="submit" class="btn modern-btn-primary" id="remark-submit-btn" style="padding:12px 24px;border-radius:10px;border:none;background:#764ba2;color:#fff;font-weight:600;font-size:15px;transition:all 0.2s;box-shadow:0 4px 12px rgba(102,126,234,0.3);min-width:110px;">
             <i class="entypo-<?php echo $is_edit ? 'check' : 'plus'; ?>" style="margin-right:6px;"></i> 
             <?php echo $is_edit ? get_phrase('update') : get_phrase('save'); ?>
         </button>
@@ -447,7 +447,7 @@ jQuery(document).ready(function($) {
 /* Prevent button style override */
 #remark-submit-btn:hover,
 #remark-submit-btn:focus {
-    background: linear-gradient(135deg,#667eea 0%,#764ba2 100%) !important;
+    background: #764ba2 !important;
     color: #fff !important;
 }
 

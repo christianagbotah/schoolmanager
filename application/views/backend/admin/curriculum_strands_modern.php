@@ -14,7 +14,7 @@
 }
 
 .curriculum-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     border-radius: 16px;
     padding: 32px;
     margin-bottom: 32px;
@@ -71,22 +71,22 @@
 }
 
 .stat-card-icon.purple {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     color: #fff;
 }
 
 .stat-card-icon.blue {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: #1d4ed8;
     color: #fff;
 }
 
 .stat-card-icon.green {
-    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    background: #15803d;
     color: #fff;
 }
 
 .stat-card-icon.orange {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: #d97706;
     color: #fff;
 }
 
@@ -150,7 +150,7 @@
 }
 
 .modern-btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     color: #fff;
 }
 
@@ -160,17 +160,17 @@
 }
 
 .modern-btn-success {
-    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    background: #15803d;
     color: #fff;
 }
 
 .modern-btn-info {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: #1d4ed8;
     color: #fff;
 }
 
 .modern-btn-danger {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    background: #b91c1c;
     color: #fff;
 }
 

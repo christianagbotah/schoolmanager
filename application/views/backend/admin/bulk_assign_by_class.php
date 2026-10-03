@@ -1,13 +1,13 @@
 <style>
 * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 .bulk-container { max-width: 800px; margin: 0 auto; padding: 24px; }
-.bulk-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25); }
+.bulk-header { background: #764ba2; color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25); }
 .bulk-header h1 { margin: 0 0 8px 0; font-size: 32px; font-weight: 700; }
 .bulk-card { background: white; border-radius: 16px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 .form-group { margin-bottom: 24px; }
 .form-label { display: block; font-weight: 600; color: #2d3748; font-size: 15px; margin-bottom: 8px; }
 .form-select { width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; }
-.btn-bulk { padding: 16px 32px; border-radius: 10px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 100%; }
+.btn-bulk { padding: 16px 32px; border-radius: 10px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; background: #764ba2; color: white; width: 100%; }
 .btn-bulk:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 .info-box { background: #dbeafe; border-left: 4px solid #3b82f6; padding: 16px; border-radius: 8px; margin-bottom: 24px; }
 </style>

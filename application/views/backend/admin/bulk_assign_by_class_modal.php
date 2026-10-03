@@ -6,7 +6,7 @@
 .modern-input { width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s; background: #ffffff; color: #1a202c; font-weight: 500; }
 .modern-input:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); background: #f7fafc; }
 .modern-input::placeholder { color: #a0aec0; font-weight: 400; }
-.modern-btn { padding: 16px 32px; border-radius: 10px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+.modern-btn { padding: 16px 32px; border-radius: 10px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #764ba2; color: white; }
 .modern-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 .modern-btn i { margin-right: 0; }
 </style>
@@ -142,7 +142,7 @@ function displayClassSuggestionsModal(data) {
         const fullName = cls.name + ' ' + cls.name_numeric + ' ' + cls.section_name;
         const studentInfo = cls.student_count > 0 ? cls.student_count + ' student' + (cls.student_count !== 1 ? 's' : '') : 'No students';
         html += `
-            <div class="class-item-modal" data-id="${cls.class_id}" data-name="${fullName}" data-count="${cls.student_count}" style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; this.style.color='white'; this.querySelector('.class-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.class-meta').style.color='#718096';">
+            <div class="class-item-modal" data-id="${cls.class_id}" data-name="${fullName}" data-count="${cls.student_count}" style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#764ba2'; this.style.color='white'; this.querySelector('.class-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.class-meta').style.color='#718096';">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">
@@ -188,7 +188,7 @@ function updateClassDisplayModal() {
             const fullName = cls.name + ' ' + cls.name_numeric + ' ' + cls.section_name;
             const studentInfo = cls.student_count > 0 ? cls.student_count + ' student' + (cls.student_count !== 1 ? 's' : '') : 'No students';
             html += `
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 10px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);">
+                <div style="background: #764ba2; color: white; padding: 10px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);">
                     <div>
                         <div>${fullName}</div>
                         <div style="font-size: 11px; opacity: 0.9;">${studentInfo}</div>
@@ -212,7 +212,7 @@ function displayProfileSuggestionsModal(data) {
         const discountType = profile.discount_type.charAt(0).toUpperCase() + profile.discount_type.slice(1);
         const discountValues = profile.discount_values ? profile.discount_values + '%' : 'N/A';
         html += `
-            <div class="profile-item-modal" data-id="${profile.profile_id}" data-name="${profile.profile_name}" style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; this.style.color='white'; this.querySelector('.profile-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.profile-meta').style.color='#718096';">
+            <div class="profile-item-modal" data-id="${profile.profile_id}" data-name="${profile.profile_name}" style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#764ba2'; this.style.color='white'; this.querySelector('.profile-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.profile-meta').style.color='#718096';">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">
@@ -258,7 +258,7 @@ function updateProfileDisplayModal() {
             const discountType = profile.discount_type.charAt(0).toUpperCase() + profile.discount_type.slice(1);
             const discountValues = profile.discount_values ? profile.discount_values + '%' : 'N/A';
             html += `
-                <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 10px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 6px rgba(245, 87, 108, 0.3);">
+                <div style="background: #f5576c; color: white; padding: 10px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 6px rgba(245, 87, 108, 0.3);">
                     <div>
                         <div>${profile.profile_name}</div>
                         <div style="font-size: 11px; opacity: 0.9;">${discountType} • ${discountValues}</div>
