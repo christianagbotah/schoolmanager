@@ -13,7 +13,7 @@ if (!isset($term) || !isset($year)) {
 }
 ?>
 <div>
-  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 0; margin: 0;">
+  <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; padding: 25px; border-radius: 0; margin: 0;">
     <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
       <div style="flex: 1;">
         <h3 style="margin: 0; font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; color: white !important;">
@@ -81,7 +81,7 @@ if (!isset($term) || !isset($year)) {
         <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px; text-transform: uppercase;">Search</label>
         <input type="text" id="fees_search" onkeyup="filterFeesTable()" placeholder="Search..." style="width: 100%; padding: 0 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 14px; height: 46px; box-sizing: border-box; line-height: normal;">
       </div>
-      <button onclick="exportFeesStructure()" style="padding: 0 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; height: 46px; white-space: nowrap; box-sizing: border-box; align-self: flex-end;">
+      <button onclick="exportFeesStructure()" style="padding: 0 20px; background: #059669; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; height: 46px; white-space: nowrap; box-sizing: border-box; align-self: flex-end;">
         <i class="fa fa-file-excel"></i> Export
       </button>
     </div>
@@ -102,12 +102,12 @@ if (!isset($term) || !isset($year)) {
             continue;
           }
       ?>
-        <div class="fees-class-card" data-class="<?php echo htmlspecialchars($classData['class_name']); ?>" data-student-count="<?php echo isset($classData['student_count']) ? intval($classData['student_count']) : 0; ?>" data-total-amount="<?php echo isset($classData['total_amount']) ? floatval($classData['total_amount']) : 0; ?>" style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-          <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); padding: 20px; border-bottom: 2px solid #cbd5e1;">
+        <div class="fees-class-card" data-class="<?php echo htmlspecialchars($classData['class_name']); ?>" data-student-count="<?php echo isset($classData['student_count']) ? intval($classData['student_count']) : 0; ?>" data-total-amount="<?php echo isset($classData['total_amount']) ? floatval($classData['total_amount']) : 0; ?>" style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 1px 2px rgba(16,24,40,0.05);">
+          <div style="background: #f9fafb; padding: 20px; border-bottom: 1px solid #e5e7eb;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div>
                 <h4 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #1e293b;">
-                  <i class="fa fa-school" style="color: #667eea;"></i> <?php echo htmlspecialchars($classData['class_name']); ?>
+                  <i class="fa fa-school" style="color: #2563eb;"></i> <?php echo htmlspecialchars($classData['class_name']); ?>
                 </h4>
                 <p style="margin: 0; font-size: 13px; color: #64748b;">
                   <i class="fa fa-users"></i> <?php echo isset($classData['student_count']) ? intval($classData['student_count']) : 0; ?> student(s)
@@ -146,7 +146,7 @@ if (!isset($term) || !isset($year)) {
               <?php endforeach; ?>
             </tbody>
             <tfoot>
-              <tr style="background: #f8fafc; border-top: 3px solid #cbd5e1;">
+              <tr style="background: #f8fafc; border-top: 2px solid #e5e7eb;">
                 <td colspan="3" style="padding: 16px 20px; font-size: 16px; font-weight: 700;">Class Total</td>
                 <td style="padding: 16px 20px; text-align: right; font-size: 20px; font-weight: 700; color: #10b981;"><?php echo $currency . number_format(isset($classData['total_amount']) ? floatval($classData['total_amount']) : 0, 2); ?></td>
               </tr>
