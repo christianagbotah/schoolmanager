@@ -3,6 +3,42 @@ $readonly = 'readonly';
 $edit_data      =   $this->db->get_where('invoice' , array('invoice_id' => $param2) )->result_array();
 ?>
 
+<style type="text/css">
+/* ---- family design-language alignment (presentation only, scoped to this modal pane) ---- */
+#edit .form-group { margin-bottom: 1rem; }
+#edit .control-label { font-size: 13px; font-weight: 600; color: #374151; text-align: right; padding-top: 9px; }
+#edit .form-control {
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    min-height: 2.4rem;
+    font-size: 14px;
+    color: #1f2937;
+    box-shadow: none;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+#edit .form-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+    outline: none;
+}
+#edit .form-control[readonly] { background: #f8fafc; color: #475569; }
+#edit .btn-success {
+    background: #059669;
+    border-color: #059669;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.10);
+}
+#edit .btn-success:hover { background: #047857; border-color: #047857; }
+#edit h4 { color: #111827; font-weight: 700; margin: 0; }
+#edit select.form-control { -webkit-appearance: menulist; }
+@media (max-width: 480px) {
+    #edit .control-label { text-align: left; padding-top: 0; }
+    #edit .col-sm-offset-3 { margin-left: 0; }
+    #edit .btn-success { width: 100%; }
+}
+</style>
+
 <div class="tab-pane box active" id="edit" style="padding: 5px">
     <div class="box-content">
         <?php foreach($edit_data as $row):?>

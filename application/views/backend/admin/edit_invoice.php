@@ -2,6 +2,33 @@
 $currency = $this->db->get_where('settings', array('type' => 'system_currency'))->row()->description;
 ?>
 
+<style type="text/css">
+/* ---- family design-language alignment (presentation only) ---- */
+.input-group-addon {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #64748b;
+    border-radius: 8px 0 0 8px;
+    font-size: 12.5px;
+    min-width: 44px;
+}
+.input-group .form-control { border-radius: 0 8px 8px 0; }
+.bg-blue-50 {
+    background: #f8faff;
+    border: 1px solid #e5e7eb;
+    border-left: 3px solid #3b82f6;
+    border-radius: 12px;
+}
+.bg-blue-50 h3 { color: #111827; font-size: 16px; }
+.delete-item.btn-danger { border-radius: 8px; }
+tfoot.bg-gray-100 td { background: #f9fafb; border-top: 2px solid #e5e7eb; }
+@media (max-width: 640px) {
+    .panel-body { padding: 12px; }
+    .btn-lg { width: 100%; margin-bottom: .5rem; }
+    .bg-blue-50 { padding: 12px; }
+}
+</style>
+
 <div class="row">
   <div class="col-md-12">
     <div class="panel panel-primary" data-collapsed="0">
