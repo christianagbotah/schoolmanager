@@ -42,22 +42,31 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
 ?>
 
 <style>
-/* Modern Invoices Page Styling */
+/* ---- Invoice Management — SchoolManager family design-language alignment (presentation only) ----
+   Contract: class names, ids, DOM structure, PHP, JS untouched. This block restyles the
+   page-local component classes (.modern-card, .search-card, .stats-card, .form-input-modern,
+   .btn-modern, .tab-btn, ...) to the family tokens (flat cards, ink hero bands, blue accent,
+   10-16px radii, 42-48px controls, focus rings, 360px support). */
+
 .invoices-container {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    min-height: 100vh;
-    padding: 1rem 0;
+    background: transparent;
+    padding: 0 0 .25rem;
 }
 
+/* Family card */
 .modern-card {
     background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: box-shadow .2s ease, border-color .2s ease;
+}
+
+.modern-card:hover {
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+    border-color: #d5dbe7;
 }
 
 /* Table holder specific styling - reduced padding for better table display */
@@ -81,141 +90,119 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
     overflow-x: auto !important;
 }
 
-.modern-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 10px 20px -5px rgba(0, 0, 0, 0.1);
-}
-
+/* Family ink hero card - search band */
 .search-card {
     background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    color: white;
-    border: none;
+    color: #ffffff;
+    border: 1px solid #0f172a;
+    border-radius: 16px;
 }
 
 .search-card .form-input-modern {
-    background: rgba(255, 255, 255, 0.95);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    color: #1e293b;
-    backdrop-filter: blur(10px);
-    font-size: 1.1rem;
-    font-weight: 600;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    color: #111827;
+    font-size: .95rem;
+    font-weight: 500;
 }
 
 .search-card .form-input-modern::placeholder {
-    color: rgba(30, 41, 59, 0.6);
+    color: #9ca3af;
 }
 
 .search-card .form-input-modern:focus {
-    background: rgba(255, 255, 255, 1);
+    background: #ffffff;
     border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
-    color: #1e293b;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    color: #111827;
 }
 
 .search-card select.form-input-modern {
-    background: rgba(255, 255, 255, 0.95);
-    color: #1e293b;
+    background: #ffffff;
+    color: #111827;
 }
 
 .search-card select.form-input-modern option {
-    background: white;
-    color: #1e293b;
-    padding: 8px 12px;
-    font-size: 1rem;
+    background: #ffffff;
+    color: #111827;
+    padding: 6px 10px;
+    font-size: .9rem;
     font-weight: 500;
 }
 
 .search-card label {
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 700;
+    color: #ffffff;
+    font-size: .8rem;
+    font-weight: 600;
 }
 
+/* KPI statistics cards - family ink with accent edge (yellow "No Data" state stays legible) */
 .stats-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #ffffff;
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: box-shadow .2s ease, border-color .2s ease;
     position: relative;
     overflow: hidden;
-}
-
-.stats-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-}
-
-.stats-card:hover::before {
-    left: 100%;
+    border: 1px solid #0f172a;
 }
 
 .stats-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
 }
 
 .stats-card.blue {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border-top: 3px solid #3b82f6;
 }
 
 .stats-card.green {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.stats-card.purple {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    border-top: 3px solid #10b981;
 }
 
 .stats-icon {
-    font-size: 3.5rem;
-    margin-bottom: 1.2rem;
-    opacity: 0.9;
+    font-size: 2rem;
+    margin-bottom: .75rem;
+    opacity: .85;
 }
 
 .stats-amount {
-    font-size: 3rem;
+    font-size: 1.9rem;
     font-weight: 800;
-    margin: 0.5rem 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: -0.02em;
+    margin: .25rem 0;
 }
 
 .stats-label {
-    font-size: 1.3rem;
+    font-size: .9rem;
     font-weight: 600;
-    opacity: 0.9;
-    margin-bottom: 0.5rem;
+    opacity: .85;
+    margin-bottom: .5rem;
 }
 
 .stats-subtitle {
-    font-size: 1rem;
-    opacity: 0.8;
-    margin-top: 0.5rem;
+    font-size: .85rem;
+    opacity: .75;
+    margin-top: .5rem;
 }
 
+/* Family inputs */
 .form-input-modern {
-    padding: 1.2rem 1.5rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
+    padding: .7rem 1rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: .95rem;
+    font-weight: 500;
+    transition: border-color .15s ease, box-shadow .15s ease;
     background: #ffffff;
-    color: #374151;
+    color: #111827;
     width: 100%;
 }
 
 .form-input-modern:focus {
     outline: none;
     border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-    transform: translateY(-2px);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .form-input-modern::placeholder {
@@ -223,111 +210,132 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
     font-weight: 400;
 }
 
+/* keep the calendar icon clear of input text */
+.form-input-modern.ps-10 {
+    padding-left: 2.5rem;
+}
+
+/* Family flat buttons */
 .btn-modern {
-    padding: 1.2rem 2.5rem;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
+    padding: .7rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: .95rem;
+    transition: background-color .2s ease, box-shadow .2s ease, border-color .2s ease;
     border: none;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: .5rem;
     text-decoration: none;
-    min-height: 3.5rem;
+    min-height: 2.75rem;
+}
+
+.btn-modern:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
 }
 
 .btn-modern-primary {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
-    box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.25);
+    background: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35);
 }
 
 .btn-modern-primary:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px 0 rgba(59, 130, 246, 0.35);
+    background: #1d4ed8;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
 }
 
 .btn-modern-success {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.25);
+    background: #059669;
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(5, 150, 105, 0.3);
 }
 
 .btn-modern-success:hover {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px 0 rgba(16, 185, 129, 0.35);
+    background: #047857;
+    box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);
 }
 
 .btn-modern-danger {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    color: white;
-    box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.25);
+    background: #dc2626;
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(220, 38, 38, 0.3);
 }
 
 .btn-modern-danger:hover {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px 0 rgba(239, 68, 68, 0.35);
+    background: #b91c1c;
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
 }
 
 .btn-modern-info {
-    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-    color: white;
-    box-shadow: 0 4px 14px 0 rgba(6, 182, 212, 0.25);
+    background: #0284c7;
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(2, 132, 199, 0.3);
 }
 
 .btn-modern-info:hover {
-    background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px 0 rgba(6, 182, 212, 0.35);
+    background: #0369a1;
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
 }
 
+.btn-modern:active {
+    box-shadow: none;
+}
+
+.btn-modern:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* Filter panel (kept for compatibility) */
 .filter-section {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border-radius: 20px;
-    padding: 2rem;
-    margin: 2rem 0;
-    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
 }
 
+/* Family ink hero card - class selection band */
 .class-selection-card {
     background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    color: white;
-    border-radius: 20px;
-    padding: 2rem;
+    color: #ffffff;
+    border: 1px solid #0f172a;
+    border-radius: 16px;
+    padding: 1.75rem;
     text-align: center;
-    margin: 2rem 0;
+    margin: 0 0 1.5rem;
 }
 
 .class-selection-card .form-input-modern {
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    font-size: 1.2rem;
-    padding: 1.25rem 1.5rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    font-size: 1rem;
+    padding: .8rem 1rem;
 }
 
 .class-selection-card .form-input-modern::placeholder {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .class-selection-card .form-input-modern:focus {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.55);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
 }
 
+/* Loading */
 .loading-spinner {
     display: inline-block;
-    width: 2rem;
-    height: 2rem;
-    border: 3px solid rgba(255, 255, 255, 0.3);
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 3px solid rgba(148, 163, 184, 0.35);
     border-radius: 50%;
-    border-top-color: #3b82f6;
+    border-top-color: #2563eb;
     animation: spin 1s ease-in-out infinite;
 }
 
@@ -335,67 +343,44 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
     to { transform: rotate(360deg); }
 }
 
-.fade-in {
-    animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.slide-up {
-    animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
-    .invoices-container {
-        padding: 1rem 0;
-    }
-    
     .modern-card {
         padding: 1rem;
         margin-bottom: 1rem;
     }
-    
+
     #table_holder.modern-card {
         padding: 0.5rem;
     }
-    
+
     .stats-amount {
-        font-size: 2rem;
+        font-size: 1.5rem;
     }
-    
+
     .stats-icon {
-        font-size: 2.5rem;
+        font-size: 1.75rem;
     }
-    
+
     .btn-modern {
-        padding: 1rem 1.5rem;
-        font-size: 1rem;
-        width: 100%;
+        padding: .65rem 1rem;
+        font-size: .9rem;
     }
-    
+
     .form-input-modern {
-        padding: 1rem 1.2rem;
-        font-size: 1rem;
+        padding: .65rem .85rem;
+        font-size: .9rem;
     }
-    
+
     #receipts-tab .row.mb-4 > div {
-        margin-bottom: 1rem;
+        margin-bottom: .75rem;
     }
-    
+
     .tab-btn {
-        font-size: 1.1rem;
-        padding: 0.75rem 1rem;
+        font-size: .95rem;
+        padding: 0.6rem 0.9rem;
     }
-    
+
     .tab-navigation {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -404,141 +389,70 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
 
 @media (max-width: 640px) {
     .modern-card {
-        padding: 0.75rem;
+        padding: 0.85rem;
         border-radius: 12px;
     }
-    
+
     .stats-card {
         margin-bottom: 1rem;
     }
-    
+
     .stats-card .flex {
         flex-direction: column;
-        gap: 1rem;
+        gap: .75rem;
     }
-    
+
     .filter-section {
         padding: 1rem;
     }
-    
+
     .class-selection-card {
         padding: 1rem;
     }
-    
+
     h1.display-4 {
-        font-size: 1.75rem;
-    }
-    
-    h2.text-3xl {
         font-size: 1.5rem;
     }
-    
+
+    h2.text-3xl {
+        font-size: 1.15rem;
+    }
+
+    .btn-modern {
+        width: 100%;
+    }
+
     .tab-btn {
-        font-size: 1rem;
+        font-size: .9rem;
         padding: 0.5rem 0.75rem;
     }
 }
 
-/* Custom scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-}
+@media (max-width: 400px) {
+    .modern-card {
+        padding: 0.65rem;
+    }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 4px;
-}
+    .stats-amount {
+        font-size: 1.25rem;
+    }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
-}
+    .stats-icon {
+        font-size: 1.5rem;
+    }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-}
+    .tab-navigation {
+        gap: 0;
+    }
 
-/* Focus states for accessibility */
-.form-input-modern:focus,
-.btn-modern:focus {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-}
+    .tab-btn {
+        padding: 0.5rem 0.6rem;
+        font-size: .85rem;
+    }
 
-/* Loading states */
-.loading {
-    opacity: 0.6;
-    pointer-events: none;
-}
-
-.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    margin: -10px 0 0 -10px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-/* Additional Modern Enhancements */
-.glass-effect {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.hover-lift {
-    transition: all 0.3s ease;
-}
-
-.hover-lift:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
-}
-
-.gradient-text {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.pulse-animation {
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-/* Enhanced button states */
-.btn-modern:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
-}
-
-.btn-modern:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-/* Card hover effects */
-.modern-card:hover .stats-icon {
-    transform: scale(1.1);
-    transition: transform 0.3s ease;
-}
-
-/* Smooth transitions for all interactive elements */
-* {
-    transition: all 0.3s ease;
+    h3.text-2xl {
+        font-size: 1.05rem;
+    }
 }
 
 /* Custom selection styles */
@@ -547,51 +461,39 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
     color: #1e40af;
 }
 
-/* Enhanced focus states */
-.form-input-modern:focus,
-.btn-modern:focus,
-select:focus {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-}
-
-/* Improved table styling for data tables */
+/* DataTables - family treatment */
 .dataTables_wrapper {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background: transparent;
+    padding: 0;
 }
 
 .dataTables_wrapper .dataTables_length,
 .dataTables_wrapper .dataTables_filter,
 .dataTables_wrapper .dataTables_info,
 .dataTables_wrapper .dataTables_paginate {
-    margin: 1rem 0;
+    margin: .75rem 0;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button {
-    padding: 0.5rem 1rem;
-    margin: 0 0.25rem;
+    padding: 0.375rem 0.75rem;
+    margin: 0 0.125rem;
     border-radius: 8px;
     border: 1px solid #e5e7eb;
-    background: white;
+    background: #ffffff;
     color: #374151;
-    transition: all 0.3s ease;
+    transition: all 0.15s ease;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background: #3b82f6;
-    color: white;
-    border-color: #3b82f6;
-    transform: translateY(-2px);
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: #3b82f6;
-    color: white;
-    border-color: #3b82f6;
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
 }
 
 /* Smooth scrolling enhancement */
@@ -599,53 +501,48 @@ html {
     scroll-behavior: smooth;
 }
 
-/* Enhanced scroll animation */
-.scroll-to-content {
-    transition: all 0.3s ease;
-}
-
-.scroll-to-content:hover {
-    transform: translateY(-2px);
-}
-
-/* Content area highlight when scrolling */
 #table_holder {
-    transition: all 0.3s ease;
+    transition: box-shadow .2s ease;
 }
 
-#table_holder.scroll-highlight {
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
-    transform: scale(1.02);
-}
-
-/* Tab Navigation Styles */
+/* Tab Navigation - family segmented tabs */
 .tab-navigation {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 0.25rem;
+    margin-bottom: 1.5rem;
     border-bottom: 2px solid #e5e7eb;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .tab-btn {
-    padding: 1rem 2rem;
+    padding: 0.75rem 1.25rem;
     background: transparent;
     border: none;
     border-bottom: 3px solid transparent;
     color: #6b7280;
-    font-size: 1.5rem;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    white-space: nowrap;
+    margin-bottom: -2px;
+    transition: color .15s ease, border-color .15s ease, background-color .15s ease;
 }
 
 .tab-btn:hover {
-    color: #3b82f6;
-    background: rgba(59, 130, 246, 0.05);
+    color: #2563eb;
+    background: rgba(59, 130, 246, 0.06);
 }
 
 .tab-btn.active {
-    color: #3b82f6;
-    border-bottom-color: #3b82f6;
+    color: #111827;
+    border-bottom-color: #2563eb;
+}
+
+.tab-btn:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: -2px;
+    border-radius: 8px 8px 0 0;
 }
 
 .tab-content {
@@ -671,6 +568,21 @@ html {
     margin-top: -11px !important;
 }
 
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .modern-card,
+    .btn-modern,
+    .tab-btn,
+    .form-input-modern,
+    .stats-card,
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        transition: none;
+    }
+}
 </style>
 
 
