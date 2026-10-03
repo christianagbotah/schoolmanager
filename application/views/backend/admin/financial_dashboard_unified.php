@@ -4,6 +4,62 @@
 .shadow-3xl {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
+
+/* ============================================================
+   Family design-language alignment (SchoolManager dashboard system).
+   Presentation only - no structural or behavioural change.
+   !important is used where the Tailwind play CDN generates competing
+   rules at runtime; overrides are scoped to this page's classes.
+   ============================================================ */
+
+/* Flat family page canvas instead of the blue-tinted gradient */
+.from-slate-50.via-blue-50.to-indigo-50 {
+    background: #f9fafb !important;
+}
+
+/* Header title - family typography (solid ink, no gradient text) */
+h1.bg-gradient-to-r {
+    background-image: none !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    color: #1f2937 !important;
+    -webkit-text-fill-color: #1f2937 !important;
+}
+
+/* Cards - family elevation system (soft ambient + gentle lift) */
+.shadow-2xl {
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 24px rgba(16, 24, 40, 0.08) !important;
+}
+.shadow-3xl {
+    box-shadow: 0 10px 24px rgba(16, 24, 40, 0.10) !important;
+}
+.hover\:scale-105:hover,
+.hover\:shadow-3xl:hover {
+    transform: translateY(-2px) !important;
+}
+
+/* Focus visibility - family ring on interactive controls */
+#periodSelector:focus-visible,
+button:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* 400px hardening tier */
+@media (max-width: 480px) {
+    .min-h-screen.p-6 { padding: 1rem !important; }
+}
+@media (max-width: 400px) {
+    .p-8 { padding: 1.25rem !important; }
+    h1.text-4xl { font-size: 1.6rem !important; line-height: 1.25 !important; }
+    .text-4xl { font-size: 1.75rem !important; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .animate-pulse { animation: none !important; }
+    * { transition-duration: 0.01ms !important; }
+}
 </style>
 <!-- Flowbite CDN -->
 <link href="<?php echo base_url(); ?>assets/cdn/css/flowbite.min.css" rel="stylesheet" />
