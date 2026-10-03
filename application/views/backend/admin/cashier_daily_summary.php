@@ -66,6 +66,110 @@ $school_name = $this->db->get_where('settings', array('type' => 'system_name'))-
 }
 </style>
 
+<style>
+@media screen {
+  body { background: #f8fafc; }
+  .enterprise-header {
+    padding: 22px 24px; margin-bottom: 16px; border-radius: 14px;
+    background: #0f172a; box-shadow: 0 8px 22px rgba(15,23,42,.14);
+  }
+  .enterprise-header h1 { font-size: 28px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em; }
+  .enterprise-header p { margin-top: 4px; font-size: 14px; line-height: 1.45; color: #cbd5e1; opacity: 1; }
+
+  .filter-section {
+    padding: 18px 20px; margin-bottom: 16px;
+    border: 1px solid #e2e8f0; border-radius: 14px; background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  }
+  .filter-section h3 {
+    margin: 0 0 14px; padding-bottom: 10px; border-bottom: 1px solid #eef2f7;
+    color: #0f172a; font-size: 17px; font-weight: 800;
+  }
+  .filter-section .row {
+    display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin: 0;
+  }
+  .filter-section .row > div { width: auto; padding: 0; }
+  .form-group-modern { margin-bottom: 0; }
+  .form-group-modern label {
+    margin-bottom: 7px; color: #334155; font-size: 14px; font-weight: 700;
+  }
+  .form-group-modern label i { color: #2563eb; }
+  .modern-input {
+    min-height: 44px; height: 44px; padding: 9px 11px;
+    border: 1px solid #cbd5e1; border-radius: 9px; color: #0f172a; font-size: 15px;
+  }
+  .modern-input:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
+  }
+  .modern-btn {
+    min-height: 44px; height: 44px; padding: 9px 15px;
+    border-radius: 9px; font-size: 14px; font-weight: 800; box-shadow: none;
+  }
+  .btn-primary-modern { background: #2563eb; }
+  .btn-primary-modern:hover { background: #1d4ed8; transform: none; box-shadow: 0 3px 9px rgba(37,99,235,.18); }
+  .btn-success-modern { background: #059669; }
+  .btn-success-modern:hover { background: #047857; transform: none; box-shadow: 0 3px 9px rgba(5,150,105,.16); }
+  .btn-info-modern { background: #0284c7; }
+  .btn-info-modern:hover { background: #0369a1; transform: none; box-shadow: 0 3px 9px rgba(2,132,199,.16); }
+
+  .stats-grid { gap: 12px; margin-bottom: 16px; }
+  .stat-card {
+    min-height: 102px; padding: 15px 16px;
+    border: 1px solid #e2e8f0; border-left-width: 4px;
+    border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  }
+  .stat-card h4 {
+    margin-bottom: 6px; color: #64748b; font-size: 13px; line-height: 1.35;
+    font-weight: 800; letter-spacing: .04em;
+  }
+  .stat-card .amount {
+    color: #0f172a; font-size: 24px; line-height: 1.2; font-weight: 800;
+  }
+  .stat-card .amount sup { font-size: 13px !important; color: #64748b; }
+
+  .breakdown-section {
+    padding: 18px 20px; margin-bottom: 16px;
+    border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  }
+  .breakdown-section h3 {
+    margin: 0 0 14px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;
+    color: #0f172a; font-size: 17px; font-weight: 800;
+  }
+  .payment-grid { gap: 12px; }
+  .payment-item {
+    padding: 14px; border: 1px solid #eef2f7; border-radius: 10px; background: #f8fafc;
+  }
+  .payment-item .icon { margin-bottom: 7px; font-size: 24px; }
+  .payment-item .label { margin-bottom: 5px; color: #64748b; font-size: 13px; font-weight: 800; }
+  .payment-item .value { color: #0f172a; font-size: 19px; line-height: 1.25; font-weight: 800; }
+  .payment-item .value sup { font-size: 12px !important; color: #64748b; }
+
+  .action-bar { padding: 8px 0 18px; display: flex; justify-content: center; gap: 10px; }
+
+  @media (max-width: 900px) {
+    .filter-section .row { grid-template-columns: 1fr 1fr; }
+    .filter-section .row > div:last-child { grid-column: 1 / -1; }
+    .stats-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  }
+  @media (max-width: 640px) {
+    .enterprise-header { padding: 18px 16px; text-align: left; }
+    .enterprise-header h1 { font-size: 24px; }
+    .filter-section { padding: 14px; }
+    .filter-section .row { grid-template-columns: 1fr; }
+    .filter-section .row > div:last-child { grid-column: auto; }
+    .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .breakdown-section { padding: 14px; }
+    .payment-grid { grid-template-columns: 1fr 1fr; }
+    .action-bar { flex-direction: column; }
+    .action-bar .modern-btn { width: 100%; justify-content: center; }
+  }
+  @media (max-width: 400px) {
+    .stats-grid, .payment-grid { grid-template-columns: 1fr; }
+  }
+}
+</style>
+
+
 <div class="enterprise-header no-print">
     <h1><?php echo $school_name; ?></h1>
     <p><?php echo get_phrase('cashier_daily_summary'); ?></p>

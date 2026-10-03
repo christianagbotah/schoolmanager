@@ -72,6 +72,113 @@ $transport_enabled = is_fee_module_enabled('transport');
 }
 </style>
 
+<style>
+@media screen {
+  body { background: #f8fafc; }
+  .enterprise-header {
+    padding: 22px 24px; margin-bottom: 16px; border-radius: 14px;
+    background: #0f172a; box-shadow: 0 8px 22px rgba(15,23,42,.14);
+  }
+  .enterprise-header h1 { font-size: 28px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em; }
+  .enterprise-header p { margin-top: 4px; font-size: 14px; line-height: 1.45; color: #cbd5e1; opacity: 1; }
+
+  .filter-section {
+    padding: 18px 20px; margin-bottom: 16px;
+    border: 1px solid #e2e8f0; border-radius: 14px; background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  }
+  .filter-section h3 {
+    margin: 0 0 14px; padding-bottom: 10px; border-bottom: 1px solid #eef2f7;
+    color: #0f172a; font-size: 17px; font-weight: 800;
+  }
+  .filter-section .row {
+    display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin: 0;
+  }
+  .filter-section .row > div { width: auto; padding: 0; }
+  .form-group-modern { margin-bottom: 0; }
+  .form-group-modern label {
+    margin-bottom: 7px; color: #334155; font-size: 14px; font-weight: 700;
+  }
+  .form-group-modern label i { color: #2563eb; }
+  .modern-input {
+    min-height: 44px; height: 44px; padding: 9px 11px;
+    border: 1px solid #cbd5e1; border-radius: 9px; color: #0f172a; font-size: 15px;
+  }
+  .modern-input:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
+  }
+  .modern-btn {
+    min-height: 44px; height: 44px; padding: 9px 15px;
+    border-radius: 9px; font-size: 14px; font-weight: 800; box-shadow: none;
+  }
+  .btn-primary-modern { background: #2563eb; }
+  .btn-primary-modern:hover { background: #1d4ed8; transform: none; box-shadow: 0 3px 9px rgba(37,99,235,.18); }
+  .btn-success-modern { background: #059669; }
+  .btn-success-modern:hover { background: #047857; transform: none; box-shadow: 0 3px 9px rgba(5,150,105,.16); }
+
+  .report-section {
+    padding: 18px 20px; margin-bottom: 16px;
+    border: 1px solid #e2e8f0; border-radius: 14px; background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05); overflow: hidden;
+  }
+  .report-section h3 {
+    margin: -18px -20px 16px; padding: 12px 16px;
+    border-radius: 0; border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc; color: #0f172a; font-size: 17px; line-height: 1.35; font-weight: 800;
+  }
+
+  .info-grid { gap: 12px; }
+  .info-item {
+    padding: 12px 13px; border: 1px solid #e2e8f0; border-left: 3px solid #2563eb;
+    border-radius: 9px; background: #f8fafc;
+  }
+  .info-item .label { margin-bottom: 4px; color: #64748b; font-size: 13px; font-weight: 800; letter-spacing: .04em; }
+  .info-item .value { color: #0f172a; font-size: 15px; line-height: 1.35; font-weight: 800; }
+
+  .amount-row { padding: 11px 2px; border-bottom-color: #eef2f7; }
+  .amount-row .label { color: #475569; font-size: 14px; font-weight: 700; }
+  .amount-row .value { color: #059669; font-size: 17px; font-weight: 800; }
+  .amount-row .value sup { font-size: 12px !important; color: #64748b; }
+
+  .total-row {
+    margin-top: 12px; padding: 14px 15px; border: 1px solid #dbeafe;
+    border-radius: 10px; background: #eff6ff;
+  }
+  .total-row .label { color: #0f172a; font-size: 16px; font-weight: 800; }
+  .total-row .value { color: #047857; font-size: 23px; line-height: 1.2; font-weight: 800; }
+  .total-row .value sup { font-size: 13px !important; color: #64748b; }
+
+  .signature-grid { gap: 18px; margin-top: 24px; }
+  .signature-box {
+    padding: 20px; border: 1px dashed #cbd5e1; border-radius: 12px; background: #fff; text-align: center;
+  }
+  .signature-box .title { margin-bottom: 48px; color: #0f172a; font-size: 15px; font-weight: 800; }
+  .signature-box .line { border-top: 1px solid #334155; padding-top: 9px; }
+  .signature-box .name { color: #475569; font-size: 14px; font-weight: 700; }
+  .signature-box .date { margin-top: 4px; color: #94a3b8; font-size: 13px; }
+
+  .action-bar { padding: 16px 0 20px; display: flex; justify-content: center; gap: 10px; }
+
+  @media (max-width: 950px) {
+    .filter-section .row { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .info-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  }
+  @media (max-width: 640px) {
+    .enterprise-header { padding: 18px 16px; text-align: left; }
+    .enterprise-header h1 { font-size: 24px; }
+    .filter-section { padding: 14px; }
+    .filter-section .row { grid-template-columns: 1fr; }
+    .report-section { padding: 14px; }
+    .report-section h3 { margin: -14px -14px 14px; }
+    .info-grid { grid-template-columns: 1fr; }
+    .signature-grid { grid-template-columns: 1fr; gap: 12px; }
+    .action-bar { flex-direction: column; }
+    .action-bar .modern-btn { width: 100%; justify-content: center; }
+  }
+}
+</style>
+
+
 <div class="enterprise-header no-print">
     <h1><?php echo $school_name; ?></h1>
     <p><?php echo get_phrase('cashier_handover_report'); ?></p>
