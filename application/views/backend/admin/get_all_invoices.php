@@ -68,6 +68,40 @@
 @media (max-width: 640px) {
     #tinvoices { border-radius: 0; border-left: 0; border-right: 0; }
 }
+
+/* Direct UI/UX refinement — loaded invoice register */
+#tinvoices {
+    width: 100% !important; min-width: 1040px; margin: 0 !important;
+    border: 0 !important; border-radius: 0 !important; overflow: visible;
+}
+#tinvoices thead th, #tinvoices thead td {
+    padding: 12px 13px !important; background: #f8fafc !important; color: #475569 !important;
+    font-size: 13px !important; line-height: 1.35; font-weight: 800 !important;
+    letter-spacing: .035em; border-bottom: 1px solid #e2e8f0 !important;
+}
+#tinvoices tbody td {
+    padding: 12px 13px !important; color: #334155 !important; font-size: 14px !important;
+    line-height: 1.45; vertical-align: middle; border-top: 0 !important; border-bottom: 1px solid #eef2f7 !important;
+}
+#tinvoices tbody tr:hover td { background: #f8fbff !important; }
+#tinvoices input[type="checkbox"] { width: 18px; height: 18px; min-height: 18px; accent-color: #2563eb; cursor: pointer; }
+#tinvoices .btn-xs {
+    min-height: 30px; padding: 5px 9px; border-radius: 999px; font-size: 12px !important;
+    line-height: 1.25; font-weight: 800;
+}
+#tinvoices .btn-group > button,
+#tinvoices .btn-group > .btn {
+    min-height: 38px; padding: 7px 11px; border-radius: 8px; font-size: 13px !important; font-weight: 700;
+}
+#tinvoices .dropdown-menu { min-width: 190px; padding: 6px; border-radius: 10px; border-color: #e2e8f0; }
+#tinvoices .dropdown-menu > li > a {
+    min-height: 38px; padding: 9px 11px !important; border-radius: 7px;
+    display: flex; align-items: center; gap: 8px; font-size: 14px !important; color: #334155;
+}
+#tinvoices tfoot td { padding: 12px 13px !important; background: #f8fafc !important; border-top: 1px solid #e2e8f0 !important; }
+#tinvoices #submit_delete {
+    min-height: 42px; padding: 9px 15px; border-radius: 9px; font-size: 14px; font-weight: 800;
+}
 </style>
 <?php echo form_open(site_url('admin/bulk_invoice_delete/all_invoices'), array('class' => 'form-horizontal form-groups-bordered validate', 'id' => 'checkboxes_form',  'enctype' => 'multipart/form-data'));?>
     <table class="table table-bordered normal_table" id="tinvoices" style="width:100%">
