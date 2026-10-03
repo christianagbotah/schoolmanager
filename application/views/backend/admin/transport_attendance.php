@@ -4,17 +4,17 @@
 .filter-label { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px; }
 .filter-input, .filter-select, .filter-btn { height: 48px; border: 2px solid #e5e7eb; border-radius: 8px; padding: 0 16px; font-size: 15px; transition: all 0.3s; }
 .filter-input:focus, .filter-select:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-.filter-btn { background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.filter-btn { background: #1e40af; color: white; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .filter-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
 .action-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
 .btn-action { height: 48px; padding: 0 24px; border-radius: 8px; font-weight: 600; font-size: 15px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
-.btn-present { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-.btn-absent { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
-.btn-save { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; margin-left: auto; }
+.btn-present { background: #059669; color: white; }
+.btn-absent { background: #dc2626; color: white; }
+.btn-save { background: #7c3aed; color: white; margin-left: auto; }
 .btn-action:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 .attendance-table { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 .attendance-table table { width: 100%; border-collapse: collapse; }
-.attendance-table thead { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); }
+.attendance-table thead { background: #f8fafc; }
 .attendance-table th { padding: 16px; text-align: left; font-weight: 700; font-size: 14px; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px; }
 .attendance-table td { padding: 16px; border-bottom: 1px solid #e5e7eb; font-size: 15px; color: #374151; }
 .attendance-table tbody tr:hover { background: #f8fafc; }
@@ -31,7 +31,7 @@
 
 <div style="padding: 24px;">
     <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-        <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 24px; border-radius: 12px 12px 0 0;">
+        <div style="background: #7c3aed; padding: 24px; border-radius: 12px 12px 0 0;">
             <h2 style="margin: 0; color: white; font-size: 28px; font-weight: 700;">
                 <i class="entypo-clipboard"></i> <?php echo get_phrase('transport_attendance'); ?>
             </h2>
@@ -81,7 +81,7 @@
             </div>
 
             <!-- Student Report Section -->
-            <div class="filter-card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-left: 4px solid #3b82f6;">
+            <div class="filter-card" style="background: #f0f9ff; border-left: 4px solid #3b82f6;">
                 <h3 style="color: #1e40af; margin-bottom: 16px; font-weight: 700;">
                     <i class="entypo-user"></i> <?php echo get_phrase('student_transport_report'); ?>
                 </h3>
@@ -123,7 +123,7 @@
                     </div>
                     
                     <div class="filter-group">
-                        <button onclick="generateStudentReport()" class="filter-btn" style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);">
+                        <button onclick="generateStudentReport()" class="filter-btn" style="background: #1e40af;">
                             <i class="entypo-doc-text"></i> <?php echo get_phrase('generate_report'); ?>
                         </button>
                     </div>
@@ -265,7 +265,7 @@ function displayStudentReport(data) {
     html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">';
     
     // Student Info Card
-    html += '<div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #3b82f6;">';
+    html += '<div style="background: #f0f9ff; padding: 20px; border-radius: 12px; border-left: 4px solid #3b82f6;">';
     html += '<h4 style="color: #1e40af; margin: 0 0 12px 0; font-weight: 700;"><i class="entypo-user"></i> Student Information</h4>';
     html += '<table style="width: 100%; font-size: 14px;">';
     html += '<tr><td style="padding: 6px 0; color: #6b7280;"><strong>Route:</strong></td><td style="color: #1f2937;">' + (data.student.route_name || 'Not Assigned') + '</td></tr>';
@@ -274,7 +274,7 @@ function displayStudentReport(data) {
     html += '</table></div>';
     
     // Statistics Card
-    html += '<div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #10b981;">';
+    html += '<div style="background: #f0fdf4; padding: 20px; border-radius: 12px; border-left: 4px solid #10b981;">';
     html += '<h4 style="color: #059669; margin: 0 0 12px 0; font-weight: 700;"><i class="entypo-chart-bar"></i> Statistics</h4>';
     html += '<table style="width: 100%; font-size: 14px;">';
     html += '<tr><td style="padding: 6px 0; color: #6b7280;"><strong>Total Days:</strong></td><td style="color: #1f2937; font-weight: 700;">' + data.stats.total_days + '</td></tr>';
@@ -285,7 +285,7 @@ function displayStudentReport(data) {
     
     // Payment Information
     if (data.payments && data.payments.total_paid > 0) {
-        html += '<div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #f59e0b; margin-bottom: 30px;">';
+        html += '<div style="background: #fef3c7; padding: 20px; border-radius: 12px; border-left: 4px solid #f59e0b; margin-bottom: 30px;">';
         html += '<h4 style="color: #d97706; margin: 0 0 12px 0; font-weight: 700;"><i class="entypo-credit-card"></i> Payment Summary</h4>';
         html += '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center;">';
         html += '<div><div style="font-size: 24px; font-weight: 700; color: #d97706;">GHS ' + parseFloat(data.payments.total_paid).toFixed(2) + '</div><div style="color: #92400e; font-size: 13px; margin-top: 4px;">Total Paid</div></div>';

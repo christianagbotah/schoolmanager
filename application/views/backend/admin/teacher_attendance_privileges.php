@@ -1,6 +1,6 @@
 <style>
 .privileges-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-.privileges-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.privileges-header { background: #764ba2; color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 .privileges-header h1 { margin: 0; font-size: 28px; font-weight: 600; color: white !important; }
 .privileges-header p { margin: 10px 0 0; opacity: 0.9; }
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
@@ -10,7 +10,7 @@
 .privileges-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 .privileges-card-title { font-size: 20px; font-weight: 600; color: #1f2937; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; }
 .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s; }
-.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+.btn-primary { background: #764ba2; color: white; }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
 .btn-success { background: #10b981; color: white; }
 .btn-success:hover { background: #059669; }
@@ -34,7 +34,7 @@ table tbody tr:hover { background: #f9fafb; }
 .checkbox-cell { width: 40px; text-align: center; }
 .checkbox-cell input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
 .teacher-info { display: flex; align-items: center; gap: 12px; }
-.teacher-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px; }
+.teacher-avatar { width: 40px; height: 40px; border-radius: 50%; background: #764ba2; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px; }
 .teacher-details h4 { margin: 0; font-size: 14px; font-weight: 600; color: #1f2937; }
 .teacher-details p { margin: 0; font-size: 12px; color: #6b7280; }
 .action-buttons { display: flex; gap: 8px; }

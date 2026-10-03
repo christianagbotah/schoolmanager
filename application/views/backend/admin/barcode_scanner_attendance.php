@@ -15,6 +15,49 @@
     width: 202px;
     height: 202px;
   }
+
+  /* Family design-language alignment (attendance wave) - presentation only.
+     Scanner form, panels, buttons and summary table restyled; all scanner
+     JS/AJAX contracts (barcode_form, autoscan, value_change, view_all)
+     untouched. */
+  #main_page .panel { border-radius: 16px; border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); }
+  #main_page .panel-heading { background: #f9fafb; border-bottom: 1px solid #e5e7eb;
+      border-radius: 16px 16px 0 0; padding: 16px 20px; }
+  #main_page .panel-heading h2 { font-size: 20px; font-weight: 700; color: #111827; }
+  #main_page .panel-body { padding: 20px; }
+  #main_page .form-control { border: 1.5px solid #e5e7eb; border-radius: 10px;
+      padding: 10px 14px; font-size: 14px; box-shadow: none;
+      transition: border-color 0.2s, box-shadow 0.2s; }
+  #main_page .form-control:focus { border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; }
+  #main_page .btn { border-radius: 10px; font-weight: 600; border: none;
+      transition: all 0.2s; }
+  #main_page .btn-info { background: #2563eb; color: #fff; }
+  #main_page .btn-success { background: #059669; color: #fff; }
+  #main_page .btn:hover { transform: translateY(-1px); }
+  #main_page .btn:focus-visible,
+  #main_page .form-control:focus-visible {
+      outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+  }
+  #main_page table.table { border: 1px solid #e5e7eb; border-radius: 12px;
+      overflow: hidden; }
+  #main_page table.table thead { background: #f9fafb; }
+  #main_page table.table thead th { padding: 12px 10px; font-size: 13px;
+      font-weight: 600; color: #374151; text-transform: uppercase;
+      letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb; }
+  #main_page table.table tbody td { padding: 10px; font-size: 14px;
+      vertical-align: middle; }
+  #main_page table.table tbody tr:hover { background: #f9fafb; }
+  @media (prefers-reduced-motion: reduce) {
+      #main_page .btn, #main_page .form-control { transition: none; }
+      #main_page .btn:hover { transform: none; }
+  }
+  @media (max-width: 768px) {
+      #main_page .form-control { font-size: 16px; }
+      #main_page table.table thead th, #main_page table.table tbody td {
+          padding: 6px; font-size: 12px; }
+  }
 </style>
 
 <hr />
