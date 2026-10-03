@@ -112,7 +112,94 @@ $total = ($collections->feeding ?? 0) + ($collections->breakfast ?? 0) + ($colle
 }
 </style>
 
-<div class="p-4">
+<style>
+@media screen {
+  .cashier-dashboard-single { padding: 0 !important; color: #334155; }
+  .cashier-dashboard-single > .mb-4 {
+    margin: 0 0 14px !important; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;
+  }
+  .cashier-dashboard-single > .mb-4 h3 {
+    margin: 0 0 4px; color: #0f172a !important; font-size: 20px !important; line-height: 1.3; font-weight: 800 !important;
+  }
+  .cashier-dashboard-single > .mb-4 p { margin: 0; color: #64748b !important; font-size: 14px !important; line-height: 1.45; }
+
+  .cashier-dashboard-single .stat-card {
+    min-height: 112px !important; margin-bottom: 14px; padding: 16px 18px !important;
+    border: 1px solid #e2e8f0; border-left: 4px solid #4f46e5;
+    border-radius: 12px; background: #fff !important; color: #0f172a !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+    justify-content: center;
+  }
+  .cashier-dashboard-single .stat-card.green { border-left-color: #059669; }
+  .cashier-dashboard-single .stat-card.purple { border-left-color: #7c3aed; }
+  .cashier-dashboard-single .stat-card.orange { border-left-color: #d97706; }
+  .cashier-dashboard-single .stat-card:hover { transform: none; box-shadow: 0 4px 12px rgba(15,23,42,.07) !important; }
+  .cashier-dashboard-single .stat-label {
+    color: #64748b !important; font-size: 13px !important; font-weight: 800 !important;
+    letter-spacing: .045em !important; opacity: 1 !important;
+  }
+  .cashier-dashboard-single .stat-value {
+    margin: 5px 0 0 !important; color: #0f172a !important;
+    font-size: 30px !important; line-height: 1.2; font-weight: 800 !important;
+  }
+  .cashier-dashboard-single .stat-value sup { font-size: 14px !important; color: #64748b; }
+
+  .cashier-dashboard-single h4 {
+    margin-bottom: 14px !important; color: #0f172a !important; font-size: 17px !important; font-weight: 800 !important;
+  }
+  .cashier-dashboard-single h5 {
+    margin-bottom: 10px !important; padding-bottom: 8px !important;
+    font-size: 14px !important; font-weight: 800 !important; border-bottom-width: 1px !important;
+  }
+  .cashier-dashboard-single .fee-card {
+    min-height: 72px !important; margin-bottom: 9px; padding: 11px 13px !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 11px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04) !important;
+  }
+  .cashier-dashboard-single .fee-card:hover {
+    transform: none; border-color: #cbd5e1 !important; box-shadow: 0 4px 10px rgba(15,23,42,.06) !important;
+  }
+  .cashier-dashboard-single .fee-icon {
+    width: 42px; height: 42px; border-radius: 9px; font-size: 18px;
+  }
+  .cashier-dashboard-single .fee-card > div:first-child > div:last-child > div:first-child {
+    color: #0f172a !important; font-size: 14px; font-weight: 800 !important;
+  }
+  .cashier-dashboard-single .fee-card > div:first-child > div:last-child > div:last-child {
+    color: #64748b !important; font-size: 13px !important; line-height: 1.35;
+  }
+  .cashier-dashboard-single .fee-card > div:last-child {
+    font-size: 20px !important; line-height: 1.25; font-weight: 800 !important;
+  }
+  .cashier-dashboard-single .fee-card > div:last-child sup { font-size: 12px !important; }
+
+  .cashier-dashboard-single .cashier-table {
+    width: 100%; border: 1px solid #e2e8f0; border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05); overflow: hidden;
+  }
+  .cashier-dashboard-single .cashier-table th {
+    padding: 11px 12px; background: #f8fafc; color: #475569;
+    font-size: 13px; line-height: 1.35; font-weight: 800; border-bottom: 1px solid #e2e8f0;
+  }
+  .cashier-dashboard-single .cashier-table td {
+    padding: 11px 12px; color: #334155; font-size: 14px; line-height: 1.45;
+    border-bottom: 1px solid #eef2f7;
+  }
+  .cashier-dashboard-single .cashier-table td span { font-size: 13px !important; }
+  .cashier-dashboard-single .cashier-table td sup { font-size: 11px !important; }
+  .cashier-dashboard-single .cashier-table tr:hover { background: #f8fbff; }
+
+  @media (max-width: 767px) {
+    .cashier-dashboard-single .stat-card { min-height: 96px !important; padding: 14px !important; }
+    .cashier-dashboard-single .stat-value { font-size: 26px !important; }
+    .cashier-dashboard-single .fee-card { min-height: 66px !important; }
+    .cashier-dashboard-single .cashier-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  }
+}
+</style>
+
+
+<div class="p-4 cashier-dashboard-single">
     <div class="mb-4">
         <h3 style="color: #2d3748; font-weight: 700;"><?php echo $cashier->name; ?>'s Dashboard</h3>
         <p style="color: #718096;">

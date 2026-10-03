@@ -43,7 +43,77 @@ $cashiers = $this->db->get_where('admin', ['level' => 4])->result_array();
 }
 </style>
 
-<div class="p-4">
+<style>
+@media screen {
+  .cashier-dashboard-admin { padding: 24px 28px 40px !important; background: #f8fafc; }
+  .cashier-dashboard-admin .filter-card {
+    padding: 18px 20px; margin-bottom: 16px; border: 1px solid #e2e8f0;
+    border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,.05); background: #fff;
+  }
+  .cashier-dashboard-admin .filter-card h2 {
+    margin-bottom: 16px !important; color: #0f172a !important;
+    font-size: 20px !important; line-height: 1.3; font-weight: 800 !important;
+  }
+  .cashier-dashboard-admin .filter-card .row {
+    display: grid; grid-template-columns: minmax(180px,1.3fr) repeat(2,minmax(150px,1fr)) minmax(120px,.65fr);
+    gap: 12px; margin: 0;
+  }
+  .cashier-dashboard-admin .filter-card .row > div { width: auto; padding: 0; }
+  .cashier-dashboard-admin .form-label {
+    margin-bottom: 7px; color: #334155; font-size: 14px; font-weight: 700;
+  }
+  .cashier-dashboard-admin .form-control {
+    min-height: 44px; height: 44px; padding: 9px 11px;
+    border: 1px solid #cbd5e1; border-radius: 9px; font-size: 15px; color: #0f172a; background: #fff;
+  }
+  .cashier-dashboard-admin .form-control:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
+  }
+  .cashier-dashboard-admin .btn-modern {
+    min-height: 44px; height: 44px; padding: 9px 15px;
+    border-radius: 9px; font-size: 14px; font-weight: 800;
+  }
+  .cashier-dashboard-admin .btn-primary-modern {
+    background: #2563eb; box-shadow: 0 1px 2px rgba(37,99,235,.25);
+  }
+  .cashier-dashboard-admin .btn-primary-modern:hover {
+    background: #1d4ed8; transform: none; box-shadow: 0 3px 9px rgba(37,99,235,.18);
+  }
+  #dashboard-container { min-height: 320px; }
+  #dashboard-container > div[style*="text-align: center"] { padding: 54px 20px !important; }
+  #dashboard-container > div[style*="text-align: center"] > div:first-child {
+    width: 76px !important; height: 76px !important; margin-bottom: 18px !important;
+    border-radius: 18px !important; background: #eef2ff !important; box-shadow: none !important;
+  }
+  #dashboard-container > div[style*="text-align: center"] > div:first-child i {
+    color: #4f46e5 !important; font-size: 34px !important;
+  }
+  #dashboard-container > div[style*="text-align: center"] h3 {
+    margin-bottom: 8px !important; color: #0f172a !important; font-size: 20px !important; font-weight: 800 !important;
+  }
+  #dashboard-container > div[style*="text-align: center"] > p {
+    margin-bottom: 20px !important; color: #64748b !important; font-size: 14px !important; line-height: 1.5;
+  }
+  #dashboard-container > div[style*="text-align: center"] > div:last-child {
+    gap: 12px !important; margin-top: 24px !important;
+  }
+  #dashboard-container > div[style*="text-align: center"] > div:last-child > div p {
+    font-size: 13px !important; font-weight: 700 !important;
+  }
+  @media (max-width: 991px) {
+    .cashier-dashboard-admin .filter-card .row { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  }
+  @media (max-width: 640px) {
+    .cashier-dashboard-admin { padding: 16px 14px 32px !important; }
+    .cashier-dashboard-admin .filter-card { padding: 14px; }
+    .cashier-dashboard-admin .filter-card .row { grid-template-columns: 1fr; }
+    #dashboard-container > div[style*="text-align: center"] > div:last-child { flex-wrap: wrap; }
+  }
+}
+</style>
+
+
+<div class="p-4 cashier-dashboard-admin">
     <!-- Filter Card -->
     <div class="filter-card">
         <h2 style="margin-bottom: 25px; color: #1f2937; font-size: 20px; font-weight: 700;">
