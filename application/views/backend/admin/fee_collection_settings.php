@@ -427,6 +427,163 @@ input:checked + .toggle-slider:before {
 }
 </style>
 
+<style>
+@media screen {
+  body { background: #f8fafc; }
+  .settings-header {
+    padding: 22px 24px; margin-bottom: 16px; border-radius: 14px;
+    background: #0f172a; box-shadow: 0 8px 22px rgba(15,23,42,.14);
+  }
+  .settings-header::before { display: none; }
+  .settings-header h2 {
+    font-size: 28px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em;
+  }
+  .settings-header p { margin-top: 5px; font-size: 14px; line-height: 1.5; color: #cbd5e1; opacity: 1; }
+
+  .settings-card {
+    padding: 18px 20px; margin-bottom: 16px;
+    border: 1px solid #e2e8f0; border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05); background: #fff;
+  }
+  .settings-card-title {
+    margin-bottom: 5px; gap: 10px; color: #0f172a;
+    font-size: 17px; line-height: 1.35; font-weight: 800;
+  }
+  .settings-card-title i {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: #2563eb; font-size: 15px;
+  }
+  .settings-card-description {
+    margin-bottom: 16px; color: #64748b; font-size: 14px; line-height: 1.5;
+  }
+
+  .mode-grid { gap: 10px; }
+  .mode-option {
+    min-height: 126px; padding: 14px 15px;
+    border: 1px solid #e2e8f0; border-radius: 11px;
+    background: #fff; box-shadow: none;
+  }
+  .mode-option:hover {
+    border-color: #bfdbfe; background: #f8fbff; box-shadow: 0 2px 8px rgba(15,23,42,.05);
+  }
+  .mode-option.selected {
+    border-color: #2563eb; background: #eff6ff; box-shadow: 0 0 0 2px rgba(37,99,235,.08);
+  }
+  .mode-option input[type="radio"] {
+    width: 18px; height: 18px; margin-bottom: 8px;
+  }
+  .mode-option-content h4 {
+    margin-bottom: 5px; color: #0f172a; font-size: 15px; line-height: 1.35; font-weight: 800;
+  }
+  .mode-option-content p {
+    color: #64748b; font-size: 13px; line-height: 1.45;
+  }
+
+  .module-grid { gap: 10px; }
+  .module-card {
+    min-height: 76px; padding: 12px 13px;
+    border: 1px solid #e2e8f0; border-radius: 11px; background: #f8fafc;
+  }
+  .module-card:hover {
+    border-color: #cbd5e1; background: #fff; box-shadow: 0 2px 8px rgba(15,23,42,.05);
+  }
+  .module-card.active {
+    border-color: #86efac; background: #f0fdf4;
+  }
+  .module-info { gap: 10px; }
+  .module-icon {
+    width: 40px; height: 40px; border-radius: 9px; font-size: 16px;
+  }
+  .module-text h5 {
+    color: #0f172a; font-size: 14px; line-height: 1.35; font-weight: 800;
+  }
+  .module-text p {
+    margin-top: 2px; color: #64748b; font-size: 13px; line-height: 1.35;
+  }
+  .toggle-switch {
+    width: 50px; height: 27px;
+  }
+  .toggle-slider { border-radius: 27px; }
+  .toggle-slider:before {
+    width: 19px; height: 19px; left: 4px; bottom: 4px;
+  }
+  input:checked + .toggle-slider:before { transform: translateX(23px); }
+
+  .assignments-section {
+    margin-top: 16px; padding-top: 16px;
+  }
+  .assignments-header {
+    margin-bottom: 12px; gap: 10px;
+  }
+  .assignments-header h4 {
+    color: #0f172a; font-size: 15px; font-weight: 800;
+  }
+  .assignments-header h4 i { color: #2563eb; }
+
+  .table-responsive {
+    border: 1px solid #e2e8f0; border-radius: 10px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .assignments-table {
+    min-width: 760px; border: 0; border-radius: 0;
+  }
+  .assignments-table th {
+    padding: 11px 12px; background: #f8fafc;
+    color: #475569; font-size: 13px; line-height: 1.35;
+    font-weight: 800; letter-spacing: .03em;
+  }
+  .assignments-table td {
+    padding: 11px 12px; color: #334155; font-size: 14px; line-height: 1.45;
+  }
+  .assignments-table tr:hover td { background: #f8fbff; }
+  .badge {
+    padding: 4px 8px; border-radius: 999px;
+    font-size: 12.5px; font-weight: 700; margin: 2px 3px 2px 0;
+  }
+
+  .btn {
+    min-height: 40px; padding: 8px 13px;
+    border-radius: 8px; font-size: 14px; font-weight: 700; gap: 7px;
+  }
+  .btn-primary, .btn-success { box-shadow: none; }
+  .btn-primary:hover, .btn-success:hover { box-shadow: 0 3px 9px rgba(15,23,42,.12); }
+  .btn-outline, .btn-danger {
+    min-height: 36px; padding: 7px 10px; border-width: 1px;
+  }
+
+  .save-container {
+    bottom: 10px; margin-top: 16px; padding: 10px 12px;
+    border: 1px solid #e2e8f0; border-radius: 12px;
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 8px 22px rgba(15,23,42,.10);
+    backdrop-filter: blur(8px);
+  }
+  .save-container .btn { min-height: 44px; padding: 9px 17px; font-size: 14px; font-weight: 800; }
+
+  .empty-state { padding: 30px 18px; font-size: 14px; }
+  .empty-state i { margin-bottom: 10px; font-size: 36px; }
+  .empty-state p { font-size: 14px; }
+
+  @media (max-width: 900px) {
+    .settings-header { padding: 18px 20px; }
+    .mode-grid { grid-template-columns: 1fr 1fr; }
+    .module-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    .settings-header { padding: 18px 16px; }
+    .settings-header h2 { font-size: 24px; }
+    .settings-card { padding: 14px; }
+    .mode-grid, .module-grid { grid-template-columns: 1fr; }
+    .mode-option { min-height: auto; }
+    .assignments-header { align-items: stretch; flex-direction: column; }
+    .assignments-header .btn { width: 100%; justify-content: center; }
+    .save-container { bottom: 6px; }
+    .save-container .btn { width: 100%; justify-content: center; }
+  }
+}
+</style>
+
+
 <div class="settings-header">
     <h2><i class="fa fa-cog"></i> Fee Collection Settings</h2>
     <p>Configure how and where fees are collected, which modules are active, and teacher permissions</p>
