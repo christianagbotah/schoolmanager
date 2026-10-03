@@ -723,3 +723,219 @@ input[type="week"]::-webkit-calendar-picker-indicator:hover {
 }
 
 
+
+
+/* ============================================================================
+   SCHOOLMANAGER READABILITY ALIGNMENT
+   Shared screen-only refinement; lesson-note fields and workflow logic unchanged.
+   ============================================================================ */
+@media screen {
+    .ln-container {
+        max-width: 1480px;
+        padding: 24px 28px 40px;
+    }
+
+    .ln-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+        margin-bottom: 18px;
+    }
+
+    .ln-card-header {
+        padding: 18px 20px;
+    }
+
+    .ln-card-body {
+        padding: 18px 20px;
+    }
+
+    .ln-card-footer {
+        padding: 14px 20px;
+    }
+
+    .ln-title {
+        font-size: 28px;
+        line-height: 1.2;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #0f172a;
+        margin-bottom: 5px;
+    }
+
+    .ln-subtitle {
+        font-size: 15px;
+        line-height: 1.5;
+        color: #64748b;
+    }
+
+    .ln-section-title {
+        font-size: 17px;
+        font-weight: 800;
+        margin-bottom: 16px;
+        padding-bottom: 10px;
+        border-bottom-width: 1px;
+    }
+
+    .ln-form-group {
+        margin-bottom: 17px;
+    }
+
+    .ln-form-group label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #334155;
+        margin-bottom: 7px;
+    }
+
+    .ln-form-control {
+        min-height: 46px;
+        padding: 10px 12px;
+        font-size: 15px;
+        border-color: #cbd5e1;
+        border-radius: 9px;
+        color: #0f172a;
+    }
+
+    textarea.ln-form-control {
+        min-height: 110px;
+        line-height: 1.5;
+    }
+
+    .ln-grid {
+        gap: 16px;
+    }
+
+    .ln-btn {
+        min-height: 42px;
+        padding: 9px 16px;
+        border-radius: 9px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .ln-btn-lg {
+        min-height: 46px;
+        padding: 10px 20px;
+        font-size: 15px;
+    }
+
+    .ln-btn-sm,
+    .ln-table .ln-btn-sm {
+        min-height: 36px;
+        padding: 7px 11px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .ln-btn-group {
+        gap: 8px;
+    }
+
+    .ln-badge {
+        min-height: 28px;
+        padding: 5px 10px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .ln-table-container {
+        border-color: #e2e8f0;
+        border-radius: 12px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .ln-table {
+        min-width: 900px;
+        font-size: 14px;
+    }
+
+    .ln-table th {
+        padding: 12px 13px;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.035em;
+    }
+
+    .ln-table td {
+        padding: 12px 13px;
+        color: #334155;
+        line-height: 1.45;
+    }
+
+    .ln-status-card {
+        padding: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: none;
+    }
+
+    .ln-status-card .count {
+        font-size: 27px;
+        line-height: 1.2;
+    }
+
+    .ln-status-card .label {
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .ln-filter-section {
+        padding: 16px;
+        margin-bottom: 18px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        font-size: 14px;
+        color: #475569;
+    }
+
+    .dataTables_wrapper .dataTables_length select,
+    .dataTables_wrapper .dataTables_filter input {
+        min-height: 40px;
+        padding: 8px 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 14px;
+        background: #fff;
+        color: #0f172a;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        min-height: 36px;
+        min-width: 36px;
+        padding: 7px 10px;
+        border-radius: 7px;
+        font-size: 13px;
+    }
+
+    @media (max-width: 767px) {
+        .ln-container {
+            padding: 16px 14px 32px;
+        }
+
+        .ln-card-header,
+        .ln-card-body {
+            padding: 16px;
+        }
+
+        .ln-title {
+            font-size: 24px;
+        }
+
+        .ln-form-control {
+            font-size: 16px;
+        }
+
+        .ln-btn {
+            min-height: 44px;
+        }
+    }
+}
