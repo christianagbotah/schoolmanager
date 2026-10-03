@@ -1,7 +1,7 @@
 <div class="row" style="margin-top: 25px; max-width: 100%; overflow-x: hidden;">
     <div class="col-md-12" style="max-width: 100%; overflow-x: hidden;">
         <div class="panel panel-primary" style="border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: none; max-width: 100%; overflow-x: hidden;">
-            <div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px 10px 0 0; padding: 20px;">
+            <div class="panel-heading" style="background: #2563eb; border-radius: 10px 10px 0 0; padding: 20px;">
                 <div class="panel-title" style="font-size: 18px; font-weight: 600; color: white; word-wrap: break-word;">
                     <i class="fa fa-file-invoice" style="margin-right: 8px;"></i> Terminal Bills Report
                 </div>
@@ -126,13 +126,13 @@
                                     <i class="fa fa-users" style="color: #667eea; margin-right: 8px;"></i> Select Students
                                 </div>
                                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                    <button type="button" id="select_all_btn" class="btn btn-sm" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); transition: all 0.2s; white-space: nowrap;">
+                                    <button type="button" id="select_all_btn" class="btn btn-sm" style="background: #059669; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); transition: all 0.2s; white-space: nowrap;">
                                         <i class="fa fa-check-double" style="margin-right: 5px;"></i> Select All
                                     </button>
                                     <button type="button" id="deselect_all_btn" class="btn btn-sm" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3); transition: all 0.2s; white-space: nowrap;">
                                         <i class="fa fa-times" style="margin-right: 5px;"></i> Deselect All
                                     </button>
-                                    <button type="submit" class="btn btn-sm" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 8px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4); transition: all 0.2s; white-space: nowrap;">
+                                    <button type="submit" class="btn btn-sm" style="background: #2563eb; color: white; border: none; padding: 8px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4); transition: all 0.2s; white-space: nowrap;">
                                         <i class="fa fa-file-pdf" style="margin-right: 5px;"></i> Generate Report
                                     </button>
                                 </div>
@@ -157,7 +157,7 @@
                             <!-- Pagination Controls -->
                             <div id="pagination_controls" style="display: none; margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                                    <button type="button" id="prev_page_btn" class="btn btn-sm" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: all 0.2s; white-space: nowrap;" disabled>
+                                    <button type="button" id="prev_page_btn" class="btn btn-sm" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: all 0.2s; white-space: nowrap;" disabled>
                                         <i class="fa fa-chevron-left" style="margin-right: 5px;"></i> Previous
                                     </button>
                                     
@@ -168,7 +168,7 @@
                                         </span>
                                     </div>
                                     
-                                    <button type="button" id="next_page_btn" class="btn btn-sm" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: all 0.2s; white-space: nowrap;">
+                                    <button type="button" id="next_page_btn" class="btn btn-sm" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: all 0.2s; white-space: nowrap;">
                                         Next <i class="fa fa-chevron-right" style="margin-left: 5px;"></i>
                                     </button>
                                 </div>

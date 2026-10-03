@@ -104,7 +104,7 @@ $current_student = 0;
             border-bottom: 3px solid #667eea;
             padding-bottom: 15px;
             margin-bottom: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2563eb;
             color: white;
             padding: 20px;
             border-radius: 6px 6px 0 0;
@@ -147,7 +147,7 @@ $current_student = 0;
             text-align: center;
             margin: 20px 0;
             padding: 12px;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: #ec4899;
             color: white;
             border-radius: 6px;
         }
@@ -247,7 +247,7 @@ $current_student = 0;
         }
 
         .invoice-table thead {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2563eb;
             color: white;
         }
 
@@ -362,7 +362,7 @@ $current_student = 0;
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2563eb;
             color: white;
             border: none;
             padding: 15px 30px;

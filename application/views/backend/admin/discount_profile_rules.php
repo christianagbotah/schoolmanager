@@ -1,17 +1,17 @@
 <style>
 * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 .modern-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
-.modern-header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25); }
+.modern-header { background: #059669; color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25); }
 .modern-header h2 { margin: 0 0 8px 0; font-size: 28px; font-weight: 700; display: flex; align-items: center; gap: 12px; color: white; }
 .modern-header h2 i { color: white; }
 .modern-header p { margin: 0; opacity: 0.95; font-size: 15px; }
 .modern-actions { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
 .modern-btn { padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-.modern-btn-primary { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+.modern-btn-primary { background: #059669; color: white; }
 .modern-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
 .modern-btn-secondary { background: white; color: #374151; border: 2px solid #e5e7eb; }
 .modern-btn-secondary:hover { border-color: #10b981; color: #10b981; }
-.info-card { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid #3b82f6; padding: 20px; border-radius: 12px; margin-bottom: 24px; }
+.info-card { background: #dbeafe; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 12px; margin-bottom: 24px; }
 .info-card strong { color: #1e40af; display: block; margin-bottom: 8px; font-size: 15px; }
 .info-card ul { margin: 0; padding-left: 20px; color: #1e3a8a; }
 .info-card li { margin: 4px 0; }
@@ -24,9 +24,9 @@
 .rule-value-text { font-size: 14px; font-weight: 600; color: #1f2937; }
 .badge-all { display: inline-block; background: white; color: #6b7280; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 2px solid #e5e7eb; }
 .rule-actions { margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb; display: flex; gap: 8px; }
-.btn-delete { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; }
+.btn-delete { background: #dc2626; color: white; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; }
 .btn-delete:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
-.btn-edit { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; }
+.btn-edit { background: #d97706; color: white; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; }
 .btn-edit:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
 .empty-state { text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 .empty-state i { font-size: 64px; color: #d1d5db; margin-bottom: 16px; }
@@ -119,7 +119,7 @@ function showCreateRuleModal() {
             .modern-label { display: block; font-weight: 600; color: #2d3748; font-size: 15px; margin-bottom: 8px; letter-spacing: 0.3px; }
             .modern-select, .modern-input { width: 100%; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: all 0.2s; background: #ffffff; color: #1a202c; font-weight: 500; }
             .modern-select:focus, .modern-input:focus { border-color: #10b981; outline: none; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); background: #f0fdf4; }
-            .modern-btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 13px 26px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+            .modern-btn { background: #059669; color: white; padding: 13px 26px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
             .modern-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4); }
             .modern-btn i { margin-right: 6px; }
             .select2-container { width: 100% !important; }
@@ -129,7 +129,7 @@ function showCreateRuleModal() {
             .select2-container--default .select2-selection--single .select2-selection__arrow { height: 48px !important; }
             .select2-container--default.select2-container--focus .select2-selection--multiple,
             .select2-container--default.select2-container--focus .select2-selection--single { border-color: #10b981 !important; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important; }
-            .select2-container--default .select2-selection--multiple .select2-selection__choice { background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; border: none !important; color: white !important; border-radius: 6px !important; padding: 6px 12px !important; margin: 4px !important; font-size: 15px !important; }
+            .select2-container--default .select2-selection--multiple .select2-selection__choice { background: #059669 !important; border: none !important; color: white !important; border-radius: 6px !important; padding: 6px 12px !important; margin: 4px !important; font-size: 15px !important; }
             .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: white !important; margin-right: 6px !important; }
             .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover { color: #fee !important; }
             small { font-size: 13px !important; }
@@ -168,7 +168,7 @@ function editRule(ruleId, classId, categoryId, discountValue) {
             .modern-label { display: block; font-weight: 600; color: #2d3748; font-size: 15px; margin-bottom: 8px; letter-spacing: 0.3px; }
             .modern-select, .modern-input { width: 100%; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: all 0.2s; background: #ffffff; color: #1a202c; font-weight: 500; }
             .modern-select:focus, .modern-input:focus { border-color: #10b981; outline: none; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); background: #f0fdf4; }
-            .modern-btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 13px 26px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+            .modern-btn { background: #059669; color: white; padding: 13px 26px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
             .modern-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4); }
             .modern-btn i { margin-right: 6px; }
         </style>

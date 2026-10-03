@@ -1,6 +1,6 @@
 <style>
 .stat-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2563eb;
     color: white;
     padding: 20px;
     border-radius: 10px;
@@ -18,19 +18,19 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="stat-card" style="background: linear-gradient(135deg, #10c469 0%, #0e9d57 100%);">
+        <div class="stat-card" style="background: #059669;">
             <h3 id="totalAssignments">0</h3>
             <p><i class="fa fa-users"></i> <?php echo get_phrase('total_assignments'); ?></p>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="stat-card" style="background: linear-gradient(135deg, #f9c851 0%, #f77e53 100%);">
+        <div class="stat-card" style="background: #ea580c;">
             <h3 id="totalStudents">0</h3>
             <p><i class="fa fa-user"></i> <?php echo get_phrase('students_with_discounts'); ?></p>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="stat-card" style="background: linear-gradient(135deg, #5b69bc 0%, #3b5998 100%);">
+        <div class="stat-card" style="background: #3b5998;">
             <h3 id="totalRules">0</h3>
             <p><i class="fa fa-cog"></i> <?php echo get_phrase('total_rules'); ?></p>
         </div>
@@ -40,7 +40,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-primary">
-            <div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="panel-heading" style="background: #2563eb;">
                 <h3 class="panel-title"><i class="fa fa-list"></i> <?php echo get_phrase('student_discount_assignments'); ?></h3>
             </div>
             <div class="panel-body">

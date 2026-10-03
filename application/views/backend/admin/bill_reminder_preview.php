@@ -38,15 +38,15 @@
             <?php echo count($messages); ?> parent(s) will receive SMS
         </div>
         <div id="smsInfo" style="margin-top: 15px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+            <div style="background: #2563eb; color: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 <div style="font-size: 12px; opacity: 0.9;">SMS Balance</div>
                 <div id="smsBalance" style="font-size: 20px; font-weight: 700;">Loading...</div>
             </div>
-            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+            <div style="background: #ec4899; color: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 <div style="font-size: 12px; opacity: 0.9;">Estimated Cost</div>
                 <div id="smsCost" style="font-size: 20px; font-weight: 700;">Loading...</div>
             </div>
-            <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+            <div style="background: #059669; color: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 <div style="font-size: 12px; opacity: 0.9;">SMS Pages</div>
                 <div id="smsPages" style="font-size: 20px; font-weight: 700;">Loading...</div>
             </div>
@@ -241,7 +241,7 @@ function showTestModal() {
                 align-items: center;
                 gap: 6px;
                 padding: 6px 12px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: #2563eb;
                 color: white;
                 border-radius: 6px;
                 font-size: 14px;

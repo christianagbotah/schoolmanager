@@ -77,7 +77,7 @@
         }
         
         .report-badge {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            background: #dc2626;
             color: white;
             padding: 5px 10px;
             border-radius: 6px;
@@ -93,7 +93,7 @@
         }
         
         .student-info-section {
-            background: linear-gradient(135deg, #ecf0f1, #d5dbdb);
+            background: #f1f5f9;
             padding: 8px;
             margin-bottom: 10px;
             border-radius: 4px;
@@ -127,7 +127,7 @@
             color: #2c3e50;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            background: #2563eb;
             color: white;
             padding: 4px;
             border-radius: 3px;
@@ -143,7 +143,7 @@
         }
         
         .bills-table th {
-            background: linear-gradient(135deg, #34495e, #2c3e50);
+            background: #1e293b;
             color: white;
             padding: 4px 3px;
             font-size: 9px;
@@ -168,24 +168,24 @@
         }
         
         .arrears-row {
-            background: linear-gradient(135deg, #fadbd8, #f5b7b1);
+            background: #fee2e2;
             color: #c0392b;
             font-weight: bold;
         }
         
         .new-bill-row {
-            background: linear-gradient(135deg, #d5f4e6, #a8e6cf);
+            background: #d1fae5;
             color: #27ae60;
         }
         
         .total-row {
-            background: linear-gradient(135deg, #ecf0f1, #d5dbdb);
+            background: #f1f5f9;
             font-weight: bold;
             font-size: 10px;
         }
         
         .grand-total-row {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            background: #dc2626;
             color: white;
             font-weight: bold;
             font-size: 11px;
@@ -194,7 +194,7 @@
         .summary-section {
             margin-top: 10px;
             padding: 8px;
-            background: linear-gradient(135deg, #fff9e6, #ffeaa7);
+            background: #fef9c3;
             border-radius: 4px;
             border: 2px solid #f39c12;
         }
@@ -254,12 +254,12 @@
         }
         
         .btn-print {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            background: #059669;
             color: white;
         }
         
         .btn-back {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            background: #dc2626;
             color: white;
         }
         

@@ -24,14 +24,14 @@
 .search-box input { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 15px; }
 .filter-select { padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 15px; min-width: 180px; }
 .btn-enterprise { padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 15px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+.btn-primary { background: #2563eb; color: white; }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 .btn-danger { background: #ef4444; color: white; }
 .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
 .btn-success { background: #10b981; color: white; }
 .btn-success:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
 .btn-secondary { background: #6b7280; color: white; }
-.modern-modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; }
+.modern-modal-header { background: #2563eb; color: white; padding: 20px; border-radius: 12px 12px 0 0; }
 .data-table { background: white; border-radius: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 .table { width: 100%; border-collapse: collapse; min-width: 1000px; }
 .table thead { background: #f9fafb; }
@@ -50,10 +50,10 @@
 .modern-switch-wrapper { display: inline-flex; align-items: center; justify-content: center; }
 .modern-switch { position: relative; display: inline-block; width: 56px; height: 28px; cursor: pointer; }
 .modern-switch input { opacity: 0; width: 0; height: 0; }
-.modern-slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%); border-radius: 34px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+.modern-slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #9ca3af; border-radius: 34px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
 .modern-slider-button { position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 .modern-slider-button::before { content: "✕"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; color: #e74c3c; font-weight: bold; opacity: 1; transition: opacity 0.3s; }
-.modern-switch input:checked + .modern-slider { background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+.modern-switch input:checked + .modern-slider { background: #059669; box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
 .modern-switch input:checked + .modern-slider .modern-slider-button { transform: translateX(28px); }
 .modern-switch input:checked + .modern-slider .modern-slider-button::before { content: "✓"; color: #10b981; opacity: 1; }
 .modern-switch:hover .modern-slider { box-shadow: 0 0 8px rgba(0,0,0,0.2); }

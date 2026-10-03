@@ -1,19 +1,19 @@
 <style>
 * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 .reports-container { padding: 24px; background: #f8f9fa; min-height: 100vh; }
-.reports-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3); }
+.reports-header { background: #2563eb; color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3); }
 .reports-header h1 { margin: 0 0 8px 0; font-size: 32px; font-weight: 700; color: white; }
 .reports-header p { margin: 0; opacity: 0.9; font-size: 16px; }
 .report-tabs { background: white; border-radius: 12px; padding: 8px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; gap: 8px; }
 .tab-btn { flex: 1; padding: 16px; border: none; background: transparent; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s; color: #6b7280; }
-.tab-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+.tab-btn.active { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 .tab-btn:hover:not(.active) { background: #f3f4f6; }
 .filters-card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 .filters-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
 .filter-group { flex: 1; min-width: 200px; }
 .filter-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 .filter-select { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 15px; height: 48px; }
-.btn-generate { padding: 12px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s; height: 48px; }
+.btn-generate { padding: 12px 32px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s; height: 48px; }
 .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
 @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }

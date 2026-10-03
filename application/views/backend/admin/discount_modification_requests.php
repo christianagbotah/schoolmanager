@@ -265,12 +265,12 @@ function escapeHtml(text) {
 
 <style>
 .modern-modal-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2563eb;
     color: white;
 }
 
 .modern-modal-header-danger {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: #ec4899;
     color: white;
 }
 

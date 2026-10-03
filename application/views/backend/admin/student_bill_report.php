@@ -29,7 +29,7 @@
         }
         
         .bill-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2563eb;
             color: white;
             padding: 30px;
             text-align: center;
@@ -149,7 +149,7 @@
         }
         
         .summary-box {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2563eb;
             color: white;
             padding: 20px;
             border-radius: 8px;
@@ -191,7 +191,7 @@
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2563eb;
             color: white;
             border: none;
             padding: 15px 30px;

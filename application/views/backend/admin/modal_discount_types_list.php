@@ -14,14 +14,14 @@
 
 <div class="modal-dialog modal-md">
     <div class="modal-content">
-        <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px 8px 0 0;">
+        <div class="modal-header" style="background: #2563eb; color: white; border-radius: 8px 8px 0 0;">
             <button type="button" class="close" data-dismiss="modal" style="color: white; opacity: 0.9;">&times;</button>
             <h4 class="modal-title"><i class="fa fa-tags"></i> <?php echo get_phrase('manage_discount_types'); ?></h4>
         </div>
 
 <div class="modal-body" style="max-height: 500px; overflow-y: auto; background: #f9fafb; padding: 24px;">
     <div style="text-align: right; margin-bottom: 20px;">
-        <button class="btn btn-primary btn-modern" onclick="addNewDiscountType()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <button class="btn btn-primary btn-modern" onclick="addNewDiscountType()" style="background: #2563eb;">
             <i class="fa fa-plus-circle"></i> <?php echo get_phrase('add_new_discount_type'); ?>
         </button>
     </div>

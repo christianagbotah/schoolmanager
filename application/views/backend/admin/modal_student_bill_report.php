@@ -35,7 +35,7 @@ foreach($invoice_items as $item) {
 ?>
 
 <!-- Student Header -->
-<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px; color: white;">
+<div style="background: #2563eb; padding: 20px; border-radius: 8px; margin-bottom: 20px; color: white;">
     <div style="display: flex; align-items: center; gap: 15px;">
         <div style="flex-shrink: 0;">
             <img src="<?php echo $this->crud_model->get_image_url('student', $student_id, $student->sex); ?>" 

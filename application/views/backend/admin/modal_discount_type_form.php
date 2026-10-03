@@ -85,7 +85,7 @@
     
     <div class="form-group" style="margin-top: 20px; text-align: right;">
         <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo get_phrase('close'); ?></button>
-        <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 8px;"><?php echo get_phrase('save'); ?></button>
+        <button type="submit" class="btn btn-primary" style="background: #2563eb; border: none; border-radius: 8px;"><?php echo get_phrase('save'); ?></button>
     </div>
 <?php echo form_close(); ?>
 

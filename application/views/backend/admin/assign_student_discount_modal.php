@@ -7,7 +7,7 @@
 .modern-input { width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s; background: #ffffff; color: #1a202c; font-weight: 500; }
 .modern-input:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); background: #f7fafc; }
 .modern-input::placeholder { color: #a0aec0; font-weight: 400; }
-.modern-btn { padding: 16px 32px; border-radius: 10px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+.modern-btn { padding: 16px 32px; border-radius: 10px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #2563eb; color: white; }
 .modern-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 .modern-btn i { margin-right: 0; }
 </style>
@@ -194,7 +194,7 @@
             const student = allStudentsModal.find(s => String(s.student_id) === String(id));
             if(student) {
                 html += `
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(102, 126, 234, 0.25);">
+                    <div style="background: #2563eb; color: white; padding: 6px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(102, 126, 234, 0.25);">
                         <div>
                             <div style="font-size: 12px;">${student.name}</div>
                             <div style="font-size: 10px; opacity: 0.9;">${student.student_code} • ${student.class_name}</div>
@@ -216,7 +216,7 @@
         let html = '';
         data.forEach(student => {
             html += `
-                <div class="suggestion-item-modal" data-id="${student.student_id}" data-name="${student.name}" data-code="${student.student_code}" data-class="${student.class_name}" style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; this.style.color='white'; this.querySelector('.suggestion-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.suggestion-meta').style.color='#718096';">
+                <div class="suggestion-item-modal" data-id="${student.student_id}" data-name="${student.name}" data-code="${student.student_code}" data-class="${student.class_name}" style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'; this.style.color='white'; this.querySelector('.suggestion-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.suggestion-meta').style.color='#718096';">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="flex: 1;">
                             <div style="font-weight: 600; font-size: 13px; margin-bottom: 2px;">
@@ -273,7 +273,7 @@
         }
         
         html += `
-            <div class="profile-item-modal" data-id="${profile.profile_id}" data-name="${profile.profile_name}" style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; this.style.color='white'; this.querySelector('.profile-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.profile-meta').style.color='#718096';">
+            <div class="profile-item-modal" data-id="${profile.profile_id}" data-name="${profile.profile_name}" style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'; this.style.color='white'; this.querySelector('.profile-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.profile-meta').style.color='#718096';">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="flex: 1;">
                         <div style="font-weight: 600; font-size: 13px; margin-bottom: 2px;">
@@ -339,7 +339,7 @@
             }
             
             html += `
-                <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 6px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(245, 87, 108, 0.25);">
+                <div style="background: #ec4899; color: white; padding: 6px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(245, 87, 108, 0.25);">
                     <div>
                         <div style="font-size: 12px;">${categoryBadge} ${profile.profile_name}</div>
                         <div style="font-size: 10px; opacity: 0.9;">${typeDisplay} • ${valueDisplay}</div>

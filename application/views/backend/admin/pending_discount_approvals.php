@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-primary" style="border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
-            <div class="panel-heading" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none; padding: 20px;">
+            <div class="panel-heading" style="background: #d97706; border: none; padding: 20px;">
                 <h3 style="margin: 0; color: white; font-weight: 600;">
                     <i class="fa fa-clock"></i> Pending Discount Approvals
                 </h3>
@@ -13,7 +13,7 @@
             <div class="panel-body" style="padding: 25px;">
                 <div class="table-responsive">
                     <table class="table table-hover" id="pending-discounts-table">
-                        <thead style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+                        <thead style="background: #d97706; color: white;">
                             <tr>
                                 <th>Student</th>
                                 <th>Discount Type</th>
@@ -40,7 +40,7 @@
 <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content" style="border-radius: 12px;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
+            <div class="modal-header" style="background: #dc2626; color: white;">
                 <button type="button" class="close" data-dismiss="modal" style="color: white;">&times;</button>
                 <h4 class="modal-title"><i class="fa fa-times-circle"></i> Reject Discount</h4>
             </div>

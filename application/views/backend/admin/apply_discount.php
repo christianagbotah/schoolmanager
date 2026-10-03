@@ -14,7 +14,7 @@ if(empty($student_id)) {
   overflow: hidden;
 }
 .enterprise-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2563eb;
   padding: 32px;
   color: white;
 }
@@ -84,7 +84,7 @@ if(empty($student_id)) {
   font-weight: 700;
   border-radius: 12px;
   border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2563eb;
   color: white;
   transition: all 0.3s;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
@@ -106,7 +106,7 @@ if(empty($student_id)) {
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: #f0f9ff;
   border-left: 4px solid #0ea5e9;
   border-radius: 8px;
   font-size: 14px;
@@ -188,7 +188,7 @@ if(empty($student_id)) {
         
         <div id="invoice_details_section" style="display: none; margin-top: 30px;">
           <div class="enterprise-card">
-            <div class="enterprise-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+            <div class="enterprise-header" style="background: #059669;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                   <h4 style="margin: 0; font-size: 24px; font-weight: 700; color: white;">
@@ -213,7 +213,7 @@ if(empty($student_id)) {
         </div>
         
         <!-- Discount Profile Section -->
-        <div id="discount-profile-section" style="display: none; margin-top: 30px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 16px; padding: 25px;">
+        <div id="discount-profile-section" style="display: none; margin-top: 30px; background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 16px; padding: 25px;">
           <h5 style="color: #0c4a6e; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
             <i class="fa fa-tag" style="color: #0ea5e9;"></i>
             <?php echo get_phrase('assign_discount_profile'); ?>
@@ -239,7 +239,7 @@ if(empty($student_id)) {
               </select>
             </div>
             <div id="profile-preview" style="display: none; background: white; border-radius: 10px; padding: 20px; margin: 15px 0; border: 2px solid #10b981; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1);"></div>
-            <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 12px 30px; font-weight: 700; border-radius: 10px;">
+            <button type="submit" class="btn btn-primary" style="background: #2563eb; border: none; padding: 12px 30px; font-weight: 700; border-radius: 10px;">
               <i class="fa fa-check-circle"></i> <?php echo get_phrase('assign_profile'); ?>
             </button>
           <?php echo form_close(); ?>
@@ -361,7 +361,7 @@ $(document).ready(function() {
             success: function(discountData) {
               if(discountData.has_discount) {
                 var hasPending = discountData.details.some(d => d.status === 'pending');
-                var bgGradient = hasPending ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' : 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)';
+                var bgGradient = hasPending ? '#fffbeb' : '#d1fae5';
                 var borderColor = hasPending ? '#f59e0b' : '#10b981';
                 var iconColor = hasPending ? '#92400e' : '#065f46';
                 var titleColor = hasPending ? '#92400e' : '#065f46';
@@ -446,7 +446,7 @@ $(document).ready(function() {
                   : '<span style="font-size: 32px; font-weight: 800; color: #059669;"><?php echo $currency; ?> ' + parseFloat(response.profile.discount_value).toFixed(2) + '</span>';
                 
                 var html = '<div style="display: flex; gap: 20px; align-items: start;">';
-                html += '<div style="flex: 0 0 200px; text-align: center; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 20px; border-radius: 10px; border: 2px solid #10b981;">';
+                html += '<div style="flex: 0 0 200px; text-align: center; background: #d1fae5; padding: 20px; border-radius: 10px; border: 2px solid #10b981;">';
                 html += '<div style="font-size: 12px; color: #065f46; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">' + methodText + '</div>';
                 html += valueText;
                 html += '</div>';
@@ -692,7 +692,7 @@ foreach($invoice_codes as &$inv) {
     </div>
     
     <!-- Discount Profile Section -->
-    <div id="discount-profile-section" style="display: none; margin-top: 30px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 16px; padding: 25px;">
+    <div id="discount-profile-section" style="display: none; margin-top: 30px; background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 16px; padding: 25px;">
       <h5 style="color: #0c4a6e; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
         <i class="fa fa-tag" style="color: #0ea5e9;"></i>
         <?php echo get_phrase('assign_discount_profile'); ?>
@@ -718,7 +718,7 @@ foreach($invoice_codes as &$inv) {
           </select>
         </div>
         <div id="profile-preview" style="display: none; background: white; border-radius: 10px; padding: 20px; margin: 15px 0; border: 2px solid #10b981; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1);"></div>
-        <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 12px 30px; font-weight: 700; border-radius: 10px;">
+        <button type="submit" class="btn btn-primary" style="background: #2563eb; border: none; padding: 12px 30px; font-weight: 700; border-radius: 10px;">
           <i class="fa fa-check-circle"></i> <?php echo get_phrase('assign_profile'); ?>
         </button>
       <?php echo form_close(); ?>
@@ -812,7 +812,7 @@ $(document).ready(function() {
             var html = '<div style="display: flex; gap: 20px; align-items: start;">';
             
             // Left side - Discount Value
-            html += '<div style="flex: 0 0 200px; text-align: center; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 20px; border-radius: 10px; border: 2px solid #10b981;">';
+            html += '<div style="flex: 0 0 200px; text-align: center; background: #d1fae5; padding: 20px; border-radius: 10px; border: 2px solid #10b981;">';
             html += '<div style="font-size: 12px; color: #065f46; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">' + methodText + '</div>';
             html += valueText;
             html += '</div>';
