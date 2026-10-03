@@ -22,7 +22,132 @@ switch ($lesson_note->status) {
 }
 ?>
 
-<div class="row">
+<style>
+/* Lesson Note Review — direct enterprise UX refinement */
+body { background: #f8fafc; }
+.lesson-review-workspace {
+    margin: 0 !important; padding: 24px 28px 40px;
+}
+.lesson-review-workspace > .col-md-12 { padding: 0 !important; }
+
+.lesson-review-workspace > .col-md-12 > .panel-primary {
+    border: 0 !important; border-radius: 0 !important; background: transparent;
+    box-shadow: none !important;
+}
+.lesson-review-workspace > .col-md-12 > .panel-primary > .panel-heading {
+    padding: 20px 24px !important; border: 1px solid #1e293b !important;
+    border-radius: 14px !important; background: #0f172a !important;
+    box-shadow: 0 8px 22px rgba(15,23,42,.15);
+}
+.lesson-review-workspace > .col-md-12 > .panel-primary > .panel-heading .panel-title {
+    min-height: 32px; display: flex; align-items: center; gap: 9px;
+    color: #fff !important; font-size: 24px !important; line-height: 1.25; font-weight: 800 !important;
+}
+.lesson-review-workspace .panel-title > .label {
+    min-height: 30px; padding: 6px 10px !important; display: inline-flex; align-items: center;
+    border-radius: 999px !important; font-size: 13px !important; font-weight: 800 !important;
+}
+.lesson-review-workspace > .col-md-12 > .panel-primary > .panel-body {
+    padding: 18px 0 0 !important; background: transparent;
+}
+
+.lesson-review-workspace > .col-md-12 > .panel-primary > .panel-body > .row:first-child {
+    margin: 0 0 14px !important; padding: 12px 14px; border: 1px solid #e2e8f0;
+    border-radius: 12px; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.04);
+}
+.lesson-review-workspace .btn {
+    min-height: 40px; padding: 8px 13px; border-radius: 8px;
+    font-size: 14px; line-height: 1.35; font-weight: 700;
+}
+.lesson-review-workspace .btn-success { background: #059669; border-color: #059669; }
+.lesson-review-workspace .btn-danger { background: #dc2626; border-color: #dc2626; }
+.lesson-review-workspace .btn-info { background: #0284c7; border-color: #0284c7; }
+
+.lesson-review-workspace .panel-default {
+    margin-bottom: 14px; border: 1px solid #e2e8f0 !important; border-radius: 14px;
+    overflow: hidden; box-shadow: 0 1px 2px rgba(15,23,42,.04);
+}
+.lesson-review-workspace .panel-default > .panel-heading {
+    padding: 13px 16px !important; border-bottom: 1px solid #eef2f7 !important;
+    background: #f8fafc !important;
+}
+.lesson-review-workspace .panel-default > .panel-heading .panel-title {
+    color: #0f172a !important; font-size: 17px !important; line-height: 1.35; font-weight: 800 !important;
+}
+.lesson-review-workspace .panel-default > .panel-body {
+    padding: 16px 18px !important; background: #fff;
+    color: #334155; font-size: 14px; line-height: 1.6;
+}
+.lesson-review-workspace .panel-default p {
+    margin: 0 0 8px; color: #334155; font-size: 14px; line-height: 1.55;
+}
+.lesson-review-workspace .panel-default p strong { color: #0f172a; font-weight: 800; }
+.lesson-review-workspace .panel-default h5 {
+    margin: 14px 0 8px; color: #0f172a; font-size: 15px; line-height: 1.4; font-weight: 800;
+}
+.lesson-review-workspace .panel-default ul {
+    margin: 0; padding-left: 20px;
+}
+.lesson-review-workspace .panel-default li {
+    margin-bottom: 6px; color: #334155; font-size: 14px; line-height: 1.5;
+}
+.lesson-review-workspace .panel-default a:not(.btn) {
+    color: #2563eb; word-break: break-word;
+}
+
+.lesson-review-workspace .table-responsive,
+.lesson-review-workspace .panel-body:has(> table) {
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.lesson-review-workspace table.table {
+    min-width: 720px; margin-bottom: 0; border-color: #e2e8f0;
+}
+.lesson-review-workspace table.table thead th {
+    padding: 11px 12px; background: #f8fafc; color: #475569;
+    font-size: 13px; font-weight: 800; letter-spacing: .035em;
+}
+.lesson-review-workspace table.table tbody td {
+    padding: 11px 12px; color: #334155; font-size: 14px; line-height: 1.45;
+}
+
+#declineModal .modal-content {
+    border: 0; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 18px 50px rgba(15,23,42,.22);
+}
+#declineModal .modal-header {
+    padding: 15px 18px; border-bottom: 1px solid #e2e8f0; background: #fff;
+}
+#declineModal .modal-title {
+    color: #0f172a; font-size: 18px; font-weight: 800;
+}
+#declineModal .modal-body { padding: 18px; }
+#declineModal label { margin-bottom: 7px; color: #334155; font-size: 14px; font-weight: 700; }
+#declineModal textarea.form-control {
+    min-height: 110px; padding: 10px 12px; border: 1px solid #cbd5e1;
+    border-radius: 9px; font-size: 15px; line-height: 1.5;
+}
+#declineModal textarea.form-control:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
+}
+#declineModal .help-block { font-size: 13px; line-height: 1.45; color: #64748b; }
+#declineModal .modal-footer { padding: 12px 18px; border-top: 1px solid #e2e8f0; }
+#declineModal .btn { min-height: 40px; padding: 8px 13px; font-size: 14px; font-weight: 700; }
+
+@media (max-width: 767px) {
+    .lesson-review-workspace { padding: 18px 14px 32px; }
+    .lesson-review-workspace > .col-md-12 > .panel-primary > .panel-heading { padding: 18px !important; }
+    .lesson-review-workspace > .col-md-12 > .panel-primary > .panel-heading .panel-title {
+        align-items: flex-start; flex-wrap: wrap; font-size: 21px !important;
+    }
+    .lesson-review-workspace > .col-md-12 > .panel-primary > .panel-body > .row:first-child .btn {
+        width: 100%; margin-bottom: 7px; justify-content: center;
+    }
+    .lesson-review-workspace .panel-default > .panel-body { padding: 14px !important; }
+}
+</style>
+
+
+<div class="row lesson-review-workspace">
     <div class="col-md-12">
         <div class="panel panel-primary">
             <div class="panel-heading">
