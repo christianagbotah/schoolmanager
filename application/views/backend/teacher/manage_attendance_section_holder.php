@@ -1,6 +1,6 @@
 <div class="form-group">
-<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('section');?></label>
-    <select name="section_id" id="section_id" class="form-control selectboxit">
+<label class="block text-sm font-bold text-gray-700 mb-2"><?php echo get_phrase('section');?></label>
+    <select name="section_id" id="section_id" class="bg-white border-2 border-gray-300 text-gray-900 text-base rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 h-[46px]">
         <?php 
             $sections = $this->db->get_where('section' , array(
                 'class_id' => $class_id 
@@ -13,7 +13,7 @@
 </div>
 
 <script type="text/javascript">
-   
+
     $(document).ready(function () {
 
         // SelectBoxIt Dropdown replacement

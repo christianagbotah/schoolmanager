@@ -17,6 +17,82 @@
         margin-top: 45vh;
     }
 </style>
+<style type="text/css">
+    /* Family design-language alignment (attendance wave) — presentation only.
+       Scoped to this view's two forms; zero shell/global impact. */
+    #att_selector_form label.control-label {
+        font-size: 13px; font-weight: 600; color: #374151;
+        text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+    }
+    #att_selector_form .form-group { margin-bottom: 18px; }
+    #att_selector_form .form-control,
+    #attendance_form .form-control {
+        border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 10px 14px;
+        font-size: 14px; height: 42px; box-shadow: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    #att_selector_form .form-control:focus,
+    #attendance_form .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none;
+    }
+    #att_selector_form .btn,
+    #attendance_form .btn {
+        border-radius: 10px; font-weight: 600; font-size: 14px;
+        border: none; padding: 10px 20px; transition: all 0.2s;
+    }
+    #att_selector_form .btn-info,
+    #attendance_form .btn-info { background: #2563eb; color: #fff; }
+    #att_selector_form .btn-success,
+    #attendance_form .btn-success { background: #059669; color: #fff; }
+    #att_selector_form .btn-danger,
+    #attendance_form .btn-danger { background: #dc2626; color: #fff; }
+    #att_selector_form .btn-primary,
+    #attendance_form .btn-primary { background: #7c3aed; color: #fff; }
+    #att_selector_form .btn:hover { transform: translateY(-1px); }
+    #att_selector_form .tile-stats {
+        background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); padding: 24px;
+        margin-bottom: 20px;
+    }
+    #att_selector_form .tile-stats h3 { font-size: 18px; }
+    #att_selector_form .tile-stats h4 { font-size: 15px; }
+    #attendance_form #export_table {
+        border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;
+    }
+    #attendance_form #export_table thead { background: #f9fafb; }
+    #attendance_form #export_table thead th {
+        padding: 14px 12px; font-size: 13px; font-weight: 600; color: #374151;
+        text-transform: uppercase; letter-spacing: 0.5px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+    #attendance_form #export_table tbody td {
+        padding: 12px; font-size: 14px; vertical-align: middle;
+    }
+    #attendance_form #export_table tbody tr:hover { background: #f9fafb; }
+    #att_selector_form .btn:focus-visible,
+    #attendance_form .btn:focus-visible,
+    #att_selector_form .form-control:focus-visible,
+    #attendance_form .form-control:focus-visible {
+        outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+    }
+    @media (prefers-reduced-motion: reduce) {
+        #att_selector_form .btn, #att_selector_form .form-control,
+        #attendance_form .btn, #attendance_form .form-control,
+        #attendance_form #export_table tbody tr { transition: none; }
+        #att_selector_form .btn:hover { transform: none; }
+    }
+    @media (max-width: 768px) {
+        #att_selector_form .form-control,
+        #attendance_form .form-control { font-size: 16px; }
+        #attendance_form #export_table thead th,
+        #attendance_form #export_table tbody td { padding: 8px; font-size: 12px; }
+        #att_selector_form .btn { width: 100%; }
+    }
+    @media (max-width: 400px) {
+        #att_selector_form .tile-stats { padding: 15px; border-radius: 14px; }
+    }
+</style>
 
 <?php
     
