@@ -157,6 +157,262 @@
         width: 100%;
     }
 }
+
+/* Direct UI/UX refinement — Daily Fees Management */
+.fees-container {
+    padding: 24px 28px 40px !important;
+    background: #f8fafc !important;
+}
+.fees-container > .container-fluid {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 !important;
+}
+.fees-container .modern-card {
+    padding: 18px !important;
+    margin-bottom: 16px !important;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+    transition: border-color .15s ease, box-shadow .15s ease !important;
+}
+.fees-container .modern-card:hover {
+    transform: none !important;
+    box-shadow: 0 4px 12px rgba(15,23,42,.06) !important;
+}
+.fees-container .header-card {
+    padding: 20px 22px !important;
+    text-align: left !important;
+    background: #0f172a !important;
+    border: 0 !important;
+    border-radius: 14px !important;
+}
+.fees-container .header-card h1 {
+    margin: 0 0 5px !important;
+    color: #fff !important;
+    font-size: 24px !important;
+    line-height: 1.25;
+    font-weight: 800 !important;
+    letter-spacing: -.015em;
+}
+.fees-container .header-card p {
+    margin: 0 !important;
+    color: #cbd5e1 !important;
+    font-size: 14px !important;
+    line-height: 1.5;
+    opacity: 1 !important;
+}
+.fees-container .badge-mode {
+    margin: 12px 0 0 !important;
+    padding: 5px 10px !important;
+    border-radius: 999px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+}
+.fees-container .badge-integrated { background: #b45309 !important; }
+.fees-container .badge-separated { background: #047857 !important; }
+
+.fees-container .row.mb-4 {
+    margin-left: -7px !important;
+    margin-right: -7px !important;
+    margin-bottom: 16px !important;
+}
+.fees-container .row.mb-4 > .col-lg-6 {
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+    margin-bottom: 0 !important;
+}
+.fees-container .row.mb-4 > .col-lg-6 > div {
+    height: 100%;
+    padding: 15px 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    color: #334155 !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04) !important;
+}
+.fees-container .row.mb-4 > .col-lg-6 > div:hover {
+    box-shadow: 0 3px 10px rgba(15,23,42,.06) !important;
+    transform: none !important;
+}
+.fees-container .row.mb-4 h3 {
+    margin: 0 0 10px !important;
+    color: #0f172a !important;
+    font-size: 15px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+}
+.fees-container .row.mb-4 .d-flex.align-items-center {
+    gap: 9px !important;
+}
+.fees-container .row.mb-4 .d-flex.align-items-center > div:first-child {
+    width: 40px;
+    height: 40px;
+    padding: 0 !important;
+    border-radius: 9px !important;
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+.fees-container .row.mb-4 .d-flex.align-items-center > div:first-child i {
+    font-size: 16px !important;
+}
+.fees-container .row.mb-4 .form-control {
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 9px 11px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    background: #fff !important;
+    color: #0f172a !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+}
+.fees-container .row.mb-4 .form-control:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+    outline: none;
+}
+.fees-container .row.mb-4 button[type="submit"] {
+    min-height: 44px;
+    padding: 9px 14px !important;
+    border-radius: 8px !important;
+    border: 1px solid #2563eb !important;
+    background: #2563eb !important;
+    color: #fff !important;
+    font-size: 14px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+}
+.fees-container .row.mb-4 button[type="submit"]:hover {
+    background: #1d4ed8 !important;
+    transform: none !important;
+}
+
+.fees-container .section-title {
+    margin: 22px 0 12px !important;
+    color: #0f172a !important;
+    font-size: 18px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+    gap: 8px !important;
+}
+.fees-container .section-title i {
+    color: #64748b;
+    font-size: 16px;
+}
+.fees-container #by_date > .section-title:first-child,
+.fees-container #by_term > .section-title:first-child {
+    margin-top: 4px !important;
+}
+.fees-container #by_date .row,
+.fees-container #by_term .row {
+    row-gap: 12px !important;
+    margin-bottom: 8px !important;
+}
+.fees-container #by_date .row > [class*="col-"],
+.fees-container #by_term .row > [class*="col-"] {
+    margin-bottom: 0 !important;
+}
+
+.fees-container .stat-card {
+    min-height: 150px;
+    padding: 15px 14px !important;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    text-align: left !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04) !important;
+    transition: border-color .15s ease, box-shadow .15s ease !important;
+}
+.fees-container .stat-card:hover {
+    transform: none !important;
+    box-shadow: 0 4px 12px rgba(15,23,42,.06) !important;
+}
+.fees-container .stat-icon {
+    margin: 0 0 9px !important;
+    font-size: 20px !important;
+    line-height: 1;
+}
+.fees-container .stat-label {
+    margin: 0 0 6px !important;
+    color: #475569 !important;
+    font-size: 13px !important;
+    line-height: 1.35;
+    font-weight: 700 !important;
+}
+.fees-container .stat-amount {
+    margin: 0 !important;
+    color: #0f172a !important;
+    font-size: 21px !important;
+    line-height: 1.25;
+    font-weight: 800 !important;
+}
+.fees-container .currency-symbol {
+    margin-right: 3px;
+    color: #64748b;
+    font-size: .58em !important;
+}
+.fees-container .stat-subtitle {
+    margin-top: 7px !important;
+    color: #94a3b8 !important;
+    font-size: 12.5px !important;
+    line-height: 1.4;
+}
+.fees-container a.text-decoration-none {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+.fees-container a.text-decoration-none:focus-visible .stat-card {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.18) !important;
+}
+
+@media (max-width: 991px) {
+    .fees-container .row.mb-4 > .col-lg-6 + .col-lg-6 {
+        margin-top: 12px !important;
+    }
+    .fees-container .col-xl-20 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+}
+@media (max-width: 767px) {
+    .fees-container { padding: 18px 14px 32px !important; }
+    .fees-container .header-card { padding: 18px !important; }
+    .fees-container .header-card h1 { font-size: 21px !important; }
+    .fees-container .row.mb-4 .d-flex.align-items-center {
+        align-items: stretch !important;
+        flex-direction: column !important;
+    }
+    .fees-container .row.mb-4 .d-flex.align-items-center > div:first-child {
+        display: none !important;
+    }
+    .fees-container .row.mb-4 button[type="submit"] {
+        width: 100%;
+    }
+    .fees-container .col-xl-20,
+    .fees-container #by_date .row > [class*="col-"],
+    .fees-container #by_term .row > [class*="col-"] {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+}
+@media (max-width: 480px) {
+    .fees-container { padding: 12px 10px 28px !important; }
+    .fees-container .col-xl-20,
+    .fees-container #by_date .row > [class*="col-"],
+    .fees-container #by_term .row > [class*="col-"] {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+    .fees-container .stat-card { min-height: 132px; }
+}
 </style>
 
 <div class="fees-container">
