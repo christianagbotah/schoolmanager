@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-primary">
-            <div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+            <div class="panel-heading" style="background: #764ba2; border: none;">
                 <h3 class="panel-title" style="color: white;">
                     <i class="fa fa-chart-line"></i> Performance Analytics
                 </h3>
@@ -26,7 +26,7 @@
                 <!-- Stats Cards -->
                 <div class="row" id="stats-cards" style="display: none;">
                     <div class="col-md-3">
-                        <div class="panel" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <div class="panel" style="background: #764ba2; color: white;">
                             <div class="panel-body text-center">
                                 <h3 id="total_students">0</h3>
                                 <p>Total Students</p>
@@ -34,7 +34,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="panel" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+                        <div class="panel" style="background: #43e97b; color: white;">
                             <div class="panel-body text-center">
                                 <h3 id="pass_rate">0%</h3>
                                 <p>Pass Rate</p>
@@ -42,7 +42,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="panel" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+                        <div class="panel" style="background: #fa709a; color: white;">
                             <div class="panel-body text-center">
                                 <h3 id="avg_score">0</h3>
                                 <p>Average Score</p>
@@ -50,7 +50,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="panel" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); color: white;">
+                        <div class="panel" style="background: #330867; color: white;">
                             <div class="panel-body text-center">
                                 <h3 id="top_score">0</h3>
                                 <p>Highest Score</p>

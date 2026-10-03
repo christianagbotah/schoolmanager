@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-primary">
-            <div class="panel-heading" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border: none;">
+            <div class="panel-heading" style="background: #43e97b; border: none;">
                 <h3 class="panel-title" style="color: white;">
                     <i class="fa fa-graduation-cap"></i> SBA Management (Auto-Filled from Portfolio)
                 </h3>

@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-primary">
-            <div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+            <div class="panel-heading" style="background: #764ba2; border: none;">
                 <h3 class="panel-title" style="color: white;">
                     <i class="fa fa-clipboard-list"></i> Portfolio Assessment (Enterprise)
                 </h3>
@@ -11,17 +11,17 @@
                 <!-- Quick Actions -->
                 <div class="row mb-4">
                     <div class="col-md-3">
-                        <a href="#" onclick="manageScores()" class="btn btn-block" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px;">
+                        <a href="#" onclick="manageScores()" class="btn btn-block" style="background: #764ba2; color: white; padding: 15px;">
                             <i class="fa fa-edit"></i><br>Manage Scores
                         </a>
                     </div>
                     <div class="col-md-3">
-                        <a href="<?php echo site_url('portfolio_enterprise/sba_management'); ?>" class="btn btn-block" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 15px;">
+                        <a href="<?php echo site_url('portfolio_enterprise/sba_management'); ?>" class="btn btn-block" style="background: #43e97b; color: white; padding: 15px;">
                             <i class="fa fa-graduation-cap"></i><br>SBA Management
                         </a>
                     </div>
                     <div class="col-md-3">
-                        <a href="#" class="btn btn-block" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 15px;">
+                        <a href="#" class="btn btn-block" style="background: #fa709a; color: white; padding: 15px;">
                             <i class="fa fa-chart-line"></i><br>Analytics
                         </a>
                     </div>
