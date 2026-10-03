@@ -171,6 +171,150 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
 .badge-arrears { background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; }
 .badge-advance { background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; }
 .badge-mixed { background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+
+/* Direct UI/UX refinement — Fee Collection Statistics (screen only) */
+@media screen {
+    body { background: #f8fafc; }
+    .stats-header {
+        margin-bottom: 18px !important;
+        padding: 20px 22px !important;
+        border-radius: 14px !important;
+        background: #0f172a !important;
+        box-shadow: 0 1px 2px rgba(15,23,42,.10) !important;
+    }
+    .stats-header > .row { margin: 0 !important; }
+    .stats-header > .row > [class*="col-"] { padding: 0 !important; }
+    .stats-header [style*="display: flex"] { gap: 12px !important; }
+    .stats-header [style*="width: 64px"] {
+        width: 44px !important; height: 44px !important; border-radius: 11px !important;
+        background: rgba(255,255,255,.10) !important;
+    }
+    .stats-header [style*="font-size: 32px"] { font-size: 19px !important; }
+    .stats-header h2 {
+        font-size: 24px !important; line-height: 1.25; font-weight: 800 !important;
+        letter-spacing: -.015em;
+    }
+    .stats-header h2 + p { font-size: 14px !important; line-height: 1.45; color: #cbd5e1 !important; opacity: 1 !important; }
+
+    .filter-card {
+        margin-bottom: 16px !important; padding: 16px 18px !important;
+        border: 1px solid #e2e8f0 !important; border-radius: 14px !important;
+        box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+    }
+    .filter-card > .row {
+        display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 12px; margin: 0 !important;
+    }
+    .filter-card > .row > [class*="col-"] { width: 100% !important; padding: 0 !important; }
+    .filter-card label {
+        margin-bottom: 7px !important; color: #334155 !important;
+        font-size: 14px !important; font-weight: 700 !important;
+    }
+    .filter-card .form-control {
+        min-height: 46px !important; height: 46px !important;
+        padding: 9px 11px !important; border: 1px solid #cbd5e1 !important;
+        border-radius: 9px !important; background: #fff !important;
+        color: #0f172a !important; font-size: 14px !important;
+    }
+    .filter-card .form-control:focus {
+        border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+    }
+    .filter-card .btn-primary {
+        min-height: 46px !important; height: 46px !important; padding: 9px 14px !important;
+        border-radius: 9px !important; font-size: 14px !important; font-weight: 800 !important;
+        box-shadow: none !important;
+    }
+
+    .kpi-card {
+        min-height: 160px; padding: 16px !important;
+        border: 1px solid #e2e8f0 !important; border-radius: 12px !important;
+        box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+        transition: border-color .15s ease, box-shadow .15s ease !important;
+    }
+    .kpi-card:hover { box-shadow: 0 4px 12px rgba(15,23,42,.06) !important; }
+    .kpi-icon {
+        width: 40px !important; height: 40px !important; margin-bottom: 10px !important;
+        border-radius: 10px !important; font-size: 17px !important;
+    }
+    .kpi-label {
+        margin-bottom: 3px; color: #64748b !important;
+        font-size: 13px !important; line-height: 1.35; font-weight: 700 !important;
+    }
+    .kpi-value {
+        margin: 3px 0 5px !important; color: #0f172a !important;
+        font-size: 23px !important; line-height: 1.25; font-weight: 800 !important;
+    }
+    .kpi-card [style*="font-size: 12px"] {
+        font-size: 13px !important; line-height: 1.4;
+    }
+
+    .chart-card {
+        margin-bottom: 16px !important; padding: 17px 18px !important;
+        border: 1px solid #e2e8f0 !important; border-radius: 14px !important;
+        box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+    }
+    .chart-card h4 {
+        margin-bottom: 14px !important; color: #0f172a !important;
+        font-size: 16px !important; line-height: 1.35; font-weight: 800 !important;
+    }
+    .progress-fill { background: #2563eb !important; }
+
+    .badge-arrears,
+    .badge-advance,
+    .badge-mixed {
+        padding: 5px 9px !important; border-radius: 999px !important;
+        font-size: 12.5px !important; line-height: 1.25; font-weight: 700 !important;
+    }
+
+    .chart-card > div[style*="justify-content: space-between"] {
+        gap: 12px; margin-bottom: 14px !important;
+    }
+    #transaction_search {
+        width: 250px !important; min-height: 40px; height: 40px;
+        padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px;
+        font-size: 14px;
+    }
+    .chart-card .btn-light,
+    .chart-card .btn-success {
+        min-height: 40px; height: 40px !important; padding: 8px 12px;
+        border-radius: 8px; font-size: 13px; font-weight: 700;
+    }
+    .chart-card .table-responsive {
+        border: 1px solid #e2e8f0; border-radius: 11px; overflow-x: auto;
+    }
+    #transactions_table { min-width: 1050px; margin: 0 !important; }
+    #transactions_table thead th {
+        padding: 11px 12px !important; background: #f8fafc !important;
+        color: #475569 !important; font-size: 13px !important; line-height: 1.35;
+        font-weight: 800 !important; letter-spacing: .025em; border-bottom: 1px solid #e2e8f0 !important;
+    }
+    #transactions_table tbody td {
+        padding: 11px 12px !important; color: #334155 !important;
+        font-size: 14px !important; line-height: 1.45; vertical-align: middle;
+        border-bottom: 1px solid #eef2f7 !important;
+    }
+    #transactions_table tbody tr:hover td { background: #f8fbff !important; }
+    #transactions_table [style*="font-size: 11px"] { font-size: 13px !important; }
+    #transactions_table [style*="font-size: 13px"] { font-size: 14px !important; }
+
+    @media (max-width: 1199px) {
+        .filter-card > .row { grid-template-columns: repeat(3,minmax(0,1fr)); }
+    }
+    @media (max-width: 767px) {
+        .stats-header { padding: 18px !important; }
+        .stats-header h2 { font-size: 21px !important; }
+        .filter-card { padding: 14px !important; }
+        .filter-card > .row { grid-template-columns: 1fr; }
+        .chart-card { padding: 14px !important; }
+        .chart-card > div[style*="justify-content: space-between"] {
+            align-items: stretch !important; flex-direction: column !important;
+        }
+        #transaction_search { width: 100% !important; }
+        .chart-card > div[style*="justify-content: space-between"] > div {
+            width: 100%; display: flex; flex-wrap: wrap;
+        }
+        .chart-card > div[style*="justify-content: space-between"] .btn { flex: 1 1 auto; }
+    }
+}
 </style>
 
 <div class="row">
