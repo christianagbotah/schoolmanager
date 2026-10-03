@@ -2,7 +2,7 @@
 @import url('<?php echo base_url(); ?>assets/cdn/fonts/inter.css');
 * { font-family: 'Inter', sans-serif; }
 .modern-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
-.page-header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 10px 40px rgba(220, 38, 38, 0.2); }
+.page-header { background: #991b1b; border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15); }
 .page-title { font-size: 32px; font-weight: 700; color: white; margin: 0 0 8px 0; letter-spacing: -0.5px; }
 .page-subtitle { font-size: 16px; color: rgba(255,255,255,0.9); margin: 0; }
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
@@ -10,10 +10,10 @@
 @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } }
 .stat-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #f3f4f6; border-left: 4px solid; transition: all 0.3s; }
 .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
-.stat-card.current { border-left-color: #10b981; background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%); }
-.stat-card.days-30 { border-left-color: #f59e0b; background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%); }
-.stat-card.days-60 { border-left-color: #ef4444; background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%); }
-.stat-card.days-90 { border-left-color: #991b1b; background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%); }
+.stat-card.current { border-left-color: #059669; background: #f0fdf4; }
+.stat-card.days-30 { border-left-color: #d97706; background: #fffbeb; }
+.stat-card.days-60 { border-left-color: #dc2626; background: #fef2f2; }
+.stat-card.days-90 { border-left-color: #991b1b; background: #fef2f2; }
 .stat-label { font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
 .stat-value { font-size: 24px; font-weight: 700; color: #111827; margin-bottom: 4px; }
 .stat-meta { font-size: 13px; color: #9ca3af; }
@@ -22,7 +22,7 @@
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .card-title { font-size: 20px; font-weight: 700; color: #111827; margin: 0; }
 .btn-modern { padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-.btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+.btn-success { background: #059669; color: white; box-shadow: 0 1px 2px rgba(5, 150, 105, 0.3); }
 .btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
 .table-modern { width: 100%; border-collapse: separate; border-spacing: 0; }
 .table-modern thead th { background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%); padding: 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb; }

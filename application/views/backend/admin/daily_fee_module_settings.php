@@ -1,6 +1,6 @@
 <style>
 .module-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     border-radius: 16px;
     padding: 2rem;
     margin-bottom: 2rem;
@@ -66,11 +66,11 @@
     font-size: 1.5rem;
     margin-right: 1rem;
 }
-.icon-feeding { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.icon-classes { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-.icon-transport { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-.icon-breakfast { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-.icon-water { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+.icon-feeding { background: #d97706; }
+.icon-classes { background: #0284c7; }
+.icon-transport { background: #059669; }
+.icon-breakfast { background: #db2777; }
+.icon-water { background: #0891b2; }
 .toggle-switch {
     position: relative;
     width: 60px;
@@ -105,13 +105,13 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 input:checked + .toggle-slider {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2563eb;
 }
 input:checked + .toggle-slider:before {
     transform: translateX(28px);
 }
 .save-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2563eb;
     border: none;
     color: white;
     padding: 1.25rem 3.5rem;

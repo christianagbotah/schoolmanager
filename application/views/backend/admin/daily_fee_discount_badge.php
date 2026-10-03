@@ -7,7 +7,7 @@
 <?php if(isset($discount) && $discount): ?>
 <div class="discount-badge-container" style="display: inline-block; margin-left: 8px;">
     <span class="badge badge-success discount-badge" 
-          style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+          style="background: #2563eb; 
                  padding: 4px 10px; 
                  border-radius: 12px; 
                  font-size: 11px; 

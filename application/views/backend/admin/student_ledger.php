@@ -2,7 +2,7 @@
 @import url('<?php echo base_url(); ?>assets/cdn/fonts/inter.css');
 * { font-family: 'Inter', sans-serif; }
 .modern-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
-.page-header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%); border-radius: 16px; padding: 28px; margin-bottom: 24px; box-shadow: 0 12px 32px rgba(79, 70, 229, 0.25); }
+.page-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 16px; padding: 28px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15); }
 .page-title { font-size: 32px; font-weight: 700; color: white !important; margin: 0 0 8px 0; letter-spacing: -0.5px; }
 .page-subtitle { font-size: 16px; color: rgba(255,255,255,0.9); margin: 0; }
 .filter-card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); border: 1px solid #e5e7eb; }
@@ -58,7 +58,7 @@
             <div class="student-search-wrapper" style="position: relative;">
                 <input type="text" id="student_search" placeholder="Search student by name or code..." autocomplete="off" class="modern-input" style="padding-left: 40px;">
                 <input type="hidden" id="student_filter" name="student_filter">
-                <div class="search-icon" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #667eea; font-size: 16px; pointer-events: none;">
+                <div class="search-icon" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #2563eb; font-size: 16px; pointer-events: none;">
                     <i class="fa fa-search"></i>
                 </div>
                 <div id="student_dropdown" class="hidden" style="position: absolute; width: 100%; background: white; border: 2px solid #e5e7eb; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 4px; max-height: 320px; overflow-y: auto; z-index: 1000;"></div>

@@ -7,15 +7,15 @@ $water_enabled = is_fee_module_enabled('water');
 $transport_enabled = is_fee_module_enabled('transport');
 ?>
 <style>
-.fee-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 20px; color: white; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.fee-card { background: #2563eb; border-radius: 15px; padding: 20px; color: white; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15); }
 .fee-card h3 { margin: 0 0 10px 0; font-size: 16px; opacity: 0.9; }
 .fee-card .amount { font-size: 32px; font-weight: bold; }
 .fee-toggle { background: rgba(255,255,255,0.2); border-radius: 10px; padding: 15px; margin: 10px 0; cursor: pointer; transition: all 0.3s; }
 .fee-toggle:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
 .fee-toggle.active { background: rgba(255,255,255,0.4); border: 2px solid white; }
 .fee-input { background: rgba(255,255,255,0.9); border: none; border-radius: 8px; padding: 12px; font-size: 16px; width: 100%; }
-.total-display { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 15px; padding: 25px; text-align: center; color: white; font-size: 36px; font-weight: bold; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-.btn-collect { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; border-radius: 12px; padding: 18px 40px; font-size: 18px; font-weight: bold; color: white; width: 100%; box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: all 0.3s; }
+.total-display { background: #1e293b; border-radius: 15px; padding: 25px; text-align: center; color: white; font-size: 36px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15); }
+.btn-collect { background: #059669; border: none; border-radius: 12px; padding: 18px 40px; font-size: 18px; font-weight: bold; color: white; width: 100%; box-shadow: 0 1px 2px rgba(5, 150, 105, 0.35); transition: background-color .2s ease; }
 .btn-collect:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
 .student-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 .badge-custom { padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
@@ -24,7 +24,7 @@ $transport_enabled = is_fee_module_enabled('transport');
 <div class="row">
     <div class="col-md-12">
         <div class="panel" style="border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-radius: 15px;">
-            <div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px 15px 0 0; padding: 25px;">
+            <div class="panel-heading" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border-radius: 15px 15px 0 0; padding: 25px;">
                 <h2 style="margin: 0; font-weight: bold;"><i class="fa fa-cash-register"></i> <?php echo get_phrase('daily_fee_collection'); ?></h2>
                 <p style="margin: 5px 0 0 0; opacity: 0.9;"><?php echo date('l, d F Y'); ?></p>
             </div>
@@ -69,7 +69,7 @@ $transport_enabled = is_fee_module_enabled('transport');
                             <!-- Feeding -->
                             <?php if($feeding_enabled): ?>
                             <div class="col-md-6 col-lg-3">
-                                <div class="fee-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <div class="fee-card" style="background: #ec4899;">
                                     <h3><i class="fa fa-utensils"></i> <?php echo get_phrase('feeding'); ?></h3>
                                     <div class="amount" id="feeding_amount">GHS 0.00</div>
                                     <div class="fee-toggle" onclick="toggleFee('feeding')">
@@ -84,7 +84,7 @@ $transport_enabled = is_fee_module_enabled('transport');
                             <!-- Breakfast -->
                             <?php if($breakfast_enabled): ?>
                             <div class="col-md-6 col-lg-3">
-                                <div class="fee-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                                <div class="fee-card" style="background: #f59e0b;">
                                     <h3><i class="fa fa-coffee"></i> <?php echo get_phrase('breakfast'); ?></h3>
                                     <div class="amount" id="breakfast_amount">GHS 0.00</div>
                                     <div class="fee-toggle" onclick="toggleFee('breakfast')">
@@ -99,7 +99,7 @@ $transport_enabled = is_fee_module_enabled('transport');
                             <!-- Classes -->
                             <?php if($classes_enabled): ?>
                             <div class="col-md-6 col-lg-3">
-                                <div class="fee-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                                <div class="fee-card" style="background: #0891b2;">
                                     <h3><i class="fa fa-book"></i> <?php echo get_phrase('classes'); ?></h3>
                                     <div class="amount" id="classes_amount">GHS 0.00</div>
                                     <div class="fee-toggle" onclick="toggleFee('classes')">
@@ -114,7 +114,7 @@ $transport_enabled = is_fee_module_enabled('transport');
                             <!-- Water -->
                             <?php if($water_enabled): ?>
                             <div class="col-md-6 col-lg-3">
-                                <div class="fee-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                                <div class="fee-card" style="background: #cffafe;">
                                     <h3><i class="fa fa-tint"></i> <?php echo get_phrase('water'); ?></h3>
                                     <div class="amount" id="water_amount">GHS 0.00</div>
                                     <div class="fee-toggle" onclick="toggleFee('water')">
@@ -130,7 +130,7 @@ $transport_enabled = is_fee_module_enabled('transport');
                         <!-- Transport Section -->
                         <?php if($transport_enabled): ?>
                         <div class="student-card" id="transport_section" style="display:none;">
-                            <h4 style="color: #667eea; margin-bottom: 20px;"><i class="fa fa-bus"></i> <?php echo get_phrase('transport'); ?></h4>
+                            <h4 style="color: #2563eb; margin-bottom: 20px;"><i class="fa fa-bus"></i> <?php echo get_phrase('transport'); ?></h4>
                             <div class="row">
                                 <div class="col-md-6">
                                     <label><?php echo get_phrase('route'); ?></label>
@@ -148,7 +148,7 @@ $transport_enabled = is_fee_module_enabled('transport');
                             </div>
                             <div style="margin-top: 15px; padding: 15px; background: rgba(102,126,234,0.1); border-radius: 10px;">
                                 <strong><?php echo get_phrase('transport_fare'); ?>:</strong> 
-                                <span id="transport_amount" style="font-size: 20px; color: #667eea; font-weight: bold;">GHS 0.00</span>
+                                <span id="transport_amount" style="font-size: 20px; color: #2563eb; font-weight: bold;">GHS 0.00</span>
                             </div>
                             <input type="hidden" name="transport_amount" id="transport_rate" value="0">
                             <input type="hidden" id="route_fare_base" value="0">

@@ -18,7 +18,7 @@ $grid_columns = max($enabled_count, 1); // At least 1 column
     margin-bottom: 15px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     transition: all 0.3s;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #2563eb;
 }
 .rate-card.section-card {
     border-left: 4px solid #f59e0b;
@@ -61,7 +61,7 @@ $grid_columns = max($enabled_count, 1); // At least 1 column
 .rate-value {
     font-size: 20px;
     font-weight: 700;
-    color: #667eea;
+    color: #2563eb;
 }
 .bulk-input {
     width: 100%;
@@ -72,7 +72,7 @@ $grid_columns = max($enabled_count, 1); // At least 1 column
     text-align: center;
 }
 .bulk-input:focus {
-    border-color: #667eea;
+    border-color: #2563eb;
     outline: none;
 }
 </style>
@@ -80,13 +80,13 @@ $grid_columns = max($enabled_count, 1); // At least 1 column
 <div class="row" style="margin-top: 20px;">
     <div class="col-md-12">
         <div class="panel panel-primary">
-            <div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+            <div class="panel-heading" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h4 style="margin: 0; color: white; font-weight: 700;">
                         <i class="fa fa-money-bill-wave"></i> <?php echo get_phrase('daily_fee_rates_management'); ?>
                     </h4>
                     <div style="display: flex; gap: 10px;">
-                        <button class="btn" onclick="showBulkRateModal()" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; font-weight: 600; padding: 10px 24px; font-size: 15px; border: none; box-shadow: 0 4px 12px rgba(245,158,11,0.3);">
+                        <button class="btn" onclick="showBulkRateModal()" style="background: #d97706; color: white; font-weight: 600; padding: 10px 24px; font-size: 15px; border: none; box-shadow: 0 1px 2px rgba(217, 119, 6, 0.35);">
                             <i class="fa fa-layer-group"></i> <?php echo get_phrase('bulk_assign_rates'); ?>
                         </button>
                     </div>
@@ -109,7 +109,7 @@ $grid_columns = max($enabled_count, 1); // At least 1 column
                 <div class="rate-card">
                     <div class="rate-card-header">
                         <div class="rate-card-title">
-                            <i class="fa fa-graduation-cap" style="color: #667eea;"></i> <?php echo $class['name'] . ' ' . $class['name_numeric']; ?>
+                            <i class="fa fa-graduation-cap" style="color: #2563eb;"></i> <?php echo $class['name'] . ' ' . $class['name_numeric']; ?>
                         </div>
                         <button class="btn btn-primary" onclick="showRateModal(<?php echo $class['class_id']; ?>, <?php echo $rate ? $rate->id : 0; ?>)">
                             <i class="fa fa-edit"></i> <?php echo $rate ? get_phrase('edit') : get_phrase('set_rates'); ?>

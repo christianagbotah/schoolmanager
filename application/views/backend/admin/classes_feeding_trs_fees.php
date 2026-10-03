@@ -34,7 +34,7 @@
 
 <style>
 .fees-container {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    background: #f9fafb;
     min-height: 100vh;
     padding: 2rem 1rem;
 }
@@ -116,11 +116,11 @@
     margin-left: 1rem;
 }
 .badge-separated {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: #059669;
     color: white;
 }
 .badge-integrated {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: #d97706;
     color: white;
 }
 .col-xl-20 {
@@ -175,7 +175,7 @@
         <!-- Search Filters -->
         <div class="row mb-4">
             <div class="col-lg-6 mb-3">
-                <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg p-4 hover:shadow-xl transition-all" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 16px; color: white;">
+                <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg p-4 hover:shadow-xl transition-all" style="background: #2563eb; border-radius: 16px; color: white;">
                     <h3 style="margin: 0 0 1rem 0; font-size: 1.125rem; font-weight: 700; color: white;">Search by Date</h3>
                     <?php echo form_open('', array('id' => 'by_date_form')); ?>
                     <div class="d-flex align-items-center gap-2">
@@ -192,7 +192,7 @@
             </div>
 
             <div class="col-lg-6 mb-3">
-                <div class="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl shadow-lg p-4 hover:shadow-xl transition-all" style="background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%); border-radius: 16px; color: white;">
+                <div class="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl shadow-lg p-4 hover:shadow-xl transition-all" style="background: #2563eb; border-radius: 16px; color: white;">
                     <h3 style="margin: 0 0 1rem 0; font-size: 1.125rem; font-weight: 700; color: white;">Search by Term/Year</h3>
                     <?php echo form_open('', array('id' => 'byterm_form')); ?>
                     <div class="d-flex align-items-center gap-2">

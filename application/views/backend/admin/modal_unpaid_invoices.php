@@ -54,7 +54,7 @@
 <!-- Summary Card -->
 <div class="row" style="margin-bottom: 15px;">
     <div class="col-md-12">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <div class="row">
                 <div class="col-md-6 col-sm-6">
                     <div style="text-align: center; padding: 15px;">
@@ -202,7 +202,7 @@
                                 $payment_option = '';
                             } else {
                                 $status = '<button class="btn btn-danger btn-xs">Unpaid</button>';
-                                $payment_option = '<li><a href="#" onclick="invoice_pay_modal('.$row->student_id.')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a></li><li class="divider"></li>';
+                                $payment_option = '<li><a href="#" onclick="invoice_pay_modal('.$row->student_id.')" style="color: #2563eb;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a></li><li class="divider"></li>';
                             }
                                 
                             
@@ -223,7 +223,7 @@
                     endforeach;
                     ?>
                     <!-- Grand Total Row: 8 cells for 8 columns -->
-                    <tr style="background-color: #f0f0f0; font-weight: bold; border-top: 3px solid #667eea;">
+                    <tr style="background-color: #f0f0f0; font-weight: bold; border-top: 3px solid #2563eb;">
                         <td style="text-align: right; padding: 12px;"><strong>GRAND TOTAL:</strong></td>
                         <td></td>
                         <td style="text-align: right; font-size: 14px;"><?php echo number_format($grand_total_billed, 2); ?></td>
@@ -314,7 +314,7 @@
                     extend: 'print',
                     text: 'PRINT',
                     title: 'Unpaid Invoices Report',
-                    messageTop: '<h3 style="text-align:center; color: #667eea;">Total Outstanding: <?php echo $currency; ?> <?php echo number_format($grand_total_due, 2); ?></h3>',
+                    messageTop: '<h3 style="text-align:center; color: #2563eb;">Total Outstanding: <?php echo $currency; ?> <?php echo number_format($grand_total_due, 2); ?></h3>',
                     exportOptions: {
                         columns: ':not(:last-child)', // Exclude the Options column
                         format: {
