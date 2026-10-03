@@ -80,9 +80,131 @@
     .panel > .panel-body { padding: 14px; }
     .form-control, select.form-control { height: 40px; }
 }
+
+/* Direct UI/UX rebuild — Invoice workspace */
+.invoice-workspace { margin: 0; padding: 24px 28px 40px; background: #f8fafc; }
+.invoice-workspace > .col-md-12 { padding: 0; }
+.invoice-page-head {
+    margin: 0 0 18px; padding: 0 0 18px; border-bottom: 1px solid #e2e8f0;
+}
+.invoice-eyebrow {
+    margin: 0 0 4px; color: #2563eb; font-size: 13px; font-weight: 800;
+    letter-spacing: .08em; text-transform: uppercase;
+}
+.invoice-page-head h1 {
+    margin: 0; color: #0f172a; font-size: 30px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em;
+}
+.invoice-page-head p:last-child {
+    margin: 7px 0 0; color: #64748b; font-size: 15px; line-height: 1.5;
+}
+
+.invoice-workspace .nav.nav-tabs.bordered {
+    display: inline-flex; gap: 5px; margin: 0 0 16px !important; padding: 5px;
+    border: 1px solid #e2e8f0 !important; border-radius: 12px; background: #fff;
+}
+.invoice-workspace .nav.nav-tabs.bordered > li { margin: 0 !important; }
+.invoice-workspace .nav.nav-tabs.bordered > li > a {
+    min-height: 40px; padding: 9px 14px !important; border: 0 !important; border-radius: 8px !important;
+    background: transparent !important; color: #475569 !important; font-size: 14px; font-weight: 700;
+}
+.invoice-workspace .nav.nav-tabs.bordered > li > a:hover { background: #f1f5f9 !important; color: #0f172a !important; }
+.invoice-workspace .nav.nav-tabs.bordered > li.active > a,
+.invoice-workspace .nav.nav-tabs.bordered > li.active > a:hover,
+.invoice-workspace .nav.nav-tabs.bordered > li.active > a:focus {
+    background: #2563eb !important; color: #fff !important; box-shadow: 0 2px 8px rgba(37,99,235,.18);
+}
+
+.invoice-workspace .tab-content { padding: 0; }
+#list, #add { padding: 0 !important; }
+#list {
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    border: 1px solid #e2e8f0; border-radius: 14px; background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+}
+#student_invoice {
+    width: 100% !important; min-width: 900px; margin: 0 !important; border: 0 !important; border-radius: 0 !important;
+}
+#student_invoice th {
+    padding: 12px 13px !important; background: #f8fafc !important; color: #475569 !important;
+    font-size: 13px !important; line-height: 1.35; font-weight: 800 !important; letter-spacing: .035em;
+}
+#student_invoice td {
+    padding: 12px 13px !important; color: #334155 !important; font-size: 14px !important;
+    line-height: 1.45; vertical-align: middle; border-bottom: 1px solid #eef2f7 !important;
+}
+#student_invoice tbody tr:hover td { background: #f8fbff; }
+#student_invoice .btn-xs {
+    min-height: 30px; padding: 5px 9px; border-radius: 999px; font-size: 12px !important; font-weight: 800;
+}
+#student_invoice .btn-sm {
+    min-height: 38px; padding: 7px 11px; border-radius: 8px; font-size: 13px !important; font-weight: 700;
+}
+#student_invoice .dropdown-menu { min-width: 180px; padding: 6px; }
+#student_invoice .dropdown-menu > li > a {
+    min-height: 38px; padding: 9px 11px !important; border-radius: 7px;
+    display: flex; align-items: center; gap: 8px; font-size: 14px;
+}
+
+.invoice-workspace .dataTables_wrapper { padding: 14px; }
+.invoice-workspace .dataTables_wrapper .dataTables_length,
+.invoice-workspace .dataTables_wrapper .dataTables_filter,
+.invoice-workspace .dataTables_wrapper .dataTables_info,
+.invoice-workspace .dataTables_wrapper .dataTables_paginate { font-size: 14px; color: #475569; }
+.invoice-workspace .dataTables_wrapper select,
+.invoice-workspace .dataTables_wrapper input[type="search"] {
+    min-height: 40px; padding: 8px 10px; border: 1px solid #cbd5e1;
+    border-radius: 8px; font-size: 14px; background: #fff; color: #0f172a;
+}
+
+#add > form > .row { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; margin: 0; }
+#add > form > .row > .col-md-6 { width: 100%; padding: 0; }
+#add .panel {
+    height: 100%; border-radius: 14px; border-color: #e2e8f0; box-shadow: 0 1px 2px rgba(15,23,42,.05);
+}
+#add .panel > .panel-heading {
+    padding: 15px 18px; border-bottom-color: #eef2f7; background: #fff;
+}
+#add .panel > .panel-heading .panel-title { font-size: 17px; font-weight: 800; color: #0f172a; }
+#add .panel > .panel-body { padding: 18px; }
+#add .form-group { margin: 0 0 16px; }
+#add .control-label {
+    padding-top: 10px; color: #334155; font-size: 14px; line-height: 1.35; font-weight: 700;
+}
+#add .form-control, #add select.form-control {
+    min-height: 46px; height: 46px; padding: 9px 12px; border: 1px solid #cbd5e1;
+    border-radius: 9px; font-size: 15px; color: #0f172a; background: #fff;
+}
+#add .form-control:focus, #add select.form-control:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.14); outline: none;
+}
+#add button[type="submit"] {
+    min-height: 46px; padding: 10px 18px; border-radius: 9px; font-size: 15px; font-weight: 800;
+    background: #2563eb; border-color: #2563eb;
+}
+#add button[type="submit"]:hover { background: #1d4ed8; border-color: #1d4ed8; }
+
+@media (max-width: 991px) {
+    #add > form > .row { grid-template-columns: 1fr; }
+}
+@media (max-width: 767px) {
+    .invoice-workspace { padding: 18px 14px 32px; }
+    .invoice-page-head h1 { font-size: 26px; }
+    .invoice-workspace .nav.nav-tabs.bordered { display: grid; grid-template-columns: 1fr; width: 100%; }
+    .invoice-workspace .nav.nav-tabs.bordered > li > a { width: 100%; }
+    #add .control-label { padding-top: 0; margin-bottom: 7px; text-align: left; }
+    #add .form-group > .col-sm-3,
+    #add .form-group > .col-sm-9 { width: 100%; float: none; padding-left: 0; padding-right: 0; }
+}
 </style>
-<div class="row">
+<div class="row invoice-workspace">
 	<div class="col-md-12">
+        <div class="invoice-page-head">
+            <div>
+                <p class="invoice-eyebrow">Fees & Finance</p>
+                <h1>Invoices & Payments</h1>
+                <p>Review student invoices and payments, or create a new invoice without leaving this workspace.</p>
+            </div>
+        </div>
     
     	<!------CONTROL TABS START------>
 		<ul class="nav nav-tabs bordered">
