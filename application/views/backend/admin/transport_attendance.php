@@ -27,9 +27,114 @@
     .btn-save { margin-left: 0; }
     .attendance-table { overflow-x: auto; }
 }
+
+/* Direct UX refinement — Transport Attendance */
+body { background: #f8fafc; }
+.transport-attendance-workspace {
+    padding: 24px 28px 40px !important; color: #334155;
+}
+.transport-attendance-workspace > div {
+    border: 1px solid #e2e8f0; border-radius: 14px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important; overflow: hidden;
+}
+.transport-attendance-workspace > div > div:first-child {
+    background: #0f172a !important; padding: 20px 24px !important;
+    border-radius: 0 !important; border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.transport-attendance-workspace > div > div:first-child h2 {
+    font-size: 26px !important; line-height: 1.25; font-weight: 800 !important; letter-spacing: -.02em;
+}
+.transport-attendance-workspace > div > div:nth-child(2) { padding: 20px !important; }
+
+.transport-attendance-workspace .filter-card {
+    margin-bottom: 16px; padding: 18px; border: 1px solid #e2e8f0;
+    border-radius: 12px; box-shadow: none; background: #fff;
+}
+.transport-attendance-workspace .filter-card[style*="background: #f0f9ff"] {
+    background: #f8fbff !important; border-left: 4px solid #2563eb !important;
+}
+.transport-attendance-workspace .filter-card h3 {
+    margin: 0 0 14px !important; color: #1e3a8a !important;
+    font-size: 17px !important; font-weight: 800 !important;
+}
+.transport-attendance-workspace .filter-group { gap: 6px; }
+.transport-attendance-workspace .filter-label {
+    margin-bottom: 2px; font-size: 14px; font-weight: 700; color: #334155;
+}
+.transport-attendance-workspace .filter-input,
+.transport-attendance-workspace .filter-select,
+.transport-attendance-workspace .filter-btn {
+    min-height: 46px; height: 46px; padding: 0 12px;
+    border-width: 1px; border-color: #cbd5e1; border-radius: 9px; font-size: 15px;
+}
+.transport-attendance-workspace .filter-input:focus,
+.transport-attendance-workspace .filter-select:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.14);
+}
+.transport-attendance-workspace .filter-btn {
+    background: #2563eb; font-size: 14px; font-weight: 800;
+}
+.transport-attendance-workspace .filter-btn:hover {
+    background: #1d4ed8; transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(37,99,235,.18);
+}
+
+.transport-attendance-workspace .select2-container .select2-selection--single {
+    min-height: 46px; height: 46px; border: 1px solid #cbd5e1; border-radius: 9px;
+}
+.transport-attendance-workspace .select2-container .select2-selection__rendered {
+    line-height: 44px; padding-left: 12px; font-size: 15px;
+}
+.transport-attendance-workspace .select2-container .select2-selection__arrow { height: 44px; }
+
+.transport-attendance-workspace .action-btns {
+    gap: 10px; margin-bottom: 14px; padding-top: 2px;
+}
+.transport-attendance-workspace .btn-action {
+    min-height: 42px; height: 42px; padding: 0 15px; border-radius: 9px;
+    font-size: 14px; font-weight: 800;
+}
+.transport-attendance-workspace .btn-action:hover {
+    transform: translateY(-1px); box-shadow: 0 3px 10px rgba(15,23,42,.12);
+}
+.transport-attendance-workspace .btn-save { background: #2563eb; }
+
+.transport-attendance-workspace .attendance-table {
+    border: 1px solid #e2e8f0; border-radius: 12px;
+    box-shadow: none; overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.transport-attendance-workspace .attendance-table table { min-width: 780px; }
+.transport-attendance-workspace .attendance-table thead { background: #f8fafc; }
+.transport-attendance-workspace .attendance-table th {
+    padding: 12px 13px; color: #475569; font-size: 13px; font-weight: 800;
+    letter-spacing: .035em; border-bottom: 1px solid #e2e8f0;
+}
+.transport-attendance-workspace .attendance-table td {
+    padding: 12px 13px; color: #334155; font-size: 14px; line-height: 1.45;
+}
+.transport-attendance-workspace .attendance-select {
+    min-height: 40px; height: 40px; border-width: 1px; border-color: #cbd5e1;
+    border-radius: 8px; padding: 0 10px; font-size: 14px; min-width: 130px;
+}
+.transport-attendance-workspace .attendance-select:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+
+@media (max-width: 768px) {
+    .transport-attendance-workspace { padding: 16px 14px 32px !important; }
+    .transport-attendance-workspace > div > div:first-child h2 { font-size: 23px !important; }
+    .transport-attendance-workspace > div > div:nth-child(2) { padding: 14px !important; }
+    .transport-attendance-workspace .filter-card { padding: 14px; }
+    .transport-attendance-workspace .filter-grid { grid-template-columns: 1fr !important; }
+    .transport-attendance-workspace .action-btns { flex-direction: column; }
+    .transport-attendance-workspace .btn-action { width: 100%; justify-content: center; }
+    .transport-attendance-workspace .btn-save { margin-left: 0; }
+    .transport-attendance-workspace .attendance-table th { font-size: 13px; padding: 9px 10px; }
+    .transport-attendance-workspace .attendance-table td { font-size: 14px; padding: 10px; }
+}
 </style>
 
-<div style="padding: 24px;">
+<div style="padding: 24px;" class="transport-attendance-workspace">
     <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
         <div style="background: #7c3aed; padding: 24px; border-radius: 12px 12px 0 0;">
             <h2 style="margin: 0; color: white; font-size: 28px; font-weight: 700;">
