@@ -3,38 +3,146 @@
 ?>
 
 <style type="text/css">
-    /* Base Typography */
-    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    .validate-has-error { color: red; }
-    label { font-size: 1.125rem !important; font-weight: 700 !important; color: #1f2937 !important; }
-    input, select, textarea { font-size: 1.125rem !important; font-weight: 500 !important; color: #111827 !important; }
-    h3 { font-size: 1.5rem !important; font-weight: 800 !important; color: #111827 !important; }
-    h4 { font-size: 1.25rem !important; font-weight: 800 !important; color: #111827 !important; }
-    p { font-size: 1.0625rem !important; line-height: 1.7 !important; font-weight: 500 !important; color: #374151 !important; }
-    
-    /* Select2 Fix */
-    .select2-container { width: 100% !important; }
-    .select2-container .select2-selection--single { height: 48px !important; padding: 10px 14px !important; font-size: 1.125rem !important; font-weight: 600 !important; }
-    .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 28px !important; font-size: 1.125rem !important; font-weight: 600 !important; color: #111827 !important; }
-    .select2-container--default .select2-selection--single .select2-selection__arrow { height: 46px !important; }
-    
-    /* Uniform Button Size */
-    .btn-uniform { min-height: 52px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-size: 1.125rem !important; font-weight: 700 !important; letter-spacing: 0.025em !important; }
-    
-    /* Fix label button height and text color */
-    label.btn-uniform { height: 52px !important; padding: 0 1.5rem !important; box-sizing: border-box !important; color: white !important; }
-    
-    /* Table Readability */
-    .datatable tbody td { font-size: 1.125rem !important; padding: 1rem 1.5rem !important; font-weight: 600 !important; color: #111827 !important; }
-    .datatable thead th { font-size: 1.0625rem !important; padding: 1rem 1.5rem !important; letter-spacing: 0.05em !important; font-weight: 700 !important; color: #374151 !important; }
-    
-    /* Enhanced Text Contrast */
-    .text-gray-700 { color: #1f2937 !important; font-weight: 600 !important; }
-    .text-gray-800 { color: #111827 !important; font-weight: 700 !important; }
-    .text-gray-900 { color: #000000 !important; font-weight: 700 !important; }
+/* Subject Management — unified enterprise scale */
+body { background: #f8fafc; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.validate-has-error { color: #dc2626; }
+
+.subject-workspace {
+    max-width: 1480px !important; margin: 0 auto; padding: 24px 28px 40px !important;
+}
+.subject-workspace > .bg-indigo-700 {
+    margin-bottom: 18px !important; padding: 20px 24px !important;
+    border: 1px solid #e2e8f0; border-radius: 14px !important;
+    background: #0f172a !important; box-shadow: 0 8px 22px rgba(15,23,42,.16) !important;
+}
+.subject-workspace > .bg-indigo-700 h2 {
+    margin: 0; font-size: 28px !important; line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em;
+}
+.subject-workspace > .bg-indigo-700 svg { width: 24px !important; height: 24px !important; }
+
+.subject-workspace > .bg-white.rounded-lg {
+    border: 1px solid #e2e8f0; border-radius: 14px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+}
+.subject-workspace > .bg-white.rounded-lg > ul {
+    display: inline-flex !important; gap: 5px; width: auto !important; margin: 12px 12px 0 !important;
+    padding: 5px !important; border: 1px solid #e2e8f0 !important; border-radius: 12px;
+    background: #f8fafc;
+}
+.subject-workspace > .bg-white.rounded-lg > ul > li { flex: 0 0 auto !important; }
+.subject-workspace > .bg-white.rounded-lg > ul a {
+    min-height: 40px; padding: 9px 14px !important; border-radius: 8px;
+    font-size: 14px !important; line-height: 1.35; font-weight: 700 !important;
+}
+.subject-workspace > .bg-white.rounded-lg > ul a.active,
+.subject-workspace > .bg-white.rounded-lg > ul li.active a {
+    background: #2563eb !important; color: #fff !important;
+}
+
+.subject-workspace label {
+    font-size: 14px !important; line-height: 1.35; font-weight: 700 !important; color: #334155 !important;
+}
+.subject-workspace input,
+.subject-workspace select,
+.subject-workspace textarea {
+    min-height: 46px; padding: 9px 12px; border: 1px solid #cbd5e1;
+    border-radius: 9px; font-size: 15px !important; line-height: 1.4;
+    font-weight: 500 !important; color: #0f172a !important; background: #fff;
+}
+.subject-workspace textarea { min-height: 96px; }
+.subject-workspace input:focus,
+.subject-workspace select:focus,
+.subject-workspace textarea:focus {
+    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important; outline: none;
+}
+.subject-workspace h3 { font-size: 18px !important; font-weight: 800 !important; color: #0f172a !important; }
+.subject-workspace h4 { font-size: 16px !important; font-weight: 800 !important; color: #0f172a !important; }
+.subject-workspace p { font-size: 14px !important; line-height: 1.55 !important; font-weight: 500 !important; color: #475569 !important; }
+
+.subject-workspace .select2-container { width: 100% !important; }
+.subject-workspace .select2-container .select2-selection--single {
+    min-height: 46px !important; height: 46px !important; padding: 7px 10px !important;
+    border: 1px solid #cbd5e1 !important; border-radius: 9px !important; font-size: 15px !important;
+}
+.subject-workspace .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 30px !important; font-size: 15px !important; font-weight: 600 !important; color: #0f172a !important;
+}
+.subject-workspace .select2-container--default .select2-selection--single .select2-selection__arrow { height: 44px !important; }
+
+.subject-workspace .btn-uniform {
+    min-height: 44px !important; padding: 9px 16px !important;
+    display: inline-flex !important; align-items: center !important; justify-content: center !important;
+    border-radius: 9px !important; font-size: 14px !important; font-weight: 800 !important;
+    letter-spacing: 0 !important; transform: none !important; box-shadow: none !important;
+}
+.subject-workspace label.btn-uniform {
+    height: 44px !important; box-sizing: border-box !important; color: #fff !important;
+}
+.subject-workspace .btn-uniform:hover { transform: translateY(-1px) !important; }
+
+.subject-workspace .tab-content > .tab-pane > .p-6,
+.subject-workspace .tab-content > .tab-pane > .p-8 { padding: 18px !important; }
+.subject-workspace .datatable {
+    min-width: 880px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;
+}
+.subject-workspace .datatable tbody td {
+    padding: 12px 13px !important; color: #334155 !important;
+    font-size: 14px !important; line-height: 1.45; font-weight: 500 !important;
+}
+.subject-workspace .datatable thead th {
+    padding: 12px 13px !important; background: #f8fafc !important; color: #475569 !important;
+    font-size: 13px !important; line-height: 1.35; letter-spacing: .035em !important; font-weight: 800 !important;
+}
+.subject-workspace .datatable tbody tr:hover td { background: #f8fbff; }
+.subject-workspace .dropdown-menu { font-size: 14px; border-radius: 9px; }
+
+.subject-workspace .grid.grid-cols-1.md\:grid-cols-2.gap-8.mt-10 {
+    gap: 14px !important; margin-top: 18px !important;
+}
+.subject-workspace .grid.grid-cols-1.md\:grid-cols-2.gap-8.mt-10 > div {
+    padding: 17px !important; border-radius: 11px !important;
+}
+.subject-workspace .bg-purple-50.border-l-4 {
+    padding: 17px !important; margin-bottom: 18px !important; border-radius: 11px !important;
+}
+.subject-workspace .bg-purple-50.border-l-4 .grid { gap: 12px !important; }
+
+.subject-workspace .bg-white.border.border-gray-200.rounded-lg.p-8 {
+    padding: 18px !important; border-radius: 12px !important;
+}
+#subjects_table { min-width: 720px; }
+#subjects_table th {
+    padding: 11px 12px !important; background: #f8fafc; color: #475569;
+    font-size: 13px !important; font-weight: 800 !important;
+}
+#subjects_table td { padding: 9px 10px !important; vertical-align: middle; }
+#subjects_table input,
+#subjects_table select {
+    min-height: 40px; padding: 7px 9px; border: 1px solid #cbd5e1 !important;
+    border-radius: 7px; font-size: 14px !important;
+}
+#subjects_table button[type="button"] { min-height: 36px; min-width: 36px; }
+
+.subject-workspace .text-gray-700 { color: #334155 !important; font-weight: 600 !important; }
+.subject-workspace .text-gray-800 { color: #1e293b !important; font-weight: 700 !important; }
+.subject-workspace .text-gray-900 { color: #0f172a !important; font-weight: 700 !important; }
+
+@media (max-width: 767px) {
+    .subject-workspace { padding: 18px 14px 32px !important; }
+    .subject-workspace > .bg-indigo-700 { padding: 18px !important; }
+    .subject-workspace > .bg-indigo-700 h2 { font-size: 24px !important; }
+    .subject-workspace > .bg-white.rounded-lg > ul {
+        display: grid !important; grid-template-columns: 1fr; width: calc(100% - 24px) !important;
+    }
+    .subject-workspace > .bg-white.rounded-lg > ul a { width: 100%; justify-content: flex-start; }
+    .subject-workspace input,
+    .subject-workspace select,
+    .subject-workspace textarea { font-size: 16px !important; }
+    .subject-workspace .grid.grid-cols-1.md\:grid-cols-2.gap-8.mt-10 { grid-template-columns: 1fr !important; }
+}
 </style>
 
-<div class="max-w-7xl mx-auto p-6">
+<div class="max-w-7xl mx-auto p-6 subject-workspace">
     <!-- Header -->
     <div class="bg-indigo-700 rounded-lg shadow-lg p-6 mb-6">
         <h2 class="text-3xl font-bold text-white flex items-center gap-3">
