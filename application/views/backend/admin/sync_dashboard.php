@@ -600,6 +600,163 @@ $metrics = $sync_status['metrics'] ?? [];
         height: 250px;
     }
 }
+
+/* ============================================================
+   Family design-language alignment (SchoolManager dashboard system)
+   Appended after the rules above so family tokens win the cascade.
+   Presentation only - no structural or behavioural change.
+   ============================================================ */
+@keyframes syncFadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Page canvas - matches the admin dashboard wrapper */
+.sync-dashboard-container {
+    background: #f9fafb;
+    min-height: 100vh;
+    max-width: none;
+    padding: 16px;
+}
+@media (min-width: 768px) {
+    .sync-dashboard-container { padding: 24px; }
+}
+
+/* Hero - same gradient, radius, shadow and decor circles as the family hero */
+.sync-dashboard-header {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%);
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(79, 70, 229, 0.25);
+    overflow: hidden;
+    position: relative;
+}
+.sync-dashboard-header::before {
+    content: ''; position: absolute; top: -70px; right: -70px;
+    width: 240px; height: 240px; background: rgba(255,255,255,0.06); border-radius: 50%;
+}
+.sync-dashboard-header::after {
+    content: ''; position: absolute; bottom: -50px; left: -50px;
+    width: 180px; height: 180px; background: rgba(255,255,255,0.05); border-radius: 50%;
+}
+.sync-dashboard-header h1 { font-size: 30px; }
+.sync-header-stat-value { font-size: 36px; }
+.sync-header-stat-label { letter-spacing: 0.8px; }
+
+/* Cards - same as the family .dashboard-card */
+.sync-card,
+.sync-chart-card,
+.sync-pending-list,
+.sync-manual-controls {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    animation: syncFadeInUp .4s ease-out;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.sync-card:hover,
+.sync-chart-card:hover,
+.sync-manual-controls:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(16, 24, 40, 0.10);
+    border-color: #cbd5e1;
+}
+
+/* Status accent edges - family KPI treatment */
+.sync-card-success { border-left: 4px solid var(--color-success, #10b981); }
+.sync-card-warning { border-left: 4px solid var(--color-warning, #f59e0b); }
+.sync-card-error   { border-left: 4px solid var(--color-error, #ef4444); }
+.sync-card-info    { border-left: 4px solid var(--color-info, #3b82f6); }
+
+/* Quick actions - same as the family quick-action tiles */
+.sync-quick-action-card {
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: none;
+    padding: 20px 16px;
+    animation: syncFadeInUp .4s ease-out;
+    transition: border-color .18s ease, background .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+.sync-quick-action-card:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.14);
+}
+.sync-quick-action-card:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+.sync-quick-action-icon {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border-radius: 16px;
+    box-shadow: 0 2px 6px rgba(16, 24, 40, 0.14);
+    transition: transform .18s ease;
+}
+.sync-quick-action-card:hover .sync-quick-action-icon { transform: scale(1.06); }
+
+/* Buttons - same shape language as the family buttons */
+.sync-btn {
+    border-radius: 10px;
+    font-weight: 600;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all .2s;
+}
+.sync-btn-sm { min-height: 34px; }
+.sync-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+
+/* Chart containers - family heights */
+.sync-chart-container { height: 320px; }
+
+/* Status badges - family pill treatment */
+.sync-location-status-badge,
+.sync-connection-badge,
+.sync-pending-item-count {
+    border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+/* Tables inside cards - scroll safety on small screens */
+.table-responsive { border-radius: 12px; }
+
+/* 400px tier - family hardening */
+@media (max-width: 400px) {
+    .sync-dashboard-container { padding: 12px; }
+    .sync-card,
+    .sync-chart-card,
+    .sync-pending-list,
+    .sync-manual-controls { padding: 15px; border-radius: 14px; }
+    .sync-dashboard-header { padding: 20px 15px; }
+    .sync-header-stat-value { font-size: 30px; }
+    .sync-status-cards-grid,
+    .sync-quick-actions-grid,
+    .sync-location-grid { gap: 12px; }
+}
+
+@media (max-width: 768px) {
+    .sync-chart-container { height: 260px; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .sync-card,
+    .sync-chart-card,
+    .sync-pending-list,
+    .sync-manual-controls,
+    .sync-quick-action-card { animation: none; transition: none; }
+    .sync-realtime-indicator.active .sync-realtime-pulse::before,
+    .sync-connection-badge.online .sync-status-dot { animation: none; }
+}
 </style>
 
 <div class="sync-dashboard-container">
@@ -697,7 +854,7 @@ $metrics = $sync_status['metrics'] ?? [];
                             </div>
                         </div>
                     </div>
-                    <button type="button" class="sync-btn sync-btn-text" id="dismiss-error-alert" style="padding: var(--spacing-xs);">
+                    <button type="button" class="sync-btn sync-btn-text" id="dismiss-error-alert" style="padding: var(--spacing-xs);" aria-label="Dismiss error alert">
                         <i class="fa fa-times"></i>
                     </button>
                 </div>
@@ -996,7 +1153,7 @@ $metrics = $sync_status['metrics'] ?? [];
                         <button class="sync-btn sync-btn-secondary sync-btn-sm" id="download-error-log-btn">
                             <i class="fa fa-download"></i> Download Full Log
                         </button>
-                        <button class="sync-btn sync-btn-text sync-btn-sm" id="close-error-log-btn">
+                        <button class="sync-btn sync-btn-text sync-btn-sm" id="close-error-log-btn" aria-label="Close error log">
                             <i class="fa fa-times"></i>
                         </button>
                     </div>
@@ -1046,7 +1203,7 @@ $metrics = $sync_status['metrics'] ?? [];
                         <button class="sync-btn sync-btn-primary sync-btn-sm" id="retry-all-failed-btn" disabled>
                             <i class="fa fa-redo"></i> Retry Selected
                         </button>
-                        <button class="sync-btn sync-btn-text sync-btn-sm" id="close-failed-records-btn">
+                        <button class="sync-btn sync-btn-text sync-btn-sm" id="close-failed-records-btn" aria-label="Close failed records">
                             <i class="fa fa-times"></i>
                         </button>
                     </div>
