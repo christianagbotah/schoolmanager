@@ -1,6 +1,6 @@
 <style>
 .grade-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     color: white;
     padding: 2rem;
     border-radius: 12px;
@@ -43,7 +43,7 @@
 }
 
 .grade-table thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     color: white;
 }
 
@@ -160,7 +160,7 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     color: white;
     border: none;
     padding: 0.75rem 2rem;
@@ -186,7 +186,7 @@
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     color: white;
     border: none;
     padding: 1rem;
@@ -234,7 +234,7 @@
     color: #1f2937;
     font-size: 2.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -306,7 +306,7 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     color: white;
     border: none;
     padding: 1rem 2.5rem;

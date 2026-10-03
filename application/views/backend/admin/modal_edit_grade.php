@@ -13,7 +13,7 @@ foreach ($edit_data as $row):
 <div class="row">
 	<div class="col-md-12">
 		<div class="panel" data-collapsed="0" style="background: white; border-radius: 20px; padding: 0; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
-        	<div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 20px 20px 0 0; border: none; margin: 0;">
+        	<div class="panel-heading" style="background: #764ba2; color: white; padding: 2rem; border-radius: 20px 20px 0 0; border: none; margin: 0;">
             	<div class="panel-title" style="font-size: 1.5rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 1rem;">
             		<i class="fa fa-edit" style="font-size: 1.8rem;"></i>
 					Edit Grade
@@ -67,7 +67,7 @@ foreach ($edit_data as $row):
                 </div>
                 
                 <div style="display: flex; gap: 1rem; justify-content: center; padding-top: 2rem; border-top: 2px solid #f3f4f6; margin-top: 2rem;">
-                    <button type="submit" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.75rem; min-width: 160px; justify-content: center;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 35px rgba(16, 185, 129, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                    <button type="submit" style="background: #059669; color: white; border: none; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.75rem; min-width: 160px; justify-content: center;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 35px rgba(16, 185, 129, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
                         <i class="fa fa-save"></i>
                         Update Grade
                     </button>
