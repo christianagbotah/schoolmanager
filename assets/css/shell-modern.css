@@ -477,8 +477,6 @@ input[type="date"] {
     min-width: 2.1rem;
     text-align: center;
     font-weight: 600;
-    #main_page .pagination > li > a,
-#main_page .pagination > li > span {
     font-size: 0.875rem;
 }
 #main_page .pagination > .active > a,
@@ -513,7 +511,6 @@ input[type="date"] {
     border-radius: 10px;
     border: 1px solid transparent;
     box-shadow: none;
-    #main_page .alert {
     font-size: 0.9375rem;
 }
 #main_page .alert-success { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
