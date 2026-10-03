@@ -12,7 +12,7 @@ foreach ($edit_data as $row):
 
 <div class="edit-class-modal max-w-5xl mx-auto p-4">
     <div class="bg-white rounded-lg shadow-lg border border-gray-200">
-        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+        <div class="bg-blue-700 px-6 py-4">
             <h3 class="text-xl font-bold text-white flex items-center gap-2">
                 <i class="entypo-pencil"></i>
                 <?php echo get_phrase('edit_class');?>

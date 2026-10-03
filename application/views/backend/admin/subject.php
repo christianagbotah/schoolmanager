@@ -36,7 +36,7 @@
 
 <div class="max-w-7xl mx-auto p-6">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-lg shadow-lg p-6 mb-6">
+    <div class="bg-indigo-700 rounded-lg shadow-lg p-6 mb-6">
         <h2 class="text-3xl font-bold text-white flex items-center gap-3">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
@@ -127,7 +127,7 @@
                             <h4 class="text-xl font-bold text-blue-900 mb-4">Import All Subjects (Academic Year)</h4>
                             <p class="text-base text-blue-800 mb-6 leading-relaxed">Import all subjects from the previous academic year for all classes</p>
                             <?php echo form_open(site_url('admin/subject/import'), array('id' => 'subj_import_form_mass'));?>
-                                <button type="submit" class="btn-uniform bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 w-full">
+                                <button type="submit" class="btn-uniform bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 w-full">
                                     <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                                     </svg>
@@ -147,7 +147,7 @@
                                         <option value="">Select Class</option>
                                         <?php getFullClassList(); ?>
                                     </select>
-                                    <button type="submit" class="btn-uniform bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all whitespace-nowrap">
+                                    <button type="submit" class="btn-uniform bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all whitespace-nowrap">
                                         Add Subjects
                                     </button>
                                 </div>
@@ -173,14 +173,14 @@
                         <p class="text-base text-purple-800 mb-6 leading-relaxed">Upload an Excel file with multiple subjects at once</p>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <button type="button" onclick="downloadTemplate()" class="btn-uniform bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 w-full">
+                            <button type="button" onclick="downloadTemplate()" class="btn-uniform bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 w-full">
                                 <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
                                 Download Template
                             </button>
                             
-                            <label class="btn-uniform bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 cursor-pointer text-center w-full">
+                            <label class="btn-uniform bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 cursor-pointer text-center w-full">
                                 <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                                 </svg>
@@ -188,7 +188,7 @@
                                 <input type="file" id="excel_file" class="hidden" accept=".xlsx,.xls" onchange="updateFileName()">
                             </label>
                             
-                            <button type="button" onclick="uploadExcel()" id="upload_excel_btn" class="btn-uniform bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 w-full" disabled>
+                            <button type="button" onclick="uploadExcel()" id="upload_excel_btn" class="btn-uniform bg-purple-700 hover:bg-purple-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 w-full" disabled>
                                 <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                                 </svg>
@@ -252,14 +252,14 @@
                             </div>
                             
                             <div class="mt-6 flex justify-between">
-                                <button type="button" onclick="addRow()" class="btn-uniform bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all">
+                                <button type="button" onclick="addRow()" class="btn-uniform bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all">
                                     <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                     </svg>
                                     Add Row
                                 </button>
                                 
-                                <button type="submit" class="btn-uniform bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-4 px-10 rounded-lg shadow-lg transition-all">
+                                <button type="submit" class="btn-uniform bg-indigo-700 text-white font-bold py-4 px-10 rounded-lg shadow-lg transition-all">
                                     <svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"></path>
                                     </svg>

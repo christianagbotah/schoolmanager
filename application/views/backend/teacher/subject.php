@@ -1,6 +1,6 @@
 <script src="<?php echo base_url(); ?>assets/cdn/js/tailwindcss.js"></script>
 
-<div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm p-6 mb-6">
+<div class="bg-blue-50 rounded-xl shadow-sm p-6 mb-6">
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-3xl font-bold text-gray-800 mb-2"><?php echo get_phrase('my_subjects');?></h2>
@@ -29,7 +29,7 @@
 <div class="bg-white rounded-xl shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
         <table class="w-full datatable" id="table_export">
-            <thead class="bg-gradient-to-r from-indigo-500 to-blue-500 text-white">
+            <thead class="bg-indigo-600 text-white">
                 <tr>
                     <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
                         <i class="entypo-book-open mr-2"></i><?php echo get_phrase('subject_name');?>
@@ -61,7 +61,7 @@
                 <tr class="hover:bg-indigo-50 transition-colors duration-150">
                     <td class="px-6 py-4">
                         <div class="flex items-center">
-                            <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-indigo-400 to-blue-500 rounded-lg flex items-center justify-center text-white font-bold">
+                            <div class="flex-shrink-0 h-10 w-10 bg-indigo-500 rounded-lg flex items-center justify-center text-white font-bold">
                                 <?php echo substr($row['name'], 0, 1);?>
                             </div>
                             <div class="ml-4">
