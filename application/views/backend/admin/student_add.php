@@ -100,6 +100,116 @@ body { background: #f9fafb; min-height: 100vh; }
 .select2-search--dropdown { padding: 12px; background: #f9fafb; border-bottom: 2px solid #e5e7eb; }
 .select2-search--dropdown .select2-search__field { border: 2px solid #e5e7eb; border-radius: 8px; padding: 10px 12px; font-size: 14px; font-weight: 500; }
 .select2-search--dropdown .select2-search__field:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+
+/* ---- Direct UI/UX refinement: Student Admission workspace ---- */
+body { background: #f8fafc; }
+.admission-container {
+    max-width: 1500px; margin: 24px auto 48px; padding: 0 24px;
+    background: transparent; border: 0; border-radius: 0; box-shadow: none; overflow: visible;
+}
+.admission-header {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto;
+    column-gap: 24px; row-gap: 5px; align-items: center; text-align: left;
+    background: #0f172a; padding: 26px 30px; border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16);
+}
+.admission-header::before, .admission-header::after { display: none; }
+.admission-header h2 {
+    grid-column: 1; grid-row: 1; font-size: 30px; line-height: 1.2; letter-spacing: -0.02em;
+}
+.admission-header p {
+    grid-column: 1; grid-row: 2; margin: 2px 0 0; font-size: 15px; line-height: 1.5;
+    color: #cbd5e1; opacity: 1;
+}
+.admission-header .customize-form-btn {
+    position: static !important; top: auto !important; right: auto !important;
+    grid-column: 2; grid-row: 1 / 3; align-self: center;
+    min-height: 44px; padding: 10px 16px !important; border: 1px solid rgba(255,255,255,.28) !important;
+    border-radius: 10px !important; background: #fff !important; color: #1d4ed8 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,.14) !important; font-size: 14px; font-weight: 700 !important;
+}
+.form-content { padding: 0; background: transparent; }
+.alert-note {
+    margin: 18px 0; padding: 15px 18px; border: 1px solid #fde68a; border-left: 4px solid #f59e0b;
+    border-radius: 12px; background: #fffbeb; box-shadow: none; color: #78350f; font-size: 14px; line-height: 1.55;
+}
+.section-card {
+    margin: 18px 0; padding: 22px 24px; border: 1px solid #e2e8f0; border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04); background: #fff;
+}
+.section-header {
+    margin: 0 0 20px; padding: 0 0 14px 12px; border: 0; border-bottom: 1px solid #e5e7eb;
+    border-left: 4px solid #2563eb; border-radius: 0; background: transparent; box-shadow: none;
+    color: #0f172a; font-size: 18px; font-weight: 800; line-height: 1.35; gap: 10px;
+}
+.section-header:hover { border-bottom-color: #e5e7eb; border-left-color: #2563eb; }
+.section-header i { color: #2563eb; font-size: 19px; }
+.form-grid { gap: 18px 20px; }
+.form-field label {
+    margin-bottom: 7px; color: #334155; font-size: 15px; font-weight: 700; letter-spacing: 0;
+}
+.form-field input, .form-field select, .form-field textarea {
+    min-height: 46px; padding: 11px 13px; border: 1px solid #cbd5e1; border-radius: 9px;
+    font-size: 15px; font-weight: 500; color: #0f172a; background: #fff;
+}
+.form-field textarea { min-height: 108px; line-height: 1.5; resize: vertical; }
+.form-field input:hover, .form-field select:hover, .form-field textarea:hover { border-color: #94a3b8; }
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.14);
+}
+.form-field input::placeholder, .form-field textarea::placeholder { color: #94a3b8; }
+.form-field button[type="button"] { min-height: 46px; }
+.photo-upload { padding: 24px; background: #f8fafc; border-color: #cbd5e1; border-radius: 12px; }
+.photo-upload:hover { border-color: #2563eb; background: #eff6ff; }
+.select2-container--default .select2-selection--single {
+    min-height: 46px; height: 46px; border: 1px solid #cbd5e1; border-radius: 9px; padding: 7px 10px;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 30px; font-size: 15px; font-weight: 600;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow { height: 44px; }
+
+.admission-actions {
+    position: sticky; bottom: 14px; z-index: 40; display: flex; justify-content: flex-end; gap: 10px;
+    margin: 20px 0 26px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 14px;
+    background: rgba(255,255,255,.96); box-shadow: 0 12px 30px rgba(15,23,42,.12);
+    backdrop-filter: blur(10px);
+}
+.admission-reset-btn, .admission-submit-btn {
+    min-height: 46px; padding: 11px 20px; border: 0; border-radius: 10px;
+    font-size: 15px; font-weight: 800; cursor: pointer; display: inline-flex;
+    align-items: center; justify-content: center; gap: 8px; transition: .18s ease;
+}
+.admission-reset-btn { background: #fff; color: #b91c1c; border: 1px solid #fecaca; }
+.admission-reset-btn:hover { background: #fef2f2; border-color: #fca5a5; }
+.admission-submit-btn {
+    margin: 0; background: #2563eb !important; color: #fff !important;
+    box-shadow: 0 2px 8px rgba(37,99,235,.24) !important;
+}
+.admission-submit-btn:hover { background: #1d4ed8 !important; transform: translateY(-1px); }
+
+@media (max-width: 900px) {
+    .admission-container { padding: 0 16px; }
+    .admission-header { grid-template-columns: 1fr; grid-template-rows: auto; padding: 22px; }
+    .admission-header h2, .admission-header p, .admission-header .customize-form-btn {
+        grid-column: 1; grid-row: auto;
+    }
+    .admission-header .customize-form-btn { justify-self: start; margin-top: 10px; }
+}
+@media (max-width: 640px) {
+    .admission-container { width: 100%; margin: 12px auto 32px; padding: 0 10px; }
+    .admission-header { padding: 20px 16px; border-radius: 12px; }
+    .admission-header h2 { font-size: 24px; }
+    .admission-header p { font-size: 14px; }
+    .admission-header .customize-form-btn { width: 100%; justify-content: center; }
+    .section-card { padding: 16px; margin: 14px 0; border-radius: 12px; }
+    .section-header { margin-bottom: 16px; font-size: 17px; padding-bottom: 12px; }
+    .form-grid { gap: 14px; }
+    .form-field label { font-size: 14px; }
+    .form-field input, .form-field select, .form-field textarea { font-size: 16px; }
+    .admission-actions { bottom: 8px; padding: 9px; }
+    .admission-reset-btn, .admission-submit-btn { flex: 1 1 0; padding: 11px 12px; }
+}
 </style>
 
 <div class="admission-container">
@@ -679,11 +789,11 @@ body { background: #f9fafb; min-height: 100vh; }
 		</div>
 	</div>
 
-	<div style="position: fixed; bottom: 20px; right: 20px; z-index: 999; display: flex; gap: 15px;">
-		<button type="button" onclick="resetForm()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(239,68,68,0.3); transition: all 0.3s;">
+	<div class="admission-actions">
+		<button type="button" onclick="resetForm()" class="admission-reset-btn">
 			<i class="entypo-ccw"></i> Reset Form
 		</button>
-		<button type="submit" class="submit-btn bg-blue-600" style="box-shadow: 0 4px 12px rgba(0,0,0,0.3); padding: 15px 30px; font-size: 16px; margin: 0;">
+		<button type="submit" class="submit-btn bg-blue-600 admission-submit-btn">
 			<i class="entypo-check"></i> Admit Student
 		</button>
 	</div>
