@@ -1,4 +1,33 @@
-<div class="p-6">
+
+<style>
+/* ---- family design-language alignment (presentation only) ---- */
+#year, #term {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    height: 42px;
+    padding: 8px 12px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+#year:focus, #term:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+button:focus-visible, [onclick]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+@media (max-width: 400px) {
+    .p-6 { padding: 15px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .animate-spin { animation: none; }
+}
+</style>
+
+<div class="p-4 md:p-6 bg-gray-50 min-h-screen">
     <!-- Header -->
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Academic Control Dashboard</h1>
@@ -48,8 +77,8 @@
     <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-lg bg-white">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-bold">Audit Trail</h3>
-            <button onclick="closeAuditModal()" class="text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onclick="closeAuditModal()" aria-label="Close audit trail" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
