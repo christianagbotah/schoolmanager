@@ -16,7 +16,7 @@
 	}
 
 	.filters-card {
-		background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+		background: #f5f7fa;
 		border-radius: 12px;
 		padding: 30px;
 		box-shadow: 0 4px 15px rgba(0,0,0,0.15);
@@ -85,7 +85,7 @@
 		font-size: 16px;
 		font-weight: 600;
 		border-radius: 8px;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		background: #764ba2;
 		border: none;
 		box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
 		transition: all 0.3s ease;
@@ -118,7 +118,7 @@
 	.exam-info-card .icon-wrapper {
 		width: 60px;
 		height: 60px;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		background: #764ba2;
 		border-radius: 12px;
 		display: flex;
 		align-items: center;
@@ -181,7 +181,7 @@
 	}
 
 	#mark_sheet thead {
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		background: #764ba2;
 		box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
 	}
 
@@ -209,7 +209,7 @@
 	}
 
 	#mark_sheet tbody tr:hover {
-		background: linear-gradient(to right, #f8f9ff 0%, #f0f4ff 100%);
+		background: #f8f9ff;
 		transform: translateX(3px);
 		box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
 	}
@@ -301,7 +301,7 @@
 	}
 
 	.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		background: #764ba2;
 		color: white !important;
 		border-color: #667eea;
 		box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
@@ -326,7 +326,7 @@
 		font-size: 16px;
 		font-weight: 600;
 		border-radius: 8px;
-		background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+		background: #27ae60;
 		border: none;
 		color: white;
 		box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4);
