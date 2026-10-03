@@ -2,15 +2,16 @@
 <style type="text/css">
     .modern-card {
         background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
         padding: 30px;
         margin-bottom: 24px;
-        transition: all 0.3s ease;
+        transition: box-shadow 0.18s ease;
     }
     
     .modern-card:hover {
-        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        box-shadow: 0 10px 24px rgba(16, 24, 40, 0.10);
     }
     
     .step-indicator {
@@ -83,23 +84,25 @@
     }
     
     .modern-btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #2563eb;
         color: white;
     }
     
     .modern-btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+        background: #1d4ed8;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
     }
     
     .modern-btn-success {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        background: #059669;
         color: white;
     }
     
     .modern-btn-success:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(16, 185, 129, 0.4);
+        background: #047857;
+        box-shadow: 0 4px 10px rgba(5, 150, 105, 0.35);
     }
     
     .modern-btn:disabled {
@@ -191,7 +194,7 @@
     }
     
     .instruction-box {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%);
         color: white;
         padding: 30px;
         border-radius: 12px;
@@ -250,12 +253,12 @@
     }
     
     .icon-box-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #4f46e5;
         color: white;
     }
     
     .icon-box-success {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        background: #059669;
         color: white;
     }
     
@@ -289,6 +292,22 @@
     
     @keyframes spin {
         to { transform: rotate(360deg); }
+    }
+
+    /* ---- family design-language alignment additions ---- */
+    .modern-btn:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+    }
+    .step-circle:focus-within {
+        outline: none;
+    }
+    @media (max-width: 400px) {
+        .modern-card { padding: 18px; border-radius: 14px; }
+        .step-label { font-size: 11px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .modern-card, .modern-btn, .step-circle { transition: none; }
     }
 </style>
 
@@ -345,7 +364,7 @@
 ?>
 
 <!-- Page Header -->
-<div class="modern-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+<div class="modern-card" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%);">
     <div style="display: flex; align-items: center; gap: 20px;">
         <div class="icon-box" style="background: rgba(255,255,255,0.2);">
             <i class="glyphicon glyphicon-upload" style="color: white;"></i>
@@ -394,7 +413,7 @@
     <div class="col-md-6">
         <div class="modern-card" style="background: #f8fafc; border: 2px solid #e5e7eb; height: 100%;">
             <h3 style="margin: 0 0 16px 0; font-size: 20px; font-weight: 700; color: #111827;">
-                <i class="glyphicon glyphicon-info-sign" style="color: #667eea;"></i> How It Works
+                <i class="glyphicon glyphicon-info-sign" style="color: #4f46e5;"></i> How It Works
             </h3>
             <p style="color: #4b5563; margin-bottom: 16px; font-size: 14px;">Follow these simple steps to admit multiple students:</p>
             <ul style="list-style: none; padding: 0; margin: 0; color: #374151; font-size: 14px; line-height: 1.8;">
