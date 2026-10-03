@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-primary">
-            <div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+            <div class="panel-heading" style="background: #764ba2; border: none;">
                 <h3 class="panel-title" style="color: white;">
                     <i class="fa fa-edit"></i> Record Student Marks
                 </h3>

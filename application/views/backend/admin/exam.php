@@ -31,7 +31,7 @@ $gradient_dark = adjustBrightness_exam($theme_color, -30);
 }
 
 .exam-header {
-    background: linear-gradient(135deg, var(--theme-light) 0%, var(--theme-dark) 100%);
+    background: var(--theme-dark);
     color: white;
     padding: 30px;
     border-radius: 16px;
@@ -88,7 +88,7 @@ $gradient_dark = adjustBrightness_exam($theme_color, -30);
 }
 
 .modern-tab.active {
-    background: linear-gradient(135deg, var(--theme-light) 0%, var(--theme-dark) 100%);
+    background: var(--theme-dark);
     color: white;
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
@@ -100,7 +100,7 @@ $gradient_dark = adjustBrightness_exam($theme_color, -30);
 }
 
 .modern-tab.active:hover {
-    background: linear-gradient(135deg, var(--theme-light) 0%, var(--theme-dark) 100%);
+    background: var(--theme-dark);
     color: white;
 }
 
@@ -112,7 +112,7 @@ $gradient_dark = adjustBrightness_exam($theme_color, -30);
 }
 
 .exam-table thead {
-    background: linear-gradient(135deg, var(--theme-light) 0%, var(--theme-dark) 100%);
+    background: var(--theme-dark);
 }
 
 .exam-table thead th {
@@ -154,7 +154,7 @@ $gradient_dark = adjustBrightness_exam($theme_color, -30);
 }
 
 .exam-category {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: #f5576c;
     color: white;
     padding: 6px 12px;
     border-radius: 20px;
@@ -183,7 +183,7 @@ $gradient_dark = adjustBrightness_exam($theme_color, -30);
 }
 
 .btn-edit {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    background: #11998e;
     color: white;
 }
 
@@ -194,7 +194,7 @@ $gradient_dark = adjustBrightness_exam($theme_color, -30);
 }
 
 .btn-delete {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: #f5576c;
     color: white;
 }
 
@@ -277,7 +277,7 @@ select.form-control {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--theme-light) 0%, var(--theme-dark) 100%);
+    background: var(--theme-dark);
     border: none;
     padding: 16px 40px;
     border-radius: 12px;

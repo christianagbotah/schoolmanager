@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-primary">
-            <div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+            <div class="panel-heading" style="background: #764ba2; border: none;">
                 <h3 class="panel-title" style="color: white;">
                     <i class="fa fa-cog"></i> Setup New Examination
                 </h3>
@@ -80,7 +80,7 @@
                     </div>
 
                     <div class="form-group">
-                        <button type="submit" class="btn btn-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <button type="submit" class="btn btn-lg" style="background: #764ba2; color: white;">
                             <i class="fa fa-save"></i> Create Examination
                         </button>
                         <a href="<?php echo site_url('examination'); ?>" class="btn btn-lg btn-default">

@@ -1,7 +1,7 @@
 <div class="modal fade" id="subjectModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <div class="modal-header" style="background: #764ba2; color: white;">
                 <button type="button" class="close" data-dismiss="modal" style="color: white;">&times;</button>
                 <h4 class="modal-title"><i class="fa fa-book"></i> Add Subjects to Exam</h4>
             </div>
