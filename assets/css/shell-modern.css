@@ -23,6 +23,8 @@
    1. Base & typography
    ------------------------------------------------------------ */
 body.page-body {
+    font-size: 15px;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -93,7 +95,7 @@ textarea:focus-visible,
 }
 #session_static h4,
 #term_static h4 {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     font-weight: 600;
     letter-spacing: 0.01em;
 }
@@ -110,7 +112,8 @@ textarea:focus-visible,
 
 /* Quick action buttons — flatter, tidier, aligned */
 #top ul.links-list button {
-    padding: 0.4rem 0.9rem !important;
+    min-height: 2.5rem;
+    padding: 0.55rem 1rem !important;
     border-radius: 8px !important;
     font-weight: 600 !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18) !important;
@@ -277,11 +280,11 @@ textarea:focus-visible,
     -webkit-overflow-scrolling: touch;
 }
 #main_page table.table {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     margin-bottom: 0;
 }
 #main_page table.table > thead > tr > th {
-    font-size: 0.72rem;
+    font-size: 0.8125rem;
     text-transform: uppercase;
     letter-spacing: 0.045em;
     font-weight: 700;
@@ -289,10 +292,10 @@ textarea:focus-visible,
     background: #f8fafc;
     border-bottom: 1px solid #e2e8f0 !important;
     white-space: nowrap;
-    padding: 0.65rem 0.75rem;
+    padding: 0.8rem 0.875rem;
 }
 #main_page table.table > tbody > tr > td {
-    padding: 0.6rem 0.75rem;
+    padding: 0.75rem 0.875rem;
     vertical-align: middle;
 }
 #main_page table.table > tbody > tr:hover > td {
@@ -312,13 +315,13 @@ textarea:focus-visible,
 #main_page .form-control,
 #main_page select.form-control,
 #main_page textarea.form-control {
-    min-height: 2.4rem;
+    min-height: 2.75rem;
     border-radius: 8px;
     border: 1px solid #cbd5e1;
     box-shadow: none;
     transition: border-color 120ms ease, box-shadow 120ms ease;
     color: #1f2937;
-    font-size: 0.9rem;
+    font-size: 0.9375rem;
 }
 #main_page .form-control:focus {
     border-color: #2563eb;
@@ -331,7 +334,7 @@ textarea:focus-visible,
 }
 #main_page label.control-label {
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: #334155;
 }
 #main_page .has-error .form-control {
@@ -349,7 +352,11 @@ input[type="date"] {
    7. Buttons — restrained elevation, consistent radii
    ------------------------------------------------------------ */
 #main_page .btn {
+    min-height: 2.5rem;
+    padding: 0.55rem 1rem;
     border-radius: 8px;
+    font-size: 0.9375rem;
+    line-height: 1.35;
     font-weight: 600;
     transition: filter 120ms ease, box-shadow 120ms ease, transform 120ms ease;
 }
@@ -367,11 +374,39 @@ input[type="date"] {
     box-shadow: 0 1px 2px rgba(16, 24, 40, 0.10);
 }
 #main_page .btn-sm {
-    padding: 0.25rem 0.7rem;
-    font-size: 0.8rem;
+    min-height: 2.25rem;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.875rem;
 }
 #main_page .btn i.fa {
     opacity: 0.9;
+}
+
+/* ------------------------------------------------------------
+   7b. Readability floor for Tailwind/legacy page utilities
+   ------------------------------------------------------------ */
+#main_page .text-xs {
+    font-size: 0.8125rem !important;
+    line-height: 1.25rem !important;
+}
+#main_page .text-sm {
+    font-size: 0.9375rem !important;
+    line-height: 1.4rem !important;
+}
+#main_page button:not(.close),
+#main_page input[type="button"],
+#main_page input[type="submit"] {
+    min-height: 2.5rem;
+}
+#main_page .dataTables_wrapper .dt-button,
+#main_page .dataTables_wrapper button {
+    min-height: 2.4rem;
+    font-size: 0.875rem;
+}
+#main_page .select2-container .select2-choice,
+#main_page .select2-container .select2-choices {
+    min-height: 2.65rem;
+    font-size: 0.9375rem;
 }
 
 /* ------------------------------------------------------------
@@ -442,7 +477,9 @@ input[type="date"] {
     min-width: 2.1rem;
     text-align: center;
     font-weight: 600;
-    font-size: 0.85rem;
+    #main_page .pagination > li > a,
+#main_page .pagination > li > span {
+    font-size: 0.875rem;
 }
 #main_page .pagination > .active > a,
 #main_page .pagination > .active > span,
@@ -460,7 +497,7 @@ input[type="date"] {
     border-radius: 999px;
     font-weight: 600;
     padding: 0.25em 0.7em;
-    font-size: 0.72rem;
+    font-size: 0.8125rem;
 }
 #main_page .label-success { background: #059669; }
 #main_page .label-danger  { background: #dc2626; }
@@ -476,7 +513,8 @@ input[type="date"] {
     border-radius: 10px;
     border: 1px solid transparent;
     box-shadow: none;
-    font-size: 0.9rem;
+    #main_page .alert {
+    font-size: 0.9375rem;
 }
 #main_page .alert-success { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
 #main_page .alert-danger  { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
@@ -493,7 +531,7 @@ input[type="date"] {
     }
     #top #sys_name .font-bold,
     #top #sys_name .md\:font-extrabold {
-        font-size: 0.9rem !important;
+        font-size: 1rem !important;
     }
     /* quick action buttons collapse to icons with hit-area kept */
     #top ul.links-list button {
@@ -502,7 +540,7 @@ input[type="date"] {
     }
     #session_static h4,
     #term_static h4 {
-        font-size: 0.72rem;
+        font-size: 0.8125rem;
     }
     #main_page table.table > thead > tr > th,
     #main_page table.table > tbody > tr > td {
