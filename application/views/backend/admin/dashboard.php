@@ -164,10 +164,10 @@ $classes = $this->db->get('class')->result_array();
 <style>
 /* Admin Dashboard - modern presentation layer (design-system tokens) */
 .currency-symbol { font-size: 0.6em; vertical-align: super; margin-right: 2px; }
-.form-label { font-weight: 600; color: #374151; font-size: 13px; margin-bottom: 8px; display: block; }
-.form-control { border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 10px 14px; font-size: 14px; transition: border-color .15s ease, box-shadow .15s ease; height: 42px; width: 100%; background: #fff; color: #111827; }
+.form-label { font-weight: 600; color: #374151; font-size: 14px; margin-bottom: 8px; display: block; }
+.form-control { border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 10px 14px; font-size: 15px; transition: border-color .15s ease, box-shadow .15s ease; height: 44px; width: 100%; background: #fff; color: #111827; }
 .form-control:focus { border-color: var(--sm-primary-500, #3b82f6); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; }
-.btn-modern { padding: 10px 20px; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; }
+.btn-modern { padding: 10px 20px; border: none; border-radius: 10px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; }
 .btn-primary-modern { background: var(--sm-primary-600, #2563eb); color: white; box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35); }
 .btn-primary-modern:hover { background: var(--sm-primary-700, #1d4ed8); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35); }
 .btn-modern:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4); }
@@ -238,10 +238,19 @@ a:focus-visible .dashboard-card {
 .dash-chip {
         display: inline-flex; align-items: center; gap: 6px; background: #fff;
         border: 1px solid #e5e7eb; border-radius: 999px; padding: 6px 14px;
-        font-size: 13px; font-weight: 600; color: #374151;
+        font-size: 14px; font-weight: 600; color: #374151;
         box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
 }
 .dash-chip .fa { color: var(--sm-primary-600, #2563eb); }
+
+/* Stronger dashboard readability hierarchy */
+.dashboard-card h3 { line-height: 1.35; }
+.dashboard-card p { line-height: 1.5; }
+.dashboard-card .text-gray-600,
+.dashboard-card .text-gray-700 { line-height: 1.45; }
+.quick-action-btn { min-height: 118px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.quick-action-btn p { margin: 0; line-height: 1.35; }
+.quick-action-btn i { font-size: 2rem; }
 
 /* Financial summary hero (Termly Fees Collection) */
 .dash-hero {
@@ -269,7 +278,7 @@ a:focus-visible .dashboard-card {
 .dash-hero-icon i { color: white; font-size: 34px; }
 .dash-hero-eyebrow {
         color: rgba(255,255,255,0.95); text-transform: uppercase; letter-spacing: 1.2px;
-        font-size: 13px; font-weight: 700; margin-bottom: 6px;
+        font-size: 14px; font-weight: 700; margin-bottom: 6px;
 }
 .dash-hero-value { color: white; margin: 0; line-height: 1.15; font-size: 44px; font-weight: 800; }
 .dash-hero-period {
@@ -277,13 +286,13 @@ a:focus-visible .dashboard-card {
         padding: 12px 24px; border-radius: 12px;
 }
 .dash-hero-period p { margin: 0; color: white; }
-.dash-hero-period .dash-period-label { color: rgba(255,255,255,0.92); font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.dash-hero-period .dash-period-label { color: rgba(255,255,255,0.92); font-size: 14px; font-weight: 700; margin-bottom: 6px; }
 .dash-hero-period .dash-period-value { font-size: 20px; font-weight: 800; }
 .dash-hero-modules {
         background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.35);
         padding: 8px 16px; border-radius: 10px;
 }
-.dash-hero-modules p { color: #6ee7b7; margin: 0; font-weight: 700; font-size: 13px; }
+.dash-hero-modules p { color: #6ee7b7; margin: 0; font-weight: 700; font-size: 14px; }
 .dash-hero-tile {
         background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.12);
         border-radius: 14px; padding: 16px;
@@ -323,7 +332,7 @@ a:focus-visible .dashboard-card {
 }
 @media (max-width: 400px) {
         .dashboard-card { padding: 15px; }
-        .dash-chip { padding: 5px 10px; font-size: 12px; }
+        .dash-chip { padding: 6px 11px; font-size: 13px; }
 }
 </style>
 
@@ -390,7 +399,7 @@ a:focus-visible .dashboard-card {
 						<div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 56px; height: 56px; font-size: 26px;">
 							<i class="fa fa-users"></i>
 						</div>
-						<h3 class="text-gray-700 font-medium" style="font-size: 13px;">Total Students</h3>
+						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Total Students</h3>
 					</div>
 					<div class="text-right ml-auto">
 						<p class="text-4xl font-extrabold text-gray-900 leading-none mb-1">
@@ -403,7 +412,7 @@ a:focus-visible .dashboard-card {
 							echo $this->db->get('enroll')->num_rows();
 							?>
 						</p>
-						<p class="text-gray-600" style="font-size: 12px;">Currently enrolled</p>
+						<p class="text-gray-600" style="font-size: 14px;">Currently enrolled</p>
 					</div>
 				</div>
 			</div>
@@ -417,11 +426,11 @@ a:focus-visible .dashboard-card {
 						<div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); width: 56px; height: 56px; font-size: 26px;">
 							<i class="entypo-users"></i>
 						</div>
-						<h3 class="text-gray-700 font-medium" style="font-size: 13px;">Active Teachers</h3>
+						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Active Teachers</h3>
 					</div>
 					<div class="text-right ml-auto">
 						<p class="text-4xl font-extrabold text-gray-900 leading-none mb-1"><?php echo $this->db->get_where('teacher', array('active_status' => 1))->num_rows(); ?></p>
-						<p class="text-gray-600" style="font-size: 12px;">Teaching staff</p>
+						<p class="text-gray-600" style="font-size: 14px;">Teaching staff</p>
 					</div>
 				</div>
 			</div>
@@ -435,7 +444,7 @@ a:focus-visible .dashboard-card {
 						<div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); width: 56px; height: 56px; font-size: 26px;">
 							<i class="entypo-user"></i>
 						</div>
-						<h3 class="text-gray-700 font-medium" style="font-size: 13px;">Active Parents</h3>
+						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Active Parents</h3>
 					</div>
 					<div class="text-right ml-auto">
 						<p class="text-4xl font-extrabold text-gray-900 leading-none mb-1">
@@ -444,7 +453,7 @@ a:focus-visible .dashboard-card {
 							echo $this->db->get('parent')->num_rows();
 							?>
 						</p>
-						<p class="text-gray-600" style="font-size: 12px;">Registered guardians</p>
+						<p class="text-gray-600" style="font-size: 14px;">Registered guardians</p>
 					</div>
 				</div>
 			</div>
@@ -458,7 +467,7 @@ a:focus-visible .dashboard-card {
 						<div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); width: 56px; height: 56px; font-size: 26px;">
 							<i class="entypo-chart-bar"></i>
 						</div>
-						<h3 class="text-gray-700 font-medium" style="font-size: 13px;">Attendance</h3>
+						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Attendance</h3>
 					</div>
 					<div class="text-right ml-auto">
 						<p class="text-4xl font-extrabold text-gray-900 leading-none mb-1">
@@ -469,7 +478,7 @@ a:focus-visible .dashboard-card {
 							echo $present_count + $late_count;
 							?>
 						</p>
-						<p class="text-gray-600" style="font-size: 12px;">Present <?php echo ($timestamp == strtotime(date('d-m-Y'))) ? 'today' : date('M d', $timestamp); ?></p>
+						<p class="text-gray-600" style="font-size: 14px;">Present <?php echo ($timestamp == strtotime(date('d-m-Y'))) ? 'today' : date('M d', $timestamp); ?></p>
 					</div>
 				</div>
 			</div>
@@ -487,11 +496,11 @@ a:focus-visible .dashboard-card {
 						<div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); width: 56px; height: 56px; font-size: 26px;">
 							<i class="entypo-chart-line"></i>
 						</div>
-						<h3 class="text-gray-700 font-medium" style="font-size: 13px;">Daily Revenue</h3>
+						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Daily Revenue</h3>
 					</div>
 					<div class="text-right ml-auto">
 						<p class="text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($daily_revenue, 2); ?></p>
-						<p class="text-gray-600" style="font-size: 12px;"><?php echo ($timestamp == strtotime(date('d-m-Y'))) ? 'Today' : date('M d, Y', $timestamp); ?></p>
+						<p class="text-gray-600" style="font-size: 14px;"><?php echo ($timestamp == strtotime(date('d-m-Y'))) ? 'Today' : date('M d, Y', $timestamp); ?></p>
 					</div>
 				</div>
 			</div>
@@ -503,11 +512,11 @@ a:focus-visible .dashboard-card {
 					<div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 56px; height: 56px; font-size: 26px;">
 						<i class="entypo-gauge"></i>
 					</div>
-					<h3 class="text-gray-700 font-medium" style="font-size: 13px;">Collection Rate</h3>
+					<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Collection Rate</h3>
 				</div>
 				<div class="text-right ml-auto">
 					<p class="text-4xl font-extrabold text-gray-900 leading-none mb-1"><?php echo $collection_rate; ?>%</p>
-					<p class="text-gray-700" style="font-size: 12px;">Collected: <span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_revenue, 0); ?></p>
+					<p class="text-gray-700" style="font-size: 14px;">Collected: <span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_revenue, 0); ?></p>
 					<span class="text-xs font-bold px-2 py-1 rounded-full <?php echo $collection_rate >= 80 ? 'bg-green-100 text-green-700' : ($collection_rate >= 60 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'); ?> mt-1 inline-block">
 						<?php echo $collection_rate >= 80 ? 'Excellent' : ($collection_rate >= 60 ? 'Good' : 'Needs Attention'); ?>
 					</span>
@@ -523,11 +532,11 @@ a:focus-visible .dashboard-card {
 						<div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); width: 56px; height: 56px; font-size: 26px;">
 							<i class="fa fa-gift"></i>
 						</div>
-						<h3 class="text-gray-700 font-medium" style="font-size: 13px;">Student Credits</h3>
+						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Student Credits</h3>
 					</div>
 					<div class="text-right ml-auto">
 						<p class="text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_active_credits, 0); ?></p>
-						<p class="text-gray-700" style="font-size: 12px;"><?php echo $students_with_credits; ?> students</p>
+						<p class="text-gray-700" style="font-size: 14px;"><?php echo $students_with_credits; ?> students</p>
 						<?php if ($students_with_credits > 0): ?>
 						<span class="text-xs font-bold px-2 py-1 rounded-full bg-green-100 text-green-700 mt-1 inline-block">
 							<i class="fa fa-check-circle mr-1"></i>Prepaid Balances
@@ -544,7 +553,7 @@ a:focus-visible .dashboard-card {
 					<div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); width: 56px; height: 56px; font-size: 26px;">
 						<i class="entypo-credit-card"></i>
 					</div>
-					<h3 class="text-gray-700 font-medium" style="font-size: 13px;">Outstanding Debt</h3>
+					<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Outstanding Debt</h3>
 				</div>
 				<div class="text-right ml-auto">
 					<!-- Outstanding Debt - Clickable -->
@@ -563,7 +572,7 @@ a:focus-visible .dashboard-card {
 					<a href="javascript:;" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_bad_debt/'.$un_term .'/'. $un_year);?>', 'modal_bad_debt');" style="text-decoration: none; color: inherit;">
 						<div class="mt-2 pt-2 border-t border-gray-200 hover:bg-red-50 transition-colors" style="cursor: pointer; padding: 4px; border-radius: 4px;">
 							<p class="text-2xl font-bold text-red-600 hover:text-red-700 transition-colors"><?php echo $bad_debt_count; ?></p>
-							<p class="text-red-600 hover:text-red-700 transition-colors" style="font-size: 11px;">Bad Debt (muted students)</p>
+							<p class="text-red-600 hover:text-red-700 transition-colors" style="font-size: 13px;">Bad Debt (muted students)</p>
 						</div>
 					</a>
 					<?php endif; ?>
@@ -821,11 +830,11 @@ a:focus-visible .dashboard-card {
                                                 <div class="stat-icon" style="background: linear-gradient(135deg, #fda4af 0%, #e11d48 100%);">
                                                         <i class="fa fa-file-invoice-dollar" aria-hidden="true"></i>
                                                 </div>
-                                                <h3 class="text-gray-700 font-medium" style="font-size: 13px;">Total Due Invoices</h3>
+                                                <h3 class="text-gray-700 font-medium" style="font-size: 15px;">Total Due Invoices</h3>
                                         </div>
                                         <div class="text-right ml-auto">
                                                 <p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_invoices_due_combined, 2); ?></p>
-                                                <p class="text-gray-600" style="font-size: 12px;">Outstanding as of this term</p>
+                                                <p class="text-gray-600" style="font-size: 14px;">Outstanding as of this term</p>
                                         </div>
                                 </div>
                         </div>
@@ -838,11 +847,11 @@ a:focus-visible .dashboard-card {
                                                         <div class="stat-icon" style="background: linear-gradient(135deg, #6ee7b7 0%, #059669 100%);">
                                                                 <i class="fa fa-wallet" aria-hidden="true"></i>
                                                         </div>
-                                                        <h3 class="text-gray-700 font-medium" style="font-size: 13px;">Total Income</h3>
+                                                        <h3 class="text-gray-700 font-medium" style="font-size: 15px;">Total Income</h3>
                                                 </div>
                                                 <div class="text-right ml-auto">
                                                         <p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_income_raw, 2); ?></p>
-                                                        <p class="text-gray-600" style="font-size: 12px;">Received this term</p>
+                                                        <p class="text-gray-600" style="font-size: 14px;">Received this term</p>
                                                         <span class="text-xs font-bold px-2 py-1 rounded-full bg-green-100 text-green-700 mt-1 inline-block">Receipts: <?php echo $receipt_count; ?></span>
                                                 </div>
                                         </div>
@@ -857,11 +866,11 @@ a:focus-visible .dashboard-card {
                                                         <div class="stat-icon" style="background: linear-gradient(135deg, #c4b5fd 0%, #7c3aed 100%);">
                                                                 <i class="fa fa-credit-card" aria-hidden="true"></i>
                                                         </div>
-                                                        <h3 class="text-gray-700 font-medium" style="font-size: 13px;">Unpaid Invoices</h3>
+                                                        <h3 class="text-gray-700 font-medium" style="font-size: 15px;">Unpaid Invoices</h3>
                                                 </div>
                                                 <div class="text-right ml-auto">
                                                         <p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($unpaid_amount, 2); ?></p>
-                                                        <p class="text-gray-600" style="font-size: 12px;">Outstanding payments</p>
+                                                        <p class="text-gray-600" style="font-size: 14px;">Outstanding payments</p>
                                                         <span class="text-xs font-bold px-2 py-1 rounded-full bg-orange-100 text-orange-700 mt-1 inline-block">Qty: <?php echo $unpaid_invoices_count; ?></span>
                                                 </div>
                                         </div>
@@ -876,11 +885,11 @@ a:focus-visible .dashboard-card {
                                                         <div class="stat-icon" style="background: linear-gradient(135deg, #fdba74 0%, #ea580c 100%);">
                                                                 <i class="fa fa-tags" aria-hidden="true"></i>
                                                         </div>
-                                                        <h3 class="text-gray-700 font-medium" style="font-size: 13px;">Total Termly Expenses</h3>
+                                                        <h3 class="text-gray-700 font-medium" style="font-size: 15px;">Total Termly Expenses</h3>
                                                 </div>
                                                 <div class="text-right ml-auto">
                                                         <p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_expense_raw, 2); ?></p>
-                                                        <p class="text-gray-600" style="font-size: 12px;">Spent this term</p>
+                                                        <p class="text-gray-600" style="font-size: 14px;">Spent this term</p>
                                                 </div>
                                         </div>
                                 </div>
@@ -1148,8 +1157,8 @@ a:focus-visible .dashboard-card {
                                                         <?php endif; ?>
                                                 </div>
                                         </div>
-                                        <h3 class="font-medium mb-2" style="color: white; font-size: 13px;"><?php echo $fee['name']; ?></h3>
-                                        <p style="color: white; font-size: 12px;">Received today <?= date('D M j, Y') ?></p>
+                                        <h3 class="font-medium mb-2" style="color: white; font-size: 15px;"><?php echo $fee['name']; ?></h3>
+                                        <p style="color: white; font-size: 14px;">Received today <?= date('D M j, Y') ?></p>
                                 </div>
                         </a>
                         <?php endforeach; ?>
