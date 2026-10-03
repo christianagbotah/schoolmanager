@@ -23,20 +23,22 @@ foreach ($edit_data as $row):
 
 <style>
 * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+body { background: #f9fafb; }
 .admission-container {
 	max-width: 1800px;
-	margin: 20px auto;
+	margin: 16px auto;
 	background: white;
-	border-radius: 20px;
-	box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+	border: 1px solid #e5e7eb;
+	border-radius: 16px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 24px rgba(16, 24, 40, 0.08);
 	overflow: hidden;
 }
 @media (max-width: 640px) { .admission-container { margin: 10px; border-radius: 15px; width: calc(100% - 20px); } }
 .admission-header {
-	background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+	background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%);
 	color: white;
-	padding: 20px 30px;
+	padding: 24px 30px;
+	box-shadow: 0 12px 32px rgba(79, 70, 229, 0.25);
 	text-align: center;
 	position: relative;
 	overflow: hidden;
@@ -52,10 +54,11 @@ body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 @media (max-width: 640px) { .form-content { padding: 0 20px; } }
 .section-card {
 	background: white;
-	border-radius: 12px;
+	border: 1px solid #e5e7eb;
+	border-radius: 16px;
 	padding: 25px;
 	margin: 25px 0;
-	box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
 }
 @media (max-width: 640px) {
 	.section-card {
@@ -65,21 +68,23 @@ body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 	}
 }
 .section-header {
-	background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-	color: white;
-	padding: 18px 24px;
+	background: #f9fafb;
+	color: #111827;
+	border: 1px solid #e5e7eb;
+	border-left: 5px solid #4f46e5;
+	padding: 16px 20px;
 	margin: 35px 0 25px;
 	border-radius: 12px;
 	font-weight: 700;
-	font-size: 18px;
-	box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+	font-size: 17px;
+	box-shadow: none;
 	display: flex;
 	align-items: center;
 	gap: 12px;
 	transition: all 0.3s;
 }
-.section-header:hover { transform: translateX(5px); box-shadow: 0 6px 25px rgba(245, 158, 11, 0.4); }
-.section-header i { font-size: 22px; }
+.section-header:hover { border-color: #cbd5e1; }
+.section-header i { font-size: 20px; color: #4f46e5; }
 @media (max-width: 640px) { .section-header { padding: 15px 18px; margin: 25px 0 20px; font-size: 16px; } .section-header i { font-size: 20px; } }
 .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 @media (max-width: 1200px) { .form-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; } }
@@ -100,28 +105,28 @@ body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 }
 .form-field input:hover, .form-field select:hover, .form-field textarea:hover { border-color: #d1d5db; }
 .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
-	border-color: #f59e0b;
+	border-color: #3b82f6;
 	outline: none;
-	box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
-	background: #fffbf5;
+	box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+	background: #ffffff;
 }
 .form-field input::placeholder, .form-field textarea::placeholder { color: #9ca3af; font-weight: 400; }
 .submit-btn {
-	background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+	background: #2563eb;
 	color: #ffffff !important;
-	padding: 16px 48px;
+	padding: 14px 44px;
 	border: none;
 	border-radius: 12px;
-	font-size: 18px;
+	font-size: 17px;
 	font-weight: 700;
 	cursor: pointer;
-	box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+	box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35);
 	transition: all 0.3s;
 	margin: 40px 0;
 	letter-spacing: 0.3px;
 }
 @media (max-width: 640px) { .submit-btn { padding: 14px 36px; font-size: 16px; margin: 30px 0; width: 100%; } }
-.submit-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(245, 158, 11, 0.4); background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35); background: #1d4ed8; }
 .submit-btn:active { transform: translateY(-1px); }
 .submit-btn i { color: #ffffff !important; margin-right: 8px; }
 .photo-upload {
@@ -129,7 +134,7 @@ body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 	padding: 30px;
 	border: 3px dashed #d1d5db;
 	border-radius: 12px;
-	background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+	background: #f9fafb;
 	transition: all 0.3s;
 }
 /* Modern Select2 Styling for Guardian Selection */
@@ -147,7 +152,7 @@ body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 }
 .select2-container--default.select2-container--focus .select2-selection--single {
 	border-color: #f59e0b;
-	box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+	box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
 	background: #fffbf5;
 }
 .select2-container--default .select2-selection--single .select2-selection__rendered {
@@ -166,7 +171,7 @@ body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 	right: 12px;
 }
 .select2-dropdown {
-	border: 2px solid #f59e0b;
+	border: 2px solid #e5e7eb;
 	border-radius: 12px;
 	box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 	margin-top: 8px;
@@ -187,14 +192,14 @@ body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 	transform: scale(1.02);
 }
 .select2-container--default .select2-results__option[aria-selected=true] {
-	background-color: rgba(245, 158, 11, 0.1) !important;
-	color: #92400e !important;
+	background-color: rgba(59, 130, 246, 0.15) !important;
+	color: #1e40af !important;
 	font-weight: 700;
 }
 .select2-search--dropdown {
 	padding: 16px;
-	background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-	border-bottom: 2px solid #f59e0b;
+	background: #f9fafb;
+	border-bottom: 2px solid #e5e7eb;
 }
 .select2-search--dropdown .select2-search__field {
 	border: 2px solid #e5e7eb;
@@ -215,6 +220,18 @@ body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 	text-align: center;
 	color: #6b7280;
 	font-style: italic;
+}
+
+/* ---- family design-language alignment additions ---- */
+.submit-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+.form-field input:focus-visible, .form-field select:focus-visible, .form-field textarea:focus-visible {
+    outline: none;
+}
+@media (prefers-reduced-motion: reduce) {
+    .section-header, .submit-btn { transition: none; }
 }
 </style>
 
@@ -544,7 +561,7 @@ body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 		</div>
 		
 		<!-- Mother's Information -->
-		<div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+		<div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
 			<h4 style="margin: 0 0 20px 0; color: #92400e; font-size: 16px; font-weight: 700;"><i class="fa fa-female"></i> Mother's Information</h4>
 			<div class="form-grid">
 				<div class="form-field">
