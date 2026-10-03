@@ -1,5 +1,94 @@
 <script src="<?php echo base_url(); ?>assets/cdn/js/tailwindcss.js"></script>
-<div class="bg-white rounded-lg shadow-sm p-6">
+<style>
+/* Direct UX refinement — Teacher Class Routine */
+body { background: #f8fafc; }
+.routine-teacher-workspace {
+    max-width: 1480px; margin: 0 auto; padding: 24px 28px 40px !important;
+    border: 0 !important; border-radius: 0 !important; box-shadow: none !important; background: #f8fafc !important;
+}
+.routine-teacher-workspace > .mb-6:first-child {
+    margin-bottom: 18px !important; padding-bottom: 18px; border-bottom: 1px solid #e2e8f0;
+}
+.routine-teacher-workspace > .mb-6:first-child h2 {
+    margin: 0; color: #0f172a !important; font-size: 30px !important; line-height: 1.2;
+    font-weight: 800 !important; letter-spacing: -.02em;
+}
+.routine-teacher-workspace > .mb-6:first-child p {
+    margin-top: 7px !important; color: #64748b !important; font-size: 15px !important; line-height: 1.5;
+}
+.routine-teacher-workspace > .flex.gap-2.border-b {
+    display: inline-flex !important; gap: 5px !important; margin-bottom: 16px !important; padding: 5px !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 12px; background: #fff;
+}
+.routine-teacher-workspace .tab-btn {
+    min-height: 40px; padding: 9px 14px !important; border: 0 !important; border-radius: 8px !important;
+    color: #475569 !important; background: transparent; font-size: 14px !important; font-weight: 700 !important;
+}
+.routine-teacher-workspace .tab-btn.active {
+    background: #2563eb !important; color: #fff !important; box-shadow: 0 2px 8px rgba(37,99,235,.16);
+}
+.routine-teacher-workspace .space-y-4 > div {
+    margin-bottom: 10px !important; border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important; box-shadow: 0 1px 2px rgba(15,23,42,.04); overflow: hidden;
+}
+.routine-teacher-workspace .space-y-4 > div > button {
+    min-height: 48px; padding: 12px 15px !important; background-image: none !important;
+    background-color: #fff !important; color: #0f172a !important;
+}
+.routine-teacher-workspace .space-y-4 > div > button:hover { background: #f8fafc !important; }
+.routine-teacher-workspace .space-y-4 > div > button span {
+    font-size: 15px !important; font-weight: 800 !important;
+}
+.routine-teacher-workspace .space-y-4 > div > div > .p-4 { padding: 14px !important; }
+.routine-teacher-workspace table { min-width: 820px; }
+.routine-teacher-workspace table td {
+    padding: 11px 12px !important; color: #334155; font-size: 14px !important; line-height: 1.45;
+}
+.routine-teacher-workspace table td:first-child {
+    width: 120px !important; font-size: 13px !important; font-weight: 800 !important; color: #475569 !important;
+}
+.routine-teacher-workspace table .inline-block > div {
+    min-height: 38px; padding: 8px 11px !important; border-radius: 8px !important;
+    background: #eff6ff !important; border-color: #bfdbfe !important;
+}
+.routine-teacher-workspace table .text-sm { font-size: 14px !important; line-height: 1.35 !important; }
+.routine-teacher-workspace table .text-xs { font-size: 13px !important; line-height: 1.35 !important; }
+.routine-teacher-workspace table .group-hover\:flex {
+    border: 1px solid #e2e8f0; border-radius: 8px !important; box-shadow: 0 8px 20px rgba(15,23,42,.12) !important;
+}
+.routine-teacher-workspace table .group-hover\:flex a {
+    min-height: 36px; padding: 8px 11px !important; font-size: 13px !important;
+}
+
+.routine-teacher-workspace #add {
+    max-width: 980px; padding: 20px; border: 1px solid #e2e8f0;
+    border-radius: 14px; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.04);
+}
+.routine-teacher-workspace #add > .max-w-3xl { max-width: 100% !important; }
+.routine-teacher-workspace #add label {
+    margin-bottom: 7px !important; color: #334155 !important; font-size: 14px !important; font-weight: 700 !important;
+}
+.routine-teacher-workspace #add select {
+    min-height: 46px; padding: 9px 12px !important; border: 1px solid #cbd5e1 !important;
+    border-radius: 9px !important; background: #fff; color: #0f172a; font-size: 15px !important;
+}
+.routine-teacher-workspace #add select:focus {
+    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+}
+.routine-teacher-workspace #add button[type="submit"] {
+    min-height: 44px; padding: 9px 17px !important; border-radius: 9px !important;
+    font-size: 14px !important; font-weight: 800 !important;
+}
+@media (max-width: 767px) {
+    .routine-teacher-workspace { padding: 18px 14px 32px !important; }
+    .routine-teacher-workspace > .mb-6:first-child h2 { font-size: 26px !important; }
+    .routine-teacher-workspace > .flex.gap-2.border-b { display: grid !important; grid-template-columns: 1fr; width: 100%; }
+    .routine-teacher-workspace .tab-btn { width: 100%; }
+    .routine-teacher-workspace #add .grid.grid-cols-3 { grid-template-columns: 1fr !important; }
+}
+</style>
+
+<div class="bg-white rounded-lg shadow-sm p-6 routine-teacher-workspace">
     <div class="mb-6">
         <h2 class="text-2xl font-bold text-gray-800 mb-2"><?php echo get_phrase('class_routine');?></h2>
         <p class="text-gray-600"><?php echo get_phrase('manage_class_schedules_and_timetables');?></p>

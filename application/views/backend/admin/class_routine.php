@@ -1,6 +1,127 @@
-<div class="row">
+<style>
+/* Direct UX rebuild — Admin Class Routine */
+body { background: #f8fafc; }
+.routine-admin-workspace { margin: 0 !important; padding: 24px 28px 40px; }
+.routine-admin-workspace > .col-md-12 { padding: 0 !important; }
+.routine-page-head {
+    margin: 0 0 18px; padding: 0 0 18px; border-bottom: 1px solid #e2e8f0;
+}
+.routine-eyebrow {
+    margin: 0 0 4px; color: #2563eb; font-size: 13px; font-weight: 800;
+    letter-spacing: .08em; text-transform: uppercase;
+}
+.routine-page-head h1 {
+    margin: 0; color: #0f172a; font-size: 30px; line-height: 1.2;
+    font-weight: 800; letter-spacing: -.02em;
+}
+.routine-page-head p:last-child { margin: 7px 0 0; color: #64748b; font-size: 15px; line-height: 1.5; }
+
+.routine-admin-workspace .nav-tabs.bordered {
+    display: inline-flex; gap: 5px; margin: 0 0 16px !important; padding: 5px !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 12px; background: #fff;
+}
+.routine-admin-workspace .nav-tabs.bordered > li { margin: 0 !important; }
+.routine-admin-workspace .nav-tabs.bordered > li > a {
+    min-height: 40px; padding: 9px 14px !important; border: 0 !important; border-radius: 8px !important;
+    background: transparent !important; color: #475569 !important; font-size: 14px; font-weight: 700;
+}
+.routine-admin-workspace .nav-tabs.bordered > li.active > a,
+.routine-admin-workspace .nav-tabs.bordered > li.active > a:hover {
+    background: #2563eb !important; color: #fff !important;
+}
+.routine-admin-workspace .tab-content { padding: 0 !important; }
+.routine-admin-workspace .tab-content > br { display: none; }
+
+.routine-admin-workspace .panel-group { margin: 0; }
+.routine-admin-workspace .panel {
+    margin-bottom: 10px !important; border: 1px solid #e2e8f0 !important; border-radius: 12px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04) !important; overflow: hidden;
+}
+.routine-admin-workspace .panel-heading {
+    padding: 0 !important; background: #fff !important; border-bottom: 1px solid #eef2f7 !important;
+}
+.routine-admin-workspace .panel-title { margin: 0 !important; }
+.routine-admin-workspace .panel-title > a {
+    min-height: 48px; padding: 13px 16px !important; display: flex; align-items: center; gap: 8px;
+    color: #0f172a !important; font-size: 15px; font-weight: 800; text-decoration: none !important;
+}
+.routine-admin-workspace .panel-title > a:hover { background: #f8fafc; }
+.routine-admin-workspace .panel-body { padding: 14px !important; background: #fff; overflow-x: auto; }
+
+.routine-admin-workspace table.table {
+    min-width: 820px; margin: 0 !important; border: 1px solid #e2e8f0 !important;
+    border-radius: 10px; overflow: hidden;
+}
+.routine-admin-workspace table.table td {
+    padding: 11px 12px !important; color: #334155; font-size: 14px !important;
+    line-height: 1.45; vertical-align: middle;
+}
+.routine-admin-workspace table.table td:first-child {
+    width: 120px !important; background: #f8fafc; color: #475569;
+    font-size: 13px !important; font-weight: 800; letter-spacing: .035em;
+}
+.routine-admin-workspace .btn-group { margin: 3px 5px 3px 0; }
+.routine-admin-workspace .btn-group > .btn {
+    min-height: 38px; padding: 7px 11px !important; border: 1px solid #cbd5e1;
+    border-radius: 8px !important; background: #fff; color: #1e3a8a;
+    font-size: 13px; font-weight: 700;
+}
+.routine-admin-workspace .btn-group > .btn:hover { background: #eff6ff; border-color: #93c5fd; }
+.routine-admin-workspace .dropdown-menu {
+    min-width: 150px; padding: 6px 0; border: 1px solid #e2e8f0; border-radius: 9px;
+    box-shadow: 0 8px 24px rgba(15,23,42,.12);
+}
+.routine-admin-workspace .dropdown-menu > li > a {
+    min-height: 36px; padding: 8px 12px; display: flex; align-items: center; gap: 7px;
+    font-size: 14px;
+}
+
+.routine-admin-workspace #add {
+    margin-top: 0; padding: 0 !important; border: 1px solid #e2e8f0;
+    border-radius: 14px; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.04);
+}
+.routine-admin-workspace #add > br { display: none; }
+.routine-admin-workspace #add .box-content { max-width: 980px; padding: 22px 20px; }
+.routine-admin-workspace #add .form-group { margin-bottom: 16px; }
+.routine-admin-workspace #add .control-label {
+    padding-top: 11px; color: #334155; font-size: 14px; font-weight: 700;
+}
+.routine-admin-workspace #add .form-control,
+.routine-admin-workspace #add .selectboxit-container .selectboxit {
+    min-height: 46px; height: 46px; border: 1px solid #cbd5e1; border-radius: 9px;
+    font-size: 15px; color: #0f172a; background: #fff;
+}
+.routine-admin-workspace #add .form-control:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
+}
+.routine-admin-workspace #add button[type="submit"] {
+    min-height: 44px; padding: 9px 17px; border-radius: 9px;
+    background: #2563eb; border-color: #2563eb; font-size: 14px; font-weight: 800;
+}
+
+@media (max-width: 767px) {
+    .routine-admin-workspace { padding: 18px 14px 32px; }
+    .routine-page-head h1 { font-size: 26px; }
+    .routine-admin-workspace .nav-tabs.bordered { display: grid; grid-template-columns: 1fr; width: 100%; }
+    .routine-admin-workspace .nav-tabs.bordered > li > a { width: 100%; }
+    .routine-admin-workspace #add .control-label { padding-top: 0; margin-bottom: 6px; text-align: left; }
+    .routine-admin-workspace #add .col-sm-5,
+    .routine-admin-workspace #add .col-sm-9,
+    .routine-admin-workspace #add .col-md-3 { width: 100%; padding: 0 15px; margin-bottom: 8px; }
+}
+</style>
+
+<div class="row routine-admin-workspace">
     <div class="col-md-12">
     
+        <div class="routine-page-head">
+            <div>
+                <p class="routine-eyebrow">Academics</p>
+                <h1>Class Routine & Timetable</h1>
+                <p>Review class schedules or create a new routine using the existing class, section, subject and time workflow.</p>
+            </div>
+        </div>
+
         <!------CONTROL TABS START------>
         <ul class="nav nav-tabs bordered">
             <li class="active">
