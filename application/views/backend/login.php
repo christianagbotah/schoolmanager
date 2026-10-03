@@ -161,7 +161,7 @@ function valid_email_address($email_address) {
                         <label class="form-label">Authentication Key</label>
                         <div class="input-wrapper">
                             <i class="fas fa-key"></i>
-                            <input type="password" class="form-input auth-key-input" name="auth_key" id="auth_key" maxlength="5" placeholder="XXXXX" required autocomplete="off" onkeyup="auth_verification(this.value)">
+                            <input type="password" class="form-input auth-key-input" name="auth_key" id="auth_key" maxlength="5" placeholder="XXXXX" required autocomplete="off" oninput="auth_verification(this.value)">
                         </div>
                     </div>
                 </form>
