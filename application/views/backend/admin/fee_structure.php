@@ -74,7 +74,7 @@ $currency = $this->db->get_where('settings', ['type' => 'currency'])->row()->des
     border: 1.5px solid #e2e8f0;
     border-radius: 8px;
     background: #ffffff;
-    transition: all 0.2s;
+    transition: border-color .15s ease, box-shadow .15s ease;
 }
 
 .filter-field select:focus {
@@ -88,17 +88,17 @@ $currency = $this->db->get_where('settings', ['type' => 'currency'])->row()->des
     font-size: 1rem;
     font-weight: 600;
     color: #ffffff;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: #2563eb;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transition: background-color .2s ease, box-shadow .2s ease;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35);
 }
 
-.btn-filter-modern:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+..btn-filter-modern:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
 }
 
 /* Cards Container */
@@ -114,12 +114,11 @@ $currency = $this->db->get_where('settings', ['type' => 'currency'])->row()->des
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     overflow: hidden;
-    transition: all 0.3s;
+    transition: box-shadow .2s ease;
 }
 
 .fee-class-card:hover {
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    transform: translateY(-2px);
 }
 
 .card-header {
@@ -272,24 +271,22 @@ $currency = $this->db->get_where('settings', ['type' => 'currency'])->row()->des
     font-size: 1.125rem;
 }
 
-.btn-edit {
-    background: #3b82f6;
-    color: #ffffff;
-}
-
-.btn-edit:hover {
+..btn-edit {
     background: #2563eb;
-    transform: scale(1.05);
-}
-
-.btn-delete {
-    background: #ef4444;
     color: #ffffff;
 }
 
-.btn-delete:hover {
+..btn-edit:hover {
+    background: #1d4ed8;
+}
+
+..btn-delete {
     background: #dc2626;
-    transform: scale(1.05);
+    color: #ffffff;
+}
+
+..btn-delete:hover {
+    background: #b91c1c;
 }
 
 /* Edit Mode */
@@ -447,6 +444,17 @@ textarea.form-input {
     .form-row {
         grid-template-columns: 1fr;
     }
+}
+
+/* ---- family focus + motion ---- */
+.btn-filter-modern:focus-visible,
+.btn-edit:focus-visible,
+.btn-delete:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .btn-filter-modern, .fee-class-card, .btn-edit, .btn-delete { transition: none; }
 }
 </style>
 
