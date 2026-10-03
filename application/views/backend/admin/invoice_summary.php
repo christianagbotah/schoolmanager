@@ -1,21 +1,34 @@
 <style>
-.summary-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden; }
-.summary-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px; }
+/* ---- Invoice Summary - family design-language alignment (presentation only) ---- */
+.summary-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); margin-bottom: 20px; overflow: hidden; }
+.summary-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 24px; }
 .summary-body { padding: 24px; }
-.info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f3f4f6; }
+.info-row { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f3f4f6; }
 .info-label { color: #6b7280; font-weight: 600; }
 .info-value { color: #111827; font-weight: 600; }
-.amount-large { font-size: 32px; font-weight: 700; }
+.amount-large { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
 .status-badge { padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
 .status-paid { background: #d1fae5; color: #065f46; }
 .status-partial { background: #fef3c7; color: #92400e; }
 .status-unpaid { background: #fee2e2; color: #991b1b; }
 .items-table { width: 100%; margin-top: 20px; }
-.items-table th { background: #f9fafb; padding: 12px; text-align: left; font-weight: 600; color: #374151; }
-.items-table td { padding: 12px; border-bottom: 1px solid #f3f4f6; }
-.action-btn { padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-.btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+.items-table th { background: #f9fafb; padding: 12px; text-align: left; font-weight: 600; color: #374151; font-size: 13px; text-transform: uppercase; letter-spacing: .3px; border-bottom: 1px solid #e5e7eb; }
+.items-table td { padding: 12px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 13.5px; }
+.action-btn { padding: 10px 20px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; transition: background-color .2s ease, box-shadow .2s ease; }
+.action-btn:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.btn-primary { background: #2563eb; color: #ffffff; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-success { background: #059669; color: #ffffff; }
+.btn-success:hover { background: #047857; }
+@media (max-width: 480px) {
+    .summary-header, .summary-body { padding: 16px; }
+    .amount-large { font-size: 26px; }
+    .action-btn { width: 100%; }
+    .summary-body > div:last-of-type { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .action-btn { transition: none; }
+}
 </style>
 
 <?php
@@ -113,7 +126,7 @@ $discounts = $this->db->select('d.*, dt.name as type_name, dt.icon')
             <?php endif; ?>
             <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
                 <span style="font-size: 18px; font-weight: 600;">Total Amount:</span>
-                <span class="amount-large" style="color: #667eea;">GHS <?php echo number_format($summary->total_amount, 2); ?></span>
+                <span class="amount-large" style="color: #2563eb;">GHS <?php echo number_format($summary->total_amount, 2); ?></span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
                 <span style="font-size: 16px;">Amount Paid:</span>
