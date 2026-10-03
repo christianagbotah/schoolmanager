@@ -155,7 +155,7 @@ input[type="checkbox"]:checked::after {
 }
 
 .select2-results__option--highlighted {
-    background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%) !important;
+    background: #2563eb !important;
 }
 
 .select2-search--dropdown .select2-search__field {
@@ -1130,7 +1130,7 @@ input[type="checkbox"]:checked::after {
         
         <!-- RIGHT COLUMN: Fee Items & Transaction View -->
         <div class="md:col-span-5">
-            <div class="rounded-2xl p-5 shadow-xl max-h-[calc(100vh-12rem)] overflow-y-auto" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%); scrollbar-width: thin; scrollbar-color: #10b981 #d1fae5;">
+            <div class="rounded-2xl p-5 shadow-xl max-h-[calc(100vh-12rem)] overflow-y-auto" style="background: #f0fdf4; scrollbar-width: thin; scrollbar-color: #10b981 #d1fae5;">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-2xl font-bold text-indigo-600 flex items-center gap-2">
                         <i class="fa fa-hand-holding-usd"></i> <?php echo get_phrase('collect_fees'); ?>
@@ -1197,7 +1197,7 @@ input[type="checkbox"]:checked::after {
             <div class="grid gap-4 mb-4" id="fee_cards_grid" style="grid-template-columns: repeat(5, 1fr);">
                 <?php if($feeding_enabled): ?>
                 <!-- Feeding -->
-                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" style="background: #ec4899;">
                     <div class="absolute top-2 right-2 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-semibold">Daily • Required</div>
                     <div class="text-6xl mb-3"><i class="fa fa-utensils"></i></div>
                     <div class="text-xl opacity-90 mb-2 font-semibold"><?php echo get_phrase('feeding'); ?></div>
@@ -1213,7 +1213,7 @@ input[type="checkbox"]:checked::after {
 
                 <?php if($breakfast_enabled): ?>
                 <!-- Breakfast -->
-                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); opacity: 0.5;">
+                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" style="background: #f59e0b; opacity: 0.5;">
                     <div class="absolute top-2 left-2 bg-white/20 text-white text-sm px-2 py-1 rounded-full font-semibold">Daily • Optional</div>
                     
                     <div class="text-6xl mb-3"><i class="fa fa-coffee"></i></div>
@@ -1229,7 +1229,7 @@ input[type="checkbox"]:checked::after {
                     <div class="relative top-6">
                         <label class="relative inline-block w-14 h-7 cursor-pointer">
                             <input type="checkbox" id="breakfast_enabled" onchange="toggleBreakfastCard()" class="sr-only peer" value="1">
-                            <span class="absolute inset-0 rounded-full transition-all duration-300 shadow-inner" style="background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);"></span>
+                            <span class="absolute inset-0 rounded-full transition-all duration-300 shadow-inner" style="background: #9ca3af;"></span>
                             <span class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 shadow-md" style="transform: translateX(0);"></span>
                         </label>
                     </div>
@@ -1238,7 +1238,7 @@ input[type="checkbox"]:checked::after {
 
                 <?php if($classes_enabled): ?>
                 <!-- Classes -->
-                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" style="background: #0891b2;">
                     <div class="absolute top-2 right-2 bg-white/20 text-white text-sm px-2 py-1 rounded-full font-semibold">Daily • Required</div>
                     <div class="text-6xl mb-3"><i class="fa fa-book"></i></div>
                     <div class="text-xl opacity-90 mb-2 font-semibold"><?php echo get_phrase('classes'); ?></div>
@@ -1254,7 +1254,7 @@ input[type="checkbox"]:checked::after {
 
                 <?php if($water_enabled): ?>
                 <!-- Water -->
-                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" id="water_fee_card" style="background: linear-gradient(135deg, #06b6d4 0%, #ec4899 100%); text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" id="water_fee_card" style="background: #0891b2; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
                     <div class="absolute top-2 left-2 bg-white/20 text-white text-sm px-2 py-1 rounded-full font-semibold">Weekly • Required</div>
                     <!-- Water paid badge will be inserted here dynamically -->
                     
@@ -1271,7 +1271,7 @@ input[type="checkbox"]:checked::after {
                     <div class="relative top-6">
                         <label class="relative inline-block w-14 h-7 cursor-pointer">
                             <input type="checkbox" id="water_enabled" onchange="toggleWaterCard()" class="sr-only peer" value="1" checked>
-                            <span class="absolute inset-0 rounded-full transition-all duration-300 shadow-inner" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"></span>
+                            <span class="absolute inset-0 rounded-full transition-all duration-300 shadow-inner" style="background: #059669;"></span>
                             <span class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 shadow-md" style="transform: translateX(24px);"></span>
                         </label>
                     </div>
@@ -1280,7 +1280,7 @@ input[type="checkbox"]:checked::after {
 
                 <?php if($transport_enabled): ?>
                 <!-- Transport -->
-                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center hidden" id="transport_card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center hidden" id="transport_card" style="background: #2563eb;">
                     <div class="absolute top-2 right-2 bg-white/20 text-white text-sm px-2 py-1 rounded-full font-semibold">Daily • Optional</div>
                     <div class="text-6xl mb-3"><i class="fa fa-bus"></i></div>
                     <div class="text-xl opacity-90 mb-2 font-semibold"><?php echo get_phrase('transport'); ?></div>
@@ -2564,7 +2564,7 @@ function toggleBreakfastCard() {
     
     if (!enabled) {
         card.css('opacity', '0.5');
-        bg.css('background', 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)');
+        bg.css('background', '#9ca3af');
         slider.css('transform', 'translateX(0)');
         $('#collect_breakfast').prop('checked', false).prop('disabled', true);
         $('#breakfast_amount').val(0).prop('disabled', true);
@@ -2572,7 +2572,7 @@ function toggleBreakfastCard() {
         calculateTotal();
     } else {
         card.css('opacity', '1');
-        bg.css('background', 'linear-gradient(135deg, #10b981 0%, #059669 100%)');
+        bg.css('background', '#059669');
         slider.css('transform', 'translateX(24px)');
         $('#collect_breakfast').prop('disabled', false);
         $('#breakfast_amount').prop('disabled', false);
@@ -2588,7 +2588,7 @@ function toggleWaterCard() {
     
     if (!enabled) {
         card.css('opacity', '0.5');
-        bg.css('background', 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)');
+        bg.css('background', '#9ca3af');
         slider.css('transform', 'translateX(0)');
         $('#collect_water').prop('checked', false).prop('disabled', true);
         $('#water_amount').val(0).prop('disabled', true);
@@ -2596,7 +2596,7 @@ function toggleWaterCard() {
         calculateTotal();
     } else {
         card.css('opacity', '1');
-        bg.css('background', 'linear-gradient(135deg, #10b981 0%, #059669 100%)');
+        bg.css('background', '#059669');
         slider.css('transform', 'translateX(24px)');
         $('#collect_water').prop('disabled', false);
         $('#water_amount').prop('disabled', false);
@@ -2728,7 +2728,7 @@ function showTransportTopUp() {
         <div id="transport_topup_modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;">
             <div class="bg-white rounded-lg p-6 w-full max-w-md" style="background: white; border-radius: 12px; padding: 32px; width: 90%; max-width: 450px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
                 <div class="flex items-center gap-3 mb-6" style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
-                    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 48px; height: 48px; background: #2563eb; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                         <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
                         </svg>
@@ -2757,7 +2757,7 @@ function showTransportTopUp() {
                             onmouseover="this.style.background='#d1d5db';" onmouseout="this.style.background='#e5e7eb';">
                         Cancel
                     </button>
-                    <button onclick="processTransportTopUp()" style="flex: 1; padding: 14px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); transition: all 0.2s;"
+                    <button onclick="processTransportTopUp()" style="flex: 1; padding: 14px 24px; background: #2563eb; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35); transition: background-color .2s ease, box-shadow .2s ease;"
                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.4)';" 
                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.3)';">
                         <svg style="width: 18px; height: 18px; display: inline-block; margin-right: 6px; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
