@@ -109,7 +109,182 @@ foreach($students_ids as $sid) {
 
 ?>
 
-<div class="max-w-[1600px] mx-auto px-4 py-6">
+<style>
+/* Attendance + fee collection — presentation only */
+body { background: #f8fafc; }
+.attendance-entry-workspace {
+    max-width: 1600px !important; padding: 24px 28px 96px !important; color: #334155;
+}
+.attendance-entry-workspace > .bg-yellow-50,
+.attendance-entry-workspace > .bg-blue-50 {
+    margin-bottom: 14px !important; padding: 13px 15px !important;
+    border-radius: 10px !important; font-size: 14px; line-height: 1.5;
+}
+.attendance-entry-workspace > .bg-yellow-50 small,
+.attendance-entry-workspace > .bg-blue-50 small { font-size: 13px; line-height: 1.45; }
+
+#att_selector_form + .bg-white,
+.attendance-entry-workspace #att_selector_form > .bg-white {
+    padding: 16px 18px !important; margin-bottom: 16px !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 14px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+}
+#att_selector_form .grid { gap: 14px !important; }
+#att_selector_form label {
+    margin-bottom: 7px !important; color: #334155 !important; font-size: 14px !important; font-weight: 700 !important;
+}
+#att_selector_form select,
+#att_selector_form input[type="text"] {
+    min-height: 46px !important; height: 46px !important; padding: 9px 12px !important;
+    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
+    background: #fff !important; color: #0f172a !important; font-size: 15px !important;
+}
+#att_selector_form select:focus,
+#att_selector_form input[type="text"]:focus {
+    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important; outline: none;
+}
+#att_selector_form button[type="submit"] {
+    min-height: 46px !important; height: 46px !important; padding: 9px 16px !important;
+    border-radius: 9px !important; font-size: 14px !important; font-weight: 800 !important;
+}
+
+#attendance_form > .sticky.top-0 {
+    top: 10px !important; margin-bottom: 14px !important; padding: 12px 14px !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 12px !important;
+    box-shadow: 0 4px 14px rgba(15,23,42,.07) !important; background: rgba(255,255,255,.98) !important;
+}
+#attendance_form > .sticky.top-0 > .flex { gap: 12px !important; }
+#attendance_form > .sticky.top-0 label { font-size: 14px !important; font-weight: 700 !important; }
+#student_filter {
+    min-height: 40px; padding: 8px 11px !important; border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important; font-size: 14px; color: #0f172a;
+}
+#student_filter:focus { border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none; }
+#select_all_btn, #deselect_all_btn {
+    min-height: 40px; padding: 8px 13px !important; border-radius: 8px !important;
+    font-size: 14px !important; font-weight: 700 !important;
+}
+
+#attendance_form > .sticky.top-\[72px\] {
+    top: 64px !important; margin-bottom: 14px !important; padding: 16px 18px !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 14px !important;
+    box-shadow: 0 4px 14px rgba(15,23,42,.07) !important; background: rgba(255,255,255,.98) !important;
+}
+#attendance_form > .sticky.top-\[72px\] > h3 {
+    margin: 0 0 12px !important; color: #0f172a !important; font-size: 17px !important; font-weight: 800 !important;
+}
+#attendance_form > .sticky.top-\[72px\] .grid.grid-cols-2.md\:grid-cols-5 {
+    gap: 10px !important; margin-bottom: 14px !important;
+}
+#attendance_form > .sticky.top-\[72px\] .grid.grid-cols-2.md\:grid-cols-5 > div {
+    padding: 11px 12px !important; border-radius: 10px !important; box-shadow: none !important;
+}
+#attendance_form > .sticky.top-\[72px\] .text-xs { font-size: 13px !important; line-height: 1.35; }
+#attendance_form > .sticky.top-\[72px\] .text-xl { font-size: 18px !important; line-height: 1.3; }
+#attendance_form > .sticky.top-\[72px\] .bg-gray-50 { padding: 12px !important; border-radius: 10px !important; }
+#attendance_form > .sticky.top-\[72px\] .bg-gray-50 > p { margin-bottom: 9px !important; font-size: 14px !important; }
+#attendance_form > .sticky.top-\[72px\] .bg-gray-50 .grid { gap: 10px !important; }
+#attendance_form > .sticky.top-\[72px\] .bg-gray-50 .grid > div {
+    min-height: 58px; padding: 10px 11px !important; border-radius: 9px !important;
+}
+#attendance_form > .sticky.top-\[72px\] .bg-gray-50 .grid > div p:first-child {
+    font-size: 14px; font-weight: 700;
+}
+#attendance_form > .sticky.top-\[72px\] .bg-gray-50 .grid > div p.text-sm {
+    font-size: 13px !important; line-height: 1.35;
+}
+.toggle-switch { transform: scale(.9); transform-origin: right center; }
+
+#attendance_grid { gap: 14px !important; }
+#attendance_grid > div:not(.col-span-full) {
+    padding: 14px !important; border-width: 1px !important; border-radius: 12px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important; background: #fff;
+}
+#attendance_grid > div:not(.col-span-full):hover {
+    border-color: #cbd5e1 !important; box-shadow: 0 4px 12px rgba(15,23,42,.06) !important;
+}
+#attendance_grid .bg-yellow-100 { font-size: 13px !important; border-radius: 7px !important; }
+#attendance_grid .mb-3 > p.font-bold {
+    margin: 0; color: #0f172a !important; font-size: 15px !important; line-height: 1.4;
+}
+#attendance_grid .mb-3 > p.text-sm { margin-top: 2px; font-size: 13px !important; }
+#attendance_grid label.text-sm { font-size: 13px !important; line-height: 1.35; }
+#attendance_grid .attendance-select {
+    min-height: 42px; padding: 8px 10px !important; border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important; font-size: 14px !important; background: #fff; color: #0f172a;
+}
+#attendance_grid .attendance-select:focus {
+    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
+}
+#attendance_grid .bg-green-50.border {
+    padding: 9px 10px !important; border-radius: 8px !important;
+}
+#attendance_grid .bg-green-50.border .text-xs { font-size: 13px !important; line-height: 1.4 !important; }
+#attendance_grid .space-y-2 { display: grid; gap: 9px; }
+#attendance_grid .space-y-2 > div {
+    margin-top: 0 !important; padding-top: 8px; border-top: 1px solid #eef2f7;
+}
+#attendance_grid .grid.grid-cols-2.gap-2 { gap: 8px !important; }
+#attendance_grid .fee-input {
+    min-height: 38px; padding: 7px 9px !important; border: 1px solid #cbd5e1 !important;
+    border-radius: 7px !important; font-size: 14px !important; color: #0f172a;
+}
+#attendance_grid .fee-input:focus {
+    border-color: #2563eb !important; box-shadow: 0 0 0 2px rgba(37,99,235,.10); outline: none;
+}
+#attendance_grid .owing-display {
+    min-height: 38px; padding: 8px 9px !important; border-radius: 7px !important;
+    display: flex; align-items: center; font-size: 14px !important;
+}
+
+#attendance_form > .fixed.bottom-6.right-6 { bottom: 18px !important; right: 22px !important; z-index: 40; }
+#attendance_form > .fixed.bottom-6.right-6 button {
+    min-height: 46px; padding: 10px 18px !important; border-radius: 10px !important;
+    font-size: 15px !important; font-weight: 800 !important;
+    box-shadow: 0 8px 20px rgba(5,150,105,.22) !important;
+}
+
+@media (max-width: 1023px) {
+    #attendance_grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+}
+@media (max-width: 767px) {
+    .attendance-entry-workspace { padding: 16px 14px 88px !important; }
+    #att_selector_form .grid { grid-template-columns: 1fr !important; }
+    #attendance_form > .sticky.top-0,
+    #attendance_form > .sticky.top-\[72px\] {
+        position: relative !important; top: auto !important;
+    }
+    #attendance_form > .sticky.top-0 > .flex {
+        align-items: stretch !important; flex-direction: column !important;
+    }
+    #attendance_form > .sticky.top-0 > .flex > .flex {
+        width: 100%; flex-wrap: wrap;
+    }
+    #student_filter { width: 100%; }
+    #select_all_btn, #deselect_all_btn { flex: 1 1 auto; }
+    #attendance_form > .sticky.top-\[72px\] .grid.grid-cols-2.md\:grid-cols-5 {
+        grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    }
+    #attendance_form > .sticky.top-\[72px\] .bg-gray-50 .grid {
+        grid-template-columns: 1fr !important;
+    }
+    #attendance_grid { grid-template-columns: 1fr !important; }
+    #attendance_form > .fixed.bottom-6.right-6 {
+        left: 14px !important; right: 14px !important; bottom: 10px !important;
+    }
+    #attendance_form > .fixed.bottom-6.right-6 button { width: 100%; justify-content: center; }
+}
+@media (max-width: 400px) {
+    .attendance-entry-workspace { padding: 12px 10px 84px !important; }
+    #attendance_form > .sticky.top-\[72px\] .grid.grid-cols-2.md\:grid-cols-5 {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+
+
+
+<div class="max-w-[1600px] mx-auto px-4 py-6 attendance-entry-workspace">
     <?php if (!empty($existing_payments)): ?>
     <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
         <p class="text-yellow-700 font-semibold">
