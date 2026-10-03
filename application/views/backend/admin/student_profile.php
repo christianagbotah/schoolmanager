@@ -1,12 +1,12 @@
 <style>
-.profile-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: all 0.3s; }
-.profile-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+.profile-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.profile-card:hover { box-shadow: 0 10px 24px rgba(16, 24, 40, 0.10); border-color: #cbd5e1; transform: translateY(-2px); }
 .info-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 9999px; font-size: 16px; font-weight: 500; }
 .tab-modern { position: relative; padding: 12px 24px; font-weight: 600; transition: all 0.3s; border-radius: 8px; font-size: 16px; }
-.tab-modern.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-.stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; color: white; }
+.tab-modern.active { background: #2563eb; color: white; }
+.stat-card { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 12px; padding: 20px; color: white; }
 div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
-.sticky-header { position: sticky; top: 0; z-index: 10; background: linear-gradient(to bottom right, rgb(249 250 251), rgb(243 244 246)); }
+.sticky-header { position: sticky; top: 0; z-index: 10; background: #f9fafb; }
 .tab-content-scrollable { max-height: calc(100vh - 280px); overflow-y: auto; }
 @media (max-width: 768px) {
   .tab-modern { padding: 8px 12px; font-size: 14px; }
@@ -15,6 +15,36 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
   .dataTables_wrapper .dataTables_length { display: inline-block; width: 48%; }
   .dataTables_wrapper .dataTables_filter { display: inline-block; width: 48%; float: right !important; }
   .dataTables_wrapper .dataTables_filter input { width: 100% !important; }
+}
+
+/* ---- family design-language alignment (presentation only) ---- */
+.tab-modern:focus-visible, .profile-card button:focus-visible, .btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+.btn { border-radius: 10px; font-weight: 600; transition: all .2s; }
+.btn-success { background: #059669; border-color: #059669; }
+.btn-success:hover { background: #047857; border-color: #047857; }
+.btn-danger { background: #dc2626; border-color: #dc2626; }
+.btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
+.btn-info { background: #0284c7; border-color: #0284c7; }
+.btn-info:hover { background: #0369a1; border-color: #0369a1; }
+.tab-pane-modern table.datatable { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+.tab-pane-modern table.datatable thead th, .tab-pane-modern table.datatable tfoot th {
+  background: #f9fafb; color: #374151; font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .3px;
+  border-bottom: 1px solid #e5e7eb !important; padding: 12px 10px;
+}
+.tab-pane-modern table.datatable tbody td { border-bottom: 1px solid #f3f4f6; color: #374151; }
+#tab6 table.datatable { font-size: 14px; }
+#tab6 table.datatable tbody td { font-size: 14px; }
+@media (prefers-reduced-motion: reduce) {
+  .profile-card, .btn, .tab-modern { transition: none; }
+  .profile-card:hover { transform: none; }
+}
+@media (max-width: 400px) {
+  .profile-card { border-radius: 12px; }
+  .tab-modern { padding: 8px 10px; font-size: 13px; }
 }
 </style>
 
@@ -49,13 +79,13 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
     $student_name = $this->crud_model->getStudentInfoById($student_id)->name;
 ?>
 <!-- Modern Student Profile -->
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6">
+<div class="min-h-screen bg-gray-50 p-4 md:p-6">
   <!-- Student Selector -->
   <div class="mb-6 sticky-header pb-4">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Student Profile</h1>
       <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-        <label class="text-sm font-medium text-gray-700">Switch Student:</label>
+        <label for="other_students" class="text-sm font-medium text-gray-700">Switch Student:</label>
         <select class="form-control select2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 w-full sm:w-auto" id="other_students">
           <?php foreach($other_students as $os) { ?>
             <option value="<?=$os['student_id']?>" <?=$student_id == $os['student_id'] ? 'selected' : ''; ?>><?=$this->crud_model->getStudentNameById($os['student_id'])?></option>
@@ -102,7 +132,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
             <?php echo $class_name.' '.$class_name_numeric. ' | Section '.$section_name; ?>
           </a>
           <?php if (!isset($is_teacher_view) || !$is_teacher_view): ?>
-          <button onclick="destroySelect2()" class="mt-6 w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg">
+          <button onclick="destroySelect2()" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             <i class="entypo-pencil mr-2"></i>Edit Profile
           </button>
           <?php endif; ?>
@@ -639,7 +669,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
           
 
           ?>
-          <div class="profile-card" style="margin-top: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+          <div class="profile-card" style="margin-top: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%); color: white; border-radius: 16px;">
             <div style="display: flex; align-items: center; gap: 12px;">
               <i class="fa fa-graduation-cap" style="font-size: 24px; opacity: 0.8;"></i>
               <h3 style="margin: 0; font-size: 18px; font-weight: 600;"><?php echo $this->crud_model->get_exams_name($row2['exam_id']).'-'.$full_class_name; ?></h3>
@@ -931,7 +961,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
           //INCASE THIS STUDENT WAS IN CRECHE BEFORE
           if($exam_class_name == 'CRECHE') {
             ?>
-              <div class="profile-card" style="margin-top: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+              <div class="profile-card" style="margin-top: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%); color: white; border-radius: 16px;">
             <div style="display: flex; align-items: center; gap: 12px;">
               <i class="fa fa-graduation-cap" style="font-size: 24px; opacity: 0.8;"></i>
               <h3 style="margin: 0; font-size: 18px; font-weight: 600;"><?php echo $this->crud_model->get_exams_name($row2['exam_id']).'-'.$full_class_name; ?></h3>
@@ -1592,7 +1622,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
           //INCASE THIS STUDENT WAS IN CRECHE BEFORE
           if($exam_class_name == 'CRECHE') {
             ?>
-              <div class="profile-card" style="margin-top: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
+              <div class="profile-card" style="margin-top: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%); color: white; border-radius: 16px;">
             <div style="display: flex; align-items: center; gap: 12px;">
               <i class="fa fa-graduation-cap" style="font-size: 24px; opacity: 0.8;"></i>
               <h3 style="margin: 0; font-size: 18px; font-weight: 600;"><?php echo $this->crud_model->get_exams_name($row2['exam_id']).'-'.$full_class_name; ?></h3>
@@ -2145,7 +2175,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
               <section class="px-2">
                     <div class="font-bold text-2xl text-gray-500 text-right">ACCOUNTS RECEIVABLES</div>
                     <div class="font-extrabold text-2xl text-gray-600 text-right" id="total_receivables"></div>
-                    <div class="flex flex-col p-5 w-full max-w-full border-t-8 bg-white shadow-md border border-t-green-500 rounded-xl">
+                    <div class="flex flex-col p-5 w-full max-w-full border-t-4 bg-white shadow-md border border-t-green-500 rounded-xl">
                         <table class="w-full text-lg text-left text-gray-500 dark:text-gray-400 datatable" id="receivables">
                             <thead class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
 
@@ -2182,7 +2212,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                               <td class="px-4 py-3"><?php echo $rec['invoice_code']; ?></td>
                               <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $amount_rec, $currency); ?></strong></td>
                               <td class="px-4 py-3" align="right">
-                                  <a href="#" class="btn btn-success rounded-lg h-16 content-center" onclick="invoice_pay_modal('<?=$row['student_id'] ?>')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
+                                  <a href="#" class="btn btn-success rounded-lg h-16 content-center" onclick="invoice_pay_modal('<?=$row['student_id'] ?>')"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
                               </td>
                             </tr>
                         <?php endforeach;
@@ -2196,7 +2226,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                               <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tf_owe, $currency); ?></strong></td>
                               
                               <td class="px-4 py-3" align="right">
-                                  <a href="<?php echo site_url('admin/manage_attendance_view/'.$class_id.'/'.$section_id.'/'.$att_timestamp.'/'.$row['student_id']) ?>" class="btn btn-success rounded-lg h-16 content-center" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
+                                  <a href="<?php echo site_url('admin/manage_attendance_view/'.$class_id.'/'.$section_id.'/'.$att_timestamp.'/'.$row['student_id']) ?>" class="btn btn-success rounded-lg h-16 content-center"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
                               </td>
                             </tr>
                           <?php }
@@ -2209,7 +2239,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                               <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tc_owe, $currency); ?></strong></td>
                               
                               <td class="px-4 py-3" align="right">
-                                  <a href="<?php echo site_url('admin/manage_attendance_view/'.$class_id.'/'.$section_id.'/'.$att_timestamp.'/'.$row['student_id']) ?>" class="btn btn-success rounded-lg h-16 content-center" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
+                                  <a href="<?php echo site_url('admin/manage_attendance_view/'.$class_id.'/'.$section_id.'/'.$att_timestamp.'/'.$row['student_id']) ?>" class="btn btn-success rounded-lg h-16 content-center"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
                               </td>
                             </tr>
                           <?php }
@@ -2222,7 +2252,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                               <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tt_owe, $currency); ?></strong></td>
                               
                               <td class="px-4 py-3" align="right">
-                                  <a href="<?php echo site_url('admin/manage_attendance_view/'.$class_id.'/'.$section_id.'/'.$att_timestamp.'/'.$row['student_id']) ?>" class="btn btn-success rounded-lg h-16 content-center" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
+                                  <a href="<?php echo site_url('admin/manage_attendance_view/'.$class_id.'/'.$section_id.'/'.$att_timestamp.'/'.$row['student_id']) ?>" class="btn btn-success rounded-lg h-16 content-center"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
                               </td>
                             </tr>
                             <?php
@@ -2243,7 +2273,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                 <section class="px-2">
                     <div class="font-bold text-2xl text-gray-500 text-right">ACCOUNTS PAYABLES</div>
                     <div class="font-extrabold text-2xl text-gray-600 text-right" id="total_payables"></div>
-                    <div class="flex flex-col p-5 w-full max-w-full border-t-8 bg-white shadow-md border border-t-red-500 rounded-xl">
+                    <div class="flex flex-col p-5 w-full max-w-full border-t-4 bg-white shadow-md border border-t-red-500 rounded-xl">
                         <table class="w-full text-lg text-left text-gray-500 dark:text-gray-400 datatable" id="payables">
                             <thead class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
 
@@ -2281,7 +2311,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                             <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $amount_pay, $currency); ?></strong></td>
                             
                             <td class="px-4 py-3" align="right">
-                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center" disabled onclick="invoice_refund_modal('<?=$row['student_id'] ?>')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp; Make Refund</a>
+                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center" disabled onclick="invoice_refund_modal('<?=$row['student_id'] ?>')"><i class="entypo-bookmarks"></i>&nbsp; Make Refund</a>
                             </td>
                           </tr>
                       <?php endforeach; 
@@ -2295,7 +2325,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                             <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tf_refund, $currency); ?></strong></td>
                             
                             <td class="px-4 py-3" align="right">
-                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center" disabled onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'feeding')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
+                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center" disabled onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'feeding')"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
                             </td>
                           </tr>
                         <?php }
@@ -2307,7 +2337,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                             <td class="px-4 py-3"><?php echo 'CLASSES FEE'; ?></td>
                             <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tc_refund, $currency); ?></strong></td>
                             <td class="px-4 py-3" align="right">
-                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center" onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'classes')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
+                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center" onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'classes')"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
                             </td>
                           </tr>
                         <?php }
@@ -2319,7 +2349,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                             <td class="px-4 py-3"><?php echo 'TRANSPORT FARE'; ?></td>
                             <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tt_refund, $currency); ?></strong></td>
                             <td class="px-4 py-3" align="right">
-                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center " onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'transport')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
+                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center " onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'transport')"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
                             </td>
                           </tr>
                           <?php
@@ -2348,7 +2378,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                 <section class="px-2">
                     <div class="font-bold text-2xl text-gray-500 text-right">BILLED INVOICES PAYMENTS HISTORY</div>
                     <div class="font-extrabold text-2xl text-gray-600 text-right" id="accumulated"></div>
-                    <div class="flex flex-col p-5 w-full max-w-full border-t-8 bg-white shadow-md border border-t-sky-500 rounded-xl">
+                    <div class="flex flex-col p-5 w-full max-w-full border-t-4 bg-white shadow-md border border-t-sky-500 rounded-xl">
                         <table class="w-full text-lg text-left text-gray-500 dark:text-gray-400 datatable" id="exp_table">
                             <thead class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
