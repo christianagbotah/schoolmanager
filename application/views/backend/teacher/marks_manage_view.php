@@ -26,6 +26,288 @@ only screen and (min-width: 1530px),
   	}
   }
 
+
+/* Direct UX refinement — Teacher Marks Entry */
+body { background: #f8fafc; }
+
+#subject_loader_form {
+    margin-bottom: 16px;
+    padding: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+}
+#subject_loader_form > .grid {
+    gap: 14px !important;
+}
+#subject_loader_form > .grid > .flex {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    gap: 14px !important;
+}
+#subject_loader_form .form-group {
+    margin-bottom: 0 !important;
+}
+#subject_loader_form .control-label {
+    display: block;
+    margin-bottom: 7px !important;
+    color: #334155;
+    font-size: 14px !important;
+    line-height: 1.35;
+    font-weight: 700 !important;
+}
+#subject_loader_form select,
+#subject_loader_form .select2-container .select2-selection--single,
+#subject_loader_form .select2-container .select2-choice {
+    min-height: 46px !important;
+    height: 46px !important;
+    padding: 8px 11px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 9px !important;
+    background: #fff !important;
+    color: #0f172a !important;
+    font-size: 15px !important;
+    line-height: 1.4 !important;
+    font-weight: 600 !important;
+}
+#subject_loader_form .select2-container {
+    width: 100% !important;
+}
+#subject_loader_form .select2-container .select2-selection__rendered,
+#subject_loader_form .select2-container .select2-choice > span:first-child {
+    line-height: 28px !important;
+    font-size: 15px !important;
+    color: #0f172a !important;
+    font-weight: 600 !important;
+}
+#subject_loader_form .select2-container .select2-selection__arrow {
+    height: 44px !important;
+}
+#subject_loader_form select:focus,
+#subject_loader_form .select2-container--focus .select2-selection--single {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+    outline: none;
+}
+#subject_holder {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) auto !important;
+    gap: 14px !important;
+    align-items: end !important;
+}
+#subject_holder > .w-full[style*="display: none"] {
+    display: none !important;
+}
+#subject_holder > .w-full[style*="padding-top"],
+#subject_holder > .w-full[style*="margin-top"] {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+#subject_loader_form .btn,
+#subject_loader_form button,
+#subject_loader_form input[type="submit"] {
+    min-height: 46px !important;
+    height: 46px !important;
+    padding: 9px 16px !important;
+    border-radius: 9px !important;
+    font-size: 14px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+}
+#subject_loader_form .text-xl,
+#subject_loader_form .text-2xl,
+#subject_loader_form .h-20 {
+    font-size: 15px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+}
+
+.tile-stats.tile-gray {
+    margin: 0 auto 16px;
+    padding: 14px 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+}
+.tile-stats.tile-gray .icon {
+    opacity: .12;
+}
+.tile-stats.tile-gray h4 {
+    margin: 4px 0;
+    color: #334155 !important;
+    font-size: 14px !important;
+    line-height: 1.45;
+    font-weight: 700;
+}
+
+#mark_sheet_wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 0 8px;
+}
+#mark_sheet {
+    min-width: 1320px;
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    font-size: 14px !important;
+}
+#mark_sheet thead {
+    background: #f8fafc !important;
+}
+#mark_sheet thead th {
+    padding: 11px 9px !important;
+    color: #475569 !important;
+    font-size: 13px !important;
+    line-height: 1.25;
+    font-weight: 800 !important;
+    letter-spacing: .025em;
+    border-bottom: 1px solid #e2e8f0 !important;
+    vertical-align: middle;
+}
+#mark_sheet tbody td {
+    padding: 8px 7px !important;
+    color: #334155 !important;
+    font-size: 14px !important;
+    line-height: 1.4;
+    vertical-align: middle;
+    border-bottom: 1px solid #eef2f7;
+}
+#mark_sheet tbody tr:hover td {
+    background: #f8fbff !important;
+}
+#mark_sheet tbody td.whitespace-nowrap {
+    font-weight: 700;
+    color: #0f172a !important;
+}
+#mark_sheet input[type="text"],
+#mark_sheet input[type="number"] {
+    width: 76px !important;
+    min-width: 76px;
+    min-height: 40px;
+    height: 40px;
+    padding: 7px 8px !important;
+    margin: 0 auto;
+    border: 1px solid #cbd5e1 !important;
+    border-top: 2px solid #22c55e !important;
+    border-radius: 7px !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    color: #0f172a !important;
+    font-size: 14px !important;
+    line-height: 1.2;
+    font-weight: 700;
+    text-align: center;
+}
+#mark_sheet input[type="text"]:focus,
+#mark_sheet input[type="number"]:focus {
+    border-color: #2563eb !important;
+    border-top-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+    outline: none;
+}
+#mark_sheet input[readonly] {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    border-top-color: #94a3b8 !important;
+    color: #475569 !important;
+    cursor: default !important;
+}
+#mark_sheet .text-xl,
+#mark_sheet .text-lg {
+    font-size: 14px !important;
+}
+#mark_sheet .transf {
+    transform: none !important;
+    white-space: normal !important;
+    min-width: 74px;
+}
+#mark_sheet_length,
+#mark_sheet_filter,
+#mark_sheet_info,
+#mark_sheet_paginate {
+    font-size: 14px !important;
+    color: #475569;
+}
+#mark_sheet_length select,
+#mark_sheet_filter input {
+    min-height: 38px;
+    padding: 7px 9px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-size: 14px;
+}
+
+#save_button {
+    position: sticky !important;
+    bottom: 10px !important;
+    z-index: 30;
+    margin: 14px 0 0;
+    padding: 10px 12px !important;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 8px 22px rgba(15,23,42,.12);
+    backdrop-filter: blur(8px);
+}
+#save_button #submit_button,
+#save_button button,
+#save_button input[type="submit"] {
+    min-height: 44px;
+    padding: 9px 18px !important;
+    border-radius: 9px !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+}
+
+@media (max-width: 767px) {
+    #subject_loader_form {
+        padding: 14px;
+    }
+    #subject_loader_form > .grid > .flex,
+    #subject_holder {
+        grid-template-columns: 1fr !important;
+    }
+    #subject_loader_form select,
+    #subject_loader_form .select2-container .select2-selection--single {
+        font-size: 16px !important;
+    }
+    #mark_sheet {
+        min-width: 1180px;
+    }
+    #mark_sheet thead th {
+        font-size: 13px !important;
+        padding: 9px 7px !important;
+    }
+    #mark_sheet tbody td {
+        font-size: 14px !important;
+        padding: 7px 6px !important;
+    }
+    #mark_sheet input[type="text"],
+    #mark_sheet input[type="number"] {
+        width: 72px !important;
+        min-width: 72px;
+        min-height: 40px;
+        font-size: 16px !important;
+    }
+    #save_button {
+        left: 10px;
+        right: 10px;
+        bottom: 8px !important;
+    }
+    #save_button #submit_button,
+    #save_button button,
+    #save_button input[type="submit"] {
+        width: 100%;
+    }
+}
 </style>
 <hr />
 <?php echo form_open(site_url('admin/marks_selector'), array('id' => 'subject_loader_form'));?>
