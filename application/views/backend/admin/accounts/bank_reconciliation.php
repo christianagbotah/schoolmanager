@@ -2,12 +2,12 @@
 @import url('<?php echo base_url(); ?>assets/cdn/fonts/inter.css');
 * { font-family: 'Inter', sans-serif; }
 .modern-container { max-width: 1600px; margin: 0 auto; padding: 24px; }
-.page-header { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 10px 40px rgba(139, 92, 246, 0.2); }
+.page-header { background: #7c3aed; border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 10px 40px rgba(139, 92, 246, 0.2); }
 .page-title { font-size: 32px; font-weight: 700; color: white; margin: 0 0 8px 0; letter-spacing: -0.5px; }
 .page-subtitle { font-size: 16px; color: rgba(255,255,255,0.9); margin: 0; }
 .reconciliation-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #f3f4f6; margin-bottom: 20px; }
 .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-.summary-box { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 20px; border-radius: 12px; border-left: 4px solid; }
+.summary-box { background: #f8fafc; padding: 20px; border-radius: 12px; border-left: 4px solid; }
 .summary-box.book { border-left-color: #3b82f6; }
 .summary-box.bank { border-left-color: #10b981; }
 .summary-box.difference { border-left-color: #ef4444; }
@@ -25,10 +25,10 @@
 .transaction-amount.credit { color: #10b981; }
 .transaction-description { font-size: 14px; color: #374151; }
 .btn-modern { padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-.btn-primary { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+.btn-primary { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); }
-.btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-.btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+.btn-success { background: #059669; color: white; }
+.btn-warning { background: #d97706; color: white; }
 .reconciliation-actions { position: sticky; bottom: 20px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); }
 </style>
 

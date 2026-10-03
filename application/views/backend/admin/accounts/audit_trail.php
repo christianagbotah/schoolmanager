@@ -1,5 +1,5 @@
 <style>
-.audit-header { background: linear-gradient(135deg, #434343 0%, #000000 100%); padding: 32px; border-radius: 16px; color: white; margin-bottom: 24px; }
+.audit-header { background: #1e293b; padding: 32px; border-radius: 16px; color: white; margin-bottom: 24px; }
 .action-create { color: #10b981; font-weight: 600; }
 .action-update { color: #3b82f6; font-weight: 600; }
 .action-delete { color: #ef4444; font-weight: 600; }

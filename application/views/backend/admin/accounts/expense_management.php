@@ -2,16 +2,16 @@
 @import url('<?php echo base_url(); ?>assets/cdn/fonts/inter.css');
 * { font-family: 'Inter', sans-serif; }
 .modern-container { max-width: 1600px; margin: 0 auto; padding: 24px; }
-.page-header { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 10px 40px rgba(245, 158, 11, 0.2); }
+.page-header { background: #d97706; border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 10px 40px rgba(245, 158, 11, 0.2); }
 .page-title { font-size: 32px; font-weight: 700; color: white; margin: 0 0 8px 0; letter-spacing: -0.5px; }
 .page-subtitle { font-size: 16px; color: rgba(255,255,255,0.9); margin: 0; }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 24px; }
 .stat-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #f3f4f6; border-left: 4px solid; transition: all 0.3s; }
 .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
-.stat-card.total { border-left-color: #3b82f6; background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%); }
-.stat-card.pending { border-left-color: #f59e0b; background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%); }
-.stat-card.approved { border-left-color: #10b981; background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%); }
-.stat-card.rejected { border-left-color: #ef4444; background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%); }
+.stat-card.total { border-left-color: #3b82f6; background: #f8faff; }
+.stat-card.pending { border-left-color: #f59e0b; background: #fffbeb; }
+.stat-card.approved { border-left-color: #10b981; background: #f0fdf4; }
+.stat-card.rejected { border-left-color: #ef4444; background: #fef2f2; }
 .stat-label { font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
 .stat-value { font-size: 32px; font-weight: 700; color: #111827; margin-bottom: 4px; }
 .stat-meta { font-size: 13px; color: #9ca3af; }
@@ -19,11 +19,11 @@
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .card-title { font-size: 20px; font-weight: 700; color: #111827; margin: 0; }
 .btn-modern { padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-.btn-primary { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+.btn-primary { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); }
-.btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-.btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
-.btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
+.btn-success { background: #059669; color: white; }
+.btn-warning { background: #d97706; color: white; }
+.btn-danger { background: #dc2626; color: white; }
 .filter-bar { background: #f9fafb; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
 .filter-bar .form-group { margin-bottom: 0; }
 .expense-badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
