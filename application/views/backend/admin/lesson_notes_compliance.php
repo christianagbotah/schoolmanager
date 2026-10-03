@@ -419,6 +419,246 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* SchoolManager direct UX refinement — Lesson Note Compliance */
+body { background: #f8fafc; }
+.compliance-container {
+    max-width: 1600px;
+    padding: 24px 28px 40px;
+}
+.compliance-header {
+    margin-bottom: 18px;
+    padding: 20px 24px;
+    border: 1px solid #1e293b;
+    border-radius: 14px;
+    background: #0f172a;
+    box-shadow: 0 8px 22px rgba(15,23,42,.16);
+}
+.compliance-header h1 {
+    margin-bottom: 5px;
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+.compliance-header p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #cbd5e1 !important;
+}
+
+.modern-filters {
+    margin-bottom: 16px;
+    padding: 16px 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04);
+}
+.filter-row {
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.filter-group label {
+    margin-bottom: 7px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+}
+.filter-group select {
+    min-height: 44px;
+    height: 44px;
+    padding: 8px 11px;
+    border-color: #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #0f172a;
+}
+.filter-group select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+.filter-actions {
+    gap: 8px;
+}
+.modern-btn {
+    min-height: 40px;
+    padding: 8px 13px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+}
+.modern-btn-primary {
+    background: #2563eb;
+}
+.modern-btn-success {
+    background: #059669;
+}
+.modern-btn-primary:hover,
+.modern-btn-success:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(15,23,42,.12);
+}
+
+.stats-grid {
+    gap: 14px;
+    margin-bottom: 18px;
+}
+.stat-card {
+    padding: 17px 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+}
+.stat-card:hover {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(15,23,42,.06);
+}
+.stat-icon {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    font-size: 20px;
+}
+.stat-value {
+    margin-bottom: 2px;
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 800;
+}
+.stat-label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.modern-card {
+    margin-bottom: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+}
+.modern-card-header {
+    padding: 15px 18px;
+}
+.modern-card-title {
+    font-size: 17px;
+    font-weight: 800;
+}
+.modern-card-body {
+    padding: 16px 18px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modern-table {
+    min-width: 900px;
+}
+.modern-table thead th {
+    padding: 12px 13px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .035em;
+    border-bottom-width: 1px;
+}
+.modern-table tbody td {
+    padding: 12px 13px;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.45;
+}
+.status-badge {
+    min-height: 28px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+}
+.progress-modern {
+    min-height: 28px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #e2e8f0;
+}
+.progress-bar-modern {
+    min-height: 28px;
+    padding: 4px 9px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+}
+.modern-table .modern-btn[style*="padding: 6px 12px"] {
+    min-height: 36px !important;
+    padding: 7px 11px !important;
+    font-size: 13px !important;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    font-size: 14px;
+    color: #475569;
+}
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+}
+.dropdown-menu {
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    box-shadow: 0 8px 24px rgba(15,23,42,.12);
+}
+.dropdown-menu > li > a {
+    min-height: 36px;
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .compliance-container {
+        padding: 16px 14px 32px;
+    }
+    .compliance-header {
+        padding: 18px;
+    }
+    .compliance-header h1 {
+        font-size: 24px;
+    }
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 10px;
+    }
+    .stat-card {
+        padding: 14px;
+    }
+    .filter-row {
+        grid-template-columns: 1fr;
+    }
+    .filter-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+    .filter-actions .modern-btn,
+    .filter-actions .btn-group {
+        width: 100%;
+    }
+}
+@media (max-width: 400px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
 
 <div class="compliance-container">
