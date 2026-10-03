@@ -1,4 +1,66 @@
-<div class="p-4 sm:p-6">
+<style>
+/* Direct UX refinement — Sections workspace */
+.section-workspace { padding: 24px 28px 40px !important; }
+.section-workspace > .mb-6.flex {
+    margin-bottom: 18px !important; padding-bottom: 18px; border-bottom: 1px solid #e2e8f0;
+    align-items: flex-end !important;
+}
+.section-workspace > .mb-6.flex h2 {
+    margin: 0; color: #0f172a !important; font-size: 30px !important; line-height: 1.2;
+    font-weight: 800 !important; letter-spacing: -.02em;
+}
+.section-workspace > .mb-6.flex button {
+    min-height: 42px; padding: 9px 16px !important; border-radius: 9px !important;
+    font-size: 14px !important; font-weight: 700 !important;
+}
+.section-workspace > .grid { gap: 18px !important; }
+.section-workspace .lg\:col-span-1 > div,
+.section-workspace .lg\:col-span-3 > div {
+    border-radius: 14px !important; border-color: #e2e8f0 !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04) !important;
+}
+.section-workspace .lg\:col-span-1 > div { padding: 14px !important; }
+.section-workspace h3 { font-size: 16px !important; font-weight: 800 !important; color: #0f172a !important; }
+.section-workspace .class-link {
+    min-height: 42px; padding: 9px 11px !important; border-radius: 9px !important;
+    font-size: 14px; line-height: 1.4;
+}
+.section-workspace .class-link.bg-blue-600 { background: #2563eb !important; color: #fff !important; }
+.section-workspace .lg\:col-span-3 > div > .p-4.sm\:p-6 {
+    padding: 15px 18px !important; border-bottom-color: #eef2f7 !important;
+}
+#sections-content { padding: 0 !important; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+#sections-content table { min-width: 760px; width: 100%; }
+#sections-content thead th {
+    padding: 12px 13px !important; background: #f8fafc !important; color: #475569 !important;
+    font-size: 13px !important; font-weight: 800 !important; letter-spacing: .035em;
+}
+#sections-content tbody td { padding: 12px 13px !important; color: #334155; font-size: 14px; line-height: 1.45; }
+#sections-content tbody tr:hover td { background: #f8fbff; }
+#sections-content .dropdown > button {
+    width: 40px; height: 40px; min-height: 40px; padding: 0 !important;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 18px !important;
+}
+#sections-content .dropdown-menu { font-size: 14px !important; min-width: 150px !important; }
+#sections-content .dropdown-menu a { min-height: 38px; padding: 9px 13px !important; display: flex; align-items: center; gap: 7px; }
+.loader-spinner { width: 30px; height: 30px; border-width: 3px; }
+
+@media (max-width: 991px) {
+    .section-workspace > .grid { grid-template-columns: 1fr !important; }
+    .section-workspace .lg\:col-span-1 ul {
+        display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px;
+    }
+    .section-workspace .lg\:col-span-1 li { min-width: max-content; }
+}
+@media (max-width: 767px) {
+    .section-workspace { padding: 18px 14px 32px !important; }
+    .section-workspace > .mb-6.flex { align-items: flex-start !important; flex-direction: column; gap: 12px; }
+    .section-workspace > .mb-6.flex h2 { font-size: 26px !important; }
+    .section-workspace > .mb-6.flex button { width: 100%; justify-content: center; }
+}
+</style>
+
+<div class="p-4 sm:p-6 section-workspace">
     <div class="mb-6 flex justify-between items-center">
         <h2 class="text-2xl font-bold text-gray-900"><?php echo get_phrase('manage_sections');?></h2>
         <button onclick="showAjaxModal('<?php echo site_url('modal/popup/section_add/');?>')" class="inline-flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-semibold rounded-lg text-base px-5 py-3">
