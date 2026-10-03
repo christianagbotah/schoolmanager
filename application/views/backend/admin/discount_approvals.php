@@ -301,6 +301,96 @@ input[type="checkbox"] {
 	}
 }
 </style>
+<style>
+@media screen {
+
+  .approvals-container, .approvals-card { color: #334155; }
+  .approvals-card {
+    padding: 18px 20px !important; border: 1px solid #e2e8f0 !important;
+    border-radius: 14px !important; box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+  }
+  .approvals-card > .card-header, .approvals-card > div:first-child {
+    margin-bottom: 16px !important;
+  }
+  .approvals-card h4 {
+    color: #0f172a !important; font-size: 20px !important; line-height: 1.3; font-weight: 800 !important;
+  }
+
+  .stats-grid { gap: 12px !important; margin-bottom: 16px !important; }
+  .stat-card {
+    min-height: 96px; padding: 14px 16px !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 12px !important;
+    background: #fff !important; color: #0f172a !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+  }
+  .stat-card:hover { transform: none !important; box-shadow: 0 4px 12px rgba(15,23,42,.07) !important; }
+  .stat-card > i { font-size: 18px !important; }
+  .stat-card .stat-value {
+    margin: 4px 0 0 !important; color: #0f172a !important;
+    font-size: 28px !important; line-height: 1.2; font-weight: 800 !important;
+  }
+  .stat-card .stat-label { color: #64748b !important; font-size: 13px !important; font-weight: 800 !important; }
+
+  .filter-tabs {
+    gap: 5px !important; margin-bottom: 14px !important; padding: 5px !important;
+    border: 1px solid #e2e8f0; border-radius: 11px; background: #fff;
+  }
+  .filter-tab {
+    min-height: 38px; padding: 8px 12px !important; border-radius: 7px !important;
+    font-size: 13px !important; font-weight: 700 !important;
+  }
+  .filter-tab.active { box-shadow: 0 2px 7px rgba(15,23,42,.10) !important; }
+
+  .bulk-actions-bar {
+    min-height: 50px; padding: 9px 12px !important; margin-bottom: 12px !important;
+    border: 1px solid #dbeafe; border-radius: 10px !important; background: #eff6ff !important;
+  }
+  .bulk-actions-bar .selected-count { font-size: 14px !important; font-weight: 700 !important; }
+  .modern-btn {
+    min-height: 38px; padding: 7px 11px !important; border-radius: 7px !important;
+    font-size: 13px !important; font-weight: 700 !important;
+  }
+  .modern-btn:hover { transform: none !important; box-shadow: 0 2px 7px rgba(15,23,42,.10) !important; }
+
+  .table-container {
+    border: 1px solid #e2e8f0; border-radius: 11px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  #approvals_table { min-width: 980px; margin: 0 !important; }
+  #approvals_table thead th {
+    padding: 11px 12px !important; background: #f8fafc !important;
+    color: #475569 !important; font-size: 13px !important; line-height: 1.35;
+    font-weight: 800 !important; border-bottom: 1px solid #e2e8f0 !important;
+  }
+  #approvals_table tbody td {
+    padding: 11px 12px !important; color: #334155 !important;
+    font-size: 14px !important; line-height: 1.45; vertical-align: middle;
+  }
+  #approvals_table tbody tr:hover { background: #f8fbff !important; transform: none !important; }
+  #approvals_table tbody td:nth-child(2) { font-size: 14px !important; }
+  .discount-details { font-size: 13px !important; line-height: 1.4; color: #64748b !important; }
+  #approvals_table .badge {
+    padding: 4px 8px !important; border-radius: 999px !important;
+    font-size: 12.5px !important; font-weight: 700 !important;
+  }
+  .action-btn {
+    min-width: 34px; min-height: 34px; padding: 6px 8px !important;
+    border-radius: 7px !important; font-size: 13px !important;
+  }
+  .action-btn:hover { transform: none !important; }
+  #approvals_table input[type="checkbox"] { width: 18px; height: 18px; accent-color: #2563eb; }
+
+  @media (max-width: 680px) {
+    .approvals-card { padding: 14px !important; }
+    .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+    .filter-tabs { overflow-x: auto; flex-wrap: nowrap !important; }
+    .filter-tab { min-width: max-content; }
+    .bulk-actions-bar { align-items: stretch !important; flex-direction: column !important; }
+    .bulk-actions-bar .modern-btn { width: 100%; justify-content: center; }
+  }
+
+}
+</style>
+
 
 <div class="approvals-container">
 	<div class="approvals-card">

@@ -43,6 +43,88 @@
 .export-btn { padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; height: 48px; font-size: 15px; }
 .export-btn:hover { background: #059669; }
 </style>
+<style>
+@media screen {
+
+  .reports-container { padding: 24px 28px 40px; background: #f8fafc; }
+  .reports-header {
+    padding: 22px 24px; margin-bottom: 16px; border-radius: 14px;
+    background: #0f172a; box-shadow: 0 8px 22px rgba(15,23,42,.14);
+  }
+  .reports-header h1 { font-size: 28px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em; }
+  .reports-header p { font-size: 14px; line-height: 1.5; color: #cbd5e1; opacity: 1; }
+
+  .report-tabs {
+    gap: 5px; padding: 5px; margin-bottom: 14px;
+    border: 1px solid #e2e8f0; border-radius: 11px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  }
+  .tab-btn {
+    min-height: 40px; padding: 8px 12px; border-radius: 7px;
+    font-size: 14px; font-weight: 700;
+  }
+  .tab-btn.active { background: #2563eb; box-shadow: 0 2px 7px rgba(37,99,235,.16); }
+
+  .filters-card {
+    padding: 14px 16px; margin-bottom: 14px;
+    border: 1px solid #e2e8f0; border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  }
+  .filters-card > div {
+    display: grid !important; grid-template-columns: repeat(2,minmax(150px,1fr)) auto auto;
+    gap: 10px !important; align-items: end !important;
+  }
+  .filter-group label {
+    margin-bottom: 6px; color: #334155; font-size: 13px; font-weight: 800; letter-spacing: .035em;
+  }
+  .filter-select {
+    min-height: 44px; height: 44px; padding: 8px 10px;
+    border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; font-size: 14px;
+  }
+  .btn-generate, .export-btn {
+    min-height: 44px; height: 44px; padding: 8px 14px;
+    border-radius: 8px; font-size: 14px; font-weight: 800;
+  }
+  .btn-generate:hover { transform: none; box-shadow: 0 3px 8px rgba(37,99,235,.15); }
+
+  .stats-grid { gap: 12px; margin-bottom: 14px; }
+  .stat-card {
+    min-height: 96px; padding: 14px 16px;
+    border: 1px solid #e2e8f0; border-left-width: 4px;
+    border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  }
+  .stat-value { margin: 4px 0 0; color: #0f172a; font-size: 25px; line-height: 1.2; font-weight: 800; }
+  .stat-label { color: #64748b; font-size: 13px; line-height: 1.35; font-weight: 800; }
+
+  .report-card {
+    padding: 16px 18px; border: 1px solid #e2e8f0; border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05); overflow-x: auto;
+  }
+  .report-card h3 { margin-bottom: 14px; color: #0f172a; font-size: 17px; font-weight: 800; }
+  .report-card .table { min-width: 860px; }
+  .report-card .table th {
+    padding: 11px 12px; background: #f8fafc; color: #475569;
+    font-size: 13px; font-weight: 800; border-bottom: 1px solid #e2e8f0;
+  }
+  .report-card .table td { padding: 11px 12px; color: #334155; font-size: 14px; line-height: 1.45; }
+  .report-card .badge { padding: 4px 8px; border-radius: 999px; font-size: 12.5px; font-weight: 700; }
+  .empty-state { padding: 34px 18px !important; font-size: 14px; }
+  .empty-state i { font-size: 38px; margin-bottom: 10px; }
+
+  @media (max-width: 700px) {
+    .reports-container { padding: 16px 14px 32px; }
+    .reports-header { padding: 18px 16px; }
+    .reports-header h1 { font-size: 24px; }
+    .report-tabs { overflow-x: auto; }
+    .tab-btn { min-width: max-content; }
+    .filters-card > div { grid-template-columns: 1fr !important; }
+    .btn-generate, .export-btn { width: 100%; justify-content: center; }
+    .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  }
+
+}
+</style>
+
 
 <div class="reports-container">
     <div class="reports-header">
