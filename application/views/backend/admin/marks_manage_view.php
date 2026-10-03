@@ -58,6 +58,151 @@ only screen and (min-width: 1530px),
 }
 
 </style>
+<style>
+@media screen {
+
+  body { background: #f8fafc; }
+
+  #subject_loader_form {
+    margin: 0 0 14px; padding: 16px 18px;
+    border: 1px solid #e2e8f0; border-radius: 14px;
+    background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  }
+  #subject_loader_form > .grid {
+    display: grid !important; grid-template-columns: 1fr !important; gap: 12px !important;
+  }
+  #subject_loader_form > .grid > .flex {
+    display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 12px !important;
+  }
+  #subject_loader_form .form-group { margin-bottom: 0 !important; }
+  #subject_loader_form .control-label {
+    display: block; margin-bottom: 7px !important;
+    color: #334155; font-size: 14px !important; font-weight: 700 !important;
+  }
+  #subject_loader_form select,
+  #subject_loader_form .select2-container .select2-selection--single,
+  #subject_loader_form .select2-container .select2-choice {
+    min-height: 46px !important; height: 46px !important; max-height: 46px !important;
+    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
+    background: #fff !important; color: #0f172a !important;
+    font-size: 15px !important; line-height: 1.4 !important; font-weight: 600 !important;
+  }
+  #subject_loader_form select { padding: 9px 11px !important; }
+  #subject_loader_form .select2-container .select2-selection__rendered,
+  #subject_loader_form .select2-container .select2-choice > span:first-child {
+    line-height: 44px !important; min-height: 44px !important;
+    font-size: 15px !important; color: #0f172a !important; font-weight: 600 !important;
+  }
+  #subject_loader_form #subject_holder {
+    display: grid !important; grid-template-columns: minmax(0,1fr) auto auto !important;
+    align-items: end; gap: 10px !important;
+  }
+  #subject_loader_form #subject_holder > .w-full[style*="display: none"] { display: none !important; }
+  #subject_loader_form #subject_holder > .w-full[style*="margin-top"] { margin-top: 0 !important; }
+  #subject_loader_form .btn,
+  #subject_loader_form button,
+  #subject_loader_form input[type="submit"] {
+    min-height: 46px !important; height: 46px !important;
+    padding: 9px 14px !important; border-radius: 9px !important;
+    font-size: 14px !important; font-weight: 800 !important;
+  }
+
+  .tile-stats.tile-gray {
+    margin: 0 auto 14px; padding: 14px 16px !important;
+    border: 1px solid #e2e8f0; border-radius: 12px;
+    background: #fff !important; box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  }
+  .tile-stats.tile-gray .icon { display: none; }
+  .tile-stats.tile-gray h4 {
+    margin: 3px 0; color: #334155; font-size: 14px; line-height: 1.45; font-weight: 700;
+  }
+
+  #mark_sheet_form {
+    position: relative; padding-bottom: 74px;
+  }
+  #mark_sheet_wrapper {
+    width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    border: 1px solid #e2e8f0; border-radius: 12px; background: #fff;
+  }
+  #mark_sheet {
+    min-width: 1320px; margin: 0 !important; color: #334155 !important;
+    font-size: 14px !important; border-collapse: separate !important; border-spacing: 0;
+  }
+  #mark_sheet thead,
+  #mark_sheet thead.bg-gray-200 {
+    background: #f8fafc !important; color: #475569 !important;
+  }
+  #mark_sheet th {
+    padding: 10px 8px !important; background: #f8fafc !important;
+    color: #475569 !important; font-size: 12.5px !important; line-height: 1.3;
+    font-weight: 800 !important; letter-spacing: .02em; border-color: #e2e8f0 !important;
+    white-space: nowrap;
+  }
+  #mark_sheet td {
+    padding: 8px !important; color: #334155 !important;
+    font-size: 14px !important; line-height: 1.4; vertical-align: middle;
+    border-color: #eef2f7 !important;
+  }
+  #mark_sheet tbody tr:hover td { background: #f8fbff !important; }
+
+  #mark_sheet input[type="text"] {
+    min-width: 76px; min-height: 40px; height: 40px !important;
+    padding: 7px 8px !important; border: 1px solid #cbd5e1 !important;
+    border-top: 2px solid #22c55e !important; border-radius: 7px !important;
+    background: #fff !important; color: #0f172a !important;
+    font-size: 14px !important; line-height: 1.3; font-weight: 700 !important;
+    box-shadow: none !important; text-align: center;
+  }
+  #mark_sheet input[type="text"]:focus {
+    border-color: #2563eb !important; border-top-color: #2563eb !important;
+    box-shadow: 0 0 0 2px rgba(37,99,235,.10) !important; outline: none;
+  }
+  #mark_sheet input[readonly] {
+    background: #f1f5f9 !important; color: #475569 !important;
+    border-top-color: #94a3b8 !important; cursor: not-allowed;
+  }
+
+  #mark_sheet_wrapper .dataTables_length,
+  #mark_sheet_wrapper .dataTables_filter,
+  #mark_sheet_wrapper .dataTables_info,
+  #mark_sheet_wrapper .dataTables_paginate {
+    padding: 10px 12px; color: #475569; font-size: 14px;
+  }
+  #mark_sheet_wrapper .dataTables_length select,
+  #mark_sheet_wrapper .dataTables_filter input {
+    min-height: 38px; padding: 7px 9px; border: 1px solid #cbd5e1;
+    border-radius: 8px; font-size: 14px;
+  }
+
+  #save_button {
+    position: sticky !important; bottom: 10px !important; right: auto !important;
+    margin: 14px 0 0; padding: 9px 10px !important;
+    border: 1px solid #e2e8f0; border-radius: 12px;
+    background: rgba(255,255,255,.96); box-shadow: 0 8px 22px rgba(15,23,42,.10);
+    backdrop-filter: blur(8px); z-index: 30;
+  }
+  #save_button button,
+  #save_button input,
+  #save_button .btn {
+    min-height: 46px !important; padding: 9px 18px !important;
+    border-radius: 9px !important; font-size: 14px !important; font-weight: 800 !important;
+  }
+
+  @media (max-width: 900px) {
+    #subject_loader_form > .grid > .flex { grid-template-columns: 1fr !important; }
+    #subject_loader_form #subject_holder { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 640px) {
+    #subject_loader_form { padding: 14px; }
+    #mark_sheet { min-width: 1180px; }
+    #save_button { bottom: 6px !important; }
+    #save_button .btn { width: 100%; justify-content: center; }
+  }
+
+}
+</style>
+
 <hr />
 <?php echo form_open(site_url('admin/marks_selector'), array('id' => 'subject_loader_form'));?>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

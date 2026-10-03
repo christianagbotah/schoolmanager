@@ -65,6 +65,83 @@
     }
 }
 </style>
+<style>
+@media screen {
+
+  body { background: #f8fafc; }
+
+  #marks_selector_form {
+    margin: 0 auto 18px; padding: 18px 20px;
+    border: 1px solid #e2e8f0; border-radius: 14px;
+    background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  }
+  #marks_selector_form > .grid {
+    display: grid !important; grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  #marks_selector_form > .grid > .flex {
+    display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 12px !important;
+  }
+  #marks_selector_form .form-group { margin-bottom: 0 !important; }
+  #marks_selector_form .control-label {
+    display: block; margin-bottom: 7px !important;
+    color: #334155; font-size: 14px !important; line-height: 1.35; font-weight: 700 !important;
+  }
+  #marks_selector_form select,
+  #marks_selector_form .select2-container .select2-selection--single,
+  #marks_selector_form .select2-container .select2-choice {
+    min-height: 46px !important; height: 46px !important; max-height: 46px !important;
+    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
+    background: #fff !important; color: #0f172a !important;
+    font-size: 15px !important; line-height: 1.4 !important; font-weight: 600 !important;
+  }
+  #marks_selector_form select {
+    padding: 9px 11px !important;
+  }
+  #marks_selector_form .select2-container .select2-selection__rendered,
+  #marks_selector_form .select2-container .select2-choice > span:first-child {
+    line-height: 44px !important; min-height: 44px !important;
+    font-size: 15px !important; color: #0f172a !important; font-weight: 600 !important;
+  }
+  #marks_selector_form select:focus,
+  #marks_selector_form .select2-container--focus .select2-selection--single {
+    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important; outline: none;
+  }
+
+  #subject_holder {
+    display: grid !important; grid-template-columns: minmax(0,1fr) auto !important;
+    align-items: end; gap: 12px !important;
+  }
+  #subject_holder > .w-full[style*="display: none"] { display: none !important; }
+  #subject_holder > .w-full[style*="padding-top"] {
+    margin-top: 0 !important; padding-top: 0 !important; min-width: 150px;
+  }
+  #marks_selector_form button[type="submit"],
+  #marks_selector_form input[type="submit"],
+  #marks_selector_form .btn {
+    min-height: 46px !important; height: 46px !important;
+    padding: 9px 16px !important; border-radius: 9px !important;
+    font-size: 14px !important; line-height: 1.35; font-weight: 800 !important;
+  }
+
+  .alert.alert-danger {
+    margin-bottom: 12px; padding: 12px 15px; border-radius: 10px;
+    font-size: 14px; line-height: 1.45;
+  }
+
+  @media (max-width: 767px) {
+    #marks_selector_form { padding: 14px; }
+    #marks_selector_form > .grid > .flex { grid-template-columns: 1fr !important; }
+    #subject_holder { grid-template-columns: 1fr !important; }
+    #subject_holder > .w-full[style*="padding-top"] { width: 100%; min-width: 0; }
+    #marks_selector_form select,
+    #marks_selector_form .select2-container .select2-selection--single { font-size: 16px !important; }
+  }
+
+}
+</style>
+
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
