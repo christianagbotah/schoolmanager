@@ -3,7 +3,7 @@
     margin-top: 25px;
 }
 .modern-panel {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     border: none;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -50,7 +50,7 @@
     font-weight: 600;
     border: none;
     border-radius: 8px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #764ba2;
     color: white;
     transition: all 0.3s;
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
@@ -61,7 +61,7 @@
     color: white;
 }
 .modern-btn:disabled {
-    background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
+    background: #a0aec0;
     cursor: not-allowed;
     box-shadow: none;
 }
