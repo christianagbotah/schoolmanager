@@ -211,7 +211,7 @@
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <label>Residence Type</label>
+                                    <label for="filter_residence">Residence Type</label>
                                     <select id="filter_residence" class="form-control">
                                         <option value="">All</option>
                                         <option value="Day">Day</option>
@@ -219,7 +219,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label>Class</label>
+                                    <label for="filter_class">Class</label>
                                     <select id="filter_class" class="form-control">
                                         <option value="">All Classes</option>
                                         <?php
@@ -231,7 +231,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label>Gender</label>
+                                    <label for="filter_gender">Gender</label>
                                     <select id="filter_gender" class="form-control">
                                         <option value="">All</option>
                                         <option value="Male">Male</option>
@@ -461,6 +461,97 @@
 
 <script type="text/javascript" src="<?php echo base_url('assets/js/bootstrap.js'); ?>"></script>
 <script src="<?php echo base_url('assets/datatables/datatables.min.js');?>" type="text/javascript"></script>
+
+<style type="text/css">
+/* ---- family design-language alignment (presentation only, screen only) ---- */
+@media screen {
+    .panel {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    }
+    .panel > .panel-heading {
+        background: transparent;
+        border-bottom: 1px solid #f3f4f6;
+        border-radius: 16px 16px 0 0;
+        color: #111827;
+        padding: 16px 20px;
+    }
+    .panel > .panel-heading .panel-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #111827;
+    }
+    .panel > .panel-body { padding: 20px; }
+
+    .btn {
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all .2s;
+    }
+    .btn:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+    }
+    .btn-primary { background: #2563eb; border-color: #2563eb; }
+    .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+    .btn-info { background: #0284c7; border-color: #0284c7; }
+
+    .form-control {
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        height: 42px;
+        font-size: 14px;
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        outline: none;
+    }
+
+    #students_print {
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        overflow: hidden;
+        border-collapse: separate;
+    }
+    #students_print th {
+        background: #f9fafb;
+        color: #374151;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        border-bottom: 1px solid #e5e7eb !important;
+        padding: 12px 10px;
+    }
+    #students_print td {
+        border-bottom: 1px solid #f3f4f6;
+        color: #374151;
+    }
+    #students_print tr.student-row:hover td { background: #f9fafb; }
+    #students_print img.img-circle {
+        border: 2px solid #e5e7eb;
+        border-radius: 50%;
+    }
+
+    .nav-tabs > li > a {
+        border-radius: 10px 10px 0 0;
+        font-weight: 600;
+        color: #374151;
+    }
+    .nav-tabs > li.active > a { color: #111827; }
+
+    hr { border-color: #f3f4f6; }
+
+    @media (max-width: 400px) {
+        .panel > .panel-body { padding: 14px; }
+        .btn-block { font-size: 13px; }
+    }
+}
+</style>
 </body>
 </html>    
     
