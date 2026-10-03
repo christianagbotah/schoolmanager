@@ -77,6 +77,67 @@ $grid_columns = max($enabled_count, 1); // At least 1 column
 }
 </style>
 
+<style>
+@media screen {
+  #rates_container { padding: 16px !important; background: #f8fafc !important; }
+  .panel.panel-primary {
+    border: 1px solid #e2e8f0 !important; border-radius: 14px !important;
+    overflow: hidden; box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+  }
+  .panel.panel-primary > .panel-heading {
+    padding: 14px 18px !important; background: #0f172a !important; border: 0 !important;
+  }
+  .panel.panel-primary > .panel-heading h3,
+  .panel.panel-primary > .panel-heading .panel-title {
+    font-size: 18px !important; line-height: 1.35; font-weight: 800 !important; color: #fff !important;
+  }
+  .panel.panel-primary > .panel-heading .btn {
+    min-height: 40px; padding: 8px 13px !important; border-radius: 8px !important;
+    font-size: 14px !important; font-weight: 700 !important; box-shadow: none !important;
+  }
+
+  .rate-card {
+    margin-bottom: 12px !important; padding: 0 !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 12px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04) !important; overflow: hidden;
+  }
+  .rate-card:hover { transform: none !important; border-color: #cbd5e1 !important; box-shadow: 0 4px 12px rgba(15,23,42,.06) !important; }
+  .rate-card-header {
+    padding: 12px 14px !important; background: #fff !important; border-bottom: 1px solid #eef2f7 !important;
+  }
+  .rate-card-title { color: #0f172a !important; font-size: 16px !important; line-height: 1.35; font-weight: 800 !important; }
+  .rate-card-header .btn {
+    min-height: 38px; padding: 7px 11px !important; border-radius: 8px !important;
+    font-size: 13px !important; font-weight: 700 !important;
+  }
+  .rate-grid { gap: 8px !important; padding: 12px 14px !important; }
+  .rate-item {
+    min-height: 66px; padding: 10px 11px !important; border: 1px solid #eef2f7 !important;
+    border-radius: 9px !important; background: #f8fafc !important;
+  }
+  .rate-label {
+    margin-bottom: 4px; color: #64748b !important; font-size: 13px !important;
+    line-height: 1.35; font-weight: 700 !important;
+  }
+  .rate-value { color: #0f172a !important; font-size: 18px !important; line-height: 1.25; font-weight: 800 !important; }
+  .bulk-input {
+    min-height: 44px; padding: 9px 11px; border: 1px solid #cbd5e1;
+    border-radius: 9px; font-size: 15px; color: #0f172a;
+  }
+  .bulk-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none; }
+
+  @media (max-width: 900px) {
+    .rate-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  }
+  @media (max-width: 560px) {
+    #rates_container { padding: 10px !important; }
+    .rate-card-header { align-items: flex-start !important; gap: 10px; }
+    .rate-grid { grid-template-columns: 1fr !important; }
+  }
+}
+</style>
+
+
 <div class="row" style="margin-top: 20px;">
     <div class="col-md-12">
         <div class="panel panel-primary">

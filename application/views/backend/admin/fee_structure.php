@@ -458,6 +458,123 @@ textarea.form-input {
 }
 </style>
 
+<style>
+@media screen {
+  .fee-structure-wrapper {
+    max-width: 1600px; margin: 0 auto; padding: 24px 28px 40px;
+    color: #334155;
+  }
+  .fee-structure-wrapper .page-header,
+  .fee-structure-wrapper > div:first-child {
+    margin-bottom: 18px;
+  }
+  .fee-structure-wrapper h2 {
+    margin: 0; color: #0f172a !important; font-size: 28px !important;
+    line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em;
+  }
+  .fee-structure-wrapper h2 + p {
+    margin-top: 6px; color: #64748b !important; font-size: 14px !important; line-height: 1.5;
+  }
+
+  .fee-structure-wrapper .filter-section,
+  .fee-structure-wrapper .filters-card {
+    padding: 16px 18px !important; margin-bottom: 16px !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 14px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important; background: #fff !important;
+  }
+  .fee-structure-wrapper .filter-grid {
+    gap: 12px !important; grid-template-columns: repeat(4,minmax(0,1fr)) !important;
+  }
+  .fee-structure-wrapper .filter-field label {
+    margin-bottom: 7px !important; color: #334155 !important; font-size: 14px !important; font-weight: 700 !important;
+  }
+  .fee-structure-wrapper .filter-field select,
+  .fee-structure-wrapper .select2-container .select2-selection--single {
+    min-height: 44px !important; height: 44px !important; border: 1px solid #cbd5e1 !important;
+    border-radius: 9px !important; background: #fff !important; color: #0f172a !important; font-size: 14px !important;
+  }
+  .fee-structure-wrapper .select2-container .select2-selection__rendered {
+    line-height: 42px !important; font-size: 14px !important; color: #0f172a !important;
+  }
+  .fee-structure-wrapper .btn-filter-modern {
+    min-height: 44px; height: 44px; padding: 9px 15px;
+    border-radius: 9px; background: #2563eb; color: #fff;
+    font-size: 14px; font-weight: 800; box-shadow: none;
+  }
+  .fee-structure-wrapper .btn-filter-modern:hover { background: #1d4ed8; transform: none; box-shadow: 0 3px 9px rgba(37,99,235,.16); }
+
+  .fee-cards-container {
+    grid-template-columns: repeat(auto-fill,minmax(340px,1fr)) !important;
+    gap: 14px !important;
+  }
+  .fee-class-card {
+    border: 1px solid #e2e8f0 !important; border-radius: 14px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important; overflow: hidden;
+  }
+  .fee-class-card:hover { transform: none !important; border-color: #cbd5e1 !important; box-shadow: 0 5px 14px rgba(15,23,42,.07) !important; }
+  .fee-class-card .card-header {
+    padding: 14px 16px !important; background: #f8fafc !important; border-bottom: 1px solid #e2e8f0 !important;
+  }
+  .fee-class-card .card-header h3,
+  .fee-class-card .class-name {
+    color: #0f172a !important; font-size: 17px !important; line-height: 1.35; font-weight: 800 !important;
+  }
+  .fee-class-card .card-header .badge,
+  .fee-class-card .status-badge {
+    padding: 5px 9px !important; border-radius: 999px !important; font-size: 13px !important; font-weight: 700 !important;
+  }
+  .fee-class-card .card-body { padding: 14px 16px !important; }
+  .fee-items-list { gap: 8px !important; }
+  .fee-item {
+    min-height: 52px; padding: 10px 11px !important; border: 1px solid #eef2f7 !important;
+    border-radius: 9px !important; background: #fff !important;
+  }
+  .fee-item:hover { background: #f8fbff !important; transform: none !important; }
+  .fee-item .fee-name, .fee-item h4 { color: #0f172a !important; font-size: 14px !important; font-weight: 700 !important; }
+  .fee-item .fee-meta, .fee-item p { color: #64748b !important; font-size: 13px !important; line-height: 1.4; }
+  .fee-item .fee-amount { color: #047857 !important; font-size: 18px !important; font-weight: 800 !important; }
+
+  .fee-structure-wrapper .action-buttons { gap: 7px !important; }
+  .fee-structure-wrapper .btn-icon,
+  .fee-structure-wrapper .btn-edit,
+  .fee-structure-wrapper .btn-delete {
+    width: 38px; height: 38px; min-height: 38px; border-radius: 8px !important;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 14px !important;
+  }
+
+  .fee-structure-wrapper .edit-form,
+  .fee-structure-wrapper .inline-edit-form {
+    gap: 12px !important;
+  }
+  .fee-structure-wrapper .form-label { font-size: 14px !important; font-weight: 700 !important; color: #334155 !important; }
+  .fee-structure-wrapper .form-input {
+    min-height: 44px; padding: 9px 11px; border: 1px solid #cbd5e1;
+    border-radius: 9px; font-size: 14px; color: #0f172a;
+  }
+  .fee-structure-wrapper textarea.form-input { min-height: 80px; resize: vertical; }
+  .fee-structure-wrapper .btn-save,
+  .fee-structure-wrapper .btn-cancel {
+    min-height: 40px; padding: 8px 13px; border-radius: 8px; font-size: 14px; font-weight: 700;
+  }
+
+  .fee-structure-wrapper .loading-state,
+  .fee-structure-wrapper .empty-state,
+  .fee-structure-wrapper .alert-box { font-size: 14px !important; line-height: 1.5; }
+
+  @media (max-width: 900px) {
+    .fee-structure-wrapper { padding: 18px 14px 32px; }
+    .fee-structure-wrapper .filter-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  }
+  @media (max-width: 560px) {
+    .fee-structure-wrapper { padding: 12px 10px 28px; }
+    .fee-structure-wrapper h2 { font-size: 24px !important; }
+    .fee-structure-wrapper .filter-grid { grid-template-columns: 1fr !important; }
+    .fee-cards-container { grid-template-columns: 1fr !important; }
+  }
+}
+</style>
+
+
 <div class="fee-structure-wrapper">
     
     <!-- Page Header -->
