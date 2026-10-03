@@ -180,13 +180,12 @@
     align-items: center;
     gap: 14px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: box-shadow .2s ease;
     border: 1px solid rgba(0,0,0,0.05);
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.10);
 }
 
 .stat-icon {
@@ -202,9 +201,9 @@
 }
 
 .stat-primary .stat-icon { background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 100%); }
-.stat-success .stat-icon { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
-.stat-info .stat-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-.stat-warning .stat-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.stat-success .stat-icon { background: #059669; }
+.stat-info .stat-icon { background: #0284c7; }
+.stat-warning .stat-icon { background: #d97706; }
 
 .stat-content {
     flex: 1;
@@ -311,8 +310,7 @@
 }
 
 .btn-create:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 .panel-body {
@@ -325,7 +323,7 @@
 }
 
 #discountProfilesTable thead th {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: #f9fafb;
     color: #495057;
     font-weight: 600;
     font-size: 13px;
@@ -342,12 +340,11 @@
 }
 
 #discountProfilesTable tbody tr {
-    transition: all 0.2s;
+    transition: background-color .15s ease;
 }
 
 #discountProfilesTable tbody tr:hover {
-    background: #f8f9fa;
-    transform: scale(1.01);
+    background: #f8fafc;
 }
 
 .table-responsive {
@@ -391,16 +388,15 @@
 }
 
 .btn-info {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: #0284c7;
 }
 
 .btn-danger {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: #dc2626;
 }
 
 .btn-xs:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 /* Labels */
@@ -414,17 +410,17 @@
 }
 
 .label-info {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: #0284c7;
     color: white;
 }
 
 .label-warning {
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    background: #d97706;
     color: white;
 }
 
 .label-success {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    background: #059669;
     color: white;
 }
 
@@ -453,15 +449,14 @@
     border: 1px solid #e9ecef;
     border-radius: 16px;
     padding: 24px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: box-shadow .2s ease, border-color .2s ease;
     height: 100%;
     display: flex;
     flex-direction: column;
 }
 
 .profile-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.10);
     border-color: var(--theme-primary);
 }
 
@@ -492,12 +487,12 @@
 }
 
 .badge-invoice { 
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: #0284c7;
     color: white;
 }
 
 .badge-daily { 
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    background: #d97706;
     color: white;
 }
 
@@ -539,8 +534,7 @@
 }
 
 .profile-card-actions .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 /* Empty State */
@@ -584,8 +578,8 @@
 .modern-select:focus,
 .modern-search:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .filter-icon,
@@ -689,8 +683,8 @@
 }
 
 .modern-switch input:checked + .modern-slider {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    box-shadow: 0 0 10px rgba(17, 153, 142, 0.3);
+    background: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.18);
 }
 
 .modern-switch input:checked + .modern-slider .modern-slider-button {
@@ -712,7 +706,7 @@
 }
 
 .modern-switch input:checked:hover + .modern-slider {
-    box-shadow: 0 0 12px rgba(17, 153, 142, 0.5);
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.28);
 }
 
 /* Modern Multi-Select */
@@ -762,14 +756,13 @@
 }
 
 .multiselect-item:hover {
-    border-color: #3498db;
-    background: #f0f8ff;
-    transform: translateX(4px);
+    border-color: #2563eb;
+    background: #f0f6ff;
 }
 
 .multiselect-item.selected {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: #667eea;
+    background: #2563eb;
+    border-color: #2563eb;
     color: white;
 }
 
@@ -778,7 +771,7 @@
     height: 20px;
     margin-right: 12px;
     cursor: pointer;
-    accent-color: #667eea;
+    accent-color: #2563eb;
 }
 
 .multiselect-item label {
@@ -794,7 +787,7 @@
 }
 
 .multiselect-select-all {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    background: #059669;
     color: white;
     border: none;
     padding: 8px 16px;
@@ -807,13 +800,13 @@
 }
 
 .multiselect-select-all:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(17, 153, 142, 0.3);
+    background: #047857;
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
 }
 
 .multiselect-selected-count {
     display: inline-block;
-    background: #667eea;
+    background: #2563eb;
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
@@ -868,9 +861,9 @@
 .modal-form-select:focus,
 .modal-form-textarea:focus {
     outline: none;
-    border-color: #4299e1;
+    border-color: #2563eb;
     background-color: #fff;
-    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .modal-form-group {
@@ -888,6 +881,22 @@
     margin-top: 24px;
     padding-top: 20px;
     border-top: 2px solid #e2e8f0;
+}
+
+/* ---- family focus + motion ---- */
+.toggle-btn:focus-visible,
+.btn-create:focus-visible,
+.btn-xs:focus-visible,
+.multiselect-select-all:focus-visible,
+.clear-search:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .stat-card, .profile-card, .btn-xs, .btn-create,
+    .multiselect-item, .modern-slider, .modern-slider-button {
+        transition: none;
+    }
 }
 </style>
 
