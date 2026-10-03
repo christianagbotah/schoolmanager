@@ -1,7 +1,45 @@
 <?php 
 $edit_data		=	$this->db->get_where('class_routine' , array('class_routine_id' => $param2) )->result_array();
 ?>
-<div class="tab-pane box active" id="edit" style="padding: 5px">
+<style>
+/* Direct UX refinement — Edit Class Routine modal */
+.routine-edit-modal { padding: 4px !important; }
+.routine-edit-modal .box-content { padding: 14px 10px 4px; }
+.routine-edit-modal form { margin: 0; }
+.routine-edit-modal .form-group { margin-bottom: 15px; }
+.routine-edit-modal .control-label {
+    padding-top: 11px; color: #334155; font-size: 14px; font-weight: 700;
+}
+.routine-edit-modal .form-control,
+.routine-edit-modal .selectboxit-container .selectboxit {
+    min-height: 46px; height: 46px; border: 1px solid #cbd5e1;
+    border-radius: 9px; background: #fff; color: #0f172a; font-size: 15px;
+}
+.routine-edit-modal .form-control:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
+}
+.routine-edit-modal .selectboxit-container,
+.routine-edit-modal .selectboxit-container .selectboxit { width: 100% !important; }
+.routine-edit-modal .col-sm-9 > .col-md-3 { padding-left: 0; padding-right: 10px; }
+.routine-edit-modal #section_subject_edit_holder .form-group { margin-bottom: 15px; }
+.routine-edit-modal button[type="submit"] {
+    min-height: 44px; padding: 9px 18px; border-radius: 9px;
+    background: #2563eb; border-color: #2563eb; color: #fff;
+    font-size: 14px; font-weight: 800;
+}
+.routine-edit-modal button[type="submit"]:hover { background: #1d4ed8; border-color: #1d4ed8; }
+
+@media (max-width: 767px) {
+    .routine-edit-modal .box-content { padding: 10px 4px 2px; }
+    .routine-edit-modal .control-label { padding-top: 0; margin-bottom: 6px; text-align: left; }
+    .routine-edit-modal .col-sm-5,
+    .routine-edit-modal .col-sm-9,
+    .routine-edit-modal .col-md-3 { width: 100%; padding-left: 15px; padding-right: 15px; margin-bottom: 8px; }
+    .routine-edit-modal button[type="submit"] { width: 100%; }
+}
+</style>
+
+<div class="tab-pane box active routine-edit-modal" id="edit" style="padding: 5px">
     <div class="box-content">
         <?php foreach($edit_data as $row):?>
         <?php echo form_open(site_url('admin/class_routine/do_update/'.$row['class_routine_id'])  , array('id' => 'class_routine_edit_form', 'class' => 'form-horizontal validatable','target'=>'_top'));?>
