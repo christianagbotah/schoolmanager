@@ -1,3 +1,53 @@
+<style type="text/css">
+/* ---- family design-language alignment (presentation only) ---- */
+.panel {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+.panel > .panel-heading {
+    background: transparent;
+    border-bottom: 1px solid #f3f4f6;
+    border-radius: 16px 16px 0 0;
+    color: #111827;
+}
+.panel > .panel-heading .panel-title { font-size: 15px; font-weight: 700; color: #111827; }
+.panel > .panel-body { padding: 18px; }
+.btn {
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all .2s;
+}
+.btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+.btn-primary { background: #2563eb; border-color: #2563eb; }
+.btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+.table-bordered, .table {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.table > thead > tr > th {
+    background: #f9fafb;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    border-bottom: 1px solid #e5e7eb !important;
+    padding: 12px 10px;
+}
+.table tbody td { border-bottom: 1px solid #f3f4f6; color: #374151; }
+hr { border-color: #f3f4f6; }
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+@media (max-width: 400px) {
+    .panel > .panel-body { padding: 14px; }
+    .table > thead > tr > th { font-size: 11px; padding: 8px 6px; }
+}
+</style>
 <center>
 	<button class="btn btn-primary">
 		<i class="entypo-user"></i> <?php echo $this->crud_model->get_type_name_by_id('student' , $param2);?>
