@@ -71,20 +71,24 @@
                 </center>
             </div>
         </div>-->
-<div class="container">                
-    <hr />
-    <div class="row flex gap-5" style="padding-top: 15px;">
-        <a href="<?=base_url();?>admin/students_gender_report" target="_blank" class="btn btn-primary btn-icon icon-left hidden-print">
-               View Gender Report
+<div class="container-fluid sm-students-page">
+    <div class="students-page-head hidden-print">
+        <div>
+            <p class="students-eyebrow">Students</p>
+            <h1 class="students-page-title"><?php echo get_phrase('all_active_students');?></h1>
+            <p class="students-page-subtitle">Browse currently enrolled students, refine the list, and open supporting reports without leaving this workspace.</p>
+        </div>
+        <div class="students-page-actions">
+            <a href="<?=base_url();?>admin/students_gender_report" target="_blank" class="btn btn-primary btn-icon icon-left hidden-print">
                 <i class="glyphicon glyphicon-eye-open"></i>
-        </a>
-
-        <a onClick="PrintElem('#print')" class="btn btn-default btn-icon icon-left hidden-print pull-right">
-               Print Students List
+                View Gender Report
+            </a>
+            <a onClick="PrintElem('#print')" class="btn btn-default btn-icon icon-left hidden-print">
                 <i class="glyphicon glyphicon-print"></i>
-        </a>
+                Print Students List
+            </a>
+        </div>
     </div>
-    <br>
 
     <div class="row">
         <div class="col-md-12">
@@ -189,17 +193,20 @@
 
                 </style>
 
-            <ul class="nav nav-tabs bordered">
-                <li class="active">
-                    <a href="#home" data-toggle="tab">
-                        <span class="visible-xs"><i class="glyphicon glyphicon-users"></i></span>
-                        <span class="hidden-xs"><?php echo get_phrase('all_active_students');?></span> | 
-                         
-                        Male: <span class="ml-5" id="all_male"></span> | 
-                        Female: <span class="ml-5" id="all_female"></span> |
-                        Unknown: <span class="ml-5" id="all_unknown"></span>
-                    </a>
-                </li>
+            <div class="students-summary hidden-print">
+                <div class="students-summary-title">
+                    <span class="students-summary-icon"><i class="glyphicon glyphicon-users"></i></span>
+                    <div>
+                        <strong><?php echo get_phrase('all_active_students');?></strong>
+                        <span>Current enrollment overview</span>
+                    </div>
+                </div>
+                <div class="students-summary-stats">
+                    <span class="students-stat-chip students-stat-male">Male <strong id="all_male"></strong></span>
+                    <span class="students-stat-chip students-stat-female">Female <strong id="all_female"></strong></span>
+                    <span class="students-stat-chip students-stat-unknown">Unknown <strong id="all_unknown"></strong></span>
+                </div>
+            </div>
                 <div class="tab-content">
                 <div class="tab-pane active" id="home">
 
@@ -209,8 +216,8 @@
                             <h3 class="panel-title"><i class="glyphicon glyphicon-filter"></i> Filter Students</h3>
                         </div>
                         <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-3">
+                            <div class="students-filter-grid">
+                                <div class="students-filter-field">
                                     <label for="filter_residence">Residence Type</label>
                                     <select id="filter_residence" class="form-control">
                                         <option value="">All</option>
@@ -218,7 +225,7 @@
                                         <option value="Boarding">Boarding</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="students-filter-field">
                                     <label for="filter_class">Class</label>
                                     <select id="filter_class" class="form-control">
                                         <option value="">All Classes</option>
@@ -230,7 +237,7 @@
                                         ?>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="students-filter-field">
                                     <label for="filter_gender">Gender</label>
                                     <select id="filter_gender" class="form-control">
                                         <option value="">All</option>
@@ -238,24 +245,20 @@
                                         <option value="Female">Female</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="students-filter-field">
                                     <label>Photo Column</label>
-                                    <div>
-                                        <button id="toggle_photo" class="btn btn-info btn-block" onclick="togglePhotoColumn()">
-                                            <i class="glyphicon glyphicon-picture"></i> Hide Photos
-                                        </button>
-                                    </div>
+                                    <button id="toggle_photo" class="btn btn-info btn-block" onclick="togglePhotoColumn()">
+                                        <i class="glyphicon glyphicon-picture"></i> Hide Photos
+                                    </button>
                                 </div>
-                            </div>
-                            <div class="row" style="margin-top: 10px;">
-                                <div class="col-md-12">
+                                <div class="students-filter-actions">
                                     <button class="btn btn-primary" onclick="applyFilters()">
                                         <i class="glyphicon glyphicon-filter"></i> Apply Filters
                                     </button>
                                     <button class="btn btn-default" onclick="resetFilters()">
-                                        <i class="glyphicon glyphicon-refresh"></i> Reset Filters
+                                        <i class="glyphicon glyphicon-refresh"></i> Reset
                                     </button>
-                                    <span id="loading_indicator" style="display:none; margin-left: 15px;">
+                                    <span id="loading_indicator" style="display:none;">
                                         <i class="fa fa-spinner fa-spin"></i> Loading...
                                     </span>
                                 </div>
@@ -263,7 +266,8 @@
                         </div>
                     </div>
 
-                    <table class="table table-bordered table-striped table-hover table-active" style="width:100%; border-collapse:collapse;border: 1px solid #ccc; margin-top: 10px;" border="1" id="students_print">
+                    <div class="students-table-wrap">
+                    <table class="table table-bordered table-striped table-hover table-active" style="width:100%; border-collapse:collapse;border: 1px solid #ccc;" border="1" id="students_print">
                         <thead>
                             <tr>
                                 <th align="center" width="80"><div align="center">S/N</div></th>
@@ -449,6 +453,7 @@
                     
                         </tbody>
                     </table>
+                    </div>
                 </div>   
             </div>
             </ul>
@@ -463,95 +468,156 @@
 <script src="<?php echo base_url('assets/datatables/datatables.min.js');?>" type="text/javascript"></script>
 
 <style type="text/css">
-/* ---- family design-language alignment (presentation only, screen only) ---- */
+/* ---- Students workspace — modern enterprise presentation layer (screen only) ---- */
 @media screen {
+    body { background: #f8fafc; }
+    .sm-students-page { width: 100%; max-width: 100%; padding: 24px 28px 40px; }
+
+    .students-page-head {
+        display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+        margin: 0 0 22px; padding: 0 0 18px; border-bottom: 1px solid #e2e8f0;
+    }
+    .students-eyebrow {
+        margin: 0 0 4px; color: #2563eb; font-size: 13px; font-weight: 800;
+        letter-spacing: .08em; text-transform: uppercase;
+    }
+    .students-page-title {
+        margin: 0; color: #0f172a; font-size: 30px; line-height: 1.2; font-weight: 800;
+        letter-spacing: -.02em;
+    }
+    .students-page-subtitle {
+        margin: 7px 0 0; max-width: 760px; color: #64748b; font-size: 15px; line-height: 1.55;
+    }
+    .students-page-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+    .students-page-actions .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        min-height: 42px; padding: 9px 16px;
+    }
+
+    .students-summary {
+        display: flex; align-items: center; justify-content: space-between; gap: 18px;
+        padding: 16px 18px; margin: 0 0 16px; background: #fff;
+        border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,.04);
+    }
+    .students-summary-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .students-summary-title strong { display: block; color: #0f172a; font-size: 17px; line-height: 1.3; }
+    .students-summary-title span:not(.students-summary-icon) {
+        display: block; margin-top: 2px; color: #64748b; font-size: 13px;
+    }
+    .students-summary-icon {
+        width: 42px; height: 42px; border-radius: 12px; background: #eff6ff; color: #2563eb;
+        display: inline-flex; align-items: center; justify-content: center; font-size: 18px; flex: 0 0 auto;
+    }
+    .students-summary-stats { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .students-stat-chip {
+        display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 6px 11px;
+        border-radius: 999px; font-size: 13px; font-weight: 700; border: 1px solid transparent;
+    }
+    .students-stat-chip strong { font-size: 14px; color: inherit; }
+    .students-stat-male { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .students-stat-female { background: #fdf2f8; color: #be185d; border-color: #fbcfe8; }
+    .students-stat-unknown { background: #f8fafc; color: #475569; border-color: #e2e8f0; }
+
     .panel {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+        background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
+        box-shadow: 0 1px 2px rgba(15,23,42,.04); overflow: hidden;
     }
     .panel > .panel-heading {
-        background: transparent;
-        border-bottom: 1px solid #f3f4f6;
-        border-radius: 16px 16px 0 0;
-        color: #111827;
-        padding: 16px 20px;
+        background: #fff; border-bottom: 1px solid #eef2f7; color: #0f172a; padding: 14px 18px;
     }
     .panel > .panel-heading .panel-title {
-        font-size: 15px;
-        font-weight: 700;
-        color: #111827;
+        display: flex; align-items: center; gap: 8px; margin: 0;
+        font-size: 16px; font-weight: 800; color: #0f172a;
     }
-    .panel > .panel-body { padding: 20px; }
+    .panel > .panel-body { padding: 16px 18px; }
+
+    .students-filter-grid {
+        display: grid; grid-template-columns: minmax(150px,.9fr) minmax(190px,1.2fr) minmax(140px,.8fr) minmax(150px,.9fr) auto;
+        gap: 12px; align-items: end;
+    }
+    .students-filter-field label {
+        display: block; margin: 0 0 6px; color: #334155; font-size: 14px; font-weight: 700;
+    }
+    .students-filter-actions {
+        display: flex; align-items: center; gap: 8px; min-height: 44px; white-space: nowrap;
+    }
+    .students-filter-actions .btn { min-height: 44px; }
+    #loading_indicator { color: #475569; font-size: 14px; font-weight: 600; }
 
     .btn {
-        border-radius: 10px;
-        font-weight: 600;
-        transition: all .2s;
+        min-height: 42px; border-radius: 9px; font-size: 14px; font-weight: 700;
+        transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .15s ease;
     }
-    .btn:focus-visible {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,.25); }
     .btn-primary { background: #2563eb; border-color: #2563eb; }
     .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
     .btn-info { background: #0284c7; border-color: #0284c7; }
 
     .form-control {
-        border: 1.5px solid #e5e7eb;
-        border-radius: 10px;
-        height: 42px;
-        font-size: 14px;
+        height: 44px; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 9px;
+        font-size: 15px; color: #0f172a; background: #fff;
         transition: border-color .15s ease, box-shadow .15s ease;
     }
     .form-control:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-        outline: none;
+        border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.14); outline: none;
     }
 
+    .students-table-wrap {
+        width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 14px;
+        border: 1px solid #e2e8f0; border-radius: 14px; background: #fff;
+    }
     #students_print {
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        overflow: hidden;
-        border-collapse: separate;
+        width: 100% !important; min-width: 1080px; margin: 0 !important; border: 0 !important;
+        border-radius: 0; border-collapse: separate !important; border-spacing: 0;
     }
     #students_print th {
-        background: #f9fafb;
-        color: #374151;
-        font-size: 13px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        border-bottom: 1px solid #e5e7eb !important;
-        padding: 12px 10px;
+        background: #f8fafc; color: #475569; font-size: 13px; font-weight: 800;
+        text-transform: uppercase; letter-spacing: .035em; border-bottom: 1px solid #e2e8f0 !important;
+        padding: 13px 12px; white-space: nowrap; vertical-align: middle;
     }
     #students_print td {
-        border-bottom: 1px solid #f3f4f6;
-        color: #374151;
+        padding: 12px; border-bottom: 1px solid #eef2f7; color: #334155;
+        font-size: 14px; line-height: 1.45; vertical-align: middle;
     }
-    #students_print tr.student-row:hover td { background: #f9fafb; }
+    #students_print tr.student-row:hover td { background: #f8fbff; }
     #students_print img.img-circle {
-        border: 2px solid #e5e7eb;
-        border-radius: 50%;
+        width: 42px; height: 42px; object-fit: cover; border: 2px solid #e2e8f0;
+        border-radius: 50%; box-shadow: 0 1px 2px rgba(15,23,42,.08);
     }
-
-    .nav-tabs > li > a {
-        border-radius: 10px 10px 0 0;
-        font-weight: 600;
-        color: #374151;
+    #students_print tbody > tr > td[colspan="10"] {
+        background: #f8fafc; padding: 12px 14px; color: #0f172a;
     }
-    .nav-tabs > li.active > a { color: #111827; }
+    #students_print tbody > tr > td[colspan="10"] h4 {
+        margin: 0 0 5px; font-size: 15px; font-weight: 800;
+    }
+    #students_print .text-muted { color: #64748b; font-size: 13px; }
 
-    hr { border-color: #f3f4f6; }
+    .tab-content { padding: 0; }
+    hr { border-color: #e2e8f0; }
 
-    @media (max-width: 400px) {
+    @media (max-width: 1199px) {
+        .students-filter-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+        .students-filter-actions { grid-column: 1 / -1; }
+    }
+    @media (max-width: 767px) {
+        .sm-students-page { padding: 18px 14px 32px; }
+        .students-page-head { align-items: flex-start; flex-direction: column; }
+        .students-page-actions { width: 100%; justify-content: flex-start; }
+        .students-page-title { font-size: 26px; }
+        .students-summary { align-items: flex-start; flex-direction: column; }
+        .students-summary-stats { justify-content: flex-start; }
+        .students-filter-grid { grid-template-columns: 1fr; }
+        .students-filter-actions { grid-column: auto; flex-wrap: wrap; }
         .panel > .panel-body { padding: 14px; }
-        .btn-block { font-size: 13px; }
     }
-}
-</style>
+    @media (max-width: 400px) {
+        .students-page-actions .btn { width: 100%; }
+        .students-summary-stats { width: 100%; }
+        .students-stat-chip { flex: 1 1 auto; justify-content: center; }
+        .students-filter-actions .btn { flex: 1 1 auto; }
+    }
+}</style>
 </body>
 </html>    
     
