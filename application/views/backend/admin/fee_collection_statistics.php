@@ -22,11 +22,11 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
 }
 
 .stats-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     border-radius: 16px;
     padding: 32px;
     margin-bottom: 30px;
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);
     color: white;
 }
 
@@ -40,8 +40,7 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
 }
 
 .kpi-card:hover {
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
-    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
 }
 
 .kpi-icon {
@@ -94,27 +93,26 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
 }
 
 .filter-card .form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     outline: none;
 }
 
 .filter-card .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2563eb;
     border: none;
     border-radius: 10px;
     padding: 10px 20px;
     font-weight: 600;
     font-size: 14px;
     height: 42px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transition: background-color .2s ease, box-shadow .2s ease;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35);
 }
 
 .filter-card .btn-primary:hover {
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-    transform: translateY(-2px);
+    background: #1d4ed8;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
 }
 
 .stats-header .btn {
@@ -127,24 +125,22 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
 
 .stats-header .btn-light {
     background: white;
-    color: #667eea;
+    color: #0f172a;
     border: 2px solid white;
 }
 
 .stats-header .btn-light:hover {
     background: rgba(255,255,255,0.9);
-    transform: translateY(-2px);
 }
 
 .stats-header .btn-success {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    background: #059669;
     border: none;
-    box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);
+    box-shadow: 0 1px 2px rgba(5, 150, 105, 0.3);
 }
 
 .stats-header .btn-success:hover {
-    background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
-    transform: translateY(-2px);
+    background: #047857;
 }
 
 .chart-card {
@@ -256,7 +252,7 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
         <div class="row">
             <div class="col-md-3">
                 <div class="kpi-card">
-                    <div class="kpi-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <div class="kpi-icon" style="background: #2563eb; color: white;">
                         <i class="fa fa-dollar"></i>
                     </div>
                     <div class="kpi-label">Total Collected</div>
@@ -268,7 +264,7 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
             </div>
             <div class="col-md-3">
                 <div class="kpi-card">
-                    <div class="kpi-icon" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white;">
+                    <div class="kpi-icon" style="background: #059669; color: white;">
                         <i class="fa fa-line-chart"></i>
                     </div>
                     <div class="kpi-label">Collection Rate</div>
@@ -278,7 +274,7 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
             </div>
             <div class="col-md-3">
                 <div class="kpi-card">
-                    <div class="kpi-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                    <div class="kpi-icon" style="background: #db2777; color: white;">
                         <i class="fa fa-exclamation-triangle"></i>
                     </div>
                     <div class="kpi-label">Outstanding Arrears</div>
@@ -288,7 +284,7 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
             </div>
             <div class="col-md-3">
                 <div class="kpi-card">
-                    <div class="kpi-icon" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white;">
+                    <div class="kpi-icon" style="background: #d97706; color: white;">
                         <i class="fa fa-users"></i>
                     </div>
                     <div class="kpi-label">Students Paid</div>

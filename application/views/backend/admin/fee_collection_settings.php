@@ -16,11 +16,11 @@ $teacher_mode = $teacher_mode_setting ? $teacher_mode_setting->description : 're
    ============================================ */
 
 .settings-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     border-radius: 20px;
     padding: 40px;
     margin-bottom: 32px;
-    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.25);
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);
     position: relative;
     overflow: hidden;
 }
@@ -71,7 +71,7 @@ $teacher_mode = $teacher_mode_setting ? $teacher_mode_setting->description : 're
 .settings-card-title i {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2563eb;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -116,19 +116,18 @@ $teacher_mode = $teacher_mode_setting ? $teacher_mode_setting->description : 're
 .mode-option:hover {
     background: white;
     border-color: #cbd5e1;
-    transform: translateY(-4px);
     box-shadow: 0 12px 24px rgba(0,0,0,0.08);
 }
 .mode-option.selected {
-    border-color: #667eea;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+    border-color: #2563eb;
+    background: #f0f6ff;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
 }
 .mode-option input[type="radio"] {
     margin-bottom: 12px;
     width: 20px;
     height: 20px;
-    accent-color: #667eea;
+    accent-color: #2563eb;
 }
 .mode-option-content h4 {
     margin: 0 0 8px 0;
@@ -180,12 +179,11 @@ $teacher_mode = $teacher_mode_setting ? $teacher_mode_setting->description : 're
 .module-card:hover {
     background: white;
     border-color: #e2e8f0;
-    transform: translateY(-2px);
     box-shadow: 0 8px 16px rgba(0,0,0,0.06);
 }
 .module-card.active {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.08) 100%);
-    border-color: #10b981;
+    background: #f0fdf4;
+    border-color: #059669;
 }
 .module-info {
     display: flex;
@@ -203,11 +201,11 @@ $teacher_mode = $teacher_mode_setting ? $teacher_mode_setting->description : 're
     color: white;
     flex-shrink: 0;
 }
-.icon-feeding { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.icon-classes { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-.icon-transport { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-.icon-breakfast { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-.icon-water { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+.icon-feeding { background: #d97706; }
+.icon-classes { background: #0284c7; }
+.icon-transport { background: #059669; }
+.icon-breakfast { background: #db2777; }
+.icon-water { background: #0891b2; }
 .module-text h5 {
     margin: 0;
     font-weight: 700;
@@ -256,7 +254,7 @@ $teacher_mode = $teacher_mode_setting ? $teacher_mode_setting->description : 're
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 input:checked + .toggle-slider {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: #059669;
 }
 input:checked + .toggle-slider:before {
     transform: translateX(26px);
@@ -346,22 +344,22 @@ input:checked + .toggle-slider:before {
     text-decoration: none;
 }
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2563eb;
     color: white;
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.35);
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35);
 }
 .btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.45);
+    background: #1d4ed8;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
 }
 .btn-success {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: #059669;
     color: white;
-    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+    box-shadow: 0 1px 2px rgba(5, 150, 105, 0.3);
 }
 .btn-success:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.45);
+    background: #047857;
+    box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);
 }
 .btn-outline {
     background: white;
