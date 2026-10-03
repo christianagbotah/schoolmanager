@@ -15,30 +15,18 @@ $transport_enabled = is_fee_module_enabled('transport');
 // Build date filter - Parse dates in "M d, Y" format (e.g., "May 4, 2026")
 $date_filter = '';
 $params = [$cashier_id];
-
-// Debug logging
-error_log("CASHIER DASHBOARD DEBUG - Single Cashier");
-error_log("Date From (raw): " . $date_from);
-error_log("Date To (raw): " . $date_to);
-
 if ($date_from) {
     $date_filter .= " AND t.payment_date >= ?";
     $date_obj = DateTime::createFromFormat('M d, Y', $date_from);
     $timestamp_from = $date_obj ? strtotime($date_obj->format('Y-m-d')) : strtotime($date_from);
     $params[] = $timestamp_from;
-    error_log("Date From timestamp: " . $timestamp_from . " (" . date('Y-m-d H:i:s', $timestamp_from) . ")");
-}
+    }
 if ($date_to) {
     $date_filter .= " AND t.payment_date < ?";
     $date_obj = DateTime::createFromFormat('M d, Y', $date_to);
     $timestamp_to = ($date_obj ? strtotime($date_obj->format('Y-m-d')) : strtotime($date_to)) + 86400;
     $params[] = $timestamp_to;
-    error_log("Date To timestamp: " . $timestamp_to . " (" . date('Y-m-d H:i:s', $timestamp_to) . ")");
-}
-
-error_log("Query params: " . print_r($params, true));
-error_log("Date filter: " . $date_filter);
-
+    }
 // Get collections
 $query_sql = "
     SELECT 
@@ -53,16 +41,6 @@ $query_sql = "
     WHERE t.collected_by = ? {$date_filter}
 ";
 $collections = $this->db->query($query_sql, $params)->row();
-
-// DEBUG: Output to HTML comment
-echo "<!-- DEBUG INFO:\n";
-echo "Date From (raw): " . $date_from . "\n";
-echo "Date To (raw): " . $date_to . "\n";
-echo "Query SQL: " . $query_sql . "\n";
-echo "Params: " . print_r($params, true) . "\n";
-echo "Collections: " . print_r($collections, true) . "\n";
-echo "-->";
-
 $total = ($collections->feeding ?? 0) + ($collections->breakfast ?? 0) + ($collections->classes ?? 0) + ($collections->water ?? 0) + ($collections->transport ?? 0);
 ?>
 

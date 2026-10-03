@@ -192,11 +192,6 @@ function loadDashboard() {
 }
 
 function loadSingleCashierDashboard(cashierId, dateFrom, dateTo) {
-    console.log('Loading single cashier dashboard...');
-    console.log('Cashier ID:', cashierId);
-    console.log('Date From:', dateFrom);
-    console.log('Date To:', dateTo);
-    
     $('#dashboard-container').html('<center><div style="padding: 60px;"><i class="fa fa-spinner fa-spin fa-3x" style="color: #3b82f6;"></i><p style="margin-top: 20px; color: #718096; font-weight: 600;">Loading dashboard...</p></div></center>');
     
     $.ajax({
@@ -205,18 +200,12 @@ function loadSingleCashierDashboard(cashierId, dateFrom, dateTo) {
         data: { cashier_id: cashierId, date_from: dateFrom, date_to: dateTo },
         dataType: 'json'
     }).done(function(response) {
-        console.log('Response received:', response);
-        if (response.debug) {
-            console.log('Debug info:', response.debug);
-        }
         if (response.status === 'success') {
             $('#dashboard-container').html(response.html);
         } else {
             showAjaxModal_alert(response.message || 'Failed to load dashboard', 'error');
         }
     }).fail(function(xhr, status, error) {
-        console.error('AJAX failed:', status, error);
-        console.error('Response text:', xhr.responseText);
         showAjaxModal_alert('An error occurred while loading dashboard', 'error');
     });
 }
