@@ -1,5 +1,64 @@
-<hr />
-<div class="row">
+<style>
+/* Direct UX rebuild — Teacher Add Class Routine */
+body { background: #f8fafc; }
+.routine-add-workspace { margin: 0 !important; padding: 24px 28px 40px; }
+.routine-add-workspace > .col-md-12 { padding: 0 !important; }
+.routine-add-head {
+    margin: 0 0 18px; padding-bottom: 18px; border-bottom: 1px solid #e2e8f0;
+}
+.routine-add-head .eyebrow {
+    margin: 0 0 4px; color: #2563eb; font-size: 13px; font-weight: 800;
+    letter-spacing: .08em; text-transform: uppercase;
+}
+.routine-add-head h1 {
+    margin: 0; color: #0f172a; font-size: 30px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em;
+}
+.routine-add-head p {
+    margin: 7px 0 0; max-width: 760px; color: #64748b; font-size: 15px; line-height: 1.5;
+}
+.routine-add-workspace form {
+    max-width: 980px; padding: 22px 20px; border: 1px solid #e2e8f0;
+    border-radius: 14px; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.05);
+}
+.routine-add-workspace .form-group { margin-bottom: 16px; }
+.routine-add-workspace .control-label {
+    padding-top: 11px; color: #334155; font-size: 14px; font-weight: 700;
+}
+.routine-add-workspace .form-control,
+.routine-add-workspace .selectboxit-container .selectboxit {
+    min-height: 46px; height: 46px; border: 1px solid #cbd5e1; border-radius: 9px;
+    background: #fff; color: #0f172a; font-size: 15px;
+}
+.routine-add-workspace .form-control:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
+}
+.routine-add-workspace .selectboxit-container { width: 100% !important; }
+.routine-add-workspace .selectboxit-container .selectboxit { width: 100% !important; }
+.routine-add-workspace .col-sm-9 > .col-md-3 { padding-left: 0; padding-right: 10px; }
+.routine-add-workspace #section_subject_selection_holder .form-group { margin-bottom: 16px; }
+.routine-add-workspace #add_class_routine {
+    min-height: 44px; padding: 9px 18px; border-radius: 9px;
+    background: #2563eb; border-color: #2563eb; color: #fff; font-size: 14px; font-weight: 800;
+}
+.routine-add-workspace #add_class_routine:hover { background: #1d4ed8; border-color: #1d4ed8; }
+
+@media (max-width: 767px) {
+    .routine-add-workspace { padding: 18px 14px 32px; }
+    .routine-add-head h1 { font-size: 26px; }
+    .routine-add-workspace form { padding: 18px 14px; }
+    .routine-add-workspace .control-label { padding-top: 0; margin-bottom: 6px; text-align: left; }
+    .routine-add-workspace .col-sm-5,
+    .routine-add-workspace .col-sm-9,
+    .routine-add-workspace .col-md-3 { width: 100%; padding-left: 15px; padding-right: 15px; margin-bottom: 8px; }
+    .routine-add-workspace #add_class_routine { width: 100%; }
+}
+</style>
+<div class="routine-add-head">
+    <p class="eyebrow">Academics</p>
+    <h1>Add Class Routine</h1>
+    <p>Choose the class, section, subject, day and time range to add a timetable entry.</p>
+</div>
+<div class="row routine-add-workspace">
 	<div class="col-md-12">
 		
 		<?php echo form_open(site_url('teacher/class_routine/create') , array('id' => 'class_routine_form', 'class' => 'form-horizontal form-groups validate','target'=>'_top'));?>
