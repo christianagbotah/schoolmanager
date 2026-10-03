@@ -72,35 +72,40 @@ foreach($invoice_items as $item) {
 <style>
 .modal-action-btn {
     flex: 1;
-    padding: 20px;
-    border: 3px solid transparent;
+    padding: 18px;
+    border: 2px solid transparent;
     border-radius: 12px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
     text-align: center;
 }
 .modal-action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 16px rgba(16, 24, 40, 0.15);
+}
+.modal-action-btn:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
 }
 .modal-action-btn.selected {
     border-color: currentColor;
-    box-shadow: 0 0 0 3px rgba(255,255,255,0.5), 0 8px 16px rgba(0,0,0,0.2);
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.5), 0 8px 16px rgba(16, 24, 40, 0.2);
 }
 .modal-action-btn-edit {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: #059669;
     color: white;
 }
+.modal-action-btn-edit:hover { background: #047857; }
 .modal-action-btn-delete {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: #dc2626;
     color: white;
 }
+.modal-action-btn-delete:hover { background: #b91c1c; }
 .invoice-item-row {
     padding: 12px;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
     margin-bottom: 12px;
-    transition: all 0.3s;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 .invoice-item-row:hover {
     border-color: <?php echo $theme_color; ?>;
@@ -261,7 +266,7 @@ foreach($invoice_items as $item) {
                                 : '<span style="font-size: 32px; font-weight: 800; color: #059669;">' + currency + ' ' + parseFloat(response.profile.discount_value).toFixed(2) + '</span>';
                             
                             var html = '<div style="display: flex; gap: 20px; align-items: start;">';
-                            html += '<div style="flex: 0 0 200px; text-align: center; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 20px; border-radius: 10px; border: 2px solid #10b981;">';
+                            html += '<div style="flex: 0 0 200px; text-align: center; background: #ecfdf5; padding: 20px; border-radius: 10px; border: 2px solid #10b981;">';
                             html += '<div style="font-size: 12px; color: #065f46; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">' + methodText + '</div>';
                             html += valueText + '</div>';
                             html += '<div style="flex: 1;"><h6 style="color: #065f46; font-weight: 700; margin-bottom: 12px; font-size: 16px;"><i class="fa fa-info-circle"></i> Profile Details</h6>';
@@ -443,7 +448,7 @@ foreach($invoice_items as $item) {
     
     <div style="padding: 24px;">
         <!-- Invoice Info Card -->
-        <div style="background: linear-gradient(135deg, <?php echo $gradient_light; ?> 0%, <?php echo $gradient_dark; ?> 100%); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+        <div style="background: linear-gradient(135deg, <?php echo $gradient_light; ?> 0%, <?php echo $gradient_dark; ?> 100%); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);">
             <div style="display: flex; align-items: center; gap: 16px; justify-content: space-between;">
                 <div style="display: flex; align-items: center; gap: 16px;">
                     <div style="background: rgba(255,255,255,0.2); padding: 16px; border-radius: 50%; backdrop-filter: blur(10px);">
@@ -478,7 +483,7 @@ foreach($invoice_items as $item) {
 
         <?php if($discount): ?>
         <!-- Discount Details Card -->
-        <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+        <div style="background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                 <i class="fa fa-tag" style="color: #92400e; font-size: 24px;"></i>
                 <div style="font-size: 16px; font-weight: 700; color: #78350f;">Discount Applied to This Invoice</div>
@@ -519,7 +524,7 @@ foreach($invoice_items as $item) {
                     <div style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">Edit Invoice</div>
                     <div style="font-size: 13px; opacity: 0.9;">Modify invoice items or amounts</div>
                 </div>
-                <div class="modal-action-btn" data-action="discount" id="btn-discount" style="background: linear-gradient(135deg, #f0f9ff 0%, #0ea5e9 100%); color: white;">
+                <div class="modal-action-btn" data-action="discount" id="btn-discount" style="background: #0284c7; color: white;">
                     <i class="fa fa-tag" style="font-size: 32px; display: block; margin-bottom: 8px;"></i>
                     <div style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">Apply Discount</div>
                     <div style="font-size: 13px; opacity: 0.9;">Assign discount profile</div>
@@ -552,7 +557,7 @@ foreach($invoice_items as $item) {
 
         <!-- Discount Fields -->
         <div id="discountFields" style="display: none; margin-bottom: 24px;">
-            <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 16px; padding: 25px;">
+            <div style="background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 16px; padding: 25px;">
                 <h5 style="color: #0c4a6e; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
                     <i class="fa fa-tag" style="color: #0ea5e9;"></i>
                     <?php echo get_phrase('assign_discount_profile'); ?>
@@ -605,7 +610,7 @@ foreach($invoice_items as $item) {
 
         <!-- Delete Warning -->
         <div id="deleteWarning" style="display: none; margin-bottom: 24px;">
-            <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border: 2px solid #ef4444; border-radius: 12px; padding: 20px;">
+            <div style="background: #fef2f2; border: 2px solid #ef4444; border-radius: 12px; padding: 20px;">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                     <i class="fa fa-exclamation-circle" style="color: #dc2626; font-size: 32px;"></i>
                     <div style="font-size: 16px; font-weight: 700; color: #991b1b;">⚠️ Permanent Deletion Warning</div>
@@ -640,7 +645,7 @@ foreach($invoice_items as $item) {
 
         <?php if($admin_level != 1): ?>
         <!-- Warning Box for non-super admin -->
-        <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+        <div style="background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <i class="fa fa-exclamation-triangle" style="color: #92400e; font-size: 24px;"></i>
                 <div style="color: #78350f; font-size: 14px; line-height: 1.6;">

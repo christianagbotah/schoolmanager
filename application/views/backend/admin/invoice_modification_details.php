@@ -116,7 +116,7 @@ if($theme === 'custom') {
 ?>
 
 <style>
-.details-container { background: linear-gradient(135deg, <?php echo $primary; ?> 0%, <?php echo $secondary; ?> 100%); padding: 0; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+.details-container { background: linear-gradient(135deg, <?php echo $primary; ?> 0%, <?php echo $secondary; ?> 100%); padding: 0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15); }
 .details-header { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 30px; color: white; border-bottom: 1px solid rgba(255,255,255,0.2); }
 .details-body { background: white; padding: 30px; }
 .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 30px; }
@@ -124,8 +124,8 @@ if($theme === 'custom') {
 .info-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; font-weight: 600; }
 .info-value { font-size: 16px; color: #1a202c; font-weight: 700; }
 .section-title { font-size: 20px; font-weight: 700; color: #1a202c; margin: 30px 0 20px; padding-bottom: 10px; border-bottom: 3px solid <?php echo $primary; ?>; display: flex; align-items: center; gap: 10px; }
-.data-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 20px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.data-table th { background: linear-gradient(135deg, <?php echo $primary; ?> 0%, <?php echo $secondary; ?> 100%); color: white; padding: 16px; text-align: left; font-weight: 600; font-size: 14px; text-transform: uppercase; }
+.data-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 20px; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; }
+.data-table th { background: #f9fafb; color: #374151; padding: 14px 16px; text-align: left; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .3px; border-bottom: 1px solid #e5e7eb; }
 .data-table td { padding: 16px; border-bottom: 1px solid #e5e7eb; background: white; }
 .data-table tr:last-child td { border-bottom: none; }
 .data-table tr:hover td { background: #f9fafb; }
@@ -252,7 +252,7 @@ if($theme === 'custom') {
                 <?php endforeach; ?>
                 <tr style="background: #f3f4f6;">
                     <td colspan="2" style="text-align: right; font-weight: 700; font-size: 16px;">SUBTOTAL:</td>
-                    <td style="text-align: right; font-weight: 700; font-size: 16px; color: #667eea;"><?php echo number_format($total_old_before_discount, 2); ?></td>
+                    <td style="text-align: right; font-weight: 700; font-size: 16px; color: #2563eb;"><?php echo number_format($total_old_before_discount, 2); ?></td>
                 </tr>
                 <?php if($original_discount_amount > 0): ?>
                 <tr style="background: #fef3c7;">
@@ -262,7 +262,7 @@ if($theme === 'custom') {
                 <?php endif; ?>
                 <tr style="background: #e0e7ff;">
                     <td colspan="2" style="text-align: right; font-weight: 700; font-size: 16px;">TOTAL:</td>
-                    <td style="text-align: right; font-weight: 700; font-size: 16px; color: #667eea;"><?php echo number_format($total_old, 2); ?></td>
+                    <td style="text-align: right; font-weight: 700; font-size: 16px; color: #2563eb;"><?php echo number_format($total_old, 2); ?></td>
                 </tr>
             </tbody>
         </table>
@@ -355,7 +355,7 @@ if($theme === 'custom') {
                             $total_diff = $total_new - $total_old;
                         ?>
                         <div style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
-                            <span style="color: #667eea;"><?php echo number_format($total_new, 2); ?></span>
+                            <span style="color: #2563eb;"><?php echo number_format($total_new, 2); ?></span>
                             <?php if(abs($total_diff) > 0.01): 
                                 $diff_color = $total_diff > 0 ? '#059669' : '#dc2626';
                                 $diff_bg = $total_diff > 0 ? '#d1fae5' : '#fee2e2';
@@ -366,7 +366,7 @@ if($theme === 'custom') {
                             <?php endif; ?>
                         </div>
                         <?php else: ?>
-                            <span style="color: #667eea;"><?php echo number_format($total_new, 2); ?></span>
+                            <span style="color: #2563eb;"><?php echo number_format($total_new, 2); ?></span>
                         <?php endif; ?>
                     </td>
                 </tr>
@@ -385,7 +385,7 @@ if($theme === 'custom') {
                         $diff_bg = $total_diff > 0 ? '#d1fae5' : ($total_diff < 0 ? '#fee2e2' : '#f3f4f6');
                         ?>
                         <div style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
-                            <span style="color: #667eea;"><?php echo number_format($total_new_with_discount, 2); ?></span>
+                            <span style="color: #2563eb;"><?php echo number_format($total_new_with_discount, 2); ?></span>
                             <?php if(abs($total_diff) > 0.01): ?>
                                 <span style="padding: 4px 12px; background: <?php echo $diff_bg; ?>; color: <?php echo $diff_color; ?>; border-radius: 6px; font-size: 14px; font-weight: 600;">
                                     <?php echo $total_diff > 0 ? '+' : ''; ?><?php echo number_format($total_diff, 2); ?>

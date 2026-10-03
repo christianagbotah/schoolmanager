@@ -1,6 +1,6 @@
 <style>
-.requests-container { padding: 24px; background: #f8f9fa; min-height: 100vh; }
-.request-card { background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid; }
+.requests-container { padding: 24px; background: transparent; min-height: 100vh; }
+.request-card { background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06); border-left: 4px solid; }
 .request-card.pending { border-color: #f59e0b; }
 .request-card.approved { border-color: #10b981; }
 .request-card.rejected, .request-card.declined { border-color: #ef4444; }
@@ -15,18 +15,18 @@
 .detail-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
 .detail-value { font-size: 15px; font-weight: 600; color: #1a202c; word-break: break-word; }
 .request-actions { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
-.btn-action { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
-.btn-approve { background: #10b981; color: white; }
-.btn-approve:hover { background: #059669; }
-.btn-reject { background: #ef4444; color: white; }
-.btn-reject:hover { background: #dc2626; }
-.btn-view { background: #3b82f6; color: white; }
-.btn-view:hover { background: #2563eb; }
+.btn-action { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color .2s ease, box-shadow .2s ease; white-space: nowrap; }
+.btn-approve { background: #059669; color: white; }
+.btn-approve:hover { background: #047857; }
+.btn-reject { background: #dc2626; color: white; }
+.btn-reject:hover { background: #b91c1c; }
+.btn-view { background: #2563eb; color: white; }
+.btn-view:hover { background: #1d4ed8; }
 .empty-state { text-align: center; padding: 60px 20px; color: #9ca3af; }
 .empty-state i { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
-.filter-bar { background: white; padding: 16px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-.filter-select { padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; min-width: 150px; }
-.bulk-actions-bar { background: white; padding: 16px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: none; align-items: center; gap: 12px; flex-wrap: wrap; }
+.filter-bar { background: white; padding: 16px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.filter-select { padding: 10px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; min-width: 150px; }
+.bulk-actions-bar { background: white; padding: 16px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06); display: none; align-items: center; gap: 12px; flex-wrap: wrap; }
 .bulk-actions-bar.active { display: flex; }
 .checkbox-cell { width: 40px; display: flex; align-items: center; justify-content: center; }
 .checkbox-cell input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
@@ -40,6 +40,14 @@
     .filter-bar label { margin-left: 0 !important; }
     .filter-select { width: 100%; }
     .btn-action { padding: 8px 16px; font-size: 14px; }
+}
+
+.btn-action:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.filter-select:focus { border-color: #2563eb; outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+@media (max-width: 480px) {
+    .request-actions { flex-direction: column; }
+    .btn-action { width: 100%; }
+    .filter-bar { padding: 12px; }
 }
 </style>
 
