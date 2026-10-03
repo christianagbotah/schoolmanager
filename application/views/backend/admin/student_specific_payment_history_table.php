@@ -2,6 +2,42 @@
 	$running_year = $this->db->get_where('settings',array('type'=>'running_year'))->row()->description;
 	$running_term = $this->db->get_where('settings',array('type'=>'running_term'))->row()->description;
 ?>
+
+
+<style>
+/* Direct UI/UX refinement — student payment history table */
+#student_payments {
+    width: 100% !important; min-width: 820px; margin: 0 !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 11px; overflow: hidden;
+}
+#student_payments thead th {
+    padding: 11px 12px !important; background: #f8fafc !important; color: #475569 !important;
+    font-size: 13px !important; line-height: 1.35; font-weight: 800 !important;
+    letter-spacing: .03em; border-bottom: 1px solid #e2e8f0 !important;
+}
+#student_payments tbody td {
+    padding: 11px 12px !important; color: #334155 !important; font-size: 14px !important;
+    line-height: 1.45; vertical-align: middle; border-bottom: 1px solid #eef2f7 !important;
+}
+#student_payments tbody tr:hover td { background: #f8fbff !important; }
+#student_payments .btn-sm {
+    min-height: 36px; padding: 7px 10px; border-radius: 8px; font-size: 13px; font-weight: 700;
+}
+#student_payments_wrapper { min-width: 820px; padding-top: 10px; }
+#student_payments_wrapper .dataTables_length,
+#student_payments_wrapper .dataTables_filter,
+#student_payments_wrapper .dataTables_info,
+#student_payments_wrapper .dataTables_paginate { font-size: 14px; color: #475569; }
+#student_payments_wrapper select,
+#student_payments_wrapper input[type="search"] {
+    min-height: 38px; padding: 7px 9px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;
+}
+h4.text-muted {
+    margin: 0 0 14px !important; color: #0f172a !important; font-size: 17px !important;
+    line-height: 1.4; font-weight: 800 !important;
+}
+</style>
+
 <?php 
     $invoice_code_f       = $this->db->get_where('settings', array('type'=>'invoice_number_format'))->row()->description;
     $inv_number_len = strlen($invoice_code_f);

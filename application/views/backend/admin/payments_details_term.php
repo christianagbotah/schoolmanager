@@ -37,12 +37,87 @@ foreach ($payments as $payment) {
 }
 ?>
 
-<div class="modal-header" style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+
+<style>
+/* Direct UI/UX refinement — payment detail modal */
+.payment-details-modal { padding: 18px 20px 20px !important; color: #334155; }
+.payment-details-modal .mb-3 > .row {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    margin-left: 0; margin-right: 0;
+}
+.payment-details-modal .mb-3 > .row > [class*="col-"] { padding-left: 0; padding-right: 0; }
+.payment-details-modal .mb-3 { margin-bottom: 14px !important; font-size: 14px; line-height: 1.55; }
+.payment-details-modal .btn-group { display: flex; flex-wrap: wrap; gap: 7px; }
+.payment-details-modal .btn-group .btn {
+    min-height: 38px; padding: 8px 12px; border-radius: 8px !important;
+    font-size: 13px; font-weight: 700;
+}
+.payment-details-modal .card {
+    margin-bottom: 16px !important; padding: 14px !important; border: 1px solid #e2e8f0 !important;
+    border-radius: 11px !important; background: #f8fafc !important;
+}
+.payment-details-modal .card > .row:first-child {
+    display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin: 0;
+}
+.payment-details-modal .card > .row:first-child > [class*="col-"] { width: 100%; padding: 0; }
+.payment-details-modal .card label {
+    display: block; margin-bottom: 7px !important; color: #334155; font-size: 14px; font-weight: 700 !important;
+}
+.payment-details-modal .card .form-control {
+    min-height: 44px; height: 44px; padding: 9px 11px; border: 1px solid #cbd5e1;
+    border-radius: 8px !important; background: #fff; color: #0f172a; font-size: 14px;
+}
+.payment-details-modal .card .form-control:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
+}
+.payment-details-modal .card > .row[style*="margin-top"] {
+    margin: 12px 0 0 !important;
+}
+.payment-details-modal .card > .row[style*="margin-top"] > .col-md-12 {
+    padding: 0;
+}
+.payment-details-modal .card > .row[style*="margin-top"] > .col-md-12 > div {
+    padding: 10px 12px !important; border-radius: 8px !important; font-size: 14px;
+}
+.payment-details-modal .table-responsive {
+    margin: 0; border: 1px solid #e2e8f0; border-radius: 11px; overflow-x: auto;
+}
+#payments_table { min-width: 840px; margin: 0 !important; }
+#payments_table thead { background: #f8fafc !important; }
+#payments_table thead th {
+    padding: 11px 12px !important; border: 0 !important; border-bottom: 1px solid #e2e8f0 !important;
+    color: #475569 !important; font-size: 13px !important; line-height: 1.35; font-weight: 800 !important;
+    letter-spacing: .03em;
+}
+#payments_table tbody td {
+    padding: 11px 12px !important; color: #334155 !important; font-size: 14px !important;
+    line-height: 1.45; border-bottom: 1px solid #eef2f7 !important; vertical-align: middle;
+}
+#payments_table tbody tr:hover td { background: #f8fbff; }
+#payments_table .badge { padding: 5px 8px !important; border-radius: 999px !important; font-size: 12px; font-weight: 700; }
+#payments_table tfoot { background: #eff6ff !important; border-top: 1px solid #bfdbfe !important; }
+#payments_table tfoot td { padding: 11px 12px !important; font-size: 14px !important; }
+.payment-details-modal .dataTables_wrapper { padding-top: 12px; font-size: 14px; }
+.payment-details-modal .dataTables_wrapper select,
+.payment-details-modal .dataTables_wrapper input[type="search"] {
+    min-height: 38px; padding: 7px 9px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;
+}
+@media (max-width: 767px) {
+    .payment-details-modal { padding: 14px !important; }
+    .payment-details-modal .mb-3 > .row { align-items: flex-start; flex-direction: column; }
+    .payment-details-modal .btn-group { width: 100%; }
+    .payment-details-modal .btn-group .btn { flex: 1 1 auto; }
+    .payment-details-modal .card > .row:first-child { grid-template-columns: 1fr; }
+}
+</style>
+
+
+<div class="modal-header" style="background:#ffffff; border-bottom:1px solid #e2e8f0; padding:16px 20px;">
     <button type="button" class="close" data-dismiss="modal" style="opacity: 0.6;">&times;</button>
-    <h4 class="modal-title" style="color: #1f2937; font-weight: 700;"><i class="fa fa-money-bill-wave"></i> <?php echo $label; ?> - Payments Collected</h4>
+    <h4 class="modal-title" style="color:#0f172a; font-size:18px; font-weight:800; line-height:1.35;"><i class="fa fa-money-bill-wave"></i> <?php echo $label; ?> - Payments Collected</h4>
 </div>
 
-<div class="modal-body">
+<div class="modal-body payment-details-modal">
     <div class="mb-3" style="margin-bottom: 15px;">
         <div class="row">
             <div class="col-md-6">
