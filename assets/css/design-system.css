@@ -66,8 +66,8 @@
     --sm-font-family-heading: var(--sm-font-family);
     --sm-font-family-mono: 'Sarasa Mono SC', 'Courier New', monospace;
 
-    --sm-text-xs:   0.75rem;   /* 12px */
-    --sm-text-sm:   0.875rem;  /* 14px — default table/form density */
+    --sm-text-xs:   0.8125rem; /* 13px — minimum UI helper/badge size */
+    --sm-text-sm:   0.9375rem; /* 15px — default table/form/control size */
     --sm-text-base: 1rem;      /* 16px */
     --sm-text-lg:   1.125rem;  /* 18px */
     --sm-text-xl:   1.25rem;   /* 20px — page titles */
@@ -155,7 +155,7 @@
 /* --- Buttons (layer ABOVE legacy .btn rules when opted-in via sm-btn) --- */
 .sm-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
   font-family: var(--sm-font-family); font-size: var(--sm-text-sm); font-weight: 600;
-  padding: 0.5rem 1rem; border-radius: var(--sm-radius); border: 1px solid transparent;
+  min-height: 2.625rem; padding: 0.625rem 1.125rem; border-radius: var(--sm-radius); border: 1px solid transparent;
   cursor: pointer; transition: background-color var(--sm-transition-fast),
   border-color var(--sm-transition-fast), color var(--sm-transition-fast);
   text-decoration: none; line-height: 1.25; }
@@ -169,7 +169,7 @@
 .sm-btn--danger:hover { filter: brightness(1.1); }
 .sm-btn--ghost { background: transparent; color: var(--sm-primary-600); }
 .sm-btn--ghost:hover { background: var(--sm-primary-50); }
-.sm-btn--sm { padding: 0.25rem 0.75rem; font-size: var(--sm-text-xs); }
+.sm-btn--sm { min-height: 2.25rem; padding: 0.45rem 0.85rem; font-size: var(--sm-text-sm); }
 .sm-btn[disabled], .sm-btn.is-disabled { opacity: 0.55; cursor: not-allowed; }
 
 /* --- Badges / status pills --- */
@@ -209,7 +209,7 @@
 .sm-input, .sm-select, .sm-textarea { width: 100%; font-family: var(--sm-font-family);
   font-size: var(--sm-text-sm); color: var(--sm-text); background: var(--sm-surface);
   border: 1px solid var(--sm-border-strong); border-radius: var(--sm-radius);
-  padding: 0.5rem 0.75rem; transition: border-color var(--sm-transition-fast),
+  min-height: 2.75rem; padding: 0.625rem 0.875rem; transition: border-color var(--sm-transition-fast),
   box-shadow var(--sm-transition-fast); }
 .sm-input:focus-visible, .sm-select:focus-visible, .sm-textarea:focus-visible {
   outline: none; border-color: var(--sm-primary-500); box-shadow: var(--sm-focus-ring); }
