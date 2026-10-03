@@ -203,6 +203,41 @@
 .parent-form-modal .btn-default:hover {
     background: #e0e0e0;
 }
+
+/* Direct UI/UX refinement — readable edit modal scale */
+.parent-form-modal { padding: 18px 20px; }
+.parent-form-modal .form-header {
+    display: flex; align-items: center; gap: 14px; text-align: left;
+    margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0;
+}
+.parent-form-modal .form-header .header-icon {
+    width: 46px; height: 46px; margin: 0; border-radius: 12px;
+    background: #0284c7; flex: 0 0 auto;
+}
+.parent-form-modal .form-header .header-icon i { font-size: 20px; }
+.parent-form-modal .form-header h3 { font-size: 21px; font-weight: 800; color: #0f172a; }
+.parent-form-modal .form-header p { font-size: 14px; color: #64748b; }
+.parent-form-modal .section-title { font-size: 14px; color: #0284c7; margin-bottom: 13px; }
+.parent-form-modal .form-row { gap: 16px; margin-bottom: 14px; }
+.parent-form-modal .form-group label { font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 7px; }
+.parent-form-modal .form-control {
+    min-height: 46px; padding: 10px 12px; border-width: 1px; border-color: #cbd5e1;
+    border-radius: 9px; font-size: 15px; color: #0f172a;
+}
+.parent-form-modal .form-control:focus { border-color: #0284c7; box-shadow: 0 0 0 3px rgba(2,132,199,.14); }
+.parent-form-modal .checkbox-wrapper { min-height: 46px; padding: 10px 12px; border: 1px solid #e2e8f0; }
+.parent-form-modal .checkbox-wrapper .checkbox-label { font-size: 14px; font-weight: 600; }
+.parent-form-modal .checkbox-wrapper .checkbox-status { font-size: 13px; }
+.parent-form-modal .designation-section { background: #f8fafc; border-left-color: #0284c7; }
+.parent-form-modal .form-actions { margin-top: 22px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+.parent-form-modal .btn { min-height: 42px; padding: 9px 16px; border-radius: 9px; font-size: 14px; font-weight: 700; }
+.parent-form-modal .btn-info { background: #0284c7; border-color: #0284c7; color: #fff; }
+.parent-form-modal .btn-info:hover { background: #0369a1; border-color: #0369a1; }
+@media (max-width: 640px) {
+    .parent-form-modal { padding: 14px; }
+    .parent-form-modal .form-header { align-items: flex-start; }
+    .parent-form-modal .form-actions .btn { flex: 1 1 auto; justify-content: center; }
+}
 </style>
 
 <div class="parent-form-modal">
