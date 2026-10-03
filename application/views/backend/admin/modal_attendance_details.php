@@ -2,8 +2,8 @@
 <div class="modal fade" id="attendanceDetailsModal" tabindex="-1" role="dialog" aria-labelledby="attendanceDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-attendance-wide" role="document">
         <div class="modal-content">
-            <!-- Modal Header with Gradient -->
-            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px 10px 0 0;">
+            <!-- Modal Header -->
+            <div class="modal-header" style="background: #764ba2; border-radius: 10px 10px 0 0;">
                 <h5 class="modal-title" id="attendanceDetailsModalLabel" style="color: white; font-weight: 600;">
                     <i class="fa fa-users"></i>
                     <span id="modal-title-text">Student Details</span>
@@ -67,7 +67,7 @@
                 <!-- DataTable -->
                 <div id="modal-table-container">
                     <table id="attendance-details-table" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%">
-                        <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <thead style="background: #764ba2; color: white;">
                             <tr>
                                 <th><?php echo get_phrase('student_code'); ?></th>
                                 <th><?php echo get_phrase('name'); ?></th>
@@ -176,7 +176,7 @@
 
 /* Status Badges */
 .badge-present {
-    background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+    background: #4caf50;
     color: white;
     padding: 6px 12px;
     border-radius: 20px;
@@ -184,7 +184,7 @@
 }
 
 .badge-absent {
-    background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
+    background: #f44336;
     color: white;
     padding: 6px 12px;
     border-radius: 20px;
@@ -192,7 +192,7 @@
 }
 
 .badge-not-marked {
-    background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+    background: #ff9800;
     color: white;
     padding: 6px 12px;
     border-radius: 20px;

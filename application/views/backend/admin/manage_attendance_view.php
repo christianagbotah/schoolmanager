@@ -209,27 +209,27 @@ foreach($students_ids as $sid) {
         <h3 class="text-lg font-bold text-gray-800 mb-4"><i class="mdi mdi-cash"></i> Fee Collection Dashboard</h3>
         
         <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white shadow-lg">
+            <div class="bg-green-600 rounded-xl p-4 text-white shadow-lg">
                 <div class="text-xs font-semibold mb-1 opacity-90">Feeding</div>
                 <div class="text-xl font-bold" id="total_feeding">GH₵ 0.00</div>
             </div>
             <?php if($breakfast_enabled): ?>
-            <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white shadow-lg">
+            <div class="bg-orange-600 rounded-xl p-4 text-white shadow-lg">
                 <div class="text-xs font-semibold mb-1 opacity-90">Breakfast</div>
                 <div class="text-xl font-bold" id="total_breakfast">GH₵ 0.00</div>
             </div>
             <?php endif; ?>
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-lg">
+            <div class="bg-blue-600 rounded-xl p-4 text-white shadow-lg">
                 <div class="text-xs font-semibold mb-1 opacity-90">Classes</div>
                 <div class="text-xl font-bold" id="total_classes">GH₵ 0.00</div>
             </div>
             <?php if($water_enabled): ?>
-            <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl p-4 text-white shadow-lg">
+            <div class="bg-cyan-600 rounded-xl p-4 text-white shadow-lg">
                 <div class="text-xs font-semibold mb-1 opacity-90">Water</div>
                 <div class="text-xl font-bold" id="total_water">GH₵ 0.00</div>
             </div>
             <?php endif; ?>
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white shadow-lg">
+            <div class="bg-purple-600 rounded-xl p-4 text-white shadow-lg">
                 <div class="text-xs font-semibold mb-1 opacity-90">Transport</div>
                 <div class="text-xl font-bold" id="total_transport">GH₵ 0.00</div>
             </div>
@@ -1011,58 +1011,58 @@ $(document).ready(function() {
 });
 
 $('#att_selector_form').submit(function(event) {
-	event.preventDefault();
+        event.preventDefault();
 
-	let item_checked = $('.check').filter(':checked').length;
-	if(item_checked < 1) {
-		showAjaxModal_alert('No student was selected!', 'Error');
-		return false;
-	}
+        let item_checked = $('.check').filter(':checked').length;
+        if(item_checked < 1) {
+                showAjaxModal_alert('No student was selected!', 'Error');
+                return false;
+        }
 
-	let student_ids = [];
-	$('.check:checked').each(function() {
-		student_ids.push($(this).val());
-	});
+        let student_ids = [];
+        $('.check:checked').each(function() {
+                student_ids.push($(this).val());
+        });
 
-	$('#main_page').html(`
-		<div class="flex justify-center items-center h-screen">
-			<div class="text-center">
-				<svg class="animate-spin h-16 w-16 text-blue-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24">
-					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-					<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-				</svg>
-				<p class="text-xl font-semibold text-gray-700">Fetching Data...</p>
-			</div>
-		</div>
-	`);
+        $('#main_page').html(`
+                <div class="flex justify-center items-center h-screen">
+                        <div class="text-center">
+                                <svg class="animate-spin h-16 w-16 text-blue-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <p class="text-xl font-semibold text-gray-700">Fetching Data...</p>
+                        </div>
+                </div>
+        `);
 
-	let formData = new FormData(this);
-	student_ids.forEach(id => formData.append('students_ids[]', id));
+        let formData = new FormData(this);
+        student_ids.forEach(id => formData.append('students_ids[]', id));
 
-	$.ajax({
-		url: '<?php echo site_url('admin/attendance_selector/'); ?>',
-		type: 'POST',
-		dataType: 'html',
-		data: formData,
-		cache: false,
-		contentType: false,
-		processData: false
-	})
-	.done(function(data) {
-		
-		if(data == 'promotion error term') {
-			showAjaxModal_confirm('Make sure students were promoted during the previous term. For further assistance, kindly contact the system administrator.', 'Error');
-			navigation('<?php echo site_url('admin/manage_attendance'); ?>');
-		} else if(data == 'promotion error sem') {
-			showAjaxModal_confirm('Make sure students were promoted during the previous semester. For further assistance, kindly contact the system administrator.', 'Error');
-			navigation('<?php echo site_url('admin/manage_attendance'); ?>');
-		} else {
-			$('#main_page').empty();
-			navigation(data);
-			$('#pre_notice').fadeOut('400', function() {
-				$('#pre_notice').remove();
-			}); 
-		}
-	});
+        $.ajax({
+                url: '<?php echo site_url('admin/attendance_selector/'); ?>',
+                type: 'POST',
+                dataType: 'html',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+        })
+        .done(function(data) {
+                
+                if(data == 'promotion error term') {
+                        showAjaxModal_confirm('Make sure students were promoted during the previous term. For further assistance, kindly contact the system administrator.', 'Error');
+                        navigation('<?php echo site_url('admin/manage_attendance'); ?>');
+                } else if(data == 'promotion error sem') {
+                        showAjaxModal_confirm('Make sure students were promoted during the previous semester. For further assistance, kindly contact the system administrator.', 'Error');
+                        navigation('<?php echo site_url('admin/manage_attendance'); ?>');
+                } else {
+                        $('#main_page').empty();
+                        navigation(data);
+                        $('#pre_notice').fadeOut('400', function() {
+                                $('#pre_notice').remove();
+                        }); 
+                }
+        });
 });
 </script>
