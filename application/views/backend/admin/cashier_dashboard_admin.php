@@ -19,6 +19,28 @@ $cashiers = $this->db->get_where('admin', ['level' => 4])->result_array();
     .filter-card { padding: 15px; }
     .btn-modern { width: 100%; justify-content: center; }
 }
+
+/* ---- family design-language alignment (presentation only) ---- */
+.btn-primary-modern {
+    background: #2563eb;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35);
+}
+.btn-primary-modern:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+}
+.btn-modern:focus-visible, .form-control:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+#dashboard-container .fee-card:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+@media (max-width: 400px) {
+    .filter-card { padding: 12px; border-radius: 14px; }
+}
 </style>
 
 <div class="p-4">
@@ -29,7 +51,7 @@ $cashiers = $this->db->get_where('admin', ['level' => 4])->result_array();
         </h2>
         <div class="row">
             <div class="col-lg-4 col-md-6 col-12">
-                <label class="form-label"><i class="fa fa-user"></i> Cashier</label>
+                <label class="form-label" for="cashier_filter"><i class="fa fa-user" aria-hidden="true"></i> Cashier</label>
                 <select id="cashier_filter" class="form-control">
                     <option value="all">All Cashiers</option>
                     <?php foreach ($cashiers as $cashier): ?>
@@ -38,11 +60,11 @@ $cashiers = $this->db->get_where('admin', ['level' => 4])->result_array();
                 </select>
             </div>
             <div class="col-lg-3 col-md-6 col-12">
-                <label class="form-label"><i class="fa fa-calendar"></i> Date From</label>
+                <label class="form-label" for="date_from"><i class="fa fa-calendar" aria-hidden="true"></i> Date From</label>
                 <input type="text" id="date_from" class="form-control air-datepicker" placeholder="Select start date" data-position="bottom left" value="<?php echo date('M j, Y'); ?>">
             </div>
             <div class="col-lg-3 col-md-6 col-12">
-                <label class="form-label"><i class="fa fa-calendar"></i> Date To</label>
+                <label class="form-label" for="date_to"><i class="fa fa-calendar" aria-hidden="true"></i> Date To</label>
                 <input type="text" id="date_to" class="form-control air-datepicker" placeholder="Select end date" data-position="bottom left" value="<?php echo date('M j, Y'); ?>">
             </div>
             <div class="col-lg-2 col-md-6 col-12">
@@ -57,7 +79,7 @@ $cashiers = $this->db->get_where('admin', ['level' => 4])->result_array();
     <!-- Dashboard Container -->
     <div id="dashboard-container">
         <div style="text-align: center; padding: 80px 20px;">
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 120px; height: 120px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);">
+            <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); width: 120px; height: 120px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(79, 70, 229, 0.25);">
                 <i class="fa fa-chart-bar" style="font-size: 60px; color: white;"></i>
             </div>
             <h3 style="color: #2d3748; font-weight: 700; margin-bottom: 15px; font-size: 24px;">Cashier Performance Dashboard</h3>
@@ -160,6 +182,14 @@ $(document).ready(function() {
     // Select "All Cashiers" option and load dashboard
     $('#cashier_filter').val('all');
     loadDashboard();
+});
+
+// Keyboard activation for delegated fee-card tiles (a11y, mirrors click delegation)
+$(document).on('keydown', '.fee-card', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        $(this).trigger('click');
+    }
 });
 
 // Use event delegation to prevent double-click issues
