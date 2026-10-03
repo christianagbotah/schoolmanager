@@ -1,4 +1,86 @@
 
+
+<style type="text/css">
+/* ---- family design-language alignment (presentation only) ---- */
+.form-control, select.form-control {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    height: 42px;
+    font-size: 14px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    outline: none;
+}
+.btn {
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all .2s;
+}
+.btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+.btn-primary { background: #2563eb; border-color: #2563eb; }
+.btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+.btn-info { background: #0284c7; border-color: #0284c7; }
+.btn-info:hover { background: #0369a1; border-color: #0369a1; }
+.btn-success { background: #059669; border-color: #059669; }
+.btn-success:hover { background: #047857; border-color: #047857; }
+.panel {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+.panel > .panel-body { padding: 18px; }
+.table-bordered, .table {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.table > thead > tr > th, .table thead td {
+    background: #f9fafb;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-bottom: 1px solid #e5e7eb !important;
+    padding: 12px 10px;
+}
+.table tbody td {
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+}
+.tile-stats {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-left: 5px solid #4f46e5;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    color: #111827;
+    overflow: hidden;
+    padding: 22px;
+}
+.tile-stats h3 { color: #374151; font-weight: 600; }
+.tile-stats .icon { color: #4f46e5; opacity: 0.15; }
+.blockquote-blue {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-left: 5px solid #4f46e5;
+    border-radius: 14px;
+    padding: 20px 24px;
+    color: #374151;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+@media (prefers-reduced-motion: reduce) {
+    .btn, .table tbody tr { transition: none; }
+}
+</style>
+
 <hr />
 
 <?php 
