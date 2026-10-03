@@ -12,6 +12,81 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
 @media print { .filter-card, .btn-enterprise { display: none !important; } }
 </style>
 
+<style>
+@media screen {
+  body { background: #f8fafc; }
+  .filter-card {
+    padding: 16px 18px; margin-bottom: 16px !important;
+    border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  }
+  #attendance_report_form .filter-card > div {
+    display: grid !important; grid-template-columns: minmax(170px,1.4fr) repeat(3,minmax(130px,1fr)) auto;
+    gap: 12px !important; align-items: end !important;
+  }
+  #attendance_report_form label { margin-bottom: 7px; font-size: 14px; font-weight: 700; color: #334155; }
+  #attendance_report_form .form-control {
+    min-height: 44px; height: 44px; padding: 9px 11px;
+    border: 1px solid #cbd5e1; border-radius: 9px; font-size: 14px; color: #0f172a; background: #fff;
+  }
+  #attendance_report_form .form-control:focus {
+    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
+  }
+  #attendance_report_form .btn-enterprise {
+    min-height: 44px; height: 44px; padding: 9px 16px;
+    border-radius: 9px; background: #2563eb; font-size: 14px; font-weight: 800;
+  }
+  #attendance_report_form .btn-enterprise:hover { background: #1d4ed8; transform: none; box-shadow: 0 3px 9px rgba(37,99,235,.18); }
+
+  #attendance_report_form + .filter-card h3 { font-size: 18px !important; font-weight: 800 !important; color: #0f172a !important; }
+  #attendance_report_form + .filter-card p { font-size: 14px !important; color: #64748b !important; }
+  .btn-print {
+    min-height: 42px; height: 42px; padding: 9px 15px; border-radius: 9px;
+    background: #059669; font-size: 14px; font-weight: 700;
+  }
+  .btn-print:hover { background: #047857; transform: none; box-shadow: 0 3px 9px rgba(5,150,105,.16); }
+
+  #listing {
+    margin-bottom: 12px; border: 1px solid #e2e8f0; background: #fff;
+  }
+  #listing td {
+    padding: 9px 10px; color: #475569; font-size: 13px; line-height: 1.35;
+    background: #f8fafc; border-color: #e2e8f0 !important;
+  }
+
+  #my_table {
+    min-width: 1150px; width: max-content !important; background: #fff;
+    border-collapse: separate !important; border-spacing: 0;
+  }
+  #my_table th {
+    padding: 10px 8px !important; background: #f8fafc; color: #475569;
+    font-size: 12px; line-height: 1.25; font-weight: 800; white-space: nowrap;
+    border-color: #e2e8f0 !important;
+  }
+  #my_table td {
+    padding: 10px 8px !important; color: #334155; font-size: 13px; line-height: 1.35;
+    white-space: nowrap; border-color: #eef2f7 !important;
+  }
+  #my_table tbody tr:hover td { background: #f8fbff; }
+  .row > .col-md-12:has(#my_table) {
+    overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px;
+  }
+
+  @media (max-width: 1100px) {
+    #attendance_report_form .filter-card > div { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  }
+  @media (max-width: 767px) {
+    hr { margin: 12px 0; }
+    #attendance_report_form .filter-card > div { grid-template-columns: 1fr; }
+    #attendance_report_form .btn-enterprise { width: 100%; justify-content: center; }
+    #attendance_report_form + .filter-card > div {
+      align-items: flex-start !important; flex-direction: column !important; gap: 12px !important;
+    }
+    #attendance_report_form + .filter-card .btn-print { width: 100%; justify-content: center; }
+  }
+}
+</style>
+
+
 <hr />
 
 <?php echo form_open(site_url('admin/attendance_report_selector'), ['id' => 'attendance_report_form']); ?>
