@@ -4,13 +4,13 @@
 
 /* Profile Header */
 .staff-profile-header { 
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    background: #0f172a; 
     border-radius: 16px; 
     overflow: hidden; 
-    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); 
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18); 
     margin-bottom: 30px;
 }
-.staff-banner { height: 120px; background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%); }
+.staff-banner { height: 96px; background: rgba(255,255,255,0.035); border-bottom: 1px solid rgba(255,255,255,0.08); }
 .staff-profile-content { padding: 0 30px 30px; }
 .staff-profile-main { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; margin-top: -60px; gap: 20px; }
 .staff-profile-left { display: flex; align-items: flex-end; gap: 20px; flex: 1; min-width: 300px; }
@@ -146,7 +146,7 @@
     color: #1f2937; 
     margin-bottom: 24px; 
     padding-bottom: 12px; 
-    border-bottom: 3px solid #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -193,7 +193,7 @@
 }
 .staff-payroll-header { 
     padding: 24px 30px; 
-    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); 
+    background: #f8fafc; 
     border-bottom: 2px solid #e5e7eb;
 }
 .staff-payroll-title { 
@@ -277,6 +277,39 @@
     .staff-payroll-header { padding: 20px; }
     .staff-payroll-table-wrapper { padding: 15px; }
     .staff-edit-btn { width: 100%; }
+}
+
+/* Direct UX readability refinement */
+.staff-container { padding: 24px; }
+.staff-profile-header { border-radius: 14px; }
+.staff-profile-content { padding: 0 26px 26px; }
+.staff-quick-label { font-size: 13px !important; line-height: 1.35; }
+.staff-quick-value { font-size: 15px !important; }
+.staff-badge { font-size: 14px !important; min-height: 32px; display: inline-flex; align-items: center; }
+.staff-edit-btn { min-height: 42px; padding: 9px 17px; font-size: 14px; font-weight: 700; color: #7c3aed; }
+.staff-tabs { gap: 5px; padding: 8px 0; border-bottom-width: 1px; }
+.staff-tab { min-height: 42px; padding: 10px 16px; font-size: 14px; font-weight: 700; }
+.staff-detail-card { padding: 24px; border-radius: 14px; }
+.staff-detail-title { font-size: 18px; margin-bottom: 18px; padding-bottom: 10px; }
+.staff-detail-row { padding: 13px 0; }
+.staff-detail-label { font-size: 14px; }
+.staff-detail-value { font-size: 15px; }
+.staff-payroll-container { border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(15,23,42,.05); }
+.staff-payroll-header { padding: 18px 22px; border-bottom-width: 1px; }
+.staff-payroll-title { font-size: 18px; }
+.staff-payroll-table-wrapper { padding: 14px; }
+.staff-payroll-table thead th { padding: 12px 13px; font-size: 13px; border-bottom-width: 1px; }
+.staff-payroll-table tbody td { padding: 13px; font-size: 14px; }
+.staff-payroll-btn { min-height: 40px; padding: 8px 14px; font-size: 14px; font-weight: 700; background: #7c3aed; }
+.staff-container [style*="font-size: 10px"],
+.staff-container [style*="font-size: 11px"] { font-size: 13px !important; }
+.staff-container [style*="font-size: 12px"] { font-size: 13px !important; }
+@media (max-width: 768px) {
+    .staff-container { padding: 14px; }
+    .staff-profile-content { padding: 0 16px 18px; }
+    .staff-tabs { flex-wrap: nowrap; overflow-x: auto; }
+    .staff-tab { min-width: max-content; font-size: 14px; }
+    .staff-detail-card { padding: 17px; }
 }
 </style>
 
