@@ -53,11 +53,119 @@
                 }
             ?>
             <style type="text/css">
-                .lit {
-                    color: #ffffff !important;
+                /* Parents workspace — modern enterprise presentation layer */
+                .parents-workspace { padding: 24px 28px 40px; }
+                .parents-page-head {
+                    display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+                    margin: 0 0 20px; padding-bottom: 18px; border-bottom: 1px solid #e2e8f0;
                 }
-                .lit:focus {
-                    border-top: 4px solid red !important;
+                .parents-eyebrow {
+                    margin: 0 0 4px; color: #2563eb; font-size: 13px; font-weight: 800;
+                    letter-spacing: .08em; text-transform: uppercase;
+                }
+                .parents-page-title {
+                    margin: 0; color: #0f172a; font-size: 30px; line-height: 1.2;
+                    font-weight: 800; letter-spacing: -.02em;
+                }
+                .parents-page-subtitle {
+                    margin: 7px 0 0; color: #64748b; font-size: 15px; line-height: 1.5;
+                }
+                .parents-page-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+                .parents-page-actions a {
+                    min-height: 42px; padding: 9px 16px !important; border-radius: 9px !important;
+                    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+                    font-size: 14px !important; font-weight: 700 !important; text-decoration: none !important;
+                }
+                .parents-report-btn { background: #7c3aed; color: #fff !important; border: 1px solid #7c3aed; }
+                .parents-report-btn:hover { background: #6d28d9; color: #fff !important; }
+
+                .parents-tabs {
+                    display: inline-flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px !important;
+                    padding: 5px; border: 1px solid #e2e8f0 !important; border-radius: 12px;
+                    background: #fff;
+                }
+                .parents-tabs > li { margin: 0 !important; }
+                .parents-tabs > li > a {
+                    min-height: 40px; padding: 9px 14px !important; border: 0 !important;
+                    border-radius: 8px !important; background: transparent !important; color: #475569 !important;
+                    font-size: 14px !important; line-height: 1.35; font-weight: 700 !important;
+                    display: inline-flex; align-items: center; justify-content: center;
+                }
+                .parents-tabs > li > a:hover { background: #f1f5f9 !important; color: #0f172a !important; }
+                .parents-tabs > li.active > a,
+                .parents-tabs > li.active > a:hover,
+                .parents-tabs > li.active > a:focus {
+                    background: #2563eb !important; color: #fff !important; box-shadow: 0 2px 8px rgba(37,99,235,.2);
+                }
+
+                .parents-table-card {
+                    width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+                    border: 1px solid #e2e8f0; border-radius: 14px; background: #fff;
+                    box-shadow: 0 1px 2px rgba(15,23,42,.04);
+                }
+                .parents-table-card table { min-width: 1040px; margin: 0 !important; }
+                .parents-table-card .table > thead > tr > th {
+                    padding: 12px 13px !important; background: #f8fafc !important; color: #475569 !important;
+                    font-size: 13px !important; font-weight: 800 !important; letter-spacing: .035em;
+                    border-bottom: 1px solid #e2e8f0 !important; vertical-align: middle;
+                }
+                .parents-table-card .table > tbody > tr > td {
+                    padding: 12px 13px !important; color: #334155; font-size: 14px !important;
+                    line-height: 1.45; vertical-align: middle; border-bottom: 1px solid #eef2f7;
+                }
+                .parents-table-card .table > tbody > tr:hover > td { background: #f8fbff; }
+
+                .parents-table-card thead tr:first-child th { padding: 12px 14px !important; }
+                .parents-table-card thead tr:first-child .grid {
+                    display: flex !important; align-items: center; gap: 8px !important;
+                    padding: 0 !important; text-transform: none;
+                }
+                .parents-table-card thead tr:first-child .grid > div {
+                    display: inline-flex; align-items: center; gap: 6px; min-height: 34px;
+                    padding: 6px 11px; border-radius: 999px; background: #f8fafc;
+                    border: 1px solid #e2e8f0; color: #475569; font-size: 13px; font-weight: 700;
+                }
+                .parents-table-card thead tr:first-child strong {
+                    padding: 0 !important; background: transparent !important; border-radius: 0 !important;
+                    color: #0f172a; font-size: 14px;
+                }
+
+                .tab-content { padding: 0; }
+                .dataTables_wrapper { padding: 14px; }
+                .dataTables_wrapper .dataTables_length,
+                .dataTables_wrapper .dataTables_filter,
+                .dataTables_wrapper .dataTables_info,
+                .dataTables_wrapper .dataTables_paginate { font-size: 14px; color: #475569; }
+                .dataTables_wrapper select,
+                .dataTables_wrapper input[type="search"] {
+                    min-height: 40px; padding: 8px 10px; border: 1px solid #cbd5e1;
+                    border-radius: 8px; font-size: 14px; background: #fff; color: #0f172a;
+                }
+                .dataTables_wrapper input[type="search"]:focus,
+                .dataTables_wrapper select:focus {
+                    outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+                }
+                .dataTables_wrapper .dt-paging-button,
+                .dataTables_wrapper .paginate_button {
+                    min-height: 36px; min-width: 36px; padding: 7px 10px !important;
+                    border-radius: 7px !important; font-size: 13px !important;
+                }
+
+                .parents-workspace .alert { font-size: 14px; border-radius: 10px; }
+                .parents-workspace .btn { min-height: 42px; font-size: 14px; font-weight: 700; border-radius: 9px; }
+
+                @media (max-width: 767px) {
+                    .parents-workspace { padding: 18px 14px 32px; }
+                    .parents-page-head { align-items: flex-start; flex-direction: column; }
+                    .parents-page-actions { width: 100%; justify-content: flex-start; }
+                    .parents-page-title { font-size: 26px; }
+                    .parents-tabs { width: 100%; }
+                    .parents-tabs > li { flex: 1 1 auto; }
+                    .parents-tabs > li > a { width: 100%; }
+                }
+                @media (max-width: 400px) {
+                    .parents-page-actions a { width: 100%; }
+                    .parents-tabs { display: grid; grid-template-columns: 1fr; }
                 }
             </style>
                 
@@ -68,10 +176,26 @@
                    <strong> <?php echo validation_errors(); ?></strong>
                 </div>
                 <?php endif;?>
-                <br>
+                <div class="parents-workspace">
+                <div class="parents-page-head">
+                    <div>
+                        <p class="parents-eyebrow">People</p>
+                        <h1 class="parents-page-title">Parents & Guardians</h1>
+                        <p class="parents-page-subtitle">Manage guardian accounts, contact information, access status, and family reporting.</p>
+                    </div>
+                    <div class="parents-page-actions">
+                        <a href="<?= base_url().'admin/parents_gender_report/';?>" target="_blank" class="parents-report-btn">
+                            <i class="fa fa-chart-pie"></i> Gender Report
+                        </a>
+                        <a href="javascript:;" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_parent_add/');?>');" class="btn btn-primary">
+                            <i class="entypo-plus-circled"></i>
+                            <?php echo get_phrase('add_new_parent');?>
+                        </a>
+                    </div>
+                </div>
 
-               <div class="col-md-12">
-                   <ul class="nav nav-tabs bordered mb-10">
+               <div class="col-md-12" style="padding:0;">
+                   <ul class="nav nav-tabs bordered mb-10 parents-tabs">
                        <li class="active"><a href="#all_parents" data-toggle="tab" class="btn btn-info lit rounded-lg text-xl font-bold content-center">All Parents</a></li> 
                        <li><a href="#active_parents" data-toggle="tab" class="btn btn-success lit rounded-lg text-xl font-bold content-center">Active Parents</a></li>
                        <li><a href="#inactive_parents" data-toggle="tab" class="btn btn-danger lit rounded-lg text-xl font-bold content-center">Inactive Parents</a></li>
@@ -86,23 +210,7 @@
 
                        <div class="tab-pane active" id="all_parents">
 
-                            <!-- Action Buttons Row -->
-                            <div class="row mb-10 p-5">
-                                <div class="col-md-12 col-sm-12">
-                                    <div class="py-5 flex gap-3">
-                                        <a href="<?= base_url().'admin/parents_gender_report/';?>" target="_blank" class="p-3 bg-purple-400 text-white font-bold text-2xl rounded-lg">
-                                            <i class="fa fa-print"></i> Print Gender Report
-                                        </a>
-                                        <a href="javascript:;" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_parent_add/');?>');"
-                                        class="btn btn-primary h-16 rounded-lg text-xl font-bold content-center p-3">
-                                            <i class="entypo-plus-circled"></i>
-                                            <?php echo get_phrase('add_new_parent');?>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div id="allParentsTable">
+                            <div id="allParentsTable" class="parents-table-card">
                                 <table class="table table-hover table-striped table-active w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-600 datatable" id="parents_al">
                                   <thead class="text-lg font-bold text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 uppercase">
                                       <tr>
@@ -131,6 +239,7 @@
                        </div>
 
                        <div class="tab-pane" id="active_parents">
+                            <div class="parents-table-card">
                             <table class="table table-hover table-striped table-active w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-600 datatable" id="parents_ac">
                               <thead class="text-lg font-bold text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 uppercase">
                                 <tr>
@@ -154,9 +263,11 @@
                                   </tr>
                               </thead>
                             </table>
+                            </div>
                        </div>
 
                        <div class="tab-pane" id="inactive_parents">
+                                <div class="parents-table-card">
                                 <table class="table table-hover table-striped table-active w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-600 datatable" id="parents_in">
                                   <thead class="text-lg font-bold text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 uppercase">
                                     <tr>
@@ -180,8 +291,10 @@
                                       </tr>
                                   </thead>
                             </table>
+                                </div>
                        </div>
                    </div>
+               </div>
                </div>
 
 
