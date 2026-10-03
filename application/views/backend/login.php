@@ -19,7 +19,7 @@ function valid_email_address($email_address) {
     <link rel="stylesheet" href="<?php echo base_url('assets/css/bootstrap.css');?>">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/cdn/css/font-awesome-6.4.0.min.css">
     <link href="<?php echo base_url(); ?>assets/cdn/fonts/inter.css" rel="stylesheet">
-    <script src="<?php echo base_url('assets/login_page/js/vendor/jquery-3.3.1.min.js');?>"></script>
+    <script src="<?php echo base_url('assets/js/jquery-3.3.1.min.js');?>"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         *::-webkit-scrollbar { width: 0; height: 0; }
