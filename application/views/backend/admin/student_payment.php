@@ -78,9 +78,230 @@
   }
 </style>
 
+<style>
+@media screen {
+  .finance-payment-workspace {
+    margin: 0; padding: 0 12px 40px; color: #334155;
+  }
+  .finance-payment-workspace > .col-md-12 { padding: 0; }
+
+  .finance-payment-workspace > .col-md-12 > .flex.justify-end {
+    margin: 0 0 12px !important; padding: 0 2px;
+  }
+  .finance-payment-workspace > .col-md-12 > .flex.justify-end > label {
+    min-height: 38px; padding: 7px 10px; border: 1px solid #e2e8f0;
+    border-radius: 9px; background: #fff; font-size: 14px; font-weight: 700;
+  }
+  .finance-payment-workspace > .col-md-12 > .flex.justify-end .text-lg {
+    font-size: 14px !important; line-height: 1.35;
+  }
+
+  .finance-payment-workspace .nav.nav-tabs.bordered {
+    display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 16px !important; padding: 5px !important;
+    border: 1px solid #e2e8f0 !important; border-radius: 12px; background: #fff;
+  }
+  .finance-payment-workspace .nav.nav-tabs.bordered > li { margin: 0 !important; }
+  .finance-payment-workspace .nav.nav-tabs.bordered > li > a {
+    min-height: 42px; padding: 9px 13px !important; border: 0 !important;
+    border-radius: 8px !important; background: transparent !important; color: #475569 !important;
+    font-size: 14px !important; line-height: 1.35; font-weight: 700 !important;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .finance-payment-workspace .nav.nav-tabs.bordered > li > a i {
+    font-size: 16px !important; line-height: 1 !important;
+  }
+  .finance-payment-workspace .nav.nav-tabs.bordered > li > a:hover {
+    background: #f1f5f9 !important; color: #0f172a !important;
+  }
+  .finance-payment-workspace .nav.nav-tabs.bordered > li.active > a,
+  .finance-payment-workspace .nav.nav-tabs.bordered > li.active > a:hover,
+  .finance-payment-workspace .nav.nav-tabs.bordered > li.active > a:focus {
+    background: #2563eb !important; color: #fff !important;
+    box-shadow: 0 2px 8px rgba(37,99,235,.18);
+  }
+  .finance-payment-workspace .nav.nav-tabs.bordered .badge {
+    padding: 4px 8px !important; border-radius: 999px !important; font-size: 12px !important;
+    margin-left: 3px !important;
+  }
+
+  .finance-payment-workspace .panel {
+    margin-bottom: 18px; border: 1px solid #e2e8f0; border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05); overflow: hidden; background: #fff;
+  }
+  .finance-payment-workspace .panel > .panel-heading {
+    padding: 14px 18px; border-bottom: 1px solid #eef2f7; background: #fff;
+  }
+  .finance-payment-workspace .panel > .panel-heading .panel-title,
+  .finance-payment-workspace .panel > .panel-heading .panel-title span {
+    color: #0f172a !important; font-size: 17px !important; line-height: 1.35;
+    font-weight: 800 !important;
+  }
+  .finance-payment-workspace .panel > .panel-body { padding: 16px 18px !important; }
+
+  .finance-payment-workspace label:not(.switch-button):not(.toggle-switch) {
+    font-size: 14px !important; line-height: 1.35; font-weight: 700 !important; color: #334155;
+  }
+  .finance-payment-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  .finance-payment-workspace select,
+  .finance-payment-workspace textarea {
+    min-height: 46px !important; height: 46px !important; max-height: none !important;
+    padding: 9px 11px !important; border: 1px solid #cbd5e1 !important;
+    border-radius: 9px !important; background: #fff !important; color: #0f172a !important;
+    font-size: 15px !important; line-height: 1.4 !important; font-weight: 500 !important;
+  }
+  .finance-payment-workspace textarea {
+    min-height: 76px !important; height: auto !important; resize: vertical;
+  }
+  .finance-payment-workspace input:focus,
+  .finance-payment-workspace select:focus,
+  .finance-payment-workspace textarea:focus {
+    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important; outline: none;
+  }
+  .finance-payment-workspace input[readonly],
+  .finance-payment-workspace input[disabled],
+  .finance-payment-workspace select[disabled],
+  .finance-payment-workspace textarea[readonly] {
+    background: #f8fafc !important; color: #64748b !important;
+  }
+
+  .finance-payment-workspace .select2-container { min-height: 46px; }
+  .finance-payment-workspace .select2-container .select2-selection--single,
+  .finance-payment-workspace .select2-container .select2-selection--multiple,
+  .finance-payment-workspace .select2-container .select2-choice {
+    min-height: 46px !important; height: 46px !important; max-height: 46px !important;
+    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
+    background: #fff !important; font-size: 14px !important;
+  }
+  .finance-payment-workspace .select2-container .select2-selection__rendered,
+  .finance-payment-workspace .select2-container .select2-choice > span:first-child {
+    min-height: 44px; line-height: 44px !important; padding-top: 0 !important; padding-bottom: 0 !important;
+    font-size: 14px !important; color: #0f172a !important;
+  }
+  .finance-payment-workspace .select2-container .select2-selection--multiple {
+    height: auto !important; max-height: 76px !important; overflow-y: auto !important;
+  }
+  .finance-payment-workspace .select2-container .select2-selection--multiple .select2-selection__rendered {
+    min-height: 44px; line-height: normal !important; padding: 5px 7px !important;
+  }
+  .finance-payment-workspace [id^="input_specific_classes_"] .select2-container .select2-selection--multiple {
+    min-height: 46px !important; height: auto !important; max-height: 76px !important;
+  }
+
+  .finance-payment-workspace .btn,
+  .finance-payment-workspace button,
+  .finance-payment-workspace a[class*="bg-"] {
+    min-height: 40px; border-radius: 9px !important; font-size: 14px !important;
+    line-height: 1.35; font-weight: 700 !important;
+  }
+  .finance-payment-workspace .btn {
+    padding: 8px 13px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  }
+  .finance-payment-workspace .btn-sm { min-height: 36px; padding: 7px 10px; font-size: 13px !important; }
+  .finance-payment-workspace button[type="submit"],
+  .finance-payment-workspace input[type="submit"] {
+    min-height: 44px; padding: 9px 16px !important; font-size: 14px !important; font-weight: 800 !important;
+  }
+  .finance-payment-workspace .h-20,
+  .finance-payment-workspace .h-16,
+  .finance-payment-workspace .h-14 {
+    height: auto !important; min-height: 44px !important; max-height: none !important;
+  }
+  .finance-payment-workspace .text-xl { font-size: 14px !important; line-height: 1.4 !important; }
+  .finance-payment-workspace .text-2xl { font-size: 16px !important; line-height: 1.4 !important; }
+  .finance-payment-workspace .text-3xl { font-size: 19px !important; line-height: 1.35 !important; }
+  .finance-payment-workspace .text-lg { font-size: 14px !important; line-height: 1.4 !important; }
+  .finance-payment-workspace .text-sm { font-size: 13px !important; line-height: 1.4 !important; }
+  .finance-payment-workspace .text-xs { font-size: 12.5px !important; line-height: 1.35 !important; }
+
+  .finance-payment-workspace table {
+    color: #334155; font-size: 14px !important;
+  }
+  .finance-payment-workspace table thead th {
+    padding: 11px 12px !important; background: #f8fafc !important; color: #475569 !important;
+    font-size: 13px !important; line-height: 1.35; font-weight: 800 !important;
+    letter-spacing: .03em; white-space: nowrap; border-bottom: 1px solid #e2e8f0 !important;
+  }
+  .finance-payment-workspace table tbody td {
+    padding: 10px 12px !important; color: #334155 !important; font-size: 14px !important;
+    line-height: 1.45; vertical-align: middle; border-color: #eef2f7 !important;
+  }
+  .finance-payment-workspace table tbody tr:hover td { background: #f8fbff !important; }
+  .finance-payment-workspace .responsive,
+  .finance-payment-workspace .overflow-x-auto,
+  .finance-payment-workspace .dataTables_wrapper {
+    max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .finance-payment-workspace #bill_items_table { min-width: 1180px; }
+  .finance-payment-workspace #bulk_invoices_datatable { min-width: 1320px; }
+
+  .finance-payment-workspace .dataTables_wrapper .dataTables_length,
+  .finance-payment-workspace .dataTables_wrapper .dataTables_filter,
+  .finance-payment-workspace .dataTables_wrapper .dataTables_info,
+  .finance-payment-workspace .dataTables_wrapper .dataTables_paginate {
+    font-size: 14px !important; color: #475569;
+  }
+  .finance-payment-workspace .dataTables_wrapper select,
+  .finance-payment-workspace .dataTables_wrapper input[type="search"] {
+    min-height: 40px !important; height: 40px !important; padding: 7px 9px !important;
+    font-size: 14px !important; border: 1px solid #cbd5e1 !important; border-radius: 8px !important;
+  }
+
+  .finance-payment-workspace #manage_bulk_invoices .panel-heading,
+  .finance-payment-workspace #bulk_arrears_import .panel-heading,
+  .finance-payment-workspace #receipt_modifications .panel-heading {
+    background: #fff !important;
+  }
+  .finance-payment-workspace #manage_bulk_invoices .grid.md\:grid-cols-5 {
+    gap: 12px !important;
+  }
+  .finance-payment-workspace #manage_bulk_invoices .grid.md\:grid-cols-4 {
+    gap: 12px !important; margin-bottom: 16px !important;
+  }
+  .finance-payment-workspace #bulk_stats > div {
+    padding: 14px 16px !important; border-radius: 11px !important; box-shadow: none !important;
+  }
+  .finance-payment-workspace #bulk_stats .text-5xl { font-size: 28px !important; }
+  .finance-payment-workspace #global_search {
+    min-height: 44px !important; height: 44px !important; padding: 9px 12px !important;
+    font-size: 14px !important;
+  }
+  .finance-payment-workspace #selected_count { font-size: 16px !important; }
+
+  .finance-payment-workspace .alert {
+    border-radius: 10px; font-size: 14px; line-height: 1.45;
+  }
+
+  @media (max-width: 1100px) {
+    .finance-payment-workspace .grid.md\:grid-cols-7,
+    .finance-payment-workspace .grid.md\:grid-cols-5 {
+      grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    }
+  }
+  @media (max-width: 767px) {
+    .finance-payment-workspace { padding: 0 4px 32px; }
+    .finance-payment-workspace .nav.nav-tabs.bordered {
+      display: grid; grid-template-columns: 1fr; width: 100%;
+    }
+    .finance-payment-workspace .nav.nav-tabs.bordered > li > a {
+      width: 100%; justify-content: flex-start;
+    }
+    .finance-payment-workspace .grid.md\:grid-cols-7,
+    .finance-payment-workspace .grid.md\:grid-cols-5,
+    .finance-payment-workspace .grid.md\:grid-cols-4 {
+      grid-template-columns: 1fr !important;
+    }
+    .finance-payment-workspace .panel > .panel-body { padding: 14px !important; }
+    .finance-payment-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+    .finance-payment-workspace select,
+    .finance-payment-workspace textarea { font-size: 16px !important; }
+  }
+}
+</style>
+
+
 
 <hr />
-<div class="row">
+<div class="row finance-payment-workspace">
   <div class="col-md-12">
       <!-- Arrears Tab Toggle -->
       <div class="flex justify-end mb-3">
