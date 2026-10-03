@@ -9,6 +9,38 @@
     visibility: visible !important;
   }
 
+/* ---- family design-language alignment for dynamic bill-item rows ---- */
+.row.flex .h-16 {
+    height: 46px;
+    font-size: 14px;
+    line-height: 1.25;
+}
+.row.flex .select2-container .select2-selection--single {
+    height: 46px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border-color: #cbd5e1;
+}
+.row.flex .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 28px;
+    font-size: 14px;
+    color: #1f2937;
+}
+.row.flex .btn-info,
+.row.flex .btn-danger {
+    border-radius: 8px;
+    min-width: 34px;
+}
+.row.flex .btn-info:focus-visible,
+.row.flex .btn-danger:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+@media (max-width: 768px) {
+    .row.flex { flex-wrap: wrap; gap: .5rem; }
+    .row.flex > div { min-width: 100%; }
+    .row.flex > div.w-fit, .row.flex > div.flex { min-width: 0; }
+}
 </style>
 
 
