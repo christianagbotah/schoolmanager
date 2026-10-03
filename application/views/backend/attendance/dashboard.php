@@ -1,7 +1,7 @@
 <style>
 * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 .enterprise-container { background: #f8fafc; min-height: 100vh; padding: 24px; max-width: 1400px; margin: 0 auto; }
-.dashboard-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3); }
+.dashboard-header { background: #764ba2; color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3); }
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
 @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; } }
@@ -18,7 +18,7 @@
 .action-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 .action-icon { font-size: 32px; margin-bottom: 12px; }
 .btn-enterprise { padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+.btn-primary { background: #764ba2; color: white; }
 .btn-success { background: #10b981; color: white; }
 </style>
 
@@ -136,7 +136,7 @@ function showBreakdown(type) {
     let title = '';
     let content = '<style>';
     content += '.modern-table { width: 100%; border-collapse: separate; border-spacing: 0; }';
-    content += '.modern-table thead th { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px; text-align: left; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }';
+    content += '.modern-table thead th { background: #764ba2; color: white; padding: 12px; text-align: left; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }';
     content += '.modern-table thead th:first-child { border-radius: 8px 0 0 0; }';
     content += '.modern-table thead th:last-child { border-radius: 0 8px 0 0; }';
     content += '.modern-table tbody tr { transition: all 0.2s; }';

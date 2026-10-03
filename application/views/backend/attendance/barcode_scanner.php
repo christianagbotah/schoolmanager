@@ -8,14 +8,14 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: #f8fafc; }
         .scanner-container { max-width: 800px; margin: 0 auto; padding: 24px; }
-        .scanner-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; text-align: center; }
+        .scanner-header { background: #764ba2; color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; text-align: center; }
         .scanner-box { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; }
         #reader { width: 100%; border-radius: 8px; overflow: hidden; }
         .scan-result { background: #d1fae5; border: 2px solid #10b981; padding: 16px; border-radius: 8px; margin-top: 16px; display: none; }
         .student-info { display: flex; align-items: center; gap: 16px; }
         .student-photo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
         .btn { padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; }
-        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary { background: #764ba2; color: white; }
         .btn-success { background: #10b981; color: white; }
         .btn-danger { background: #ef4444; color: white; }
         .status-buttons { display: flex; gap: 12px; margin-top: 16px; }

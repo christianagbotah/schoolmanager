@@ -1,7 +1,7 @@
 <style>
 * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 .analytics-container { background: #f8fafc; min-height: 100vh; padding: 24px; max-width: 1600px; margin: 0 auto; }
-.analytics-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3); }
+.analytics-header { background: #764ba2; color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3); }
 .filter-card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
 @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -22,7 +22,7 @@
 .modern-table td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
 .modern-table tr:hover { background: #f9fafb; }
 .btn-enterprise { padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; height: 46px; font-size: 15px; }
-.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+.btn-primary { background: #764ba2; color: white; }
 .btn-success { background: #10b981; color: white; }
 .btn-primary:hover, .btn-success:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 .form-control { width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; height: 46px; }
@@ -31,11 +31,11 @@
 .badge-danger { background: #fee2e2; color: #991b1b; }
 .badge-warning { background: #fef3c7; color: #92400e; }
 /* Student Count Badge - Kept for new implementation */
-.student-count-badge { display: inline-block; margin-left: 10px; padding: 2px 10px; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.student-count-badge { display: inline-block; margin-left: 10px; padding: 2px 10px; background: #059669; color: white; border-radius: 12px; font-size: 11px; font-weight: 600; }
 
 /* Student Tag Styles */
 .student-tag {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: #764ba2;
     color: white;
     border-radius: 4px;
     padding: 6px 10px;

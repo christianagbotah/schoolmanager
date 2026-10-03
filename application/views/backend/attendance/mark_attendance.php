@@ -65,12 +65,12 @@ $currency = '₵'; // Always use the Ghana Cedis symbol
     color: #667eea;
 }
 .attendance-container { max-width: 1600px; margin: 0 auto; padding: 24px; }
-.header-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; }
+.header-card { background: #764ba2; color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; }
 .filter-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; }
 .filter-card .form-control { padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px; transition: all 0.3s; height: 48px; }
 .filter-card .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); outline: none; }
 .filter-card label { font-weight: 600; color: #374151; margin-bottom: 8px; font-size: 14px; }
-.btn-load { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 24px; border-radius: 10px; font-weight: 600; border: none; transition: all 0.3s; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); height: 48px; font-size: 16px; }
+.btn-load { background: #764ba2; color: white; padding: 14px 24px; border-radius: 10px; font-weight: 600; border: none; transition: all 0.3s; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); height: 48px; font-size: 16px; }
 .btn-load:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); color: white; }
 /* Modern Filter Inputs */
 .modern-filter-group { position: relative; }
@@ -132,9 +132,9 @@ $currency = '₵'; // Always use the Ghana Cedis symbol
 .student-card.has-payment { border-color: #10b981; border-width: 3px; box-shadow: 0 2px 12px rgba(16, 185, 129, 0.2); }
 .student-checkbox { position: absolute; top: 12px; right: 12px; width: 20px; height: 20px; cursor: pointer; }
 .student-card.unselected { opacity: 0.5; border-color: #d1d5db; }
-.payment-indicator { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 1px 3px rgba(16, 185, 129, 0.3); margin-left: 8px; }
+.payment-indicator { background: #059669; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px; box-shadow: 0 1px 3px rgba(16, 185, 129, 0.3); margin-left: 8px; }
 .payment-indicator i { font-size: 9px; }
-.select-all-container { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 16px 20px; border-radius: 10px; margin-bottom: 16px; display: none; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); border: 2px solid #f59e0b; cursor: pointer; transition: all 0.3s; }
+.select-all-container { background: #f59e0b; padding: 16px 20px; border-radius: 10px; margin-bottom: 16px; display: none; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); border: 2px solid #f59e0b; cursor: pointer; transition: all 0.3s; }
 .select-all-container.show { display: flex; align-items: center; gap: 12px; }
 .select-all-container:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4); }
 .select-all-container label { color: #1f2937 !important; font-size: 16px; margin: 0 !important; cursor: pointer; user-select: none; }
@@ -147,7 +147,7 @@ $currency = '₵'; // Always use the Ghana Cedis symbol
 .owing-negative { background: #dbeafe; color: #1e40af; }
 .discount-badge { background: #d1fae5; border: 1px solid #10b981; padding: 8px; border-radius: 6px; margin-bottom: 12px; }
 .fee-dashboard { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; position: sticky; top: 0; z-index: 100; }
-.fee-total-card { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 16px; border-radius: 10px; text-align: center; }
+.fee-total-card { background: #059669; color: white; padding: 16px; border-radius: 10px; text-align: center; }
 .toggle-switch { position: relative; display: inline-block; width: 52px; height: 28px; }
 .toggle-switch input { opacity: 0; width: 0; height: 0; }
 .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 28px; }
@@ -155,7 +155,7 @@ $currency = '₵'; // Always use the Ghana Cedis symbol
 input:checked + .toggle-slider { background-color: #10b981; }
 input:checked + .toggle-slider:before { transform: translateX(24px); }
 .btn-enterprise { padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+.btn-primary { background: #764ba2; color: white; }
 .btn-success { background: #10b981; color: white; }
 .btn-danger { background: #ef4444; color: white; }
 @media print {
@@ -230,7 +230,7 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
             <?php foreach(['feeding', 'classes', 'transport', 'breakfast', 'water'] as $module): ?>
                 <?php if($permissions['can_collect_' . $module] && in_array($module, $enabled_modules)): ?>
                 <?php $color = $colors[$module]; ?>
-                <div class="fee-total-card" style="background: linear-gradient(135deg, <?php echo $color['from']; ?> 0%, <?php echo $color['to']; ?> 100%);">
+                <div class="fee-total-card" style="background: <?php echo $color['to']; ?>;">
                     <div style="font-size: 12px; opacity: 0.9; margin-bottom: 4px;"><?php echo ucfirst($module); ?></div>
                     <div style="font-size: 20px; font-weight: 700;" id="total_<?php echo $module; ?>"><?php echo $currency; ?> 0.00</div>
                 </div>
@@ -574,7 +574,7 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
             
             <?php if($has_full_discount_all_fees): ?>
             <!-- Student has 100% discount on all daily fees - no fee collection needed -->
-            <div style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border: 2px solid #10b981; border-radius: 8px; padding: 12px; margin-bottom: 12px; text-align: center;">
+            <div style="background: #d1fae5; border: 2px solid #10b981; border-radius: 8px; padding: 12px; margin-bottom: 12px; text-align: center;">
                 <div style="font-size: 24px; color: #059669; margin-bottom: 6px;">
                     <i class="fa fa-gift"></i>
                 </div>
