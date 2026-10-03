@@ -13,6 +13,18 @@
 
 
 ?>
+<style type="text/css">
+/* ---- family design-language alignment (presentation only) ---- */
+.form-group.row { margin-bottom: 1rem; }
+#table_holder { overflow-x: auto; }
+#table_holder .dataTables_wrapper { padding: 0; }
+#table_holder .dataTables_filter, #table_holder .dataTables_length {
+    margin-bottom: .5rem;
+}
+@media (max-width: 480px) {
+    .form-group.row > div[class*="col-"] { padding-left: 0; padding-right: 0; }
+}
+</style>
 <div class="row">
 		<div class="form-group row">
 			<div class="col-sm-9 col-lg-9 col-sm-9 col-md-9"></div>

@@ -4,6 +4,71 @@
     $fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
 
     ?>
+<style type="text/css">
+/* ---- family design-language alignment (presentation only) ---- */
+#tinvoices {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    border-collapse: separate;
+    overflow: hidden;
+}
+#tinvoices thead th, #tinvoices thead td {
+    background: #f9fafb;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    border-bottom: 1px solid #e5e7eb !important;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+#tinvoices tbody td {
+    border-top: 1px solid #f3f4f6 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    vertical-align: middle;
+    font-size: 13.5px;
+    color: #374151;
+}
+#tinvoices tbody tr:hover td { background: #f8fafc; }
+#tinvoices tbody td[colspan="10"] {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #6b7280;
+}
+/* numeric + status columns */
+#tinvoices th:nth-child(6), #tinvoices th:nth-child(7) { text-align: right; }
+#tinvoices td:nth-child(6), #tinvoices td:nth-child(7) { text-align: right; white-space: nowrap; }
+#tinvoices th:nth-child(8), #tinvoices td:nth-child(8) { text-align: center; }
+#tinvoices tfoot td {
+    background: #f9fafb;
+    border-top: 2px solid #e5e7eb !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+}
+/* action dropdown family */
+#tinvoices .dropdown-menu {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, .12);
+    padding: .25rem 0;
+    min-width: 190px;
+}
+#tinvoices .dropdown-menu > li > a {
+    font-size: 13.5px;
+    padding: 6px 14px;
+    color: #374151;
+}
+#tinvoices .dropdown-menu > li > a:hover { background: #f3f4f6; color: #111827; }
+#tinvoices .dropdown-menu > li > a i { width: 18px; }
+#tinvoices .dropdown-menu > .divider { background: #f3f4f6; height: 1px; }
+@media (max-width: 640px) {
+    #tinvoices { border-radius: 0; border-left: 0; border-right: 0; }
+}
+</style>
 <?php echo form_open(site_url('admin/bulk_invoice_delete/all_invoices'), array('class' => 'form-horizontal form-groups-bordered validate', 'id' => 'checkboxes_form',  'enctype' => 'multipart/form-data'));?>
     <table class="table table-bordered normal_table" id="tinvoices" style="width:100%">
         <thead>
@@ -94,7 +159,7 @@ if(count($page_data) > 0):
                         //$payment_text = 'Take Payment';
                     }
 
-                    $payment_option = '<li><a href="#" onclick="invoice_pay_modal('.$student_id.')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a></li><li class="divider"></li><li><a href="#" onclick="view_receipts_modal('.$student_id.')" style="color: #d803f8;"><i class="entypo-eye"></i>&nbsp;View Receipts</a></li><li class="divider"></li>';
+                    $payment_option = '<li><a href="#" onclick="invoice_pay_modal('.$student_id.')" style="color: #2563eb;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a></li><li class="divider"></li><li><a href="#" onclick="view_receipts_modal('.$student_id.')" style="color: #2563eb;"><i class="entypo-eye"></i>&nbsp;View Receipts</a></li><li class="divider"></li>';
                     
                     $bulk_invoice_sel = '
                             <input type="checkbox" class="checkbox" onclick="boxChecked()" name="invoices_sel[]" value="'.$row->invoice_code.'">
@@ -102,9 +167,9 @@ if(count($page_data) > 0):
                             ';
                         
                     
-                    $options = '<div class="btn-group">'.get_action_button().'<ul class="dropdown-menu dropdown-default pull-right" role="menu">'.$payment_option.'<li><a href="#" onclick="invoice_view_modal(\''.$in_code.'\')" style="color: blue;"><i class="entypo-credit-card"></i>&nbsp;'.get_phrase('view_invoice').'</a></li><li class="divider"></li>
+                    $options = '<div class="btn-group">'.get_action_button().'<ul class="dropdown-menu dropdown-default pull-right" role="menu">'.$payment_option.'<li><a href="#" onclick="invoice_view_modal(\''.$in_code.'\')" style="color: #2563eb;"><i class="entypo-credit-card"></i>&nbsp;'.get_phrase('view_invoice').'</a></li><li class="divider"></li>
 
-                                       <li><a href="#" onclick="invoice_delete_confirm(\''.$in_code.'\')" style="color: red;"><i class="entypo-trash"></i>&nbsp;'.get_phrase('delete').'</a></li></ul></div>';
+                                       <li><a href="#" onclick="invoice_delete_confirm(\''.$in_code.'\')" style="color: #dc2626;"><i class="entypo-trash"></i>&nbsp;'.get_phrase('delete').'</a></li></ul></div>';
                     $nchecked      = $bulk_invoice_sel;
                     $ninvoice_code = $row->invoice_code;
                     $nstudent = $this->crud_model->get_type_name_by_id('student',$student_id);
