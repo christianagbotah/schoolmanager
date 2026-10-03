@@ -437,7 +437,7 @@ if (!empty($student_id) && $student_id > 0) {
             
             // Check if credit was created
             if(data.credit_created && data.credit_amount > 0) {
-                successMessage += '<br><br><div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 15px; border-radius: 8px; margin-top: 10px;"><i class="fa fa-gift"></i> <strong>Credit Created!</strong><br>' + data.credit_message + '</div>';
+                successMessage += '<br><br><div style="background: #059669; color: white; padding: 15px; border-radius: 8px; margin-top: 10px;"><i class="fa fa-gift"></i> <strong>Credit Created!</strong><br>' + data.credit_message + '</div>';
             }
             
             showAjaxModal_alert(successMessage, 'success', false);
@@ -545,7 +545,7 @@ if (!empty($student_id) && $student_id > 0) {
             
             if(data.status === 'success') {
                 let historyHtml = '<div class="table-responsive"><table class="table table-striped table-bordered">' +
-                    '<thead style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">' +
+                    '<thead style="background: #1e293b; color: white;">' +
                     '<tr>' +
                     '<th>Date</th>' +
                     '<th>Source</th>' +

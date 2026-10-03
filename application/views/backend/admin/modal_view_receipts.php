@@ -203,7 +203,7 @@ if($enroll) {
                                     <i class="fa fa-eye"></i> View
                                 </button>
                                 <button onclick="requestModification(<?php echo $receipt['payment_id']; ?>)" 
-                                        style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3); white-space: nowrap;"
+                                        style="background: #d97706; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: background-color .2s ease; box-shadow: 0 1px 2px rgba(217, 119, 6, 0.3); white-space: nowrap;"
                                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 10px rgba(245, 158, 11, 0.5)'"
                                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(245, 158, 11, 0.3)'">
                                     <i class="fa fa-edit"></i> Modify
