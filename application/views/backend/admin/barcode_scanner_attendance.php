@@ -26,13 +26,13 @@
       border-radius: 16px 16px 0 0; padding: 16px 20px; }
   #main_page .panel-heading h2 { font-size: 20px; font-weight: 700; color: #111827; }
   #main_page .panel-body { padding: 20px; }
-  #main_page .form-control { border: 1.5px solid #e5e7eb; border-radius: 10px;
-      padding: 10px 14px; font-size: 14px; box-shadow: none;
+  #main_page .form-control { min-height: 46px; border: 1px solid #cbd5e1; border-radius: 9px;
+      padding: 10px 12px; font-size: 15px; box-shadow: none;
       transition: border-color 0.2s, box-shadow 0.2s; }
   #main_page .form-control:focus { border-color: #3b82f6;
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; }
-  #main_page .btn { border-radius: 10px; font-weight: 600; border: none;
-      transition: all 0.2s; }
+  #main_page .btn { min-height: 40px; padding: 8px 13px; border-radius: 9px;
+      font-size: 14px; font-weight: 700; border: none; transition: all 0.2s; }
   #main_page .btn-info { background: #2563eb; color: #fff; }
   #main_page .btn-success { background: #059669; color: #fff; }
   #main_page .btn:hover { transform: translateY(-1px); }
@@ -44,8 +44,8 @@
       overflow: hidden; }
   #main_page table.table thead { background: #f9fafb; }
   #main_page table.table thead th { padding: 12px 10px; font-size: 13px;
-      font-weight: 600; color: #374151; text-transform: uppercase;
-      letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb; }
+      font-weight: 800; color: #475569; text-transform: uppercase;
+      letter-spacing: 0.4px; border-bottom: 1px solid #e5e7eb; }
   #main_page table.table tbody td { padding: 10px; font-size: 14px;
       vertical-align: middle; }
   #main_page table.table tbody tr:hover { background: #f9fafb; }
@@ -54,9 +54,11 @@
       #main_page .btn:hover { transform: none; }
   }
   @media (max-width: 768px) {
-      #main_page .form-control { font-size: 16px; }
-      #main_page table.table thead th, #main_page table.table tbody td {
-          padding: 6px; font-size: 12px; }
+      #main_page .form-control { min-height: 46px; font-size: 16px; }
+      #main_page .btn { min-height: 42px; font-size: 14px; }
+      #main_page table.table { min-width: 640px; }
+      #main_page table.table thead th { padding: 9px 8px; font-size: 13px; }
+      #main_page table.table tbody td { padding: 9px 8px; font-size: 14px; }
   }
 </style>
 
