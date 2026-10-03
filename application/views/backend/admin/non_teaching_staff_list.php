@@ -58,6 +58,89 @@
     }
 ?>
 
+<style type="text/css">
+/* Non-Teaching Staff workspace — modern enterprise presentation layer */
+.non-teaching-workspace { padding: 24px 28px 40px; }
+.non-teaching-page-head {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+    margin: 0 0 20px; padding-bottom: 18px; border-bottom: 1px solid #e2e8f0;
+}
+.non-teaching-eyebrow {
+    margin: 0 0 4px; color: #2563eb; font-size: 13px; font-weight: 800;
+    letter-spacing: .08em; text-transform: uppercase;
+}
+.non-teaching-page-title {
+    margin: 0; color: #0f172a; font-size: 30px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em;
+}
+.non-teaching-page-subtitle { margin: 7px 0 0; color: #64748b; font-size: 15px; line-height: 1.5; }
+.non-teaching-page-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+.non-teaching-page-actions a {
+    min-height: 42px; padding: 9px 16px !important; border-radius: 9px !important;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 14px !important; font-weight: 700 !important; text-decoration: none !important;
+}
+.non-teaching-report-btn { background: #7c3aed; color: #fff !important; border: 1px solid #7c3aed; }
+.non-teaching-report-btn:hover { background: #6d28d9; color: #fff !important; }
+
+.non-teaching-table-card {
+    width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    border: 1px solid #e2e8f0; border-radius: 14px; background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04);
+}
+.non-teaching-table-card #non_teaching_staff {
+    min-width: 1080px; margin: 0 !important; font-size: 14px !important;
+}
+.non-teaching-table-card #non_teaching_staff > thead > tr > th {
+    padding: 12px 13px !important; background: #f8fafc !important; color: #475569 !important;
+    font-size: 13px !important; font-weight: 800 !important; letter-spacing: .035em;
+    border-bottom: 1px solid #e2e8f0 !important; vertical-align: middle;
+}
+.non-teaching-table-card #non_teaching_staff > tbody > tr > td {
+    padding: 12px 13px !important; color: #334155; font-size: 14px !important;
+    line-height: 1.45; vertical-align: middle; border-bottom: 1px solid #eef2f7;
+}
+.non-teaching-table-card #non_teaching_staff > tbody > tr:hover > td { background: #f8fbff; }
+.non-teaching-table-card #non_teaching_staff thead tr:first-child th { padding: 12px 14px !important; }
+.non-teaching-table-card #non_teaching_staff thead tr:first-child .grid {
+    display: flex !important; align-items: center; gap: 8px !important; padding: 0 !important; text-transform: none;
+}
+.non-teaching-table-card #non_teaching_staff thead tr:first-child .grid > div {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 34px;
+    padding: 6px 11px; border-radius: 999px; background: #f8fafc;
+    border: 1px solid #e2e8f0; color: #475569; font-size: 13px; font-weight: 700;
+}
+.non-teaching-table-card #non_teaching_staff thead tr:first-child strong {
+    padding: 0 !important; background: transparent !important; border-radius: 0 !important;
+    color: #0f172a; font-size: 14px;
+}
+.non-teaching-workspace .dataTables_wrapper { padding: 14px; }
+.non-teaching-workspace .dataTables_wrapper .dataTables_length,
+.non-teaching-workspace .dataTables_wrapper .dataTables_filter,
+.non-teaching-workspace .dataTables_wrapper .dataTables_info,
+.non-teaching-workspace .dataTables_wrapper .dataTables_paginate { font-size: 14px; color: #475569; }
+.non-teaching-workspace .dataTables_wrapper select,
+.non-teaching-workspace .dataTables_wrapper input[type="search"] {
+    min-height: 40px; padding: 8px 10px; border: 1px solid #cbd5e1;
+    border-radius: 8px; font-size: 14px; background: #fff; color: #0f172a;
+}
+.non-teaching-workspace .dataTables_wrapper input[type="search"]:focus,
+.non-teaching-workspace .dataTables_wrapper select:focus {
+    outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+.non-teaching-workspace .alert { font-size: 14px; border-radius: 10px; }
+.non-teaching-workspace .btn { min-height: 42px; font-size: 14px; font-weight: 700; border-radius: 9px; }
+
+@media (max-width: 767px) {
+    .non-teaching-workspace { padding: 18px 14px 32px; }
+    .non-teaching-page-head { align-items: flex-start; flex-direction: column; }
+    .non-teaching-page-actions { width: 100%; justify-content: flex-start; }
+    .non-teaching-page-title { font-size: 26px; }
+}
+@media (max-width: 400px) {
+    .non-teaching-page-actions a { width: 100%; }
+}
+</style>
+
 <?php if(validation_errors()) :?>
 <div class="alert alert-danger alert-dismissible" role="alert">
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -74,25 +157,28 @@
     <strong><?php echo $feedback; ?></strong>
 </div>
 
-<!-- Action Buttons Row -->
-<div class="row mb-10 p-5" style="margin-top: 20px;">
-    <div class="col-md-12 col-sm-12">
-        <div class="py-5 flex gap-3">
-            <a href="<?= base_url().'admin/non_teaching_staff_gender_report/';?>" target="_blank" class="p-3 bg-purple-400 text-white font-bold text-2xl rounded-lg">
-                <i class="fa fa-print"></i> Print Gender Report
-            </a>
-            <a href="javascript:;" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_non_teaching_staff_add/');?>');"
-            class="btn btn-primary h-16 rounded-lg text-xl font-bold content-center p-3">
-                <i class="fa-solid fa-user-plus"></i>
-                Add New Non-Teaching Staff
-            </a>
-        </div>
+<div class="non-teaching-workspace">
+<div class="non-teaching-page-head">
+    <div>
+        <p class="non-teaching-eyebrow">People</p>
+        <h1 class="non-teaching-page-title">Non-Teaching Staff</h1>
+        <p class="non-teaching-page-subtitle">Manage administrative and support staff, contact details, positions, and account access.</p>
+    </div>
+    <div class="non-teaching-page-actions">
+        <a href="<?= base_url().'admin/non_teaching_staff_gender_report/';?>" target="_blank" class="non-teaching-report-btn">
+            <i class="fa fa-chart-pie"></i> Gender Report
+        </a>
+        <a href="javascript:;" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_non_teaching_staff_add/');?>');" class="btn btn-primary">
+            <i class="fa-solid fa-user-plus"></i>
+            Add New Non-Teaching Staff
+        </a>
     </div>
 </div>
 
 <caption></caption>
 
 <!-- Non-Teaching Staff DataTable -->
+<div class="non-teaching-table-card">
 <table class="table table-hover table-striped table-active w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-600 datatable" id="non_teaching_staff">
     <thead class="text-lg font-bold text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 uppercase">
         <tr>
@@ -117,6 +203,10 @@
         </tr>
     </thead>
 </table>
+</div>
+</div>
+
+
 
 <!----- DATA TABLE EXPORT CONFIGURATIONS ---->
 <script type="text/javascript">
