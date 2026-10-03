@@ -75,7 +75,7 @@
     <div class="students-page-head hidden-print">
         <div>
             <p class="students-eyebrow">Students</p>
-            <h1 class="students-page-title"><?php echo get_phrase('all_active_students');?></h1>
+            <h1 class="students-page-title">Students</h1>
             <p class="students-page-subtitle">Browse currently enrolled students, refine the list, and open supporting reports without leaving this workspace.</p>
         </div>
         <div class="students-page-actions">
@@ -197,7 +197,7 @@
                 <div class="students-summary-title">
                     <span class="students-summary-icon"><i class="glyphicon glyphicon-users"></i></span>
                     <div>
-                        <strong><?php echo get_phrase('all_active_students');?></strong>
+                        <a href="#home" data-toggle="tab" class="students-summary-link"><strong><?php echo get_phrase('all_active_students');?></strong></a>
                         <span>Current enrollment overview</span>
                     </div>
                 </div>
@@ -501,6 +501,8 @@
     }
     .students-summary-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
     .students-summary-title strong { display: block; color: #0f172a; font-size: 17px; line-height: 1.3; }
+    .students-summary-link { color: inherit; text-decoration: none; }
+    .students-summary-link:hover, .students-summary-link:focus { color: #1d4ed8; text-decoration: none; }
     .students-summary-title span:not(.students-summary-icon) {
         display: block; margin-top: 2px; color: #64748b; font-size: 13px;
     }
