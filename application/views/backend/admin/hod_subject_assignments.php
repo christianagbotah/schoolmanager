@@ -8,8 +8,139 @@
  */
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
+<style>
+/* HOD Subject Assignments — enterprise workspace */
+body { background: #f8fafc; }
+.hod-subject-workspace {
+    background: #f8fafc !important; min-height: 100%; padding: 24px 28px 40px !important;
+}
+.hod-subject-workspace .content-header {
+    margin: 0 0 18px; padding: 0 0 18px !important; border-bottom: 1px solid #e2e8f0;
+}
+.hod-subject-workspace .content-header h1 {
+    margin: 0; color: #0f172a; font-size: 30px; line-height: 1.2;
+    font-weight: 800; letter-spacing: -.02em;
+}
+.hod-subject-workspace .content-header h1 > small {
+    display: block; margin-top: 7px; color: #64748b !important;
+    font-size: 15px !important; line-height: 1.5; font-weight: 500;
+}
+.hod-subject-workspace .breadcrumb {
+    position: static !important; float: none !important; margin: 10px 0 0 !important;
+    padding: 0 !important; background: transparent !important; font-size: 13px;
+}
+.hod-subject-workspace .content { padding: 0 !important; }
 
-<div class="content-wrapper">
+.hod-subject-workspace .alert {
+    margin-bottom: 14px; padding: 12px 14px; border-radius: 10px; font-size: 14px;
+}
+.hod-subject-workspace .row { margin-left: -8px; margin-right: -8px; }
+.hod-subject-workspace .col-md-4,
+.hod-subject-workspace .col-md-8 { padding-left: 8px; padding-right: 8px; }
+
+.hod-subject-workspace .box {
+    margin-bottom: 16px; border: 1px solid #e2e8f0 !important; border-top: 1px solid #e2e8f0 !important;
+    border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,.05) !important; overflow: hidden;
+    background: #fff;
+}
+.hod-subject-workspace .box-header {
+    padding: 14px 16px !important; border-bottom: 1px solid #eef2f7 !important; background: #fff;
+}
+.hod-subject-workspace .box-title {
+    color: #0f172a; font-size: 17px !important; line-height: 1.35; font-weight: 800 !important;
+}
+.hod-subject-workspace .box-tools .label {
+    min-height: 30px; padding: 6px 10px; display: inline-flex; align-items: center;
+    border-radius: 999px; background: #eff6ff !important; color: #1d4ed8 !important;
+    font-size: 13px; font-weight: 800;
+}
+.hod-subject-workspace .box-body { padding: 16px !important; }
+
+.hod-subject-workspace .form-group { margin-bottom: 15px; }
+.hod-subject-workspace .form-group label {
+    margin-bottom: 7px; color: #334155; font-size: 14px; line-height: 1.35; font-weight: 700;
+}
+.hod-subject-workspace .form-control,
+.hod-subject-workspace .select2-container .select2-selection--single {
+    min-height: 46px; height: 46px; border: 1px solid #cbd5e1 !important;
+    border-radius: 9px !important; background: #fff; color: #0f172a; font-size: 15px;
+}
+.hod-subject-workspace .form-control { padding: 9px 12px; }
+.hod-subject-workspace .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 44px; padding-left: 12px; font-size: 15px; color: #0f172a;
+}
+.hod-subject-workspace .select2-container--default .select2-selection--single .select2-selection__arrow { height: 44px; }
+.hod-subject-workspace .form-control:focus,
+.hod-subject-workspace .select2-container--focus .select2-selection--single {
+    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important; outline: none;
+}
+.hod-subject-workspace .btn {
+    min-height: 40px; padding: 8px 13px; border-radius: 8px; font-size: 14px; line-height: 1.35; font-weight: 700;
+}
+.hod-subject-workspace .btn-block { min-height: 44px; font-weight: 800; }
+.hod-subject-workspace .btn-primary { background: #2563eb; border-color: #2563eb; }
+.hod-subject-workspace .btn-danger { background: #dc2626; border-color: #dc2626; }
+.hod-subject-workspace .btn-sm { min-height: 36px; min-width: 36px; padding: 7px 10px; }
+
+.hod-subject-workspace .box-info .box-body p,
+.hod-subject-workspace .box-info .box-body li {
+    color: #475569; font-size: 14px; line-height: 1.5;
+}
+.hod-subject-workspace .box-info .box-body li { margin-bottom: 7px; }
+
+.hod-subject-workspace .table-responsive {
+    border: 1px solid #e2e8f0; border-radius: 12px; overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+#assignments-table { min-width: 760px; margin-bottom: 0 !important; }
+#assignments-table thead th {
+    padding: 12px 13px !important; background: #f8fafc; color: #475569;
+    font-size: 13px; font-weight: 800; letter-spacing: .035em; border-bottom: 1px solid #e2e8f0 !important;
+}
+#assignments-table tbody td {
+    padding: 12px 13px !important; color: #334155; font-size: 14px; line-height: 1.45; vertical-align: middle;
+}
+#assignments-table tbody tr:hover td { background: #f8fbff; }
+#assignments-table .label {
+    min-height: 28px; padding: 5px 9px; display: inline-flex; align-items: center;
+    border-radius: 999px; font-size: 13px; font-weight: 700;
+}
+#assignments-table small { font-size: 13px; color: #64748b; }
+
+.hod-subject-workspace .dataTables_wrapper { padding: 12px; }
+.hod-subject-workspace .dataTables_filter,
+.hod-subject-workspace .dataTables_length,
+.hod-subject-workspace .dataTables_info,
+.hod-subject-workspace .dataTables_paginate { font-size: 14px; color: #475569; }
+.hod-subject-workspace .dataTables_filter input,
+.hod-subject-workspace .dataTables_length select {
+    min-height: 40px; padding: 8px 10px; border: 1px solid #cbd5e1;
+    border-radius: 8px; font-size: 14px;
+}
+
+#modal-delete .modal-content { border-radius: 14px; overflow: hidden; }
+#modal-delete .modal-header { padding: 15px 18px; border-bottom: 1px solid #e2e8f0; }
+#modal-delete .modal-title { font-size: 18px; font-weight: 800; color: #0f172a; }
+#modal-delete .modal-body { padding: 18px; font-size: 14px; line-height: 1.5; }
+#modal-delete .modal-footer { padding: 12px 18px; border-top: 1px solid #e2e8f0; }
+
+@media (max-width: 991px) {
+    .hod-subject-workspace .col-md-4,
+    .hod-subject-workspace .col-md-8 { width: 100%; }
+}
+@media (max-width: 767px) {
+    .hod-subject-workspace { padding: 18px 14px 32px !important; }
+    .hod-subject-workspace .content-header h1 { font-size: 26px; }
+    .hod-subject-workspace .row { margin-left: 0; margin-right: 0; }
+    .hod-subject-workspace .col-md-4,
+    .hod-subject-workspace .col-md-8 { padding-left: 0; padding-right: 0; }
+    .hod-subject-workspace input,
+    .hod-subject-workspace select { font-size: 16px; }
+}
+</style>
+
+
+<div class="content-wrapper hod-subject-workspace">
     <section class="content-header">
         <h1>
             <i class="fa fa-user-plus"></i> <?php echo get_phrase('hod_subject_assignments'); ?>
