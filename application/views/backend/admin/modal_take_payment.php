@@ -57,7 +57,139 @@ if (!empty($student_id) && $student_id > 0) {
 }
 ?>
 
-<div class="grid grid-cols-1">
+<style>
+/* Direct UI/UX refinement — Take Payment modal */
+.take-payment-workspace { color: #334155; }
+.take-payment-workspace > section {
+    padding-left: 18px !important; padding-right: 18px !important;
+}
+.take-payment-workspace > section > .font-extrabold {
+    margin-bottom: 10px; color: #0f172a !important; font-size: 20px !important;
+    line-height: 1.3; font-weight: 800 !important; text-align: left !important;
+}
+.take-payment-workspace > section > .flex.flex-col {
+    padding: 0 !important; border: 1px solid #e2e8f0 !important; border-top: 4px solid #059669 !important;
+    border-radius: 14px !important; box-shadow: 0 10px 28px rgba(15,23,42,.10) !important; overflow: hidden;
+}
+.take-payment-workspace > section > .flex.flex-col > .flex.flex-col {
+    gap: 18px !important; padding: 20px !important;
+}
+
+.take-payment-workspace .font-mono { font-family: inherit !important; }
+.take-payment-workspace .text-xl { font-size: 14px !important; line-height: 1.4 !important; }
+.take-payment-workspace .text-2xl { font-size: 18px !important; line-height: 1.35 !important; }
+.take-payment-workspace .text-lg { font-size: 15px !important; line-height: 1.4 !important; }
+.take-payment-workspace .text-sm { font-size: 13px !important; line-height: 1.45 !important; }
+
+.take-payment-workspace .border-b.border-b-gray-300,
+.take-payment-workspace .border-b.border-b-gray-400 {
+    border-bottom-color: #e2e8f0 !important;
+}
+.take-payment-workspace .grid.grid-cols-1.gap-4.border-b {
+    gap: 10px !important; padding-bottom: 16px !important;
+}
+.take-payment-workspace .grid.grid-cols-1.gap-4.border-b > div:first-child {
+    color: #0f172a !important; font-size: 14px !important; font-weight: 800 !important;
+    letter-spacing: .03em;
+}
+#student_search_input {
+    min-height: 46px !important; height: 46px !important; padding: 9px 12px 9px 42px !important;
+    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
+    background: #fff !important; color: #0f172a !important; font-size: 15px !important; font-weight: 500;
+}
+#student_search_input:focus {
+    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important; outline: none;
+}
+.take-payment-workspace .fa-search.text-xl { font-size: 15px !important; }
+#student_search_results {
+    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
+    box-shadow: 0 10px 24px rgba(15,23,42,.12) !important; font-size: 14px;
+}
+
+.take-payment-workspace .grid.grid-cols-2.gap-4 {
+    gap: 10px 14px !important; padding: 14px 16px !important;
+    border: 1px solid #e2e8f0; border-radius: 11px; background: #f8fafc;
+}
+.take-payment-workspace .grid.grid-cols-2.gap-4 > .col-span-2 {
+    padding-bottom: 9px !important; color: #0f172a !important;
+    font-size: 14px !important; font-weight: 800 !important; letter-spacing: .03em;
+}
+.take-payment-workspace .grid.grid-cols-2.gap-4 > div:not(.col-span-2) {
+    font-size: 14px !important; line-height: 1.4;
+}
+.take-payment-workspace .grid.grid-cols-2.gap-4 > div:nth-child(even) {
+    color: #0f172a !important; font-weight: 700 !important;
+}
+
+.take-payment-workspace .bg-gradient-to-r.from-green-50 {
+    background-image: none !important; background-color: #f0fdf4 !important;
+    padding: 14px !important; border: 1px solid #bbf7d0 !important; border-left: 4px solid #22c55e !important;
+    border-radius: 10px !important; box-shadow: none !important;
+}
+.take-payment-workspace .bg-gradient-to-r.from-green-50 .bg-green-500 {
+    padding: 9px !important; border-radius: 10px !important;
+}
+.take-payment-workspace .bg-gradient-to-r.from-green-50 .fa-gift { font-size: 16px !important; }
+.take-payment-workspace .bg-gradient-to-r.from-green-50 button {
+    min-height: 38px; padding: 8px 12px !important; border-radius: 8px !important;
+    font-size: 13px !important; font-weight: 700 !important;
+}
+
+#payment_form { gap: 14px !important; }
+#payment_form > .flex.items-center.w-full {
+    display: grid !important; grid-template-columns: minmax(130px,.34fr) minmax(0,1fr) !important;
+    gap: 14px !important; align-items: center !important;
+}
+#payment_form label {
+    margin: 0 !important; color: #334155 !important; font-size: 14px !important;
+    line-height: 1.35; font-weight: 700 !important;
+}
+#payment_form select,
+#payment_form input:not([type="hidden"]):not([type="checkbox"]) {
+    min-height: 46px !important; height: 46px !important; max-height: 46px !important;
+    padding: 9px 12px !important; border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
+    background: #fff !important; color: #0f172a !important; font-size: 15px !important; line-height: 1.4 !important;
+}
+#payment_form select:focus,
+#payment_form input:not([type="hidden"]):not([type="checkbox"]):focus {
+    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important; outline: none;
+}
+#payment_form .mt-14 {
+    margin-top: 10px !important; padding-top: 16px; border-top: 1px solid #e2e8f0;
+    align-items: center !important;
+}
+#payment_form .mt-14 > .flex {
+    border-bottom: 0 !important; gap: 10px !important;
+}
+#payment_form .mt-14 > .flex > label {
+    width: auto !important; font-size: 14px !important; text-transform: none !important;
+}
+#payment_form button[type="submit"] {
+    min-height: 46px; padding: 10px 18px !important; border-radius: 9px !important;
+    font-size: 15px !important; font-weight: 800 !important; background: #059669 !important;
+    box-shadow: 0 2px 8px rgba(5,150,105,.2) !important;
+}
+#payment_form button[type="submit"]:hover { background: #047857 !important; }
+
+.take-payment-workspace .switch-button { transform: scale(.9); transform-origin: left center; }
+
+@media (max-width: 767px) {
+    .take-payment-workspace > section { padding-left: 8px !important; padding-right: 8px !important; }
+    .take-payment-workspace > section > .flex.flex-col > .flex.flex-col { padding: 16px !important; }
+    #payment_form > .flex.items-center.w-full { grid-template-columns: 1fr !important; gap: 7px !important; }
+    #payment_form select,
+    #payment_form input:not([type="hidden"]):not([type="checkbox"]) { font-size: 16px !important; }
+    #payment_form .mt-14 { align-items: stretch !important; flex-direction: column !important; gap: 12px !important; }
+    #payment_form button[type="submit"] { width: 100%; }
+}
+@media (max-width: 400px) {
+    .take-payment-workspace > section > .flex.flex-col > .flex.flex-col { padding: 13px !important; }
+    .take-payment-workspace .grid.grid-cols-2.gap-4 { grid-template-columns: 1fr !important; }
+    .take-payment-workspace .grid.grid-cols-2.gap-4 > .col-span-2 { grid-column: 1 !important; }
+}
+</style>
+
+<div class="grid grid-cols-1 take-payment-workspace">
     <section class="px-4 md:px-15">
         <div class="font-extrabold text-2xl text-gray-500 text-right">TAKE PAYMENT</div>
         <div class="flex flex-col p-5 w-full max-w-full border-t-8 bg-white shadow-md border border-t-green-500 rounded-xl">
