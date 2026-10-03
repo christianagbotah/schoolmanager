@@ -46,6 +46,92 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
   .profile-card { border-radius: 12px; }
   .tab-modern { padding: 8px 10px; font-size: 13px; }
 }
+
+/* Direct UX readability refinement — Student Profile */
+.student-profile-workspace { padding: 24px 28px 40px !important; color: #334155; }
+.student-profile-workspace > .sticky-header {
+  top: 0; margin: 0 0 18px; padding: 14px 0 16px;
+  background: rgba(248,250,252,.96); border-bottom: 1px solid #e2e8f0;
+  backdrop-filter: blur(10px);
+}
+.student-profile-workspace > .sticky-header h1 {
+  font-size: 30px !important; line-height: 1.2; font-weight: 800 !important;
+  color: #0f172a !important; letter-spacing: -.02em;
+}
+.student-profile-workspace > .sticky-header label { font-size: 14px !important; font-weight: 700 !important; }
+.student-profile-workspace > .sticky-header .form-control,
+.student-profile-workspace > .sticky-header .select2-container .select2-choice {
+  min-height: 44px; font-size: 15px !important; border-radius: 9px;
+}
+.profile-card {
+  border-color: #e2e8f0; border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
+}
+.profile-card:hover { transform: none; box-shadow: 0 5px 16px rgba(15,23,42,.07); border-color: #cbd5e1; }
+.info-badge { font-size: 14px; font-weight: 700; min-height: 34px; padding: 6px 12px; }
+.tab-modern {
+  min-height: 42px; padding: 10px 16px; border-radius: 8px;
+  font-size: 14px; font-weight: 700; line-height: 1.35;
+}
+.tab-modern.active { background: #2563eb; color: #fff; }
+.stat-card { background: #4338ca; border-radius: 12px; }
+.student-profile-workspace .btn {
+  min-height: 40px; padding: 8px 14px; font-size: 14px; line-height: 1.4; font-weight: 700;
+}
+.student-profile-workspace .btn-lg { min-height: 44px; padding: 10px 17px; font-size: 15px; }
+.student-profile-workspace .text-xs { font-size: 13px !important; line-height: 1.4 !important; }
+.student-profile-workspace .text-sm { font-size: 14px !important; line-height: 1.45 !important; }
+.student-profile-workspace .profile-card h3.text-2xl { font-size: 19px !important; line-height: 1.35 !important; }
+.student-profile-workspace .profile-card p.text-xl { font-size: 17px !important; line-height: 1.45 !important; }
+.student-profile-workspace .profile-card[style*="linear-gradient"] { background: #312e81 !important; }
+
+.tab-content-wrapper { min-width: 0; }
+.tab-pane-modern { min-width: 0; }
+.tab-pane-modern .table-responsive,
+.tab-pane-modern .dataTables_wrapper,
+#tab6 { max-width: 100%; }
+.tab-pane-modern table { font-size: 14px; }
+.tab-pane-modern table.datatable {
+  min-width: 760px; border-color: #e2e8f0; border-radius: 12px;
+}
+.tab-pane-modern table.datatable thead th,
+.tab-pane-modern table.datatable tfoot th {
+  padding: 12px 13px; background: #f8fafc; color: #475569;
+  font-size: 13px; font-weight: 800; letter-spacing: .035em;
+}
+.tab-pane-modern table.datatable tbody td {
+  padding: 12px 13px; color: #334155; font-size: 14px; line-height: 1.45;
+}
+.student-profile-workspace .dataTables_wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.student-profile-workspace .dataTables_wrapper .dataTables_length,
+.student-profile-workspace .dataTables_wrapper .dataTables_filter,
+.student-profile-workspace .dataTables_wrapper .dataTables_info,
+.student-profile-workspace .dataTables_wrapper .dataTables_paginate { font-size: 14px; color: #475569; }
+.student-profile-workspace .dataTables_wrapper select,
+.student-profile-workspace .dataTables_wrapper input[type="search"] {
+  min-height: 40px; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px;
+  font-size: 14px; background: #fff; color: #0f172a;
+}
+.student-profile-workspace #tab6 table { min-width: 900px; }
+.student-profile-workspace #tab6 .h-16 { min-height: 42px !important; height: auto !important; }
+.student-profile-workspace #tab6 .text-xl { font-size: 15px !important; }
+.student-profile-workspace #tab6 .text-2xl { font-size: 18px !important; }
+
+@media (max-width: 768px) {
+  .student-profile-workspace { padding: 16px 14px 32px !important; }
+  .student-profile-workspace > .sticky-header h1 { font-size: 26px !important; }
+  .student-profile-workspace .profile-card { border-radius: 12px; }
+  .student-profile-workspace .lg\:sticky { position: static !important; max-height: none !important; }
+  .student-profile-workspace .staff-profile-tabs,
+  .student-profile-workspace .profile-card.sticky-header > div {
+    overflow-x: auto; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch;
+  }
+  .tab-modern { min-width: max-content; padding: 10px 14px; font-size: 14px; }
+}
+@media (max-width: 400px) {
+  .student-profile-workspace { padding: 12px 10px 28px !important; }
+  .student-profile-workspace > .sticky-header { padding-top: 8px; }
+  .student-profile-workspace .btn { min-height: 42px; }
+}
 </style>
 
 <?php
@@ -79,7 +165,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
     $student_name = $this->crud_model->getStudentInfoById($student_id)->name;
 ?>
 <!-- Modern Student Profile -->
-<div class="min-h-screen bg-gray-50 p-4 md:p-6">
+<div class="min-h-screen bg-gray-50 p-4 md:p-6 student-profile-workspace">
   <!-- Student Selector -->
   <div class="mb-6 sticky-header pb-4">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
