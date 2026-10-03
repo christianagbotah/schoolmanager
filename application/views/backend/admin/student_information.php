@@ -61,7 +61,7 @@ if(isset($_GET['msg'])) {
     }
     
     .action-popup-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #2563eb;
         color: white;
         border: none;
         padding: 8px 16px;
@@ -92,15 +92,15 @@ if(isset($_GET['msg'])) {
 
     /* Status button variants */
     .action-popup-btn.status-active {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        background: #059669;
     }
     
     .action-popup-btn.status-blocked {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        background: #dc2626;
     }
     
     .action-popup-btn.status-muted {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        background: #d97706;
     }
     
     .action-popup-menu {
@@ -177,6 +177,65 @@ if(isset($_GET['msg'])) {
         height: 1px;
         background: #e5e7eb;
         margin: 6px 0;
+    }
+
+    /* ---- family design-language alignment (presentation only) ---- */
+    .panel {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    }
+    .panel > .panel-heading {
+        background: transparent;
+        border-bottom: 1px solid #f3f4f6;
+        border-radius: 16px 16px 0 0;
+        color: #111827;
+    }
+    .panel > .panel-body { padding: 18px; }
+    .nav-tabs > li > a {
+        border-radius: 10px 10px 0 0;
+        font-weight: 600;
+        color: #374151;
+    }
+    .nav-tabs > li.active > a { color: #111827; }
+    .btn {
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all .2s;
+    }
+    .btn:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+    }
+    .btn-primary { background: #2563eb; border-color: #2563eb; }
+    .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+    .btn-success { background: #059669; border-color: #059669; }
+    .btn-success:hover { background: #047857; border-color: #047857; }
+    .btn-danger { background: #dc2626; border-color: #dc2626; }
+    .btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
+    .btn-info { background: #0284c7; border-color: #0284c7; }
+    .btn-info:hover { background: #0369a1; border-color: #0369a1; }
+    #panel_exam select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        outline: none;
+    }
+    .tab-content table.datatable { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; font-size: 14px; }
+    .tab-content table.datatable thead th {
+        background: #f9fafb; color: #374151; font-size: 12px; font-weight: 600;
+        text-transform: uppercase; letter-spacing: .3px;
+        border-bottom: 1px solid #e5e7eb !important; padding: 12px 10px;
+    }
+    .tab-content table.datatable tbody td { font-size: 14px; border-bottom: 1px solid #f3f4f6; color: #374151; }
+    .alert { border-radius: 12px; }
+    hr { border-color: #f3f4f6; }
+    @media (prefers-reduced-motion: reduce) {
+        .btn, .action-popup-btn, .action-popup-menu { transition: none; }
+        .action-popup-btn:hover { transform: none; }
+    }
+    @media (max-width: 400px) {
+        .tab-content table.datatable thead th, .tab-content table.datatable tbody td { padding: 8px 8px; }
     }
 </style>
 <hr />
@@ -459,7 +518,7 @@ if(isset($_GET['msg'])) {
                <strong> <?php echo $feedback; ?></strong>
             </div>
             <hr>
-                <div class="bg-gray-100 md:h-40 p-6 mb-16 md:mb-0 h-fit md:h-auto">
+                <div class="bg-white border border-gray-200 rounded-xl md:h-40 p-6 mb-16 md:mb-0 h-fit md:h-auto">
                 
                     <!-- <div class="form-group row" id="search_row">
                         <div class="col-lg-9 col-md-9 col-sm-7"></div>
