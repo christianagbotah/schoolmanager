@@ -1,538 +1,362 @@
 <?php
-$theme_color_row = $this->db->get_where('settings', array('type' => 'theme_color'))->row();
-$theme_color = $theme_color_row ? $theme_color_row->description : '667eea';
-if(strpos($theme_color, '#') !== 0) {
-    $theme_color = '#' . $theme_color;
-}
-
-if(!function_exists('adjustBrightness_grade_creche')) {
-    function adjustBrightness_grade_creche($hex, $steps) {
-        $hex = str_replace('#', '', $hex);
-        if(strlen($hex) == 3) {
-            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
-        }
-        $r = hexdec(substr($hex, 0, 2));
-        $g = hexdec(substr($hex, 2, 2));
-        $b = hexdec(substr($hex, 4, 2));
-        $r = max(0, min(255, $r + $steps));
-        $g = max(0, min(255, $g + $steps));
-        $b = max(0, min(255, $b + $steps));
-        return '#' . str_pad(dechex($r), 2, '0', STR_PAD_LEFT) . str_pad(dechex($g), 2, '0', STR_PAD_LEFT) . str_pad(dechex($b), 2, '0', STR_PAD_LEFT);
-    }
-}
-$gradient_light = adjustBrightness_grade_creche($theme_color, 20);
-$gradient_dark = adjustBrightness_grade_creche($theme_color, -30);
+$grade_count = is_array($grades) ? count($grades) : 0;
 ?>
 <style>
-:root {
-    --theme-primary: <?php echo $theme_color; ?>;
-    --theme-light: <?php echo $gradient_light; ?>;
-    --theme-dark: <?php echo $gradient_dark; ?>;
-}
-
-.grade-header {
-    background: var(--theme-dark);
-    color: white;
-    padding: 30px;
-    border-radius: 16px;
-    margin-bottom: 30px;
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-}
-
-.grade-stats {
-    display: flex;
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.stat-card {
-    background: rgba(255, 255, 255, 0.15);
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    flex: 1;
-    backdrop-filter: blur(10px);
-}
-
-.stat-number {
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.stat-label {
-    font-size: 14px;
-    opacity: 0.9;
-}
-
-.modern-tabs {
-    display: flex;
-    background: white;
-    border-radius: 12px;
-    padding: 8px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.modern-tab {
-    flex: 1;
-    padding: 16px 24px;
-    text-align: center;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 600;
-    color: #64748b;
-    text-decoration: none;
-}
-
-.modern-tab.active {
-    background: var(--theme-dark);
-    color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.modern-tab:hover {
-    background: #f1f5f9;
-    color: #334155;
-    text-decoration: none;
-}
-
-.modern-tab.active:hover {
-    background: var(--theme-dark);
-    color: white;
-}
-
-.grade-table {
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.grade-table thead {
-    background: var(--theme-dark);
-}
-
-.grade-table thead th {
-    color: white;
-    font-weight: 600;
-    padding: 20px;
-    border: none;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.grade-table tbody tr {
-    transition: all 0.3s ease;
-    border-bottom: 1px solid #f1f5f9;
-}
-
-.grade-table tbody tr:hover {
+.creche-grade-workspace {
+    margin: 0 !important;
+    padding: 24px 28px 40px !important;
     background: #f8fafc;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    min-height: 100%;
+    color: #334155;
 }
-
-.grade-table tbody td {
-    padding: 20px;
-    vertical-align: middle;
-    border: none;
-}
-
-.grade-name {
-    font-weight: 600;
-    color: #1e293b;
-    font-size: 16px;
-}
-
-.grade-abbrev {
-    background: #f5576c;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    display: inline-block;
-}
-
-.action-buttons {
+.creche-grade-head {
     display: flex;
-    gap: 8px;
-    justify-content: center;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e2e8f0;
 }
-
-.btn-action {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: none;
+.creche-grade-eyebrow {
+    margin: 0 0 4px;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.creche-grade-head h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 30px !important;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+.creche-grade-head p:last-child {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.5;
+}
+.creche-grade-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 7px 11px;
+    border: 1px solid #dbeafe;
+    border-radius: 9px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 13px;
+    font-weight: 800;
+}
+.creche-grade-tabs {
+    display: flex;
+    gap: 4px;
+    margin: 0 0 14px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.creche-grade-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 -1px;
+    padding: 10px 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none !important;
+}
+.creche-grade-tab:hover { color: #1d4ed8; background: #f8fafc; }
+.creche-grade-tab.active { border-bottom-color: #2563eb; color: #2563eb; }
+.creche-grade-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+}
+.creche-grade-table-shell { overflow-x: auto; }
+#creche_grade_table {
+    width: 100% !important;
+    min-width: 680px;
+    margin: 0 !important;
+    border-collapse: collapse !important;
+}
+#creche_grade_table thead th {
+    padding: 12px 13px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+}
+#creche_grade_table tbody td {
+    padding: 12px 13px !important;
+    border-bottom: 1px solid #eef2f7 !important;
+    color: #334155 !important;
+    font-size: 14px !important;
+    line-height: 1.45;
+    vertical-align: middle !important;
+}
+#creche_grade_table tbody tr:hover { background: #f8fbff; }
+.creche-grade-name { color: #0f172a; font-weight: 800; }
+.creche-grade-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 27px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
     font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
+    font-weight: 800;
+}
+.creche-grade-actions {
+    display: flex;
+    justify-content: flex-end;
     gap: 6px;
+    white-space: nowrap;
 }
-
-.btn-edit {
-    background: #11998e;
-    color: white;
+.creche-grade-actions button {
+    min-height: 36px;
+    padding: 7px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 800;
 }
-
-.btn-edit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);
-    color: white;
-}
-
-.btn-delete {
-    background: #f5576c;
-    color: white;
-}
-
-.btn-delete:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);
-    color: white;
-}
-
-.grade-form {
-    background: white;
-    border-radius: 16px;
-    padding: 50px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.form-container {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-}
-
-.form-group {
-    margin-bottom: 30px;
-}
-
-.form-label {
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 12px;
-    display: block;
-    font-size: 15px;
-}
-
-.form-control {
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 16px 20px;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    width: 100%;
-    min-height: 54px;
-    background: #fafbfc;
-}
-
-.form-control:focus {
-    border-color: var(--theme-primary);
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-    outline: none;
-    background: white;
-}
-
-.form-control::placeholder {
-    color: #94a3b8;
-    font-size: 15px;
-}
-
-.form-actions {
+.creche-grade-actions button:hover { background: #f8fafc; }
+.creche-grade-actions .danger { border-color: #fecaca; color: #b91c1c; }
+.creche-grade-empty {
+    padding: 42px 18px;
     text-align: center;
-    margin-top: 50px;
-    padding-top: 30px;
-    border-top: 1px solid #f1f5f9;
-}
-
-.btn-primary {
-    background: var(--theme-dark);
-    border: none;
-    padding: 16px 40px;
-    border-radius: 12px;
-    font-weight: 600;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 16px;
-    min-width: 180px;
-    justify-content: center;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-    color: white;
-}
-
-@media (max-width: 768px) {
-    .grade-form {
-        padding: 30px 20px;
-        margin: 0 15px;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .form-container {
-        max-width: 100%;
-    }
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
     color: #64748b;
 }
-
-.empty-icon {
-    font-size: 64px;
-    color: #cbd5e1;
-    margin-bottom: 20px;
+.creche-grade-empty i {
+    display: block;
+    margin-bottom: 12px;
+    color: #94a3b8;
+    font-size: 34px;
 }
-
-@media (max-width: 768px) {
-    .grade-stats {
-        flex-direction: column;
-    }
-    
-    .action-buttons {
-        flex-direction: column;
-    }
-    
-    .grade-table {
-        font-size: 14px;
-    }
-    
-    .grade-table thead th,
-    .grade-table tbody td {
-        padding: 12px 8px;
-    }
+.creche-grade-empty h3 { margin: 0 0 6px; color: #0f172a; font-size: 18px; font-weight: 800; }
+.creche-grade-empty p { margin: 0 0 14px; font-size: 14px; }
+.creche-grade-empty .btn { min-height: 42px; padding: 8px 14px !important; border-radius: 8px !important; font-size: 14px !important; font-weight: 800 !important; }
+.creche-grade-form {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 18px;
+}
+.creche-grade-form-head {
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.creche-grade-form-head h2 { margin: 0; color: #0f172a; font-size: 20px !important; font-weight: 800; }
+.creche-grade-form-head p { margin: 6px 0 0; color: #64748b; font-size: 13px; }
+.creche-grade-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.creche-grade-field label { display: block; margin: 0 0 6px; color: #334155; font-size: 13px; font-weight: 800; }
+.creche-grade-field input {
+    width: 100%;
+    min-height: 44px;
+    height: 44px;
+    padding: 9px 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #fff;
+    color: #0f172a;
+    font-size: 15px !important;
+    box-sizing: border-box;
+}
+.creche-grade-field input:focus { border-color: #2563eb; outline: 0; box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+.creche-grade-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+}
+.creche-grade-form-actions .btn { min-height: 44px; padding: 9px 15px !important; border-radius: 9px !important; font-size: 14px !important; font-weight: 800 !important; box-shadow: none !important; }
+.creche-grade-form-actions .btn-primary { background: #2563eb !important; border-color: #2563eb !important; }
+.creche-grade-workspace .dataTables_wrapper { min-width: 680px; padding: 14px; }
+.creche-grade-workspace .dataTables_length,
+.creche-grade-workspace .dataTables_filter,
+.creche-grade-workspace .dataTables_info,
+.creche-grade-workspace .dataTables_paginate { color: #475569; font-size: 13px; }
+.creche-grade-workspace .dataTables_length label,
+.creche-grade-workspace .dataTables_filter label { display: flex; align-items: center; gap: 6px; color: #475569; font-size: 13px; font-weight: 700; }
+.creche-grade-workspace .dataTables_length select,
+.creche-grade-workspace .dataTables_filter input { min-height: 38px; height: 38px; padding: 7px 9px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; color: #0f172a; font-size: 14px; }
+@media (max-width: 767px) {
+    .creche-grade-workspace { padding: 18px 14px 32px !important; }
+    .creche-grade-head { display: block; }
+    .creche-grade-head h1 { font-size: 26px !important; }
+    .creche-grade-count { margin-top: 12px; }
+    .creche-grade-tabs { overflow-x: auto; white-space: nowrap; }
+    .creche-grade-form-grid { grid-template-columns: 1fr; }
+    .creche-grade-field input { font-size: 16px !important; }
+    .creche-grade-form-actions { display: grid; grid-template-columns: 1fr; }
 }
 </style>
 
-<!-- Modern Tabs -->
-<div class="modern-tabs">
-    <a href="#list" class="modern-tab active" id="list-tab" data-toggle="tab">
-        <i class="fa fa-list" style="margin-right: 8px;"></i>
-        Grade List
-    </a>
-    <a href="#add" class="modern-tab" id="add-tab" data-toggle="tab">
-        <i class="fa fa-plus" style="margin-right: 8px;"></i>
-        Add New Grade
-    </a>
-</div>
-
-<!-- Tab Content -->
-<div class="tab-content">
-    <!-- Grade List Tab -->
-    <div class="tab-pane active" id="list">
-        <div class="grade-table">
-            <?php if(empty($grades)): ?>
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fa fa-star"></i>
-                    </div>
-                    <h3>No Grades Found</h3>
-                    <p>Get started by creating your first grade</p>
-                    <button class="btn btn-primary" onclick="$('#add-tab').click();">
-                        <i class="fa fa-plus"></i> Create First Grade
-                    </button>
-                </div>
-            <?php else: ?>
-                <table class="table" id="table_export">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th><?php echo get_phrase('grade_full_name'); ?></th>
-                            <th><?php echo get_phrase('grade_abbreviation'); ?></th>
-                            <th style="text-align: center;"><?php echo get_phrase('options'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $count = 1; foreach($grades as $row): ?>
-                        <tr>
-                            <td><?php echo $count++; ?></td>
-                            <td>
-                                <div class="grade-name"><?php echo $row['full_name']; ?></div>
-                            </td>
-                            <td>
-                                <span class="grade-abbrev"><?php echo $row['abbrev']; ?></span>
-                            </td>
-                            <td style="text-align: center;">
-                                <div class="action-buttons">
-                                    <button class="btn-action btn-edit" onclick="editGrade(<?php echo $row['grade_id']; ?>)" title="Edit Grade">
-                                        <i class="fa fa-edit"></i> Edit
-                                    </button>
-                                    <button class="btn-action btn-delete" onclick="deleteGrade(<?php echo $row['grade_id']; ?>)" title="Delete Grade">
-                                        <i class="fa fa-trash"></i> Delete
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
+<div class="creche-grade-workspace">
+    <div class="creche-grade-head">
+        <div>
+            <p class="creche-grade-eyebrow">Examination</p>
+            <h1>Creche &amp; Nursery Grades</h1>
+            <p>Manage descriptive assessment grades used for early-years reporting.</p>
         </div>
+        <span class="creche-grade-count"><i class="fa fa-star"></i> <?php echo (int)$grade_count; ?> grade<?php echo $grade_count === 1 ? '' : 's'; ?></span>
     </div>
-    
-    <!-- Add Grade Tab -->
-    <div class="tab-pane" id="add">
-        <div class="grade-form">
-            <div style="text-align: center; margin-bottom: 40px;">
-                <h2 style="color: #1e293b; font-weight: 700; margin-bottom: 8px;">Create New Grade</h2>
-                <p style="color: #64748b;">Add a new grade for creche and nursery assessment</p>
+
+    <div class="creche-grade-tabs">
+        <a href="#list" class="creche-grade-tab active" id="list-tab" data-toggle="tab"><i class="fa fa-list"></i> Grade List</a>
+        <a href="#add" class="creche-grade-tab" id="add-tab" data-toggle="tab"><i class="fa fa-plus"></i> Add New Grade</a>
+    </div>
+
+    <div class="tab-content">
+        <div class="tab-pane active" id="list">
+            <div class="creche-grade-card creche-grade-table-shell">
+                <?php if(empty($grades)): ?>
+                    <div class="creche-grade-empty">
+                        <i class="fa fa-star"></i>
+                        <h3>No grades found</h3>
+                        <p>Create the first descriptive grade for Creche/Nursery assessment.</p>
+                        <button type="button" class="btn btn-primary" onclick="$('#add-tab').click();"><i class="fa fa-plus"></i> Create First Grade</button>
+                    </div>
+                <?php else: ?>
+                    <table class="table" id="creche_grade_table">
+                        <thead>
+                            <tr><th style="width:60px">#</th><th><?php echo get_phrase('grade_full_name'); ?></th><th><?php echo get_phrase('grade_abbreviation'); ?></th><th style="text-align:right"><?php echo get_phrase('options'); ?></th></tr>
+                        </thead>
+                        <tbody>
+                        <?php $count = 1; foreach($grades as $row): ?>
+                            <tr>
+                                <td><?php echo $count++; ?></td>
+                                <td><span class="creche-grade-name"><?php echo html_escape($row['full_name']); ?></span></td>
+                                <td><span class="creche-grade-badge"><?php echo html_escape($row['abbrev']); ?></span></td>
+                                <td><div class="creche-grade-actions">
+                                    <button type="button" onclick="editGrade(<?php echo (int)$row['grade_id']; ?>)"><i class="fa fa-edit"></i> Edit</button>
+                                    <button type="button" class="danger" onclick="deleteGrade(<?php echo (int)$row['grade_id']; ?>)"><i class="fa fa-trash"></i> Delete</button>
+                                </div></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
             </div>
-            
-            <?php echo form_open(site_url('admin/grade_creche/create'), array('id' => 'add_grade_form')); ?>
-                <div class="form-container">
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fa fa-star" style="margin-right: 8px;"></i>
-                            <?php echo get_phrase('full_name'); ?> *
-                        </label>
-                        <input type="text" class="form-control" name="name" placeholder="e.g., Needs Attention, Excellent" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fa fa-tag" style="margin-right: 8px;"></i>
-                            <?php echo get_phrase('grade_abbreviation'); ?> *
-                        </label>
-                        <input type="text" class="form-control" name="grade_point" placeholder="e.g., NA, EX" required>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa fa-save"></i> Create Grade
-                        </button>
-                    </div>
+        </div>
+
+        <div class="tab-pane" id="add">
+            <div class="creche-grade-card creche-grade-form">
+                <div class="creche-grade-form-head">
+                    <h2>Create New Grade</h2>
+                    <p>Add a descriptive grade name and abbreviation for early-years assessment.</p>
                 </div>
-            <?php echo form_close(); ?>
+                <?php echo form_open(site_url('admin/grade_creche/create'), array('id' => 'add_grade_form')); ?>
+                    <div class="creche-grade-form-grid">
+                        <div class="creche-grade-field">
+                            <label for="creche_grade_name"><i class="fa fa-star"></i> <?php echo get_phrase('full_name'); ?> *</label>
+                            <input id="creche_grade_name" type="text" name="name" maxlength="100" placeholder="e.g. Needs Attention, Excellent" required>
+                        </div>
+                        <div class="creche-grade-field">
+                            <label for="creche_grade_abbrev"><i class="fa fa-tag"></i> <?php echo get_phrase('grade_abbreviation'); ?> *</label>
+                            <input id="creche_grade_abbrev" type="text" name="grade_point" maxlength="20" placeholder="e.g. NA, EX" required>
+                        </div>
+                    </div>
+                    <div class="creche-grade-form-actions">
+                        <button type="button" class="btn btn-default" onclick="$('#list-tab').click();">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="create_creche_grade_button"><i class="fa fa-save"></i> Create Grade</button>
+                    </div>
+                <?php echo form_close(); ?>
+            </div>
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
-$(document).ready(function() {
-    // Initialize DataTable with modern styling
-    $('#table_export').DataTable({
-        responsive: true,
-        pageLength: 10,
-        order: [[1, 'asc']], // Sort by name
-        columnDefs: [
-            { orderable: false, targets: [3] } // Disable sorting on actions column
-        ],
-        language: {
-            search: "Search grades:",
-            lengthMenu: "Show _MENU_ grades per page",
-            info: "Showing _START_ to _END_ of _TOTAL_ grades",
-            paginate: {
-                first: "First",
-                last: "Last",
-                next: "Next",
-                previous: "Previous"
+$(function() {
+    if ($('#creche_grade_table').length && $.fn.DataTable && !$.fn.DataTable.isDataTable('#creche_grade_table')) {
+        $('#creche_grade_table').DataTable({
+            responsive: true,
+            pageLength: 10,
+            order: [[1, 'asc']],
+            columnDefs: [{ orderable: false, targets: [3] }],
+            language: {
+                search: 'Search grades:',
+                lengthMenu: 'Show _MENU_ grades per page',
+                info: 'Showing _START_ to _END_ of _TOTAL_ grades',
+                paginate: { first: 'First', last: 'Last', next: 'Next', previous: 'Previous' }
             }
-        }
-    });
-    
-    // Tab switching functionality
-    $('.modern-tab').click(function(e) {
+        });
+    }
+
+    $('.creche-grade-tab').on('click', function(e) {
         e.preventDefault();
-        
-        // Remove active class from all tabs
-        $('.modern-tab').removeClass('active');
-        
-        // Add active class to clicked tab
+        $('.creche-grade-tab').removeClass('active');
         $(this).addClass('active');
-        
-        // Hide all tab panes
-        $('.tab-pane').removeClass('active');
-        
-        // Show target tab pane
-        var target = $(this).attr('href');
-        $(target).addClass('active');
+        $('.creche-grade-workspace .tab-pane').removeClass('active');
+        $($(this).attr('href')).addClass('active');
     });
-    
-    // Form submission with modern modal
-    $('#add_grade_form').submit(function(e) {
+
+    $('#add_grade_form').on('submit', function(e) {
         e.preventDefault();
-        
-        // Show loading
+        var form = this;
+        var button = $('#create_creche_grade_button');
+        button.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Creating…');
         showAjaxModal_alert('Creating grade...', 'loading');
-        
+
         $.ajax({
-            url: $(this).attr('action'),
+            url: $(form).attr('action'),
             type: 'POST',
-            data: new FormData(this),
+            data: new FormData(form),
             cache: false,
             contentType: false,
             processData: false,
             dataType: 'json'
-        })
-        .done(function(response) {
+        }).done(function() {
             showAjaxModal_alert('Grade created successfully!', 'success');
-            setTimeout(() => {
-                location.reload();
-            }, 2000);
-        })
-        .fail(function(xhr) {
+            setTimeout(function() { location.reload(); }, 1200);
+        }).fail(function(xhr) {
             var errorMsg = 'Failed to create grade';
-            if(xhr.responseJSON && xhr.responseJSON.message) {
-                errorMsg = xhr.responseJSON.message;
-            }
+            if (xhr.responseJSON && xhr.responseJSON.message) errorMsg = xhr.responseJSON.message;
             showAjaxModal_alert(errorMsg, 'error');
+            button.prop('disabled', false).html('<i class="fa fa-save"></i> Create Grade');
         });
     });
 });
 
-// Edit grade function
 function editGrade(gradeId) {
     showAjaxModal('<?php echo site_url("modal/popup/modal_edit_grade_creche/"); ?>' + gradeId);
 }
 
-// Delete grade function with modern confirmation
 function deleteGrade(gradeId) {
     showConfirmModal(
         'Delete Grade',
         'Are you sure you want to delete this grade? This action cannot be undone.',
         function() {
-            // Show loading
             showAjaxModal_alert('Deleting grade...', 'loading');
-            
             $.ajax({
                 url: '<?php echo site_url("admin/grade_creche/delete/"); ?>' + gradeId,
                 type: 'GET',
                 dataType: 'json'
-            })
-            .done(function(response) {
+            }).done(function() {
                 showAjaxModal_alert('Grade deleted successfully!', 'success');
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
-            })
-            .fail(function() {
+                setTimeout(function() { location.reload(); }, 1200);
+            }).fail(function() {
                 showAjaxModal_alert('An error occurred while deleting the grade', 'error');
             });
         },
