@@ -1,12 +1,27 @@
 <?php if(!isset($ajax_load)): ?>
 <!-- Purchase Order Details View -->
 <?php include('_readable_header.php'); ?>
-<div class="inventory-content p-8 sm:p-10 lg:p-12" style="margin-top: 70px;">
+<style>
+.inventory-po-detail-workspace { margin:0 !important; padding:18px !important; background:#fff; color:#334155; }
+.inventory-po-detail-workspace > .mb-8 { margin-bottom:16px !important; padding-bottom:14px; border-bottom:1px solid #e2e8f0; }
+.inventory-po-detail-workspace > .mb-8 h2 { margin:0 0 7px !important; color:#0f172a !important; font-size:22px !important; font-weight:800 !important; }
+.inventory-po-detail-workspace > .mb-8 a { font-size:13px !important; font-weight:800; }
+.inventory-po-detail-workspace > .bg-gradient-to-r { padding:16px !important; margin-bottom:14px !important; border:1px solid #dbeafe !important; border-left-width:4px !important; border-radius:12px !important; background:#f8fbff !important; }
+.inventory-po-detail-workspace > .bg-white.border { margin-bottom:14px !important; border:1px solid #e2e8f0 !important; border-radius:12px !important; box-shadow:none !important; }
+.inventory-po-detail-workspace > .bg-white.border > .bg-gradient-to-r { padding:13px 15px !important; background:#f8fafc !important; border-bottom:1px solid #e2e8f0 !important; }
+.inventory-po-detail-workspace table { min-width:760px; }
+.inventory-po-detail-workspace table th { padding:11px 12px !important; color:#475569 !important; font-size:13px !important; font-weight:800 !important; }
+.inventory-po-detail-workspace table td { padding:11px 12px !important; color:#334155; font-size:14px !important; line-height:1.45; }
+.inventory-po-detail-workspace .btn,.inventory-po-detail-workspace button,.inventory-po-detail-workspace a[class*="px-"] { min-height:40px; padding:8px 13px !important; border-radius:8px !important; font-size:13px !important; font-weight:800 !important; }
+@media(max-width:767px){.inventory-po-detail-workspace{padding:14px !important}.inventory-po-detail-workspace .grid.md\:grid-cols-2{grid-template-columns:1fr !important}}
+</style>
+
+<div class="inventory-content inventory-po-detail-workspace">
 <?php endif; ?>
 
     <div class="mb-8">
-        <h2 style="font-size: 2.5rem !important;" class="font-bold text-gray-900 mb-4">Purchase Order #<?php echo $po['id']; ?></h2>
-        <a href="<?php echo site_url('inventory/purchase_orders'); ?>" style="font-size: 1.125rem !important;" class="text-blue-600 hover:text-blue-800">
+        <h2 style="font-size: 22px !important;" class="font-bold text-gray-900 mb-4">Purchase Order #<?php echo $po['id']; ?></h2>
+        <a href="<?php echo site_url('inventory/purchase_orders'); ?>" style="font-size: 14px !important;" class="text-blue-600 hover:text-blue-800">
             <i class="fa fa-arrow-left mr-2"></i> Back to Purchase Orders
         </a>
     </div>
@@ -15,12 +30,12 @@
     <div class="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500 rounded-xl p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-                <p style="font-size: 1.125rem !important;" class="text-gray-700 mb-2"><strong>Purchase Date:</strong> <?php echo date('d M Y', strtotime($po['purchase_date'])); ?></p>
-                <p style="font-size: 1.125rem !important;" class="text-gray-700 mb-2"><strong>Supplier:</strong> <?php echo $po['supplier_name'] ?: 'N/A'; ?></p>
-                <p style="font-size: 1.125rem !important;" class="text-gray-700 mb-2"><strong>Reference Number:</strong> <?php echo $po['reference_number'] ?: 'N/A'; ?></p>
+                <p style="font-size: 14px !important;" class="text-gray-700 mb-2"><strong>Purchase Date:</strong> <?php echo date('d M Y', strtotime($po['purchase_date'])); ?></p>
+                <p style="font-size: 14px !important;" class="text-gray-700 mb-2"><strong>Supplier:</strong> <?php echo $po['supplier_name'] ?: 'N/A'; ?></p>
+                <p style="font-size: 14px !important;" class="text-gray-700 mb-2"><strong>Reference Number:</strong> <?php echo $po['reference_number'] ?: 'N/A'; ?></p>
             </div>
             <div>
-                <p style="font-size: 1.125rem !important;" class="text-gray-700 mb-2"><strong>Status:</strong> 
+                <p style="font-size: 14px !important;" class="text-gray-700 mb-2"><strong>Status:</strong> 
                     <?php 
                     $statusColors = [
                         'pending' => 'bg-yellow-100 text-yellow-800',
@@ -31,16 +46,16 @@
                     ?>
                     <span class="px-3 py-1 rounded-full text-sm font-semibold <?php echo $statusColor; ?>"><?php echo strtoupper($po['status']); ?></span>
                 </p>
-                <p style="font-size: 1.125rem !important;" class="text-gray-700 mb-2"><strong>Created By:</strong> <?php echo $po['created_by_name']; ?></p>
+                <p style="font-size: 14px !important;" class="text-gray-700 mb-2"><strong>Created By:</strong> <?php echo $po['created_by_name']; ?></p>
                 <?php if($po['status'] === 'received'): ?>
-                <p style="font-size: 1.125rem !important;" class="text-gray-700 mb-2"><strong>Received By:</strong> <?php echo $po['received_by_name']; ?></p>
-                <p style="font-size: 1.125rem !important;" class="text-gray-700 mb-2"><strong>Received Date:</strong> <?php echo date('d M Y, h:i A', strtotime($po['received_date'])); ?></p>
+                <p style="font-size: 14px !important;" class="text-gray-700 mb-2"><strong>Received By:</strong> <?php echo $po['received_by_name']; ?></p>
+                <p style="font-size: 14px !important;" class="text-gray-700 mb-2"><strong>Received Date:</strong> <?php echo date('d M Y, h:i A', strtotime($po['received_date'])); ?></p>
                 <?php endif; ?>
             </div>
         </div>
         <?php if($po['notes']): ?>
         <div class="mt-4 pt-4 border-t border-blue-200">
-            <p style="font-size: 1.125rem !important;" class="text-gray-700"><strong>Notes:</strong> <?php echo nl2br(htmlspecialchars($po['notes'])); ?></p>
+            <p style="font-size: 14px !important;" class="text-gray-700"><strong>Notes:</strong> <?php echo nl2br(htmlspecialchars($po['notes'])); ?></p>
         </div>
         <?php endif; ?>
     </div>
@@ -48,25 +63,25 @@
     <!-- Purchase Items -->
     <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6">
         <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-            <h3 style="font-size: 1.5rem !important;" class="font-bold text-gray-900">Purchase Items</h3>
+            <h3 style="font-size: 17px !important;" class="font-bold text-gray-900">Purchase Items</h3>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th style="font-size: 1.125rem !important;" class="px-6 py-4 text-left font-semibold text-gray-700">Product</th>
-                        <th style="font-size: 1.125rem !important;" class="px-6 py-4 text-center font-semibold text-gray-700">Quantity</th>
-                        <th style="font-size: 1.125rem !important;" class="px-6 py-4 text-right font-semibold text-gray-700">Cost Price</th>
-                        <th style="font-size: 1.125rem !important;" class="px-6 py-4 text-right font-semibold text-gray-700">Total Cost</th>
+                        <th style="font-size: 14px !important;" class="px-6 py-4 text-left font-semibold text-gray-700">Product</th>
+                        <th style="font-size: 14px !important;" class="px-6 py-4 text-center font-semibold text-gray-700">Quantity</th>
+                        <th style="font-size: 14px !important;" class="px-6 py-4 text-right font-semibold text-gray-700">Cost Price</th>
+                        <th style="font-size: 14px !important;" class="px-6 py-4 text-right font-semibold text-gray-700">Total Cost</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php foreach($po['items'] as $item): ?>
                     <tr class="hover:bg-gray-50">
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-gray-900"><?php echo $item['product_name']; ?></td>
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-center text-gray-900 font-semibold"><?php echo $item['quantity']; ?></td>
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-right text-gray-900"><?php echo $currency; ?> <?php echo number_format($item['cost_price'], 2); ?></td>
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-right text-gray-900 font-bold"><?php echo $currency; ?> <?php echo number_format($item['total_cost'], 2); ?></td>
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-gray-900"><?php echo $item['product_name']; ?></td>
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-center text-gray-900 font-semibold"><?php echo $item['quantity']; ?></td>
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-right text-gray-900"><?php echo $currency; ?> <?php echo number_format($item['cost_price'], 2); ?></td>
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-right text-gray-900 font-bold"><?php echo $currency; ?> <?php echo number_format($item['total_cost'], 2); ?></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -74,14 +89,14 @@
                     <?php if(isset($po['subtotal']) && $po['subtotal'] > 0): ?>
                     <!-- Subtotal row -->
                     <tr>
-                        <td colspan="3" style="font-size: 1.125rem !important;" class="px-6 py-3 text-right font-semibold text-gray-700">Subtotal:</td>
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-3 text-right text-gray-900 font-semibold"><?php echo $currency; ?> <?php echo number_format($po['subtotal'], 2); ?></td>
+                        <td colspan="3" style="font-size: 14px !important;" class="px-6 py-3 text-right font-semibold text-gray-700">Subtotal:</td>
+                        <td style="font-size: 14px !important;" class="px-6 py-3 text-right text-gray-900 font-semibold"><?php echo $currency; ?> <?php echo number_format($po['subtotal'], 2); ?></td>
                     </tr>
                     
                     <?php if(isset($po['discount_amount']) && $po['discount_amount'] > 0): ?>
                     <!-- Discount row -->
                     <tr>
-                        <td colspan="3" style="font-size: 1.125rem !important;" class="px-6 py-3 text-right text-gray-700">
+                        <td colspan="3" style="font-size: 14px !important;" class="px-6 py-3 text-right text-gray-700">
                             <span class="font-semibold">Discount</span>
                             <?php if(isset($po['discount_type']) && $po['discount_type'] === 'percentage'): ?>
                                 <span class="text-sm text-gray-600">(<?php echo number_format($po['discount_value'], 2); ?>%)</span>
@@ -90,20 +105,20 @@
                             <?php endif; ?>
                             :
                         </td>
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-3 text-right text-red-600 font-semibold">- <?php echo $currency; ?> <?php echo number_format($po['discount_amount'], 2); ?></td>
+                        <td style="font-size: 14px !important;" class="px-6 py-3 text-right text-red-600 font-semibold">- <?php echo $currency; ?> <?php echo number_format($po['discount_amount'], 2); ?></td>
                     </tr>
                     <?php endif; ?>
                     
                     <!-- Total row -->
                     <tr class="border-t-2 border-gray-300">
-                        <td colspan="3" style="font-size: 1.375rem !important;" class="px-6 py-4 text-right font-bold text-gray-900">TOTAL AMOUNT:</td>
-                        <td style="font-size: 1.375rem !important;" class="px-6 py-4 text-right font-bold text-green-700"><?php echo $currency; ?> <?php echo number_format($po['final_total'] ?? $po['total_amount'], 2); ?></td>
+                        <td colspan="3" style="font-size: 16px !important;" class="px-6 py-4 text-right font-bold text-gray-900">TOTAL AMOUNT:</td>
+                        <td style="font-size: 16px !important;" class="px-6 py-4 text-right font-bold text-green-700"><?php echo $currency; ?> <?php echo number_format($po['final_total'] ?? $po['total_amount'], 2); ?></td>
                     </tr>
                     <?php else: ?>
                     <!-- Legacy format: just show total -->
                     <tr class="bg-green-50 font-bold">
-                        <td colspan="3" style="font-size: 1.25rem !important;" class="px-6 py-4 text-right text-gray-900">TOTAL AMOUNT:</td>
-                        <td style="font-size: 1.25rem !important;" class="px-6 py-4 text-right text-green-700"><?php echo $currency; ?> <?php echo number_format($po['total_amount'], 2); ?></td>
+                        <td colspan="3" style="font-size: 15px !important;" class="px-6 py-4 text-right text-gray-900">TOTAL AMOUNT:</td>
+                        <td style="font-size: 15px !important;" class="px-6 py-4 text-right text-green-700"><?php echo $currency; ?> <?php echo number_format($po['total_amount'], 2); ?></td>
                     </tr>
                     <?php endif; ?>
                 </tfoot>
@@ -115,23 +130,23 @@
     <?php if($po['status'] === 'received' && !empty($po['stock_movements'])): ?>
     <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6">
         <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-            <h3 style="font-size: 1.5rem !important;" class="font-bold text-gray-900">Stock Adjustments</h3>
+            <h3 style="font-size: 17px !important;" class="font-bold text-gray-900">Stock Adjustments</h3>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th style="font-size: 1.125rem !important;" class="px-6 py-4 text-left font-semibold text-gray-700">Product</th>
-                        <th style="font-size: 1.125rem !important;" class="px-6 py-4 text-center font-semibold text-gray-700">Quantity Added</th>
-                        <th style="font-size: 1.125rem !important;" class="px-6 py-4 text-left font-semibold text-gray-700">Date</th>
+                        <th style="font-size: 14px !important;" class="px-6 py-4 text-left font-semibold text-gray-700">Product</th>
+                        <th style="font-size: 14px !important;" class="px-6 py-4 text-center font-semibold text-gray-700">Quantity Added</th>
+                        <th style="font-size: 14px !important;" class="px-6 py-4 text-left font-semibold text-gray-700">Date</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php foreach($po['stock_movements'] as $movement): ?>
                     <tr class="hover:bg-gray-50">
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-gray-900"><?php echo $movement['product_name']; ?></td>
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-center text-green-600 font-bold">+<?php echo $movement['quantity']; ?></td>
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-gray-900"><?php echo date('d M Y, h:i A', strtotime($movement['movement_date'])); ?></td>
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-gray-900"><?php echo $movement['product_name']; ?></td>
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-center text-green-600 font-bold">+<?php echo $movement['quantity']; ?></td>
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-gray-900"><?php echo date('d M Y, h:i A', strtotime($movement['movement_date'])); ?></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -144,8 +159,8 @@
     <?php if($po['status'] === 'received'): ?>
     <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6">
         <div class="bg-gradient-to-r from-green-50 to-green-100 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h3 style="font-size: 1.5rem !important;" class="font-bold text-gray-900">Payments</h3>
-            <button onclick="showAddPaymentModal()" style="font-size: 1.125rem !important;" class="px-4 py-2 font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700">
+            <h3 style="font-size: 17px !important;" class="font-bold text-gray-900">Payments</h3>
+            <button onclick="showAddPaymentModal()" style="font-size: 14px !important;" class="px-4 py-2 font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700">
                 <i class="fa fa-plus mr-2"></i> Add Payment
             </button>
         </div>
@@ -154,21 +169,21 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th style="font-size: 1.125rem !important;" class="px-6 py-4 text-left font-semibold text-gray-700 w-1/6">Date</th>
-                        <th style="font-size: 1.125rem !important;" class="px-6 py-4 text-left font-semibold text-gray-700 w-1/5">Method</th>
-                        <th style="font-size: 1.125rem !important;" class="px-6 py-4 text-right font-semibold text-gray-700 w-1/5">Amount</th>
-                        <th style="font-size: 1.125rem !important;" class="px-6 py-4 text-right font-semibold text-gray-700 w-1/4">Reference</th>
-                        <th style="font-size: 1.125rem !important;" class="px-6 py-4 text-center font-semibold text-gray-700 w-1/6">Actions</th>
+                        <th style="font-size: 14px !important;" class="px-6 py-4 text-left font-semibold text-gray-700 w-1/6">Date</th>
+                        <th style="font-size: 14px !important;" class="px-6 py-4 text-left font-semibold text-gray-700 w-1/5">Method</th>
+                        <th style="font-size: 14px !important;" class="px-6 py-4 text-right font-semibold text-gray-700 w-1/5">Amount</th>
+                        <th style="font-size: 14px !important;" class="px-6 py-4 text-right font-semibold text-gray-700 w-1/4">Reference</th>
+                        <th style="font-size: 14px !important;" class="px-6 py-4 text-center font-semibold text-gray-700 w-1/6">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php foreach($po['payments'] as $payment): ?>
                     <tr class="hover:bg-gray-50" id="payment-row-<?php echo $payment['id']; ?>">
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-gray-900"><?php echo date('d/m/Y', strtotime($payment['payment_date'])); ?></td>
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-gray-900"><?php echo $payment['method_name']; ?></td>
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-right text-gray-900 font-semibold"><?php echo $currency; ?> <?php echo number_format($payment['amount'], 2); ?></td>
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-right text-gray-700"><?php echo $payment['reference_number'] ?: 'N/A'; ?></td>
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-center">
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-gray-900"><?php echo date('d/m/Y', strtotime($payment['payment_date'])); ?></td>
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-gray-900"><?php echo $payment['method_name']; ?></td>
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-right text-gray-900 font-semibold"><?php echo $currency; ?> <?php echo number_format($payment['amount'], 2); ?></td>
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-right text-gray-700"><?php echo $payment['reference_number'] ?: 'N/A'; ?></td>
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-center">
                             <button onclick="deletePayment(<?php echo $payment['id']; ?>)" class="px-3 py-1.5 text-sm font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors">
                                 <i class="fa fa-trash mr-1"></i> Delete
                             </button>
@@ -178,13 +193,13 @@
                 </tbody>
                 <tfoot class="bg-gray-50">
                     <tr>
-                        <td colspan="2" style="font-size: 1.125rem !important;" class="px-6 py-4 text-right font-bold text-gray-900">Total Paid:</td>
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-right text-gray-900 font-bold"><?php echo $currency; ?> <?php echo number_format($po['amount_paid'] ?? 0, 2); ?></td>
+                        <td colspan="2" style="font-size: 14px !important;" class="px-6 py-4 text-right font-bold text-gray-900">Total Paid:</td>
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-right text-gray-900 font-bold"><?php echo $currency; ?> <?php echo number_format($po['amount_paid'] ?? 0, 2); ?></td>
                         <td colspan="2"></td>
                     </tr>
                     <tr>
-                        <td colspan="2" style="font-size: 1.125rem !important;" class="px-6 py-4 text-right font-bold text-gray-900">Balance:</td>
-                        <td style="font-size: 1.125rem !important;" class="px-6 py-4 text-right font-bold <?php echo ($po['final_total'] ?? $po['total_amount']) - ($po['amount_paid'] ?? 0) > 0 ? 'text-red-600' : 'text-green-600'; ?>">
+                        <td colspan="2" style="font-size: 14px !important;" class="px-6 py-4 text-right font-bold text-gray-900">Balance:</td>
+                        <td style="font-size: 14px !important;" class="px-6 py-4 text-right font-bold <?php echo ($po['final_total'] ?? $po['total_amount']) - ($po['amount_paid'] ?? 0) > 0 ? 'text-red-600' : 'text-green-600'; ?>">
                             <?php echo $currency; ?> <?php echo number_format(($po['final_total'] ?? $po['total_amount']) - ($po['amount_paid'] ?? 0), 2); ?>
                         </td>
                         <td colspan="2"></td>
@@ -203,10 +218,10 @@
     <!-- Action Buttons -->
     <?php if($po['status'] === 'pending'): ?>
     <div class="flex gap-4">
-        <button onclick="markPOAsReceived(<?php echo $po['id']; ?>)" style="font-size: 1.125rem !important;" class="px-6 py-3 font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700">
+        <button onclick="markPOAsReceived(<?php echo $po['id']; ?>)" style="font-size: 14px !important;" class="px-6 py-3 font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700">
             <i class="fa fa-check mr-2"></i> Mark as Received
         </button>
-        <button onclick="cancelPO(<?php echo $po['id']; ?>)" style="font-size: 1.125rem !important;" class="px-6 py-3 font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700">
+        <button onclick="cancelPO(<?php echo $po['id']; ?>)" style="font-size: 14px !important;" class="px-6 py-3 font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700">
             <i class="fa fa-times mr-2"></i> Cancel Order
         </button>
     </div>

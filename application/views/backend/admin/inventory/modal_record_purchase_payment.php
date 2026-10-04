@@ -12,8 +12,6 @@
 $purchase_id = $param2;
 
 // Test if we can even get here
-error_log("Modal loading for purchase ID: " . $purchase_id);
-
 try {
     $purchase = $this->db->get_where('inventory_purchases', array('id' => $purchase_id))->row();
     
@@ -21,8 +19,6 @@ try {
         echo '<div class="alert alert-danger">Purchase order not found.</div>';
         return;
     }
-    
-    error_log("Purchase found: " . print_r($purchase, true));
     
     // Get supplier details
     $supplier = $this->db->get_where('inventory_suppliers', array('id' => $purchase->supplier_id))->row();
@@ -35,16 +31,36 @@ try {
     $currency_row = $this->db->get_where('settings', array('type' => 'currency'))->row();
     $currency = $currency_row ? $currency_row->description : 'GHC';
     
-    error_log("Currency: " . $currency . ", Balance: " . $outstanding_balance);
-    
 } catch (Exception $e) {
     error_log("Error in modal: " . $e->getMessage());
     echo '<div class="alert alert-danger">Error loading payment form: ' . $e->getMessage() . '</div>';
     return;
 }
 ?>
+<style>
+.inventory-payment-modal { color:#334155; font-size:14px; }
+.inventory-payment-modal section { padding:0 !important; }
+.inventory-payment-modal section > .text-right { margin:0 0 12px; color:#0f172a !important; font-size:18px !important; font-weight:800 !important; text-align:left !important; }
+.inventory-payment-modal section > .flex.flex-col { padding:16px !important; border:1px solid #e2e8f0 !important; border-top:4px solid #2563eb !important; border-radius:12px !important; box-shadow:none !important; }
+.inventory-payment-modal section > .flex.flex-col > .flex.flex-col { padding:0 !important; gap:14px !important; }
+.inventory-payment-modal .text-xl { font-size:14px !important; line-height:1.45 !important; }
+.inventory-payment-modal .text-2xl { font-size:17px !important; line-height:1.35 !important; }
+.inventory-payment-modal label { margin-bottom:6px !important; color:#334155 !important; font-size:13px !important; font-weight:800 !important; }
+.inventory-payment-modal #purchase_payment_form { gap:13px !important; }
+.inventory-payment-modal #purchase_payment_form > .flex { display:block !important; }
+.inventory-payment-modal input:not([type="hidden"]):not([type="checkbox"]),
+.inventory-payment-modal select,
+.inventory-payment-modal textarea { width:100%; min-height:44px !important; height:auto !important; max-height:none !important; padding:9px 11px !important; border:1px solid #cbd5e1 !important; border-radius:9px !important; background:#fff !important; color:#0f172a !important; font-size:15px !important; }
+.inventory-payment-modal textarea { min-height:86px !important; }
+.inventory-payment-modal input:focus,.inventory-payment-modal select:focus,.inventory-payment-modal textarea:focus { border-color:#2563eb !important; outline:0; box-shadow:0 0 0 3px rgba(37,99,235,.12) !important; }
+.inventory-payment-modal .grid.grid-cols-2 { gap:9px 14px !important; padding:12px; border:1px solid #e2e8f0; border-radius:10px; background:#f8fafc; }
+.inventory-payment-modal .grid.grid-cols-2 > div { align-self:center; }
+.inventory-payment-modal button { min-height:42px; padding:9px 14px !important; border-radius:8px !important; font-size:14px !important; font-weight:800 !important; }
+.inventory-payment-modal .mt-8 { margin-top:16px !important; }
+@media(max-width:767px){.inventory-payment-modal .grid.grid-cols-2{grid-template-columns:1fr !important}.inventory-payment-modal .grid.grid-cols-2 .col-span-2{grid-column:auto !important}.inventory-payment-modal .flex.gap-4.justify-end{display:grid !important;grid-template-columns:1fr}.inventory-payment-modal button{width:100%}}
+</style>
 
-<div class="grid grid-cols-1">
+<div class="grid grid-cols-1 inventory-payment-modal">
     <section class="px-4 md:px-15">
         <div class="font-extrabold text-2xl text-gray-500 text-right">RECORD PAYMENT</div>
         <div class="flex flex-col p-5 w-full max-w-full border-t-8 bg-white shadow-md border border-t-blue-500 rounded-xl">
