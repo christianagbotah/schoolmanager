@@ -1,565 +1,392 @@
+<?php
+$grade_count = is_array($grades) ? count($grades) : 0;
+$highest_mark = !empty($grades) ? max(array_column($grades, 'mark_upto')) : 0;
+$lowest_mark = !empty($grades) ? min(array_column($grades, 'mark_from')) : 0;
+$pass_grades = array_filter($grades, function($grade) { return $grade['mark_from'] >= 50; });
+$pass_mark = !empty($pass_grades) ? min(array_column($pass_grades, 'mark_from')) : 50;
+?>
 <style>
-.grade-header {
-    background: #764ba2;
-    color: white;
-    padding: 2rem;
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+.grade-workspace {
+    margin: 0 !important;
+    padding: 24px 28px 40px !important;
+    background: #f8fafc;
+    min-height: 100%;
+    color: #334155;
 }
-
+.grade-page-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.grade-eyebrow {
+    margin: 0 0 4px;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.grade-page-head h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 30px !important;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+.grade-page-head p:last-child {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.5;
+}
+.grade-add-button {
+    min-height: 44px;
+    padding: 9px 15px !important;
+    border: 1px solid #2563eb !important;
+    border-radius: 9px !important;
+    background: #2563eb !important;
+    color: #fff !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+}
 .grade-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
 }
-
-.stat-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    border-left: 4px solid #667eea;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+.grade-stat {
+    min-height: 106px;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #2563eb;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
 }
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+.grade-stat-label {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .05em;
+    text-transform: uppercase;
 }
-
-.grade-table-container {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    overflow: hidden;
-    margin-bottom: 2rem;
+.grade-stat-value {
+    margin-top: 8px;
+    color: #0f172a;
+    font-size: 27px;
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -.02em;
 }
-
-.grade-table {
-    width: 100%;
-    border-collapse: collapse;
+.grade-card {
+    margin-bottom: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
 }
-
-.grade-table thead {
-    background: #764ba2;
-    color: white;
+.grade-table-shell {
+    overflow-x: auto;
 }
-
-.grade-table th {
-    padding: 1rem;
-    text-align: left;
-    font-weight: 600;
-    border: none;
+#grade_table {
+    width: 100% !important;
+    min-width: 860px;
+    margin: 0 !important;
+    border-collapse: collapse !important;
 }
-
-.grade-table td {
-    padding: 1rem;
-    border-bottom: 1px solid #e5e7eb;
-    vertical-align: middle;
+#grade_table thead th {
+    padding: 12px 13px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-size: 13px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+    letter-spacing: .035em;
+    text-transform: uppercase;
 }
-
-.grade-table tbody tr:hover {
-    background-color: #f8fafc;
+#grade_table tbody td {
+    padding: 12px 13px !important;
+    border-bottom: 1px solid #eef2f7 !important;
+    color: #334155 !important;
+    font-size: 14px !important;
+    line-height: 1.45;
+    vertical-align: middle !important;
 }
-
+#grade_table tbody tr:hover { background: #f8fbff; }
+.grade-name { color: #0f172a; font-weight: 800; }
 .grade-badge {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    text-align: center;
-    min-width: 60px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 27px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 800;
 }
-
-.grade-a { background: #dcfce7; color: #166534; }
-.grade-b { background: #dbeafe; color: #1e40af; }
-.grade-c { background: #fef3c7; color: #92400e; }
-.grade-d { background: #fed7d7; color: #c53030; }
-.grade-f { background: #fecaca; color: #dc2626; }
-
-.action-buttons {
+.grade-range {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #475569;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.grade-actions {
     display: flex;
-    gap: 0.5rem;
+    justify-content: flex-end;
+    gap: 6px;
+    white-space: nowrap;
 }
-
-.btn-edit {
-    background: #10b981;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
-
-.btn-edit:hover {
-    background: #059669;
-    transform: translateY(-1px);
-    color: white;
-}
-
-.btn-delete {
-    background: #ef4444;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
-
-.btn-delete:hover {
-    background: #dc2626;
-    transform: translateY(-1px);
-    color: white;
-}
-
-.add-grade-form {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    margin-bottom: 2rem;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-label {
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.5rem;
-}
-
-.form-input {
-    padding: 0.75rem;
-    border: 2px solid #e5e7eb;
+.grade-actions a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 36px;
+    padding: 7px 10px;
+    border: 1px solid #cbd5e1;
     border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
+    background: #fff;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none !important;
 }
-
-.form-input:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.btn-primary {
-    background: #764ba2;
-    color: white;
-    border: none;
-    padding: 0.75rem 2rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-}
-
-.range-display {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-}
-
-.toggle-form {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    background: #764ba2;
-    color: white;
-    border: none;
-    padding: 1rem;
-    border-radius: 50%;
-    width: 70px;
-    height: 70px;
-    cursor: pointer;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-    transition: all 0.3s ease;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.toggle-form:hover {
-    transform: scale(1.1);
-    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
-}
-
-.toggle-form i {
-    font-size: 24px;
-    font-weight: 900;
-}
-
-.add-grade-form {
-    background: white;
-    padding: 3rem;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-    margin: 3rem auto;
-    max-width: 900px;
-    border: 1px solid #e5e7eb;
-}
-
-.form-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding-bottom: 2rem;
-    border-bottom: 2px solid #f3f4f6;
-}
-
-.form-header h2 {
-    margin: 0 0 1rem 0;
-    color: #1f2937;
-    font-size: 2.5rem;
-    font-weight: 700;
-    background: #764ba2;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.form-header p {
-    margin: 0;
-    color: #6b7280;
-    font-size: 1.1rem;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2.5rem;
-    margin-bottom: 3rem;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-.form-label {
-    font-weight: 700;
-    color: #374151;
-    margin-bottom: 0.75rem;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.form-label i {
-    color: #667eea;
-    font-size: 1.1rem;
-}
-
-.form-input {
-    padding: 1rem 1.25rem;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    background: #fafbfc;
-    font-weight: 500;
-}
-
-.form-input:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-    background: white;
-    transform: translateY(-2px);
-}
-
-.form-input::placeholder {
-    color: #9ca3af;
-    font-weight: 400;
-}
-
-.form-actions {
-    display: flex;
-    gap: 1.5rem;
-    justify-content: center;
-    padding-top: 2rem;
-    border-top: 2px solid #f3f4f6;
-}
-
-.btn-primary {
-    background: #764ba2;
-    color: white;
-    border: none;
-    padding: 1rem 2.5rem;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-width: 160px;
-    justify-content: center;
-}
-
-.btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
-}
-
-.btn-secondary {
-    background: #f3f4f6;
-    color: #374151;
-    border: 2px solid #e5e7eb;
-    padding: 1rem 2.5rem;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-width: 160px;
-    justify-content: center;
-}
-
-.btn-secondary:hover {
-    background: #e5e7eb;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-}
-
-.form-slide-in {
-    animation: slideInUp 0.5s ease-out;
-}
-
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.form-hidden {
+.grade-actions a:hover { background: #f8fafc; }
+.grade-actions .danger { border-color: #fecaca; color: #b91c1c; }
+.grade-create-card {
     display: none;
+    max-width: 940px;
+    margin: 0 auto 16px;
+    padding: 18px;
 }
-
-@media (max-width: 768px) {
-    .add-grade-form {
-        margin: 1rem;
-        padding: 2rem;
-    }
-    
-    .form-grid {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-    
-    .form-actions {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .form-header h2 {
-        font-size: 2rem;
-    }
+.grade-create-card.show { display: block; }
+.grade-create-head {
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.grade-create-head h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 20px !important;
+    font-weight: 800;
+}
+.grade-create-head p {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 13px;
+}
+.grade-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+.grade-field { margin: 0; }
+.grade-field.full { grid-column: 1 / -1; }
+.grade-field label {
+    display: block;
+    margin: 0 0 6px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 800;
+}
+.grade-field input {
+    width: 100%;
+    min-height: 44px;
+    height: 44px;
+    padding: 9px 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #fff;
+    color: #0f172a;
+    font-size: 15px !important;
+    box-sizing: border-box;
+}
+.grade-field input:focus {
+    border-color: #2563eb;
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+.grade-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+}
+.grade-form-actions button {
+    min-height: 44px;
+    padding: 9px 15px !important;
+    border-radius: 9px !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+}
+.grade-form-actions .primary {
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+}
+.grade-workspace .dataTables_wrapper {
+    min-width: 860px;
+    padding: 14px;
+}
+.grade-workspace .dataTables_length,
+.grade-workspace .dataTables_filter,
+.grade-workspace .dataTables_info,
+.grade-workspace .dataTables_paginate {
+    color: #475569;
+    font-size: 13px;
+}
+.grade-workspace .dataTables_length label,
+.grade-workspace .dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 700;
+}
+.grade-workspace .dataTables_length select,
+.grade-workspace .dataTables_filter input {
+    min-height: 38px;
+    height: 38px;
+    padding: 7px 9px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    color: #0f172a;
+    font-size: 14px;
+}
+@media (max-width: 900px) {
+    .grade-stats { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 767px) {
+    .grade-workspace { padding: 18px 14px 32px !important; }
+    .grade-page-head { display: block; }
+    .grade-page-head h1 { font-size: 26px !important; }
+    .grade-add-button { width: 100%; margin-top: 14px; }
+    .grade-form-grid { grid-template-columns: 1fr; }
+    .grade-field.full { grid-column: auto; }
+    .grade-field input { font-size: 16px !important; }
+    .grade-form-actions { display: grid; grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+    .grade-stats { grid-template-columns: 1fr; }
 }
 </style>
 
-<div class="grade-header">
-    <h1 style="margin: 0; font-size: 2rem; font-weight: 700; color: white;">
-        <i class="fa fa-graduation-cap" style="margin-right: 1rem;"></i>
-        Grading System Management
-    </h1>
-    <p style="margin: 0.5rem 0 0 0; opacity: 0.9; color: white;">Configure and manage academic grading scales</p>
-</div>
+<div class="grade-workspace">
+    <div class="grade-page-head">
+        <div>
+            <p class="grade-eyebrow">Examination</p>
+            <h1>Grading System Management</h1>
+            <p>Configure grade labels, score ranges and GPA points used by examination and reporting workflows.</p>
+        </div>
+        <button type="button" class="btn grade-add-button" id="gradeAddButton" onclick="toggleGradeForm(true)"><i class="fa fa-plus"></i> Add Grade</button>
+    </div>
 
-<div class="grade-stats">
-    <div class="stat-card">
-        <h3 style="margin: 0 0 0.5rem 0; color: #667eea;">Total Grades</h3>
-        <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #1f2937;"><?php echo count($grades); ?></p>
+    <div class="grade-stats">
+        <div class="grade-stat"><div class="grade-stat-label">Total Grades</div><div class="grade-stat-value"><?php echo (int)$grade_count; ?></div></div>
+        <div class="grade-stat"><div class="grade-stat-label">Highest Mark</div><div class="grade-stat-value"><?php echo html_escape($highest_mark); ?>%</div></div>
+        <div class="grade-stat"><div class="grade-stat-label">Lowest Mark</div><div class="grade-stat-value"><?php echo html_escape($lowest_mark); ?>%</div></div>
+        <div class="grade-stat"><div class="grade-stat-label">Pass Mark</div><div class="grade-stat-value"><?php echo html_escape($pass_mark); ?>%</div></div>
     </div>
-    <div class="stat-card">
-        <h3 style="margin: 0 0 0.5rem 0; color: #667eea;">Highest Grade</h3>
-        <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #1f2937;">
-            <?php echo !empty($grades) ? max(array_column($grades, 'mark_upto')) : '0'; ?>%
-        </p>
+
+    <div class="grade-card grade-create-card" id="addGradeForm">
+        <div class="grade-create-head">
+            <h2>Create New Grade</h2>
+            <p>Define the label, symbol, mark range and GPA points for the new grade.</p>
+        </div>
+
+        <?php echo form_open(site_url('admin/grade/create'), array('id' => 'gradeForm')); ?>
+            <div class="grade-form-grid">
+                <div class="grade-field">
+                    <label for="grade_name"><i class="fa fa-tag"></i> Grade Name *</label>
+                    <input id="grade_name" type="text" name="name" maxlength="100" placeholder="e.g. EXCELLENT" required>
+                </div>
+                <div class="grade-field">
+                    <label for="grade_symbol"><i class="fa fa-certificate"></i> Grade Symbol *</label>
+                    <input id="grade_symbol" type="text" name="grade_point" maxlength="20" placeholder="e.g. A+ or 1" required>
+                </div>
+                <div class="grade-field">
+                    <label for="grade_min"><i class="fa fa-arrow-down"></i> Minimum Mark (%) *</label>
+                    <input id="grade_min" type="number" name="mark_from" placeholder="e.g. 80" min="0" max="100" step="0.1" required>
+                </div>
+                <div class="grade-field">
+                    <label for="grade_max"><i class="fa fa-arrow-up"></i> Maximum Mark (%) *</label>
+                    <input id="grade_max" type="number" name="mark_upto" placeholder="e.g. 100" min="0" max="100" step="0.1" required>
+                </div>
+                <div class="grade-field full">
+                    <label for="grade_gpa"><i class="fa fa-star"></i> GPA Points *</label>
+                    <input id="grade_gpa" type="number" name="gpa" placeholder="e.g. 4.0" step="0.1" min="0" max="5" required>
+                </div>
+            </div>
+            <div class="grade-form-actions">
+                <button type="button" class="btn btn-default" onclick="toggleGradeForm(false)">Cancel</button>
+                <button type="submit" class="btn primary" id="create_grade_button"><i class="fa fa-plus-circle"></i> Create Grade</button>
+            </div>
+        <?php echo form_close(); ?>
     </div>
-    <div class="stat-card">
-        <h3 style="margin: 0 0 0.5rem 0; color: #667eea;">Lowest Grade</h3>
-        <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #1f2937;">
-            <?php echo !empty($grades) ? min(array_column($grades, 'mark_from')) : '0'; ?>%
-        </p>
-    </div>
-    <div class="stat-card">
-        <h3 style="margin: 0 0 0.5rem 0; color: #667eea;">Pass Mark</h3>
-        <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #1f2937;">
-            <?php 
-            $pass_grades = array_filter($grades, function($g) { return $g['mark_from'] >= 50; });
-            echo !empty($pass_grades) ? min(array_column($pass_grades, 'mark_from')) : '50';
-            ?>%
-        </p>
+
+    <div class="grade-card grade-table-shell">
+        <table class="table" id="grade_table">
+            <thead>
+                <tr>
+                    <th style="width:60px">#</th>
+                    <th>Grade Name</th>
+                    <th>Grade</th>
+                    <th>Mark Range</th>
+                    <th>GPA</th>
+                    <th style="text-align:right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php $count = 1; foreach($grades as $row): ?>
+                <tr>
+                    <td><?php echo $count++; ?></td>
+                    <td><span class="grade-name"><?php echo html_escape($row['name']); ?></span></td>
+                    <td><span class="grade-badge"><?php echo html_escape($row['grade_point']); ?></span></td>
+                    <td><span class="grade-range"><span><?php echo html_escape($row['mark_from']); ?>%</span><span>–</span><span><?php echo html_escape($row['mark_upto']); ?>%</span></span></td>
+                    <td><strong><?php echo html_escape($row['grade_point_numeric'] ?? 'N/A'); ?></strong></td>
+                    <td>
+                        <div class="grade-actions">
+                            <a href="#" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_edit_grade/'.(int)$row['grade_id']); ?>'); return false;"><i class="fa fa-edit"></i> Edit</a>
+                            <a href="#" class="danger" onclick="deleteGrade(<?php echo (int)$row['grade_id']; ?>); return false;"><i class="fa fa-trash"></i> Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 </div>
-
-<div class="grade-table-container">
-    <table class="grade-table" id="table_export">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Grade Name</th>
-                <th>Grade</th>
-                <th>Mark Range</th>
-                <th>GPA</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php $count = 1; foreach($grades as $row): ?>
-            <tr>
-                <td><?php echo $count++; ?></td>
-                <td>
-                    <strong><?php echo $row['name']; ?></strong>
-                </td>
-                <td>
-                    <span class="grade-badge <?php 
-                        $grade = strtolower($row['grade_point'][0] ?? 'f');
-                        echo 'grade-' . $grade;
-                    ?>">
-                        <?php echo $row['grade_point']; ?>
-                    </span>
-                </td>
-                <td>
-                    <div class="range-display">
-                        <span><?php echo $row['mark_from']; ?>%</span>
-                        <span>-</span>
-                        <span><?php echo $row['mark_upto']; ?>%</span>
-                    </div>
-                </td>
-                <td>
-                    <strong><?php echo $row['grade_point_numeric'] ?? 'N/A'; ?></strong>
-                </td>
-                <td>
-                    <div class="action-buttons">
-                        <a href="#" class="btn-edit" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_edit_grade/'.$row['grade_id']);?>')">
-                            <i class="fa fa-edit"></i> Edit
-                        </a>
-                        <a href="#" class="btn-delete" onclick="deleteGrade(<?php echo $row['grade_id']; ?>)">
-                            <i class="fa fa-trash"></i> Delete
-                        </a>
-                    </div>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-</div>
-
-<div class="add-grade-form form-hidden" id="addGradeForm">
-    <div class="form-header">
-        <h2><i class="fa fa-graduation-cap"></i> Create New Grade</h2>
-        <p>Define a new grading scale with mark ranges and GPA points</p>
-    </div>
-    
-    <?php echo form_open(site_url('admin/grade/create'), array('id' => 'gradeForm')); ?>
-    <div class="form-grid">
-        <div class="form-group">
-            <label class="form-label">
-                <i class="fa fa-tag"></i>
-                Grade Name
-            </label>
-            <input type="text" name="name" class="form-input" placeholder="e.g., EXCELLENT, VERY GOOD" required>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">
-                <i class="fa fa-certificate"></i>
-                Grade Symbol
-            </label>
-            <input type="text" name="grade_point" class="form-input" placeholder="e.g., A+, A, B+, 1, 2" required>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">
-                <i class="fa fa-arrow-up"></i>
-                Minimum Mark (%)
-            </label>
-            <input type="number" name="mark_from" class="form-input" placeholder="e.g., 80.5" min="0" max="100" step="0.1" required>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">
-                <i class="fa fa-arrow-down"></i>
-                Maximum Mark (%)
-            </label>
-            <input type="number" name="mark_upto" class="form-input" placeholder="e.g., 100" min="0" max="100" step="0.1" required>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">
-                <i class="fa fa-star"></i>
-                GPA Points
-            </label>
-            <input type="number" name="gpa" class="form-input" placeholder="e.g., 4.0, 3.5, 3.0" step="0.1" min="0" max="5" required>
-        </div>
-    </div>
-    
-    <div class="form-actions">
-        <button type="submit" class="btn-primary">
-            <i class="fa fa-plus-circle"></i>
-            Create Grade
-        </button>
-        <button type="button" class="btn-secondary" onclick="toggleForm()">
-            <i class="fa fa-times-circle"></i>
-            Cancel
-        </button>
-    </div>
-    </form>
-</div>
-
-<button class="toggle-form" onclick="toggleForm()" id="toggleBtn">
-    <i class="fa fa-plus"></i>
-</button>
 
 <script>
-function toggleForm() {
-    const form = document.getElementById('addGradeForm');
-    const btn = document.getElementById('toggleBtn');
-    
-    if (form.classList.contains('form-hidden')) {
-        form.classList.remove('form-hidden');
-        form.classList.add('form-slide-in');
-        btn.innerHTML = '<i class="fa fa-times"></i>';
-        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+function toggleGradeForm(show) {
+    var form = $('#addGradeForm');
+    if (show) {
+        form.addClass('show');
+        $('#gradeAddButton').prop('disabled', true);
+        setTimeout(function() { $('#grade_name').focus(); }, 100);
     } else {
-        form.classList.add('form-hidden');
-        form.classList.remove('form-slide-in');
-        btn.innerHTML = '<i class="fa fa-plus"></i>';
+        form.removeClass('show');
+        $('#gradeAddButton').prop('disabled', false);
+        if ($('#gradeForm').length) $('#gradeForm')[0].reset();
     }
 }
 
@@ -574,14 +401,14 @@ function deleteGrade(id) {
                 type: 'GET',
                 dataType: 'json'
             }).done(function(response) {
-                if(response.message === 'done') {
+                if (response.message === 'done') {
                     showAjaxModal_alert('Grade deleted successfully', 'success');
-                    setTimeout(() => location.reload(), 2000);
+                    setTimeout(function() { location.reload(); }, 1200);
                 } else {
                     showAjaxModal_alert('Failed to delete grade', 'error');
                 }
             }).fail(function() {
-                showAjaxModal_alert('An error occurred', 'error');
+                showAjaxModal_alert('An error occurred while deleting the grade', 'error');
             });
         },
         'Delete',
@@ -589,44 +416,45 @@ function deleteGrade(id) {
     );
 }
 
-// Form submission with AJAX
-$('#gradeForm').submit(function(e) {
+$('#gradeForm').on('submit', function(e) {
     e.preventDefault();
-    
-    // Hide the form first
-    toggleForm();
-    
+    var form = this;
+    var button = $('#create_grade_button');
+    button.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Creating…');
     showAjaxModal_alert('Creating grade...', 'loading');
-    
+
     $.ajax({
-        url: $(this).attr('action'),
+        url: $(form).attr('action'),
         type: 'POST',
-        data: new FormData(this),
+        data: new FormData(form),
         cache: false,
         contentType: false,
         processData: false,
         dataType: 'json'
     }).done(function(response) {
-        if(response.status === 'success') {
+        if (response.status === 'success') {
             showAjaxModal_alert(response.message, 'success');
-            setTimeout(() => location.reload(), 2000);
+            setTimeout(function() { location.reload(); }, 1200);
         } else {
-            showAjaxModal_alert(response.message, 'error');
+            showAjaxModal_alert(response.message || 'Failed to create grade', 'error');
+            button.prop('disabled', false).html('<i class="fa fa-plus-circle"></i> Create Grade');
         }
-    }).fail(function() {
-        showAjaxModal_alert('An error occurred', 'error');
+    }).fail(function(xhr) {
+        var message = 'An error occurred while creating the grade';
+        if (xhr.responseJSON && xhr.responseJSON.message) message = xhr.responseJSON.message;
+        showAjaxModal_alert(message, 'error');
+        button.prop('disabled', false).html('<i class="fa fa-plus-circle"></i> Create Grade');
     });
 });
 
-// Initialize DataTable
-$(document).ready(function() {
-    $('#table_export').DataTable({
-        responsive: true,
-        pageLength: 10,
-        order: [[2, 'asc']],
-        columnDefs: [
-            { orderable: false, targets: [5] }
-        ]
-    });
+$(function() {
+    if ($('#grade_table').length && $.fn.DataTable && !$.fn.DataTable.isDataTable('#grade_table')) {
+        $('#grade_table').DataTable({
+            responsive: true,
+            pageLength: 10,
+            order: [[2, 'asc']],
+            columnDefs: [{ orderable: false, targets: [5] }]
+        });
+    }
 });
 </script>
