@@ -48,21 +48,51 @@
     color: white;
 }
 </style>
+<style>
+.inventory-po-workspace { margin:0 !important; padding:24px 28px 40px !important; background:#f8fafc; min-height:100%; }
+.inventory-po-head { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; margin-bottom:18px; padding-bottom:18px; border-bottom:1px solid #e2e8f0; }
+.inventory-po-eyebrow { margin:0 0 4px; color:#2563eb; font-size:13px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.inventory-po-head h1 { margin:0; color:#0f172a; font-size:30px !important; line-height:1.2; font-weight:800; letter-spacing:-.02em; }
+.inventory-po-head p:last-child { margin:7px 0 0; color:#64748b; font-size:15px !important; line-height:1.5; }
+.inventory-po-head-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.inventory-po-primary,.inventory-po-secondary { min-height:44px; padding:10px 15px !important; border-radius:9px !important; font-size:14px !important; font-weight:800 !important; }
+.inventory-po-primary { background:#2563eb !important; border-color:#2563eb !important; color:#fff !important; }
+.inventory-po-secondary { border:1px solid #cbd5e1 !important; background:#fff !important; color:#334155 !important; }
+.inventory-po-workspace > .mb-6 { margin-bottom:14px !important; padding:14px 16px; border:1px solid #e2e8f0; border-radius:14px; background:#fff; }
+.inventory-po-workspace > .mb-6 > .grid { gap:14px !important; }
+.inventory-po-workspace .status-tab,.inventory-po-workspace .payment-status-tab { min-height:38px; padding:8px 12px !important; border-radius:8px !important; font-size:13px !important; font-weight:800 !important; }
+.inventory-po-workspace > .bg-gradient-to-r.from-gray-50 { margin-bottom:16px !important; padding:16px !important; border:1px solid #e2e8f0 !important; border-radius:14px !important; background:#fff !important; }
+.inventory-po-workspace > .bg-gradient-to-r.from-gray-50 > .grid { gap:12px !important; }
+.inventory-po-workspace #filter_start_date,.inventory-po-workspace #filter_end_date,.inventory-po-workspace #filter_supplier { min-height:44px !important; padding:9px 11px !important; border:1px solid #cbd5e1 !important; border-radius:9px !important; font-size:15px !important; }
+.inventory-po-workspace > .grid.grid-cols-1.gap-6 { gap:12px !important; margin-bottom:16px !important; }
+.inventory-po-workspace > .grid.grid-cols-1.gap-6 > div { min-height:118px; padding:16px !important; border:1px solid #e2e8f0 !important; border-left-width:4px !important; border-radius:14px !important; background:#fff !important; box-shadow:0 1px 2px rgba(15,23,42,.05) !important; }
+.inventory-po-workspace > .grid.grid-cols-1.gap-6 > div .p-4 { padding:9px !important; border-radius:10px !important; }
+.inventory-po-workspace > .bg-white.border { overflow-x:auto !important; border:1px solid #e2e8f0 !important; border-radius:14px !important; box-shadow:0 1px 2px rgba(15,23,42,.05) !important; }
+#purchase_orders_table { min-width:1350px; margin:0 !important; }
+#purchase_orders_table thead { background:#f8fafc !important; }
+#purchase_orders_table thead th { padding:12px 13px !important; color:#475569 !important; font-size:13px !important; font-weight:800 !important; letter-spacing:.035em; border-bottom:1px solid #e2e8f0 !important; }
+#purchase_orders_table tbody td { padding:12px 13px !important; color:#334155; font-size:14px !important; line-height:1.45; border-bottom:1px solid #eef2f7 !important; }
+#purchase_orders_table tbody td * { font-size:inherit !important; }
+.inventory-po-workspace .dataTables_wrapper { min-width:1350px; padding:14px; }
+.inventory-po-workspace .dt-buttons .btn { min-height:38px; padding:8px 11px !important; border-radius:8px !important; box-shadow:none !important; transform:none !important; font-size:13px !important; font-weight:800 !important; }
+#createModal .modal-dialog,#detailsModal .modal-dialog,#editModal .modal-dialog,#modal_ajax .modal-dialog { width:min(900px,calc(100vw - 30px)); }
+#createModal .modal-content,#detailsModal .modal-content,#editModal .modal-content,#modal_ajax .modal-content { border-radius:14px; overflow:hidden; }
+#createModal .modal-body,#detailsModal .modal-body,#editModal .modal-body,#modal_ajax .modal-body { padding:18px; }
+#createModal .form-control,#editModal .form-control,#modal_ajax .form-control { min-height:44px; border:1px solid #cbd5e1; border-radius:9px; font-size:15px !important; }
+@media(max-width:767px){.inventory-po-workspace{padding:18px 14px 32px !important}.inventory-po-head{display:block}.inventory-po-head h1{font-size:26px !important}.inventory-po-head-actions{display:grid;grid-template-columns:1fr;margin-top:14px}.inventory-po-workspace > .mb-6 > .grid,.inventory-po-workspace > .bg-gradient-to-r.from-gray-50 > .grid{grid-template-columns:1fr !important}.inventory-po-workspace #filter_start_date,.inventory-po-workspace #filter_end_date,.inventory-po-workspace #filter_supplier{font-size:16px !important}}
+</style>
 
-<div class="inventory-content p-8 sm:p-10 lg:p-12" style="margin-top: 70px;">
-    <div class="mb-12">
-        <h1 style="font-size: 3.5rem !important;" class="font-bold text-gray-900 tracking-tight leading-tight">Purchase Orders</h1>
-        <p style="font-size: 1.25rem !important;" class="mt-4 text-gray-600 leading-relaxed">Manage inventory purchases and stock replenishment</p>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="mb-8 flex gap-4">
-        <button onclick="openPurchaseModal()" style="font-size: 1.125rem !important; min-height: 3.5rem !important;" class="px-6 py-3 font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-            <i class="fa fa-plus mr-2"></i> New Purchase Order
-        </button>
-        <button onclick="exportPurchaseOrders()" style="font-size: 1.125rem !important; min-height: 3.5rem !important;" class="px-6 py-3 font-semibold rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
-            <i class="fa fa-download mr-2"></i> Export to CSV
-        </button>
+<div class="inventory-content inventory-po-workspace">
+    <div class="inventory-po-head">
+        <div>
+            <p class="inventory-po-eyebrow">Inventory Purchasing</p>
+            <h1>Purchase Orders</h1>
+            <p>Manage replenishment, supplier orders, receipts, payment progress and balances.</p>
+        </div>
+        <div class="inventory-po-head-actions">
+            <button onclick="openPurchaseModal()" class="btn btn-primary inventory-po-primary"><i class="fa fa-plus"></i> New Purchase Order</button>
+            <button onclick="exportPurchaseOrders()" class="btn btn-default inventory-po-secondary"><i class="fa fa-download"></i> Export CSV</button>
+        </div>
     </div>
 
     <!-- Status Filter Tabs - Combined in Single Row for Desktop -->
@@ -70,36 +100,36 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Order Status Section -->
             <div>
-                <h3 style="font-size: 1.25rem !important;" class="font-bold text-gray-700 mb-3">Order Status</h3>
+                <h3 style="font-size: 14px !important;" class="font-bold text-gray-700 mb-3">Order Status</h3>
                 <div class="flex gap-2 flex-wrap">
-                    <button onclick="filterByStatus('')" id="tab_all" style="font-size: 1.125rem !important;" class="px-6 py-3 font-semibold rounded-lg bg-blue-600 text-white status-tab">
+                    <button onclick="filterByStatus('')" id="tab_all" style="font-size: 14px !important;" class="px-6 py-3 font-semibold rounded-lg bg-blue-600 text-white status-tab">
                         All Orders
                     </button>
-                    <button onclick="filterByStatus('pending')" id="tab_pending" style="font-size: 1.125rem !important;" class="px-6 py-3 font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 status-tab">
+                    <button onclick="filterByStatus('pending')" id="tab_pending" style="font-size: 14px !important;" class="px-6 py-3 font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 status-tab">
                         Pending
                     </button>
-                    <button onclick="filterByStatus('received')" id="tab_received" style="font-size: 1.125rem !important;" class="px-6 py-3 font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 status-tab">
+                    <button onclick="filterByStatus('received')" id="tab_received" style="font-size: 14px !important;" class="px-6 py-3 font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 status-tab">
                         Received
                     </button>
-                    <button onclick="filterByStatus('cancelled')" id="tab_cancelled" style="font-size: 1.125rem !important;" class="px-6 py-3 font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 status-tab">
+                    <button onclick="filterByStatus('cancelled')" id="tab_cancelled" style="font-size: 14px !important;" class="px-6 py-3 font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 status-tab">
                         Cancelled
                     </button>
                 </div>
             </div>
             <!-- Payment Status Section -->
             <div>
-                <h3 style="font-size: 1.25rem !important;" class="font-bold text-gray-700 mb-3">Payment Status</h3>
+                <h3 style="font-size: 14px !important;" class="font-bold text-gray-700 mb-3">Payment Status</h3>
                 <div class="flex gap-2 flex-wrap">
-                    <button onclick="filterByPaymentStatus('')" id="payment_tab_all" style="font-size: 1.125rem !important;" class="px-6 py-3 font-semibold rounded-lg bg-green-600 text-white payment-status-tab">
+                    <button onclick="filterByPaymentStatus('')" id="payment_tab_all" style="font-size: 14px !important;" class="px-6 py-3 font-semibold rounded-lg bg-green-600 text-white payment-status-tab">
                         All Payments
                     </button>
-                    <button onclick="filterByPaymentStatus('unpaid')" id="payment_tab_unpaid" style="font-size: 1.125rem !important;" class="px-6 py-3 font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 payment-status-tab">
+                    <button onclick="filterByPaymentStatus('unpaid')" id="payment_tab_unpaid" style="font-size: 14px !important;" class="px-6 py-3 font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 payment-status-tab">
                         <i class="fa fa-circle text-red-500 mr-1"></i> Unpaid
                     </button>
-                    <button onclick="filterByPaymentStatus('partially_paid')" id="payment_tab_partially_paid" style="font-size: 1.125rem !important;" class="px-6 py-3 font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 payment-status-tab">
+                    <button onclick="filterByPaymentStatus('partially_paid')" id="payment_tab_partially_paid" style="font-size: 14px !important;" class="px-6 py-3 font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 payment-status-tab">
                         <i class="fa fa-circle text-yellow-500 mr-1"></i> Partial
                     </button>
-                    <button onclick="filterByPaymentStatus('fully_paid')" id="payment_tab_fully_paid" style="font-size: 1.125rem !important;" class="px-6 py-3 font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 payment-status-tab">
+                    <button onclick="filterByPaymentStatus('fully_paid')" id="payment_tab_fully_paid" style="font-size: 14px !important;" class="px-6 py-3 font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 payment-status-tab">
                         <i class="fa fa-circle text-green-500 mr-1"></i> Paid
                     </button>
                 </div>
@@ -111,22 +141,22 @@
     <div class="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6 mb-8">
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-4">
             <div>
-                <label style="font-size: 1.125rem !important;" class="block font-semibold text-gray-700 mb-3">Start Date</label>
+                <label style="font-size: 14px !important;" class="block font-semibold text-gray-700 mb-3">Start Date</label>
                 <div class="relative">
-                    <input type="text" id="filter_start_date" placeholder="dd/mm/yyyy" value="<?php echo date('01/m/Y'); ?>" style="font-size: 1.125rem !important; min-height: 3.5rem !important; padding-right: 3rem;" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" readonly>
+                    <input type="text" id="filter_start_date" placeholder="dd/mm/yyyy" value="<?php echo date('01/m/Y'); ?>" style="font-size: 14px !important; min-height: 3.5rem !important; padding-right: 3rem;" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" readonly>
                     <i class="fa fa-calendar absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl pointer-events-none"></i>
                 </div>
             </div>
             <div>
-                <label style="font-size: 1.125rem !important;" class="block font-semibold text-gray-700 mb-3">End Date</label>
+                <label style="font-size: 14px !important;" class="block font-semibold text-gray-700 mb-3">End Date</label>
                 <div class="relative">
-                    <input type="text" id="filter_end_date" placeholder="dd/mm/yyyy" value="<?php echo date('d/m/Y'); ?>" style="font-size: 1.125rem !important; min-height: 3.5rem !important; padding-right: 3rem;" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" readonly>
+                    <input type="text" id="filter_end_date" placeholder="dd/mm/yyyy" value="<?php echo date('d/m/Y'); ?>" style="font-size: 14px !important; min-height: 3.5rem !important; padding-right: 3rem;" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" readonly>
                     <i class="fa fa-calendar absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl pointer-events-none"></i>
                 </div>
             </div>
             <div>
-                <label style="font-size: 1.125rem !important;" class="block font-semibold text-gray-700 mb-3">Supplier</label>
-                <select id="filter_supplier" style="font-size: 1.125rem !important; min-height: 3.5rem !important;" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                <label style="font-size: 14px !important;" class="block font-semibold text-gray-700 mb-3">Supplier</label>
+                <select id="filter_supplier" style="font-size: 14px !important; min-height: 3.5rem !important;" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                     <option value="">All Suppliers</option>
                     <?php 
                     $suppliers = $this->db->get_where('inventory_suppliers', ['status' => 1])->result();
@@ -137,7 +167,7 @@
                 </select>
             </div>
             <div class="flex items-end">
-                <button onclick="loadPurchaseOrders()" style="font-size: 1.125rem !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                <button onclick="loadPurchaseOrders()" style="font-size: 14px !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
                     Apply Filters
                 </button>
             </div>
@@ -149,8 +179,8 @@
         <div class="bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-blue-500 rounded-xl p-8 shadow-lg">
             <div class="flex items-center justify-between">
                 <div>
-                    <p style="font-size: 1.125rem !important;" class="font-semibold text-blue-700 mb-3">Total Orders</p>
-                    <p style="font-size: 2rem !important;" class="font-bold text-blue-900" id="total_orders_count">0</p>
+                    <p style="font-size: 14px !important;" class="font-semibold text-blue-700 mb-3">Total Orders</p>
+                    <p style="font-size: 27px !important;" class="font-bold text-blue-900" id="total_orders_count">0</p>
                 </div>
                 <div class="bg-blue-500 rounded-full p-4">
                     <i class="fa fa-shopping-cart text-white text-3xl"></i>
@@ -160,8 +190,8 @@
         <div class="bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-green-500 rounded-xl p-8 shadow-lg">
             <div class="flex items-center justify-between">
                 <div>
-                    <p style="font-size: 1.125rem !important;" class="font-semibold text-green-700 mb-3">Total Amount</p>
-                    <p style="font-size: 2rem !important;" class="font-bold text-green-900" id="total_purchase_amount"><sup style="font-size: 0.5em; vertical-align: super;"><?php echo $currency; ?></sup> 0.00</p>
+                    <p style="font-size: 14px !important;" class="font-semibold text-green-700 mb-3">Total Amount</p>
+                    <p style="font-size: 27px !important;" class="font-bold text-green-900" id="total_purchase_amount"><sup style="font-size: 0.5em; vertical-align: super;"><?php echo $currency; ?></sup> 0.00</p>
                 </div>
                 <div class="bg-green-500 rounded-full p-4">
                     <i class="fa fa-dollar-sign text-white text-3xl"></i>
@@ -171,8 +201,8 @@
         <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 border-l-4 border-yellow-500 rounded-xl p-8 shadow-lg">
             <div class="flex items-center justify-between">
                 <div>
-                    <p style="font-size: 1.125rem !important;" class="font-semibold text-yellow-700 mb-3">Pending Orders</p>
-                    <p style="font-size: 2rem !important;" class="font-bold text-yellow-900" id="pending_orders_count">0</p>
+                    <p style="font-size: 14px !important;" class="font-semibold text-yellow-700 mb-3">Pending Orders</p>
+                    <p style="font-size: 27px !important;" class="font-bold text-yellow-900" id="pending_orders_count">0</p>
                 </div>
                 <div class="bg-yellow-500 rounded-full p-4">
                     <i class="fa fa-clock text-white text-3xl"></i>
@@ -182,8 +212,8 @@
         <div class="bg-gradient-to-br from-purple-50 to-purple-100 border-l-4 border-purple-500 rounded-xl p-8 shadow-lg">
             <div class="flex items-center justify-between">
                 <div>
-                    <p style="font-size: 1.125rem !important;" class="font-semibold text-purple-700 mb-3">Pending Value</p>
-                    <p style="font-size: 2rem !important;" class="font-bold text-purple-900" id="pending_amount"><sup style="font-size: 0.5em; vertical-align: super;"><?php echo $currency; ?></sup> 0.00</p>
+                    <p style="font-size: 14px !important;" class="font-semibold text-purple-700 mb-3">Pending Value</p>
+                    <p style="font-size: 27px !important;" class="font-bold text-purple-900" id="pending_amount"><sup style="font-size: 0.5em; vertical-align: super;"><?php echo $currency; ?></sup> 0.00</p>
                 </div>
                 <div class="bg-purple-500 rounded-full p-4">
                     <i class="fa fa-hourglass-half text-white text-3xl"></i>
@@ -198,20 +228,20 @@
             <table id="purchase_orders_table" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                     <tr>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">PO ID</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">Date</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">Supplier</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-center font-bold text-gray-700 uppercase tracking-wider">Items</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-right font-bold text-gray-700 uppercase tracking-wider">Total Amount (<?php echo $currency; ?>)</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-right font-bold text-gray-700 uppercase tracking-wider">Amount Paid (<?php echo $currency; ?>)</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-right font-bold text-gray-700 uppercase tracking-wider">Balance (<?php echo $currency; ?>)</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-center font-bold text-gray-700 uppercase tracking-wider">Payment Status</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-center font-bold text-gray-700 uppercase tracking-wider">Order Status</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-center font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">PO ID</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">Date</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">Supplier</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-center font-bold text-gray-700 uppercase tracking-wider">Items</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-right font-bold text-gray-700 uppercase tracking-wider">Total Amount (<?php echo $currency; ?>)</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-right font-bold text-gray-700 uppercase tracking-wider">Amount Paid (<?php echo $currency; ?>)</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-right font-bold text-gray-700 uppercase tracking-wider">Balance (<?php echo $currency; ?>)</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-center font-bold text-gray-700 uppercase tracking-wider">Payment Status</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-center font-bold text-gray-700 uppercase tracking-wider">Order Status</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-center font-bold text-gray-700 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="purchase_orders_tbody">
-                    <tr><td colspan="10" style="font-size: 1.25rem !important;" class="px-8 py-10 text-center text-gray-500">Loading purchase orders...</td></tr>
+                    <tr><td colspan="10" style="font-size: 14px !important;" class="px-8 py-10 text-center text-gray-500">Loading purchase orders...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -367,18 +397,18 @@ function renderPurchaseOrdersTable(orders) {
         
         html += `
             <tr class="hover:bg-blue-50 transition-colors">
-                <td style="font-size: 1.25rem !important;" class="px-8 py-5 text-gray-900 font-semibold">${po.po_code || '#' + po.id}</td>
-                <td style="font-size: 1.25rem !important;" class="px-8 py-5 text-gray-900">${formatDateDisplay(po.purchase_date)}</td>
-                <td style="font-size: 1.25rem !important;" class="px-8 py-5 text-gray-900 font-medium">${po.supplier_name || 'N/A'}</td>
-                <td style="font-size: 1.25rem !important;" class="px-8 py-5 text-center text-gray-600">${po.items_count}</td>
-                <td style="font-size: 1.25rem !important;" class="px-8 py-5 text-right font-semibold text-gray-900">${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                <td style="font-size: 1.25rem !important;" class="px-8 py-5 text-right font-semibold text-green-600">${amountPaid.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                <td style="font-size: 1.25rem !important;" class="px-8 py-5 text-right font-semibold ${balance > 0 ? 'text-red-600' : 'text-gray-600'}">${balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td style="font-size: 14px !important;" class="px-8 py-5 text-gray-900 font-semibold">${po.po_code || '#' + po.id}</td>
+                <td style="font-size: 14px !important;" class="px-8 py-5 text-gray-900">${formatDateDisplay(po.purchase_date)}</td>
+                <td style="font-size: 14px !important;" class="px-8 py-5 text-gray-900 font-medium">${po.supplier_name || 'N/A'}</td>
+                <td style="font-size: 14px !important;" class="px-8 py-5 text-center text-gray-600">${po.items_count}</td>
+                <td style="font-size: 14px !important;" class="px-8 py-5 text-right font-semibold text-gray-900">${totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td style="font-size: 14px !important;" class="px-8 py-5 text-right font-semibold text-green-600">${amountPaid.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td style="font-size: 14px !important;" class="px-8 py-5 text-right font-semibold ${balance > 0 ? 'text-red-600' : 'text-gray-600'}">${balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                 <td class="px-8 py-5 text-center">
-                    <span style="font-size: 1rem !important;" class="px-3 py-1 rounded-full font-semibold ${paymentStatusColor}">${paymentStatusLabel}</span>
+                    <span style="font-size: 13px !important;" class="px-3 py-1 rounded-full font-semibold ${paymentStatusColor}">${paymentStatusLabel}</span>
                 </td>
                 <td class="px-8 py-5 text-center">
-                    <span style="font-size: 1rem !important;" class="px-3 py-1 rounded-full font-semibold ${statusColor}">${po.status.toUpperCase()}</span>
+                    <span style="font-size: 13px !important;" class="px-3 py-1 rounded-full font-semibold ${statusColor}">${po.status.toUpperCase()}</span>
                 </td>
                 <td class="px-8 py-5 text-center relative">
                     <button onclick="toggleActionMenu(${po.id}, event)" class="inline-flex items-center justify-center w-10 h-10 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -628,22 +658,22 @@ function toggleActionMenu(poId, event) {
     // Build menu content
     let menuHTML = '<div class="py-1">';
     menuHTML += `
-        <button onclick="viewPODetails(${po.id}); hideActionMenu();" style="font-size: 1.125rem !important;" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors flex items-center">
+        <button onclick="viewPODetails(${po.id}); hideActionMenu();" style="font-size: 14px !important;" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors flex items-center">
             <i class="fa fa-eye mr-3 w-5"></i> View Details
         </button>
     `;
     if (po.status !== 'cancelled' && balance > 0) {
         menuHTML += `
-            <button onclick="recordPayment(${po.id}); hideActionMenu();" style="font-size: 1.125rem !important;" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors flex items-center">
+            <button onclick="recordPayment(${po.id}); hideActionMenu();" style="font-size: 14px !important;" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors flex items-center">
                 <i class="fa fa-money-bill mr-3 w-5"></i> Record Payment
             </button>
         `;
     }
     menuHTML += `
-        <button onclick="editPurchaseOrder(${po.id}); hideActionMenu();" style="font-size: 1.125rem !important;" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition-colors flex items-center">
+        <button onclick="editPurchaseOrder(${po.id}); hideActionMenu();" style="font-size: 14px !important;" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition-colors flex items-center">
             <i class="fa fa-edit mr-3 w-5"></i> Edit
         </button>
-        <button onclick="deletePurchaseOrder(${po.id}); hideActionMenu();" style="font-size: 1.125rem !important;" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors flex items-center">
+        <button onclick="deletePurchaseOrder(${po.id}); hideActionMenu();" style="font-size: 14px !important;" class="w-full text-left px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors flex items-center">
             <i class="fa fa-trash mr-3 w-5"></i> Delete
         </button>
     `;
