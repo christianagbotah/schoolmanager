@@ -5683,7 +5683,7 @@ CREATE TABLE `sms_log` (
   `parent_id` int DEFAULT NULL,
   `phone` varchar(20) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `message` mediumtext COLLATE utf8mb4_unicode_520_ci NOT NULL,
-  `type` enum('payment_reminder','receipt','statement','general') COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `type` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `sent_at` int NOT NULL,
   `status` enum('pending','sent','failed') COLLATE utf8mb4_unicode_520_ci DEFAULT 'pending',
   `response` mediumtext COLLATE utf8mb4_unicode_520_ci

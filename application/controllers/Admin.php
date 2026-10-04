@@ -35851,10 +35851,86 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// SMS log report
 	function sms_log_report() {
-		$page_data['sms_logs'] = $this->db->order_by('sent_at', 'DESC')
-			->limit(100)
-			->get('sms_log')
-			->result_array();
+		if ($this->session->userdata('admin_login') != 1) {
+			redirect(site_url('login'), 'refresh');
+			return;
+		}
+
+		$logs = [];
+
+		$legacy_logs = $this->db->select('sl.*, s.name as student_name, p.name as parent_name')
+			->from('sms_log sl')
+			->join('student s', 's.student_id = sl.student_id', 'left')
+			->join('parent p', 'p.parent_id = sl.parent_id', 'left')
+			->order_by('sl.sent_at', 'DESC')->limit(500)->get()->result_array();
+		foreach ($legacy_logs as $row) {
+			$recipient = trim((string)($row['student_name'] ?: $row['parent_name']));
+			$logs[] = [
+				'timestamp' => (int)$row['sent_at'],
+				'sent_at' => date('Y-m-d H:i:s', (int)$row['sent_at']),
+				'source' => 'General SMS',
+				'recipient' => $recipient !== '' ? $recipient : '—',
+				'phone' => (string)$row['phone'],
+				'type' => (string)$row['type'],
+				'message' => (string)$row['message'],
+				'status' => (string)$row['status'],
+				'error_message' => $row['status'] === 'failed' ? (string)$row['response'] : ''
+			];
+		}
+
+		$historical_logs = $this->db->order_by('sent_at', 'DESC')->limit(500)->get('sms_logs')->result_array();
+		foreach ($historical_logs as $row) {
+			$timestamp = strtotime((string)$row['sent_at']) ?: 0;
+			$logs[] = [
+				'timestamp' => $timestamp,
+				'sent_at' => $timestamp ? date('Y-m-d H:i:s', $timestamp) : (string)$row['sent_at'],
+				'source' => 'Historical SMS',
+				'recipient' => '—',
+				'phone' => (string)$row['phone'],
+				'type' => (string)$row['type'],
+				'message' => (string)$row['message'],
+				'status' => (string)$row['status'],
+				'error_message' => (string)$row['error_message']
+			];
+		}
+
+		$automation_logs = $this->db->select('sal.*, sa.name as automation_name')
+			->from('sms_automation_logs sal')
+			->join('sms_automations sa', 'sa.id = sal.automation_id', 'left')
+			->order_by('sal.sent_at', 'DESC')->limit(500)->get()->result_array();
+		foreach ($automation_logs as $row) {
+			$timestamp = strtotime((string)$row['sent_at']) ?: 0;
+			$logs[] = [
+				'timestamp' => $timestamp,
+				'sent_at' => $timestamp ? date('Y-m-d H:i:s', $timestamp) : (string)$row['sent_at'],
+				'source' => 'Automation',
+				'recipient' => (string)($row['recipient_name'] ?: '—'),
+				'phone' => (string)$row['recipient_phone'],
+				'type' => (string)($row['automation_name'] ?: 'SMS Automation'),
+				'message' => (string)$row['message'],
+				'status' => (string)$row['status'],
+				'error_message' => (string)$row['error_message']
+			];
+		}
+
+		usort($logs, function($a, $b) { return $b['timestamp'] <=> $a['timestamp']; });
+		$logs = array_slice($logs, 0, 1000);
+		$stats = ['total'=>count($logs), 'sent'=>0, 'failed'=>0, 'pending'=>0];
+		$sources = [];
+		$types = [];
+		foreach ($logs as $log) {
+			$status = strtolower($log['status']);
+			if (isset($stats[$status])) $stats[$status]++;
+			$sources[$log['source']] = true;
+			$types[$log['type']] = true;
+		}
+
+		$page_data['sms_logs'] = $logs;
+		$page_data['sms_log_stats'] = $stats;
+		$page_data['sms_log_sources'] = array_keys($sources);
+		$page_data['sms_log_types'] = array_keys($types);
+		sort($page_data['sms_log_sources']);
+		sort($page_data['sms_log_types']);
 		$page_data['page_name'] = 'sms_log_report';
 		$page_data['page_title'] = get_phrase('sms_log_report');
 		$page_data['account_type'] = $this->session->userdata('login_type');
