@@ -1139,49 +1139,54 @@ class Student extends CI_Controller
     }
 
     //GROUP MESSAGE
-    function group_message($param1 = "group_message_home", $param2 = ""){
-      if ($this->session->userdata('student_login') != 1)
-          redirect(site_url('login'));
-      $max_size = 4097152;
-
-      if ($param1 == 'group_message_read') {
-        $page_data['current_message_thread_code'] = $param2;
-      }
-      else if($param1 == 'send_reply'){
-        if (!file_exists('uploads/group_messaging_attached_file/')) {
-          $oldmask = umask(0);  // helpful when used in linux server
-          mkdir ('uploads/group_messaging_attached_file/', 0777);
-        }
-        if ($_FILES['attached_file_on_messaging']['name'] != "") {
-          if($_FILES['attached_file_on_messaging']['size'] > $max_size){
-            $this->session->set_flashdata('error_message' , get_phrase('file_size_can_not_be_larger_that_4_Megabyte'));
-              redirect(site_url('student/group_message/group_message_read/' . $param2));
-
-          }
-          else{
-            $file_path = 'uploads/group_messaging_attached_file/'.$_FILES['attached_file_on_messaging']['name'];
-            move_uploaded_file($_FILES['attached_file_on_messaging']['tmp_name'], $file_path);
-          }
+    function group_message($param1 = "group_message_home", $param2 = "") {
+        if ($this->session->userdata('student_login') != 1) {
+            redirect(site_url('login'), 'refresh');
+            return;
         }
 
-        $this->crud_model->send_reply_group_message($param2);  //$param2 = message_thread_code
-        $this->session->set_flashdata('flash_message', get_phrase('message_sent!'));
-          redirect(site_url('student/group_message/group_message_read/' . $param2));
-      }
+        $base_url = 'student/group_message';
+        if ($param1 === 'group_message_read') {
+            if (!$this->crud_model->is_group_thread_participant($param2)) {
+                $this->session->set_flashdata('error_message', 'You do not have access to that group.');
+                redirect(site_url($base_url)); return;
+            }
+            $page_data['current_message_thread_code'] = trim((string)$param2);
+        }
+        if ($param1 === 'send_reply') {
+            if (strtoupper($this->input->method()) !== 'POST' || !$this->crud_model->is_group_thread_participant($param2)) {
+                $this->session->set_flashdata('error_message', 'You do not have access to that group.'); redirect(site_url($base_url)); return;
+            }
+            $upload = $this->crud_model->upload_group_message_attachment();
+            if (empty($upload['status'])) {
+                $this->session->set_flashdata('error_message', $upload['message']); redirect(site_url($base_url.'/group_message_read/'.$param2)); return;
+            }
+            $ok = $this->crud_model->send_reply_group_message($param2, $upload['file_name']);
+            if (!$ok && !empty($upload['file_name'])) {
+                $path = FCPATH.'uploads/group_messaging_attached_file/'.basename($upload['file_name']);
+                if (is_file($path)) @unlink($path);
+            }
+            $this->session->set_flashdata($ok ? 'flash_message' : 'error_message', $ok ? get_phrase('message_sent!') : 'Message could not be sent.'); redirect(site_url($base_url.'/group_message_read/'.$param2)); return;
+        }
+        if ($param1 === 'delete' || $param1 === 'leave') {
+            if (strtoupper($this->input->method()) !== 'POST') {
+                $this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
+                return;
+            }
+            $ok = $this->crud_model->leave_group_thread($param2);
+            $this->output->set_content_type('application/json')->set_output(json_encode([
+                'status' => $ok ? 'success' : 'error',
+                'message' => $ok ? 'You left the group.' : 'Unable to leave this group.'
+            ]));
+            return;
+        }
 
-      if ($param1 == 'delete') {
-        $this->db->where('group_message_thread_code', $param2);
-        $this->db->delete('group_message_thread');
-        $this->session->set_flashdata('flash_message' , get_phrase('data_deleted'));
-        redirect(site_url('student/group_message'));
-     }
-      $page_data['message_inner_page_name']   = $param1;
-      $page_data['page_name']                 = 'group_message';
-      $page_data['page_title']                = get_phrase('group_messaging');
-      
-
-            $page_data['account_type'] = $this->session->userdata('login_type');
-                     $page_data['account_type'] = $this->session->userdata('login_type');
+        $allowed_views = ['group_message_home', 'group_message_read'];
+        $page_data['message_inner_page_name'] = in_array($param1, $allowed_views, true) ? $param1 : 'group_message_home';
+        $page_data['group_messages'] = $this->crud_model->get_group_threads_for_current_user();
+        $page_data['page_name'] = 'group_message';
+        $page_data['page_title'] = get_phrase('group_messaging');
+        $page_data['account_type'] = $this->session->userdata('login_type');
         $this->load->view('backend/main', $page_data);
     }
 

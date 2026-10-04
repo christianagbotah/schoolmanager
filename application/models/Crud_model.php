@@ -1406,6 +1406,161 @@ class Crud_model extends MY_Model {
         return $id > 0 && $this->db->where($table . '_id', $id)->count_all_results($table) === 1;
     }
 
+
+    function normalize_group_member_key($user_key) {
+        $user_key = str_replace('_', '-', trim((string)$user_key));
+        if (!$this->is_valid_message_user_key($user_key)) return false;
+        list($type, $id) = explode('-', $user_key, 2);
+        if (!in_array($type, array('admin', 'parent', 'student', 'teacher'), true)) return false;
+        return $type . '-' . (int)$id;
+    }
+
+    function current_group_user_key() {
+        return $this->normalize_group_member_key(
+            $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id')
+        );
+    }
+
+    function sanitize_group_members($members) {
+        $clean = array();
+        foreach ((array)$members as $member) {
+            $key = $this->normalize_group_member_key($member);
+            if ($key) $clean[$key] = true;
+        }
+        $current = $this->current_group_user_key();
+        if ($current) $clean[$current] = true;
+        return array_keys($clean);
+    }
+
+    function get_group_thread($thread_code) {
+        $thread_code = trim((string)$thread_code);
+        if ($thread_code === '') return false;
+        return $this->db->get_where('group_message_thread', array('group_message_thread_code' => $thread_code))->row_array();
+    }
+
+    function group_thread_member_keys($thread) {
+        if (!$thread || empty($thread['members'])) return array();
+        $raw = json_decode($thread['members'], true);
+        if (!is_array($raw)) return array();
+        $keys = array();
+        foreach ($raw as $member) {
+            $key = $this->normalize_group_member_key($member);
+            if ($key) $keys[$key] = true;
+        }
+        return array_keys($keys);
+    }
+
+    function is_group_thread_participant($thread_code, $user_key = null) {
+        $thread = $this->get_group_thread($thread_code);
+        if (!$thread) return false;
+        $user_key = $user_key === null ? $this->current_group_user_key() : $this->normalize_group_member_key($user_key);
+        if (!$user_key) return false;
+        return in_array($user_key, $this->group_thread_member_keys($thread), true);
+    }
+
+    function get_group_threads_for_current_user() {
+        $current = $this->current_group_user_key();
+        if (!$current) return array();
+        $rows = $this->db->order_by('last_message_timestamp', 'DESC')
+            ->order_by('created_timestamp', 'DESC')
+            ->get('group_message_thread')->result_array();
+        $result = array();
+        foreach ($rows as $row) {
+            if (in_array($current, $this->group_thread_member_keys($row), true)) $result[] = $row;
+        }
+        return $result;
+    }
+
+    function get_group_thread_for_current_user($thread_code) {
+        return $this->is_group_thread_participant($thread_code) ? $this->get_group_thread($thread_code) : false;
+    }
+
+    function get_group_messages_for_current_user($thread_code) {
+        if (!$this->is_group_thread_participant($thread_code)) return array();
+        return $this->db->order_by('group_message_id', 'ASC')
+            ->get_where('group_message', array('group_message_thread_code' => $thread_code))->result_array();
+    }
+
+    function get_group_user_profile($user_key) {
+        $key = $this->normalize_group_member_key($user_key);
+        if (!$key) return false;
+        list($type, $id) = explode('-', $key, 2);
+        $row = $this->db->get_where($type, array($type . '_id' => (int)$id))->row_array();
+        if (!$row) return false;
+        return array(
+            'key' => $key,
+            'type' => $type,
+            'id' => (int)$id,
+            'name' => isset($row['name']) ? $row['name'] : ucfirst($type),
+            'email' => isset($row['email']) ? $row['email'] : '',
+            'phone' => isset($row['phone']) ? $row['phone'] : '',
+            'image_url' => $this->get_image_url($type, (int)$id)
+        );
+    }
+
+    function get_group_member_profiles($thread_code) {
+        $thread = $this->get_group_thread_for_current_user($thread_code);
+        if (!$thread) return array();
+        $profiles = array();
+        foreach ($this->group_thread_member_keys($thread) as $key) {
+            $profile = $this->get_group_user_profile($key);
+            if ($profile) $profiles[] = $profile;
+        }
+        return $profiles;
+    }
+
+    function upload_group_message_attachment($field = 'attached_file_on_messaging') {
+        if (empty($_FILES[$field]['name'])) return array('status' => true, 'file_name' => '');
+        $file = $_FILES[$field];
+        if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) {
+            return array('status' => false, 'message' => 'The attachment could not be uploaded.');
+        }
+        if ((int)$file['size'] <= 0 || (int)$file['size'] > 4 * 1024 * 1024) {
+            return array('status' => false, 'message' => 'Attachment size must be 4 MB or less.');
+        }
+
+        $extension = strtolower(pathinfo(basename($file['name']), PATHINFO_EXTENSION));
+        $allowed = array('pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png');
+        if (!in_array($extension, $allowed, true)) {
+            return array('status' => false, 'message' => 'Only PDF, DOC, DOCX, JPG and PNG attachments are allowed.');
+        }
+
+        $mime = '';
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            if ($finfo) {
+                $mime = (string)finfo_file($finfo, $file['tmp_name']);
+                finfo_close($finfo);
+            }
+        }
+        if (in_array($extension, array('jpg', 'jpeg', 'png'), true) && @getimagesize($file['tmp_name']) === false) {
+            return array('status' => false, 'message' => 'The selected image attachment is invalid.');
+        }
+        $blocked_mimes = array('text/x-php', 'application/x-httpd-php', 'application/x-executable', 'application/x-sharedlib');
+        if ($mime !== '' && in_array($mime, $blocked_mimes, true)) {
+            return array('status' => false, 'message' => 'The attachment type is not allowed.');
+        }
+
+        $upload_dir = FCPATH . 'uploads/group_messaging_attached_file/';
+        if (!is_dir($upload_dir) && !@mkdir($upload_dir, 0755, true)) {
+            return array('status' => false, 'message' => 'The attachment storage directory is unavailable.');
+        }
+
+        $stem = preg_replace('/[^A-Za-z0-9_-]+/', '_', pathinfo(basename($file['name']), PATHINFO_FILENAME));
+        $stem = trim(substr($stem, 0, 60), '_');
+        if ($stem === '') $stem = 'attachment';
+        try {
+            $suffix = bin2hex(random_bytes(6));
+        } catch (Exception $e) {
+            $suffix = substr(sha1(uniqid('', true)), 0, 12);
+        }
+        $stored_name = $stem . '_' . $suffix . '.' . $extension;
+        if (!move_uploaded_file($file['tmp_name'], $upload_dir . $stored_name)) {
+            return array('status' => false, 'message' => 'The attachment could not be saved.');
+        }
+        return array('status' => true, 'file_name' => $stored_name);
+    }
+
     function is_message_thread_participant($message_thread_code, $user_key = null) {
         $message_thread_code = trim((string)$message_thread_code);
         if ($message_thread_code === '') return false;
@@ -1487,18 +1642,30 @@ class Crud_model extends MY_Model {
         return $this->db->trans_status();
     }
 
-    function send_reply_group_message($message_thread_code) {
-        $message    = $this->input->post('message');
-        $timestamp  = strtotime(date("Y-m-d H:i:s"));
-        $sender     = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
-        if ($_FILES['attached_file_on_messaging']['name'] != "") {
-          $data_message['attached_file_name'] = basename($_FILES['attached_file_on_messaging']['name']);
-        }
-        $data_message['group_message_thread_code'] = $message_thread_code;
-        $data_message['message'] = $message;
-        $data_message['sender'] = $sender;
-        $data_message['timestamp'] = $timestamp;
+    function send_reply_group_message($message_thread_code, $attached_file_name = '') {
+        if (!$this->is_group_thread_participant($message_thread_code)) return false;
+        $message = trim((string)$this->input->post('message'));
+        $attached_file_name = basename((string)$attached_file_name);
+        if ($message === '' && $attached_file_name === '') return false;
+
+        $timestamp = time();
+        $sender = $this->current_group_user_key();
+        if (!$sender) return false;
+
+        $data_message = array(
+            'group_message_thread_code' => trim((string)$message_thread_code),
+            'message' => $message,
+            'sender' => $sender,
+            'timestamp' => $timestamp,
+            'read_status' => 0,
+            'attached_file_name' => $attached_file_name
+        );
+        $this->db->trans_start();
         $this->db->insert('group_message', $data_message);
+        $this->db->where('group_message_thread_code', trim((string)$message_thread_code))
+            ->update('group_message_thread', array('last_message_timestamp' => $timestamp));
+        $this->db->trans_complete();
+        return $this->db->trans_status();
     }
 
     function mark_thread_messages_read($message_thread_code) {
@@ -1719,62 +1886,80 @@ class Crud_model extends MY_Model {
         }
     }
 
-    // Group messaging portion
-    function create_group(){
+    // Group messaging
+    function create_group() {
+        $group_name = trim((string)$this->input->post('group_name'));
+        $members = $this->sanitize_group_members($this->input->post('user'));
+        $current = $this->current_group_user_key();
+        $recipient_count = count(array_filter($members, function($key) use ($current) { return $key !== $current; }));
+        if ($group_name === '') return array('status' => false, 'message' => 'Group name is required.');
+        if ($recipient_count < 1) return array('status' => false, 'message' => 'Select at least one group member.');
 
-      $yes_no = $this->input->post('yes_no');
-      if($yes_no == 'yes') {
-        $data['name'] = $this->input->post('member_name');
-        $data['phone'] = $this->input->post('member_contact');
-
-        $data['group_message_thread_code'] = substr(md5(rand(100000000, 20000000000)), 0, 15);
-        $data['created_timestamp'] = strtotime(date("Y-m-d H:i:s"));
-        $data['group_name'] = $this->input->post('group_name');
-
-        array_push($_POST['user'], $this->session->userdata('login_type').'_'.$this->session->userdata('admin_id'));
-        $data['members'] = json_encode($_POST['user']);
-        echo $data['members'];
-        
-
-       // $this->db->insert('group_message_other', $data);
-
-
-
-      } else {
-          $data = array();
-          $data['group_message_thread_code'] = substr(md5(rand(100000000, 20000000000)), 0, 15);
-          $data['created_timestamp'] = strtotime(date("Y-m-d H:i:s"));
-          $data['group_name'] = $this->input->post('group_name');
-          if(!empty($_POST['user'])) {
-              array_push($_POST['user'], $this->session->userdata('login_type').'_'.$this->session->userdata('admin_id'));
-              $data['members'] = json_encode($_POST['user']);
-          }
-          else{
-            $_POST['user'] = array();
-            array_push($_POST['user'], $this->session->userdata('login_type').'_'.$this->session->userdata('admin_id'));
-            $data['members'] = json_encode($_POST['user']);
-          }
-          $this->db->insert('group_message_thread', $data);
-      }
-      
-      redirect(site_url('admin/group_message'), 'refresh');
+        try {
+            $thread_code = bin2hex(random_bytes(8));
+        } catch (Exception $e) {
+            $thread_code = substr(sha1(uniqid('', true)), 0, 16);
+        }
+        $timestamp = time();
+        $data = array(
+            'group_message_thread_code' => $thread_code,
+            'created_timestamp' => $timestamp,
+            'last_message_timestamp' => $timestamp,
+            'group_name' => mb_substr($group_name, 0, 255),
+            'members' => json_encode($members)
+        );
+        if (!$this->db->insert('group_message_thread', $data)) {
+            return array('status' => false, 'message' => 'The group could not be created.');
+        }
+        return array('status' => true, 'message' => 'Group created successfully.', 'thread_code' => $thread_code);
     }
-    // Group messaging portion
-    function update_group($thread_code = ""){
-      $data = array();
-      $data['group_name'] = $this->input->post('group_name');
-      if(!empty($_POST['user'])) {
-          array_push($_POST['user'], $this->session->userdata('login_type').'_'.$this->session->userdata('admin_id'));
-          $data['members'] = json_encode($_POST['user']);
-      }
-      else{
-        $_POST['user'] = array();
-        array_push($_POST['user'], $this->session->userdata('login_type').'_'.$this->session->userdata('admin_id'));
-        $data['members'] = json_encode($_POST['user']);
-      }
-      $this->db->where('group_message_thread_code', $thread_code);
-      $this->db->update('group_message_thread', $data);
-        redirect(site_url('admin/group_message'), 'refresh');
+
+    function update_group($thread_code = '') {
+        if (!$this->is_group_thread_participant($thread_code)) {
+            return array('status' => false, 'message' => 'You do not have access to this group.');
+        }
+        $group_name = trim((string)$this->input->post('group_name'));
+        $members = $this->sanitize_group_members($this->input->post('user'));
+        $current = $this->current_group_user_key();
+        $recipient_count = count(array_filter($members, function($key) use ($current) { return $key !== $current; }));
+        if ($group_name === '') return array('status' => false, 'message' => 'Group name is required.');
+        if ($recipient_count < 1) return array('status' => false, 'message' => 'Select at least one group member.');
+
+        $data = array(
+            'group_name' => mb_substr($group_name, 0, 255),
+            'members' => json_encode($members)
+        );
+        $ok = $this->db->where('group_message_thread_code', trim((string)$thread_code))->update('group_message_thread', $data);
+        return array('status' => (bool)$ok, 'message' => $ok ? 'Group updated successfully.' : 'The group could not be updated.');
+    }
+
+    function leave_group_thread($thread_code) {
+        $thread = $this->get_group_thread_for_current_user($thread_code);
+        $current = $this->current_group_user_key();
+        if (!$thread || !$current) return false;
+        $members = array_values(array_filter($this->group_thread_member_keys($thread), function($key) use ($current) { return $key !== $current; }));
+        return $this->db->where('group_message_thread_code', trim((string)$thread_code))
+            ->update('group_message_thread', array('members' => json_encode($members)));
+    }
+
+    function delete_group_thread($thread_code) {
+        if (!$this->is_group_thread_participant($thread_code)) return false;
+        $messages = $this->db->select('attached_file_name')
+            ->get_where('group_message', array('group_message_thread_code' => trim((string)$thread_code)))->result_array();
+
+        $this->db->trans_start();
+        $this->db->where('group_message_thread_code', trim((string)$thread_code))->delete('group_message');
+        $this->db->where('group_message_thread_code', trim((string)$thread_code))->delete('group_message_thread');
+        $this->db->trans_complete();
+        if (!$this->db->trans_status()) return false;
+
+        $upload_dir = FCPATH . 'uploads/group_messaging_attached_file/';
+        foreach ($messages as $message) {
+            if (empty($message['attached_file_name'])) continue;
+            $path = $upload_dir . basename($message['attached_file_name']);
+            if (is_file($path)) @unlink($path);
+        }
+        return true;
     }
 
     function get_settings($type)

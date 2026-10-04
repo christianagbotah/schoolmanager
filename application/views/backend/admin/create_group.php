@@ -1,153 +1,28 @@
-  <?php echo form_open(site_url('admin/group_message/create_group'), array('id' => 'group_message_form')); ?>
-  <div class="form-group">
-    <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('group_name');?></label>
-
-    <div class="col-sm-8">
-      <input type="text" class="form-control" name="group_name" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>"  autofocus
-      data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" required>
+<?php include APPPATH.'views/backend/shared/group_member_picker_data.php'; ?>
+<style>
+.group-form-modal{padding:18px;color:#334155}.group-form-modal .field{margin-bottom:14px}.group-form-modal label{display:block;margin-bottom:6px;color:#334155;font-size:14px;font-weight:800}.group-form-modal input[type=text]{width:100%;min-height:44px;padding:9px 11px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#0f172a;font-size:15px}.group-form-modal input[type=text]:focus{border-color:#2563eb;outline:0;box-shadow:0 0 0 3px rgba(37,99,235,.12)}.group-member-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.group-member-card{border:1px solid #e2e8f0;border-radius:11px;background:#fff;overflow:hidden}.group-member-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 11px;border-bottom:1px solid #e2e8f0;background:#f8fafc}.group-member-head strong{color:#0f172a;font-size:13px}.group-member-head label{display:flex;align-items:center;gap:5px;margin:0;color:#64748b;font-size:11px;font-weight:800}.group-member-search{padding:8px;border-bottom:1px solid #eef2f7}.group-member-search input{width:100%;min-height:36px!important;padding:7px 8px!important;border:1px solid #cbd5e1!important;border-radius:7px!important;font-size:13px!important}.group-member-list{max-height:230px;overflow-y:auto}.group-member-row{display:grid;grid-template-columns:26px minmax(0,1fr);gap:7px;padding:8px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer}.group-member-row:hover{background:#f8fbff}.group-member-row input{margin-top:3px}.group-member-name{display:block;color:#0f172a;font-size:12px;font-weight:800}.group-member-sub{display:block;margin-top:2px;color:#64748b;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.group-member-empty{padding:20px 10px;text-align:center;color:#94a3b8;font-size:12px}.group-form-hint{margin:7px 0 0;color:#64748b;font-size:12px;line-height:1.45}.group-form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:15px;padding-top:14px;border-top:1px solid #e2e8f0}.group-form-actions .btn{min-height:42px;padding:8px 14px!important;border-radius:8px!important;font-size:14px!important;font-weight:800!important}.group-form-actions .btn-primary{background:#2563eb!important;border-color:#2563eb!important}@media(max-width:900px){.group-member-grid{grid-template-columns:1fr}}@media(max-width:600px){.group-form-modal{padding:14px}.group-form-modal input[type=text]{font-size:16px}.group-form-actions{display:grid;grid-template-columns:1fr}}
+</style>
+<?php echo form_open(site_url('admin/group_message/create_group'), array('id'=>'group_message_form')); ?>
+<div class="group-form-modal">
+    <div class="field"><label for="group_name">Group name *</label><input id="group_name" type="text" name="group_name" required maxlength="255" autofocus placeholder="e.g. JHS 3 Parents & Teachers"><p class="group-form-hint">The current administrator is automatically included. Select at least one other member.</p></div>
+    <div class="group-member-grid">
+    <?php foreach($member_groups as $type=>$users): ?>
+        <section class="group-member-card" data-member-type="<?php echo $type; ?>">
+            <div class="group-member-head"><strong><?php echo html_escape(ucfirst($type)); ?>s · <?php echo count($users); ?></strong><label><input type="checkbox" class="group-check-all"> Select all</label></div>
+            <div class="group-member-search"><input type="search" class="group-member-filter" placeholder="Search <?php echo $type; ?>s…"></div>
+            <div class="group-member-list">
+                <?php if(!$users): ?><div class="group-member-empty">No eligible <?php echo $type; ?>s found.</div><?php else: foreach($users as $user): $id=(int)$user[$type.'_id']; ?>
+                    <label class="group-member-row" data-member-text="<?php echo html_escape(strtolower(($user['name']??'').' '.($user['phone']??'').' '.($user['email']??''))); ?>"><input type="checkbox" class="group-member-check" name="user[]" value="<?php echo $type.'-'.$id; ?>"><span><span class="group-member-name"><?php echo html_escape($user['name']??'Unnamed'); ?></span><span class="group-member-sub"><?php echo html_escape(($user['phone']??'') ?: ($user['email']??'')); ?></span></span></label>
+                <?php endforeach; endif; ?>
+            </div>
+        </section>
+    <?php endforeach; ?>
     </div>
-  </div><hr>
-
-  <br><br><br>
-  <div class="form-group">
-    <label for="field-2" class="col-sm-3 control-label"><?php echo get_phrase('create_new_list');?></label>
-
-      <label class="col-sm-3 radio-inline "><input type="radio" onclick="update_yes(this)" class="form-control" name="yes_no" id="yes" value="yes"><h3>Yes</h3></label>
-
-      <label class="col-sm-3 radio-inline"><input type="radio" onclick="update_no(this)" class="form-control" name="yes_no" id="no" value="no" checked><h3>No.</h3></label>
-
-  </div>
-
-  <div class="col-md-12" style="margin-top: 10px; display: none" id="second_list">
-    <br>
-      <div class="form-group row">
-        <label for="field-1" class="col-sm-4 control-label"><?php echo get_phrase('Member\'s Name:');?></label>
-
-        <div class="col-sm-6">
-          <input type="text" class="form-control" name="member_name" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" 
-          data-validate="required">
-        </div>
-      </div>
-
-      <div class="form-group row">
-        <label for="field-1" class="col-sm-4 control-label"><?php echo get_phrase('Member\'s Contact:');?></label>
-
-        <div class="col-sm-6">
-          <input type="text" class="form-control" name="member_contact" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" 
-          data-validate="required" >
-        </div>
-      </div>
-    </div>
-
-
-
-<?php
-  $running_year = get_settings('running_year');
-  $running_term = get_settings('running_term');
-  $running_sem = get_settings('running_sem');
-
-  $user_array = ['student', 'teacher', 'parent'];
-  for ($i=0; $i < sizeof($user_array); $i++):
-
-    if($user_array[$i] == 'parent') {
-      $this->db->select('student_id');
-      $this->db->from('enroll');
-      $this->db->where('mute', '0');
-      $this->db->where('year', $running_year);
-      $this->db->where('term', $running_term);
-      $this->db->or_where('sem', $running_sem);
-      $st_ids =  $this->db->get()->result_array();
-
-      $st_ids_array = array();
-      $ij = 0;
-      foreach($st_ids as $row) {
-          $st_ids_array[$ij] = $row['student_id'];
-          $ij++;
-      }
-
-      $this->db->select('parent_id');
-      $this->db->from('student');
-      $this->db->where_in('student_id', $st_ids_array);
-      $pt_ids = $this->db->get()->result_array();
-
-      $pt_ids_array = array();
-      $j = 0;
-      foreach($pt_ids as $row2) {
-          $pt_ids_array[$j] = $row2['parent_id'];
-          $j++;
-      }
-      $this->db->where_in('parent_id', $pt_ids_array);
-      $user_list = $this->db->get($user_array[$i])->result_array();
-    } else {
-      $user_list = $this->db->get($user_array[$i])->result_array();
-    }
-    
-    ?>
-    <br/>
-    
-    <div class="col-md-12" style="margin-top: 10px;" id="<?=$user_array[$i]?>_holder">
-    <table  class="table table-bordered table-striped" id="<?=$user_array[$i]?>">
-      <span class="col-md-6" style="font-size: 13px; color: #616161; text-align: left; padding: 0; margin: 0;"><u><?php echo ucfirst($user_array[$i]) .' List'; ?></u></span>
-      <span class="col-md-4 pull-right" style="text-align: right; color: #616161;">
-        <input type="checkbox" id = "<?php echo $user_array[$i]; ?>" onchange="checkAllBoxes(this)">&nbsp;<?php echo get_phrase('check_all'); ?>
-      </span>
-      <thead>
-        <tr>
-          <th><?php echo get_phrase('select'); ?></th>
-          <th><?php echo get_phrase('phone'); ?></th>
-          <th><?php echo get_phrase('name'); ?></th>
-        </tr>
-      </thead>
-      <?php foreach ($user_list as $user):?>
-        <tr>
-          <td width = "20%"><input type="checkbox" class="<?php echo $user_array[$i]; ?>" name="user[]" value="<?php echo $user_array[$i].'_'.$user[$user_array[$i].'_id']; ?>"></td>
-          <td width = "25%"><?php echo $user['phone'] ?></td>
-          <td width = "55%"><?php echo $user['name'] ?></td>
-        </tr>
-      <?php endforeach ?>
-    </table>
-  </div>
-<?php endfor; ?>
-<div class="col-md-4 col-md-offset-4" style="text-align: center;">
-  <button type="submit" name="submit" class="btn btn-success btn-md"><?php echo get_phrase('done'); ?></button>
+    <div class="group-form-actions"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary"><i class="fa fa-users"></i> Create Group</button></div>
 </div>
-<?php echo form_close();?>
-<script type="text/javascript">
-
-  
-
-
-  function checkAllBoxes(check){
-    var checkboxes = document.getElementsByTagName('input');
-
-    if (check.checked) {
-          $('.'+check.id).prop("checked", true);
-
-     } else {
-        $('.'+check.id).prop("checked", false);
-     }
-  }
-
-
-  function update_yes(val) {
-    /* Act on the event */
-    if(val.checked) {
-      $('#student_holder').slideUp('slow');
-      $('#teacher_holder').slideUp('slow');
-      $('#parent_holder').slideUp('slow');
-      $('#second_list').slideDown('slow');
-    }
-    
-  };
-
-  function update_no(val) {
-    /* Act on the event */
-    if(val.checked) {
-
-      $('#second_list').slideUp('slow');
-      $('#student_holder').slideDown('slow');
-      $('#teacher_holder').slideDown('slow');
-      $('#parent_holder').slideDown('slow');
-    }
-  };
+<?php echo form_close(); ?>
+<script>
+$('.group-member-filter').on('input',function(){var card=$(this).closest('.group-member-card'),q=$(this).val().toLowerCase().trim();card.find('.group-member-row').each(function(){$(this).toggle(!q||String($(this).data('member-text')).indexOf(q)!==-1);});});
+$('.group-check-all').on('change',function(){var card=$(this).closest('.group-member-card');card.find('.group-member-row:visible .group-member-check').prop('checked',this.checked);});
+$('#group_message_form').on('submit',function(e){if($(this).find('.group-member-check:checked').length<1){e.preventDefault();if(typeof showAjaxModal_alert==='function')showAjaxModal_alert('Select at least one group member.','warning');}});
 </script>
