@@ -1,57 +1,77 @@
 <!-- Inventory Reports -->
 <?php include('_readable_header.php'); ?>
+<style>
+.inventory-reports-workspace { margin:0 !important; padding:24px 28px 40px !important; background:#f8fafc; min-height:100%; }
+.inventory-reports-head { margin-bottom:18px; padding-bottom:18px; border-bottom:1px solid #e2e8f0; }
+.inventory-reports-eyebrow { margin:0 0 4px; color:#2563eb; font-size:13px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.inventory-reports-head h1 { margin:0; color:#0f172a; font-size:30px !important; line-height:1.2; font-weight:800; letter-spacing:-.02em; }
+.inventory-reports-head p:last-child { margin:7px 0 0; color:#64748b; font-size:15px !important; line-height:1.5; }
+.inventory-reports-workspace > .grid { gap:12px !important; margin-bottom:18px !important; }
+.inventory-reports-workspace > .grid > div { min-height:180px; padding:18px !important; border:1px solid #e2e8f0 !important; border-radius:14px !important; box-shadow:0 1px 2px rgba(15,23,42,.05) !important; }
+.inventory-reports-workspace > .grid h3 { margin-bottom:7px !important; color:#0f172a !important; font-size:17px !important; font-weight:800 !important; }
+.inventory-reports-workspace > .grid p { margin-bottom:16px !important; color:#64748b !important; font-size:14px !important; line-height:1.5; }
+.inventory-reports-workspace > .grid button { min-height:44px !important; padding:9px 14px !important; border-radius:9px !important; font-size:14px !important; font-weight:800 !important; }
+#report_container { border:1px solid #e2e8f0 !important; border-radius:14px !important; box-shadow:0 1px 2px rgba(15,23,42,.05) !important; }
+#report_container > .px-8.py-5 { padding:14px 16px !important; background:#f8fafc !important; border-bottom:1px solid #e2e8f0 !important; }
+#report_container .p-8 { padding:16px !important; }
+#report_container button { min-height:38px; padding:8px 11px !important; border-radius:8px !important; font-size:13px !important; font-weight:800 !important; }
+#report_content { color:#334155; font-size:14px; line-height:1.5; }
+@media(max-width:767px){.inventory-reports-workspace{padding:18px 14px 32px !important}.inventory-reports-head h1{font-size:26px !important}.inventory-reports-workspace > .grid{grid-template-columns:1fr !important}#report_container > .px-8.py-5{display:block}#report_container > .px-8.py-5 > .flex{margin-top:12px;flex-wrap:wrap}}
+</style>
 
-<div class="inventory-content p-8 sm:p-10 lg:p-12" style="margin-top: 70px;">
-    <div class="mb-12">
-        <h1 style="font-size: 3.5rem !important;" class="font-bold text-gray-900 tracking-tight leading-tight">Inventory Reports</h1>
-        <p style="font-size: 1.25rem !important;" class="mt-4 text-gray-600 leading-relaxed">Generate and export inventory reports</p>
+
+<div class="inventory-content inventory-reports-workspace">
+    <div class="inventory-reports-head">
+        <p class="inventory-reports-eyebrow">Inventory Analytics</p>
+        <h1>Inventory Reports</h1>
+        <p>Generate valuation, stock, movement, sales, category and supplier reports from one reporting workspace.</p>
     </div>
 
     <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 mb-12">
         <div class="bg-white border border-gray-200 rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
-            <h3 style="font-size: 1.5rem !important;" class="font-bold text-gray-900 mb-3">Stock Valuation Report</h3>
-            <p style="font-size: 1.125rem !important;" class="text-gray-600 mb-6 leading-relaxed">Complete inventory with current stock values</p>
-            <button onclick="generateReport('valuation')" style="font-size: 1.125rem !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 border border-transparent font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+            <h3 style="font-size: 17px !important;" class="font-bold text-gray-900 mb-3">Stock Valuation Report</h3>
+            <p style="font-size: 14px !important;" class="text-gray-600 mb-6 leading-relaxed">Complete inventory with current stock values</p>
+            <button onclick="generateReport('valuation')" style="font-size: 14px !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 border border-transparent font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors">
                 Generate Report
             </button>
         </div>
 
         <div class="bg-white border border-gray-200 rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
-            <h3 style="font-size: 1.5rem !important;" class="font-bold text-gray-900 mb-3">Low Stock Report</h3>
-            <p style="font-size: 1.125rem !important;" class="text-gray-600 mb-6 leading-relaxed">Items below reorder level</p>
-            <button onclick="generateReport('low_stock')" style="font-size: 1.125rem !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 border border-transparent font-semibold rounded-lg text-white bg-orange-600 hover:bg-orange-700 transition-colors">
+            <h3 style="font-size: 17px !important;" class="font-bold text-gray-900 mb-3">Low Stock Report</h3>
+            <p style="font-size: 14px !important;" class="text-gray-600 mb-6 leading-relaxed">Items below reorder level</p>
+            <button onclick="generateReport('low_stock')" style="font-size: 14px !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 border border-transparent font-semibold rounded-lg text-white bg-orange-600 hover:bg-orange-700 transition-colors">
                 Generate Report
             </button>
         </div>
 
         <div class="bg-white border border-gray-200 rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
-            <h3 style="font-size: 1.5rem !important;" class="font-bold text-gray-900 mb-3">Movement History</h3>
-            <p style="font-size: 1.125rem !important;" class="text-gray-600 mb-6 leading-relaxed">Stock in/out transactions</p>
-            <button onclick="generateReport('movements')" style="font-size: 1.125rem !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 border border-transparent font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700 transition-colors">
+            <h3 style="font-size: 17px !important;" class="font-bold text-gray-900 mb-3">Movement History</h3>
+            <p style="font-size: 14px !important;" class="text-gray-600 mb-6 leading-relaxed">Stock in/out transactions</p>
+            <button onclick="generateReport('movements')" style="font-size: 14px !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 border border-transparent font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700 transition-colors">
                 Generate Report
             </button>
         </div>
 
         <div class="bg-white border border-gray-200 rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
-            <h3 style="font-size: 1.5rem !important;" class="font-bold text-gray-900 mb-3">Sales Report</h3>
-            <p style="font-size: 1.125rem !important;" class="text-gray-600 mb-6 leading-relaxed">Product sales summary</p>
-            <button onclick="generateReport('sales')" style="font-size: 1.125rem !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 border border-transparent font-semibold rounded-lg text-white bg-purple-600 hover:bg-purple-700 transition-colors">
+            <h3 style="font-size: 17px !important;" class="font-bold text-gray-900 mb-3">Sales Report</h3>
+            <p style="font-size: 14px !important;" class="text-gray-600 mb-6 leading-relaxed">Product sales summary</p>
+            <button onclick="generateReport('sales')" style="font-size: 14px !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 border border-transparent font-semibold rounded-lg text-white bg-purple-600 hover:bg-purple-700 transition-colors">
                 Generate Report
             </button>
         </div>
 
         <div class="bg-white border border-gray-200 rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
-            <h3 style="font-size: 1.5rem !important;" class="font-bold text-gray-900 mb-3">Category Analysis</h3>
-            <p style="font-size: 1.125rem !important;" class="text-gray-600 mb-6 leading-relaxed">Stock by category breakdown</p>
-            <button onclick="generateReport('category')" style="font-size: 1.125rem !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 border border-transparent font-semibold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+            <h3 style="font-size: 17px !important;" class="font-bold text-gray-900 mb-3">Category Analysis</h3>
+            <p style="font-size: 14px !important;" class="text-gray-600 mb-6 leading-relaxed">Stock by category breakdown</p>
+            <button onclick="generateReport('category')" style="font-size: 14px !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 border border-transparent font-semibold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
                 Generate Report
             </button>
         </div>
 
         <div class="bg-white border border-gray-200 rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
-            <h3 style="font-size: 1.5rem !important;" class="font-bold text-gray-900 mb-3">Supplier Report</h3>
-            <p style="font-size: 1.125rem !important;" class="text-gray-600 mb-6 leading-relaxed">Products by supplier</p>
-            <button onclick="generateReport('supplier')" style="font-size: 1.125rem !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 border border-transparent font-semibold rounded-lg text-white bg-teal-600 hover:bg-teal-700 transition-colors">
+            <h3 style="font-size: 17px !important;" class="font-bold text-gray-900 mb-3">Supplier Report</h3>
+            <p style="font-size: 14px !important;" class="text-gray-600 mb-6 leading-relaxed">Products by supplier</p>
+            <button onclick="generateReport('supplier')" style="font-size: 14px !important; min-height: 3.5rem !important;" class="w-full px-5 py-3 border border-transparent font-semibold rounded-lg text-white bg-teal-600 hover:bg-teal-700 transition-colors">
                 Generate Report
             </button>
         </div>
@@ -59,15 +79,15 @@
 
     <div id="report_container" class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hidden">
         <div class="px-8 py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 flex items-center justify-between">
-            <h2 style="font-size: 1.75rem !important;" class="font-bold text-gray-900" id="report_title">Report</h2>
+            <h2 style="font-size: 18px !important;" class="font-bold text-gray-900" id="report_title">Report</h2>
             <div class="flex space-x-3">
-                <button onclick="exportReport('excel')" style="font-size: 1.125rem !important;" class="px-4 py-2 border border-gray-300 font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                <button onclick="exportReport('excel')" style="font-size: 14px !important;" class="px-4 py-2 border border-gray-300 font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                     <i class="fa fa-file-excel"></i> Excel
                 </button>
-                <button onclick="exportReport('pdf')" style="font-size: 1.125rem !important;" class="px-4 py-2 border border-gray-300 font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                <button onclick="exportReport('pdf')" style="font-size: 14px !important;" class="px-4 py-2 border border-gray-300 font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                     <i class="fa fa-file-pdf"></i> PDF
                 </button>
-                <button onclick="window.print()" style="font-size: 1.125rem !important;" class="px-4 py-2 border border-gray-300 font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                <button onclick="window.print()" style="font-size: 14px !important;" class="px-4 py-2 border border-gray-300 font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                     <i class="fa fa-print"></i> Print
                 </button>
             </div>
