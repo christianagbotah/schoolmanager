@@ -91,7 +91,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
     <input type="hidden" name="receipt_code" value="<?php echo $payment->receipt_code; ?>">
     <input type="hidden" name="payment_id" value="<?php echo $payment_id; ?>">
     <input type="hidden" name="request_type" id="request_type" value="">
-    
+
     <div style="padding: 24px;">
         <!-- Receipt Info Card -->
         <div style="background: linear-gradient(135deg, <?php echo $gradient_light; ?> 0%, <?php echo $gradient_dark; ?> 100%); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
@@ -149,15 +149,17 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                 </div>
                 <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">New Amount</label>
-                    <input type="number" name="new_amount" class="form-control" step="0.01" value="<?php echo ($payment->amount ?? 0); ?>" 
+                    <input type="number" name="new_amount" class="form-control" step="0.01" min="0.01" value="<?php echo ($payment->amount ?? 0); ?>"
                            style="height: 48px; border: 2px solid #d1fae5; border-radius: 8px; font-size: 16px; font-weight: 600;">
                 </div>
                 <div>
                     <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">New Payment Method</label>
+                    <?php $current_method=(string)$payment->payment_method; if(strcasecmp($current_method,'Cash')===0)$current_method='1'; elseif(strcasecmp($current_method,'Cheque')===0)$current_method='2'; elseif(strcasecmp($current_method,'Mobile Money')===0)$current_method='3'; elseif(strcasecmp($current_method,'Bank Transfer')===0)$current_method='4'; ?>
                     <select name="new_method" class="form-control" style="height: 48px; border: 2px solid #d1fae5; border-radius: 8px; font-size: 15px;">
-                        <option value="cash" <?php echo (isset($payment->payment_method) && $payment->payment_method == 'cash') ? 'selected' : ''; ?>>Cash</option>
-                        <option value="momo" <?php echo (isset($payment->payment_method) && $payment->payment_method == 'momo') ? 'selected' : ''; ?>>Mobile Money</option>
-                        <option value="cheque" <?php echo (isset($payment->payment_method) && $payment->payment_method == 'cheque') ? 'selected' : ''; ?>>Cheque</option>
+                        <option value="1" <?php echo $current_method==='1'?'selected':''; ?>>Cash</option>
+                        <option value="2" <?php echo $current_method==='2'?'selected':''; ?>>Cheque</option>
+                        <option value="3" <?php echo $current_method==='3'?'selected':''; ?>>Mobile Money</option>
+                        <option value="4" <?php echo $current_method==='4'?'selected':''; ?>>Bank Transfer</option>
                     </select>
                 </div>
             </div>
@@ -189,7 +191,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
             <label style="display: block; font-size: 15px; font-weight: 700; color: #1f2937; margin-bottom: 8px;">
                 <i class="fa fa-comment-dots"></i> Reason for Modification <span style="color: #ef4444;">*</span>
             </label>
-            <textarea name="reason" class="form-control" rows="4" required 
+            <textarea name="reason" class="form-control" rows="4" required
                       placeholder="Please provide a detailed reason for this modification request..."
                       style="border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; font-size: 14px; resize: vertical; transition: all 0.3s;"
                       onfocus="this.style.borderColor='<?php echo $theme_color; ?>'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)'"
@@ -208,11 +210,11 @@ $gradient_dark = adjustBrightness($theme_color, -30);
 
         <!-- Action Buttons -->
         <div style="display: flex; gap: 12px; justify-content: flex-end;">
-            <button type="button" class="btn btn-default" data-dismiss="modal" 
+            <button type="button" class="btn btn-default" data-dismiss="modal"
                     style="padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 2px solid #e5e7eb;">
                 <i class="fa fa-times"></i> Cancel
             </button>
-            <button type="submit" class="btn btn-primary" 
+            <button type="submit" class="btn btn-primary"
                     style="padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 14px; background: linear-gradient(135deg, <?php echo $gradient_light; ?> 0%, <?php echo $gradient_dark; ?> 100%); border: none; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">
                 <i class="fa fa-paper-plane"></i> Submit Request
             </button>
@@ -223,15 +225,15 @@ $gradient_dark = adjustBrightness($theme_color, -30);
 <script>
 (function() {
     var selectedAction = null;
-    
+
     window.selectAction = function(action) {
         selectedAction = action;
         $('#request_type').val(action);
-        
+
         // Update button states
         $('#receiptModificationForm .action-btn').removeClass('selected');
         $('#receiptModificationForm #btn-' + action).addClass('selected');
-        
+
         // Show/hide edit fields or delete warning
         if(action === 'edit') {
             $('#editFields').slideDown(300);
@@ -241,7 +243,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
             $('#editFields').slideUp(300);
         }
     };
-    
+
     window.getSelectedAction = function() {
         return selectedAction;
     };
@@ -250,16 +252,16 @@ $gradient_dark = adjustBrightness($theme_color, -30);
 // Event delegation for form submission
 $(document).off('submit', '#receiptModificationForm').on('submit', '#receiptModificationForm', function(e) {
     e.preventDefault();
-    
+
     if(!window.getSelectedAction()) {
         showAjaxModal_alert('Please select an action (Edit or Delete)', 'warning');
         return;
     }
-    
+
     showAjaxModal_alert('Submitting request...', 'loading');
-    
+
     var formData = $(this).serialize();
-    
+
     // Add new_data for edit requests
     if(window.getSelectedAction() === 'edit') {
         var newData = {
@@ -268,7 +270,7 @@ $(document).off('submit', '#receiptModificationForm').on('submit', '#receiptModi
         };
         formData += '&new_data=' + encodeURIComponent(JSON.stringify(newData));
     }
-    
+
     $.ajax({
         url: $(this).attr('action'),
         type: 'POST',

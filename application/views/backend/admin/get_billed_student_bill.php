@@ -3,6 +3,16 @@
 
       $codeData = $this->db->get_where('invoice', ['invoice_code' => $invoice_code])->result_array();
       $ids = array();
+      $discount_amounts = array();
+      $approved_discounts = $this->db->select('idi.invoice_id, idi.discount_amount')
+          ->from('invoice_discount_items idi')
+          ->join('invoice_discounts id', 'id.discount_id = idi.discount_id')
+          ->where('id.invoice_code', $invoice_code)
+          ->where('id.status', 'approved')
+          ->get()->result_array();
+      foreach($approved_discounts as $discount_row) {
+          $discount_amounts[(int)$discount_row['invoice_id']] = ($discount_amounts[(int)$discount_row['invoice_id']] ?? 0) + (float)$discount_row['discount_amount'];
+      }
 
         foreach($codeData as $cd) {
 
@@ -13,13 +23,15 @@
            $ids[] = $item_id;
           ?>
 
+          <?php $base_amount = (float)$cd['amount'] + (float)($discount_amounts[(int)$cd['invoice_id']] ?? 0); ?>
           <div class="flex gap-5 mb-5 row" id="<?=$item_id;?>">
+              <input type="hidden" id="<?=$item_id;?>_invoice_id" value="<?= (int)$cd['invoice_id']; ?>">
               <div class="w-full">
 
                   <select id="<?=$item_id;?>_title" name="<?=$item_id;?>_title" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 text-xl focus:border-primary-500 block w-full h-16 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark
                     :focus:border-primary-500" required="true">
 
-                
+
                     <option value="<?=$cd['title'];?>"><?=$cd['title'];?></option>
 
                 </select>
@@ -33,7 +45,7 @@
                 </div>
 
                 <div class="w-96 max-w-96">
-                  <input type="text" id="<?=$item_id;?>_amount"  name="<?=$item_id;?>_amount" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 total_amount focus:border-primary-600 block w-full h-16 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white text-xl dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Amount" value="<?=$cd['amount'];?>" required="true">
+                  <input type="text" id="<?=$item_id;?>_amount"  name="<?=$item_id;?>_amount" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 total_amount focus:border-primary-600 block w-full h-16 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white text-xl dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Amount" value="<?=number_format($base_amount, 2, '.', '');?>" required="true">
                 </div>
 
                 <div class="flex gap-3 w-fit max-w-fit">
@@ -42,14 +54,14 @@
                   <a href="javascript:(void);" onclick="remove_invoice_item_list('<?= $item_id; ?>', ' ', $('#<?=$item_id;?>_title').val())" class="btn btn-danger btn-sm"><i class="fa fa-remove"></i></a>
 
                 </div>
-            </div> 
+            </div>
 
           <?php
         }
       ?>
 
 
-       
+
 
 
 

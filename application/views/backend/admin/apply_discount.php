@@ -132,7 +132,7 @@ if(empty($student_id)) {
           </div>
         </div>
       </div>
-      
+
       <div class="enterprise-body">
         <div class="row">
           <div class="col-md-3">
@@ -143,7 +143,7 @@ if(empty($student_id)) {
               </select>
             </div>
           </div>
-          
+
           <div class="col-md-3">
             <div class="form-group-modern">
               <label><i class="fa fa-calendar-check"></i> <?php echo get_phrase('term'); ?></label>
@@ -155,7 +155,7 @@ if(empty($student_id)) {
               </select>
             </div>
           </div>
-          
+
           <div class="col-md-3">
             <div class="form-group-modern">
               <label><i class="fa fa-user-graduate"></i> <?php echo get_phrase('student'); ?></label>
@@ -164,7 +164,7 @@ if(empty($student_id)) {
               </select>
             </div>
           </div>
-          
+
           <div class="col-md-3">
             <div class="form-group-modern">
               <label><i class="fa fa-file-invoice"></i> <?php echo get_phrase('invoice_code'); ?></label>
@@ -174,7 +174,7 @@ if(empty($student_id)) {
             </div>
           </div>
         </div>
-        
+
         <div class="row" style="margin-top: 32px;">
           <div class="col-md-12">
             <div style="display: flex; justify-content: flex-end; align-items: center;">
@@ -185,7 +185,7 @@ if(empty($student_id)) {
             </div>
           </div>
         </div>
-        
+
         <div id="invoice_details_section" style="display: none; margin-top: 30px;">
           <div class="enterprise-card">
             <div class="enterprise-header" style="background: #059669;">
@@ -211,7 +211,7 @@ if(empty($student_id)) {
             </div>
           </div>
         </div>
-        
+
         <!-- Discount Profile Section -->
         <div id="discount-profile-section" style="display: none; margin-top: 30px; background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 16px; padding: 25px;">
           <h5 style="color: #0c4a6e; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
@@ -230,8 +230,8 @@ if(empty($student_id)) {
                 foreach($profiles as $profile):
                   $method_display = $profile['discount_method'] === 'percentage' ? $profile['discount_value'] . '%' : $currency . ' ' . number_format($profile['discount_value'], 2);
                 ?>
-                <option value="<?php echo $profile['profile_id']; ?>" 
-                        data-method="<?php echo $profile['discount_method']; ?>" 
+                <option value="<?php echo $profile['profile_id']; ?>"
+                        data-method="<?php echo $profile['discount_method']; ?>"
                         data-value="<?php echo $profile['discount_value']; ?>">
                   <?php echo $profile['profile_name'] . ' (' . $method_display . ')'; ?>
                 </option>
@@ -251,14 +251,14 @@ if(empty($student_id)) {
 
 <script>
 $(document).ready(function() {
-  
+
   // Auto-load students on page load
   var initialYear = $('#filter_year').val();
   var initialTerm = $('#filter_term').val();
   if(initialYear && initialTerm) {
     loadStudents();
   }
-  
+
   $('#filter_year, #filter_term').change(function() {
     var year = $('#filter_year').val();
     var term = $('#filter_term').val();
@@ -266,15 +266,15 @@ $(document).ready(function() {
       loadStudents();
     }
   });
-  
+
   function loadStudents() {
     var year = $('#filter_year').val();
     var term = $('#filter_term').val();
-    
+
     if(!year || !term) return;
-    
+
     $('#filter_student').html('<option value="">Loading...</option>').prop('disabled', true);
-    
+
     $.ajax({
       url: '<?php echo site_url('admin/get_students_with_unpaid_invoices'); ?>',
       type: 'POST',
@@ -291,25 +291,25 @@ $(document).ready(function() {
       }
     });
   }
-  
+
   $(document).on('change', '#filter_student', function() {
     var student_id = $(this).val();
     var year = $('#filter_year').val();
     var term = $('#filter_term').val();
-    
+
     if(student_id) {
       $('#filter_invoice').html('<option value="">Loading...</option>').prop('disabled', true);
       if($('#filter_invoice').hasClass('select2-hidden-accessible')) {
         $('#filter_invoice').select2('destroy');
       }
-      
+
       $.ajax({
         url: '<?php echo site_url('admin/get_student_unpaid_invoices'); ?>',
         type: 'POST',
         data: {student_id: student_id, year: year, term: term},
         success: function(response) {
           $('#filter_invoice').html(response).prop('disabled', false).select2();
-          
+
           var firstInvoice = $('#filter_invoice option:eq(1)').val();
           if(firstInvoice) {
             $('#filter_invoice').val(firstInvoice).trigger('change');
@@ -324,25 +324,25 @@ $(document).ready(function() {
       $('#load_invoice_btn').prop('disabled', true);
     }
   });
-  
+
   $(document).on('change', '#filter_invoice', function() {
     var invoice_code = $(this).val();
     var student_id = $('#filter_student').val();
-    
+
     if(invoice_code && student_id) {
       $('#invoice_details_section').show();
       $('#invoice_details_content').html('<p class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...</p>');
       $('#profile_student_id').val(student_id);
       $('#profile_invoice_code').val(invoice_code);
-      
+
       $('#view-invoice-btn-new').show().off('click').on('click', function() {
         viewInvoiceDetails(invoice_code);
       });
-      
+
       $('#take-payment-btn-new').show().off('click').on('click', function() {
         invoice_pay_modal(student_id);
       });
-      
+
       // Load invoice details
       $.ajax({
         url: '<?php echo site_url('admin/get_invoice_details'); ?>',
@@ -351,7 +351,7 @@ $(document).ready(function() {
         success: function(invoiceHtml) {
           $('#invoice_details_content').html(invoiceHtml);
           $('#discount-profile-section').show();
-          
+
           // Load discount summary
           $.ajax({
             url: '<?php echo site_url('admin/get_invoice_discount_summary'); ?>',
@@ -366,13 +366,13 @@ $(document).ready(function() {
                 var iconColor = hasPending ? '#92400e' : '#065f46';
                 var titleColor = hasPending ? '#92400e' : '#065f46';
                 var titleText = hasPending ? '<i class="fa fa-exclamation-triangle"></i> Discount Awaiting Approval' : 'Active Discount Applied';
-                
+
                 var badge = '<div style="margin-bottom: 15px; padding: 15px; background: ' + bgGradient + '; border-left: 4px solid ' + borderColor + '; border-radius: 8px;">';
                 badge += '<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">';
                 badge += '<i class="fa fa-tag" style="color: ' + iconColor + '; font-size: 20px;"></i>';
                 badge += '<div style="font-weight: 700; color: ' + titleColor + '; font-size: 16px;">' + titleText + '</div>';
                 badge += '</div>';
-                
+
                 discountData.details.forEach(function(disc) {
                   var itemBorder = disc.status === 'approved' ? '#10b981' : '#f59e0b';
                   var itemBg = disc.status === 'pending' ? '#fffbeb' : 'white';
@@ -390,7 +390,7 @@ $(document).ready(function() {
                   badge += '<div style="font-size: 18px; font-weight: 800; color: #065f46;">' + disc.currency + ' ' + parseFloat(disc.amount).toFixed(2) + '</div>';
                   badge += '</div></div></div>';
                 });
-                
+
                 if(discountData.approved_amount > 0 || discountData.pending_amount > 0) {
                   badge += '<div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid ' + borderColor + '; display: flex; justify-content: space-between; font-weight: 700;">';
                   if(discountData.approved_amount > 0) {
@@ -415,12 +415,12 @@ $(document).ready(function() {
       $('#take-payment-btn-new').hide();
     }
   });
-  
+
   $(document).on('change', '#discount_profile_select', function() {
     var profileId = $(this).val();
     var invoiceCode = $('#profile_invoice_code').val();
     var studentId = $('#profile_student_id').val();
-    
+
     if(profileId && invoiceCode && studentId) {
       $.ajax({
         url: '<?php echo site_url("admin/get_student_class_residence"); ?>',
@@ -431,8 +431,8 @@ $(document).ready(function() {
           $.ajax({
             url: '<?php echo site_url("admin/getDiscountProfileDetails"); ?>',
             type: 'POST',
-            data: { 
-              profile_id: profileId, 
+            data: {
+              profile_id: profileId,
               invoice_code: invoiceCode,
               class_id: studentData.class_id,
               residence_type: studentData.residence_type
@@ -441,10 +441,10 @@ $(document).ready(function() {
             success: function(response) {
               if(response.status === 'success' && response.profile) {
                 var methodText = response.profile.discount_method === 'percentage' ? 'Percentage Discount' : 'Fixed Amount Discount';
-                var valueText = response.profile.discount_method === 'percentage' 
-                  ? '<span style="font-size: 32px; font-weight: 800; color: #059669;">' + response.profile.discount_value + '%</span>' 
+                var valueText = response.profile.discount_method === 'percentage'
+                  ? '<span style="font-size: 32px; font-weight: 800; color: #059669;">' + response.profile.discount_value + '%</span>'
                   : '<span style="font-size: 32px; font-weight: 800; color: #059669;"><?php echo $currency; ?> ' + parseFloat(response.profile.discount_value).toFixed(2) + '</span>';
-                
+
                 var html = '<div style="display: flex; gap: 20px; align-items: start;">';
                 html += '<div style="flex: 0 0 200px; text-align: center; background: #d1fae5; padding: 20px; border-radius: 10px; border: 2px solid #10b981;">';
                 html += '<div style="font-size: 12px; color: #065f46; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">' + methodText + '</div>';
@@ -454,7 +454,7 @@ $(document).ready(function() {
                 html += '<h6 style="color: #065f46; font-weight: 700; margin-bottom: 12px; font-size: 16px;"><i class="fa fa-info-circle"></i> Profile Details</h6>';
                 html += '<div style="font-size: 14px; color: #047857; line-height: 1.8;">';
                 html += '<div style="margin-bottom: 8px;"><strong style="color: #064e3b;">Profile Name:</strong> <span style="font-weight: 600;">' + response.profile.profile_name + '</span></div>';
-                
+
                 if(response.profile.bill_item_ids === '*') {
                   html += '<div style="margin-bottom: 8px;"><strong style="color: #064e3b;">Applies to:</strong> <span style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 12px;">All Bill Items</span></div>';
                 } else if(response.profile.items && response.profile.items.length > 0) {
@@ -476,14 +476,14 @@ $(document).ready(function() {
       $('#profile-preview').slideUp(300);
     }
   });
-  
+
   $(document).on('submit', '#profile-discount-form', function(e) {
     e.preventDefault();
     var formData = $(this).serialize();
     var profileId = $('#discount_profile_select').val();
     var invoiceCode = $('#profile_invoice_code').val();
     var studentId = $('#profile_student_id').val();
-    
+
     $.ajax({
       url: '<?php echo site_url("admin/check_existing_profile"); ?>',
       type: 'POST',
@@ -496,7 +496,7 @@ $(document).ready(function() {
           } else {
             showConfirmModal(
               'Replace Existing Profile?',
-              'Student already has "' + check.profile_name + '" assigned to this invoice. The old profile will be REMOVED and replaced with the new one. Continue?',
+              'Student already has "' + check.profile_name + '" assigned to this invoice. The current discount will remain unchanged until the replacement is safely approved. Continue?',
               function() {
                 processProfileAssignment(formData, 'replace');
               },
@@ -510,10 +510,10 @@ $(document).ready(function() {
       }
     });
   });
-  
+
   function processProfileAssignment(formData, action) {
     showAjaxModal_alert('Assigning profile...', 'loading');
-    
+
     $.ajax({
       url: '<?php echo site_url('admin/assign_profile_to_invoice'); ?>',
       type: 'POST',
@@ -574,7 +574,7 @@ foreach($invoice_codes as &$inv) {
         ->where('status', 'approved')
         ->get('invoice_discounts');
     $inv['discount_amount'] = $discount_query->row()->discount_amount ?? 0;
-    
+
     // Check for pending discounts
     $pending_query = $this->db->select_sum('discount_amount')
         ->where('invoice_code', $inv['invoice_code'])
@@ -690,7 +690,7 @@ foreach($invoice_codes as &$inv) {
     <div id="bill-details">
       <p class="text-muted" style="padding: 40px; text-align: center;"><?php echo get_phrase('select_an_invoice_code_from_the_left'); ?></p>
     </div>
-    
+
     <!-- Discount Profile Section -->
     <div id="discount-profile-section" style="display: none; margin-top: 30px; background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 16px; padding: 25px;">
       <h5 style="color: #0c4a6e; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
@@ -709,8 +709,8 @@ foreach($invoice_codes as &$inv) {
             foreach($profiles as $profile):
               $method_display = $profile['discount_method'] === 'percentage' ? $profile['discount_value'] . '%' : $currency . ' ' . number_format($profile['discount_value'], 2);
             ?>
-            <option value="<?php echo $profile['profile_id']; ?>" 
-                    data-method="<?php echo $profile['discount_method']; ?>" 
+            <option value="<?php echo $profile['profile_id']; ?>"
+                    data-method="<?php echo $profile['discount_method']; ?>"
                     data-value="<?php echo $profile['discount_value']; ?>">
               <?php echo $profile['profile_name'] . ' (' . $method_display . ')'; ?>
             </option>
@@ -731,14 +731,14 @@ $(document).ready(function() {
   $('.invoice-card').click(function() {
     $('.invoice-card').removeClass('active');
     $(this).addClass('active');
-    
+
     var invoiceCode = $(this).data('invoice');
     $('#profile_invoice_code').val(invoiceCode);
-    
+
     $('#view-invoice-btn').show().off('click').on('click', function() {
       viewInvoiceDetails(invoiceCode);
     });
-    
+
     $.ajax({
       url: '<?php echo site_url("admin/get_invoice_details"); ?>',
       type: 'POST',
@@ -753,7 +753,7 @@ $(document).ready(function() {
   $(document).on('submit', '#discount-form', function(e) {
     e.preventDefault();
     showAjaxModal_alert('<?php echo get_phrase("applying_discount"); ?>...', 'loading');
-    
+
     $.ajax({
       url: '<?php echo site_url("admin/apply_invoice_discount"); ?>',
       type: 'POST',
@@ -781,11 +781,11 @@ $(document).ready(function() {
     var selectedOption = $(this).find('option:selected');
     var method = selectedOption.data('method');
     var value = selectedOption.data('value');
-    
+
     if(profileId && invoiceCode) {
       // Get student's class and residence type
       var studentId = $('#profile_student_id').val();
-      
+
       $.ajax({
         url: '<?php echo site_url("admin/get_student_class_residence"); ?>',
         type: 'POST',
@@ -795,8 +795,8 @@ $(document).ready(function() {
           $.ajax({
             url: '<?php echo site_url("admin/getDiscountProfileDetails"); ?>',
             type: 'POST',
-            data: { 
-              profile_id: profileId, 
+            data: {
+              profile_id: profileId,
               invoice_code: invoiceCode,
               class_id: studentData.class_id,
               residence_type: studentData.residence_type
@@ -805,24 +805,24 @@ $(document).ready(function() {
             success: function(response) {
               if(response.status === 'success' && response.profile) {
             var methodText = response.profile.discount_method === 'percentage' ? 'Percentage Discount' : 'Fixed Amount Discount';
-            var valueText = response.profile.discount_method === 'percentage' 
-              ? '<span style="font-size: 32px; font-weight: 800; color: #059669;">' + response.profile.discount_value + '%</span>' 
+            var valueText = response.profile.discount_method === 'percentage'
+              ? '<span style="font-size: 32px; font-weight: 800; color: #059669;">' + response.profile.discount_value + '%</span>'
               : '<span style="font-size: 32px; font-weight: 800; color: #059669;">' + response.profile.currency + ' ' + parseFloat(response.profile.discount_value).toFixed(2) + '</span>';
-            
+
             var html = '<div style="display: flex; gap: 20px; align-items: start;">';
-            
+
             // Left side - Discount Value
             html += '<div style="flex: 0 0 200px; text-align: center; background: #d1fae5; padding: 20px; border-radius: 10px; border: 2px solid #10b981;">';
             html += '<div style="font-size: 12px; color: #065f46; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">' + methodText + '</div>';
             html += valueText;
             html += '</div>';
-            
+
             // Right side - Details
             html += '<div style="flex: 1;">';
             html += '<h6 style="color: #065f46; font-weight: 700; margin-bottom: 12px; font-size: 16px;"><i class="fa fa-info-circle"></i> Profile Details</h6>';
             html += '<div style="font-size: 14px; color: #047857; line-height: 1.8;">';
             html += '<div style="margin-bottom: 8px;"><strong style="color: #064e3b;">Profile Name:</strong> <span style="font-weight: 600;">' + response.profile.profile_name + '</span></div>';
-            
+
             if(response.profile.bill_item_ids === '*') {
               html += '<div style="margin-bottom: 8px;"><strong style="color: #064e3b;">Applies to:</strong> <span style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 12px;">All Bill Items</span></div>';
             } else if(response.profile.items && response.profile.items.length > 0) {
@@ -836,7 +836,7 @@ $(document).ready(function() {
             html += '</div>';
             html += '</div>';
             html += '</div>';
-            
+
                 $('#profile-preview').html(html).slideDown(300);
               }
             }
@@ -853,7 +853,7 @@ $(document).ready(function() {
     var formData = $(this).serialize();
     var profileId = $('#discount_profile_select').val();
     var invoiceCode = $('#profile_invoice_code').val();
-    
+
     // Check if student already has a profile for this invoice
     $.ajax({
       url: '<?php echo site_url("admin/check_existing_profile"); ?>',
@@ -867,7 +867,7 @@ $(document).ready(function() {
           } else {
             showConfirmModal(
               'Replace Existing Profile?',
-              'Student already has "' + check.profile_name + '" assigned to this invoice. The old profile will be REMOVED and replaced with the new one. Continue?',
+              'Student already has "' + check.profile_name + '" assigned to this invoice. The current discount will remain unchanged until the replacement is safely approved. Continue?',
               function() {
                 processProfileAssignment(formData, 'replace');
               },
@@ -881,10 +881,10 @@ $(document).ready(function() {
       }
     });
   });
-  
+
   function processProfileAssignment(formData, action) {
     showAjaxModal_alert('<?php echo get_phrase("assigning_profile"); ?>...', 'loading');
-    
+
     $.ajax({
       url: '<?php echo site_url("admin/assign_profile_to_invoice"); ?>',
       type: 'POST',
@@ -923,7 +923,7 @@ function invoice_pay_modal(student_id, date = '', term = '') {
   } else {
     showAjaxModal('<?php echo site_url('modal/popup/modal_take_payment/');?>' + student_id, 'take_payment');
   }
-  
+
   $('#modal_ajax').on('hidden.bs.modal', function() {
     $('.invoice-card.active').click();
     $(this).off('hidden.bs.modal');

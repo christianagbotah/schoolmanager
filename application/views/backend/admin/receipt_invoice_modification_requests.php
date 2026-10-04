@@ -1,551 +1,69 @@
+<?php
+$receipt_requests = isset($requests) && is_array($requests) ? $requests : [];
+$invoice_requests_list = isset($invoice_requests) && is_array($invoice_requests) ? $invoice_requests : [];
+$all_requests = [];
+foreach($receipt_requests as $row){$row['_type']='receipt';$all_requests[]=$row;}
+foreach($invoice_requests_list as $row){$row['_type']='invoice';$all_requests[]=$row;}
+usort($all_requests,function($a,$b){
+    $ta=$a['_type']==='receipt'?(int)($a['requested_at']??0):strtotime($a['created_at']??'1970-01-01');
+    $tb=$b['_type']==='receipt'?(int)($b['requested_at']??0):strtotime($b['created_at']??'1970-01-01');
+    return $tb<=>$ta;
+});
+$stats=['pending'=>0,'approved'=>0,'closed'=>0,'total'=>count($all_requests)];
+foreach($all_requests as $row){$st=$row['status']??'';if($st==='pending'||$st==='processing')$stats['pending']++;elseif($st==='approved')$stats['approved']++;elseif(in_array($st,['rejected','declined','revoked'],true))$stats['closed']++;}
+$csrf_name=$this->security->get_csrf_token_name();
+$csrf_hash=$this->security->get_csrf_hash();
+?>
 <style>
-.requests-container { padding: 24px; background: transparent; min-height: 100vh; }
-.request-card { background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06); border-left: 4px solid; }
-.request-card.pending { border-color: #f59e0b; }
-.request-card.approved { border-color: #10b981; }
-.request-card.rejected, .request-card.declined { border-color: #ef4444; }
-.request-card.revoked { border-color: #6b7280; }
-.request-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-.request-badge { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
-.badge-pending { background: #fef3c7; color: #92400e; }
-.badge-approved { background: #d1fae5; color: #065f46; }
-.badge-rejected, .badge-declined { background: #fee2e2; color: #991b1b; }
-.badge-revoked { background: #e5e7eb; color: #374151; }
-.request-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px; }
-.detail-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.detail-value { font-size: 15px; font-weight: 600; color: #1a202c; word-break: break-word; }
-.request-actions { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
-.btn-action { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color .2s ease, box-shadow .2s ease; white-space: nowrap; }
-.btn-approve { background: #059669; color: white; }
-.btn-approve:hover { background: #047857; }
-.btn-reject { background: #dc2626; color: white; }
-.btn-reject:hover { background: #b91c1c; }
-.btn-view { background: #2563eb; color: white; }
-.btn-view:hover { background: #1d4ed8; }
-.empty-state { text-align: center; padding: 60px 20px; color: #9ca3af; }
-.empty-state i { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
-.filter-bar { background: white; padding: 16px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-.filter-select { padding: 10px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; min-width: 150px; }
-.bulk-actions-bar { background: white; padding: 16px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06); display: none; align-items: center; gap: 12px; flex-wrap: wrap; }
-.bulk-actions-bar.active { display: flex; }
-.checkbox-cell { width: 40px; display: flex; align-items: center; justify-content: center; }
-.checkbox-cell input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
-
-@media (max-width: 768px) {
-    .requests-container { padding: 12px; }
-    .request-card { padding: 16px; }
-    .request-title { font-size: 16px; }
-    .request-details { grid-template-columns: 1fr; gap: 12px; }
-    .filter-bar { flex-direction: column; align-items: stretch; }
-    .filter-bar label { margin-left: 0 !important; }
-    .filter-select { width: 100%; }
-    .btn-action { padding: 8px 16px; font-size: 14px; }
-}
-
-.btn-action:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
-.filter-select:focus { border-color: #2563eb; outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
-@media (max-width: 480px) {
-    .request-actions { flex-direction: column; }
-    .btn-action { width: 100%; }
-    .filter-bar { padding: 12px; }
-}
+.mod-approval-workspace{margin:0!important;padding:24px 28px 40px!important;background:#f8fafc;min-height:100%;color:#334155}.mod-approval-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid #e2e8f0}.mod-approval-eyebrow{margin:0 0 4px;color:#2563eb;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.mod-approval-head h1{margin:0;color:#0f172a;font-size:30px!important;line-height:1.2;font-weight:800;letter-spacing:-.02em}.mod-approval-head p:last-child{margin:7px 0 0;color:#64748b;font-size:15px;line-height:1.5}.mod-approval-note{max-width:470px;padding:11px 13px;border:1px solid #dbeafe;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:13px;line-height:1.45;font-weight:700}.mod-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}.mod-stat{min-height:102px;padding:15px 16px;border:1px solid #e2e8f0;border-left:4px solid #2563eb;border-radius:13px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.05)}.mod-stat.pending{border-left-color:#d97706}.mod-stat.approved{border-left-color:#059669}.mod-stat.closed{border-left-color:#64748b}.mod-stat-label{color:#64748b;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.mod-stat-value{margin-top:9px;color:#0f172a;font-size:28px;line-height:1;font-weight:800}.mod-stat-hint{margin-top:7px;color:#64748b;font-size:12px}.mod-filters{display:flex;align-items:end;gap:10px;margin-bottom:14px;padding:13px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#fff}.mod-filter-field{min-width:180px}.mod-filter-field label{display:block;margin:0 0 5px;color:#475569;font-size:12px;font-weight:800;text-transform:uppercase}.mod-filter-field select{width:100%;height:42px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#0f172a;font-size:14px}.mod-filter-summary{margin-left:auto;color:#64748b;font-size:13px;font-weight:700}.mod-bulk{display:none;align-items:center;gap:8px;margin-bottom:14px;padding:11px 13px;border:1px solid #bfdbfe;border-radius:10px;background:#eff6ff}.mod-bulk.active{display:flex}.mod-bulk strong{margin-right:auto;color:#1e3a8a;font-size:13px}.mod-bulk .btn{min-height:38px;padding:7px 11px!important;border-radius:8px!important;font-size:13px!important;font-weight:800!important}.mod-list{display:grid;gap:12px}.mod-card{padding:16px;border:1px solid #e2e8f0;border-left:4px solid #94a3b8;border-radius:13px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.05)}.mod-card.pending{border-left-color:#d97706}.mod-card.processing{border-left-color:#2563eb}.mod-card.approved{border-left-color:#059669}.mod-card.rejected,.mod-card.declined{border-left-color:#dc2626}.mod-card.revoked{border-left-color:#64748b}.mod-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.mod-card-id{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.mod-checkbox{width:18px;height:18px;accent-color:#2563eb;cursor:pointer}.mod-type,.mod-action,.mod-status{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}.mod-type{background:#eff6ff;color:#1d4ed8}.mod-action{background:#f1f5f9;color:#475569}.mod-status.pending{background:#fffbeb;color:#b45309}.mod-status.processing{background:#eff6ff;color:#1d4ed8}.mod-status.approved{background:#ecfdf5;color:#047857}.mod-status.rejected,.mod-status.declined{background:#fef2f2;color:#b91c1c}.mod-status.revoked{background:#f1f5f9;color:#475569}.mod-details{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.mod-detail-label{margin-bottom:4px;color:#64748b;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.mod-detail-value{color:#0f172a;font-size:14px;font-weight:800;line-height:1.4;overflow-wrap:anywhere}.mod-reason{margin-top:12px;padding:10px 12px;border-radius:9px;background:#f8fafc;color:#475569;font-size:13px;line-height:1.5}.mod-rejection{margin-top:10px;padding:10px 12px;border-radius:9px;background:#fef2f2;color:#991b1b;font-size:13px;line-height:1.5}.mod-card-actions{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin-top:13px;padding-top:12px;border-top:1px solid #eef2f7}.mod-card-actions .btn{min-height:38px;padding:7px 11px!important;border-radius:8px!important;font-size:13px!important;font-weight:800!important}.mod-empty{padding:44px 18px;border:1px dashed #cbd5e1;border-radius:12px;background:#fff;text-align:center;color:#64748b;font-size:14px}
+@media(max-width:980px){.mod-stats{grid-template-columns:1fr 1fr}.mod-details{grid-template-columns:1fr 1fr}}
+@media(max-width:767px){.mod-approval-workspace{padding:18px 14px 32px!important}.mod-approval-head{display:block}.mod-approval-head h1{font-size:26px!important}.mod-approval-note{max-width:none;margin-top:14px}.mod-filters{align-items:stretch;flex-direction:column}.mod-filter-field{min-width:0}.mod-filter-field select{font-size:16px}.mod-filter-summary{margin-left:0}.mod-bulk{align-items:stretch;flex-direction:column}.mod-bulk strong{margin-right:0}.mod-bulk .btn{width:100%}.mod-card-head{flex-direction:column}.mod-details{grid-template-columns:1fr}.mod-card-actions{display:grid;grid-template-columns:1fr}.mod-card-actions .btn{width:100%}}
+@media(max-width:480px){.mod-stats{grid-template-columns:1fr}}
 </style>
 
-<div class="requests-container">
-    <div class="filter-bar">
-        <label style="font-weight: 600; color: #374151;"><?php echo get_phrase('filter_by_type'); ?>:</label>
-        <select id="typeFilter" class="filter-select" onchange="filterRequests()">
-            <option value="all"><?php echo get_phrase('all'); ?></option>
-            <option value="receipt"><?php echo get_phrase('receipts'); ?></option>
-            <option value="invoice"><?php echo get_phrase('invoices'); ?></option>
-        </select>
-        
-        <label style="font-weight: 600; color: #374151; margin-left: 20px;"><?php echo get_phrase('filter_by_status'); ?>:</label>
-        <select id="statusFilter" class="filter-select" onchange="filterRequests()">
-            <option value="all"><?php echo get_phrase('all'); ?></option>
-            <option value="pending" selected><?php echo get_phrase('pending'); ?></option>
-            <option value="approved"><?php echo get_phrase('approved'); ?></option>
-            <option value="rejected"><?php echo get_phrase('rejected'); ?></option>
-            <option value="revoked"><?php echo get_phrase('revoked'); ?></option>
-        </select>
-    </div>
-
-    <div class="bulk-actions-bar" id="bulkActionsBar">
-        <label style="font-weight: 600; color: #374151;">
-            <span id="selectedCount">0</span> <?php echo get_phrase('selected'); ?>
-        </label>
-        <button class="btn-action" onclick="selectAll()" style="margin: 0; background: #3b82f6; color: white;">
-            <i class="fa fa-check-square"></i> <?php echo get_phrase('select_all'); ?>
-        </button>
-        <button class="btn-action" onclick="deselectAll()" style="margin: 0; background: #6b7280; color: white;">
-            <i class="fa fa-square"></i> <?php echo get_phrase('deselect_all'); ?>
-        </button>
-        <button class="btn-action btn-approve" onclick="bulkApprove()" style="margin: 0;">
-            <i class="fa fa-check"></i> <?php echo get_phrase('bulk_approve'); ?>
-        </button>
-        <button class="btn-action btn-reject" onclick="bulkReject()" style="margin: 0;">
-            <i class="fa fa-times"></i> <?php echo get_phrase('bulk_reject'); ?>
-        </button>
-    </div>
-
-    <div id="requestsList">
-        <?php 
-        $all_requests = array_merge(
-            isset($requests) ? $requests : [],
-            isset($invoice_requests) ? $invoice_requests : []
-        );
-        
-        if(empty($all_requests)): ?>
-            <div class="empty-state">
-                <i class="fa fa-inbox"></i>
-                <div><?php echo get_phrase('no_modification_requests_found'); ?></div>
-            </div>
-        <?php else: 
-            foreach($all_requests as $request): 
-                $is_receipt = isset($request['receipt_code']);
-                
-                if($is_receipt) {
-                    $payments = json_decode($request['original_data'], true);
-                    $payment = is_array($payments) && !empty($payments) ? $payments[0] : null;
-                    if(!$payment) continue;
-                    $student = $this->db->where('student_id', $payment['student_id'])->get('student')->row();
-                    $total_amount = is_array($payments) ? array_sum(array_column($payments, 'amount')) : 0;
-                } else {
-                    $student = $this->db->where('student_id', $request['student_id'])->get('student')->row();
-                }
-                
-                $requester = $this->db->where('admin_id', $request['requested_by'])->get('admin')->row();
-            ?>
-            <div class="request-card <?php echo $request['status']; ?>" data-status="<?php echo $request['status']; ?>" data-type="<?php echo $is_receipt ? 'receipt' : 'invoice'; ?>" data-request-id="<?php echo $request['request_id']; ?>" data-is-receipt="<?php echo $is_receipt ? '1' : '0'; ?>">
-                <div class="request-header">
-                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                        <?php if($request['status'] == 'pending'): 
-                            $user_level = $this->session->userdata('user_type');
-                            $is_super_admin = ($user_level == 1);
-                            if($is_super_admin): 
-                        ?>
-                        <div class="checkbox-cell">
-                            <input type="checkbox" class="request-checkbox">
-                        </div>
-                        <?php endif; endif; ?>
-                        <span style="background: <?php echo $is_receipt ? '#3b82f6' : '#8b5cf6'; ?>; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
-                            <i class="fa fa-<?php echo $is_receipt ? 'receipt' : 'file-invoice'; ?>"></i> <?php echo $is_receipt ? 'Receipt' : 'Invoice'; ?>
-                        </span>
-                        <span style="background: <?php echo $request['request_type'] == 'edit' ? '#10b981' : '#ef4444'; ?>; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
-                            <i class="fa fa-<?php echo $request['request_type'] == 'edit' ? 'edit' : 'trash-alt'; ?>"></i> <?php echo ucfirst($request['request_type']); ?>
-                        </span>
-                        <span style="color: #6b7280; font-size: 14px; font-weight: 600;">
-                            #<?php echo $request['request_id']; ?>
-                        </span>
-                    </div>
-                    <span class="request-badge badge-<?php echo $request['status']; ?>">
-                        <?php echo $request['status']; ?>
-                    </span>
-                </div>
-
-                <div class="request-details">
-                    <div class="detail-item">
-                        <div class="detail-label"><?php echo get_phrase('student'); ?></div>
-                        <div class="detail-value"><?php echo $student ? $student->name : 'N/A'; ?></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label"><?php echo $is_receipt ? get_phrase('receipt_number') : get_phrase('invoice_number'); ?></div>
-                        <div class="detail-value">#<?php echo $is_receipt ? $request['receipt_code'] : $request['invoice_code']; ?></div>
-                    </div>
-                    <?php if($is_receipt): ?>
-                    <div class="detail-item">
-                        <div class="detail-label"><?php echo get_phrase('amount'); ?></div>
-                        <div class="detail-value">GHS <?php echo number_format($total_amount, 2); ?></div>
-                    </div>
-                    <?php endif; ?>
-                    <div class="detail-item">
-                        <div class="detail-label"><?php echo get_phrase('requested_by'); ?></div>
-                        <div class="detail-value"><?php echo $requester ? $requester->name : 'N/A'; ?></div>
-                    </div>
-                </div>
-
-                <?php 
-                $reason = $is_receipt ? (isset($request['reason']) ? $request['reason'] : '') : (isset($request['request_reason']) ? $request['request_reason'] : '');
-                ?>
-                <div style="margin-top: 12px; display: flex; <?php echo $reason ? 'justify-content: space-between;' : 'justify-content: flex-end;'; ?> align-items: center; gap: 20px; flex-wrap: wrap;">
-                    <?php if($reason): ?>
-                    <div style="flex: 1; display: flex; align-items: center; gap: 12px; min-width: 250px; flex-wrap: wrap;">
-                        <div class="detail-label" style="margin-bottom: 0; white-space: nowrap;"><?php echo get_phrase('reason'); ?>:</div>
-                        <div style="padding: 8px 12px; background: #f9fafb; border-radius: 8px; flex: 1; min-width: 200px;">
-                            <?php echo $reason; ?>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                    <div style="display: flex; gap: 12px; align-items: center; flex-shrink: 0; flex-wrap: wrap;">
-                        <button class="btn-action btn-view" onclick="viewRequestDetails(<?php echo $request['request_id']; ?>, '<?php echo $is_receipt ? 'receipt' : 'invoice'; ?>')">
-                            <i class="fa fa-eye"></i> <?php echo get_phrase('view_details'); ?>
-                        </button>
-                        <?php if($request['status'] == 'pending'): 
-                            $user_level = $this->session->userdata('user_type');
-                            $is_super_admin = ($user_level == 1);
-                            if($is_super_admin): 
-                        ?>
-                        <button class="btn-action btn-approve" onclick="<?php echo $is_receipt ? 'approveReceiptRequest' : 'approveInvoiceRequest'; ?>(<?php echo $request['request_id']; ?>)">
-                            <i class="fa fa-check"></i> <?php echo get_phrase('approve'); ?>
-                        </button>
-                        <button class="btn-action btn-reject" onclick="<?php echo $is_receipt ? 'rejectReceiptRequest' : 'declineInvoiceRequest'; ?>(<?php echo $request['request_id']; ?>)">
-                            <i class="fa fa-times"></i> <?php echo get_phrase($is_receipt ? 'reject' : 'decline'); ?>
-                        </button>
-                        <?php endif; endif; ?>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
+<div class="mod-approval-workspace">
+    <div class="mod-approval-head"><div><p class="mod-approval-eyebrow">Financial Controls</p><h1>Invoice &amp; Receipt Approvals</h1><p>Review requested edits and deletions before they change invoices, receipts, credits or ledger balances.</p></div><div class="mod-approval-note"><i class="fa fa-shield-alt"></i> Only super administrators can make approval decisions. Pending rows are locked during financial mutation to prevent duplicate processing.</div></div>
+    <div class="mod-stats"><div class="mod-stat pending"><div class="mod-stat-label">Pending / Processing</div><div class="mod-stat-value"><?php echo (int)$stats['pending']; ?></div><div class="mod-stat-hint">Awaiting or currently applying a decision</div></div><div class="mod-stat approved"><div class="mod-stat-label">Approved</div><div class="mod-stat-value"><?php echo (int)$stats['approved']; ?></div><div class="mod-stat-hint">Successfully applied requests</div></div><div class="mod-stat closed"><div class="mod-stat-label">Declined / Rejected</div><div class="mod-stat-value"><?php echo (int)$stats['closed']; ?></div><div class="mod-stat-hint">Includes revoked receipt deletions</div></div><div class="mod-stat"><div class="mod-stat-label">Total Requests</div><div class="mod-stat-value"><?php echo (int)$stats['total']; ?></div><div class="mod-stat-hint">Invoices and receipts combined</div></div></div>
+    <div class="mod-filters"><div class="mod-filter-field"><label for="typeFilter">Record type</label><select id="typeFilter"><option value="all">All records</option><option value="receipt">Receipts</option><option value="invoice">Invoices</option></select></div><div class="mod-filter-field"><label for="statusFilter">Status</label><select id="statusFilter"><option value="all">All statuses</option><option value="pending" selected>Pending</option><option value="processing">Processing</option><option value="approved">Approved</option><option value="rejected">Rejected receipts</option><option value="declined">Declined invoices</option><option value="revoked">Revoked receipts</option></select></div><div class="mod-filter-summary"><span id="visibleCount">0</span> visible request(s)</div></div>
+    <div class="mod-bulk" id="bulkActions"><strong><span id="selectedCount">0</span> pending request(s) selected</strong><button type="button" class="btn btn-success" id="bulkApproveBtn"><i class="fa fa-check"></i> Approve Selected</button><button type="button" class="btn btn-danger" id="bulkRejectBtn"><i class="fa fa-times"></i> Reject Selected</button><button type="button" class="btn btn-default" id="clearSelectionBtn">Clear</button></div>
+    <div class="mod-list" id="requestsList">
+    <?php if(!$all_requests): ?><div class="mod-empty"><i class="fa fa-inbox" style="font-size:28px;margin-bottom:8px;display:block"></i>No invoice or receipt modification requests found.</div><?php else: foreach($all_requests as $request):
+        $type=$request['_type']; $is_receipt=$type==='receipt'; $status=$request['status']??'pending'; $request_id=(int)($request['request_id']??0);
+        $student_id=0; $amount=null;
+        if($is_receipt){$payments=json_decode($request['original_data']??'[]',true);$payments=is_array($payments)?$payments:[];$first=$payments?$payments[0]:[];$student_id=(int)($first['student_id']??0);$amount=array_sum(array_map(function($p){return (float)($p['amount']??0);},$payments));}
+        else {$student_id=(int)($request['student_id']??0);}
+        $student=$student_id?$this->db->where('student_id',$student_id)->get('student')->row_array():[];
+        $requester_id=(int)($request['requested_by']??0);$requester=$requester_id?$this->db->where('admin_id',$requester_id)->get('admin')->row_array():[];
+        $reason=$is_receipt?($request['reason']??''):($request['request_reason']??'');
+        $date_value=$is_receipt?(!empty($request['requested_at'])?date('d M Y, H:i',(int)$request['requested_at']):'—'):(!empty($request['created_at'])?date('d M Y, H:i',strtotime($request['created_at'])):'—');
+        $record_code=$is_receipt?($request['receipt_code']??''):($request['invoice_code']??'');
+        $request_type=$request['request_type']??'edit';
+        $rejection=$is_receipt?($request['rejection_reason']??''):'';
+    ?>
+        <article class="mod-card <?php echo html_escape($status); ?>" data-type="<?php echo $type; ?>" data-status="<?php echo html_escape($status); ?>" data-request-id="<?php echo $request_id; ?>" data-is-receipt="<?php echo $is_receipt?'1':'0'; ?>">
+            <div class="mod-card-head"><div class="mod-card-id"><?php if($status==='pending'): ?><input type="checkbox" class="mod-checkbox request-checkbox" aria-label="Select request <?php echo $request_id; ?>"><?php endif; ?><span class="mod-type"><i class="fa fa-<?php echo $is_receipt?'receipt':'file-invoice'; ?>"></i>&nbsp; <?php echo $is_receipt?'Receipt':'Invoice'; ?></span><span class="mod-action"><?php echo html_escape(ucfirst($request_type)); ?></span><span style="color:#64748b;font-size:12px;font-weight:800">#<?php echo $request_id; ?></span></div><span class="mod-status <?php echo html_escape($status); ?>"><?php echo html_escape(ucfirst(str_replace('_',' ',$status))); ?></span></div>
+            <div class="mod-details"><div><div class="mod-detail-label">Student</div><div class="mod-detail-value"><?php echo html_escape($student['name']??'N/A'); ?></div></div><div><div class="mod-detail-label"><?php echo $is_receipt?'Receipt':'Invoice'; ?> No.</div><div class="mod-detail-value">#<?php echo html_escape((string)$record_code); ?></div></div><div><div class="mod-detail-label">Requested By</div><div class="mod-detail-value"><?php echo html_escape($requester['name']??'N/A'); ?></div></div><div><div class="mod-detail-label">Requested</div><div class="mod-detail-value"><?php echo html_escape($date_value); ?></div></div><?php if($amount!==null): ?><div><div class="mod-detail-label">Original Receipt Total</div><div class="mod-detail-value">₵ <?php echo number_format($amount,2); ?></div></div><?php endif; ?></div>
+            <?php if(trim((string)$reason)!==''): ?><div class="mod-reason"><strong>Reason:</strong> <?php echo nl2br(html_escape($reason)); ?></div><?php endif; ?>
+            <?php if(trim((string)$rejection)!==''): ?><div class="mod-rejection"><strong>Rejection reason:</strong> <?php echo nl2br(html_escape($rejection)); ?></div><?php endif; ?>
+            <div class="mod-card-actions"><button type="button" class="btn btn-primary js-view-request" data-id="<?php echo $request_id; ?>" data-type="<?php echo $type; ?>"><i class="fa fa-eye"></i> View Details</button><?php if($status==='pending'): ?><button type="button" class="btn btn-success js-approve-request" data-id="<?php echo $request_id; ?>" data-type="<?php echo $type; ?>"><i class="fa fa-check"></i> Approve</button><button type="button" class="btn btn-danger js-reject-request" data-id="<?php echo $request_id; ?>" data-type="<?php echo $type; ?>"><i class="fa fa-times"></i> <?php echo $is_receipt?'Reject':'Decline'; ?></button><?php elseif($is_receipt && $status==='approved' && $request_type==='delete'): ?><button type="button" class="btn btn-danger js-revoke-receipt" data-id="<?php echo $request_id; ?>"><i class="fa fa-undo"></i> Revoke &amp; Restore Receipt</button><?php endif; ?></div>
+        </article>
+    <?php endforeach; endif; ?>
     </div>
 </div>
-
 <script>
-function filterRequests() {
-    const status = $('#statusFilter').val();
-    const type = $('#typeFilter').val();
-    
-    $('.request-card').each(function() {
-        const cardStatus = $(this).data('status');
-        const cardType = $(this).data('type');
-        
-        const statusMatch = status === 'all' || cardStatus === status;
-        const typeMatch = type === 'all' || cardType === type;
-        
-        if(statusMatch && typeMatch) {
-            $(this).show();
-        } else {
-            $(this).hide();
-        }
-    });
-    updateBulkActions();
-}
-
-function updateBulkActions() {
-    const checked = $('.request-checkbox:checked').length;
-    $('#selectedCount').text(checked);
-    if(checked > 0) {
-        $('#bulkActionsBar').addClass('active');
-    } else {
-        $('#bulkActionsBar').removeClass('active');
-    }
-}
-
-function selectAll() {
-    $('.request-card:visible .request-checkbox').prop('checked', true);
-    updateBulkActions();
-}
-
-function deselectAll() {
-    $('.request-checkbox').prop('checked', false);
-    updateBulkActions();
-}
-
-function bulkApprove() {
-    if(window.processingBulkApprove) return;
-    window.processingBulkApprove = true;
-    
-    const selected = [];
-    $('.request-checkbox:checked').each(function() {
-        const card = $(this).closest('.request-card');
-        selected.push({
-            id: card.data('request-id'),
-            is_receipt: card.data('is-receipt') == 1
-        });
-    });
-    
-    if(selected.length === 0) {
-        window.processingBulkApprove = false;
-        return;
-    }
-    
-    showConfirmModal(
-        '<?php echo get_phrase("confirm_bulk_approval"); ?>',
-        '<?php echo get_phrase("approve_selected_requests_confirm"); ?> (' + selected.length + ')',
-        function() {
-            if(window.bulkApproveCallbackExecuting) return;
-            window.bulkApproveCallbackExecuting = true;
-            
-            $('.close')[0].click();
-            showAjaxModal_alert('<?php echo get_phrase("processing"); ?>...', 'loading');
-            $.ajax({
-                url: '<?php echo site_url("admin/bulk_approve_modifications"); ?>',
-                type: 'POST',
-                data: { requests: JSON.stringify(selected) },
-                dataType: 'json'
-            }).done(function(response) {
-                window.processingBulkApprove = false;
-                window.bulkApproveCallbackExecuting = false;
-                if(response.status === 'success') {
-                    showAjaxModal_alert(response.message, 'success', false);
-                    setTimeout(() => reloadPageContent(), 2000);
-                } else {
-                    showAjaxModal_alert(response.message, 'error');
-                }
-            }).fail(function() {
-                window.processingBulkApprove = false;
-                window.bulkApproveCallbackExecuting = false;
-                showAjaxModal_alert('<?php echo get_phrase("error_occurred"); ?>', 'error');
-            });
-        },
-        '<?php echo get_phrase("approve"); ?>',
-        'success'
-    );
-}
-
-function bulkReject() {
-    if(window.processingBulkReject) return;
-    window.processingBulkReject = true;
-    
-    const selected = [];
-    $('.request-checkbox:checked').each(function() {
-        const card = $(this).closest('.request-card');
-        selected.push({
-            id: card.data('request-id'),
-            is_receipt: card.data('is-receipt') == 1
-        });
-    });
-    
-    if(selected.length === 0) {
-        window.processingBulkReject = false;
-        return;
-    }
-    
-    showConfirmModal(
-        '<?php echo get_phrase("confirm_bulk_rejection"); ?>',
-        '<?php echo get_phrase("reject_selected_requests_confirm"); ?> (' + selected.length + ')',
-        function() {
-            if(window.bulkRejectCallbackExecuting) return;
-            window.bulkRejectCallbackExecuting = true;
-            
-            $('.close')[0].click();
-            showAjaxModal_alert('<?php echo get_phrase("processing"); ?>...', 'loading');
-            $.ajax({
-                url: '<?php echo site_url("admin/bulk_reject_modifications"); ?>',
-                type: 'POST',
-                data: { requests: JSON.stringify(selected) },
-                dataType: 'json'
-            }).done(function(response) {
-                window.processingBulkReject = false;
-                window.bulkRejectCallbackExecuting = false;
-                if(response.status === 'success') {
-                    showAjaxModal_alert(response.message, 'success', false);
-                    setTimeout(() => reloadPageContent(), 2000);
-                } else {
-                    showAjaxModal_alert(response.message, 'error');
-                }
-            }).fail(function() {
-                window.processingBulkReject = false;
-                window.bulkRejectCallbackExecuting = false;
-                showAjaxModal_alert('<?php echo get_phrase("error_occurred"); ?>', 'error');
-            });
-        },
-        '<?php echo get_phrase("reject"); ?>',
-        'danger'
-    );
-}
-
-function viewRequestDetails(requestId, type) {
-    if(type === 'receipt') {
-        loadModalContent('detailsModal', 
-            '<?php echo site_url("admin/receipt_modification_details/"); ?>' + requestId, 
-            '<i class="fa fa-receipt"></i> Receipt Modification Details');
-    } else {
-        loadModalContent('detailsModal', 
-            '<?php echo site_url("admin/invoice_modification_details/"); ?>' + requestId, 
-            '<i class="fa fa-file-invoice"></i> Invoice Modification Details');
-    }
-}
-
-function approveReceiptRequest(requestId) {
-    // Prevent multiple simultaneous calls
-    if(window.processingReceiptApproval) return;
-    window.processingReceiptApproval = true;
-    
-    showConfirmModal(
-        '<?php echo get_phrase("confirm_approval"); ?>',
-        '<?php echo get_phrase("approve_modification_request_confirm"); ?>',
-        function() {
-            // Prevent callback from executing twice
-            if(window.receiptCallbackExecuting) return;
-            window.receiptCallbackExecuting = true;
-            
-            $('.close')[0].click();
-            showAjaxModal_alert('<?php echo get_phrase("processing"); ?>...', 'loading');
-            $.ajax({
-                url: '<?php echo site_url("admin/approve_receipt_modification"); ?>',
-                type: 'POST',
-                data: { request_id: requestId },
-                dataType: 'json'
-            }).done(function(response) {
-                window.processingReceiptApproval = false;
-                window.receiptCallbackExecuting = false;
-                if(response.status === 'success') {
-                    showAjaxModal_alert(response.message, 'success', false);
-                    setTimeout(() => reloadPageContent(), 2000);
-                } else {
-                    showAjaxModal_alert(response.message, 'error');
-                }
-            }).fail(function() {
-                window.processingReceiptApproval = false;
-                window.receiptCallbackExecuting = false;
-                showAjaxModal_alert('<?php echo get_phrase("error_occurred"); ?>', 'error');
-            });
-        },
-        '<?php echo get_phrase("approve"); ?>',
-        'success'
-    );
-}
-
-function rejectReceiptRequest(requestId) {
-    if(window.processingReceiptRejection) return;
-    window.processingReceiptRejection = true;
-    
-    showConfirmModal(
-        '<?php echo get_phrase("confirm_rejection"); ?>',
-        '<div style="margin-bottom: 16px;"><?php echo get_phrase("enter_rejection_reason"); ?>:</div><textarea id="rejectionReason" class="form-control" rows="3" placeholder="<?php echo get_phrase("rejection_reason"); ?>" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;"></textarea>',
-        function() {
-            if(window.receiptRejectCallbackExecuting) return;
-            window.receiptRejectCallbackExecuting = true;
-            
-            const reason = $('#rejectionReason').val().trim();
-            if(!reason) {
-                window.processingReceiptRejection = false;
-                window.receiptRejectCallbackExecuting = false;
-                showAjaxModal_alert('<?php echo get_phrase("rejection_reason_required"); ?>', 'warning');
-                return;
-            }
-            $('.close')[0].click();
-            showAjaxModal_alert('<?php echo get_phrase("processing"); ?>...', 'loading');
-            $.ajax({
-                url: '<?php echo site_url("admin/reject_receipt_modification"); ?>',
-                type: 'POST',
-                data: { request_id: requestId, reason: reason },
-                dataType: 'json'
-            }).done(function(response) {
-                window.processingReceiptRejection = false;
-                window.receiptRejectCallbackExecuting = false;
-                if(response.status === 'success') {
-                    showAjaxModal_alert(response.message, 'success', false);
-                    setTimeout(() => reloadPageContent(), 2000);
-                } else {
-                    showAjaxModal_alert(response.message, 'error');
-                }
-            }).fail(function() {
-                window.processingReceiptRejection = false;
-                window.receiptRejectCallbackExecuting = false;
-                showAjaxModal_alert('<?php echo get_phrase("error_occurred"); ?>', 'error');
-            });
-        },
-        '<?php echo get_phrase("reject"); ?>',
-        'danger'
-    );
-}
-function approveInvoiceRequest(requestId) {
-    // Prevent multiple simultaneous calls
-    if(window.processingApproval) return;
-    window.processingApproval = true;
-    
-    showConfirmModal(
-        '<?php echo get_phrase("confirm_approval"); ?>',
-        '<?php echo get_phrase("approve_invoice_modification_confirm"); ?>',
-        function() {
-            // Prevent callback from executing twice
-            if(window.callbackExecuting) return;
-            window.callbackExecuting = true;
-            
-            $('.close')[0].click();
-            showAjaxModal_alert('<?php echo get_phrase("processing"); ?>...', 'loading');
-            $.ajax({
-                url: '<?php echo site_url("admin/review_invoice_modification/"); ?>' + requestId + '/approve',
-                type: 'GET',
-                dataType: 'json'
-            }).done(function(response) {
-                window.processingApproval = false;
-                window.callbackExecuting = false;
-                if(response.status === 'success') {
-                    showAjaxModal_alert(response.message, 'success', false);
-                    setTimeout(() => reloadPageContent(), 2000);
-                } else {
-                    showAjaxModal_alert(response.message, 'error');
-                }
-            }).fail(function() {
-                window.processingApproval = false;
-                window.callbackExecuting = false;
-                showAjaxModal_alert('<?php echo get_phrase("error_occurred"); ?>', 'error');
-            });
-        },
-        '<?php echo get_phrase("approve"); ?>',
-        'success'
-    );
-}
-
-function declineInvoiceRequest(requestId) {
-    if(window.processingDecline) return;
-    window.processingDecline = true;
-    
-    showConfirmModal(
-        '<?php echo get_phrase("confirm_decline"); ?>',
-        '<?php echo get_phrase("decline_invoice_modification_confirm"); ?>',
-        function() {
-            if(window.declineCallbackExecuting) return;
-            window.declineCallbackExecuting = true;
-            
-            $('.close')[0].click();
-            showAjaxModal_alert('<?php echo get_phrase("processing"); ?>...', 'loading');
-            $.ajax({
-                url: '<?php echo site_url("admin/review_invoice_modification/"); ?>' + requestId + '/decline',
-                type: 'GET',
-                dataType: 'json'
-            }).done(function(response) {
-                window.processingDecline = false;
-                window.declineCallbackExecuting = false;
-                if(response.status === 'success') {
-                    showAjaxModal_alert(response.message, 'success', false);
-                    setTimeout(() => reloadPageContent(), 2000);
-                } else {
-                    showAjaxModal_alert(response.message, 'error');
-                }
-            }).fail(function() {
-                window.processingDecline = false;
-                window.declineCallbackExecuting = false;
-                showAjaxModal_alert('<?php echo get_phrase("error_occurred"); ?>', 'error');
-            });
-        },
-        '<?php echo get_phrase("decline"); ?>',
-        'danger'
-    );
-}
-
-$(document).ready(function() {
-    filterRequests();
-    
-    // Event delegation for dynamically loaded content
-    $(document).on('change', '.request-checkbox', updateBulkActions);
-});
-
-// AJAX reload function
-function reloadPageContent() {
-    const currentStatus = $('#statusFilter').val();
-    const currentType = $('#typeFilter').val();
-    
-    $.ajax({
-        url: window.location.href,
-        type: 'GET',
-        success: function(response) {
-            const newContent = $(response).find('.requests-container').html();
-            if(newContent) {
-                $('.requests-container').html(newContent);
-                $('#statusFilter').val(currentStatus);
-                $('#typeFilter').val(currentType);
-                filterRequests();
-            } else {
-                location.reload();
-            }
-        },
-        error: function() {
-            location.reload();
-        }
-    });
-}
+var modBusy=false,modCsrfName=<?php echo json_encode($csrf_name); ?>,modCsrfHash=<?php echo json_encode($csrf_hash); ?>;
+function modPost(data){data=data||{};data[modCsrfName]=modCsrfHash;return data;}
+function modError(xhr,fallback){var msg=fallback||'Operation failed';try{var r=JSON.parse(xhr.responseText);if(r.message)msg=r.message;}catch(e){}showAjaxModal_alert(msg,'error');}
+function filterRequests(){var type=$('#typeFilter').val(),status=$('#statusFilter').val(),visible=0;$('.mod-card').each(function(){var show=(type==='all'||$(this).data('type')===type)&&(status==='all'||$(this).data('status')===status);$(this).toggle(show);if(show)visible++;});$('#visibleCount').text(visible);$('.request-checkbox:hidden').prop('checked',false);updateBulkActions();}
+function updateBulkActions(){var count=$('.request-checkbox:checked').length;$('#selectedCount').text(count);$('#bulkActions').toggleClass('active',count>0);}
+function clearSelection(){$('.request-checkbox').prop('checked',false);updateBulkActions();}
+function selectedRequests(){var rows=[];$('.request-checkbox:checked').each(function(){var card=$(this).closest('.mod-card');rows.push({id:parseInt(card.data('request-id'),10),is_receipt:card.data('is-receipt')==1});});return rows;}
+function reloadApprovals(){location.reload();}
+$(function(){$('#typeFilter,#statusFilter').on('change',filterRequests);$(document).on('change','.request-checkbox',updateBulkActions);$('#clearSelectionBtn').on('click',clearSelection);$('#bulkApproveBtn').on('click',function(){bulkModification('approve');});$('#bulkRejectBtn').on('click',function(){bulkModification('reject');});$(document).on('click','.js-view-request',function(){viewRequestDetails($(this).data('id'),$(this).data('type'));});$(document).on('click','.js-approve-request',function(){approveModification($(this).data('id'),$(this).data('type'));});$(document).on('click','.js-reject-request',function(){rejectModification($(this).data('id'),$(this).data('type'));});$(document).on('click','.js-revoke-receipt',function(){revokeReceipt($(this).data('id'));});filterRequests();});
+function viewRequestDetails(id,type){if(type==='receipt')loadModalContent('detailsModal','<?php echo site_url('admin/receipt_modification_details/'); ?>'+id,'<i class="fa fa-receipt"></i> Receipt Modification Details');else loadModalContent('detailsModal','<?php echo site_url('admin/invoice_modification_details/'); ?>'+id,'<i class="fa fa-file-invoice"></i> Invoice Modification Details');}
+function approveModification(id,type){if(modBusy)return;showConfirmModal('Confirm Approval','Approve this '+type+' modification request? Financial changes will be applied immediately.',function(){if(modBusy)return;modBusy=true;showAjaxModal_alert('Processing…','loading');var url=type==='receipt'?'<?php echo site_url('admin/approve_receipt_modification'); ?>':'<?php echo site_url('admin/review_invoice_modification/'); ?>'+id+'/approve';var data=modPost(type==='receipt'?{request_id:id}:{});$.ajax({url:url,type:'POST',data:data,dataType:'json'}).done(function(r){showAjaxModal_alert(r.message,r.status==='success'?'success':'error');if(r.status==='success')setTimeout(reloadApprovals,900);}).fail(function(xhr){modError(xhr,'Approval failed.');}).always(function(){modBusy=false;});},'Approve','success');}
+function rejectModification(id,type){if(modBusy)return;if(type==='receipt'){showConfirmModal('Confirm Rejection','<div style="margin-bottom:8px">Enter a rejection reason:</div><textarea id="receiptRejectReason" class="form-control" rows="3" style="font-size:15px"></textarea>',function(){var reason=$('#receiptRejectReason').val().trim();if(!reason){showAjaxModal_alert('Rejection reason is required.','warning');return;}sendReject(id,type,reason);},'Reject','danger');}else{showConfirmModal('Confirm Decline','Decline this invoice modification request?',function(){sendReject(id,type,'');},'Decline','danger');}}
+function sendReject(id,type,reason){if(modBusy)return;modBusy=true;showAjaxModal_alert('Processing…','loading');var url=type==='receipt'?'<?php echo site_url('admin/reject_receipt_modification'); ?>':'<?php echo site_url('admin/review_invoice_modification/'); ?>'+id+'/decline';var data=modPost(type==='receipt'?{request_id:id,reason:reason}:{});$.ajax({url:url,type:'POST',data:data,dataType:'json'}).done(function(r){showAjaxModal_alert(r.message,r.status==='success'?'success':'error');if(r.status==='success')setTimeout(reloadApprovals,900);}).fail(function(xhr){modError(xhr,'Decision failed.');}).always(function(){modBusy=false;});}
+function revokeReceipt(id){if(modBusy)return;showConfirmModal('Confirm Receipt Restore','Restore the original deleted receipt and its invoice balances? This is available only for approved receipt-deletion requests with an intact original snapshot.',function(){modBusy=true;showAjaxModal_alert('Restoring…','loading');$.ajax({url:'<?php echo site_url('admin/revoke_receipt_approval'); ?>',type:'POST',data:modPost({request_id:id}),dataType:'json'}).done(function(r){showAjaxModal_alert(r.message,r.status==='success'?'success':'error');if(r.status==='success')setTimeout(reloadApprovals,900);}).fail(function(xhr){modError(xhr,'Receipt restore failed.');}).always(function(){modBusy=false;});},'Revoke & Restore','danger');}
+function bulkModification(action){var rows=selectedRequests();if(!rows.length){showAjaxModal_alert('Select at least one pending request.','warning');return;}if(modBusy)return;showConfirmModal(action==='approve'?'Confirm Bulk Approval':'Confirm Bulk Rejection',(action==='approve'?'Approve ':'Reject / decline ')+rows.length+' pending request(s)?',function(){if(modBusy)return;modBusy=true;showAjaxModal_alert('Processing…','loading');$.ajax({url:action==='approve'?'<?php echo site_url('admin/bulk_approve_modifications'); ?>':'<?php echo site_url('admin/bulk_reject_modifications'); ?>',type:'POST',data:modPost({requests:JSON.stringify(rows)}),dataType:'json'}).done(function(r){showAjaxModal_alert(r.message,r.status==='success'?'success':'error');setTimeout(reloadApprovals,900);}).fail(function(xhr){modError(xhr,'Bulk decision failed.');}).always(function(){modBusy=false;});},action==='approve'?'Approve':'Reject','danger');}
 </script>

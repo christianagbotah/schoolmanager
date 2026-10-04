@@ -1,12 +1,12 @@
 <?php
     $allRequests = $this->crud_model->getAllRequests();
     $user_level = $this->session->userdata('user_type');
-    
+
     // Count statistics
     $pending_count = 0;
     $approved_count = 0;
     $declined_count = 0;
-    
+
     foreach($allRequests as $request) {
         if($request['approval_status'] == 'Pending') $pending_count++;
         elseif($request['approval_status'] == 'Approved') $approved_count++;
@@ -120,7 +120,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-4">
         <div class="modern-card stat-card approved">
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -134,7 +134,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-4">
         <div class="modern-card stat-card declined">
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -158,11 +158,11 @@
                     <i class="fa fa-list-alt"></i> Approval Requests
                 </h3>
                 <div style="display: flex; gap: 12px;">
-                    <input type="text" id="searchInput" placeholder="Search requests..." 
+                    <input type="text" id="searchInput" placeholder="Search requests..."
                            style="padding: 10px 16px; border: 1px solid #e5e7eb; border-radius: 8px; width: 300px;">
                 </div>
             </div>
-            
+
             <!-- Filter Tabs -->
             <div class="filter-tabs">
                 <button class="filter-tab active" data-filter="all">All (<?= count($allRequests) ?>)</button>
@@ -170,7 +170,7 @@
                 <button class="filter-tab" data-filter="Approved">Approved (<?= $approved_count ?>)</button>
                 <button class="filter-tab" data-filter="Declined">Declined (<?= $declined_count ?>)</button>
             </div>
-            
+
             <!-- Requests List -->
             <div id="requestsList">
                 <?php if(empty($allRequests)): ?>
@@ -179,12 +179,12 @@
                         <p style="font-size: 18px; margin: 0;">No requests found</p>
                     </div>
                 <?php else: ?>
-                    <?php foreach($allRequests as $request): 
+                    <?php foreach($allRequests as $request):
                         $request_issuer = $this->crud_model->getAdminInfoById($request['request_issuer_id']);
                         $issuer_name = $request_issuer ? $request_issuer->name : 'Unknown';
-                        
+
                         $statusClass = strtolower($request['approval_status']);
-                        $statusIcon = $request['approval_status'] == 'Pending' ? 'clock' : 
+                        $statusIcon = $request['approval_status'] == 'Pending' ? 'clock' :
                                      ($request['approval_status'] == 'Approved' ? 'check-circle' : 'times-circle');
                     ?>
                     <div class="request-card" data-status="<?= $request['approval_status'] ?>">
@@ -249,9 +249,9 @@ $(document).ready(function() {
     $('.filter-tab').click(function() {
         $('.filter-tab').removeClass('active');
         $(this).addClass('active');
-        
+
         const filter = $(this).data('filter');
-        
+
         if(filter === 'all') {
             $('.request-card').show();
         } else {
@@ -259,7 +259,7 @@ $(document).ready(function() {
             $('.request-card[data-status="' + filter + '"]').show();
         }
     });
-    
+
     // Search functionality
     $('#searchInput').on('keyup', function() {
         const value = $(this).val().toLowerCase();
@@ -272,16 +272,17 @@ $(document).ready(function() {
 function handleRequest(requestId, status) {
     const actionText = status === 'Approved' ? 'approve' : 'decline';
     const actionColor = status === 'Approved' ? 'success' : 'danger';
-    
+
     showConfirmModal(
         'Confirm ' + status,
         'Are you sure you want to ' + actionText + ' this request?',
         function() {
             showAjaxModal_alert('Processing...', 'loading');
-            
+
             $.ajax({
                 url: '<?= site_url('admin/manageRequestApproval/manage/') ?>' + requestId + '/' + status,
                 type: 'POST',
+                data: <?= json_encode([$this->security->get_csrf_token_name() => $this->security->get_csrf_hash()]); ?>,
                 dataType: 'json'
             })
             .done(function(data) {

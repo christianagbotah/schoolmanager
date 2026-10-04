@@ -5,14 +5,14 @@ if (!defined('BASEPATH'))
 
 /**
  * Crud Model - Now Sync-Aware
- * 
+ *
  * Extended from MY_Model to automatically track sync status for all CRUD operations.
  * All INSERT, UPDATE, and DELETE operations will now automatically:
  * - Set sync_status = 'PENDING'
  * - Update last_modified_at timestamp
  * - Set device_id
  * - Track last_modified_by user
- * 
+ *
  * This ensures that any changes made offline or online will be properly synced.
  */
 class Crud_model extends MY_Model {
@@ -92,7 +92,7 @@ class Crud_model extends MY_Model {
     function getStaffInfo($table, $staff_code) {
         // FIX: Map 'administrator' to 'admin' table name
         $actual_table = ($table === 'administrator') ? 'admin' : $table;
-        
+
         // Determine the correct column name for the staff code based on table
         $code_column = '';
         if ($actual_table == 'teacher') {
@@ -105,20 +105,20 @@ class Crud_model extends MY_Model {
             // Fallback to table_code pattern
             $code_column = $actual_table . '_code';
         }
-        
+
         // Join with pension_tier2_providers to get provider details
         $this->db->select($actual_table . '.*, pension_tier2_providers.provider_name, pension_tier2_providers.provider_code');
         $this->db->from($actual_table);
         $this->db->join('pension_tier2_providers', $actual_table . '.tier2_provider_id = pension_tier2_providers.provider_id', 'left');
         $this->db->where($actual_table . '.' . $code_column, $staff_code);
-        
+
         return $this->db->get()->row();
     }
 
     function getStaffInfoById($table, $staff_id) {
         // FIX: Map 'administrator' to 'admin' table name
         $actual_table = ($table === 'administrator') ? 'admin' : $table;
-        
+
         // Determine the correct column name for the staff ID based on table
         $id_column = '';
         if ($actual_table == 'teacher') {
@@ -131,22 +131,22 @@ class Crud_model extends MY_Model {
             // Fallback to table_id pattern
             $id_column = $actual_table . '_id';
         }
-        
+
         // Join with pension_tier2_providers to get provider details
         $this->db->select($actual_table . '.*, pension_tier2_providers.provider_name, pension_tier2_providers.provider_code');
         $this->db->from($actual_table);
         $this->db->join('pension_tier2_providers', $actual_table . '.tier2_provider_id = pension_tier2_providers.provider_id', 'left');
         $this->db->where($actual_table . '.' . $id_column, $staff_id);
-        
+
         return $this->db->get()->row();
     }
-    
+
     /**
      * Task 17.1: Optimized staff selection query with JOIN
-     * 
+     *
      * Fetches staff information for multiple payroll records in a single query,
      * avoiding N+1 query problem. Includes staff name, code, and department.
-     * 
+     *
      * @param array $payroll_records Array of payroll records with employee_code and employment_category
      * @return array Staff information keyed by "{employment_category}_{employee_code}"
      */
@@ -154,25 +154,25 @@ class Crud_model extends MY_Model {
         if (empty($payroll_records)) {
             return [];
         }
-        
+
         // Group records by employment category
         $staff_by_category = [
             'teacher' => [],
             'administrator' => [],
             'non_teaching_staff' => []
         ];
-        
+
         foreach ($payroll_records as $record) {
             $category = $record['employment_category'];
             $code = $record['employee_code'];
-            
+
             if (isset($staff_by_category[$category]) && !in_array($code, $staff_by_category[$category])) {
                 $staff_by_category[$category][] = $code;
             }
         }
-        
+
         $staff_info = [];
-        
+
         // Fetch teachers in single query
         if (!empty($staff_by_category['teacher'])) {
             $this->db->select('teacher.*, pension_tier2_providers.provider_name, pension_tier2_providers.provider_code, "teacher" as employment_category');
@@ -180,13 +180,13 @@ class Crud_model extends MY_Model {
             $this->db->join('pension_tier2_providers', 'teacher.tier2_provider_id = pension_tier2_providers.provider_id', 'left');
             $this->db->where_in('teacher.teacher_code', $staff_by_category['teacher']);
             $teachers = $this->db->get()->result();
-            
+
             foreach ($teachers as $teacher) {
                 $key = 'teacher_' . $teacher->teacher_code;
                 $staff_info[$key] = $teacher;
             }
         }
-        
+
         // Fetch administrators in single query
         if (!empty($staff_by_category['administrator'])) {
             $this->db->select('admin.*, pension_tier2_providers.provider_name, pension_tier2_providers.provider_code, "administrator" as employment_category');
@@ -194,13 +194,13 @@ class Crud_model extends MY_Model {
             $this->db->join('pension_tier2_providers', 'admin.tier2_provider_id = pension_tier2_providers.provider_id', 'left');
             $this->db->where_in('admin.admin_code', $staff_by_category['administrator']);
             $admins = $this->db->get()->result();
-            
+
             foreach ($admins as $admin) {
                 $key = 'admin_' . $admin->admin_code;
                 $staff_info[$key] = $admin;
             }
         }
-        
+
         // Fetch non-teaching staff in single query
         if (!empty($staff_by_category['non_teaching_staff']) && $this->db->table_exists('non_teaching_staff')) {
             $this->db->select('non_teaching_staff.*, pension_tier2_providers.provider_name, pension_tier2_providers.provider_code, "non_teaching_staff" as employment_category');
@@ -208,15 +208,15 @@ class Crud_model extends MY_Model {
             $this->db->join('pension_tier2_providers', 'non_teaching_staff.tier2_provider_id = pension_tier2_providers.provider_id', 'left');
             $this->db->where_in('non_teaching_staff.staff_code', $staff_by_category['non_teaching_staff']);
             $non_teaching = $this->db->get()->result();
-            
+
             foreach ($non_teaching as $staff) {
                 $key = 'non_teaching_staff_' . $staff->staff_code;
                 $staff_info[$key] = $staff;
             }
         }
-        
+
         return $staff_info;
-    } 
+    }
 
 
     //////////////get parent's info////
@@ -250,7 +250,7 @@ class Crud_model extends MY_Model {
         } else {
         	$query = $this->db->get_where('subject', array('class_id' => $class_id, 'year' => $running_year, 'term' => $running_term));
         }
-        
+
         return $query->result_array();
     }
 
@@ -258,7 +258,7 @@ class Crud_model extends MY_Model {
         if(empty($subject_id)) {
             return '';
         }
-        
+
         $query = $this->db->get_where('subject', array('subject_id' => $subject_id))->row();
         return $query ? $query->name : '';
     }
@@ -268,7 +268,7 @@ class Crud_model extends MY_Model {
         if(empty($class_id)) {
             return '';
         }
-        
+
         $query = $this->db->get_where('class', array('class_id' => $class_id));
         $res = $query->result_array();
         foreach ($res as $row)
@@ -277,7 +277,7 @@ class Crud_model extends MY_Model {
     }
 
     function get_class_section($class_id) {
-        
+
         $query = $this->db->get_where('section', array('class_id' => $class_id));
         $res = $query->result_array();
         foreach ($res as $row)
@@ -335,7 +335,7 @@ class Crud_model extends MY_Model {
     function getStudentClassId($student_id, $year, $term) {
         // Get running year for comparison
         $running_year = $this->db->get_where('settings', ['type' => 'running_year'])->row()->description;
-        
+
         // First, try to get enrollment for the specific year and term
         $this->db->where('class_id IS NOT NULL');
         $this->db->where('year', $year);
@@ -344,12 +344,12 @@ class Crud_model extends MY_Model {
         $this->db->order_by('enroll_id', 'desc');
         $this->db->limit(1);
         $enrollment = $this->db->get('enroll')->row();
-        
+
         // If enrollment exists for this specific year/term, use it
         if ($enrollment) {
             return $enrollment->class_id;
         }
-        
+
         // No enrollment found for this year/term
         // Check if this is a DIFFERENT academic year (not the running year)
         if ($year != $running_year) {
@@ -357,7 +357,7 @@ class Crud_model extends MY_Model {
             // Return null to indicate enrollment is required
             return null;
         }
-        
+
         // This is the running year but no enrollment for this term yet
         // Use the most recent enrollment record (student stays in same class)
         $this->db->where('class_id IS NOT NULL');
@@ -365,11 +365,11 @@ class Crud_model extends MY_Model {
         $this->db->order_by('enroll_id', 'desc');
         $this->db->limit(1);
         $recent_enrollment = $this->db->get('enroll')->row();
-        
+
         if ($recent_enrollment) {
             return $recent_enrollment->class_id;
         }
-        
+
         // No enrollment found at all
         return null;
     }
@@ -411,11 +411,11 @@ class Crud_model extends MY_Model {
         if(empty($exam_id)) {
             return '';
         }
-        
+
     		$this->db->where('exam_id', $exam_id);
         $query = $this->db->get('exam');
         $result = $query->row();
-        
+
         return $result ? $result->name : '';
     }
 
@@ -423,11 +423,11 @@ class Crud_model extends MY_Model {
         if(empty($exam_id)) {
             return '';
         }
-        
+
     		$this->db->where('exam_id', $exam_id);
         $query = $this->db->get('exam');
         $result = $query->row();
-        
+
         return $result ? $result->year : '';
     }
 
@@ -435,11 +435,11 @@ class Crud_model extends MY_Model {
         if(empty($exam_id)) {
             return '';
         }
-        
+
     		$this->db->where('exam_id', $exam_id);
         $query = $this->db->get('exam');
         $result = $query->row();
-        
+
         return $result ? $result->term : '';
     }
 
@@ -447,11 +447,11 @@ class Crud_model extends MY_Model {
         if(empty($exam_id)) {
             return '';
         }
-        
+
     		$this->db->where('exam_id', $exam_id);
         $query = $this->db->get('exam');
         $result = $query->row();
-        
+
         return $result ? $result->sem : '';
     }
 
@@ -489,14 +489,14 @@ class Crud_model extends MY_Model {
 
         } else if($grade_point == 'D') {
             $grade_level = 'LEVEL 4 - ' . $grade_point;
-            
+
         } else if($grade_point == 'B') {
             $grade_level = 'LEVEL 5 - ' .$grade_point;
-            
+
         }
 
         return $grade_level;
-             
+
     }
 
     function get_grades() {
@@ -507,7 +507,7 @@ class Crud_model extends MY_Model {
         } else {
             $query = $this->db->get('grade_2');
         }
-        
+
         return $query->result_array();
     }
 
@@ -520,8 +520,8 @@ class Crud_model extends MY_Model {
         } else {
             $query = $this->db->get_where('grade_2', array('grade_id' => $grade_id));
         }
-        
-        
+
+
         return $query->result_array();
     }
 
@@ -571,7 +571,7 @@ class Crud_model extends MY_Model {
        $this->db->where('status', $status);
       //$this->db->limit(2);
        //$this->db->order_by("mark_obtained", "desc");
-       
+
        $marks = $this->db->get('mark')->result_array();
 
         foreach ($marks as $row) {
@@ -611,17 +611,17 @@ class Crud_model extends MY_Model {
 		        $this->db->where('sem' , $running_term);
 		        $this->db->order_by("mark_obtained", "desc");
 		        $data['data2'] = $this->db->get('mark')->result_array();
-		                                                    
+
 		        if($data['data2'] &&  $data['data1']){
 
-		            
+
 		            $position; //The real position of each mark
-		            
+
 		            $old_score = 0; //Acts as the the first or previous total score for each subject
 		            $rank = 1; //Ranks the positions of each mark in each subject
 		            $counter = 0; //Keeps track of the number of marks in each subjects
 		            $tracker = 1; //Tracks the ranks whenever $old_score == $total_score
-		           
+
 
 		            foreach ($data['data1'] as $row1) {
 		                foreach ($data['data2'] as $row2) {
@@ -636,7 +636,7 @@ class Crud_model extends MY_Model {
 		                        }else{
 		                            $rank = $counter;
 		                        }
-		                        
+
 		                    }else{
 		                        $tracker++; //Tracks the ranks whenever $old_score == $total_score
 		                    }
@@ -655,26 +655,26 @@ class Crud_model extends MY_Model {
 		                    }else{
 		                         $nth_postion = 'TH'; //Assigns the nth position to the ranks
 		                    }
-		                    
-		                   
+
+
 		                    $position = ' '.$rank.$nth_postion.' ';
-		 
+
 
 		                    //compare marks
 		                    if($row1['mark_obtained'] == $row2['mark_obtained'] && $row2['student_id'] == $student_id){
-		                      
+
 		                            if($row1['mark_obtained'] == NULL || $row2['mark_obtained'] == NULL) {
 		                                echo "";
 		                            } else {
 		                                echo $position;
 		                            }
-		                        
-		                       
+
+
 		                    }
 
 
 		                }
-		             
+
 		            }
 
 		        } //end of JHS
@@ -697,17 +697,17 @@ class Crud_model extends MY_Model {
 		        $this->db->where('term' , $running_term);
 		        $this->db->order_by("mark_obtained", "desc");
 		        $data['data2'] = $this->db->get('mark')->result_array();
-		                                                    
+
 		        if($data['data2'] &&  $data['data1']){
 
-		            
+
 		            $position; //The real position of each mark
-		            
+
 		            $old_score = 0; //Acts as the the first or previous total score for each subject
 		            $rank = 1; //Ranks the positions of each mark in each subject
 		            $counter = 0; //Keeps track of the number of marks in each subjects
 		            $tracker = 1; //Tracks the ranks whenever $old_score == $total_score
-		           
+
 
 		            foreach ($data['data1'] as $row1) {
 		                foreach ($data['data2'] as $row2) {
@@ -722,7 +722,7 @@ class Crud_model extends MY_Model {
 		                        }else{
 		                            $rank = $counter;
 		                        }
-		                        
+
 		                    }else{
 		                        $tracker++; //Tracks the ranks whenever $old_score == $total_score
 		                    }
@@ -741,10 +741,10 @@ class Crud_model extends MY_Model {
 		                    }else{
 		                         $nth_postion = 'TH'; //Assigns the nth position to the ranks
 		                    }
-		                    
-		                   
+
+
 		                    $position = ' '.$rank.$nth_postion.' ';
-		 
+
 
 		                    //compare marks
 		                    if($row1['mark_obtained'] == $row2['mark_obtained'] && $row2['student_id'] == $student_id){
@@ -753,20 +753,20 @@ class Crud_model extends MY_Model {
 		                            } else {
 		                                echo $position;
 		                            }
-		                            
-		                        
-		                       
+
+
+
 		                    }
 
 
 		                }
-		             
+
 		            }
 
 		        } //end of non JHS
 
     		 }
-         
+
     }
 
 
@@ -775,9 +775,9 @@ class Crud_model extends MY_Model {
        $raw_score =  $this->db->get_where('settings' , array('type' => 'raw_score'))->row()->description;
 
        //$raw_score =  $this->db->get_where('settings' , array('type' => 'raw_score'))->row()->description;
-       
+
         if($raw_score == 'Yes') {
-                
+
              //marks for each student
             $data['data1'] = $this->db->get_where('aggregation' , array(
                                         'section_id' => $section_id,
@@ -795,16 +795,16 @@ class Crud_model extends MY_Model {
                 $this->db->where('sem' , $running_term);
                 $this->db->order_by("aggregate_mark", "desc");
                 $data['data2'] = $this->db->get('aggregation')->result_array();
-                                                                
+
                     if($data['data2'] && $data['data1']){
 
                         $position; //The real position of each mark
-                        
+
                         $old_score = 0; //Acts as the the first or previous total aggregate for each subject
                         $rank = 1; //Ranks the positions of each mark in each subject
                         $counter = 0; //Keeps track of the number of marks in each subjects
                         $tracker = 1; //Tracks the ranks whenever $old_score == $total_aggregate
-                       
+
 
                         foreach ($data['data1'] as $row1) {
                             foreach ($data['data2'] as $row2) {
@@ -819,7 +819,7 @@ class Crud_model extends MY_Model {
                                     }else{
                                         $rank = $counter;
                                     }
-                                    
+
                                 }else{
                                     $tracker++; //Tracks the ranks whenever $old_score == $total_aggregate
                                 }
@@ -838,20 +838,20 @@ class Crud_model extends MY_Model {
                                 }else{
                                      $nth_postion = 'TH'; //Assigns the nth position to the other ranks
                                 }
-                                
+
 
                                 $position = ' '.$rank.$nth_postion.' ';
-             
+
 
                                 //compare marks
                                 if($row1['aggregate_mark'] == $row2['aggregate_mark'] && $row2['student_id'] == $student_id){
-                                  
+
                                         echo $position;
-                                    
-                                   
+
+
                                 }
                             }
-                        }   
+                        }
 
                     }
 
@@ -878,16 +878,16 @@ class Crud_model extends MY_Model {
                 $this->db->where('sem' , $running_term);
                 $this->db->order_by("aggregate_mark", "desc");
                 $data['data2'] = $this->db->get('aggregation')->result_array();
-                                                                
+
                     if($data['data2'] && $data['data1']){
 
                         $position; //The real position of each mark
-                        
+
                         $old_score = 0; //Acts as the the first or previous total aggregate for each subject
                         $rank = 1; //Ranks the positions of each mark in each subject
                         $counter = 0; //Keeps track of the number of marks in each subjects
                         $tracker = 1; //Tracks the ranks whenever $old_score == $total_aggregate
-                       
+
 
                         foreach ($data['data1'] as $row1) {
                             foreach ($data['data2'] as $row2) {
@@ -902,7 +902,7 @@ class Crud_model extends MY_Model {
                                     }else{
                                         $rank = $counter;
                                     }
-                                    
+
                                 }else{
                                     $tracker++; //Tracks the ranks whenever $old_score == $total_aggregate
                                 }
@@ -921,20 +921,20 @@ class Crud_model extends MY_Model {
                                 }else{
                                      $nth_postion = 'TH'; //Assigns the nth position to the other ranks
                                 }
-                                
+
 
                                 $position = ' '.$rank.$nth_postion.' ';
-             
+
 
                                 //compare marks
                                 if($row1['aggregate_mark'] == $row2['aggregate_mark'] && $row2['student_id'] == $student_id){
-                                  
+
                                         echo $position;
-                                    
-                                   
+
+
                                 }
                             }
-                        }   
+                        }
 
                     }
 
@@ -958,16 +958,16 @@ class Crud_model extends MY_Model {
                 $this->db->where('term' , $running_term);
                 $this->db->order_by("aggregate_mark", "desc");
                 $data['data2'] = $this->db->get('aggregation')->result_array();
-                                                                
+
                     if($data['data2'] && $data['data1']){
 
                         $position; //The real position of each mark
-                        
+
                         $old_score = 0; //Acts as the the first or previous total aggregate for each subject
                         $rank = 1; //Ranks the positions of each mark in each subject
                         $counter = 0; //Keeps track of the number of marks in each subjects
                         $tracker = 1; //Tracks the ranks whenever $old_score == $total_aggregate
-                       
+
 
                         foreach ($data['data1'] as $row1) {
                             foreach ($data['data2'] as $row2) {
@@ -982,7 +982,7 @@ class Crud_model extends MY_Model {
                                     }else{
                                         $rank = $counter;
                                     }
-                                    
+
                                 }else{
                                     $tracker++; //Tracks the ranks whenever $old_score == $total_aggregate
                                 }
@@ -1001,20 +1001,20 @@ class Crud_model extends MY_Model {
                                 }else{
                                      $nth_postion = 'TH'; //Assigns the nth position to the other ranks
                                 }
-                                
+
 
                                 $position = ' '.$rank.$nth_postion.' ';
-             
+
 
                                 //compare marks
                                 if($row1['aggregate_mark'] == $row2['aggregate_mark'] && $row2['student_id'] == $student_id){
-                                  
+
                                         echo $position;
-                                    
-                                   
+
+
                                 }
                             }
-                        }   
+                        }
 
                     }
         		}
@@ -1043,7 +1043,7 @@ class Crud_model extends MY_Model {
          return $conducts_data->result_array();
     }
 
-  
+
 
     function get_highest_marks( $exam_id , $class_id , $subject_id ) {
         $this->db->where('exam_id' , $exam_id);
@@ -1115,7 +1115,7 @@ class Crud_model extends MY_Model {
             $query = $this->db->get('grade_2');
         }
 
-        
+
         $grades = $query->result_array();
         foreach ($grades as $row) {
             if ($mark_obtained >= $row['mark_from'] && $mark_obtained <= $row['mark_upto'])
@@ -1209,7 +1209,7 @@ class Crud_model extends MY_Model {
             }else {
                 $image_url = base_url('uploads/user.jpg');
             }
-            
+
         }
 
         return $image_url;
@@ -1228,17 +1228,17 @@ class Crud_model extends MY_Model {
     {
         $timestamp_input = $this->input->post('timestamp');
         $data['timestamp'] = strtotime($timestamp_input);
-        
+
         // Validate that timestamp is today's date
         $today_start = strtotime('today');
         $today_end = strtotime('tomorrow') - 1;
-        
+
         if ($data['timestamp'] < $today_start || $data['timestamp'] > $today_end) {
             throw new Exception('Creation date must be today\'s date. You cannot backdate or future-date study materials.');
         }
-        
+
         $data['title']             = strtoupper($this->input->post('title')); // Uppercase
-        
+
         // Handle teacher_id: use session teacher_id if available, otherwise use posted teacher_id or NULL
         if ($this->session->userdata('teacher_id')) {
             $data['teacher_id'] = $this->session->userdata('teacher_id');
@@ -1247,7 +1247,7 @@ class Crud_model extends MY_Model {
         } else {
             $data['teacher_id'] = NULL;
         }
-        
+
         $data['description']       = strtoupper($this->input->post('description')); // Uppercase
         $data['file_name']         = $_FILES["file_name"]["name"];
         $data['file_type']         = $this->input->post('file_type');
@@ -1299,7 +1299,7 @@ class Crud_model extends MY_Model {
         if (!empty($filters['end_date'])) {
             $this->db->where('end_date <=', strtotime($filters['end_date']));
         }
-        
+
         // Order by status: Pending first, Declined middle, Approved last
         // Then by timestamp ascending (oldest first)
         $this->db->order_by("FIELD(status, 'Pending', 'Declined', 'Approved')", "", FALSE);
@@ -1328,27 +1328,27 @@ class Crud_model extends MY_Model {
     {
         $timestamp_input = $this->input->post('timestamp');
         $data['timestamp'] = strtotime($timestamp_input);
-        
+
         // Validate that timestamp is today's date
         $today_start = strtotime('today');
         $today_end = strtotime('tomorrow') - 1;
-        
+
         if ($data['timestamp'] < $today_start || $data['timestamp'] > $today_end) {
             throw new Exception('Creation date must be today\'s date. You cannot backdate or future-date study materials.');
         }
-        
+
         $data['title']             = strtoupper($this->input->post('title')); // Uppercase
         $data['description']       = strtoupper($this->input->post('description')); // Uppercase
         $data['class_id']          = $this->input->post('class_id');
         $data['start_date']        = strtotime($this->input->post('start'));
         $data['end_date']          = strtotime($this->input->post('end'));
         $data['subject_id']        = $this->input->post('subject_id');
-        
+
         // Only update file if a new one is uploaded
         if (!empty($_FILES["file_name"]["name"])) {
             $data['file_name']     = $_FILES["file_name"]["name"];
             $data['file_type']     = $this->input->post('file_type');
-            
+
             $uploadPath = "uploads/documents/lesson_notes/";
             $file_path = $uploadPath . $document_id.'_'.$_FILES["file_name"]["name"];
 
@@ -1364,7 +1364,7 @@ class Crud_model extends MY_Model {
 
             // Upload new file
             move_uploaded_file($_FILES["file_name"]["tmp_name"], $file_path);
-            
+
             // Update file path
             $data['file_path'] = $file_path;
         } else if ($this->input->post('file_type')) {
@@ -1380,10 +1380,10 @@ class Crud_model extends MY_Model {
     {
         $this->db->where('document_id',$document_id);
         $document = $this->db->get('document')->row();
-        
+
         if ($document) {
             $file_path = $document->file_path;
-            
+
             // Delete from database
             $this->db->where('document_id',$document_id);
             $this->db->delete('document');
@@ -1754,7 +1754,7 @@ class Crud_model extends MY_Model {
         $cinit_verify_data = curl_exec( $ch_verify );
         $curl_error = curl_error($ch_verify); // Capture error for logging
         curl_close( $ch_verify );
-        
+
         // Log if verification failed due to connectivity issues (offline mode)
         if ($curl_error) {
             log_message('info', 'License verification skipped - System appears to be offline: ' . $curl_error);
@@ -1769,7 +1769,7 @@ class Crud_model extends MY_Model {
         }
 
     }
-    
+
 
 
     /**
@@ -1779,17 +1779,17 @@ class Crud_model extends MY_Model {
     function delete_student($student_id) {
         // Start transaction for data integrity
         $this->db->trans_start();
-        
+
         try {
             // Get student info before deletion
             $student = $this->db->get_where('student', array('student_id' => $student_id))->row();
             if (!$student) {
                 return array('status' => 'error', 'message' => get_phrase('student_not_found'));
             }
-            
+
             $student_name = $student->name;
             $student_code = $student->student_code;
-            
+
             // Comprehensive list of ALL tables with student_id
             $tables_to_delete = array(
                 // Core student tables
@@ -1797,32 +1797,32 @@ class Crud_model extends MY_Model {
                 'attendance',
                 'mark',
                 'aggregation',
-                
+
                 // Financial tables
                 'invoice',
                 'payment',
                 'student_discount_assignments',
-                
+
                 // Discount tables (new system)
                 'invoice_discounts',
                 'invoice_discount_items',
-                
+
                 // Daily fees tables (new system)
                 'daily_fee_wallet',
                 'daily_fee_transactions',
-                
+
                 // Academic tables
                 'online_exam_result',
                 'book_request',
-                
+
                 // Boarding tables
                 'beneficiary_list',
-                
+
                 // Audit and logs (new system)
                 'admission_logs',
                 'student_ledger'
             );
-            
+
             // Delete from all tables
             foreach ($tables_to_delete as $table) {
                 if ($this->db->table_exists($table)) {
@@ -1830,43 +1830,43 @@ class Crud_model extends MY_Model {
                     $this->db->delete($table);
                 }
             }
-            
+
             // Delete messages where student is sender or receiver
             $threads = $this->db->get('message_thread')->result_array();
             foreach ($threads as $row) {
                 $sender = explode('-', $row['sender']);
                 $receiver = explode('-', $row['reciever']);
-                if (($sender[0] == 'student' && $sender[1] == $student_id) || 
+                if (($sender[0] == 'student' && $sender[1] == $student_id) ||
                     ($receiver[0] == 'student' && $receiver[1] == $student_id)) {
                     $thread_code = $row['message_thread_code'];
                     $this->db->delete('message', array('message_thread_code' => $thread_code));
                     $this->db->delete('message_thread', array('message_thread_code' => $thread_code));
                 }
             }
-            
+
             // Delete student image
             $image_path = 'uploads/student_image/' . $student_id . '.jpg';
             if (file_exists($image_path)) {
                 @unlink($image_path);
             }
-            
+
             // Delete student barcode
             $barcode_path = 'uploads/barcodes/students/' . $student_code . '.png';
             if (file_exists($barcode_path)) {
                 @unlink($barcode_path);
             }
-            
+
             // Finally, delete the student record itself
             $this->db->where('student_id', $student_id);
             $this->db->delete('student');
-            
+
             // Complete transaction
             $this->db->trans_complete();
-            
+
             if ($this->db->trans_status() === FALSE) {
                 return array('status' => 'error', 'message' => get_phrase('deletion_failed'));
             }
-            
+
             // Log the deletion
             $log_data = array(
                 'type' => 'student_deletion',
@@ -1874,12 +1874,12 @@ class Crud_model extends MY_Model {
                 'description' => 'Permanently deleted student: ' . $student_name . ' (' . $student_code . ')',
                 'timestamp' => time()
             );
-            
+
             return array(
-                'status' => 'success', 
+                'status' => 'success',
                 'message' => get_phrase('student_deleted_successfully') . ': ' . $student_name
             );
-            
+
         } catch (Exception $e) {
             $this->db->trans_rollback();
             return array('status' => 'error', 'message' => get_phrase('deletion_error') . ': ' . $e->getMessage());
@@ -2034,7 +2034,7 @@ class Crud_model extends MY_Model {
         } else {
         	$data['term'] = $this->db->get_where('settings' , array('type' => 'running_term'))->row()->description;
         }
-        
+
 
         /*print_r($data);
         echo '<br/>';
@@ -2211,7 +2211,7 @@ class Crud_model extends MY_Model {
         	} else {
         		 $match = array('running_year' => $running_year, 'term' => $running_term, 'class_id' => $class_id, 'section_id' => $section_id, 'status' => 'published');
         	}
-       
+
         $this->db->order_by("exam_date", "desc");
         $exams = $this->db->where($match)->get('online_exam')->result_array();
         return $exams;
@@ -2340,20 +2340,20 @@ class Crud_model extends MY_Model {
         }else{
             echo '<span style="color:red;">Not Available <i class="glyphicon glyphicon-remove"></i></span>';
         }
-        
+
     }
 
     function verify_tid($id) {
         $teacher_code_pref       = $this->db->get_where('settings', array('type'=>'teacher_code_prefix'))->row()->description;
         $teacher_code_format     = $this->db->get_where('settings', array('type'=>'teacher_code_format'))->row()->description;
-        
+
         $prefix_length = strlen($teacher_code_pref);
         $format_length = strlen($teacher_code_format);
         $min_length = $prefix_length + 1; // At least prefix + 1 digit
         $max_length = $prefix_length + $format_length; // Prefix + full format length
 
         $teacher_code = $this->db->get_where('teacher', array('teacher_code' => $id));
-        
+
         // Validation checks:
         // 1. Check if ID starts with correct prefix
         // 2. Check if ID length is within valid range (min to max)
@@ -2369,7 +2369,7 @@ class Crud_model extends MY_Model {
         } else {
             echo '<span style="color:red;">Not Available <i class="glyphicon glyphicon-remove"></i></span>';
         }
-        
+
     }
 
     //reload student take exam page for update in times
@@ -2403,8 +2403,8 @@ class Crud_model extends MY_Model {
         if($account_type == 'admin' || $account_type == 'accountant' || $account_type == 'teacher' || $account_type == 'librarian') {
         echo $query->num_rows();
         }else{
-            //parents  
-            $counter = 0;       
+            //parents
+            $counter = 0;
             $student_id_array = $query->result_array();
             foreach ($student_id_array as $row_st) {
                 if($this->db->get_where('student', array('student_id' => $row_st['student_id']))->row()->parent_id == $this->session->userdata('parent_id') || $row_st['student_id'] == $this->session->userdata('student_id')) {
@@ -2421,7 +2421,7 @@ class Crud_model extends MY_Model {
                 }
 
             }
-            
+
         echo $counter;
         }
 
@@ -2516,7 +2516,7 @@ class Crud_model extends MY_Model {
                           </div>
                         </a>';
                 }
-                
+
         }
     }
 
@@ -2555,16 +2555,16 @@ class Crud_model extends MY_Model {
 
 
         if($marked_read == 0 ) {
-        
+
             if($logged_in_id == $session_id) {
-                
+
                 //upadate user's table with the notice id
-                
+
                 if($account_type == $account_type) {
                     //$this->db->select('read_notice_ids');
                     $this->db->where($account_type.'_id', $logged_in_id);
                     $prev_ids = $this->db->get($account_type)->row()->read_notice_ids;
-                    $notice_query = $this->db->get_where('noticeboard', array('status' => '1')); 
+                    $notice_query = $this->db->get_where('noticeboard', array('status' => '1'));
                     $notice = $notice_query->result_array();
                     $xp_prev_ids = explode(',', $prev_ids);
 
@@ -2573,20 +2573,20 @@ class Crud_model extends MY_Model {
 
                         for($i = 0; $i < count($xp_prev_ids); $i++) {
                             if($xp_prev_ids[$i] == $row['notice_id']) {
-                                
+
                                 $found_ids_array[$i] = $xp_prev_ids[$i];
                             }
                         }
                     }
-                    
+
                     //load noticeboard table where notice_ids != $found_ids_array elements
                     $found_ids_array;
-                    
+
                     if(count($found_ids_array) > 0) {
                         $this->db->where_not_in('notice_id', $found_ids_array);
                         $this->db->where('status', '1');
                         $n_id_query = $this->db->get('noticeboard')->result_array();
-                        
+
 
                         foreach($n_id_query as $row) {
 
@@ -2691,21 +2691,21 @@ class Crud_model extends MY_Model {
                                 </a>';
                         }
                     }
-                    
+
                 }
-            }   
+            }
 
         }else {
 
             if($user_id == $session_id) {
-                
+
                 //upadate user's table with the notice id
-                
+
                 if($account_type == $account_type) {
                     //$this->db->select('read_notice_ids');
                     $this->db->where($account_type.'_id', $logged_in_id);
                     $prev_ids = $this->db->get($account_type)->row()->read_notice_ids;
-                    $notice_query = $this->db->get_where('noticeboard', array('status' => '1')); 
+                    $notice_query = $this->db->get_where('noticeboard', array('status' => '1'));
                     $notice = $notice_query->result_array();
                     $xp_prev_ids = explode(',', $prev_ids);
 
@@ -2714,12 +2714,12 @@ class Crud_model extends MY_Model {
 
                         for($i = 0; $i < count($xp_prev_ids); $i++) {
                             if($xp_prev_ids[$i] == $row['notice_id']) {
-                                
+
                                 $found_ids_array[$i] = $xp_prev_ids[$i];
                             }
                         }
                     }
-                    
+
                     //load noticeboard table where notice_ids != $found_ids_array elements
                     $found_ids_array;
                     if(count($found_ids_array) > 0) {
@@ -2829,11 +2829,11 @@ class Crud_model extends MY_Model {
                                 </a>';
                         }
                     }
-                    
+
                 }
-            }   
+            }
         }
-        
+
     }
 
     function notifications_rows($marked_read = '', $user_id = '', $logged_in_id) {
@@ -2860,12 +2860,12 @@ class Crud_model extends MY_Model {
             if($logged_in_id == $session_id) {
 
                 //upadate user's table with the notice id
-                
+
                 if($account_type == $account_type) {
                     //$this->db->select('read_notice_ids');
                     $this->db->where($account_type.'_id', $logged_in_id);
                     $prev_ids = $this->db->get($account_type)->row()->read_notice_ids;
-                    $notice_query = $this->db->get_where('noticeboard', array('status' => '1')); 
+                    $notice_query = $this->db->get_where('noticeboard', array('status' => '1'));
                     $notice = $notice_query->result_array();
                     $xp_prev_ids = explode(',', $prev_ids);
 
@@ -2873,26 +2873,26 @@ class Crud_model extends MY_Model {
                     foreach($notice as $row) {
                         for($i = 0; $i < count($xp_prev_ids); $i++) {
                             if($xp_prev_ids[$i] == $row['notice_id']) {
-                                
+
                                 $found_ids_array[$i] = $xp_prev_ids[$i];
                             }
                         }
                     }
-                    
+
                    if(count($found_ids_array) > 0) {
                          echo $notice_query->num_rows() - count($found_ids_array);
                    }else {
                          echo $notice_query->num_rows();
                    }
-                }   
+                }
 
             }
         }else{
 
             if($user_id == $session_id) {
-                
+
                 //upadate user's table with the notice id
-                
+
                 if($account_type == $account_type) {
                 //$this->db->select('read_notice_ids');
                 $this->db->where($account_type.'_id', $user_id);
@@ -2913,11 +2913,11 @@ class Crud_model extends MY_Model {
                         $this->db->limit(1);
                         $this->db->update($account_type);
                     }
-                    
+
                     //now update the number of rows status on the message alert area
                     $this->db->where($account_type.'_id', $user_id);
                     $prev_ids = $this->db->get($account_type)->row()->read_notice_ids;
-                    $notice_query = $this->db->get_where('noticeboard', array('status' => '1')); 
+                    $notice_query = $this->db->get_where('noticeboard', array('status' => '1'));
                     $notice = $notice_query->result_array();
                     $xp_prev_ids = explode(',', $prev_ids);
 
@@ -2925,26 +2925,26 @@ class Crud_model extends MY_Model {
                     foreach($notice as $row) {
                         for($i = 0; $i < count($xp_prev_ids); $i++) {
                             if($xp_prev_ids[$i] == $row['notice_id']) {
-                                
+
                                 $found_ids_array[$i] = $xp_prev_ids[$i];
                             }
                         }
                     }
-                    
+
                     if(count($found_ids_array) > 0) {
                          echo $notice_query->num_rows() - count($found_ids_array);
                    }else {
                          echo $notice_query->num_rows();
                    }
                 }
-            
+
             }
         }
     }
 
     function auth_verification($auth_key) {
         $tables = array('admin', 'accountant', 'librarian', 'parent', 'student', 'teacher');
-        
+
         $t_counter = 0;
         $block_counter = 0;
         $student_table = 0;
@@ -2952,7 +2952,7 @@ class Crud_model extends MY_Model {
         for($i = 0; $i < count($tables); $i++) {
              $user_row = $this->db->get_where($tables[$i], array('authentication_key' => $auth_key))->row();
              $query = $this->db->get_where($tables[$i], array('authentication_key' => $auth_key))->num_rows();
-             
+
              if($user_row && $user_row->block_limit == 3) {
                 $block_counter++;
              } else {
@@ -3034,7 +3034,7 @@ class Crud_model extends MY_Model {
 
         //echo $num;
     }
-    
+
     //for importing subjects
    function do_subjects_import($new_class_id, $old_class_id, $year, $term, $class_name='') {
 
@@ -3045,29 +3045,29 @@ class Crud_model extends MY_Model {
             'year'     => $year,
             'sem'     => $term
             );
-        
+
         $data_array2 = array(
             'class_id' => $new_class_id,
             'year'     => $year,
             'sem'     => $term
             );
-            
+
         $subjects_rows = $this->db->get_where('subject', $data_array2)->num_rows();
-        
+
         //check if this class already exists in the subject table with same year and sem
         if($subjects_rows > 0) { //send an error message because user is trying to run this query for a class that already has registered subjects
             echo 'error';
         } else { //go ahead
-        
+
            $subjects = $this->db->get_where('subject', $data_array)->result_array();
-        
+
             //now let's do the insertion
             $ij = 0;
             foreach($subjects as $row) {
                 $num_sems = 0;
                 $sem_create = 0;
                 $data['sem']       = $row['sem'];///current sem
-                
+
                 //Number of times to loop
                 if($data['sem'] == 1) {
                     $num_sems = 2;
@@ -3076,27 +3076,27 @@ class Crud_model extends MY_Model {
                     $num_sems = 1;
                     $sem_create = 2;
                 }
-                
+
                 //do the looping now
                 for($i = 1; $i <= $num_sems; $i++) {
-                    
+
                      $data['name']       = $row['name'];
                      $data['status']     = $row['status'];
                      $data['class_id']   = $new_class_id;
                      $data['year']       = $row['year'];
                      $data['sem']       = $sem_create;
                      $data['teacher_id'] = $row['teacher_id'];
-                     
+
                      if($this->db->insert('subject', $data)) {
                          $ij++;
                     };
-                    
+
                     //increase semester by 1
                      $sem_create++;
                 }
-                 
-            } 
-            
+
+            }
+
             if($ij > 0) {
                 echo 'success';
             } else {
@@ -3110,29 +3110,29 @@ class Crud_model extends MY_Model {
             'year'     => $year,
             'term'     => $term
             );
-        
+
         $data_array2 = array(
             'class_id' => $new_class_id,
             'year'     => $year,
             'term'     => $term
             );
-            
+
         $subjects_rows = $this->db->get_where('subject', $data_array2)->num_rows();
-        
+
         //check if this class already exists in the subject table with same year and term
         if($subjects_rows > 0) { //send an error message because user is trying to run this query for a class that already has registered subjects
             echo 'error';
         } else { //go ahead
-        
+
            $subjects = $this->db->get_where('subject', $data_array)->result_array();
-        
+
             //now let's do the insertion
             $ij = 0;
             foreach($subjects as $row) {
                 $num_terms = 0;
                 $term_create = 0;
                 $data['term']       = $row['term'];///current term
-                
+
                 //Number of times to loop
                 if($data['term'] == 1) {
                     $num_terms = 3;
@@ -3144,27 +3144,27 @@ class Crud_model extends MY_Model {
                     $num_terms = 1;
                     $term_create = 3;
                 }
-                
+
                 //do the looping now
                 for($i = 1; $i <= $num_terms; $i++) {
-                    
+
                      $data['name']       = $row['name'];
                      $data['status']     = $row['status'];
                      $data['class_id']   = $new_class_id;
                      $data['year']       = $row['year'];
                      $data['term']       = $term_create;
                      $data['teacher_id'] = $row['teacher_id'];
-                     
+
                      if($this->db->insert('subject', $data)) {
                          $ij++;
                     };
-                    
+
                     //increase term by 1
                      $term_create++;
                 }
-                 
-            } 
-            
+
+            }
+
             if($ij > 0) {
                 echo 'success';
             } else {
@@ -3172,10 +3172,10 @@ class Crud_model extends MY_Model {
             }
          }
     }
-    
+
    }
-   
-   
+
+
    //for importing subjects creche
    function do_subjects_import_creche($new_class_id, $old_class_id, $year, $term) {
     ///select all the subjects from the subject_creche table where class_id == old_class_id and year and the term ==...
@@ -3184,29 +3184,29 @@ class Crud_model extends MY_Model {
         'year'     => $year,
         'term'     => $term
         );
-    
+
     $data_array2 = array(
         'class_id' => $new_class_id,
         'year'     => $year,
         'term'     => $term
         );
-        
+
     $subjects_rows = $this->db->get_where('subject_creche', $data_array2)->num_rows();
-    
+
     //check if this class already exists in the subject table with same year and term
     if($subjects_rows > 0) { //send an error message because user is trying to run this query for a class that already has registered subjects
         echo 'error';
     } else { //go ahead
-    
+
        $subjects = $this->db->get_where('subject_creche', $data_array)->result_array();
-    
+
         //now let's do the insertion
         $ij = 0;
         foreach($subjects as $row) {
             $num_terms = 0;
             $term_create = 0;
             $data['term']       = $row['term'];///current term
-            
+
             //Number of times to loop
             if($data['term'] == 1) {
                 $num_terms = 3;
@@ -3218,10 +3218,10 @@ class Crud_model extends MY_Model {
                 $num_terms = 1;
                 $term_create = 3;
             }
-            
+
             //do the looping now
             for($i = 1; $i <= $num_terms; $i++) {
-                
+
                  $data['name']       = $row['name'];
                  $data['category_id']       = $row['category_id'];
                  $data['status']     = $row['status'];
@@ -3229,17 +3229,17 @@ class Crud_model extends MY_Model {
                  $data['year']       = $row['year'];
                  $data['term']       = $term_create;
                  $data['teacher_id'] = $row['teacher_id'];
-                 
+
                  if($this->db->insert('subject_creche', $data)) {
                      $ij++;
                 };
-                
+
                 //increase term by 1
                  $term_create++;
             }
-             
-        } 
-        
+
+        }
+
         if($ij > 0) {
             echo 'success';
         } else {
@@ -3247,8 +3247,8 @@ class Crud_model extends MY_Model {
         }
      }
    }
-   
-   
+
+
    //mass subject importation
    function do_subjects_import_mass($fromTerm = '') {
        $running_year = $this->db->get_where('settings' , array('type'=>'running_year'))->row()->description;
@@ -3256,7 +3256,7 @@ class Crud_model extends MY_Model {
 
        $counter = 0;
       // $running_sem = $this->db->get_where('settings' , array('type'=>'running_sem'))->row()->description;
-       
+
        //run this query to check if subjects were already registered for this year and term
        $this->db->select('class_id');
        $class_ids = $this->db->get('class')->result_array();
@@ -3274,7 +3274,7 @@ class Crud_model extends MY_Model {
                $prev_year_dg1 = $prev_year_explode[0] - 1;
                $prev_year_dg2 = $prev_year_explode[1] - 1;
                $prev_year = trim($prev_year_dg1.'-'.$prev_year_dg2);
-               
+
                //run query
                //$prev_term = $this->db->get_where('subject', array('year' => $prev_year))->row()->term;
                if($fromTerm == 'yes') {
@@ -3286,11 +3286,11 @@ class Crud_model extends MY_Model {
                 // We'll use this as a template to create subjects for all 3 terms in the new year
                 $all_subjects = $this->db->get_where('subject', array('class_id' => $class_id['class_id'], 'year' => $prev_year));
                }
-               
+
 
                if($all_subjects->num_rows() > 0) { //if result is greater than 0, then do the dubbing
                  $all_subjects_array = $all_subjects->result_array();
-                 
+
                  if($fromTerm == 'yes') {
                     // Term change within same year - just copy to current term
                     foreach($all_subjects_array as $row) {
@@ -3326,7 +3326,7 @@ class Crud_model extends MY_Model {
                             $unique_subjects[$subject_key] = $row;
                         }
                     }
-                    
+
                     // Now create these subjects for all 3 terms in the new year
                     foreach($unique_subjects as $row) {
                         for($term = 1; $term <= 3; $term++) {
@@ -3356,7 +3356,7 @@ class Crud_model extends MY_Model {
                  }
 
 
-               }   
+               }
            }
          endforeach;
 
@@ -3369,7 +3369,7 @@ class Crud_model extends MY_Model {
                $prev_year_dg1 = $prev_year_explode[0] - 1;
                $prev_year_dg2 = $prev_year_explode[1] - 1;
                $prev_year = trim($prev_year_dg1.'-'.$prev_year_dg2);
-               
+
                //run query
                $prev_sem = $this->db->get_where('subject', array('year' => $prev_year))->row()->sem;
                $all_subjects = $this->db->get_where('subject', array('year' => $prev_year, 'sem' => $prev_sem));
@@ -3383,22 +3383,22 @@ class Crud_model extends MY_Model {
                      $data['year']       = $running_year;
                      $data['sem']       = $row['sem'];
                      $data['teacher_id'] = $row['teacher_id'];
-                     
+
                      //Now let's insert them
                      $this->db->insert('subject', $data);
                  }
-               }  
+               }
            }**/
       // }
-       
-       
+
+
    }
-   
+
    //mass subject importation for creche
    function do_subjects_import_mass_creche($fromTerm = '') {
        $running_year = $this->db->get_where('settings' , array('type'=>'running_year'))->row()->description;
        $running_term = $this->db->get_where('settings' , array('type'=>'running_term'))->row()->description;
-       
+
        //run this query to check if subjects were already registered for this year and term
        $check_subjects = $this->db->get_where('subject_creche', array('year' => $running_year, 'term' => $running_term))->num_rows();
        if($check_subjects > 0) { //error
@@ -3408,7 +3408,7 @@ class Crud_model extends MY_Model {
            $prev_year_dg1 = $prev_year_explode[0] - 1;
            $prev_year_dg2 = $prev_year_explode[1] - 1;
            $prev_year = trim($prev_year_dg1.'-'.$prev_year_dg2);
-           
+
            //run query
            if($fromTerm == 'yes') {
                 //just for this term
@@ -3421,7 +3421,7 @@ class Crud_model extends MY_Model {
 
            if($all_subjects->num_rows() > 0) { //if result is greater than 0, then do the dubbing
              $all_subjects_array = $all_subjects->result_array();
-             
+
              if($fromTerm == 'yes') {
                 // Term change within same year - just copy to current term
                 foreach($all_subjects_array as $row) {
@@ -3432,7 +3432,7 @@ class Crud_model extends MY_Model {
                     $data['year']       = $running_year;
                     $data['term']       = $running_term;
                     $data['teacher_id'] = $row['teacher_id'];
-                    
+
                     $check_array = [
                         'name' => $row['name'],
                         'class_id' => $row['class_id'],
@@ -3458,7 +3458,7 @@ class Crud_model extends MY_Model {
                         $unique_subjects[$subject_key] = $row;
                     }
                 }
-                
+
                 // Now create these subjects for all 3 terms in the new year
                 foreach($unique_subjects as $row) {
                     for($term = 1; $term <= 3; $term++) {
@@ -3469,7 +3469,7 @@ class Crud_model extends MY_Model {
                         $data['year']       = $running_year;
                         $data['term']       = $term;
                         $data['teacher_id'] = $row['teacher_id'];
-                        
+
                         $check_array = [
                             'name' => $row['name'],
                             'class_id' => $row['class_id'],
@@ -3487,8 +3487,8 @@ class Crud_model extends MY_Model {
                     }
                 }
              }
-           }  
-       }      
+           }
+       }
    }
 
    function load_receipt($receipt_code, $invoice_code, $student_id, $year, $term) {
@@ -3499,7 +3499,7 @@ class Crud_model extends MY_Model {
 
         $i = 1;
         foreach($receipt_querry as $row) {
-             
+
           echo  '
                 <tr>
                     <td>'.$i.'</td>
@@ -3513,7 +3513,7 @@ class Crud_model extends MY_Model {
 
         }
 
-        
+
    }
 
    function find_student($search) {
@@ -3548,7 +3548,7 @@ class Crud_model extends MY_Model {
                 ->where('can_delete !=', 'trash')
                 ->order_by('invoice_code', 'desc')
                 ->get('invoice');
-        
+
         if($query->num_rows() > 0) {
             $invoices = $query->result();
 
@@ -3599,7 +3599,7 @@ class Crud_model extends MY_Model {
 
                 //invoice_id
                 $invoice_id = $this->db->get_where('invoice', array('invoice_code' => $row->invoice_code))->row()->invoice_id;
-                
+
 
                 if ($a_due == 0) {
                     $status = '<button class="btn btn-success btn-xs">'.get_phrase('paid').'</button>';
@@ -3609,7 +3609,7 @@ class Crud_model extends MY_Model {
                     //$payment_text = 'View Receipts';
                 } else {
                     $status = '<button class="btn btn-danger btn-xs">'.get_phrase('unpaid').'</button>';
-                    
+
                     //$payment_text = 'Take Payment';
                 }
 
@@ -3617,10 +3617,10 @@ class Crud_model extends MY_Model {
 
                 $bulk_invoice_sel = '
                         <input type="checkbox" class="checkbox" onclick="boxChecked2()" name="invoices_sel[]" value="'.$row->invoice_code.'">
-                        
+
                         ';
-                    
-                
+
+
                 $options = '<div class="btn-group"><button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown">
                                     Action <span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu">'.$payment_option.'<li><a href="#" onclick="invoice_view_modal(\''.$in_code.'\')" style="color: blue;"><i class="entypo-credit-card"></i>&nbsp;'.get_phrase('view_invoice').'</a></li><li class="divider"></li>
 
@@ -3718,8 +3718,8 @@ class Crud_model extends MY_Model {
                     if($running_term == 1 && $running_year == $data['year']) {
                         $errors['error_message'] = get_phrase('make_sure_you_promote_students_during_term_3._please_contact_the_administrator_for_assistance');
                     }
-                    
-                    /**if not, let's now enroll them into new term by creating new enrollment for them from the 
+
+                    /**if not, let's now enroll them into new term by creating new enrollment for them from the
                     *previous term and insert them into the enroll table
                     *and subsequently entering their details into the attendance table
                     **/
@@ -3736,7 +3736,7 @@ class Crud_model extends MY_Model {
                         $enroll_data['section_id'] = $data['section_id'];
                         $enroll_data['student_id'] = $row['student_id'];
                         $enroll_data['date_added'] =   strtotime(date("Y-m-d H:i:s"));
-                        
+
                         $this->db->insert('enroll' , $enroll_data);
 
                         $attn_data['class_id']   = $data['class_id'];
@@ -3767,7 +3767,7 @@ class Crud_model extends MY_Model {
 
                         $this->db->where('student_id' , $row['student_id']);
                         $this->db->update('enroll', array('status_attendance' => 'close'));
-                        
+
                     }
                 }
 
@@ -3776,7 +3776,7 @@ class Crud_model extends MY_Model {
             *to be added to the attendance register for further management processes
             **/
              $students_lagged = $this->db->get_where('enroll' , array(
-                'class_id' => $data['class_id'] , 'section_id' => $data['section_id'] , 'mute' => '0', 'year' => $data['year'], 'term' => $data['term'], 'status_attendance' => 'open' 
+                'class_id' => $data['class_id'] , 'section_id' => $data['section_id'] , 'mute' => '0', 'year' => $data['year'], 'term' => $data['term'], 'status_attendance' => 'open'
             ))->result_array();
             foreach($students_lagged as $row) {
                 $attn_data['class_id']   = $data['class_id'];
@@ -3790,7 +3790,7 @@ class Crud_model extends MY_Model {
                 $this->db->where('student_id' , $row['student_id']);
                 $this->db->update('enroll', array('status_attendance' => 'close'));
             }
-           
+
         }
 
         //clear the cached database
@@ -3970,7 +3970,7 @@ class Crud_model extends MY_Model {
                 } else {
                     $students_enrolled = $this->students_enrolled($running_year, '1');
                 }
-                
+
 
                 if(is_array($students_enrolled)) {
                     return 'not_enrolled';
@@ -3995,11 +3995,11 @@ class Crud_model extends MY_Model {
                 //all enrollment is done, let's go ahead
                 return false;
             }
-            
 
-            
+
+
         } else {
-                      
+
             $exp_r = explode('-', get_settings('running_year'));
             $exp_r2 = $exp_r[1]; //running year second value
             $exp_s = explode('-', $running_year);
@@ -4022,7 +4022,7 @@ class Crud_model extends MY_Model {
             $get_pre_year = $this->db->get('enroll');
             $prev_year_row = $get_pre_year->num_rows();
 
-            
+
 
             if($prev_year_row < 1) {
                 //invalid year selected
@@ -4031,7 +4031,7 @@ class Crud_model extends MY_Model {
             } else {
                 //all is correct now
                 $prev_term = $get_pre_year->last_row()->term;
-                
+
                 if($prev_term == 3) { //can only update if the term found is 3
                     $next_term = '1';
 
@@ -4052,7 +4052,7 @@ class Crud_model extends MY_Model {
                 } else {
                     return 'year not allowed';
                 }
-            }          
+            }
         }
     }
 
@@ -4081,12 +4081,12 @@ class Crud_model extends MY_Model {
                 $this->db->where('type', 'running_year');
                 $this->db->update('settings', $data);
 
-                return $next_year;            
+                return $next_year;
             }
         } else {
             return false;
         }
-        
+
     }
 
     //automatic enrollment when year or term changes
@@ -4118,7 +4118,7 @@ class Crud_model extends MY_Model {
                 $this->db->insert('exam', $exam_data);
 
                 $counter += $this->db->affected_rows();
-                
+
             }
         }
 
@@ -4137,7 +4137,7 @@ class Crud_model extends MY_Model {
             return false;
         } else {
 
-            //we only do this if the term is not 1 since that term's enrollment 
+            //we only do this if the term is not 1 since that term's enrollment
             //is done from term 3 via promotion
             if($term != 1) {
                 //all active students from the previous term
@@ -4177,7 +4177,7 @@ class Crud_model extends MY_Model {
 
                 return true;
 
-            } 
+            }
 
         }
     }
@@ -4188,7 +4188,7 @@ class Crud_model extends MY_Model {
         /*If all the classes from the previous current academic year and term
         *have been fully enrolled, then we can go ahead
         */
-        
+
         // Calculate the previous year based on the target year being checked
         $year_parts = explode('-', $year);
         $prev_year = ($year_parts[0] - 1) . '-' . ($year_parts[1] - 1);
@@ -4232,7 +4232,7 @@ class Crud_model extends MY_Model {
                     ->where('term', $term)
                     ->get('enroll')
                     ->num_rows();
-                
+
                 if($promoted_check > 0) {
                     $promoted_count++;
                 }
@@ -4313,7 +4313,7 @@ class Crud_model extends MY_Model {
             //are repeated in creche, there will be no promotion to creche or no record
             //of creche will be found in the enroll table untill a new enrollment is done.
 
-        if($counter ==  $excluding_creche) { 
+        if($counter ==  $excluding_creche) {
             return true;
         } else {
             if($allTermOneRow > $total_classes) {
@@ -4323,7 +4323,7 @@ class Crud_model extends MY_Model {
                 return false;
             }
 
-            
+
         }*/
     }
 
@@ -4331,8 +4331,8 @@ class Crud_model extends MY_Model {
     function headMasterRemarks($student_score, $class_id, $exam_id, $year, $term) {
 
         $data_array =  array(
-            'class_id' => $class_id, 
-                    'year' => $year, 
+            'class_id' => $class_id,
+                    'year' => $year,
                         'exam_id' => $exam_id,
                              'term' => $term
                     );
@@ -4348,19 +4348,19 @@ class Crud_model extends MY_Model {
         $result = 'mark';
         $av_score = 0;
 
-        
+
         //Calculations
         if($total_subjects > 0) {
 
             $grandScore = $total_subjects * 100;
 
             if($student_score > 0) {
-               
+
                 $student_score = $student_score * 100;
                 $student_average = $student_score / $grandScore;
 
                 $mark = $student_average;
-            } 
+            }
 
             if($mark >= 0 && $mark <= 50) {
                 $result = 'NEEDS MORE ASSISTANCE AT HOME';
@@ -4381,7 +4381,7 @@ class Crud_model extends MY_Model {
         }
 
         return $result;
-         
+
     }
 
     function getAllStudentsIdsExCreche() {
@@ -4416,36 +4416,57 @@ class Crud_model extends MY_Model {
 
     function updateSingleInvoiceRequest($request_id, $status) {
 
+        $request_id = (int)$request_id;
+        if(!$request_id || !in_array($status, ['Approved', 'Declined'], true)) {
+            return false;
+        }
+
+        $this->db->trans_begin();
+        $request = $this->db->query(
+            'SELECT * FROM request WHERE request_id = ? AND approval_status = ? FOR UPDATE',
+            [$request_id, 'Pending']
+        )->row();
+
+        if(!$request) {
+            $this->db->trans_rollback();
+            return false;
+        }
+
+        $invoice_codes_array = array_values(array_filter(array_map('trim', explode(',', (string)$request->request_ids))));
+        if(!$invoice_codes_array) {
+            $this->db->trans_rollback();
+            return false;
+        }
+
         $this->db->where('request_id', $request_id);
+        $this->db->where('approval_status', 'Pending');
         $this->db->set('approval_status', $status);
         $this->db->set('response_timestamp', strtotime('now'));
         $this->db->set('approved_by_id', $this->session->userdata('login_user_id'));
-        $requestResult = $this->db->update('request', $requestData);
+        $requestResult = $this->db->update('request');
 
-        $invoice_codes_query = $this->requestIDsByID($request_id);
-        $invoice_codes_array = explode(',', $invoice_codes_query);
+        if(!$requestResult || $this->db->affected_rows() !== 1) {
+            $this->db->trans_rollback();
+            return false;
+        }
 
-        /*Update invoice table*/
         $this->db->where_in('invoice_code', $invoice_codes_array);
         $this->db->set('can_delete', strtolower($status));
         $invoiceResult = $this->db->update('invoice');
 
-        if($requestResult && $invoiceResult) {
-
-            return true;
-            
-        } else {
-
+        if(!$invoiceResult || $this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
             return false;
         }
-        
+
+        $this->db->trans_commit();
+        return true;
     }
 
     function requestIDsByID($request_id) {
 
-        $data = $this->db->get_where('request', ['request_id' => $request_id])->row()->request_ids;
-
-        return $data;
+        $row = $this->db->get_where('request', ['request_id' => $request_id])->row();
+        return $row ? $row->request_ids : '';
     }
 
     function getAllRequests() {
@@ -4509,7 +4530,7 @@ class Crud_model extends MY_Model {
         $max_r = $this->db->get()->row()->receipt_code;
         foreach($arr as $r) {
 
-            
+
 
             /*update*/
             /*$this->db->where('payment_id', $r['payment_id']);
@@ -4534,7 +4555,7 @@ class Crud_model extends MY_Model {
             $this->db->where('year', '2025-2026');
             $this->db->where('term', 1);
             $this->db->set('residence_type', 'Boarding');
-            $this->db->update('enroll');    
+            $this->db->update('enroll');
         }
 
         return 'success';

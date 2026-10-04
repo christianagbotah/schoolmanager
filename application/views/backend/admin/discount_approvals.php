@@ -1,788 +1,182 @@
+<?php
+$csrf_name = $this->security->get_csrf_token_name();
+$csrf_hash = $this->security->get_csrf_hash();
+$currency = '₵';
+?>
 <style>
-:root {
-	--primary: #667eea;
-	--primary-dark: #5568d3;
-	--success: #10b981;
-	--danger: #ef4444;
-	--warning: #f59e0b;
-	--info: #3b82f6;
-	--gray-50: #f9fafb;
-	--gray-100: #f3f4f6;
-	--gray-200: #e5e7eb;
-	--gray-600: #4b5563;
-	--gray-700: #374151;
-	--gray-900: #111827;
-}
-
-.approvals-container {
-	background: var(--gradient-bg);
-	padding: 2rem;
-	min-height: 100vh;
-}
-
-.approvals-card {
-	background: white;
-	border-radius: 16px;
-	box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-	overflow: hidden;
-}
-
-.approvals-header {
-	background: var(--gradient-bg);
-	padding: 2rem;
-	color: white;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-
-.approvals-header h4 {
-	margin: 0;
-	font-size: 2rem;
-	font-weight: 700;
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	color: white;
-}
-
-.approvals-header h4 i {
-	color: white;
-	font-size: 2rem;
-}
-
-.stats-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	gap: 1rem;
-	margin-bottom: 1.5rem;
-}
-
-.stat-card {
-	background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
-	padding: 1.5rem;
-	border-radius: 12px;
-	color: white;
-	box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-	transition: transform 0.2s;
-}
-
-.stat-card:hover {
-	transform: translateY(-4px);
-}
-
-.stat-card .stat-value {
-	font-size: 2.5rem;
-	font-weight: 700;
-	margin: 0.5rem 0;
-}
-
-.stat-card .stat-label {
-	font-size: 1rem;
-	opacity: 0.9;
-	font-weight: 600;
-}
-
-.filter-tabs {
-	display: flex;
-	gap: 0.5rem;
-	margin-bottom: 1.5rem;
-	flex-wrap: wrap;
-	padding: 1.5rem;
-	background: var(--gray-50);
-	border-bottom: 2px solid var(--gray-200);
-}
-
-.filter-tab {
-	padding: 0.75rem 1.5rem;
-	border-radius: 8px;
-	border: 2px solid transparent;
-	background: white;
-	color: var(--gray-700);
-	font-weight: 600;
-	font-size: 1.05rem;
-	cursor: pointer;
-	transition: all 0.2s;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-}
-
-.filter-tab[data-status="pending"] {
-	color: var(--warning);
-}
-
-.filter-tab[data-status="approved"] {
-	color: var(--success);
-}
-
-.filter-tab[data-status="rejected"] {
-	color: var(--danger);
-}
-
-.filter-tab[data-status="pending_removal"] {
-	color: var(--gray-600);
-}
-
-.filter-tab:hover {
-	background: var(--gray-100);
-	transform: translateY(-2px);
-}
-
-.filter-tab.active {
-	background: var(--gradient-bg);
-	color: white;
-	box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.bulk-actions-bar {
-	background: var(--gradient-bg);
-	padding: 1rem 1.5rem;
-	border-radius: 12px;
-	margin: 1.5rem;
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.bulk-actions-bar .selected-count {
-	color: white;
-	font-weight: 600;
-	font-size: 1.05rem;
-	flex: 1;
-}
-
-.modern-btn {
-	padding: 0.75rem 1.5rem;
-	border-radius: 8px;
-	border: none;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 0.2s;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.modern-btn:hover {
-	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.modern-btn-success {
-	background: var(--success);
-	color: white;
-}
-
-.modern-btn-danger {
-	background: var(--danger);
-	color: white;
-}
-
-.modern-btn-white {
-	background: white;
-	color: var(--gray-700);
-}
-
-#approvals_table {
-	width: 100%;
-}
-
-#approvals_table thead th {
-	background: var(--gray-50);
-	color: var(--gray-700);
-	font-weight: 700;
-	text-transform: uppercase;
-	font-size: 1rem;
-	letter-spacing: 0.05em;
-	padding: 1rem;
-	border-bottom: 2px solid var(--gray-200);
-}
-
-#approvals_table thead th:first-child {
-	width: 40px;
-	text-align: center;
-}
-
-#approvals_table thead th:nth-child(2) {
-	text-align: left;
-}
-
-#approvals_table tbody tr {
-	transition: all 0.2s;
-}
-
-#approvals_table tbody tr:hover {
-	background: var(--gray-50);
-	transform: scale(1.01);
-	box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-#approvals_table tbody td {
-	padding: 1rem;
-	vertical-align: middle;
-	font-size: 1.05rem;
-}
-
-#approvals_table tbody td:first-child {
-	width: 40px;
-	text-align: center;
-}
-
-#approvals_table tbody td:nth-child(2) {
-	text-align: left;
-	font-size: 1rem;
-}
-
-.student-name {
-	font-size: 1.15rem;
-	font-weight: 600;
-}
-
-.student-code {
-	font-size: 1.05rem;
-	color: var(--gray-600);
-}
-
-.discount-details {
-	font-size: 1rem;
-}
-
-.badge {
-	padding: 0.5rem 1rem;
-	border-radius: 6px;
-	font-weight: 600;
-	font-size: 0.75rem;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-}
-
-.action-btn {
-	padding: 0.5rem 0.75rem;
-	border-radius: 6px;
-	border: none;
-	cursor: pointer;
-	transition: all 0.2s;
-	margin: 0 0.25rem;
-}
-
-.action-btn:hover {
-	transform: scale(1.1);
-	box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-input[type="checkbox"] {
-	width: 18px;
-	height: 18px;
-	cursor: pointer;
-	accent-color: var(--primary);
-}
-
-.table-container {
-	padding: 1.5rem;
-}
-
-@media (max-width: 768px) {
-	.stats-grid {
-		grid-template-columns: 1fr;
-	}
-	
-	.filter-tabs {
-		flex-direction: column;
-	}
-	
-	.bulk-actions-bar {
-		flex-direction: column;
-	}
-}
-</style>
-<style>
-@media screen {
-
-  .approvals-container, .approvals-card { color: #334155; }
-  .approvals-card {
-    padding: 18px 20px !important; border: 1px solid #e2e8f0 !important;
-    border-radius: 14px !important; box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-  }
-  .approvals-card > .card-header, .approvals-card > div:first-child {
-    margin-bottom: 16px !important;
-  }
-  .approvals-card h4 {
-    color: #0f172a !important; font-size: 20px !important; line-height: 1.3; font-weight: 800 !important;
-  }
-
-  .stats-grid { gap: 12px !important; margin-bottom: 16px !important; }
-  .stat-card {
-    min-height: 96px; padding: 14px 16px !important;
-    border: 1px solid #e2e8f0 !important; border-radius: 12px !important;
-    background: #fff !important; color: #0f172a !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-  }
-  .stat-card:hover { transform: none !important; box-shadow: 0 4px 12px rgba(15,23,42,.07) !important; }
-  .stat-card > i { font-size: 18px !important; }
-  .stat-card .stat-value {
-    margin: 4px 0 0 !important; color: #0f172a !important;
-    font-size: 28px !important; line-height: 1.2; font-weight: 800 !important;
-  }
-  .stat-card .stat-label { color: #64748b !important; font-size: 13px !important; font-weight: 800 !important; }
-
-  .filter-tabs {
-    gap: 5px !important; margin-bottom: 14px !important; padding: 5px !important;
-    border: 1px solid #e2e8f0; border-radius: 11px; background: #fff;
-  }
-  .filter-tab {
-    min-height: 38px; padding: 8px 12px !important; border-radius: 7px !important;
-    font-size: 13px !important; font-weight: 700 !important;
-  }
-  .filter-tab.active { box-shadow: 0 2px 7px rgba(15,23,42,.10) !important; }
-
-  .bulk-actions-bar {
-    min-height: 50px; padding: 9px 12px !important; margin-bottom: 12px !important;
-    border: 1px solid #dbeafe; border-radius: 10px !important; background: #eff6ff !important;
-  }
-  .bulk-actions-bar .selected-count { font-size: 14px !important; font-weight: 700 !important; }
-  .modern-btn {
-    min-height: 38px; padding: 7px 11px !important; border-radius: 7px !important;
-    font-size: 13px !important; font-weight: 700 !important;
-  }
-  .modern-btn:hover { transform: none !important; box-shadow: 0 2px 7px rgba(15,23,42,.10) !important; }
-
-  .table-container {
-    border: 1px solid #e2e8f0; border-radius: 11px; overflow-x: auto; -webkit-overflow-scrolling: touch;
-  }
-  #approvals_table { min-width: 980px; margin: 0 !important; }
-  #approvals_table thead th {
-    padding: 11px 12px !important; background: #f8fafc !important;
-    color: #475569 !important; font-size: 13px !important; line-height: 1.35;
-    font-weight: 800 !important; border-bottom: 1px solid #e2e8f0 !important;
-  }
-  #approvals_table tbody td {
-    padding: 11px 12px !important; color: #334155 !important;
-    font-size: 14px !important; line-height: 1.45; vertical-align: middle;
-  }
-  #approvals_table tbody tr:hover { background: #f8fbff !important; transform: none !important; }
-  #approvals_table tbody td:nth-child(2) { font-size: 14px !important; }
-  .discount-details { font-size: 13px !important; line-height: 1.4; color: #64748b !important; }
-  #approvals_table .badge {
-    padding: 4px 8px !important; border-radius: 999px !important;
-    font-size: 12.5px !important; font-weight: 700 !important;
-  }
-  .action-btn {
-    min-width: 34px; min-height: 34px; padding: 6px 8px !important;
-    border-radius: 7px !important; font-size: 13px !important;
-  }
-  .action-btn:hover { transform: none !important; }
-  #approvals_table input[type="checkbox"] { width: 18px; height: 18px; accent-color: #2563eb; }
-
-  @media (max-width: 680px) {
-    .approvals-card { padding: 14px !important; }
-    .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
-    .filter-tabs { overflow-x: auto; flex-wrap: nowrap !important; }
-    .filter-tab { min-width: max-content; }
-    .bulk-actions-bar { align-items: stretch !important; flex-direction: column !important; }
-    .bulk-actions-bar .modern-btn { width: 100%; justify-content: center; }
-  }
-
-}
+.discount-approval-workspace{margin:0!important;padding:24px 28px 40px!important;background:#f8fafc;min-height:100%;color:#334155}
+.discount-approval-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid #e2e8f0}
+.discount-approval-eyebrow{margin:0 0 4px;color:#2563eb;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.discount-approval-head h1{margin:0;color:#0f172a;font-size:30px!important;line-height:1.2;font-weight:800;letter-spacing:-.02em}
+.discount-approval-head p:last-child{margin:7px 0 0;color:#64748b;font-size:15px;line-height:1.5}
+.discount-reconciliation-note{display:none;margin-bottom:16px;padding:12px 14px;border:1px solid #fecaca;border-radius:11px;background:#fef2f2;color:#991b1b;font-size:13px;line-height:1.5;font-weight:700}.discount-reconciliation-note.active{display:block}.discount-risk-note{display:flex;align-items:flex-start;gap:9px;max-width:470px;padding:11px 13px;border:1px solid #fde68a;border-radius:10px;background:#fffbeb;color:#92400e;font-size:13px;line-height:1.45;font-weight:700}
+.discount-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.discount-stat{min-height:106px;padding:15px 16px;border:1px solid #e2e8f0;border-left:4px solid #2563eb;border-radius:13px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+.discount-stat[data-tone="pending"]{border-left-color:#d97706}.discount-stat[data-tone="approved"]{border-left-color:#059669}.discount-stat[data-tone="rejected"]{border-left-color:#dc2626}
+.discount-stat-label{color:#64748b;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.discount-stat-value{margin-top:9px;color:#0f172a;font-size:28px;line-height:1;font-weight:800}.discount-stat-hint{margin-top:7px;color:#64748b;font-size:12px}
+.discount-panel{border:1px solid #e2e8f0;border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.05);overflow:hidden}
+.discount-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-bottom:1px solid #e2e8f0;background:#f8fafc}
+.discount-filters{display:flex;gap:7px;flex-wrap:wrap}.discount-filter{min-height:40px;padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#475569;font-size:13px;font-weight:800;cursor:pointer}.discount-filter.active{border-color:#2563eb;background:#eff6ff;color:#1d4ed8}
+.discount-bulk{display:none;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid #bfdbfe;background:#eff6ff}.discount-bulk.active{display:flex}.discount-bulk strong{margin-right:auto;color:#1e3a8a;font-size:13px}.discount-bulk .btn{min-height:38px;padding:7px 11px!important;border-radius:8px!important;font-size:13px!important;font-weight:800!important}
+.discount-table-shell{overflow-x:auto;padding:0}.discount-table{width:100%!important;min-width:940px;margin:0!important;border-collapse:collapse}.discount-table thead th{padding:11px 12px!important;border-bottom:1px solid #e2e8f0!important;background:#f8fafc!important;color:#475569!important;font-size:13px!important;font-weight:800!important;letter-spacing:.03em}.discount-table tbody td{padding:11px 12px!important;border-bottom:1px solid #eef2f7!important;color:#334155!important;font-size:14px!important;line-height:1.45;vertical-align:middle!important}.discount-student{color:#0f172a;font-weight:800}.discount-sub{display:block;margin-top:3px;color:#64748b;font-size:12px}.discount-kind{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:4px 7px;border-radius:999px;background:#f1f5f9;color:#475569;font-size:11px;font-weight:800}.discount-status{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}.discount-status.pending{background:#fffbeb;color:#b45309}.discount-status.approved{background:#ecfdf5;color:#047857}.discount-status.rejected{background:#fef2f2;color:#b91c1c}.discount-status.pending_removal{background:#f1f5f9;color:#475569}.discount-actions{display:flex;gap:6px;white-space:nowrap}.discount-actions .btn{min-width:36px;min-height:35px;padding:6px 9px!important;border-radius:7px!important;font-size:12px!important;box-shadow:none!important}.discount-actions .btn-primary{background:#2563eb!important;border-color:#2563eb!important}.discount-table input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#2563eb}
+.discount-approval-workspace .dataTables_wrapper{padding:14px}.discount-approval-workspace .dataTables_length,.discount-approval-workspace .dataTables_filter,.discount-approval-workspace .dataTables_info,.discount-approval-workspace .dataTables_paginate{color:#475569;font-size:13px}.discount-approval-workspace .dataTables_length select,.discount-approval-workspace .dataTables_filter input{min-height:38px;padding:7px 9px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;font-size:14px}
+@media(max-width:920px){.discount-stats{grid-template-columns:1fr 1fr}.discount-approval-head{align-items:flex-start}}
+@media(max-width:767px){.discount-approval-workspace{padding:18px 14px 32px!important}.discount-approval-head{display:block}.discount-approval-head h1{font-size:26px!important}.discount-risk-note{max-width:none;margin-top:14px}.discount-toolbar{display:block}.discount-filters{overflow-x:auto;flex-wrap:nowrap}.discount-filter{white-space:nowrap}.discount-bulk{align-items:stretch;flex-direction:column}.discount-bulk strong{margin-right:0}.discount-bulk .btn{width:100%}}
+@media(max-width:480px){.discount-stats{grid-template-columns:1fr}}
 </style>
 
+<div class="discount-approval-workspace">
+    <div class="discount-approval-head">
+        <div>
+            <p class="discount-approval-eyebrow">Financial Controls</p>
+            <h1>Discount Approvals</h1>
+            <p>Review student discount assignments and invoice discounts before they affect balances.</p>
+        </div>
+        <div class="discount-risk-note"><i class="fa fa-shield-alt"></i><span>Approvals are financial mutations. Revoke restores recorded invoice allocations; unsafe historical reversals are blocked rather than guessed.</span></div>
+    </div>
 
-<div class="approvals-container">
-	<div class="approvals-card">
-		<div class="approvals-header">
-			<h4><i class="mdi mdi-shield-check"></i> <?php echo get_phrase('discount_approvals'); ?></h4>
-		</div>
-		
-		<div style="padding: 1.5rem;">
-			<div class="stats-grid" id="stats_grid">
-				<div class="stat-card" style="--bg-start: #f59e0b; --bg-end: #d97706;">
-					<i class="fa fa-clock" style="font-size: 1.5rem;"></i>
-					<div class="stat-value" id="pending_count">0</div>
-					<div class="stat-label">Pending</div>
-				</div>
-				<div class="stat-card" style="--bg-start: #10b981; --bg-end: #059669;">
-					<i class="fa fa-check-circle" style="font-size: 1.5rem;"></i>
-					<div class="stat-value" id="approved_count">0</div>
-					<div class="stat-label">Approved</div>
-				</div>
-				<div class="stat-card" style="--bg-start: #ef4444; --bg-end: #dc2626;">
-					<i class="fa fa-times-circle" style="font-size: 1.5rem;"></i>
-					<div class="stat-value" id="rejected_count">0</div>
-					<div class="stat-label">Rejected</div>
-				</div>
-				<div class="stat-card" style="--bg-start: #3b82f6; --bg-end: #2563eb;">
-					<i class="fa fa-list" style="font-size: 1.5rem;"></i>
-					<div class="stat-value" id="total_count">0</div>
-					<div class="stat-label">Total</div>
-				</div>
-			</div>
-		</div>
-		
-		<div class="filter-tabs">
-			<button class="filter-tab active" data-status="all" onclick="filterByStatus('all')">
-				<i class="fa fa-list"></i> <?php echo get_phrase('all'); ?>
-			</button>
-			<button class="filter-tab" data-status="pending" onclick="filterByStatus('pending')">
-				<i class="fa fa-clock"></i> <?php echo get_phrase('pending'); ?>
-			</button>
-			<button class="filter-tab" data-status="approved" onclick="filterByStatus('approved')">
-				<i class="fa fa-check-circle"></i> <?php echo get_phrase('approved'); ?>
-			</button>
-			<button class="filter-tab" data-status="rejected" onclick="filterByStatus('rejected')">
-				<i class="fa fa-times-circle"></i> <?php echo get_phrase('rejected'); ?>
-			</button>
-			<button class="filter-tab" data-status="pending_removal" onclick="filterByStatus('pending_removal')">
-				<i class="fa fa-trash-alt"></i> <?php echo get_phrase('pending_removal'); ?>
-			</button>
-		</div>
-		
-		<div class="bulk-actions-bar" id="bulk_actions" style="display: none;">
-			<div class="selected-count">
-				<i class="fa fa-check-square"></i> <span id="selected_count">0</span> selected
-			</div>
-			<button class="modern-btn modern-btn-success" onclick="bulkApprove()">
-				<i class="fa fa-check"></i> Approve Selected
-			</button>
-			<button class="modern-btn modern-btn-danger" onclick="bulkReject()">
-				<i class="fa fa-times"></i> Reject Selected
-			</button>
-			<button class="modern-btn modern-btn-white" onclick="deselectAll()">
-				<i class="fa fa-times-circle"></i> Clear Selection
-			</button>
-		</div>
-		
-		<div class="table-container">
-			<table id="approvals_table" class="table table-hover dt-responsive nowrap" style="width:100%">
-				<thead>
-					<tr>
-						<th><input type="checkbox" id="select_all" onclick="toggleSelectAll()"></th>
-						<th><?php echo get_phrase('date'); ?></th>
-						<th><?php echo get_phrase('description'); ?></th>
-						<th><?php echo get_phrase('status'); ?></th>
-						<th><?php echo get_phrase('actions'); ?></th>
-					</tr>
-				</thead>
-				<tbody></tbody>
-			</table>
-		</div>
-	</div>
+    <div id="discount_reconciliation_note" class="discount-reconciliation-note"><i class="fa fa-exclamation-triangle"></i> <span id="discount_reconciliation_text"></span></div>
+
+    <div class="discount-stats">
+        <div class="discount-stat" data-tone="pending"><div class="discount-stat-label">Pending</div><div class="discount-stat-value" id="pending_count">—</div><div class="discount-stat-hint">Awaiting super-admin decision</div></div>
+        <div class="discount-stat" data-tone="approved"><div class="discount-stat-label">Approved</div><div class="discount-stat-value" id="approved_count">—</div><div class="discount-stat-hint">Currently approved records</div></div>
+        <div class="discount-stat" data-tone="rejected"><div class="discount-stat-label">Rejected</div><div class="discount-stat-value" id="rejected_count">—</div><div class="discount-stat-hint">Rejected or safely revoked</div></div>
+        <div class="discount-stat"><div class="discount-stat-label">Total</div><div class="discount-stat-value" id="total_count">—</div><div class="discount-stat-hint">All approval records</div></div>
+    </div>
+
+    <div class="discount-panel">
+        <div class="discount-toolbar">
+            <div class="discount-filters" role="group" aria-label="Discount status filter">
+                <button type="button" class="discount-filter active" data-status="all">All</button>
+                <button type="button" class="discount-filter" data-status="pending">Pending</button>
+                <button type="button" class="discount-filter" data-status="approved">Approved</button>
+                <button type="button" class="discount-filter" data-status="rejected">Rejected</button>
+                <button type="button" class="discount-filter" data-status="pending_removal">Pending Removal</button>
+            </div>
+            <span style="color:#64748b;font-size:12px;font-weight:700">Bulk actions apply only to pending records.</span>
+        </div>
+        <div class="discount-bulk" id="bulk_actions">
+            <strong><span id="selected_count">0</span> pending record(s) selected</strong>
+            <button type="button" class="btn btn-success" id="bulkApproveBtn"><i class="fa fa-check"></i> Approve Selected</button>
+            <button type="button" class="btn btn-danger" id="bulkRejectBtn"><i class="fa fa-times"></i> Reject Selected</button>
+            <button type="button" class="btn btn-default" id="clearSelectionBtn">Clear</button>
+        </div>
+        <div class="discount-table-shell">
+            <table id="approvals_table" class="table discount-table">
+                <thead><tr><th style="width:42px"><input type="checkbox" id="select_all" aria-label="Select all pending visible rows"></th><th style="width:155px">Date</th><th>Description</th><th style="width:135px">Status</th><th style="width:170px">Actions</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script>
-var currentStatus = 'all';
+var currentStatus='all';
+var approvalTable=null;
+var approvalBusy=false;
+var approvalCsrfName=<?php echo json_encode($csrf_name); ?>;
+var approvalCsrfHash=<?php echo json_encode($csrf_hash); ?>;
+var approvalCurrency=<?php echo json_encode($currency); ?>;
 
-// Get system theme color
-var themeColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#667eea';
-var themeColorDark = getComputedStyle(document.documentElement).getPropertyValue('--primary-dark') || '#5568d3';
-document.documentElement.style.setProperty('--gradient-bg', 'linear-gradient(135deg, ' + themeColor + ' 0%, ' + themeColorDark + ' 100%)');
+function escapeApproval(value){return $('<div>').text(value==null?'':String(value)).html();}
+function approvalPost(data){data=data||{};data[approvalCsrfName]=approvalCsrfHash;return data;}
+function approvalError(xhr,fallback){var msg=fallback||'Operation failed';try{var r=JSON.parse(xhr.responseText);if(r.message)msg=r.message;}catch(e){}showAjaxModal_alert(msg,'error');}
+function statusLabel(status){var labels={pending:'Pending',approved:'Approved',rejected:'Rejected',pending_removal:'Pending Removal'};return labels[status]||status;}
 
-$(document).ready(function() {
-	$('#approvals_table').DataTable({order: [[1, 'desc']]});
-	loadApprovals('all');
-	updateStats();
+$(function(){
+    approvalTable=$('#approvals_table').DataTable({pageLength:25,order:[[1,'desc']],autoWidth:false,columnDefs:[{orderable:false,targets:[0,4]}]});
+    $('.discount-filter').on('click',function(){currentStatus=$(this).data('status');$('.discount-filter').removeClass('active');$(this).addClass('active');loadApprovals(currentStatus);});
+    $('#select_all').on('change',function(){var checked=this.checked;$('.row-checkbox:visible').prop('checked',checked);updateBulkActions();});
+    $(document).on('change','.row-checkbox',updateBulkActions);
+    $('#clearSelectionBtn').on('click',clearSelection);
+    $('#bulkApproveBtn').on('click',function(){bulkDecision('bulk_approve');});
+    $('#bulkRejectBtn').on('click',function(){bulkDecision('bulk_reject');});
+    $(document).on('click','.js-discount-view',function(){viewDetails($(this).data('id'),$(this).data('source'));});
+    $(document).on('click','.js-discount-approve',function(){singleDecision('approve',$(this).data('id'),$(this).data('source'));});
+    $(document).on('click','.js-discount-reject',function(){singleDecision('reject',$(this).data('id'),$(this).data('source'));});
+    $(document).on('click','.js-discount-revoke',function(){singleDecision('revoke',$(this).data('id'),$(this).data('source'));});
+    updateStats();loadReconciliationDiagnostics();loadApprovals('all');
 });
 
-function updateStats() {
-	$.ajax({
-		url: '<?php echo site_url('admin/discount_approvals/get_data'); ?>?status=all',
-		type: 'GET',
-		dataType: 'json'
-	}).done(function(response) {
-		if(response.status === 'success') {
-			const data = response.data;
-			const pending = data.filter(i => i.status === 'pending').length;
-			const approved = data.filter(i => i.status === 'approved').length;
-			const rejected = data.filter(i => i.status === 'rejected').length;
-			
-			$('#pending_count').text(pending);
-			$('#approved_count').text(approved);
-			$('#rejected_count').text(rejected);
-			$('#total_count').text(data.length);
-		}
-	});
+function updateStats(){
+    $.getJSON('<?php echo site_url('admin/discount_approvals/get_data'); ?>?status=all').done(function(r){if(r.status!=='success')return;var data=r.data||[];$('#pending_count').text(data.filter(function(x){return x.status==='pending';}).length);$('#approved_count').text(data.filter(function(x){return x.status==='approved';}).length);$('#rejected_count').text(data.filter(function(x){return x.status==='rejected';}).length);$('#total_count').text(data.length);});
 }
 
-function filterByStatus(status) {
-	currentStatus = status;
-	$('.filter-tab').removeClass('active');
-	$('.filter-tab[data-status="'+status+'"]').addClass('active');
-	loadApprovals(status);
+function loadReconciliationDiagnostics(){
+    $.getJSON('<?php echo site_url('admin/discount_approvals/diagnostics'); ?>').done(function(r){
+        if(r.status!=='success')return;var d=r.data||{};
+        var values=[Number(d.negative_invoice_rows||0),Number(d.settled_over_amount||0),Number(d.discount_item_drift||0),Number(d.invoice_ledger_drift||0)];
+        if(values.some(function(v){return v>0;})){
+            $('#discount_reconciliation_text').text('Historical reconciliation exceptions detected: '+values[0]+' negative invoice row(s), '+values[1]+' settled-over-final row(s), '+values[2]+' discount item drift row(s), and '+values[3]+' invoice ledger reference(s) out of alignment. New approvals are protected; historical records have not been auto-modified.');
+            $('#discount_reconciliation_note').addClass('active');
+        }
+    });
 }
 
-function loadApprovals(status) {
-	$.ajax({
-		url: '<?php echo site_url('admin/discount_approvals/get_data'); ?>?status=' + status,
-		type: 'GET',
-		dataType: 'json'
-	}).done(function(response) {
-		if(response.status === 'success') {
-			var table = $('#approvals_table').DataTable();
-			table.clear();
-			
-			response.data.forEach(function(item) {
-				var checkbox = '<input type="checkbox" class="row-checkbox" data-id="'+item.id+'" data-source="'+item.source+'" onclick="updateBulkActions()">';
-				
-				var typeBadge = item.source === 'profile_assignment' ? 
-					'<span class="badge" style="background: #3b82f6; color: white;"><i class="fa fa-user"></i> Assignment</span>' : 
-					'<span class="badge" style="background: #f59e0b; color: white;"><i class="fa fa-file-invoice"></i> Invoice</span>';
-				
-				var discountText = '';
-				if(item.profile_name) {
-					discountText = item.profile_name + ' (' + (item.discount_category || '').replace('_', ' ') + ')';
-				} else {
-					if(item.source === 'invoice_discount' && item.discount_amount) {
-						discountText = '<?php echo get_settings('currency'); ?>' + parseFloat(item.discount_amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ' + (item.discount_category || '').replace('_', ' ') + ' discount';
-					} else {
-						var discountValue = '';
-						if(item.discount_method === 'percentage') {
-							discountValue = parseFloat(item.discount_value).toFixed(2) + '%';
-						} else {
-							discountValue = '<?php echo get_settings('currency'); ?>' + parseFloat(item.discount_value).toFixed(2);
-						}
-						discountText = discountValue + ' ' + (item.discount_category || '').replace('_', ' ') + ' discount';
-					}
-				}
-				
-				var invoiceInfo = '';
-				if(item.source === 'invoice_discount' && item.invoice_code) {
-					invoiceInfo = ' <small class="text-muted">(Invoice: ' + item.invoice_code + ')</small>';
-				}
-				
-				var description = '<div><strong class="student-name">' + item.student_name + '</strong> <small class="student-code">(' + item.student_code + ')</small>' + invoiceInfo + '<br>' +
-					'<small class="discount-details">' + typeBadge + ' • ' + discountText + '</small></div>';
-				
-				var statusBadge = '';
-				if(item.status === 'pending') statusBadge = '<span class="badge" style="background: #f59e0b; color: white;"><i class="fa fa-clock"></i> Pending</span>';
-				else if(item.status === 'approved') statusBadge = '<span class="badge" style="background: #10b981; color: white;"><i class="fa fa-check-circle"></i> Approved</span>';
-				else if(item.status === 'rejected') statusBadge = '<span class="badge" style="background: #ef4444; color: white;"><i class="fa fa-times-circle"></i> Rejected</span>';
-				else if(item.status === 'pending_removal') statusBadge = '<span class="badge" style="background: #6b7280; color: white;"><i class="fa fa-trash-alt"></i> Pending Removal</span>';
-				
-				var actions = '<button class="action-btn" style="background: #3b82f6; color: white;" onclick="viewDetails('+item.id+', \''+item.source+'\')" title="View Details"><i class="fa fa-eye"></i></button> ';
-				if(item.status === 'pending') {
-					actions += '<button class="action-btn" style="background: #10b981; color: white;" onclick="approveDiscount('+item.id+', \''+item.source+'\')" title="Approve"><i class="fa fa-check"></i></button> '+
-							  '<button class="action-btn" style="background: #ef4444; color: white;" onclick="rejectDiscount('+item.id+', \''+item.source+'\')" title="Reject"><i class="fa fa-times"></i></button>';
-				} else if(item.status === 'approved') {
-					actions += '<button class="action-btn" style="background: #ef4444; color: white;" onclick="revokeDiscount('+item.id+', \''+item.source+'\')" title="Revoke"><i class="fa fa-ban"></i></button>';
-				} else if(item.status === 'rejected') {
-					actions += '<button class="action-btn" style="background: #10b981; color: white;" onclick="approveDiscount('+item.id+', \''+item.source+'\')" title="Approve"><i class="fa fa-check"></i></button>';
-				}
-				
-				table.row.add([
-					checkbox,
-					item.created_at,
-					description,
-					statusBadge,
-					actions
-				]);
-			});
-			
-			table.draw();
-		}
-	});
+function loadApprovals(status){
+    clearSelection();
+    $.getJSON('<?php echo site_url('admin/discount_approvals/get_data'); ?>?status='+encodeURIComponent(status)).done(function(r){
+        if(r.status!=='success')return;
+        approvalTable.clear();
+        (r.data||[]).forEach(function(item){
+            var id=parseInt(item.id,10)||0,source=item.source==='profile_assignment'?'profile_assignment':'invoice_discount';
+            var checkbox=item.status==='pending'?'<input type="checkbox" class="row-checkbox" data-id="'+id+'" data-source="'+source+'" aria-label="Select record '+id+'">':'';
+            var created=escapeApproval(item.created_at||'');
+            var student=escapeApproval(item.student_name||'Unknown student');
+            var code=escapeApproval(item.student_code||'');
+            var profile=escapeApproval(item.profile_name||'');
+            var category=escapeApproval(String(item.discount_category||'').replace(/_/g,' '));
+            var invoice=item.invoice_code?' · Invoice '+escapeApproval(item.invoice_code):'';
+            var value='';
+            if(item.discount_method==='percentage') value=(parseFloat(item.discount_value)||0).toFixed(2)+'%';
+            else value=approvalCurrency+' '+(parseFloat(item.discount_amount||item.discount_value)||0).toFixed(2);
+            var kind=source==='profile_assignment'?'Student assignment':'Invoice discount';
+            var description='<span class="discount-student">'+student+'</span><span class="discount-sub">'+code+invoice+'</span><span class="discount-kind">'+escapeApproval(kind)+' · '+escapeApproval(profile||value)+' · '+category+'</span>';
+            var status='<span class="discount-status '+escapeApproval(item.status)+'">'+escapeApproval(statusLabel(item.status))+'</span>';
+            var actions='<div class="discount-actions"><button type="button" class="btn btn-primary js-discount-view" data-id="'+id+'" data-source="'+source+'" title="View details"><i class="fa fa-eye"></i></button>';
+            if(item.status==='pending') actions+='<button type="button" class="btn btn-success js-discount-approve" data-id="'+id+'" data-source="'+source+'" title="Approve"><i class="fa fa-check"></i></button><button type="button" class="btn btn-danger js-discount-reject" data-id="'+id+'" data-source="'+source+'" title="Reject"><i class="fa fa-times"></i></button>';
+            else if(item.status==='approved') actions+='<button type="button" class="btn btn-danger js-discount-revoke" data-id="'+id+'" data-source="'+source+'" title="Revoke and restore financial effect"><i class="fa fa-undo"></i></button>';
+            else if(item.status==='rejected') actions+='<button type="button" class="btn btn-success js-discount-approve" data-id="'+id+'" data-source="'+source+'" title="Approve"><i class="fa fa-check"></i></button>';
+            actions+='</div>';
+            approvalTable.row.add([checkbox,created,description,status,actions]);
+        });
+        approvalTable.draw();
+        updateBulkActions();
+    }).fail(function(xhr){approvalError(xhr,'Could not load discount approvals.');});
 }
 
-var isProcessing = false;
+function updateBulkActions(){var count=$('.row-checkbox:checked').length;$('#selected_count').text(count);$('#bulk_actions').toggleClass('active',count>0);var total=$('.row-checkbox').length;$('#select_all').prop('checked',total>0&&count===total);}
+function clearSelection(){$('.row-checkbox,#select_all').prop('checked',false);updateBulkActions();}
+function selectedItems(){var items=[];$('.row-checkbox:checked').each(function(){items.push({id:parseInt($(this).data('id'),10),source:String($(this).data('source'))});});return items;}
 
-function approveDiscount(id, source) {
-	if(isProcessing) return;
-	
-	showConfirmModal('<?php echo get_phrase('confirm_approval'); ?>', '<?php echo get_phrase('approve_discount_confirm'); ?>', function() {
-		if(isProcessing) return;
-		isProcessing = true;
-		
-		showAjaxModal_alert('<?php echo get_phrase('processing'); ?>...', 'loading');
-		$.ajax({
-			url: '<?php echo site_url('admin/discount_approvals/approve'); ?>',
-			type: 'POST',
-			data: {id: id, source: source},
-			dataType: 'json'
-		}).done(function(response) {
-			isProcessing = false;
-			if(response.status === 'success') {
-				showAjaxModal_alert(response.message, 'success', false);
-				setTimeout(() => { $('.close').click(); loadApprovals(currentStatus); updateStats(); }, 1500);
-			} else {
-				showAjaxModal_alert(response.message, 'error');
-			}
-		}).fail(function() {
-			isProcessing = false;
-			showAjaxModal_alert('<?php echo get_phrase('error_occurred'); ?>', 'error');
-		});
-	}, '<?php echo get_phrase('approve'); ?>', 'success');
+function singleDecision(action,id,source){
+    if(approvalBusy)return;
+    var copy=action==='approve'?'Approve this discount?':(action==='revoke'?'Revoke this approved discount and restore its recorded invoice allocation?':'Reject this discount?');
+    var tone=action==='approve'?'success':'danger';
+    showConfirmModal(action==='revoke'?'Confirm Revoke':'Confirm '+action.charAt(0).toUpperCase()+action.slice(1),copy,function(){
+        if(approvalBusy)return;approvalBusy=true;showAjaxModal_alert('Processing…','loading');
+        $.ajax({url:'<?php echo site_url('admin/discount_approvals/'); ?>'+action,type:'POST',data:approvalPost({id:id,source:source}),dataType:'json'})
+          .done(function(r){if(r.status==='success'||r.status==='already'){showAjaxModal_alert(r.message,r.status==='success'?'success':'info');loadApprovals(currentStatus);updateStats();}else showAjaxModal_alert(r.message||'Operation failed','error');})
+          .fail(function(xhr){approvalError(xhr,'Approval action failed.');})
+          .always(function(){approvalBusy=false;});
+    },action==='revoke'?'Revoke':action.charAt(0).toUpperCase()+action.slice(1),tone);
 }
 
-function rejectDiscount(id, source) {
-	if(isProcessing) return;
-	
-	showConfirmModal('<?php echo get_phrase('confirm_rejection'); ?>', '<?php echo get_phrase('reject_discount_confirm'); ?>', function() {
-		if(isProcessing) return;
-		isProcessing = true;
-		
-		showAjaxModal_alert('<?php echo get_phrase('processing'); ?>...', 'loading');
-		$.ajax({
-			url: '<?php echo site_url('admin/discount_approvals/reject'); ?>',
-			type: 'POST',
-			data: {id: id, source: source},
-			dataType: 'json'
-		}).done(function(response) {
-			isProcessing = false;
-			if(response.status === 'success') {
-				showAjaxModal_alert(response.message, 'success', false);
-				setTimeout(() => { $('.close').click(); loadApprovals(currentStatus); }, 1500);
-			} else {
-				showAjaxModal_alert(response.message, 'error');
-			}
-		}).fail(function() {
-			isProcessing = false;
-			showAjaxModal_alert('<?php echo get_phrase('error_occurred'); ?>', 'error');
-		});
-	}, '<?php echo get_phrase('reject'); ?>', 'danger');
+function bulkDecision(action){
+    var items=selectedItems();if(!items.length){showAjaxModal_alert('Select at least one pending record.','warning');return;}if(approvalBusy)return;
+    var approving=action==='bulk_approve';showConfirmModal(approving?'Confirm Bulk Approval':'Confirm Bulk Rejection',(approving?'Approve ':'Reject ')+items.length+' selected pending record(s)?',function(){
+        if(approvalBusy)return;approvalBusy=true;showAjaxModal_alert('Processing…','loading');
+        $.ajax({url:'<?php echo site_url('admin/discount_approvals/'); ?>'+action,type:'POST',data:approvalPost({items:items}),dataType:'json'})
+          .done(function(r){showAjaxModal_alert(r.message,r.status==='success'?'success':'error');loadApprovals(currentStatus);updateStats();})
+          .fail(function(xhr){approvalError(xhr,'Bulk approval action failed.');})
+          .always(function(){approvalBusy=false;});
+    },approving?'Approve':'Reject',approving?'success':'danger');
 }
 
-function viewDetails(id, source) {
-	showAjaxModal_alert('<?php echo get_phrase('loading'); ?>...', 'loading');
-	$.ajax({
-		url: '<?php echo site_url('admin/get_details'); ?>',
-		type: 'POST',
-		data: {assignment_id: id, source: source},
-		dataType: 'json'
-	}).done(function(response) {
-		$('.close').click();
-		if(response.status === 'success') {
-			showModalWithContent('detailsModal', '<i class="fa fa-info-circle"></i> Discount Approval Details', response.html);
-		} else {
-			showAjaxModal_alert(response.message || 'Failed to load details', 'error');
-		}
-	}).fail(function() {
-		showAjaxModal_alert('<?php echo get_phrase('error_occurred'); ?>', 'error');
-	});
-}
-
-function revokeDiscount(id, source) {
-	if(isProcessing) return;
-	
-	showConfirmModal('<?php echo get_phrase('confirm_revoke'); ?>', 'Are you sure you want to revoke this approved discount?', function() {
-		if(isProcessing) return;
-		isProcessing = true;
-		
-		showAjaxModal_alert('<?php echo get_phrase('processing'); ?>...', 'loading');
-		$.ajax({
-			url: '<?php echo site_url('admin/discount_approvals/reject'); ?>',
-			type: 'POST',
-			data: {id: id, source: source},
-			dataType: 'json'
-		}).done(function(response) {
-			isProcessing = false;
-			if(response.status === 'success') {
-				showAjaxModal_alert(response.message, 'success', false);
-				setTimeout(() => { $('.close').click(); loadApprovals(currentStatus); }, 1500);
-			} else {
-				showAjaxModal_alert(response.message, 'error');
-			}
-		}).fail(function() {
-			isProcessing = false;
-			showAjaxModal_alert('<?php echo get_phrase('error_occurred'); ?>', 'error');
-		});
-	}, '<?php echo get_phrase('revoke'); ?>', 'danger');
-}
-
-function toggleSelectAll() {
-	var checked = $('#select_all').prop('checked');
-	$('.row-checkbox').prop('checked', checked);
-	updateBulkActions();
-}
-
-function updateBulkActions() {
-	var count = $('.row-checkbox:checked').length;
-	$('#select_all').prop('checked', count > 0 && count === $('.row-checkbox').length);
-	$('#bulk_actions').toggle(count > 0);
-	$('#selected_count').text(count);
-}
-
-function deselectAll() {
-	$('.row-checkbox').prop('checked', false);
-	$('#select_all').prop('checked', false);
-	updateBulkActions();
-}
-
-function bulkApprove() {
-	if(isProcessing) return;
-	
-	var items = [];
-	$('.row-checkbox:checked').each(function() {
-		items.push({id: $(this).data('id'), source: $(this).data('source')});
-	});
-	
-	if(items.length === 0) {
-		showAjaxModal_alert('Please select at least one item', 'error');
-		return;
-	}
-	
-	showConfirmModal('Confirm Bulk Approval', 'Approve ' + items.length + ' discount(s)?', function() {
-		if(isProcessing) return;
-		isProcessing = true;
-		
-		showAjaxModal_alert('Processing...', 'loading');
-		$.ajax({
-			url: '<?php echo site_url('admin/discount_approvals/bulk_approve'); ?>',
-			type: 'POST',
-			data: {items: items},
-			dataType: 'json'
-		}).done(function(response) {
-			isProcessing = false;
-			if(response.status === 'success') {
-				showAjaxModal_alert(response.message, 'success', false);
-				setTimeout(() => { $('.close').click(); loadApprovals(currentStatus); updateStats(); deselectAll(); }, 1500);
-			} else {
-				showAjaxModal_alert(response.message, 'error');
-			}
-		}).fail(function() {
-			isProcessing = false;
-			showAjaxModal_alert('An error occurred', 'error');
-		});
-	}, 'Approve', 'success');
-}
-
-function bulkReject() {
-	if(isProcessing) return;
-	
-	var items = [];
-	$('.row-checkbox:checked').each(function() {
-		items.push({id: $(this).data('id'), source: $(this).data('source')});
-	});
-	
-	if(items.length === 0) {
-		showAjaxModal_alert('Please select at least one item', 'error');
-		return;
-	}
-	
-	showConfirmModal('Confirm Bulk Rejection', 'Reject ' + items.length + ' discount(s)?', function() {
-		if(isProcessing) return;
-		isProcessing = true;
-		
-		showAjaxModal_alert('Processing...', 'loading');
-		$.ajax({
-			url: '<?php echo site_url('admin/discount_approvals/bulk_reject'); ?>',
-			type: 'POST',
-			data: {items: items},
-			dataType: 'json'
-		}).done(function(response) {
-			isProcessing = false;
-			if(response.status === 'success') {
-				showAjaxModal_alert(response.message, 'success', false);
-				setTimeout(() => { $('.close').click(); loadApprovals(currentStatus); updateStats(); deselectAll(); }, 1500);
-			} else {
-				showAjaxModal_alert(response.message, 'error');
-			}
-		}).fail(function() {
-			isProcessing = false;
-			showAjaxModal_alert('An error occurred', 'error');
-		});
-	}, 'Reject', 'danger');
+function viewDetails(id,source){
+    showAjaxModal_alert('Loading…','loading');
+    $.ajax({url:'<?php echo site_url('admin/get_details'); ?>',type:'POST',data:approvalPost({assignment_id:id,source:source}),dataType:'json'})
+      .done(function(r){$('.close').click();if(r.status==='success')showModalWithContent('detailsModal','<i class="fa fa-info-circle"></i> Discount Approval Details',r.html);else showAjaxModal_alert(r.message||'Details not found','error');})
+      .fail(function(xhr){approvalError(xhr,'Could not load discount details.');});
 }
 </script>

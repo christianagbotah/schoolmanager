@@ -44,7 +44,7 @@ class Admin extends MY_Controller {
 
 		$this->load->model(array('Ajaxdataload_model' => 'ajaxload'));
 		$this->load->model('Conduct_items_model');
-	
+
 
 		/*cache control*/
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -78,7 +78,7 @@ class Admin extends MY_Controller {
 
 	}
 
-	
+
 
 	public function ajaxTest() {
 		$curl = curl_init();
@@ -107,7 +107,7 @@ class Admin extends MY_Controller {
 		} else {
 		$response;
 		}
-  
+
     	echo json_encode($response);
 		/*set_time_limit(0);
 		$data = [];
@@ -120,11 +120,11 @@ class Admin extends MY_Controller {
 
 		$data['message'] = 'Setup almost done';
 		echo json_encode($data);
-		sleep(3); 
+		sleep(3);
 
 		$data['message'] = 'Setup completed';
 		echo json_encode($data);
-		sleep(1); 
+		sleep(1);
 
 		$data['message'] = 'Thank you';
 		$data['message2'] = 'You can login now';
@@ -146,7 +146,7 @@ class Admin extends MY_Controller {
 			$page_data['page_name'] = 'dashboard';
 			$page_data['page_title'] = get_phrase('admin_dashboard');
 		}
-		
+
 		// Load location data for multi-location sync widget (Task 5.4)
 		if ($this->db->table_exists('location_registry')) {
 			// Get location statistics
@@ -156,7 +156,7 @@ class Admin extends MY_Controller {
 				'online' => 0,
 				'offline' => 0
 			];
-			
+
 			// Get recent locations with sync status
 			$this->db->select('id, location_name, device_id, status, last_sync_at, last_sync_status');
 			$this->db->where('status', 'active');
@@ -164,7 +164,7 @@ class Admin extends MY_Controller {
 			$this->db->order_by('last_sync_at', 'DESC');
 			$this->db->limit(5);
 			$locations = $this->db->get('location_registry')->result_array();
-			
+
 			// Calculate online/offline status
 			$cutoff_time = date('Y-m-d H:i:s', strtotime('-1 hour'));
 			foreach ($locations as &$loc) {
@@ -175,13 +175,13 @@ class Admin extends MY_Controller {
 					$page_data['location_stats']['offline']++;
 				}
 			}
-			
+
 			$page_data['locations'] = $locations;
 		} else {
 			$page_data['location_stats'] = null;
 			$page_data['locations'] = [];
 		}
-		
+
 		$this->load->view('backend/main', $page_data);
 	}
 
@@ -201,19 +201,19 @@ class Admin extends MY_Controller {
 		$cashier_id = $this->input->post('cashier_id');
 		$date_from = $this->input->post('date_from');
 		$date_to = $this->input->post('date_to');
-		
+
 		// DEBUG: Log what we received
 		log_message('debug', 'Cashier Dashboard Data Request:');
 		log_message('debug', 'Cashier ID: ' . $cashier_id);
 		log_message('debug', 'Date From: ' . $date_from);
 		log_message('debug', 'Date To: ' . $date_to);
-		
+
 		$data['cashier_id'] = $cashier_id;
 		$data['date_from'] = $date_from;
 		$data['date_to'] = $date_to;
-		
+
 		$html = $this->load->view('backend/admin/cashier_dashboard_single', $data, true);
-		
+
 		// DEBUG: Add debug info to response
 		$debug_info = [
 			'received_cashier_id' => $cashier_id,
@@ -222,9 +222,9 @@ class Admin extends MY_Controller {
 			'date_from_empty' => empty($date_from),
 			'date_to_empty' => empty($date_to)
 		];
-		
+
 		echo json_encode([
-			'status' => 'success', 
+			'status' => 'success',
 			'html' => $html,
 			'debug' => $debug_info
 		]);
@@ -236,10 +236,10 @@ class Admin extends MY_Controller {
 	public function get_all_cashiers_dashboard() {
 		$date_from = $this->input->post('date_from');
 		$date_to = $this->input->post('date_to');
-		
+
 		$data['date_from'] = $date_from;
 		$data['date_to'] = $date_to;
-		
+
 		$html = $this->load->view('backend/admin/cashier_dashboard_all', $data, true);
 		echo json_encode(['status' => 'success', 'html' => $html]);
 	}
@@ -249,7 +249,7 @@ class Admin extends MY_Controller {
 	{
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		$page_data['page_name']  = 'cashier_daily_summary';
 		$page_data['page_title'] = get_phrase('cashier_daily_summary');
 		$this->load->view('backend/main', $page_data);
@@ -260,7 +260,7 @@ class Admin extends MY_Controller {
 	{
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		$page_data['page_name']  = 'cashier_handover_report';
 		$page_data['page_title'] = get_phrase('cashier_handover_report');
 		$this->load->view('backend/main', $page_data);
@@ -271,11 +271,11 @@ class Admin extends MY_Controller {
 	{
 		$date = $this->input->post('date');
 		$cashier_id = $this->input->post('cashier_id');
-		
+
 		$date_obj = DateTime::createFromFormat('d M, Y', $date);
 		$db_date = $date_obj ? $date_obj->format('Y-m-d') : date('Y-m-d');
 		$timestamp = strtotime($db_date);
-		
+
 		$this->db->select('
 			SUM(feeding_amount) as feeding,
 			SUM(breakfast_amount) as breakfast,
@@ -293,13 +293,13 @@ class Admin extends MY_Controller {
 		$this->db->from('daily_fee_transactions');
 		$this->db->where('payment_date >=', $timestamp);
 		$this->db->where('payment_date <', $timestamp + 86400);
-		
+
 		if(!empty($cashier_id)) {
 			$this->db->where('collected_by', $cashier_id);
 		}
-		
+
 		$result = $this->db->get()->row_array();
-		
+
 		if(empty($result['total'])) {
 			$result = [
 				'feeding' => 0, 'breakfast' => 0, 'classes' => 0, 'water' => 0, 'transport' => 0,
@@ -307,7 +307,7 @@ class Admin extends MY_Controller {
 				'transaction_count' => 0, 'students_count' => 0
 			];
 		}
-		
+
 		echo json_encode(['status' => 'success', 'data' => $result]);
 	}
 
@@ -316,29 +316,29 @@ class Admin extends MY_Controller {
 	{
 		$date = $this->input->get('date');
 		$cashier_id = $this->input->get('cashier_id');
-		
+
 		$date_obj = DateTime::createFromFormat('d M, Y', $date);
 		$db_date = $date_obj ? $date_obj->format('Y-m-d') : date('Y-m-d');
 		$timestamp = strtotime($db_date);
-		
+
 		$this->db->select('t.*, s.name as student_name');
 		$this->db->from('daily_fee_transactions t');
 		$this->db->join('student s', 's.student_id = t.student_id', 'left');
 		$this->db->where('t.payment_date >=', $timestamp);
 		$this->db->where('t.payment_date <', $timestamp + 86400);
-		
+
 		if(!empty($cashier_id)) {
 			$this->db->where('t.collected_by', $cashier_id);
 		}
-		
+
 		$transactions = $this->db->get()->result_array();
-		
+
 		header('Content-Type: text/csv');
 		header('Content-Disposition: attachment; filename="cashier_summary_' . $db_date . '.csv"');
-		
+
 		$output = fopen('php://output', 'w');
 		fputcsv($output, ['Date', 'Student', 'Feeding', 'Breakfast', 'Classes', 'Water', 'Transport', 'Total', 'Payment Method']);
-		
+
 		foreach($transactions as $t) {
 			fputcsv($output, [
 				date('Y-m-d', $t['payment_date']),
@@ -352,7 +352,7 @@ class Admin extends MY_Controller {
 				get_payment_method_name($t['payment_method'])
 			]);
 		}
-		
+
 		fclose($output);
 		exit;
 	}
@@ -368,7 +368,7 @@ class Admin extends MY_Controller {
 			'cash_amount' => $this->input->post('cash_amount'),
 			'created_at' => date('Y-m-d H:i:s')
 		];
-		
+
 		$this->db->query("CREATE TABLE IF NOT EXISTS handover_reports (
 			id INT AUTO_INCREMENT PRIMARY KEY,
 			handover_date VARCHAR(50),
@@ -378,9 +378,9 @@ class Admin extends MY_Controller {
 			cash_amount DECIMAL(10,2),
 			created_at DATETIME
 		)");
-		
+
 		$this->db->insert('handover_reports', $data);
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'message' => get_phrase('handover_report_saved_successfully')
@@ -395,15 +395,15 @@ class Admin extends MY_Controller {
 		$breakfast_enabled = is_fee_module_enabled('breakfast');
 		$classes_enabled = is_fee_module_enabled('classes');
 		$water_enabled = is_fee_module_enabled('water');
-		
+
 		// Calculate grid columns based on enabled modules
 		$enabled_count = count(array_filter([$feeding_enabled, $breakfast_enabled, $classes_enabled, $water_enabled]));
 		$grid_columns = max($enabled_count, 1); // At least 1 column
-		
+
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
 		$classes = $this->db->get('class')->result_array();
-		
+
 		foreach ($classes as $class):
 			$sections = $this->db->get_where('section', ['class_id' => $class['class_id']])->result_array();
 			if (empty($sections)) {
@@ -513,18 +513,18 @@ class Admin extends MY_Controller {
 	{
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
-		
+
 		$rates = $this->db->select('class_id, feeding_rate, breakfast_rate, classes_rate, water_rate')
 			->where('year', $running_year)
 			->where('term', $running_term)
 			->get('daily_fee_rates')
 			->result_array();
-		
+
 		$rates_by_class = [];
 		foreach($rates as $rate) {
 			$rates_by_class[$rate['class_id']] = $rate;
 		}
-		
+
 		echo json_encode($rates_by_class);
 	}
 
@@ -540,31 +540,31 @@ class Admin extends MY_Controller {
 		$date_to = $this->input->post('date_to');
 		$class_id = $this->input->post('class_id');
 		$student_name = $this->input->post('student_name');
-		
+
 		if (!$fee_type || !$category) {
 			echo json_encode(['status' => 'error', 'message' => 'Invalid parameters']);
 			return;
 		}
-		
+
 		$currency = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
-		
+
 		if ($category === 'collected') {
 			$column = $fee_type . '_amount';
-			
+
 			$sql = "SELECT t.*, s.name, s.student_code, e.class_id, c.name as class_name, c.name_numeric
 					FROM daily_fee_transactions t
 					JOIN student s ON t.student_id = s.student_id
 					LEFT JOIN enroll e ON s.student_id = e.student_id AND e.year = (SELECT description FROM settings WHERE type = 'running_year') AND e.term = (SELECT description FROM settings WHERE type = 'running_term') AND e.mute = '0'
 					LEFT JOIN class c ON e.class_id = c.class_id
 					WHERE t.{$column} > 0";
-			
+
 			$params = [];
-			
+
 			if ($cashier_id && $cashier_id !== 'all') {
 				$sql .= " AND t.collected_by = ?";
 				$params[] = $cashier_id;
 			}
-			
+
 			if ($date_from) {
 				$sql .= " AND t.payment_date >= ?";
 				$params[] = strtotime($date_from);
@@ -581,25 +581,25 @@ class Admin extends MY_Controller {
 				$sql .= " AND s.name LIKE ?";
 				$params[] = "%{$student_name}%";
 			}
-			
+
 			$sql .= " ORDER BY t.created_at DESC";
 			$data = $this->db->query($sql, $params)->result_array();
-			
+
 			$html = $this->_render_collected_details($data, $fee_type, $currency, $cashier_id);
 		} else {
 			$column = $fee_type . '_arrears';
-			
+
 			$sql = "SELECT w.*, s.name, s.student_code, e.class_id
 					FROM daily_fee_wallet w
 					JOIN student s ON w.student_id = s.student_id
-					INNER JOIN enroll e ON s.student_id = e.student_id 
-						AND e.year = w.year 
+					INNER JOIN enroll e ON s.student_id = e.student_id
+						AND e.year = w.year
 						AND e.term = w.term
 						AND e.mute = '0'
 					WHERE w.{$column} > 0";
-			
+
 			$params = [];
-			
+
 			if ($class_id) {
 				$sql .= " AND e.class_id = ?";
 				$params[] = $class_id;
@@ -608,22 +608,22 @@ class Admin extends MY_Controller {
 				$sql .= " AND s.name LIKE ?";
 				$params[] = "%{$student_name}%";
 			}
-			
+
 			$sql .= " ORDER BY w.{$column} DESC";
-			
+
 			$data = $this->db->query($sql, $params)->result_array();
-			
+
 			$html = $this->_render_arrears_details($data, $fee_type, $currency);
 		}
-		
+
 		echo json_encode(['status' => 'success', 'html' => $html]);
 	}
-	
+
 	private function _render_collected_details($data, $fee_type, $currency, $cashier_id) {
 		foreach ($data as &$row) {
 			$row['class_display'] = $this->_get_class_display($row['student_id'], $row['class_id']);
 		}
-		
+
 		$fee_names = [
 			'feeding' => 'Feeding',
 			'breakfast' => 'Breakfast',
@@ -631,7 +631,7 @@ class Admin extends MY_Controller {
 			'water' => 'Water',
 			'transport' => 'Transport'
 		];
-		
+
 		$view_data = [
 			'data' => $data,
 			'fee_type' => $fee_type,
@@ -639,15 +639,15 @@ class Admin extends MY_Controller {
 			'currency' => $currency,
 			'cashier_id' => $cashier_id
 		];
-		
+
 		return $this->load->view('backend/admin/fee_details/daily_fees_collected', $view_data, TRUE);
 	}
-	
 
-	
+
+
 	private function _get_class_display($student_id, $class_id) {
 		if (!$class_id) return 'N/A';
-		
+
 		$class_info = $this->db->select('c.name, c.name_numeric, s.name as section_name')
 			->from('class c')
 			->join('enroll e', 'e.class_id = c.class_id')
@@ -655,33 +655,33 @@ class Admin extends MY_Controller {
 			->where('c.class_id', $class_id)
 			->where('e.student_id', $student_id)
 			->get()->row();
-		
+
 		if (!$class_info) return 'N/A';
-		
-		return $class_info->name . 
-			   ($class_info->name_numeric ? ' ' . $class_info->name_numeric : '') . 
+
+		return $class_info->name .
+			   ($class_info->name_numeric ? ' ' . $class_info->name_numeric : '') .
 			   ($class_info->section_name ? ' - ' . $class_info->section_name : '');
 	}
-	
+
 	private function _order_classes($classes) {
 		$order = ['CRECHE' => 1, 'NURSERY' => 2, 'KG' => 3, 'BASIC' => 4, 'JHS' => 5];
-		
+
 		usort($classes, function($a, $b) use ($order) {
 			$order_a = isset($order[$a['name']]) ? $order[$a['name']] : 999;
 			$order_b = isset($order[$b['name']]) ? $order[$b['name']] : 999;
-			
+
 			if ($order_a != $order_b) return (floatval($order_a) - floatval($order_b));
 			return (int)$a['name_numeric'] - (int)$b['name_numeric'];
 		});
-		
+
 		return $classes;
 	}
-	
+
 	private function _render_arrears_details($data, $fee_type, $currency) {
 		foreach ($data as &$row) {
 			$row['class_display'] = $this->_get_class_display($row['student_id'], $row['class_id']);
 		}
-		
+
 		$fee_names = [
 			'feeding' => 'Feeding',
 			'breakfast' => 'Breakfast',
@@ -689,14 +689,14 @@ class Admin extends MY_Controller {
 			'water' => 'Water',
 			'transport' => 'Transport'
 		];
-		
+
 		$view_data = [
 			'data' => $data,
 			'fee_type' => $fee_type,
 			'fee_name' => $fee_names[$fee_type] ?? ucfirst($fee_type),
 			'currency' => $currency
 		];
-		
+
 		return $this->load->view('backend/admin/fee_details/daily_fees_arrears', $view_data, TRUE);
 	}
 
@@ -887,7 +887,7 @@ class Admin extends MY_Controller {
 		$page_data['page_title'] = get_phrase('admit_bulk_student');
 
 		if ($param == '') {
-			
+
 			$page_data['account_type'] = $this->session->userdata('login_type');
 			$this->load->view('backend/main', $page_data);
 			//$this->load->view('backend/main', $page_data);
@@ -1580,7 +1580,7 @@ class Admin extends MY_Controller {
 		// Get student's enrollment - try current year/term first, then any active enrollment
 		$enroll_query = $this->db->get_where('enroll', array(
 			'student_id' => $student_id,'mute' => '0', 'term' => $running_term, 'year' => $running_year))->first_row();
-		
+
 		// If no enrollment found for current year/term, get the most recent enrollment
 		if(!$enroll_query) {
 			$enroll_query = $this->db->where('student_id', $student_id)
@@ -1590,7 +1590,7 @@ class Admin extends MY_Controller {
 				->limit(1)
 				->get('enroll')->first_row();
 		}
-		
+
 		$class_id = $enroll_query->class_id;
 		$section_id = $enroll_query->section_id;
 		// Use the student's actual enrollment year/term, not the system settings
@@ -1630,7 +1630,7 @@ class Admin extends MY_Controller {
 				} else {
 					$page_data['page_name'] = 'student_marksheet_2';
 				}
-				
+
 			}
 		} elseif ($raw_score == 'No') {
 			if($terminal_report_style == 'style_1' || $terminal_report_style == 'style_3') {
@@ -1657,13 +1657,13 @@ class Admin extends MY_Controller {
 
 		$page_data['account_type'] = $this->session->userdata('login_type');
 		$page_data['ajax'] = $ajax;
-		
+
 		// Load models for database-driven items
 		$this->load->model('Conduct_items_model');
 		$this->load->model('Interest_items_model');
 		$this->load->model('Teacher_remarks_templates_model');
 		$this->load->model('Head_teacher_remarks_model');
-		
+
 		// Load active items for dropdown menus
 		$page_data['conduct_items'] = $this->Conduct_items_model->get_active();
 		$page_data['interest_items'] = $this->Interest_items_model->get_active();
@@ -1688,7 +1688,7 @@ class Admin extends MY_Controller {
 
 			$this->load->view('backend/main', $page_data);
 		}
-		
+
 	}
 
 	function student_results_sheet($student_id = '', $exam_id = '', $class_id = '', $term = '', $year = '') {
@@ -1740,7 +1740,7 @@ class Admin extends MY_Controller {
 						} else {
 							$page_data['page_name'] = 'student_marksheet_2';
 						}
-						
+
 					}
 				} elseif ($raw_score == 'No') {
 					if($terminal_report_style == 'style_1' || $terminal_report_style == 'style_3') {
@@ -2015,7 +2015,7 @@ class Admin extends MY_Controller {
 				} else {
 					$this->load->view('backend/admin/student_marksheet_print_view_2', $page_data);
 				}
-				
+
 			}
 		} else {
 			$this->session->set_flashdata('error_message', get_phrase('data_not_found!'));
@@ -2057,7 +2057,7 @@ class Admin extends MY_Controller {
 					$this->load->view('backend/admin/student_raw_score_marksheet_bulk_print_view', $page_data);
 				} else {
 					//load the chosen exam report style
-				
+
 					if($terminal_report_style == 'style_1') {
 						$this->load->view('backend/admin/student_marksheet_bulk_print_view', $page_data);
 					} elseif($terminal_report_style == 'style_2') {
@@ -2072,7 +2072,7 @@ class Admin extends MY_Controller {
 			} elseif ($raw_score == 'No') {
 
 				//load the chosen exam report style
-				
+
 				if($terminal_report_style == 'style_1') {
 					$this->load->view('backend/admin/student_marksheet_bulk_print_view', $page_data);
 				} elseif($terminal_report_style == 'style_2') {
@@ -2082,7 +2082,7 @@ class Admin extends MY_Controller {
 				} else {
 					$this->load->view('backend/admin/student_marksheet_bulk_print_view_2', $page_data);
 				}
-				
+
 			}
 		} else {
 			$this->session->set_flashdata('error_message', get_phrase('data_not_found!'));
@@ -2132,7 +2132,7 @@ class Admin extends MY_Controller {
 					$this->load->view('backend/admin/student_raw_score_results_sheet_print_view', $page_data);
 				} else {
 					//load the chosen exam report style
-				
+
 					if($terminal_report_style == 'style_1') {
 						$this->load->view('backend/admin/student_results_sheet_print_view', $page_data);
 					} else {
@@ -2141,7 +2141,7 @@ class Admin extends MY_Controller {
 				}
 			} elseif ($raw_score == 'No') {
 				//load the chosen exam report style
-				
+
 				if($terminal_report_style == 'style_1') {
 					$this->load->view('backend/admin/student_results_sheet_print_view', $page_data);
 				} else {
@@ -2186,7 +2186,7 @@ class Admin extends MY_Controller {
 			$page_data['page_name'] = 'student_marksheet_creche_2';
 		}
 
-		
+
 
 		//add section A or B if the class has more than one section
 		$section_name = $this->db->get_where('section', array('section_id' => $section_id, 'class_id' => $class_id))->row()->name;
@@ -2203,10 +2203,10 @@ class Admin extends MY_Controller {
 		$page_data['exam_id'] = $exam_id;
 		$page_data['other_students'] = $other_students;
 		$page_data['account_type'] = $this->session->userdata('login_type');
-		
+
 		// Load active conduct and interest items for teacher interface
 		$page_data['conduct_items'] = $this->Conduct_items_model->get_active();
-		
+
 		$this->load->view('backend/main', $page_data);
 	}
 
@@ -2252,7 +2252,7 @@ class Admin extends MY_Controller {
 			$page_data['page_name'] = 'student_results_sheet_creche_2';
 		}
 
-		
+
 
 		//add section A or B if the class has more than one section
 		$section_name = $this->db->get_where('section', array('section_id' => $section_id, 'class_id' => $data['class_id']))->row()->name;
@@ -2336,12 +2336,12 @@ class Admin extends MY_Controller {
 			// Dynamic template selection for creche exam reports
 			$template_setting = $this->db->get_where('settings', array('type' => 'creche_exam_template'))->row();
 			$template = 'template1'; // Default fallback
-			
+
 			// Validate template setting value
 			if ($template_setting && in_array($template_setting->description, array('template1', 'template2'))) {
 				$template = $template_setting->description;
 			}
-			
+
 			// Load appropriate view based on template selection
 			if ($template === 'template2') {
 				$this->load->view('backend/admin/student_marksheet_bulk_print_view_creche_template2', $page_data);
@@ -2481,7 +2481,7 @@ class Admin extends MY_Controller {
 			$data['home_technology_access'] = $this->input->post('home_technology_access');
 
 			$bill_data['class_id'] = $this->input->post('class_id');
-			
+
 
 			//parent data
 			$parent_data = array();
@@ -2620,18 +2620,18 @@ class Admin extends MY_Controller {
 						$bill_data['invoice_code'] = $bill_data['invoice_code'];
 					}
 				}
-								
 
-				
+
+
 				$bill_data['year'] = $running_year;
 				$bill_data['term'] = $running_term;
 
 				/*get the bill items*/
 				$bills_array = $this->financial_report_model->getBillsForNewAdmission($bill_data['class_id'], $running_year, $running_term, $data2['residence_type']);
-				
+
 				// Get edited bill amounts from form
 				$bill_amounts = $this->input->post('bill_amounts');
-				
+
 
 
 			$this->load->helper('email');
@@ -2688,7 +2688,7 @@ class Admin extends MY_Controller {
 
 					$class_name = $this->db->get_where('class', array('class_id' => $data2['class_id']))->row()->name;
 
-					
+
 
 					if ($class_name == 'JHSS') {
 						$data2['date_added'] = strtotime(date("Y-m-d H:i:s"));
@@ -2714,28 +2714,28 @@ class Admin extends MY_Controller {
 					$this->barcode_model->save_barcode($data['student_code']);
 
 					$bill_data['student_id'] = $student_id;
-					
+
 					// Use ONLY the bill items that are displayed on the form (not removed)
 					// Using parallel arrays: bill_amounts[] and bill_titles[]
 					$bill_amounts = $this->input->post('bill_amounts');
 					$bill_titles = $this->input->post('bill_titles');
-					
+
 					if(!empty($bill_amounts) && is_array($bill_amounts) && !empty($bill_titles) && is_array($bill_titles)) {
 						// Iterate through parallel arrays
 						$count = min(count($bill_amounts), count($bill_titles));
-						
+
 						for($i = 0; $i < $count; $i++) {
 							$item_title = $bill_titles[$i];
 							$item_amount = $bill_amounts[$i];
-							
+
 							// Skip if amount is empty or zero
 							if(empty($item_amount) || floatval($item_amount) <= 0) {
 								continue;
 							}
-							
+
 							// Round to 2 decimal places and format as decimal string
 							$rounded_amount = number_format(floatval($item_amount), 2, '.', '');
-							
+
 							$bill_data['title'] = strtoupper($item_title);
 							$bill_data['description'] = ''; // Description not critical
 							$bill_data['amount'] = $rounded_amount;
@@ -2751,11 +2751,11 @@ class Admin extends MY_Controller {
 					//$bill_data = []; /*we empty it before loading another data inside*/
 					/*add the admission fee item and amount here*/
 					$admission_fee_amount = $this->input->post('my_admission_fee');
-					
+
 					if(!empty($admission_fee_amount) && floatval($admission_fee_amount) > 0) {
 						// Round to 2 decimal places and format as decimal string
 						$rounded_admission_fee = number_format(floatval($admission_fee_amount), 2, '.', '');
-						
+
 						$bill_data['title'] = 'ADMISSION FEE';
 						$bill_data['description'] = 'Admission Fee (' . $data2['residence_type'] . ')';
 						$bill_data['amount'] = $rounded_admission_fee;
@@ -2766,205 +2766,18 @@ class Admin extends MY_Controller {
 
 						$batchDataInsert[] = $bill_data;
 					}
-					
+
 					$this->db->insert_batch('invoice', $batchDataInsert);
 
-					// Apply discount profiles - auto-approve for all admins during admission
-					$discount_status = 'approved';
-					$approved_by = $this->session->userdata('login_user_id');
-					$approved_at = date('Y-m-d H:i:s');
-					
-					$invoice_profile_id = $this->input->post('invoice_discount_profile');
-					$daily_fees_profile_id = $this->input->post('daily_fees_discount_profile');
-					
-					// Invoice discount profile
-					if(!empty($invoice_profile_id)) {
-						$profile = $this->db->where('profile_id', $invoice_profile_id)
-							->where('is_active', 1)
-							->where('discount_category', 'invoice')
-							->get('discount_profiles')->row();
-						
-						if($profile) {
-							$this->db->insert('student_discount_assignments', array(
-								'student_id' => $student_id,
-								'profile_id' => $invoice_profile_id,
-								'discount_category' => $profile->discount_category,
-								'discount_method' => $profile->discount_method,
-								'discount_value' => $profile->discount_value,
-								'discount_type' => $profile->discount_type,
-								'bill_item_ids' => $profile->bill_item_ids,
-								'year' => $running_year,
-								'term' => $running_term,
-								'assigned_by' => $this->session->userdata('login_user_id'),
-								'created_by' => $this->session->userdata('login_user_id'),
-								'is_active' => 1,
-								'status' => $discount_status,
-								'approved_by' => $approved_by,
-								'approved_at' => $approved_at,
-								'notes' => 'Invoice discount assigned during admission'
-							));
-							
-							// Get applicable bill items from profile
-							$applicable_total = 0;
-							$applicable_items = array();
-							
-							if($profile->bill_item_ids === '*') {
-								// Wildcard: apply to ALL bill items
-								foreach($batchDataInsert as $idx => $item) {
-									$applicable_total += $item['amount'];
-									$applicable_items[] = $idx;
-								}
-							} else {
-								// For specific items during admission, we skip detailed matching
-								// since we don't have bill_item_id in the new parallel arrays approach
-								// The discount will still be assigned to the student for future invoices
-								// For now, just apply wildcard logic if profile has specific items
-								foreach($batchDataInsert as $idx => $item) {
-									$applicable_total += $item['amount'];
-									$applicable_items[] = $idx;
-								}
-							}
-							
-							$discount_amount = $profile->discount_method == 'percentage' 
-								? ($applicable_total * $profile->discount_value) / 100 
-								: min($profile->discount_value, $applicable_total);
-							
-							$this->db->insert('invoice_discounts', array(
-								'invoice_code' => $bill_data['invoice_code'],
-								'student_id' => $student_id,
-								'profile_id' => $invoice_profile_id,
-								'discount_category' => 'invoice',
-								'discount_method' => $profile->discount_method,
-								'discount_value' => $profile->discount_value,
-								'discount_amount' => $discount_amount,
-								'reason' => 'Profile: ' . $profile->profile_name,
-								'status' => $discount_status,
-								'applied_by' => $this->session->userdata('login_user_id'),
-								'approved_by' => $approved_by,
-								'approved_at' => $approved_at,
-								'year' => $running_year,
-								'term' => $running_term
-							));
-							
-							$discount_id = $this->db->insert_id();
-							
-							if(count($applicable_items) > 0) {
-								
-								foreach($applicable_items as $idx) {
-									$item = $batchDataInsert[$idx];
-									
-									// Ensure item amount is properly formatted as decimal string
-									$item_amount = number_format(floatval($item['amount']), 2, '.', '');
-									
-									if($profile->discount_method == 'percentage') {
-										$item_discount = number_format(($item_amount * $profile->discount_value / 100), 2, '.', '');
-									} else {
-										$item_discount = number_format((($item_amount / $applicable_total) * $discount_amount), 2, '.', '');
-									}
-									
-									$invoice_record = $this->db->where('invoice_code', $item['invoice_code'])
-										->where('student_id', $student_id)
-										->where('title', $item['title'])
-										->where('year', $running_year)
-										->where('term', $running_term)
-										->get('invoice')->row();
-									
-									if($invoice_record) {
-										$discounted_amount = number_format(($item_amount - $item_discount), 2, '.', '');
-										
-										$this->db->insert('invoice_discount_items', [
-											'discount_id' => $discount_id,
-											'invoice_id' => $invoice_record->invoice_id,
-											'invoice_code' => $item['invoice_code'],
-											'student_id' => $student_id,
-											'item_title' => $item['title'],
-											'original_amount' => $item_amount,
-											'discount_amount' => $item_discount,
-											'discounted_amount' => $discounted_amount
-										]);
-										
-										$this->db->where('invoice_code', $item['invoice_code'])
-											->where('student_id', $student_id)
-											->where('title', $item['title'])
-											->where('year', $running_year)
-											->where('term', $running_term)
-											->update('invoice', array(
-												'amount' => $discounted_amount,
-												'due' => $discounted_amount
-											));
-									}
-								}
-							}
-						}
-					} else {
-						// No invoice discount profile selected
-					}
-					
-					// Daily fees discount profile
-					if(!empty($daily_fees_profile_id)) {
-						$profile = $this->db->where('profile_id', $daily_fees_profile_id)
-							->where('is_active', 1)
-							->where('discount_category', 'daily_fees')
-							->get('discount_profiles')->row();
-						
-						if($profile) {
-							$this->db->insert('student_discount_assignments', array(
-								'student_id' => $student_id,
-								'profile_id' => $daily_fees_profile_id,
-								'discount_category' => $profile->discount_category,
-								'discount_method' => $profile->discount_method,
-								'discount_value' => $profile->discount_value,
-								'discount_type' => $profile->discount_type,
-								'bill_item_ids' => $profile->bill_item_ids,
-								'year' => $running_year,
-								'term' => $running_term,
-								'assigned_by' => $this->session->userdata('login_user_id'),
-								'created_by' => $this->session->userdata('login_user_id'),
-								'is_active' => 1,
-								'status' => $discount_status,
-								'approved_by' => $approved_by,
-								'approved_at' => $approved_at,
-								'notes' => 'Daily fees discount assigned during admission'
-							));
-						}
-					}
-					
-					// Notify super admins if not super admin
-					if(!$is_super_admin && (!empty($invoice_profile_id) || !empty($daily_fees_profile_id))) {
-						$requester = $this->db->where('admin_id', $this->session->userdata('login_user_id'))->get('admin')->row();
-						$school_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
-						$super_admins = $this->db->where('level', 1)->get('admin')->result();
-						
-						foreach($super_admins as $admin) {
-							$this->db->insert('notifications', [
-								'user_id' => $admin->admin_id,
-								'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
-								'title' => 'Discount Approval Required',
-								'message' => $requester->name . ' assigned discount profile to ' . $data['name'] . ' during admission',
-								'type' => 'discount_approval',
-								'created_at' => date('Y-m-d H:i:s')
-							]);
-							
-							$active_sms = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row();
-							if($active_sms && $active_sms->description != 'disabled' && !empty($admin->phone)) {
-								$sms_message = "[$school_name] Discount approval needed: {$requester->name} assigned discount to {$data['name']}. Review at: " . site_url('admin/discount_approvals');
-								$this->sms_model->send_sms($sms_message, [$admin->phone]);
-							}
-							
-							if(!empty($admin->email)) {
-								$subject = 'Discount Approval Required';
-								$message = "<div style='font-family: Arial, sans-serif;'><h3>Discount Approval Required</h3><p>Dear {$admin->name},</p><p>{$requester->name} has assigned a discount profile to student {$data['name']} during admission.</p><p><a href='" . site_url('admin/discount_approvals') . "' style='background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Review & Approve</a></p></div>";
-								$this->email_model->do_email($message, $subject, $admin->email, $school_name);
-							}
-						}
-					}
+					// Apply selected discount profiles through the shared approval-safe path.
+					$this->apply_admission_discount_profiles($student_id, $bill_data['invoice_code'], $this->input->post('invoice_discount_profile'), $this->input->post('daily_fees_discount_profile'), $running_year, $running_term, $is_super_admin, $data['name']);
 
 					// Log admission and notify admins
 					$class_name_full = $this->db->get_where('class', array('class_id' => $data2['class_id']))->row()->name;
 					$admitted_by_name = $this->session->userdata('name');
 					log_admission($student_id, $this->session->userdata('login_user_id'), $data2['class_id'], $data2['section_id'], $data2['residence_type'], $batchDataInsert, array_sum(array_column($batchDataInsert, 'amount')), strtotime($this->input->post('admission_date')));
 					notify_admins_new_admission($data['name'], $class_name_full, $admitted_by_name, $student_id);
-					
+
 					// Financial Hook: Sync invoice to ledger
 					sync_invoice_to_ledger($bill_data['invoice_code'], $student_id);
 
@@ -3005,7 +2818,7 @@ class Admin extends MY_Controller {
 
 						$errors['no_class_selected'] = 'No class was selected!';
 					}
-					
+
 					if ($this->input->post('section_id') != '' || !empty($this->input->post('section_id'))) {
 						$data2['section_id'] = $this->input->post('section_id');
 					} else {
@@ -3049,28 +2862,28 @@ class Admin extends MY_Controller {
 					$this->barcode_model->save_barcode($data['student_code']);
 
 					$bill_data['student_id'] = $student_id;
-					
+
 					// Use ONLY the bill items that are displayed on the form (not removed)
 					// Using parallel arrays: bill_amounts[] and bill_titles[]
 					$bill_amounts = $this->input->post('bill_amounts');
 					$bill_titles = $this->input->post('bill_titles');
-					
+
 					if(!empty($bill_amounts) && is_array($bill_amounts) && !empty($bill_titles) && is_array($bill_titles)) {
 						// Iterate through parallel arrays
 						$count = min(count($bill_amounts), count($bill_titles));
-						
+
 						for($i = 0; $i < $count; $i++) {
 							$item_title = $bill_titles[$i];
 							$item_amount = $bill_amounts[$i];
-							
+
 							// Skip if amount is empty or zero
 							if(empty($item_amount) || floatval($item_amount) <= 0) {
 								continue;
 							}
-							
+
 							// Round to 2 decimal places and format as decimal string
 							$rounded_amount = number_format(floatval($item_amount), 2, '.', '');
-							
+
 							$bill_data['title'] = strtoupper($item_title);
 							$bill_data['description'] = ''; // Description not critical
 							$bill_data['amount'] = $rounded_amount;
@@ -3089,7 +2902,7 @@ class Admin extends MY_Controller {
 					if(!empty($admission_fee_amount) && floatval($admission_fee_amount) > 0) {
 						// Round to 2 decimal places
 						$rounded_admission_fee = round(floatval($admission_fee_amount), 2);
-						
+
 						$bill_data['title'] = 'ADMISSION FEE';
 						$bill_data['description'] = 'Admission Fee (' . $data2['residence_type'] . ')';
 						$bill_data['amount'] = $rounded_admission_fee;
@@ -3100,187 +2913,18 @@ class Admin extends MY_Controller {
 
 						$batchDataInsert[] = $bill_data;
 					}
-					
+
 					$this->db->insert_batch('invoice', $batchDataInsert);/*Bulk insert FOR INVOICE*/
 
-					$discount_status = 'approved';
-					$approved_by = $this->session->userdata('login_user_id');
-					$approved_at = date('Y-m-d H:i:s');
-					$invoice_profile_id = $this->input->post('invoice_discount_profile');
-					$daily_fees_profile_id = $this->input->post('daily_fees_discount_profile');
-					
-					if(!empty($invoice_profile_id)) {
-						$profile = $this->db->where('profile_id', $invoice_profile_id)
-											->where('is_active', 1)
-											->where('discount_category', 'invoice')
-											->get('discount_profiles')->row();
-						if($profile) {
-							$this->db->insert('student_discount_assignments', array(
-								'student_id' => $student_id,
-								'profile_id' => $invoice_profile_id,
-								'discount_category' => $profile->discount_category,
-								'discount_method' => $profile->discount_method,
-								'discount_value' => $profile->discount_value,
-								'discount_type' => $profile->discount_type,
-								'bill_item_ids' => $profile->bill_item_ids,
-								'year' => $running_year,
-								'term' => $running_term,
-								'assigned_by' => $this->session->userdata('login_user_id'),
-								'created_by' => $this->session->userdata('login_user_id'),
-								'is_active' => 1,
-								'status' => $discount_status,
-								'approved_by' => $approved_by,
-								'approved_at' => $approved_at,
-								'notes' => 'Invoice discount assigned during admission'
-							));
-							
-							// Get applicable bill items from profile
-							$applicable_total = 0;
-							$applicable_items = array();
-							
-							if($profile->bill_item_ids === '*') {
-								// Wildcard: apply to ALL bill items
-								foreach($batchDataInsert as $idx => $item) {
-									$applicable_total += $item['amount'];
-									$applicable_items[] = $idx;
-								}
-							} else {
-								// For specific items during admission, we skip detailed matching
-								// since we don't have bill_item_id in the new parallel arrays approach
-								// The discount will still be assigned to the student for future invoices
-								// For now, just apply wildcard logic if profile has specific items
-								foreach($batchDataInsert as $idx => $item) {
-									$applicable_total += $item['amount'];
-									$applicable_items[] = $idx;
-								}
-							}
-							
-							$discount_amount = $profile->discount_method == 'percentage' 
-								? ($applicable_total * $profile->discount_value) / 100 
-								: min($profile->discount_value, $applicable_total);
-							
-							$this->db->insert('invoice_discounts', array(
-								'invoice_code' => $bill_data['invoice_code'],
-								'student_id' => $student_id,
-								'profile_id' => $invoice_profile_id,
-								'discount_category' => 'invoice',
-								'discount_method' => $profile->discount_method,
-								'discount_value' => $profile->discount_value,
-								'discount_amount' => $discount_amount,
-								'reason' => 'Profile: ' . $profile->profile_name,
-								'status' => $discount_status,
-								'applied_by' => $this->session->userdata('login_user_id'),
-								'approved_by' => $approved_by,
-								'approved_at' => $approved_at,
-								'year' => $running_year,
-								'term' => $running_term
-							));
-							
-							$discount_id = $this->db->insert_id();
-							
-							if(count($applicable_items) > 0) {
-								foreach($applicable_items as $idx) {
-									$item = $batchDataInsert[$idx];
-									$item_discount = ($profile->discount_method == 'percentage')
-										? ($item['amount'] * $profile->discount_value / 100)
-										: (($item['amount'] / $applicable_total) * $discount_amount);
-									
-									$invoice_record = $this->db->where('invoice_code', $item['invoice_code'])
-											->where('student_id', $student_id)
-											->where('title', $item['title'])
-											->where('year', $running_year)
-											->where('term', $running_term)
-											->get('invoice')->row();
-									
-									if($invoice_record) {
-										$this->db->insert('invoice_discount_items', [
-											'discount_id' => $discount_id,
-											'invoice_id' => $invoice_record->invoice_id,
-											'invoice_code' => $item['invoice_code'],
-											'student_id' => $student_id,
-											'item_title' => $item['title'],
-											'original_amount' => $item['amount'],
-											'discount_amount' => $item_discount,
-											'discounted_amount' => $item['amount'] - $item_discount
-										]);
-										
-										$this->db->where('invoice_code', $item['invoice_code'])
-												->where('student_id', $student_id)
-												->where('title', $item['title'])
-												->where('year', $running_year)
-												->where('term', $running_term)
-												->update('invoice', array(
-													'amount' => $item['amount'] - $item_discount,
-													'due' => $item['due'] - $item_discount
-												));
-									}
-								}
-							}
-						}
-					}
-					if(!empty($daily_fees_profile_id)) {
-						$profile = $this->db->where('profile_id', $daily_fees_profile_id)
-											->where('is_active', 1)
-											->where('discount_category', 'daily_fees')
-											->get('discount_profiles')->row();
-						if($profile) {
-							$this->db->insert('student_discount_assignments', array(
-								'student_id' => $student_id,
-								'profile_id' => $daily_fees_profile_id,
-								'discount_category' => $profile->discount_category,
-								'discount_method' => $profile->discount_method,
-								'discount_value' => $profile->discount_value,
-								'discount_type' => $profile->discount_type,
-								'bill_item_ids' => $profile->bill_item_ids,
-								'year' => $running_year,
-								'term' => $running_term,
-								'assigned_by' => $this->session->userdata('login_user_id'),
-								'created_by' => $this->session->userdata('login_user_id'),
-								'is_active' => 1,
-								'status' => $discount_status,
-								'approved_by' => $approved_by,
-								'approved_at' => $approved_at,
-								'notes' => 'Daily fees discount assigned during admission'
-							));
-						}
-					}
-					
-					// Notify super admins if not super admin
-					if(!$is_super_admin && (!empty($invoice_profile_id) || !empty($daily_fees_profile_id))) {
-						$requester = $this->db->where('admin_id', $this->session->userdata('login_user_id'))->get('admin')->row();
-						$school_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
-						$super_admins = $this->db->where('level', 1)->get('admin')->result();
-						
-						foreach($super_admins as $admin) {
-							$this->db->insert('notifications', [
-								'user_id' => $admin->admin_id,
-								'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
-								'title' => 'Discount Approval Required',
-								'message' => $requester->name . ' assigned discount profile to ' . $data['name'] . ' during admission',
-								'type' => 'discount_approval',
-								'created_at' => date('Y-m-d H:i:s')
-							]);
-							
-							$active_sms = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row();
-							if($active_sms && $active_sms->description != 'disabled' && !empty($admin->phone)) {
-								$sms_message = "[$school_name] Discount approval needed: {$requester->name} assigned discount to {$data['name']}. Review at: " . site_url('admin/discount_approvals');
-								$this->sms_model->send_sms($sms_message, [$admin->phone]);
-							}
-							
-							if(!empty($admin->email)) {
-								$subject = 'Discount Approval Required';
-								$message = "<div style='font-family: Arial, sans-serif;'><h3>Discount Approval Required</h3><p>Dear {$admin->name},</p><p>{$requester->name} has assigned a discount profile to student {$data['name']} during admission.</p><p><a href='" . site_url('admin/discount_approvals') . "' style='background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Review & Approve</a></p></div>";
-								$this->email_model->do_email($message, $subject, $admin->email, $school_name);
-							}
-						}
-					}
+					// Apply selected discount profiles through the shared approval-safe path.
+					$this->apply_admission_discount_profiles($student_id, $bill_data['invoice_code'], $this->input->post('invoice_discount_profile'), $this->input->post('daily_fees_discount_profile'), $running_year, $running_term, $is_super_admin, $data['name']);
 
 					// Log admission and notify admins
 					$class_name_full = $this->db->get_where('class', array('class_id' => $data2['class_id']))->row()->name;
 					$admitted_by_name = $this->session->userdata('name');
 					log_admission($student_id, $this->session->userdata('login_user_id'), $data2['class_id'], $data2['section_id'], $data2['residence_type'], $batchDataInsert, array_sum(array_column($batchDataInsert, 'amount')), strtotime($this->input->post('admission_date')));
 					notify_admins_new_admission($data['name'], $class_name_full, $admitted_by_name, $student_id);
-					
+
 					// Financial Hook: Sync invoice to ledger
 					sync_invoice_to_ledger($bill_data['invoice_code'], $student_id);
 
@@ -3290,13 +2934,13 @@ class Admin extends MY_Controller {
 
 						$this->sms_model->send_sms($account_opening_sms, $dataNumbers);
 					}*/ //SEND SMS ENDED
-					$ajax_data['done'] = 'success';					
+					$ajax_data['done'] = 'success';
 					echo json_encode($ajax_data);
 				} //============END==================
 			}
 
 			//redirect(site_url('admin/student_add'));
-		}  
+		}
 
 		if ($param1 == 'block') {
 			$this->db->where('student_id', $param2);
@@ -3431,7 +3075,7 @@ class Admin extends MY_Controller {
 			} else {
 
 				$student_enrollment = $this->db->get_where('enroll', array('student_id' => $param2, 'term' => $running_term, 'year' => $running_year))->row();
-				
+
 				if (!$student_enrollment) {
 					//not enrolled for this session
 					//enroll the child for this term of the year with the SELECTED class
@@ -3476,29 +3120,29 @@ class Admin extends MY_Controller {
 		} else if ($param1 == 'write_off_debt') {
 			// Write off all unpaid invoices for a student in a specific year/term
 			// This is an enterprise-grade debt management feature with full audit trail
-			
+
 			$student_id = $param2;
 			$year = $this->input->post('year');
 			$term = $this->input->post('term');
-			
+
 			// Validate inputs
 			if (empty($student_id) || empty($year) || empty($term)) {
 				echo json_encode([
-					'status' => 'error', 
+					'status' => 'error',
 					'message' => 'Invalid parameters. Student ID, year, and term are required.'
 				]);
 				return false;
 			}
-			
+
 			// Get admin details for audit trail
 			$admin_id = $this->session->userdata('admin_id');
 			$admin_name = $this->db->get_where('admin', array('admin_id' => $admin_id))->row()->name;
 			$write_off_date = date('Y-m-d H:i:s');
 			$write_off_timestamp = strtotime($write_off_date);
-			
+
 			// Get student name for logging
 			$student_name = $this->db->get_where('student', array('student_id' => $student_id))->row()->name;
-			
+
 			// Get all unpaid invoices for this student in the specified year/term
 			$this->db->select('invoice_id, invoice_code, amount, amount_paid, due, title');
 			$this->db->where('student_id', $student_id);
@@ -3506,27 +3150,27 @@ class Admin extends MY_Controller {
 			$this->db->where('term', $term);
 			$this->db->where('status', 'unpaid');
 			$unpaid_invoices = $this->db->get('invoice')->result();
-			
+
 			if (empty($unpaid_invoices)) {
 				echo json_encode([
-					'status' => 'error', 
+					'status' => 'error',
 					'message' => 'No unpaid invoices found for this student in the specified term.'
 				]);
 				return false;
 			}
-			
+
 			// Calculate total amount being written off
 			$total_written_off = 0;
 			$invoices_written_off = 0;
-			
+
 			// Start transaction for data integrity
 			$this->db->trans_start();
-			
+
 			// Process each unpaid invoice
 			foreach ($unpaid_invoices as $invoice) {
 				$invoice_id = $invoice->invoice_id;
 				$due_amount = $invoice->due;
-				
+
 				// Update invoice to mark as paid (write-off)
 				$update_data = array(
 					'status' => 'paid',
@@ -3536,14 +3180,14 @@ class Admin extends MY_Controller {
 					'payment_method' => 'Write-Off',
 					'payment_details' => "WRITE-OFF: Debt written off on {$write_off_date} by {$admin_name}. Original due: " . number_format($due_amount, 2)
 				);
-				
+
 				$this->db->where('invoice_id', $invoice_id);
 				$this->db->update('invoice', $update_data);
-				
+
 				$total_written_off += $due_amount;
 				$invoices_written_off++;
 			}
-			
+
 			// Log the write-off action in a system log table (if exists) or create audit entry
 			// Check if we have an audit log table
 			if ($this->db->table_exists('audit_log')) {
@@ -3571,26 +3215,26 @@ class Admin extends MY_Controller {
 				);
 				$this->db->insert('audit_log', $audit_data);
 			}
-			
+
 			// Complete transaction
 			$this->db->trans_complete();
-			
+
 			// Check transaction status
 			if ($this->db->trans_status() === FALSE) {
 				echo json_encode([
-					'status' => 'error', 
+					'status' => 'error',
 					'message' => 'Database error occurred while writing off debt. Please try again.'
 				]);
 				return false;
 			}
-			
+
 			// Success response
 			$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
 			$fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
 			$formatted_amount = numfmt_format_currency($fmt, $total_written_off, $currency);
-			
+
 			echo json_encode([
-				'status' => 'success', 
+				'status' => 'success',
 				'message' => "Successfully wrote off {$formatted_amount} across {$invoices_written_off} invoice(s) for {$student_name}.",
 				'data' => array(
 					'total_written_off' => $total_written_off,
@@ -3637,7 +3281,7 @@ class Admin extends MY_Controller {
 			$data['learning_support'] = trim($this->input->post('learning_support'));
 			$data['digital_literacy'] = $this->input->post('digital_literacy');
 			$data['home_technology_access'] = $this->input->post('home_technology_access');
-			
+
 			//parent data
 			$parent_data = array();
 			if($this->input->post('father_name')) $parent_data['father_name'] = trim(strtoupper(strtolower($this->input->post('father_name'))));
@@ -3732,7 +3376,7 @@ class Admin extends MY_Controller {
 
 					$this->db->where('student_id', $param2);
 					$this->db->update('student', $data);
-					
+
 					//parent data update
 					$this->db->where('parent_id', $data['parent_id']);
 					$this->db->update('parent', $parent_data);
@@ -3801,7 +3445,7 @@ class Admin extends MY_Controller {
 				} else {
 					$this->db->where('student_id', $param2);
 					$this->db->update('student', $data);
-					
+
 					//parent data update
 					$this->db->where('parent_id', $data['parent_id']);
 					$this->db->update('parent', $parent_data);
@@ -3835,7 +3479,7 @@ class Admin extends MY_Controller {
 			$student_ids = $this->input->post('st_name');
 			$category_ids = $this->input->post('category_id');
 			$class_id = $this->input->post('class_id');
-			
+
 			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
 
@@ -3849,9 +3493,9 @@ class Admin extends MY_Controller {
 					foreach($category_ids as $cat_id) {
 						$category = $this->db->get_where('benefit_category', array('category_id' => $cat_id))->row();
 						$details = json_decode($category->details, true);
-						
+
 						$cat_data = array('category_id' => $cat_id);
-						
+
 						// Extract charges for this specific class from JSON structure
 						if($details && isset($details['classes'])) {
 							// Try specific class first, then fall back to All Classes (0)
@@ -3861,22 +3505,22 @@ class Admin extends MY_Controller {
 							} elseif(isset($details['classes']['a'])) {
 								$class_charges = $details['classes']['a'];
 							}
-							
+
 							if($class_charges) {
 								if(isset($class_charges['feeding_charged'])) {
 									$cat_data['feeding_amount'] = $class_charges['feeding_charged'];
 								}
-								
+
 								if(isset($class_charges['classes_charged'])) {
 									$cat_data['classes_amount'] = $class_charges['classes_charged'];
 								}
-								
+
 								if(isset($class_charges['tuition_charged'])) {
 									$cat_data['tuition_amount'] = $class_charges['tuition_charged'];
 								}
 							}
 						}
-						
+
 						$categories_data[] = $cat_data;
 					}
 
@@ -3950,7 +3594,7 @@ class Admin extends MY_Controller {
 			}
 
 			$ajaxData['route'] = 'beneficiary';
-			
+
 			echo json_encode($ajaxData);
 			return;
 		}
@@ -3984,21 +3628,21 @@ class Admin extends MY_Controller {
 					$sections = $this->db->get_where('section', array('class_id' => $target_class_id))->row_array();
 					$promotion_year = $this->input->post('promotion_year');
 					$next_sem = $this->input->post('next_sem');
-					
+
 					// Check if student is already enrolled in the promotion year AND semester
 					$existing_enrollment = $this->db->get_where('enroll', array(
 						'student_id' => $row['student_id'],
 						'year' => $promotion_year,
 						'sem' => $next_sem
 					));
-					
+
 					if($existing_enrollment->num_rows() > 0) {
 						// UPDATE existing enrollment (only if promotion year matches running year + 1)
 						// This prevents editing old promotions after session changes
 						$running_year_parts = explode('-', $running_year);
 						$promotion_year_parts = explode('-', $promotion_year);
 						$can_edit = ($promotion_year_parts[0] == $running_year_parts[1]); // Next year
-						
+
 						if($can_edit) {
 							$update_data = array(
 								'class_id' => $target_class_id,
@@ -4009,7 +3653,7 @@ class Admin extends MY_Controller {
 								'dormitory_id' => $row['dormitory_id'],
 								'bed_id' => $row['bed_id']
 							);
-							
+
 							$this->db->where('student_id', $row['student_id']);
 							$this->db->where('year', $promotion_year);
 							$this->db->where('sem', $next_sem);
@@ -4045,21 +3689,21 @@ class Admin extends MY_Controller {
 					$sections = $this->db->get_where('section', array('class_id' => $target_class_id))->row_array();
 					$promotion_year = $this->input->post('promotion_year');
 					$next_term = $this->input->post('next_term');
-					
+
 					// Check if student is already enrolled in the promotion year AND term
 					$existing_enrollment = $this->db->get_where('enroll', array(
 						'student_id' => $row['student_id'],
 						'year' => $promotion_year,
 						'term' => $next_term
 					));
-					
+
 					if($existing_enrollment->num_rows() > 0) {
 						// UPDATE existing enrollment (only if promotion year matches running year + 1)
 						// This prevents editing old promotions after session changes
 						$running_year_parts = explode('-', $running_year);
 						$promotion_year_parts = explode('-', $promotion_year);
 						$can_edit = ($promotion_year_parts[0] == $running_year_parts[1]); // Next year
-						
+
 						if($can_edit) {
 							$update_data = array(
 								'class_id' => $target_class_id,
@@ -4070,7 +3714,7 @@ class Admin extends MY_Controller {
 								'dormitory_id' => $row['dormitory_id'],
 								'bed_id' => $row['bed_id']
 							);
-							
+
 							$this->db->where('student_id', $row['student_id']);
 							$this->db->where('year', $promotion_year);
 							$this->db->where('term', $next_term);
@@ -4085,7 +3729,7 @@ class Admin extends MY_Controller {
 						$enroll_data['year'] = $promotion_year;
 						$enroll_data['term'] = $next_term;
 						$enroll_data['date_added'] = strtotime(date("Y-m-d H:i:s"));
-						
+
 						$enroll_data['transport_id'] = $row['transport_id'];
 						$enroll_data['residence_type'] = $row['residence_type'];
 						$enroll_data['house_id'] = $row['house_id'];
@@ -4674,13 +4318,13 @@ class Admin extends MY_Controller {
 	function get_parent_dropdown() {
 		$parents = $this->db->order_by('name', 'ASC')->get('parent')->result_array();
 		$last_added = $this->db->order_by('parent_id', 'DESC')->limit(1)->get('parent')->row();
-		
+
 		// Add guardian type to last added parent for auto-population
 		$guardian_type = null;
 		if($last_added) {
 			$guardian_type = $this->input->post('guardian_is_the');
 		}
-		
+
 		echo json_encode(array(
 			'status' => 'success',
 			'parents' => $parents,
@@ -4979,11 +4623,11 @@ class Admin extends MY_Controller {
 									$sms_data_array[$teacher_counter]['To'] = $data['phone'];
 									$sms_data_array[$teacher_counter]['Content'] = $account_opening_sms;
 								}
-							}	
+							}
 
 							$teacher_counter++;
 
-							
+
 						} //SEND SMS ENDED
 
 						//clear the cached database
@@ -5096,7 +4740,7 @@ class Admin extends MY_Controller {
 				$errors['birthday'] = 'Date of birth is required';
 			}
 
-			
+
 			if(!empty($errors)) {
 				echo '<ul>';
 				foreach($errors as $key => $val) {
@@ -5243,7 +4887,7 @@ class Admin extends MY_Controller {
 				$errors['birthday'] = 'Date of birth is required';
 			}
 
-			
+
 			if(!empty($errors)) {
 				echo '<ul>';
 				foreach($errors as $key => $val) {
@@ -5324,7 +4968,7 @@ class Admin extends MY_Controller {
 			}
 
 			$ajaxData['route'] = 'teacher?msg=6';
-			
+
 			echo json_encode($ajaxData);
 			return;
 
@@ -5621,10 +5265,10 @@ class Admin extends MY_Controller {
 
 					$this->sms_model->send_sms($account_opening_sms, $data_phone);
 				} //SEND SMS ENDED
-				
+
 				//clear the cached database
 				$this->db->cache_delete();
-				
+
 				if ($from_mobile == 'yes') {
 					echo json_encode(['status' => 'success', 'message' => get_phrase('admin_added_successfully')]);
 				} else {
@@ -5645,12 +5289,12 @@ class Admin extends MY_Controller {
 			$data['phone'] = trim($this->input->post('phone')[0]);
 			$data['email'] = trim(strtolower($this->input->post('email')));
 			$data['gender'] = trim($this->input->post('gender'));
-			
+
 			// Update password only if provided
 			if (!empty($this->input->post('password'))) {
 				$data['password'] = password_hash($this->input->post('password'), PASSWORD_BCRYPT);
 			}
-			
+
 			$data['account_number'] = trim($this->input->post('account_number'));
 			$data['account_details'] = trim($this->input->post('account_details'));
 			$data['ssnit_id'] = trim($this->input->post('ssnit_id'));
@@ -5681,10 +5325,10 @@ class Admin extends MY_Controller {
 			if ($validation == 1) {
 				$this->db->where('admin_id', $param2);
 				$this->db->update('admin', $data);
-				
+
 				//clear the cached database
 				$this->db->cache_delete();
-				
+
 				echo json_encode(['status' => 'success', 'message' => get_phrase('admin_updated')]);
 				return;
 			} else {
@@ -5714,7 +5358,7 @@ class Admin extends MY_Controller {
       $ajax_data['route'] = 'admins';
 
       echo json_encode($ajax_data);
-      
+
 
 			$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
 
@@ -6014,7 +5658,7 @@ class Admin extends MY_Controller {
 			// Build full name from parts, avoiding double spaces when other_name is empty
 			$data['name'] = trim(preg_replace('/\s+/', ' ', $data['first_name'] . ' ' . ($data['other_name'] ?? '') . ' ' . $data['last_name']));
 			$data['email'] = trim(strtolower($this->input->post('email')));
-			
+
 			$data['ghana_card_id'] = trim($this->input->post('ghana_card_id'));
 			$data['ssnit_id'] = trim($this->input->post('ssnit_id'));
 			$data['tier2_provider_id'] = trim($this->input->post('tier2_provider_id'));
@@ -6108,7 +5752,7 @@ class Admin extends MY_Controller {
 					// First, clear any previous assignment for this staff member
 					$this->db->where('driver_id', $param2);
 					$this->db->update('transport', array('driver_id' => NULL));
-					
+
 					// Assign to new vehicle
 					$this->db->where('number_of_vehicle', $assigned_vehicle_number);
 					$this->db->update('transport', array('driver_id' => $param2));
@@ -6140,14 +5784,14 @@ class Admin extends MY_Controller {
 	function get_generated_sid() {
 		$staff_code_pref = $this->db->get_where('settings', array('type'=>'non_teaching_staff_code_prefix'))->row();
 		$staff_code_f = $this->db->get_where('settings', array('type'=>'non_teaching_staff_code_format'))->row();
-		
+
 		// Default prefix and format if not set
 		if (!$staff_code_pref) {
 			$staff_code_prefix = 'NTS-';
 		} else {
 			$staff_code_prefix = $staff_code_pref->description;
 		}
-		
+
 		if (!$staff_code_f) {
 			$staff_code_format = '00001';
 		} else {
@@ -6158,20 +5802,20 @@ class Admin extends MY_Controller {
 		$this->db->order_by('staff_code', 'desc');
 		$this->db->limit(1);
 		$s_query = $this->db->get('non_teaching_staff');
-		
+
 		if($s_query->num_rows() > 0) {
 			$s_id = $s_query->row()->staff_code;
 			$first_num = '';
 			for($i=0; $i<strlen($s_id); $i++) {
 				if(is_numeric($s_id[$i])) {
 					$first_num = $s_id[$i];
-					break; 
+					break;
 				}
 			}
 			$position_of_first_num = strpos($s_id, $first_num);
 			$n_sid = substr($s_id, $position_of_first_num, strlen($s_id) - $i);
 			$staff_code = $n_sid + 1;
-			
+
 			if($first_num == 0) {
 				$old_len = strlen($s_id);
 				$new_len = strlen($staff_code);
@@ -6181,7 +5825,7 @@ class Admin extends MY_Controller {
 		} else {
 			$staff_code = $staff_code_prefix . $staff_code_format;
 		}
-		
+
 		echo $staff_code;
 	}
 
@@ -6483,7 +6127,7 @@ class Admin extends MY_Controller {
 			echo json_encode(['status' => 'success', 'message' => get_phrase('subject_added_successfully')]);
 			return;
 		}
-		
+
 		if ($param1 == 'create_bulk') {
 			$subjects = $this->input->post('subjects');
 			$class_id = $this->input->post('class_id');
@@ -6491,12 +6135,12 @@ class Admin extends MY_Controller {
 			$term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
 			$sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
 			$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
-			
+
 			$this->db->trans_start();
-			
+
 			$success_count = 0;
 			$errors = [];
-			
+
 			foreach($subjects as $subject) {
 				if(!empty($subject['name'])) {
 					$data = array(
@@ -6506,19 +6150,19 @@ class Admin extends MY_Controller {
 						'teacher_id' => !empty($subject['teacher_id']) ? $subject['teacher_id'] : null,
 						'status' => isset($subject['status']) ? 1 : 0
 					);
-					
+
 					if($class_name == 'JHSS') {
 						$data['sem'] = $sem;
 					} else {
 						$data['term'] = $term;
 					}
-					
+
 					$existing = $this->db->where('name', $data['name'])
 									   ->where('class_id', $class_id)
 									   ->where('year', $year)
 									   ->where($class_name == 'JHSS' ? 'sem' : 'term', $class_name == 'JHSS' ? $sem : $term)
 									   ->get('subject');
-					
+
 					if($existing->num_rows() == 0) {
 						$this->db->insert('subject', $data);
 						$success_count++;
@@ -6527,9 +6171,9 @@ class Admin extends MY_Controller {
 					}
 				}
 			}
-			
+
 			$this->db->trans_complete();
-			
+
 			if($this->db->trans_status() && $success_count > 0) {
 				$message = $success_count . ' subjects created successfully';
 				if(!empty($errors)) {
@@ -6616,7 +6260,7 @@ class Admin extends MY_Controller {
 			}
 
 			$ajaxData['route'] = 'subject/' . $param3;
-			
+
 			echo json_encode($ajaxData);
 			return;
 			//redirect(site_url('admin/subject/' . $param3));
@@ -6678,22 +6322,22 @@ class Admin extends MY_Controller {
 			redirect(site_url('login'), 'refresh');
 
 		require_once FCPATH.'vendor/autoload.php';
-		
+
 		$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-		
+
 		// Get all classes
 		$classes = $this->db->get('class')->result_array();
-		
+
 		$sheetIndex = 0;
 		foreach($classes as $class) {
 			// Get section name
 			$section = $this->db->get_where('section', array('section_id' => $class['section_id']))->row();
 			$section_name = $section ? $section->name : '';
-			
+
 			// Create sheet name: "Basic 1 A"
 			$sheet_name = $class['name'] . ' ' . $class['name_numeric'] . ' ' . $section_name;
 			$sheet_name = substr($sheet_name, 0, 31); // Excel limit
-			
+
 			if($sheetIndex == 0) {
 				$sheet = $spreadsheet->getActiveSheet();
 				$sheet->setTitle($sheet_name);
@@ -6701,35 +6345,35 @@ class Admin extends MY_Controller {
 				$sheet = $spreadsheet->createSheet();
 				$sheet->setTitle($sheet_name);
 			}
-			
+
 			// Set headers
 			$sheet->setCellValue('A1', 'Subject Name');
 			$sheet->setCellValue('B1', 'Teacher ID');
 			$sheet->setCellValue('C1', 'Is Core Subject (1=Yes, 0=No)');
-			
+
 			// Style headers
 			$sheet->getStyle('A1:C1')->applyFromArray([
 				'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']],
 				'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '4F46E5']]
 			]);
-			
+
 			// Add class info
 			$sheet->setCellValue('E1', 'Class ID:');
 			$sheet->setCellValue('F1', $class['class_id']);
 			$sheet->getStyle('E1')->getFont()->setBold(true);
-			
+
 			// Set column widths
 			$sheet->getColumnDimension('A')->setWidth(30);
 			$sheet->getColumnDimension('B')->setWidth(15);
 			$sheet->getColumnDimension('C')->setWidth(25);
-			
+
 			$sheetIndex++;
 		}
-		
+
 		// Add instructions sheet
 		$instructionSheet = $spreadsheet->createSheet();
 		$instructionSheet->setTitle('Instructions');
-		
+
 		$instructionSheet->setCellValue('A1', 'INSTRUCTIONS FOR BULK SUBJECT IMPORT');
 		$instructionSheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
 		$instructionSheet->setCellValue('A3', '1. Each sheet represents a class');
@@ -6740,20 +6384,20 @@ class Admin extends MY_Controller {
 		$instructionSheet->setCellValue('A9', '- The Class ID is automatically filled in column F');
 		$instructionSheet->setCellValue('A10', '- You only need to fill Subject Name, Teacher ID, and Core Subject status');
 		$instructionSheet->setCellValue('A11', '- Leave Teacher ID empty if not assigned yet');
-		
+
 		$spreadsheet->setActiveSheetIndex(0);
-		
+
 		// Save file
 		$filename = 'bulk_subjects_template_'.date('Y-m-d').'.xlsx';
 		$filepath = 'uploads/csv/'.$filename;
-		
+
 		if(!is_dir('uploads/csv')) {
 			mkdir('uploads/csv', 0777, true);
 		}
-		
+
 		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 		$writer->save($filepath);
-		
+
 		echo base_url().$filepath;
 	}
 
@@ -6769,36 +6413,36 @@ class Admin extends MY_Controller {
 		}
 
 		require_once FCPATH.'vendor/autoload.php';
-		
+
 		$file = $_FILES['excel_file']['tmp_name'];
-		
+
 		try {
 			$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
-			
+
 			$success_count = 0;
 			$error_count = 0;
 			$errors = array();
-			
+
 			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
 			$running_sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
-			
+
 			// Loop through all sheets except Instructions
 			foreach($spreadsheet->getAllSheets() as $sheet) {
 				$sheetName = $sheet->getTitle();
-				
+
 				// Skip Instructions sheet
 				if($sheetName == 'Instructions') continue;
-				
+
 				// Get class_id from column F1
 				$class_id = trim($sheet->getCell('F1')->getValue());
-				
+
 				if(empty($class_id)) {
 					$errors[] = "Sheet '$sheetName': Class ID not found";
 					$error_count++;
 					continue;
 				}
-				
+
 				// Verify class exists
 				$class_exists = $this->db->get_where('class', array('class_id' => $class_id))->num_rows();
 				if($class_exists == 0) {
@@ -6806,18 +6450,18 @@ class Admin extends MY_Controller {
 					$error_count++;
 					continue;
 				}
-				
+
 				$highestRow = $sheet->getHighestRow();
-				
+
 				// Start from row 2 (skip header)
 				for($row = 2; $row <= $highestRow; $row++) {
 					$subject_name = trim($sheet->getCell('A'.$row)->getValue());
 					$teacher_id = trim($sheet->getCell('B'.$row)->getValue());
 					$is_core = trim($sheet->getCell('C'.$row)->getValue());
-					
+
 					// Skip empty rows
 					if(empty($subject_name)) continue;
-					
+
 					// Validate teacher if provided
 					if(!empty($teacher_id)) {
 						$teacher_exists = $this->db->get_where('teacher', array('teacher_id' => $teacher_id))->num_rows();
@@ -6827,7 +6471,7 @@ class Admin extends MY_Controller {
 							continue;
 						}
 					}
-					
+
 					// Check for duplicates
 					$duplicate = $this->db->get_where('subject', array(
 						'name' => $subject_name,
@@ -6835,13 +6479,13 @@ class Admin extends MY_Controller {
 						'year' => $running_year,
 						'term' => $running_term
 					))->num_rows();
-					
+
 					if($duplicate > 0) {
 						$errors[] = "Sheet '$sheetName' Row $row: Subject '$subject_name' already exists";
 						$error_count++;
 						continue;
 					}
-					
+
 					// Insert subject
 					$data = array(
 						'name' => $subject_name,
@@ -6852,12 +6496,12 @@ class Admin extends MY_Controller {
 						'sem' => $running_sem,
 						'status' => !empty($is_core) && $is_core == 1 ? 1 : 0
 					);
-					
+
 					$this->db->insert('subject', $data);
 					$success_count++;
 				}
 			}
-			
+
 			$message = "$success_count subject(s) imported successfully";
 			if($error_count > 0) {
 				$message .= ". $error_count error(s) occurred";
@@ -6868,7 +6512,7 @@ class Admin extends MY_Controller {
 					}
 				}
 			}
-			
+
 			echo json_encode([
 				'status' => $success_count > 0 ? 'success' : 'error',
 				'message' => $message,
@@ -6876,7 +6520,7 @@ class Admin extends MY_Controller {
 				'error_count' => $error_count,
 				'errors' => $errors
 			]);
-			
+
 		} catch(Exception $e) {
 			echo json_encode([
 				'status' => 'error',
@@ -6899,7 +6543,7 @@ class Admin extends MY_Controller {
 
 			$this->db->insert('class', $data);
 			$class_id = $this->db->insert_id();
-			
+
 			//get section
 			$data2['class_id'] = $class_id;
 			$section_name = $this->input->post('section_id');
@@ -6927,7 +6571,7 @@ class Admin extends MY_Controller {
 			}
 			$this->db->where('class_id', $param2);
 			$this->db->update('class', $data);
-			
+
 
 			//get section
 			$data2['class_id'] = $param2;
@@ -6954,7 +6598,7 @@ class Admin extends MY_Controller {
 		if ($param1 == 'delete') {
 			// Delete associated fee rates
 			$this->db->delete('daily_fee_rates', array('class_id' => $param2));
-			
+
 			$this->db->where('class_id', $param2);
 			$queryExecuted = $this->db->delete('class');
 
@@ -6983,18 +6627,18 @@ class Admin extends MY_Controller {
 		$config['upload_path'] = './uploads/csv/';
 		$config['allowed_types'] = 'csv';
 		$this->upload->initialize($config);
-		
+
 		if ($this->upload->do_upload('file')) {
 			$feeding_enabled = $this->db->get_where('settings', array('type' => 'feeding_fee_collection'))->row()->description;
 			$breakfast_enabled = $this->db->get_where('settings', array('type' => 'breakfast_fee_collection'))->row()->description;
 			$water_enabled = $this->db->get_where('settings', array('type' => 'water_fee_collection'))->row()->description;
-			
+
 			$file_data = $this->upload->data();
 			$file_path = $file_data['full_path'];
 			$handle = fopen($file_path, 'r');
 			fgetcsv($handle);
 			$count = 0;
-			
+
 			while (($data = fgetcsv($handle)) !== FALSE) {
 				$class_data = array(
 					'name' => trim(strtoupper($data[0])),
@@ -7004,46 +6648,46 @@ class Admin extends MY_Controller {
 				);
 				$this->db->insert('class', $class_data);
 				$class_id = $this->db->insert_id();
-				
+
 				// Insert fee rates into daily_fee_rates
 				$year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 				$term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-				
+
 				$col_index = 4;
 				$fee_data = array(
 					'class_id' => $class_id,
 					'year' => $year,
 					'term' => $term
 				);
-				
+
 				if($feeding_enabled == 'enabled') {
 					$fee_data['feeding_fee'] = isset($data[$col_index]) ? $data[$col_index] : 0;
 					$col_index++;
 				} else {
 					$fee_data['feeding_fee'] = 0;
 				}
-				
+
 				$fee_data['classes_fee'] = isset($data[$col_index]) ? $data[$col_index] : 0;
 				$col_index++;
-				
+
 				$section_col = $col_index;
 				$col_index++;
-				
+
 				if($breakfast_enabled == 'enabled') {
 					$fee_data['breakfast_fee'] = isset($data[$col_index]) ? $data[$col_index] : 0;
 					$col_index++;
 				} else {
 					$fee_data['breakfast_fee'] = 0;
 				}
-				
+
 				if($water_enabled == 'enabled') {
 					$fee_data['water_fee'] = isset($data[$col_index]) ? $data[$col_index] : 0;
 				} else {
 					$fee_data['water_fee'] = 0;
 				}
-				
+
 				$this->db->insert('daily_fee_rates', $fee_data);
-				
+
 				$section_data = array(
 					'class_id' => $class_id,
 					'name' => isset($data[$section_col]) && $data[$section_col] ? trim(strtoupper($data[$section_col])) : 'A',
@@ -7064,14 +6708,14 @@ class Admin extends MY_Controller {
 		$feeding_enabled = $this->db->get_where('settings', array('type' => 'feeding_fee_collection'))->row()->description;
 		$breakfast_enabled = $this->db->get_where('settings', array('type' => 'breakfast_fee_collection'))->row()->description;
 		$water_enabled = $this->db->get_where('settings', array('type' => 'water_fee_collection'))->row()->description;
-		
+
 		header('Content-Type: text/csv');
 		header('Content-Disposition: attachment; filename="class_template.csv"');
 		$output = fopen('php://output', 'w');
-		
+
 		$headers = array('Name', 'Category', 'Name Numeric', 'Teacher ID');
 		$sample = array('JSS', 'JHS', '1', '1');
-		
+
 		if($feeding_enabled == 'enabled') {
 			$headers[] = 'Feeding Fee';
 			$sample[] = '5000';
@@ -7088,7 +6732,7 @@ class Admin extends MY_Controller {
 			$headers[] = 'Water Fee';
 			$sample[] = '1000';
 		}
-		
+
 		fputcsv($output, $headers);
 		fputcsv($output, $sample);
 		fclose($output);
@@ -7107,14 +6751,14 @@ class Admin extends MY_Controller {
 
 			// Format class display name the same way getFullClassList does
 			$class_display = trim($class_name . ' ' . $class_name_numeric . ' ' . $class_section);
-			
+
 			$classes_ordered[] = [
 				'class_id' => $class_id,
 				'name' => $class_display, // Display name
 				'category' => $class_name
 			];
 		}
-		
+
 		header('Content-Type: application/json');
 		echo json_encode($classes_ordered);
 	}
@@ -7215,7 +6859,7 @@ class Admin extends MY_Controller {
 		}
 
 		$ajaxData['route'] = 'academic_syllabus';
-		
+
 		echo json_encode($ajaxData);
 		return;
 
@@ -7294,7 +6938,7 @@ class Admin extends MY_Controller {
 			}
 
 			$ajaxData['route'] = 'section';
-			
+
 			echo json_encode($ajaxData);
 			return;
 		}
@@ -7381,7 +7025,7 @@ class Admin extends MY_Controller {
 
 		$students = $this->db->get_where('enroll', array(
 			'class_id' => $class_id, 'mute' => '0', 'year' => $running_year, 'term' => $running_term))->result_array();
-		
+
 
 		foreach ($students as $row) {
 			$name = $this->db->get_where('student', array('student_id' => $row['student_id']))->row()->name;
@@ -7460,7 +7104,7 @@ class Admin extends MY_Controller {
 		// OPTIMIZED QUERY: Use JOIN to get student names and class info in ONE query
 		// This eliminates N+1 query problem
 		// Use GROUP BY to get only one enrollment per student (most recent based on enroll_id)
-		
+
 		if($cat == 'class') {
 			// Build the WHERE conditions for the subquery
 			$where_conditions = "e.mute = '0' AND e.year = " . $this->db->escape($running_year);
@@ -7470,12 +7114,12 @@ class Admin extends MY_Controller {
 			if (!empty($class_ids_array) && is_array($class_ids_array)) {
 				$where_conditions .= " AND e.class_id IN (" . implode(',', array_map('intval', $class_ids_array)) . ")";
 			}
-			
+
 			// Use raw query with proper subquery
-			$sql = "SELECT e.student_id, e.class_id, e.section_id, 
-					       s.name as student_name, 
-					       c.name as class_name, 
-					       c.name_numeric as class_name_numeric, 
+			$sql = "SELECT e.student_id, e.class_id, e.section_id,
+					       s.name as student_name,
+					       c.name as class_name,
+					       c.name_numeric as class_name_numeric,
 					       sec.name as section_name
 					FROM (
 						SELECT e1.student_id, e1.class_id, e1.section_id
@@ -7490,7 +7134,7 @@ class Admin extends MY_Controller {
 					INNER JOIN student s ON s.student_id = e.student_id
 					LEFT JOIN class c ON c.class_id = e.class_id
 					LEFT JOIN section sec ON sec.section_id = e.section_id";
-			
+
 			$students = $this->db->query($sql);
 
 		} else if($cat == 'all') {
@@ -7500,11 +7144,11 @@ class Admin extends MY_Controller {
 				$where_conditions .= " AND e.term = " . $this->db->escape($running_term);
 			}
 			$where_conditions .= " AND e.class_id IS NOT NULL";
-			
-			$sql = "SELECT e.student_id, e.class_id, e.section_id, 
-					       s.name as student_name, 
-					       c.name as class_name, 
-					       c.name_numeric as class_name_numeric, 
+
+			$sql = "SELECT e.student_id, e.class_id, e.section_id,
+					       s.name as student_name,
+					       c.name as class_name,
+					       c.name_numeric as class_name_numeric,
 					       sec.name as section_name
 					FROM (
 						SELECT e1.student_id, e1.class_id, e1.section_id
@@ -7519,7 +7163,7 @@ class Admin extends MY_Controller {
 					INNER JOIN student s ON s.student_id = e.student_id
 					LEFT JOIN class c ON c.class_id = e.class_id
 					LEFT JOIN section sec ON sec.section_id = e.section_id";
-			
+
 			$students = $this->db->query($sql);
 
 		} else if($cat == 'boarding') {
@@ -7529,15 +7173,15 @@ class Admin extends MY_Controller {
 				$where_conditions .= " AND e.term = " . $this->db->escape($running_term);
 			}
 			$where_conditions .= " AND e.class_id IS NOT NULL AND e.residence_type = 'Boarding'";
-			
+
 			if(is_array($class_ids_array) && count($class_ids_array) > 0) {
 				$where_conditions .= " AND e.class_id IN (" . implode(',', array_map('intval', $class_ids_array)) . ")";
 			}
-			
-			$sql = "SELECT e.student_id, e.class_id, e.section_id, 
-					       s.name as student_name, 
-					       c.name as class_name, 
-					       c.name_numeric as class_name_numeric, 
+
+			$sql = "SELECT e.student_id, e.class_id, e.section_id,
+					       s.name as student_name,
+					       c.name as class_name,
+					       c.name_numeric as class_name_numeric,
 					       sec.name as section_name
 					FROM (
 						SELECT e1.student_id, e1.class_id, e1.section_id
@@ -7552,7 +7196,7 @@ class Admin extends MY_Controller {
 					INNER JOIN student s ON s.student_id = e.student_id
 					LEFT JOIN class c ON c.class_id = e.class_id
 					LEFT JOIN section sec ON sec.section_id = e.section_id";
-			
+
 			$students = $this->db->query($sql);
 
 		} else if($cat == 'day') {
@@ -7562,15 +7206,15 @@ class Admin extends MY_Controller {
 				$where_conditions .= " AND e.term = " . $this->db->escape($running_term);
 			}
 			$where_conditions .= " AND e.class_id IS NOT NULL AND e.residence_type = 'Day'";
-			
+
 			if(is_array($class_ids_array) && count($class_ids_array) > 0) {
 				$where_conditions .= " AND e.class_id IN (" . implode(',', array_map('intval', $class_ids_array)) . ")";
 			}
-			
-			$sql = "SELECT e.student_id, e.class_id, e.section_id, 
-					       s.name as student_name, 
-					       c.name as class_name, 
-					       c.name_numeric as class_name_numeric, 
+
+			$sql = "SELECT e.student_id, e.class_id, e.section_id,
+					       s.name as student_name,
+					       c.name as class_name,
+					       c.name_numeric as class_name_numeric,
 					       sec.name as section_name
 					FROM (
 						SELECT e1.student_id, e1.class_id, e1.section_id
@@ -7585,23 +7229,23 @@ class Admin extends MY_Controller {
 					INNER JOIN student s ON s.student_id = e.student_id
 					LEFT JOIN class c ON c.class_id = e.class_id
 					LEFT JOIN section sec ON sec.section_id = e.section_id";
-			
+
 			$students = $this->db->query($sql);
-			
+
 		}
-				
+
 
 
 		if ($students->num_rows() < 1) {
 			// Check if this is a different academic year
-			
+
 			if ($is_different_academic_year) {
 				// Different year - students MUST be promoted/enrolled
 				// This is a hard requirement - show error and disable billing
-				
+
 				// Add hidden indicator for JavaScript to detect no students
 				echo '<div class="no-students-indicator" data-has-students="false" style="display:none;"></div>';
-				
+
 				// Different year - students need to be promoted/enrolled
 				echo '<div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4" role="alert">';
 				echo '<div class="flex">';
@@ -7623,7 +7267,7 @@ class Admin extends MY_Controller {
 			} else {
 				// Same year - show generic error
 				echo '<div class="no-students-indicator" data-has-students="false" style="display:none;"></div>';
-				
+
 				echo '<div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4" role="alert">';
 				echo '<div class="flex">';
 				echo '<div class="flex-shrink-0">';
@@ -7648,11 +7292,11 @@ class Admin extends MY_Controller {
 
 		} else {
 			$student_array = $students->result_array();
-			
+
 			// OPTIMIZATION: Batch load all discount information in ONE query
 			$student_ids = array_column($student_array, 'student_id');
 			$full_scholarship_students = array();
-			
+
 			if (!empty($student_ids)) {
 				$discount_results = $this->db
 					->select('student_id')
@@ -7665,28 +7309,28 @@ class Admin extends MY_Controller {
 					->where('status', 'approved')
 					->get('invoice_discounts')
 					->result_array();
-				
+
 				// Create a lookup array for O(1) access
 				foreach ($discount_results as $discount) {
 					$full_scholarship_students[$discount['student_id']] = true;
 				}
 			}
-			
+
 			// Display valid students
 			// Add hidden indicator for JavaScript - has valid students
 			echo '<div class="no-students-indicator" data-has-students="true" style="display:none;"></div>';
-			
+
 			echo '<ul class="text-xl font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" id="studentUrl">';
-			
+
 			foreach ($student_array as $row) {
 				// Check if student has full scholarship using pre-loaded data
 				if (isset($full_scholarship_students[$row['student_id']])) {
 					continue; // Skip this student
 				}
-				
+
 				// Use pre-loaded student name from JOIN
 				$name = $row['student_name'];
-				
+
 				// Build class name from pre-loaded data (no function call needed)
 				$student_class = trim($row['class_name'] . ' ' . $row['class_name_numeric'] . ' ' . $row['section_name']);
 
@@ -7698,7 +7342,7 @@ class Admin extends MY_Controller {
 						    </li>';
 			}
 			echo '</ul>';
-			
+
 		}
 
 	}
@@ -7716,7 +7360,7 @@ class Admin extends MY_Controller {
 		$page_data['data'] = $this->input->post();
 
 		$this->load->view('backend/admin/get_billed_student_invoices_codes', $page_data);
-		
+
 	}
 
 	function getStudentBillByInvoiceCode() {
@@ -7730,20 +7374,20 @@ class Admin extends MY_Controller {
 
 		$ajaxData['items'] = array_column($itemsArray, 'title');
 		$ajaxData['list'] = $this->load->view('backend/admin/get_billed_student_bill', $page_data, true);
-		
+
 		// Get discount details for this invoice
 		$discount_query = $this->db->where('invoice_code', $page_data['invoice_code'])
 			->where('status', 'approved')
 			->get('invoice_discounts');
-		
+
 		// Check for pending discounts
 		$pending_query = $this->db->where('invoice_code', $page_data['invoice_code'])
 			->where('status', 'pending')
 			->get('invoice_discounts');
-		
+
 		if($discount_query->num_rows() > 0 || $pending_query->num_rows() > 0) {
 			$ajaxData['has_discount'] = true;
-			$ajaxData['discount_html'] = $this->load->view('backend/admin/invoice_discount_display', 
+			$ajaxData['discount_html'] = $this->load->view('backend/admin/invoice_discount_display',
 				['invoice_code' => $page_data['invoice_code'], 'has_pending' => $pending_query->num_rows() > 0], true);
 		} else {
 			$ajaxData['has_discount'] = false;
@@ -7751,7 +7395,7 @@ class Admin extends MY_Controller {
 		}
 
 		echo json_encode($ajaxData);
-		
+
 	}
 
 	function get_bulk_invoices() {
@@ -7764,7 +7408,7 @@ class Admin extends MY_Controller {
 		// OPTIMIZED: Build query without correlated subquery
 		// Step 1: Get invoice aggregates with class info directly from invoice table
 		$sql = "
-			SELECT 
+			SELECT
 				i.invoice_code,
 				MIN(i.invoice_id) as invoice_id,
 				MIN(i.student_id) as student_id,
@@ -7779,25 +7423,25 @@ class Admin extends MY_Controller {
 				MIN(i.year) as year
 			FROM invoice i
 			INNER JOIN student s ON s.student_id = i.student_id
-			WHERE i.mute = '0' 
+			WHERE i.mute = '0'
 			AND i.can_delete != 'trash'
 			AND i.due >= 0
 		";
-		
+
 		$params = [];
-		
+
 		// Only filter by term if provided
 		if(!empty($term)) {
 			$sql .= " AND i.term = ?";
 			$params[] = $term;
 		}
-		
+
 		// Only filter by year if provided
 		if(!empty($year)) {
 			$sql .= " AND i.year = ?";
 			$params[] = $year;
 		}
-		
+
 		// Handle filter types
 		if($filter === 'class' && $class_id) {
 			// Filter directly by invoice's class_id
@@ -7810,9 +7454,9 @@ class Admin extends MY_Controller {
 			// Filter by day students using invoice's residence_type
 			$sql .= " AND i.residence_type = 'Day'";
 		}
-		
+
 		$sql .= " GROUP BY i.invoice_code";
-		
+
 		// Apply status filter using HAVING clause (after grouping)
 		if(!empty($status)) {
 			if($status === 'paid') {
@@ -7823,9 +7467,9 @@ class Admin extends MY_Controller {
 				$sql .= " HAVING SUM(i.due) > 0 AND SUM(i.amount_paid) > 0";
 			}
 		}
-		
+
 		$sql .= " ORDER BY i.invoice_code DESC";
-		
+
 		// Execute query
 		$query = $this->db->query($sql, $params);
 		$invoices = $query->result_array();
@@ -7843,7 +7487,7 @@ class Admin extends MY_Controller {
 			";
 			$class_query = $this->db->query($class_sql, $class_ids);
 			$classes = $class_query->result_array();
-			
+
 			foreach($classes as $class) {
 				// Build full class name: NAME + NUMERIC + SECTION
 				$full_class_name = strtoupper($class['name']);
@@ -7872,13 +7516,13 @@ class Admin extends MY_Controller {
 			if($invoice['due'] > 0) {
 				$status = ($invoice['amount_paid'] > 0) ? 'partial' : 'unpaid';
 			}
-			
+
 			// Use pre-loaded class name
 			$class_name = 'N/A';
 			if(!empty($invoice['class_id']) && isset($class_names_map[$invoice['class_id']])) {
 				$class_name = $class_names_map[$invoice['class_id']];
 			}
-			
+
 			$data[] = [
 				'invoice_id' => $invoice['invoice_id'],
 				'invoice_code' => $invoice['invoice_code'],
@@ -7893,12 +7537,12 @@ class Admin extends MY_Controller {
 				'status' => $status,
 				'creation_timestamp' => $invoice['creation_timestamp']
 			];
-			
+
 			$stats['total_amount'] += $invoice['total_amount'];
 			$stats['total_paid'] += $invoice['amount_paid'];
 			$stats['total_due'] += $invoice['due'];
 			$stats['total_receivables'] += $invoice['due'];
-			
+
 			if(!in_array($invoice['student_id'], $unique_students)) {
 				$unique_students[] = $invoice['student_id'];
 			}
@@ -7906,7 +7550,7 @@ class Admin extends MY_Controller {
 
 		$stats['invoice_count'] = count($invoices);
 		$stats['unique_students'] = count($unique_students);
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'message' => count($data) . ' invoices loaded',
@@ -7934,11 +7578,11 @@ class Admin extends MY_Controller {
 		if($date_to) {
 			$this->db->where('day_timestamp <=', strtotime($date_to));
 		}
-		
+
 		$this->db->group_by('receipt_code, student_id');
 		$this->db->order_by('timestamp', 'DESC');
 		$this->db->limit(500);
-		
+
 		$receipt_totals = $this->db->get()->result_array();
 
 		$data = [];
@@ -7949,28 +7593,28 @@ class Admin extends MY_Controller {
 				->join('enroll e', 'e.student_id = s.student_id AND e.enroll_id = (SELECT MAX(enroll_id) FROM enroll WHERE student_id = s.student_id)', 'left')
 				->where('s.student_id', $receipt['student_id'])
 				->get()->row_array();
-			
+
 			// Apply filters
 			if($class_id && isset($student_info) && $student_info) {
 				$student_class_id = $this->db->select('class_id')->from('enroll')->where('student_id', $receipt['student_id'])->get()->row()->class_id ?? null;
 				if($student_class_id != $class_id) continue;
 			}
-			
+
 			if($boarding && isset($student_info['boarding_status']) && $student_info['boarding_status'] != $boarding) {
 				continue;
 			}
-			
+
 			// Get full class details using getFullClassName method
 			$class_name = 'N/A';
 			if(!empty($student_info['class_id'])) {
 				$class_name = $this->crud_model->getFullClassName($student_info['class_id']);
 			}
-			
+
 			// Get invoice codes for this receipt
 			$invoice_codes = $this->db->select('invoice_code')->distinct()->from('payment')->where('receipt_code', $receipt['receipt_code'])->get()->result_array();
 			$invoice_codes_list = array_column($invoice_codes, 'invoice_code');
 			$invoice_display = count($invoice_codes_list) > 1 ? implode(', ', array_slice($invoice_codes_list, 0, 2)) . (count($invoice_codes_list) > 2 ? '...' : '') : $invoice_codes_list[0];
-			
+
 			// Map payment method ID to name
 			$payment_method_map = [
 				'1' => 'cash',
@@ -7979,7 +7623,7 @@ class Admin extends MY_Controller {
 				'4' => 'card'
 			];
 			$payment_method = isset($payment_method_map[$receipt['payment_method']]) ? $payment_method_map[$receipt['payment_method']] : 'cash';
-			
+
 			$data[] = [
 				'payment_id' => $receipt['payment_id'],
 				'receipt_code' => $receipt['receipt_code'],
@@ -8030,7 +7674,7 @@ class Admin extends MY_Controller {
 		foreach($invoices as $invoice) {
 			$invoice_code = $invoice['invoice_code'];
 			$student_id = $invoice['student_id'];
-			
+
 			$this->db->select_sum('amount');
 			$this->db->select_sum('amount_paid');
 			$this->db->select_sum('due');
@@ -8077,14 +7721,14 @@ class Admin extends MY_Controller {
 
 	function search_suggestions() {
 		$search = trim($this->input->post('search'));
-		
+
 		if(strlen($search) < 2) {
 			echo json_encode(['status' => 'error', 'data' => []]);
 			return;
 		}
-		
+
 		$running_year = get_settings('running_year');
-		
+
 		$this->db->distinct();
 		$this->db->select('s.student_id, s.name as student_name, s.student_code, e.class_id');
 		$this->db->from('student s');
@@ -8095,9 +7739,9 @@ class Admin extends MY_Controller {
 		$this->db->group_end();
 		$this->db->limit(8);
 		$this->db->order_by('s.name', 'ASC');
-		
+
 		$students = $this->db->get()->result_array();
-		
+
 		$data = [];
 		foreach($students as $student) {
 			// Count unique invoice codes (not invoice IDs) with outstanding dues
@@ -8106,13 +7750,13 @@ class Admin extends MY_Controller {
 			$this->db->where('due >', 0);
 			$result = $this->db->get('invoice')->row();
 			$invoice_count = $result ? $result->invoice_count : 0;
-			
+
 			// Get full class details using getFullClassName method
 			$class_name = 'N/A';
 			if(!empty($student['class_id'])) {
 				$class_name = $this->crud_model->getFullClassName($student['class_id']);
 			}
-			
+
 			$data[] = [
 				'student_id' => $student['student_id'],
 				'student_name' => $student['student_name'],
@@ -8122,18 +7766,18 @@ class Admin extends MY_Controller {
 				'type' => 'student'
 			];
 		}
-		
+
 		echo json_encode(['status' => 'success', 'data' => $data]);
 	}
 
 	function view_student_receipts($student_id = '') {
 		$page_data['student_id'] = $student_id;
 		$page_data['student_info'] = null;
-		
+
 		if($student_id) {
 			$page_data['student_info'] = $this->db->get_where('student', array('student_id' => $student_id))->row();
 		}
-		
+
 		$this->load->view('backend/admin/view_student_receipts', $page_data);
 	}
 
@@ -8151,10 +7795,10 @@ class Admin extends MY_Controller {
 		$this->db->from('payment p');
 		$this->db->join('student s', 's.student_id = p.student_id');
 		$this->db->where('p.student_id', $student_id);
-		
+
 		if($year) $this->db->where('p.year', $year);
 		if($term) $this->db->where('p.term', $term);
-		
+
 		$this->db->order_by('p.timestamp', 'DESC');
 		$receipts = $this->db->get()->result_array();
 
@@ -8245,7 +7889,7 @@ class Admin extends MY_Controller {
 		}
 
 		$invoice_items = $this->db->get_where('invoice', array('invoice_code' => $invoice_code))->result_array();
-		
+
 		if(empty($invoice_items)) {
 			$this->session->set_flashdata('error_message', get_phrase('invoice_not_found'));
 			redirect(site_url('admin/student_invoice'));
@@ -8256,7 +7900,7 @@ class Admin extends MY_Controller {
 		$year = $invoice_items[0]['year'];
 		$term = $invoice_items[0]['term'];
 		$student_info = $this->db->get_where('student', array('student_id' => $student_id))->row();
-		
+
 		$page_data['invoice_code'] = $invoice_code;
 		$page_data['invoice_items'] = $invoice_items;
 		$page_data['student_info'] = $student_info;
@@ -8280,9 +7924,9 @@ class Admin extends MY_Controller {
 			$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
 			$data['sem'] = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
 			$data['category_id'] = $this->input->post('category_id');
-			
+
 			$this->db->insert('exam', $data);
-			
+
 			if($this->db->affected_rows() > 0) {
 				echo json_encode(['status' => 'success', 'message' => get_phrase('exam_added_successfully')]);
 			} else {
@@ -8317,7 +7961,7 @@ class Admin extends MY_Controller {
 		}
 		if ($param1 == 'delete') {
 			$this->db->trans_start();
-			
+
 			$this->db->where('exam_id', $param2);
 			$this->db->delete('exam'); //deleted from exam table
 
@@ -8328,7 +7972,7 @@ class Admin extends MY_Controller {
 			$this->db->delete('aggregation'); //deleted from aggregation table
 
 			$this->db->trans_complete();
-			
+
 			//clear the cached database
 			$this->db->cache_delete();
 
@@ -8778,7 +8422,7 @@ class Admin extends MY_Controller {
 		$page_data['page_title'] = get_phrase('portfolio_assessment_marks');
 		$this->load->view('backend/main', $page_data);
 	}
-	
+
 //creche
 	function marks_manage_view_creche($exam_id = '', $class_id = '', $section_id = '', $subject_id = '', $category_id = '') {
 		//if ($this->session->userdata('admin_login') != 1)
@@ -8858,11 +8502,11 @@ class Admin extends MY_Controller {
 		if (empty($conduct_ids)) {
 			$conduct_ids = $this->input->post('conducts'); // Backward compatibility
 		}
-		
+
 		// Get interest ID from new system (single selection) or text (backward compatibility)
 		$interest_id = $this->input->post('interest_id'); // Single interest ID
 		$interest_text = strtoupper($this->input->post('interest')); // Backward compatibility text
-		
+
 		$remarks = $this->input->post('teacher_remarks');
 
 		//attendance
@@ -8890,7 +8534,7 @@ class Admin extends MY_Controller {
 					'days_present' => $days_present,
 					'interest' => !empty($interest_id) ? $interest_id : $interest_text, // Single ID or text
 				);
-				
+
 				// Add head teacher remarks if admin is logged in
 				if ($this->session->userdata('admin_login') == 1) {
 					$head_teacher_remarks = strtoupper($this->input->post('head_teacher_remarks'));
@@ -8909,7 +8553,7 @@ class Admin extends MY_Controller {
 			for ($i = 1; $i <= 15; $i++) {
 				$conduct_data['c' . $i] = isset($conduct_ids[$i - 1]) && !empty($conduct_ids[$i - 1]) ? $conduct_ids[$i - 1] : null;
 			}
-			
+
 			// Save interest as single ID in existing interest column
 			if (!empty($interest_id)) {
 				$conduct_data['interest'] = $interest_id; // Single ID
@@ -8926,7 +8570,7 @@ class Admin extends MY_Controller {
 						$conduct_data['c' . $i] = null;
 					}
 					$conduct_data['interest'] = null;
-					
+
 					$this->db->set($conduct_data);
 					$this->db->where(array('student_id' => $student_id, 'sem' => $running_sem, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
 					$this->db->update('aggregation');
@@ -8940,7 +8584,7 @@ class Admin extends MY_Controller {
 					$conduct_data['c' . $i] = null;
 				}
 				$conduct_data['interest'] = null;
-				
+
 				$this->db->set($conduct_data);
 				$this->db->where(array('student_id' => $student_id, 'sem' => $running_sem, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
 				$this->db->update('aggregation');
@@ -8991,7 +8635,7 @@ class Admin extends MY_Controller {
 					'days_present' => $days_present,
 					'interest' => !empty($interest_id) ? $interest_id : $interest_text, // Single ID or text
 				);
-				
+
 				// Add head teacher remarks if admin is logged in
 				if ($this->session->userdata('admin_login') == 1) {
 					$head_teacher_remarks = strtoupper($this->input->post('head_teacher_remarks'));
@@ -9010,7 +8654,7 @@ class Admin extends MY_Controller {
 			for ($i = 1; $i <= 15; $i++) {
 				$conduct_data['c' . $i] = isset($conduct_ids[$i - 1]) && !empty($conduct_ids[$i - 1]) ? $conduct_ids[$i - 1] : null;
 			}
-			
+
 			// Save interest as single ID in existing interest column
 			if (!empty($interest_id)) {
 				$conduct_data['interest'] = $interest_id; // Single ID
@@ -9027,7 +8671,7 @@ class Admin extends MY_Controller {
 						$conduct_data['c' . $i] = null;
 					}
 					$conduct_data['interest'] = null;
-					
+
 					$this->db->set($conduct_data);
 					$this->db->where(array('student_id' => $student_id, 'term' => $running_term, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
 					$this->db->update('aggregation');
@@ -9041,7 +8685,7 @@ class Admin extends MY_Controller {
 					$conduct_data['c' . $i] = null;
 				}
 				$conduct_data['interest'] = null;
-				
+
 				$this->db->set($conduct_data);
 				$this->db->where(array('student_id' => $student_id, 'term' => $running_term, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
 				$this->db->update('aggregation');
@@ -9085,15 +8729,15 @@ class Admin extends MY_Controller {
 
 		$data['conduct'] = strtoupper($this->input->post('conduct'));
 		$data['attitude'] = strtoupper($this->input->post('attitude'));
-		
+
 		// Get interest ID from new system (single selection) or text (backward compatibility)
 		$interest_id = $this->input->post('interest_id'); // Single interest ID
 		$interest_text = strtoupper($this->input->post('interest')); // Backward compatibility text
-		
+
 		//$data['head_teacher_remarks'] = strtoupper($this->input->post('head_teacher_remarks'));
 		$data['class_teacher_remarks'] = strtoupper($this->input->post('class_teacher_remarks'));
 
-		
+
 
 
 		//attendance
@@ -9140,7 +8784,7 @@ class Admin extends MY_Controller {
 			if ($row_check < 1) {
 
 					if ($class_name == 'CRECHE') {
-					
+
 						$new['exam_id'] = $exam_id;
 						$new['class_id'] = $class_id;
 						$new['student_id'] = $student_id;
@@ -9176,7 +8820,7 @@ class Admin extends MY_Controller {
 				$new2['days_present'] = $days_present;
 				$new2['conduct'] = $data['conduct'];
 				$new2['attitude'] = $data['attitude'];
-				
+
 				// Save interest as single ID in existing interest column
 				if (!empty($interest_id)) {
 					$new2['interest'] = $interest_id; // Single ID
@@ -9189,7 +8833,7 @@ class Admin extends MY_Controller {
 						$new2['head_teacher_remarks'] = strtoupper($this->input->post('head_teacher_remarks'));
 					}
 				endif;
-				
+
 				$new2['class_teacher_remarks'] = $data['class_teacher_remarks'];
 
 				$this->db->where(array('student_id' => $student_id, 'term' => $running_term, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
@@ -9201,7 +8845,7 @@ class Admin extends MY_Controller {
 				if($class_name != 'CRECHE'): //excluding creche
 					// Load the head teacher remarks model
 					$this->load->model('head_teacher_remarks_model');
-					
+
 					$allStudentsIds = $this->crud_model->getAllStudentsIdsExCreche();
 					foreach($allStudentsIds as $stid) {
 							$this->db->where('student_id', $stid['student_id']);
@@ -9210,11 +8854,11 @@ class Admin extends MY_Controller {
 							$this->db->where('year', $running_year);
 							$this->db->where('term', $running_term);
 							$aggregation_row = $this->db->get('aggregation')->row();
-							
+
 							if (!$aggregation_row) {
 								continue; // Skip if no aggregation record found
 							}
-							
+
 							$student_score = $aggregation_row->aggregate_mark;
 
 							if($student_score == '' || $student_score == null) {
@@ -9235,7 +8879,7 @@ class Admin extends MY_Controller {
 							$this->db->where('section_id IS NOT NULL');
 							$this->db->from('mark');
 							$total_subjects = $this->db->get()->num_rows();
-							
+
 							$percentage_score = 0;
 							if ($total_subjects > 0) {
 								$grandScore = $total_subjects * 100;
@@ -9247,7 +8891,7 @@ class Admin extends MY_Controller {
 
 							// Find appropriate remark from database using percentage
 							$remark_result = $this->head_teacher_remarks_model->find_by_percentage($percentage_score);
-							
+
 							// Prepare update data
 							$htrm = array();
 							if ($remark_result) {
@@ -9262,7 +8906,7 @@ class Admin extends MY_Controller {
 							$this->db->update('aggregation', $htrm);
 					} //end of head master's remarks
 				endif;
-				
+
 
 				echo 'Records successfully updated.';
 				return false;
@@ -9309,7 +8953,7 @@ class Admin extends MY_Controller {
 
 
 			if ($query->num_rows() < 1) {
-				
+
 				//check if students' attendance has been managed to enroll students for this term
 				if ($students->num_rows() < 1) {
 					// echo '<script>alert("Ok");</script>';
@@ -9627,7 +9271,7 @@ class Admin extends MY_Controller {
 					));
 
 				if ($query->num_rows() < 1) {
-					
+
 
 					//check if students' attendance has been managed to enroll students for this term
 					if ($students->num_rows() < 1) {
@@ -10095,7 +9739,7 @@ class Admin extends MY_Controller {
 						'sub_total' => round(floatval($sub_total), 2),
 						'term_exam' => round(floatval($term_exam), 2),
 					);
-					
+
 					//load the $batchMarksUpdate array
 					$batchMarksUpdate[] = $data_array;//////////<<<<
 
@@ -10130,12 +9774,12 @@ class Admin extends MY_Controller {
 						$this->db->where('term', $running_term);
 						$aggregate_mark = $this->db->get()->row()->mark_obtained;
 
-	
+
 						$data['aggregate_mark'] = round($aggregate_mark, 2);
-						
+
 						//load $batchAggregatesInsert array
 						$batchAggregatesInsert[] = $data;//////////<<<<
-						
+
 
 					} else {
 						$this->db->select_sum('mark_obtained');
@@ -10154,7 +9798,7 @@ class Admin extends MY_Controller {
 
 						//load $batchAggregatesUpdate array
 						$batchAggregatesUpdate[] = $data2;//////////<<<<
-						
+
 					}
 
 					$students_ids[] = $row['student_id'];
@@ -10165,7 +9809,7 @@ class Admin extends MY_Controller {
 
 				$this->db->update_batch('mark', $batchMarksUpdate, 'mark_id');
 
-				
+
 				if(is_array($batchAggregatesInsert) && count($batchAggregatesInsert) > 0) {
 					$this->db->insert_batch('aggregation', $batchAggregatesInsert);
 				}
@@ -10409,7 +10053,7 @@ class Admin extends MY_Controller {
 				echo json_encode($ajaxData);
 
 			} else {
-				
+
 
 				if ($param2 == 'graph') {
 					$page_data['start_week'] = $start_week;
@@ -10422,7 +10066,7 @@ class Admin extends MY_Controller {
 					echo json_encode($ajaxData);
 				}
 
-				
+
 			}
 		}
 
@@ -10590,7 +10234,7 @@ class Admin extends MY_Controller {
 			}
 
 			$ajaxData['route'] = 'grade_creche';
-			
+
 			echo json_encode($ajaxData);
 			return;
 
@@ -10628,7 +10272,7 @@ class Admin extends MY_Controller {
 			} else {
 				$queryExecuted = $this->db->insert('grade_2', $data);
 			}
-			
+
 			//clear the cached database
 			$this->db->cache_delete();
 
@@ -10673,7 +10317,7 @@ class Admin extends MY_Controller {
 			$data['mark_from'] = trim($this->input->post('mark_from'));
 			$data['mark_upto'] = trim($this->input->post('mark_upto'));
 			$data['grade_point_numeric'] = trim($this->input->post('gpa'));
-			
+
 			if ($this->input->post('comment') != null) {
 				$data['comment'] = $this->input->post('comment');
 			} else {
@@ -10687,7 +10331,7 @@ class Admin extends MY_Controller {
 				$this->db->where('grade_id', $param2);
 				$queryExecuted = $this->db->update('grade_2', $data);
 			}
-			
+
 			//clear the cached database
 			$this->db->cache_delete();
 
@@ -10705,7 +10349,7 @@ class Admin extends MY_Controller {
 			} else {
 				$page_data['edit_data'] = $this->db->get_where('grade_2', array('grade_id' => $param2))->result_array();
 			}
-			
+
 
 			//clear the cached database
 			$this->db->cache_delete();
@@ -10718,7 +10362,7 @@ class Admin extends MY_Controller {
 			$data['mark_from'] = trim($this->input->post('mark_from'));
 			$data['mark_upto'] = trim($this->input->post('mark_upto'));
 			$data['grade_point_numeric'] = trim($this->input->post('gpa'));
-			
+
 			if ($this->input->post('comment') != null) {
 				$data['comment'] = $this->input->post('comment');
 			} else {
@@ -10762,7 +10406,7 @@ class Admin extends MY_Controller {
 				$this->db->where('grade_id', $param2);
 				$queryExecuted = $this->db->delete('grade_2');
 			}
-			
+
 
 			//clear the cached database
 			$this->db->cache_delete();
@@ -10777,7 +10421,7 @@ class Admin extends MY_Controller {
 			}
 
 			$ajaxData['route'] = 'grade';
-			
+
 			echo json_encode($ajaxData);
 			return;
 		}
@@ -10800,7 +10444,7 @@ class Admin extends MY_Controller {
 				}
 
 				$ajaxData['route'] = 'raw_score_grade';
-				
+
 				echo json_encode($ajaxData);
 				return;
 
@@ -10824,7 +10468,7 @@ class Admin extends MY_Controller {
 				} else {
 					$page_data['grades'] = $this->db->get('grade_2')->result_array();
 				}
-				
+
 				$page_data['page_name'] = 'grade';
 				$page_data['page_title'] = get_phrase('manage_grades');
 				$page_data['account_type'] = $this->session->userdata('login_type');
@@ -11057,7 +10701,7 @@ class Admin extends MY_Controller {
 				}
 
 				$ajaxData['route'] = 'class_routine_view/' . $class_id;
-				
+
 				echo json_encode($ajaxData);
 				return;
 		}
@@ -11168,7 +10812,7 @@ class Admin extends MY_Controller {
 		$this->db->where('class_id', $attn_data['class_id']);
 		$this->db->where('section_id', $attn_data['section_id']);
 		$this->db->where('timestamp', $attn_data['timestamp']);
-		
+
 		if (isset($attn_data['year'])) {
 			$this->db->where('year', $attn_data['year']);
 		}
@@ -11178,14 +10822,14 @@ class Admin extends MY_Controller {
 		if (isset($attn_data['sem'])) {
 			$this->db->where('sem', $attn_data['sem']);
 		}
-		
+
 		$existing = $this->db->get('attendance');
-		
+
 		if ($existing->num_rows() > 0) {
 			// Record already exists, skip insertion
 			return false;
 		}
-		
+
 		// Safe to insert
 		return $this->db->insert('attendance', $attn_data);
 	}
@@ -11761,7 +11405,7 @@ class Admin extends MY_Controller {
 private function recalculate_subsequent_owings($student_id, $table_name, $updated_timestamp, $class_id, $old_amount, $new_amount) {
 
 	$amount_diff = (floatval($old_amount) - floatval($new_amount));
-	
+
 	$this->db->where('student_id', $student_id);
 	$this->db->where('day_timestamp >', $updated_timestamp);
 	$this->db->set('due', 'due + '. $amount_diff, false);
@@ -11859,7 +11503,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$student_ids_input = $this->input->get('student_ids') ?: $this->input->post('student_ids');
 		$student_ids = null;
 		$filter_mode = 'class_section'; // Default mode
-		
+
 		if ($student_ids_input && is_array($student_ids_input) && count($student_ids_input) > 0) {
 			// Per-student filtering mode
 			$student_ids = array_map('intval', $student_ids_input); // Sanitize IDs
@@ -11876,7 +11520,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
 		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
 		$section_name = $this->db->get_where('section', array('section_id' => $section_id))->row()->name;
-		
+
 		$page_data['class_name'] = strtoupper($class_name);
 
 		if ($page_data['class_name'] == 'JHS') {
@@ -11888,10 +11532,10 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		// PERFORMANCE OPTIMIZATION: Batch fetch students with details
 		$this->load->model('Attendance_enterprise_model');
 		$students_data = $this->Attendance_enterprise_model->get_students_with_details(
-			$class_id, 
-			$section_id, 
-			$sessional_year, 
-			$term, 
+			$class_id,
+			$section_id,
+			$sessional_year,
+			$term,
 			$student_ids
 		);
 
@@ -11904,11 +11548,11 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 		// PERFORMANCE OPTIMIZATION: Batch fetch attendance records
 		$attendance_data = $this->Attendance_enterprise_model->get_attendance_batch(
-			$class_id, 
-			$section_id, 
-			$month, 
-			$sessional_year, 
-			$term, 
+			$class_id,
+			$section_id,
+			$month,
+			$sessional_year,
+			$term,
 			$student_ids
 		);
 
@@ -11919,7 +11563,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$attendance_lookup[$key] = $record;
 		}
 		$page_data['attendance_lookup'] = $attendance_lookup;
-		
+
 		$page_data['page_name'] = 'attendance_report_view';
 		$page_data['page_title'] = get_phrase('attendance_report_of') . ' ' . $class_name . ' ' . $class_name_numeric . ' : ' . get_phrase('section') . ' ' . $section_name;
 		$page_data['account_type'] = $this->session->userdata('login_type');
@@ -12125,11 +11769,11 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->db->where('section_id', $section_id);
 		$this->db->where('timestamp >=', $start_timestamp);
 		$this->db->where('timestamp <=', $end_timestamp);
-		
+
 		if ($student_ids && count($student_ids) > 0) {
 			$this->db->where_in('student_id', $student_ids);
 		}
-		
+
 		if ($status_filter) {
 			$this->db->where('status', $status_filter);
 		}
@@ -12171,7 +11815,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		foreach ($attendance_records as $record) {
 			$date = date('Y-m-d', $record['timestamp']);
 			$unique_dates[$date] = true;
-			
+
 			// Aggregate by date for charts
 			if (!isset($daily_stats[$date])) {
 				$daily_stats[$date] = [
@@ -12228,7 +11872,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			if ($total > 0) {
 				$student['rate'] = round(($student['present'] / $total) * 100, 1);
 			}
-			
+
 			// Add section name
 			$section_info = $this->db->select('s.name as section_name')
 				->from('enroll e')
@@ -12239,7 +11883,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				->where('e.term', $running_term)
 				->get()
 				->row();
-			
+
 			$student['section_name'] = $section_info ? $section_info->section_name : '';
 		}
 
@@ -12272,7 +11916,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		} else {
 			$this->load->view('backend/admin/get_all_invoices', $page_data);
 		}
-		
+
 
 	}
 
@@ -12327,7 +11971,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			} else {
 
 				$bill_item_history_residence_type = 'Both';
-				
+
 			}
 
 			$add_to_bill_history = $this->input->post('add_to_class_bill') ?: $this->input->get('add_to_class_bill');
@@ -12343,7 +11987,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 			$historyRecordCounter = 0;
 			$invoice_adder = 1;
-			
+
 			$isUpdateCounter = 0;
 			$isInsertCounter = 0;
 
@@ -12353,19 +11997,19 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$student_ids_array = array();
 
 			$student_ids_array = $this->input->post('student_id') ?: (isset($_REQUEST['student_id']) ? $_REQUEST['student_id'] : array());
-			
+
 			if(empty($student_ids_array) || !is_array($student_ids_array)) {
 				echo json_encode(['status' => 'error', 'message' => 'No students selected']);
 				return;
 			}
-			
+
 			// Track discounts per student (student_id => [profile_id => discount_data])
 			$all_student_discounts = array();
 
 
 			if(count($student_ids_array) > 0) {
-				
-				
+
+
 				foreach ($student_ids_array as $student_id) {
 					$discount_records = array(); // Store discount records per profile
 					$isUpdate = false;
@@ -12376,7 +12020,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$this->db->order_by('invoice_code', 'desc');
 					$this->db->limit(1);
 					$inv_query = $this->db->get('invoice');
-					
+
 
 					if ($inv_query->num_rows() > 0) {
 						$inv_id = $inv_query->row()->invoice_code;
@@ -12416,7 +12060,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						$this->db->order_by('invoice_code', 'desc');
 						$this->db->limit(1);
 						$inv_query = $this->db->get('invoice');
-						
+
 						if ($inv_query->num_rows() > 0) {
 							$inv_id = $inv_query->row()->invoice_code;
 							$data['invoice_code'] = $inv_id + 1;
@@ -12441,7 +12085,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 					$data['invoice_code'] = $data['invoice_code'];
 					$data['student_id'] = $student_id;
-					
+
 					$data['year'] = $selected_year;
 
 
@@ -12484,7 +12128,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 					/*get the current residential status of the student*/
 					$residence_type = $this->boarding_model->get_residence_type($data['student_id']);
-					
+
 					// Get invoice discounts for this student
 					$this->db->select('sda.*, dp.profile_name, dp.discount_method, dp.discount_value, dp.bill_item_ids');
 					$this->db->from('student_discount_assignments sda');
@@ -12521,15 +12165,15 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						$data['amount'] = $original_amount;
 						$current_item_id = explode('_', $ids_array[$j])[0];
 						$item_id = $this->db->get_where('bill_item', ['title' => $item_title])->row()->id;
-						
+
 						// Get the bill item data
 						$bill_item_data = $this->db->get_where('bill_item', ['title' => $item_title])->row();
 						$bill_item_specific_class_ids = isset($bill_item_data->specific_class_ids) ? $bill_item_data->specific_class_ids : null;
 						$bill_item_class_category = isset($bill_item_data->class_category) ? $bill_item_data->class_category : null;
-						
+
 						// Filtering Priority: specific_class_ids > class_category > all
 						$skip_item = false;
-						
+
 						if(!empty($bill_item_specific_class_ids)) {
 							// Priority 1: Check specific class IDs (most granular)
 							$specific_classes = array_map('trim', explode(',', $bill_item_specific_class_ids));
@@ -12540,23 +12184,23 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 							// Priority 2: Check class category
 							$student_class = $this->db->get_where('class', ['class_id' => $data['class_id']])->row();
 							$student_class_category = isset($student_class->category) ? $student_class->category : null;
-							
+
 							if($bill_item_class_category != $student_class_category) {
 								$skip_item = true; // Student's category doesn't match
 							}
 						}
 						// Priority 3: If both are NULL/empty, item applies to all classes (no skip)
-						
+
 						if($skip_item) {
 							continue; // Skip this item for this student
 						}
-						
+
 						// Apply discounts
 						foreach($student_discounts as $disc) {
 							$bill_items = trim($disc['bill_item_ids']);
 							$bill_items_array = array_map('trim', explode(',', $bill_items));
 							$applies = ($bill_items == '*' || in_array($item_id, $bill_items_array));
-							
+
 							if($applies) {
 								if($disc['discount_method'] == 'percentage') {
 									$disc_amt = number_format($original_amount * $disc['discount_value'] / 100, 2, '.', '');
@@ -12565,7 +12209,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 									$disc_amt = ($total_amt > 0) ? number_format(($original_amount / $total_amt) * $disc['discount_value'], 2, '.', '') : 0;
 								}
 								$data['amount'] = number_format($data['amount'] - $disc_amt, 2, '.', '');
-								
+
 								if(!isset($discount_records[$disc['profile_id']])) {
 									$discount_records[$disc['profile_id']] = array(
 										'profile_id' => $disc['profile_id'],
@@ -12585,12 +12229,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 								);
 							}
 						}
-						
+
 						$data['amount_paid'] = 0;
 						$data['due'] = number_format($data['amount'] - $data['amount_paid'], 2, '.', '');
 						$data['status'] = 'unpaid';
 						$data['creation_timestamp'] = strtotime($_REQUEST['date']);
-						
+
 
 						if ($_REQUEST[$ids_array[$j] . '_description'] != null) {
 							$data['description'] = $_REQUEST[$ids_array[$j] . '_description'];
@@ -12610,7 +12254,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 							$can_delete_status = $checkExistQuery->row()->can_delete;
 							$can_edit_status = $checkExistQuery->row()->can_edit;
-							
+
 							// Get old values regardless of permission (needed for invoice code continuity)
 							$old_amount = $checkExistQuery->row()->amount;
 							$old_amount_due = $checkExistQuery->row()->due;
@@ -12635,7 +12279,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 								$updateData['due'] = max(0, $data['amount'] - $old_amount_paid - $old_credit_applied);
 
 								$batchUpdateArray[] = $updateData;
-								
+
 								/*in case any payment for this invoice code was made before, we need to update the balance for this code in payment table*/
 								$this->db->order_by('payment_id', 'asc');
 								$payment_query = $this->db->get_where('payment', ['invoice_code' => $old_invoice_code]);
@@ -12665,7 +12309,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						}
 
 						/*BILL HISTORY*/
-						
+
 						$item_id = $this->db->get_where('bill_item', ['title' => $item_title])->row()->id; //bill item_id
 
 						/*to update the bill item amount*/
@@ -12677,21 +12321,21 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						$item_category_id = $this->boarding_model->getBillItemCategoryIdByBillItemId($item_id);
 
 						if($historyRecordCounter == 0 && ($item_category_id == 1 || $item_category_id == 4 || $item_category_id == 5)): //don't record arrears, admission items or any other for the fee structure in the history since it is specific to a student.
-							
+
 							// Get the bill item data for filtering
 							$bill_item_full_data = $this->db->get_where('bill_item', ['id' => $item_id])->row();
 							$bill_item_specific_class_ids = isset($bill_item_full_data->specific_class_ids) ? $bill_item_full_data->specific_class_ids : null;
 							$bill_item_class_category = isset($bill_item_full_data->class_category) ? $bill_item_full_data->class_category : null;
 
 							for($c = 0; $c < count($class_ids_array); $c++):
-								
+
 								// Get the class data
 								$class_data = $this->db->get_where('class', ['class_id' => $class_ids_array[$c]])->row();
 								$class_category = isset($class_data->category) ? $class_data->category : null;
-								
+
 								// Filtering Priority: specific_class_ids > class_category > all
 								$skip_class = false;
-								
+
 								if(!empty($bill_item_specific_class_ids)) {
 									// Priority 1: Check specific class IDs
 									$specific_classes = array_map('trim', explode(',', $bill_item_specific_class_ids));
@@ -12705,13 +12349,13 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 									}
 								}
 								// Priority 3: If both NULL, applies to all (no skip)
-								
+
 								if($skip_class) {
 									continue; // Skip this class
 								}
-								
+
 								//update the bill history
-								
+
 								$this->db->where('bill_item_id', $item_id);
 								$this->db->where('class_id', $class_ids_array[$c]);
 								$this->db->where('term', $data['term']);
@@ -12757,7 +12401,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 					} /*end of each bill item*/
 
-			
+
 
 					// Store discount records for this student
 					if(count($discount_records) > 0) {
@@ -12769,7 +12413,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					} else {
 
 					}
-					
+
 					$invoice_adder++;
 					$historyRecordCounter++;
 
@@ -12777,28 +12421,28 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 				// IMPORTANT: Delete old invoice items that are not in the new bill and have no payments
 				// This ensures a true "replacement" of the old bill with the new one
-				
+
 				// First, build array of NEW bill item titles from the request
 				if ($param2 == '' || $param2 == null) {
 					$ids_array_for_deletion = array('177_1565053816');
 				} else {
 					$ids_array_for_deletion = explode('-', $param2);
 				}
-				
+
 				$new_bill_titles = array();
 				for ($j = 0; $j < count($ids_array_for_deletion); $j++) {
 					$new_title = $_REQUEST[$ids_array_for_deletion[$j] . '_title'];
 					$new_bill_titles[] = strtoupper($new_title);
 				}
-				
+
 				// Track deleted bill items for history cleanup
 				$deleted_bill_item_ids = array();
-				
+
 				// Now check each student's existing invoices
 				foreach ($student_ids_array as $student_id) {
 					// Get student's class for this period
 					$student_class_id = $this->crud_model->getStudentClassId($student_id, $selected_year, $selected_term);
-					
+
 					// Get all existing invoice items for this student in this term/year
 					$existing_invoices = $this->db->select('invoice_id, title, invoice_code, amount_paid')
 						->where('student_id', $student_id)
@@ -12806,33 +12450,33 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						->where('term', $selected_term)
 						->get('invoice')
 						->result();
-					
+
 					foreach ($existing_invoices as $existing_inv) {
 						// Check if this item title is in the new bill items array
 						$item_in_new_bill = in_array($existing_inv->title, $new_bill_titles);
-						
+
 						// If item is NOT in new bill AND has no payments, delete it
 						if (!$item_in_new_bill) {
 							$amount_paid = floatval($existing_inv->amount_paid);
-							
+
 							// Only delete if no payment has been made
 							if ($amount_paid == 0) {
 								// Get bill_item_id for this title
 								$bill_item_row = $this->db->get_where('bill_item', array('title' => $existing_inv->title))->row();
-								
+
 								if ($bill_item_row) {
 									$bill_item_id = $bill_item_row->id;
-									
+
 									// Track this for history deletion
 									if (!in_array($bill_item_id, $deleted_bill_item_ids)) {
 										$deleted_bill_item_ids[] = $bill_item_id;
 									}
 								}
-								
+
 								// Delete from invoice table
 								$this->db->where('invoice_id', $existing_inv->invoice_id);
 								$this->db->delete('invoice');
-								
+
 								// Delete from discount items if exists
 								$this->db->where('invoice_id', $existing_inv->invoice_id);
 								$this->db->delete('invoice_discount_items');
@@ -12840,13 +12484,13 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						}
 					}
 				}
-				
+
 				// Delete from bill_item_history for deleted items (if "add to class bill history" was enabled)
 				if ($add_to_bill_history == 1 && count($deleted_bill_item_ids) > 0) {
 					foreach ($deleted_bill_item_ids as $deleted_item_id) {
 						// Get the category of this bill item
 						$item_category_id = $this->boarding_model->getBillItemCategoryIdByBillItemId($deleted_item_id);
-						
+
 						// Only delete history for general items (not arrears, admission, or other specific items)
 						if ($item_category_id == 1 || $item_category_id == 4 || $item_category_id == 5) {
 							// Delete from bill_item_history for each class
@@ -12867,18 +12511,18 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					/*update and insert*/
 					$this->db->update_batch('invoice', $batchUpdateArray, 'invoice_id');
 					$this->db->insert_batch('invoice', $batchInsertArray);
-					
+
 					// ============================================
 					// CREDIT SYSTEM: Recalculate credits for updated invoices
 					// ============================================
 					$this->load->model('Credit_model');
 					foreach($batchUpdateArray as $update_data) {
 						$invoice_id = $update_data['invoice_id'];
-						
+
 						// Step 1: Get current invoice details
 						$invoice = $this->db->get_where('invoice', ['invoice_id' => $invoice_id])->row();
 						if(!$invoice) continue;
-						
+
 						// Step 2: Remove old credit applications for this invoice
 						$old_credit_apps = $this->db->where('invoice_id', $invoice_id)->get('credit_applications')->result();
 						foreach($old_credit_apps as $app) {
@@ -12896,14 +12540,14 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						}
 						// Delete old credit application records
 						$this->db->where('invoice_id', $invoice_id)->delete('credit_applications');
-						
+
 						// Step 3: Reset invoice credit_applied field
 						$this->db->where('invoice_id', $invoice_id)->update('invoice', ['credit_applied' => 0]);
-						
+
 						// Step 4: Reapply credits with new invoice amount
 						$this->Credit_model->apply_credits_to_invoice($invoice_id);
 					}
-					
+
 					// Apply credits to newly inserted invoices
 					foreach($batchInsertArray as $invoice_data) {
 						$invoice = $this->db->get_where('invoice', array('invoice_code' => $invoice_data['invoice_code']))->row();
@@ -12921,15 +12565,15 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 						$message = 'INVOICE UPDATED WITH THE NEW BILL ITEMS ADDED SUCCESSFULLY';
 					}
-					
-						
+
+
 
 				} else {
 
 					if($isInsertCounter > 0) {
 						/*insert*/
 						$this->db->insert_batch('invoice', $batchInsertArray);
-						
+
 						// ============================================
 						// CREDIT SYSTEM: Auto-apply available credits to new invoices
 						// ============================================
@@ -12943,9 +12587,9 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 							}
 						}
 						// ============================================
-						
+
 						if(count($student_ids_array) > 1) { //this is a bulk invoice
-							
+
 							$message = 'BULK INVOICES CREATED SUCCESSFULLY';
 
 						} else {
@@ -12954,23 +12598,23 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 						}
 
-						
+
 					}
 
 					if($isUpdateCounter > 0) {
 						$this->db->update_batch('invoice', $batchUpdateArray, 'invoice_id');
-						
+
 						// ============================================
 						// CREDIT SYSTEM: Recalculate credits for updated invoices
 						// ============================================
 						$this->load->model('Credit_model');
 						foreach($batchUpdateArray as $update_data) {
 							$invoice_id = $update_data['invoice_id'];
-							
+
 							// Step 1: Get current invoice details
 							$invoice = $this->db->get_where('invoice', ['invoice_id' => $invoice_id])->row();
 							if(!$invoice) continue;
-							
+
 							// Step 2: Remove old credit applications for this invoice
 							$old_credit_apps = $this->db->where('invoice_id', $invoice_id)->get('credit_applications')->result();
 							foreach($old_credit_apps as $app) {
@@ -12988,10 +12632,10 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 							}
 							// Delete old credit application records
 							$this->db->where('invoice_id', $invoice_id)->delete('credit_applications');
-							
+
 							// Step 3: Reset invoice credit_applied field
 							$this->db->where('invoice_id', $invoice_id)->update('invoice', ['credit_applied' => 0]);
-							
+
 							// Step 4: Reapply credits with new invoice amount
 							$this->Credit_model->apply_credits_to_invoice($invoice_id);
 						}
@@ -13030,9 +12674,9 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 									'year' => $selected_year,
 									'term' => $selected_term
 								));
-								
+
 								$discount_id = $this->db->insert_id();
-								
+
 								if(isset($disc['items'])) {
 									foreach($disc['items'] as $item_data) {
 										$invoice_record = $this->db->where('invoice_code', $data['invoice_code'])
@@ -13041,7 +12685,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 											->where('year', $selected_year)
 											->where('term', $selected_term)
 											->get('invoice')->row();
-										
+
 										if($invoice_record) {
 											$this->db->insert('invoice_discount_items', [
 												'discount_id' => $discount_id,
@@ -13063,7 +12707,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				}
 
 				if($itemHistoryCanBeUpdated) {
-					
+
 
 					if($historyBatchInsertCounter > 0) {
 						if(!empty($historyBatchInsertArray)) {
@@ -13083,7 +12727,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 				/*update bill item amount*/
 				$this->db->update_batch('bill_item', $billItemBatchUpdate, 'id');
-				
+
 				// Financial Hook: Sync invoices and discounts to ledger for all students
 				foreach($student_ids_array as $student_id) {
 					$invoice_code = $this->db->select('invoice_code')
@@ -13093,7 +12737,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						->order_by('invoice_id', 'DESC')
 						->limit(1)
 						->get('invoice')->row();
-					
+
 					if($invoice_code) {
 						sync_invoice_to_ledger($invoice_code->invoice_code, $student_id);
 					}
@@ -13116,12 +12760,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 				for ($j = 0; $j < count($ids_array); $j++) {
 
-				
+
 					/*BILL HISTORY*/
 
 					$item_title = $_REQUEST[$ids_array[$j] . '_title'];
 					$data['amount'] = $_REQUEST[$ids_array[$j] . '_amount'];
-							
+
 					$item_id = $this->db->get_where('bill_item', ['title' => $item_title])->row()->id; //bill item_id
 
 					$item_category_id = $this->boarding_model->getBillItemCategoryIdByBillItemId($item_id);
@@ -13130,9 +12774,9 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 
 						for($c = 0; $c < count($class_ids_array); $c++):
-							
+
 							//update the bill history
-							
+
 							$this->db->where('bill_item_id', $item_id);
 							$this->db->where('class_id', $class_ids_array[$c]);
 							$this->db->where('term', $selected_term);
@@ -13221,7 +12865,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 			$historyRecordCounter = 0;
 			$invoice_adder = 1;
-			
+
 			$isUpdateCounter = 0;
 			$isInsertCounter = 0;
 
@@ -13231,7 +12875,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 			$isUpdate = false;
 			$isInsert = false;
-			
+
 			$data['year'] = $selected_year;
 
 
@@ -13240,7 +12884,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 
 			$data['term'] = $selected_term;
-			
+
 
 
 			/*let's check if this student has already been billed within the selected period*/
@@ -13287,7 +12931,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$data['due'] = $data['amount'] - $data['amount_paid'];
 				$data['status'] = 'unpaid';
 				$data['creation_timestamp'] = $data['creation_timestamp'];
-				
+
 
 				if ($_REQUEST[$ids_array[$j] . '_description'] != null) {
 					$data['description'] = $_REQUEST[$ids_array[$j] . '_description'];
@@ -13434,7 +13078,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 							$this->db->update('payment');
 
 						}
-						
+
 
 					}
 				}
@@ -13453,16 +13097,16 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 					$message = 'INVOICE UPDATED WITH THE NEW BILL ITEMS ADDED SUCCESSFULLY';
 
-					
+
 				} else {
 
 					if($isInsertCounter > 0) {
 						/*insert*/
 						$this->db->insert_batch('invoice', $batchInsertArray);
-						
+
 						$message = 'INVOICE CREATED SUCCESSFULLY';
 
-						
+
 					}
 
 					if($isUpdateCounter > 0) {
@@ -13525,7 +13169,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 			$historyRecordCounter = 0;
 			$invoice_adder = 1;
-			
+
 			$isUpdateCounter = 0;
 			$isInsertCounter = 0;
 
@@ -13586,7 +13230,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$this->db->order_by('invoice_code', 'desc');
 					$this->db->limit(1);
 					$inv_query = $this->db->get('invoice');
-					
+
 					if ($inv_query->num_rows() > 0) {
 						$inv_id = $inv_query->row()->invoice_code;
 						$data['invoice_code'] = $inv_id + 1;
@@ -13611,7 +13255,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 				$data['invoice_code'] = $data['invoice_code'];
 				$data['student_id'] = $student_id;
-				
+
 				$data['year'] = $selected_year;
 
 
@@ -13754,7 +13398,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					}
 
 					/*BILL HISTORY*/
-					
+
 					$item_id = $bill['bill_item_id']; //bill item_id
 
 
@@ -13764,9 +13408,9 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 
 						for($c = 0; $c < count($class_ids_array); $c++):
-							
+
 							//update the bill history
-							
+
 							$this->db->where('bill_item_id', $item_id);
 							$this->db->where('class_id', $class_ids_array[$c]);
 							$this->db->where('term', $data['term']);
@@ -13829,17 +13473,17 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 					$message = 'INVOICE CLONED SUCCESSFULLY';
 				}
-				
-					
+
+
 
 			} else {
 
 				if($isInsertCounter > 0) {
 					/*insert*/
 					$this->db->insert_batch('invoice', $batchInsertArray);
-					
+
 					if(count($student_ids_array) > 1) { //this is a bulk invoice
-						
+
 						$message = 'BULK INVOICES CLONED SUCCESSFULLY';
 
 					} else {
@@ -13848,7 +13492,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 					}
 
-					
+
 				}
 
 				if($isUpdateCounter > 0) {
@@ -13867,7 +13511,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			}
 
 			if($itemHistoryCanBeUpdated) {
-				
+
 
 				if($historyBatchInsertCounter > 0) {
 					if(!empty($historyBatchInsertArray)) {
@@ -13907,41 +13551,41 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$bill_year = $this->input->post('year_clone');
 		$selected_term = $this->input->post('term');
 		$selected_year = $this->input->post('year');
-		
+
 		if (empty($student_ids_array) || empty($bill_term) || empty($bill_year)) {
 			echo json_encode(['success' => false, 'message' => 'Missing required parameters']);
 			return;
 		}
 
 		$preview_data = [];
-		
+
 		foreach ($student_ids_array as $student_id) {
 			// Get student info
 			$student = $this->db->get_where('student', ['student_id' => $student_id])->row();
 			if (!$student) continue;
-			
+
 			// Get student's current class
 			$student_current_class_id = $this->crud_model->getStudentLastEnrollmentRow($student_id)->class_id;
 			$class = $this->db->get_where('class', ['class_id' => $student_current_class_id])->row();
-			
+
 			// Get previous bills for this student's class
 			$student_previous_bill_array = $this->crud_model->getClassPreviousBill($student_current_class_id, $bill_term, $bill_year);
-			
+
 			if (empty($student_previous_bill_array)) continue;
-			
+
 			// Get residence type
 			$residence_type = $this->boarding_model->get_residence_type($student_id);
-			
+
 			$bill_items = [];
 			foreach ($student_previous_bill_array as $bill) {
 				// Check residence type compatibility
 				$get_bill_item_category_id = $this->boarding_model->getBillItemCategoryIdByBillItemId($bill['bill_item_id']);
-				
+
 				if ($residence_type == 'Day' && $get_bill_item_category_id == 5 && $bill['residence_type'] == 'Boarding') continue;
 				if ($residence_type == 'Boarding' && $get_bill_item_category_id == 4 && $bill['residence_type'] == 'Day') continue;
-				
+
 				$bill_item_row = $this->crud_model->getBillItemRowById($bill['bill_item_id']);
-				
+
 				$bill_items[] = [
 					'bill_item_id' => $bill['bill_item_id'],
 					'title' => strtoupper($bill_item_row->title),
@@ -13950,7 +13594,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					'category_id' => $get_bill_item_category_id
 				];
 			}
-			
+
 			if (!empty($bill_items)) {
 				$preview_data[] = [
 					'student_id' => $student_id,
@@ -13964,7 +13608,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				];
 			}
 		}
-		
+
 		echo json_encode([
 			'success' => true,
 			'data' => $preview_data,
@@ -13983,15 +13627,15 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$student_ids_array = $this->input->post('student_id');
 		$selected_term = $this->input->post('term');
 		$selected_year = $this->input->post('year');
-		
+
 		if (empty($student_ids_array) || empty($selected_term) || empty($selected_year)) {
 			echo json_encode(['exists' => false]);
 			return;
 		}
-		
+
 		$existing_bills = [];
 		$has_existing = false;
-		
+
 		foreach ($student_ids_array as $student_id) {
 			// Check if this student has any invoice for this term/year
 			$invoices = $this->db->select('invoice_id, title, amount, amount_paid')
@@ -14000,10 +13644,10 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				->where('term', $selected_term)
 				->get('invoice')
 				->result();
-			
+
 			if (count($invoices) > 0) {
 				$has_existing = true;
-				
+
 				foreach ($invoices as $inv) {
 					// Check if this item already in array (to avoid duplicates across students)
 					$found = false;
@@ -14013,7 +13657,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 							break;
 						}
 					}
-					
+
 					if (!$found) {
 						$existing_bills[] = [
 							'title' => $inv->title,
@@ -14024,7 +13668,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				}
 			}
 		}
-		
+
 		echo json_encode([
 			'exists' => $has_existing,
 			'bills' => $existing_bills
@@ -14037,10 +13681,10 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	 */
 	function get_bill_items_json() {
 		$class_ids = $this->input->post('class_ids'); // Array of class IDs
-		
+
 		$this->db->select('bill_item.id, bill_item.title, bill_item.description, bill_item.amount, bill_item.class_category, bill_item.specific_class_ids');
 		$this->db->from('bill_item');
-		
+
 		// If class_ids provided, filter using priority logic
 		if(!empty($class_ids) && is_array($class_ids)) {
 			// Get unique categories for the selected classes
@@ -14049,24 +13693,24 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$this->db->from('class');
 			$this->db->where_in('class_id', $class_ids);
 			$categories_query = $this->db->get();
-			
+
 			$categories = array();
 			foreach($categories_query->result() as $row) {
 				$categories[] = $row->category;
 			}
-			
+
 			// Now build the bill_item query with fresh query builder
 			$this->db->select('bill_item.id, bill_item.title, bill_item.description, bill_item.amount, bill_item.class_category, bill_item.specific_class_ids');
 			$this->db->from('bill_item');
-			
+
 			// Complex filtering: specific_class_ids OR class_category OR global (NULL)
 			$this->db->group_start();
-			
+
 			// 1. Items with specific_class_ids matching selected classes
 			foreach($class_ids as $class_id) {
 				$this->db->or_where("FIND_IN_SET('$class_id', bill_item.specific_class_ids) >", 0);
 			}
-			
+
 			// 2. Items with class_category matching (but no specific_class_ids)
 			if(!empty($categories)) {
 				$this->db->or_group_start();
@@ -14077,7 +13721,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$this->db->group_end();
 				$this->db->group_end();
 			}
-			
+
 			// 3. Global items (no specific_class_ids and no class_category)
 			$this->db->or_group_start();
 			$this->db->group_start();
@@ -14089,14 +13733,14 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$this->db->or_where('bill_item.class_category', '');
 			$this->db->group_end();
 			$this->db->group_end();
-			
+
 			$this->db->group_end();
 		}
-		
+
 		$bill_items = $this->db->order_by('title', 'asc')
 			->get()
 			->result_array();
-		
+
 		echo json_encode($bill_items);
 	}
 
@@ -14105,12 +13749,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	public function fee_structure() {
 		if ($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		$page_data['page_name'] = 'fee_structure';
 		$page_data['page_title'] = get_phrase('fee_structure');
 		$this->load->view('backend/index', $page_data);
 	}
-	
+
 	// Get Fee Structure Data (AJAX)
 	public function get_fee_structure() {
 		$class_id = $this->input->post('class_id');
@@ -14119,10 +13763,10 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$currency = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
 		$running_year = $this->db->get_where('settings', ['type' => 'running_year'])->row()->description;
 		$running_term = $this->db->get_where('settings', ['type' => 'running_term'])->row()->description;
-		
+
 		// Determine if we're viewing historical data or current structure
 		$is_historical = !empty($term) && !empty($year) && ($year != $running_year || $term != $running_term);
-		
+
 		// Get classes to display (in proper order)
 		$classes = [];
 		if(!empty($class_id)) {
@@ -14140,9 +13784,9 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				}
 			}
 		}
-		
+
 		$class_fee_data = [];
-		
+
 		if($is_historical && !empty($term) && !empty($year)) {
 			// HISTORICAL: Fetch from bill_item_history
 			foreach($classes as $class) {
@@ -14155,16 +13799,16 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$this->db->where('year', $year);
 				$this->db->where_in('residence_type', ['Day', 'Boarding', 'Both']);
 				$residence_types = $this->db->get()->result_array();
-				
+
 				// If no history, skip this class
 				if(empty($residence_types)) {
 					continue;
 				}
-				
+
 				// Group by residence type
 				foreach($residence_types as $res_type_row) {
 					$residence_type = $res_type_row['residence_type'];
-					
+
 					// Get bill items from history
 					$this->db->select('bih.id, bih.bill_item_id, bih.bill_item_amount as amount, bih.residence_type, bi.title, bi.description, bi.class_category, bi.specific_class_ids, COALESCE(bc.bill_category_name, "Uncategorized") as category_name');
 					$this->db->from('bill_item_history bih');
@@ -14177,13 +13821,13 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$this->db->order_by('category_name', 'ASC');
 					$this->db->order_by('bi.title', 'ASC');
 					$items = $this->db->get()->result_array();
-					
+
 					// Calculate total
 					$total = 0;
 					foreach($items as $item) {
 						$total += $item['amount'];
 					}
-					
+
 					$class_fee_data[] = [
 						'class' => $class,
 						'residence_type' => $residence_type,
@@ -14197,13 +13841,13 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			// CURRENT: Fetch from bill_item (master structure)
 			foreach($classes as $class) {
 				$class_category = isset($class['category']) ? $class['category'] : null;
-				
+
 				// Get boarding system setting
 				$boarding_system = $this->db->get_where('settings', ['type' => 'boarding_system'])->row()->description;
-				
+
 				// Determine which residence types to show
 				$residence_types_to_show = [];
-				
+
 				if($boarding_system != 'yes') {
 					// School runs day only
 					$residence_types_to_show = ['Day'];
@@ -14217,12 +13861,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						->where('enroll.residence_type', 'Boarding')
 						->where('enroll.status', 'open')
 						->count_all_results('enroll') > 0;
-					
+
 					$has_day = $this->db->where('enroll.class_id', $class['class_id'])
 						->where('enroll.residence_type', 'Day')
 						->where('enroll.status', 'open')
 						->count_all_results('enroll') > 0;
-					
+
 					if($has_boarding && $has_day) {
 						$residence_types_to_show = ['Day', 'Boarding'];
 					} elseif($has_boarding) {
@@ -14231,19 +13875,19 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						$residence_types_to_show = ['Day'];
 					}
 				}
-				
+
 				foreach($residence_types_to_show as $residence_type) {
 					// Get bill items for this class
 					$this->db->select('bi.id, bi.title, bi.description, bi.amount, bi.class_category, bi.specific_class_ids, COALESCE(bc.bill_category_name, "Uncategorized") as category_name');
 					$this->db->from('bill_item bi');
 					$this->db->join('bill_category bc', 'bc.bill_category_id = bi.bill_category_id', 'left');
-					
+
 					// Filter by specific class or category or global
 					$this->db->group_start();
-					
+
 					// 1. Specific class match
 					$this->db->or_where("FIND_IN_SET('{$class['class_id']}', bi.specific_class_ids) >", 0);
-					
+
 					// 2. Class category match (Pre-School, Lower Primary, etc.) - if class has a category
 					if(!empty($class_category)) {
 						$this->db->or_group_start();
@@ -14254,7 +13898,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						$this->db->group_end();
 						$this->db->group_end();
 					}
-					
+
 					// 3. Global items (no class_category and no specific_class_ids)
 					$this->db->or_group_start();
 					$this->db->group_start();
@@ -14266,12 +13910,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$this->db->or_where('bi.specific_class_ids', '');
 					$this->db->group_end();
 					$this->db->group_end();
-					
+
 					$this->db->group_end();
-					
+
 					// EXCLUDE Arrears category (never show in fee structure)
 					$this->db->where('bc.bill_category_name NOT LIKE', '%Arrears%');
-					
+
 					// Filter by Day/Boarding based on residence type
 					if($residence_type == 'Day') {
 						// Exclude items with "Boarding" in category name
@@ -14280,17 +13924,17 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						// Exclude items with "-Day" at end of category name
 						$this->db->where('bc.bill_category_name NOT LIKE', '%-Day');
 					}
-					
+
 					$this->db->order_by('category_name', 'ASC');
 					$this->db->order_by('bi.title', 'ASC');
 					$items = $this->db->get()->result_array();
-					
+
 					// Calculate total
 					$total = 0;
 					foreach($items as $item) {
 						$total += $item['amount'];
 					}
-					
+
 					$class_fee_data[] = [
 						'class' => $class,
 						'residence_type' => $residence_type,
@@ -14301,28 +13945,28 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				}
 			}
 		}
-		
+
 		// Get all classes for dropdown in edit mode
 		$all_classes = $this->db->select('class_id, name, name_numeric')->order_by('name_numeric')->get('class')->result_array();
-		
+
 		if(empty($class_fee_data)) {
 			echo '<div class="alert-box alert-warning"><i class="entypo-info"></i> ' . get_phrase('no_classes_found') . '</div>';
 			return;
 		}
-		
+
 		// Check if boarding system is enabled
 		$boarding_system_enabled = ($boarding_system == 'yes');
-		
+
 		// Build card-based layout
 		$html = '<div class="fee-cards-container">';
-		
+
 		foreach($class_fee_data as $data) {
 			$class = $data['class'];
 			$residence_type = $data['residence_type'];
 			$items = $data['items'];
 			$total = $data['total'];
 			$is_historical = $data['is_historical'];
-			
+
 			// Build full class name: "Basic 1 Daffodels" or "Creche Sunflower"
 			$full_class_name = $class['name'];
 			if(!empty($class['name_numeric'])) {
@@ -14333,19 +13977,19 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			if(!empty($section_name)) {
 				$full_class_name .= ' ' . $section_name;
 			}
-			
+
 			$html .= '<div class="fee-class-card">';
-			
+
 			// Card Header
 			$html .= '<div class="card-header">';
 			$html .= '<div class="class-name-section">';
 			$html .= '<h3 class="class-name">' . $full_class_name;
-			
+
 			// Only show residence badge if boarding system is enabled
 			if($boarding_system_enabled) {
 				$html .= ' <span class="residence-badge">' . $residence_type . '</span>';
 			}
-			
+
 			$html .= '</h3>';
 			$html .= '<span class="item-count">' . count($items) . ' ' . get_phrase('items') . '</span>';
 			if($is_historical) {
@@ -14354,21 +13998,21 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$html .= '</div>';
 			$html .= '<div class="total-amount">' . $currency . ' ' . number_format($total, 2) . '</div>';
 			$html .= '</div>';
-			
+
 			// Card Body - Items List
 			$html .= '<div class="card-body">';
-			
+
 			if(empty($items)) {
 				$html .= '<p class="no-items">' . get_phrase('no_fee_items_for_this_class') . '</p>';
 			} else {
 				$html .= '<div class="fee-items-list">';
-				
+
 				foreach($items as $item) {
 					// Use bill_item_id if historical, otherwise use id
 					$item_id = isset($item['bill_item_id']) ? $item['bill_item_id'] : $item['id'];
-					
+
 					$html .= '<div class="fee-item" id="fee_item_' . $item_id . '">';
-					
+
 					// Display Mode
 					$html .= '<div id="display_mode_' . $item_id . '" class="display-mode">';
 					$html .= '<div class="item-info">';
@@ -14380,7 +14024,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$html .= '</div>';
 					$html .= '<div class="item-actions">';
 					$html .= '<div class="item-amount">' . $currency . ' ' . number_format($item['amount'], 2) . '</div>';
-					
+
 					// Only show edit/delete for current structure (not historical)
 					if(!$is_historical) {
 						$html .= '<div class="action-buttons">';
@@ -14388,15 +14032,15 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						$html .= '<button onclick="deleteItem(' . $item_id . ', \'' . addslashes($item['title']) . '\')" class="btn-icon btn-delete" title="' . get_phrase('delete') . '"><i class="entypo-trash"></i></button>';
 						$html .= '</div>';
 					}
-					
+
 					$html .= '</div>';
 					$html .= '</div>';
-					
+
 					// Edit Mode (only for current structure)
 					if(!$is_historical) {
 						$html .= '<div id="edit_mode_' . $item_id . '" class="edit-mode" style="display:none;">';
 						$html .= '<div class="edit-form">';
-						
+
 						$html .= '<div class="form-row">';
 						$html .= '<div class="form-group">';
 						$html .= '<label>' . get_phrase('title') . '</label>';
@@ -14407,12 +14051,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						$html .= '<input type="number" id="edit_amount_' . $item_id . '" class="form-input" value="' . $item['amount'] . '" step="0.01">';
 						$html .= '</div>';
 						$html .= '</div>';
-						
+
 						$html .= '<div class="form-group">';
 						$html .= '<label>' . get_phrase('description') . '</label>';
 						$html .= '<textarea id="edit_desc_' . $item_id . '" class="form-input">' . htmlspecialchars($item['description']) . '</textarea>';
 						$html .= '</div>';
-						
+
 						$html .= '<div class="form-row">';
 						$html .= '<div class="form-group">';
 						$html .= '<label>' . get_phrase('class_scope') . '</label>';
@@ -14433,35 +14077,35 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						$html .= '</select>';
 						$html .= '</div>';
 						$html .= '</div>';
-						
+
 						$html .= '<div class="form-actions">';
 						$html .= '<button onclick="saveItem(' . $item_id . ')" class="btn-save"><i class="entypo-check"></i> ' . get_phrase('save') . '</button>';
 						$html .= '<button onclick="cancelEdit(' . $item_id . ')" class="btn-cancel">' . get_phrase('cancel') . '</button>';
 						$html .= '</div>';
-						
+
 						// Hidden fields for original values
 						$html .= '<input type="hidden" id="orig_title_' . $item_id . '" value="' . htmlspecialchars($item['title']) . '">';
 						$html .= '<input type="hidden" id="orig_desc_' . $item_id . '" value="' . htmlspecialchars($item['description']) . '">';
 						$html .= '<input type="hidden" id="orig_amount_' . $item_id . '" value="' . $item['amount'] . '">';
 						$html .= '<input type="hidden" id="orig_class_category_' . $item_id . '" value="' . $item['class_category'] . '">';
 						$html .= '<input type="hidden" id="orig_specific_classes_' . $item_id . '" value="' . $item['specific_class_ids'] . '">';
-						
+
 						$html .= '</div>';
 						$html .= '</div>';
 					}
-					
+
 					$html .= '</div>'; // fee-item
 				}
-				
+
 				$html .= '</div>'; // fee-items-list
 			}
-			
+
 			$html .= '</div>'; // card-body
 			$html .= '</div>'; // fee-class-card
 		}
-		
+
 		$html .= '</div>'; // fee-cards-container
-		
+
 		echo $html;
 	}
 
@@ -14492,7 +14136,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$ajax_array = [];
 
 			if($data['title'] != '' && $data['bill_category_id'] != '' && $data['amount'] != '') {
-				
+
 				// Check for duplicate title
 				$this->db->where('title', $data['title']);
 				$rows = $this->db->get('bill_item')->num_rows();
@@ -14504,7 +14148,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					// Check for duplicate description
 					$this->db->where('description', $data['description']);
 					$desc_rows = $this->db->get('bill_item')->num_rows();
-					
+
 					if($desc_rows > 0) {
 						$ajax_array['success'] = 3;
 						$ajax_array['message'] = 'A bill item with this DESCRIPTION already exists. Please use a different description.';
@@ -14516,7 +14160,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						} catch (Exception $e) {
 							// Catch database errors (like duplicate key violations)
 							$error_message = $e->getMessage();
-							
+
 							if (strpos($error_message, 'Duplicate entry') !== false) {
 								if (strpos($error_message, 'title') !== false) {
 									$ajax_array['success'] = 2;
@@ -14560,7 +14204,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$ajax_array = [];
 
 			if($data['title'] != '' && $data['bill_category_id'] != '' && $data['amount'] != '') {
-				
+
 				$this->db->where('title', $data['title']);
 				$this->db->where('id !=', $bill_id);
 				$rows = $this->db->get('bill_item')->num_rows();
@@ -14589,7 +14233,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 			} else {
 				$ajax_array['success'] = 0;
-				
+
 			}
 
 			echo json_encode($ajax_array);
@@ -14600,15 +14244,15 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		// Bulk save bill items - saves multiple edited rows at once
 		if ($param1 == 'bulk_save_bill_items') {
 			$updates = $this->input->post('updates'); // Array of bill item objects with changes
-			
+
 			if(empty($updates) || !is_array($updates)) {
 				echo json_encode(['success' => false, 'message' => 'No items to update']);
 				return;
 			}
-			
+
 			$updated = 0;
 			$errors = [];
-			
+
 			foreach($updates as $item) {
 				$id = $item['id'];
 				$data = [
@@ -14619,34 +14263,34 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					'specific_class_ids' => $item['specific_class_ids'],
 					'amount' => $item['amount']
 				];
-				
+
 				// Check for duplicate title (excluding current item)
 				$this->db->where('title', $data['title']);
 				$this->db->where('id !=', $id);
 				$duplicate_check = $this->db->get('bill_item')->num_rows();
-				
+
 				if($duplicate_check > 0) {
 					$errors[] = $data['title'] . ' - duplicate title';
 					continue;
 				}
-				
+
 				// Update the item
 				$this->db->where('id', $id);
 				$this->db->update('bill_item', $data);
-				
+
 				if($this->db->affected_rows() > 0) {
 					$updated++;
 				}
 			}
-			
+
 			if(count($errors) > 0) {
 				echo json_encode([
-					'success' => false, 
+					'success' => false,
 					'message' => 'Some items could not be updated: ' . implode(', ', $errors)
 				]);
 			} else {
 				echo json_encode([
-					'success' => true, 
+					'success' => true,
 					'message' => $updated . ' item(s) updated successfully'
 				]);
 			}
@@ -14656,16 +14300,16 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		// Bulk delete bill items
 		if ($param1 == 'bulk_delete_bill_items') {
 			$ids = $this->input->post('ids'); // Array of bill item IDs
-			
+
 			if(empty($ids) || !is_array($ids)) {
 				echo json_encode(['success' => false, 'message' => 'No items selected']);
 				return;
 			}
-			
+
 			// Check if any of the items are used in invoices
 			$used_items = [];
 			$can_delete = [];
-			
+
 			foreach($ids as $id) {
 				$item = $this->db->where('id', $id)->get('bill_item')->row();
 				if($item) {
@@ -14678,32 +14322,32 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					}
 				}
 			}
-			
+
 			// If some items are used, show warning
 			if(!empty($used_items)) {
 				$message = 'Cannot delete the following item(s) because they are used in invoices: ' . implode(', ', $used_items);
 				if(!empty($can_delete)) {
 					$message .= '. Other items will be deleted.';
 				}
-				
+
 				// Delete only items that can be deleted
 				if(!empty($can_delete)) {
 					$this->db->where_in('id', $can_delete);
 					$this->db->delete('bill_item');
 				}
-				
+
 				echo json_encode([
-					'success' => empty($can_delete) ? false : true, 
+					'success' => empty($can_delete) ? false : true,
 					'message' => $message
 				]);
 			} else {
 				// All items can be deleted
 				$this->db->where_in('id', $ids);
 				$deleted = $this->db->delete('bill_item');
-				
+
 				if($deleted) {
 					echo json_encode([
-						'success' => true, 
+						'success' => true,
 						'message' => count($ids) . ' item(s) deleted successfully'
 					]);
 				} else {
@@ -14714,55 +14358,55 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		}
 
 		//delete bill item
-		if ($param1 == 'delete_bill_item') { 
+		if ($param1 == 'delete_bill_item') {
 			$bill_id = $param2;
-			
+
 			// Get item details BEFORE deleting
 			$item = $this->db->where('id', $bill_id)->get('bill_item')->row();
-			
+
 			if(!$item) {
 				echo json_encode(['status' => 'error', 'message' => 'Bill item not found']);
 				return false;
 			}
-			
+
 			$item_title = $item->title;
-			
+
 			// Check if item is used in any invoice
 			$invoice_count = $this->db->where('title', $item_title)->get('invoice')->num_rows();
-			
+
 			if($invoice_count > 0) {
 				echo json_encode([
-					'status' => 'error', 
+					'status' => 'error',
 					'message' => 'Cannot delete "' . $item_title . '" because it is used in ' . $invoice_count . ' invoice(s)'
 				]);
 				return false;
 			}
-			
+
 			// Now delete the item
 			$this->db->where('id', $bill_id);
 			$deleted = $this->db->delete('bill_item');
-			
+
 			if($deleted) {
 				echo json_encode([
-					'status' => 'success', 
+					'status' => 'success',
 					'message' => 'Bill item "' . $item_title . '" deleted successfully'
 				]);
 			} else {
 				echo json_encode(['status' => 'error', 'message' => 'Failed to delete bill item']);
 			}
-			
+
 			return false;
 		}
 		//end of bill item deletion
 
 		//delete bill item
-		if ($param1 == 'get_bill_item_details') { 
+		if ($param1 == 'get_bill_item_details') {
 
 			$data['title'] = $this->input->post('title');
 
 			$this->db->where('title', $data['title']);
 			$details_row = $this->db->get('bill_item')->row();
-			
+
 			// Check if bill item was found
 			if(!$details_row) {
 				$ajax_array['description'] = '';
@@ -14771,7 +14415,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				echo json_encode($ajax_array);
 				return false;
 			}
-			
+
 			$ajax_array['description'] = $details_row->description;
 			$ajax_array['amount'] = $details_row->amount;
 			$category_id = $details_row->bill_category_id;
@@ -14799,7 +14443,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$this->session->set_flashdata('flash_message', get_phrase('data_updated'));
 			redirect(site_url('admin/income'));
 		} else if ($param1 == 'edit') {
-			
+
 			$page_data['edit_data'] = $this->db->get_where('invoice', array(
 				'invoice_id' => $param2,
 			))->result_array();
@@ -14880,7 +14524,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 			/*validate momo method details*/
 			if($data['payment_method'] == 3) {
-				
+
 				if($data['momo_transaction_id'] == 0 || strlen($data['momo_transaction_id']) < 10) {
 					$errors['transaction_id'] = 'Invalid Transaction ID';
 				}
@@ -14903,7 +14547,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 			/*Validate cheque method details*/
 			if($data['payment_method'] == 2) {
-				
+
 				/*for bank name*/
 				if(empty($data['bank_name']) || strlen($data['bank_name']) < 3) {
 					$errors['bank_name'] = 'Invalid Bank Name';
@@ -14913,7 +14557,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				if(empty($data['cheque_number']) || $data['cheque_number'] == 0 || strlen($data['cheque_number']) < 10) {
 					$errors['cheque_number'] = 'Invalid Cheque Number';
 				}
-				
+
 			}
 
 			if(!empty($errors)) {
@@ -14927,7 +14571,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$owing_invoice_codes_array = $this->financial_report_model->getAllBillInvoicesOwingByStudentId($data['student_id']);
 			$owing_invoice_ids_array = $this->financial_report_model->getAllBillInvoicesIdsOwingByStudentId($data['student_id']);
 
-			
+
 			$owing_invoice_ids = array_column($owing_invoice_ids_array, 'invoice_id');
 			$owing_invoice_codes = array_unique(array_column($owing_invoice_codes_array, 'invoice_code'));
 
@@ -15001,20 +14645,20 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 			//do insert data into payment table now
 			$this->db->insert_batch('payment', $batchInsertArray);
-			
+
 			// ============================================
 			// CREDIT SYSTEM: Check for overpayment
 			// ============================================
 			// Load Credit model
 			$this->load->model('Credit_model');
-			
+
 			// Store credit amount for response message
 			$credit_amount_created = 0;
-			
+
 			// Check if student overpaid (amount_paid is still greater than 0 after all allocations)
 			if($amount_paid > 0) {
 				$credit_amount_created = $amount_paid; // Store for later use
-				
+
 				// Student has overpaid - create credit
 				$credit_data = [
 					'student_id' => $data['student_id'],
@@ -15023,10 +14667,10 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					'created_by' => $this->session->userdata('login_user_id'),
 					'notes' => "Overpayment from receipt #{$receipt_code}. Amount received exceeded total outstanding invoices."
 				];
-				
+
 				$this->db->insert('student_credits', $credit_data);
 				$credit_id = $this->db->insert_id();
-				
+
 				// ============================================
 				// IMPORTANT: Record the overpayment amount in payment table
 				// This ensures the FULL amount received is recorded for accounting
@@ -15054,10 +14698,10 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					'invoice_code' => null,
 					'residence_type' => $payment_data['residence_type'] ?? 'Day'
 				];
-				
+
 				$this->db->insert('payment', $overpayment_record);
 				$overpayment_payment_id = $this->db->insert_id();
-				
+
 				// Sync overpayment to accounts and ledger
 				if($overpayment_payment_id) {
 					sync_payment_to_accounts($overpayment_payment_id);
@@ -15065,20 +14709,20 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				}
 			}
 			// ============================================
-			
+
 			// FINANCE INTEGRATION: Sync payments to accounts and ledger
 			foreach($batchInsertArray as $payment_data) {
 				$payment_id = $this->db->where('receipt_code', $receipt_code)
 					->where('student_id', $payment_data['student_id'])
 					->where('invoice_code', $payment_data['invoice_code'])
 					->get('payment')->row()->payment_id;
-				
+
 				if($payment_id) {
 					sync_payment_to_accounts($payment_id);
 					sync_payment_to_ledger($payment_id);
 				}
 			}
-			
+
 			//updating the payment table with the balance due for this receipt
 
 			$this->db->select_sum('due');
@@ -15087,7 +14731,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$this->db->where('due !=', 0);
 			$this->db->where('student_id', $data['student_id']);
 			$bal_due_query = $this->db->get();
-			
+
 			if($bal_due_query->num_rows() > 0) {
 				$bal_due = $bal_due_query->row()->due;
 			} else {
@@ -15102,7 +14746,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$this->db->update('payment');
 
 			}
-			
+
 
 			/*updating the status in invoice table*/
 			$batchInvoiceUpdateArray = array();
@@ -15130,7 +14774,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			if (is_auto_lock_enabled()) {
 				// Lock all payments with this receipt code
 				lock_payments_by_receipt($receipt_code, 'Payment records are locked for security');
-				
+
 				// Lock invoices that are now fully paid
 				foreach ($batchInvoiceUpdateArray as $invoice_update) {
 					if ($invoice_update['status'] == 'paid') {
@@ -15156,7 +14800,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$this->db->where('due !=', 0);
 			$this->db->where('student_id', $data['student_id']);
 			$amount_due_query = $this->db->get();
-			
+
 			if($amount_due_query->num_rows() > 0) {
 				$amount_due = $amount_due_query->row()->due;
 			} else {
@@ -15227,7 +14871,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$json_data['message'] = 1;
 				$json_data['print_receipt'] = 0;
 				$json_data['success'] = true;
-				
+
 				// Check if credit was created (overpayment scenario)
 				if($credit_amount_created > 0) {
 					$json_data['credit_created'] = true;
@@ -15244,24 +14888,24 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$errors = [];
 			$receipt_code = $this->input->post('receipt_code_original');
 			$student_id = $this->input->post('student_id');
-			
+
 			// Get payment data
 			$data['payment_method'] = $this->input->post('payment_method');
 			$data['transaction_id'] = $this->input->post('momo_transaction_id');
 			$data['bank_name'] = $this->input->post('bank_name');
 			$data['cheque_number'] = $this->input->post('cheque_number');
 			$new_amount = $this->input->post('amount');
-			
+
 			// Get current payment records and total
 			$this->db->where('receipt_code', $receipt_code);
 			$this->db->order_by('payment_id', 'ASC');
 			$existing_payments = $this->db->get('payment')->result_array();
-			
+
 			if(empty($existing_payments)) {
 				echo json_encode(['status' => 'error', 'message' => get_phrase('payment_record_not_found')]);
 				return false;
 			}
-			
+
 			$current_total = array_sum(array_column($existing_payments, 'amount'));
 			$original_timestamp = $existing_payments[0]['timestamp'];
 			$original_day_timestamp = $existing_payments[0]['day_timestamp'];
@@ -15272,19 +14916,19 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$original_issuer_id = $existing_payments[0]['issuer_id'];
 			$original_account_type = $existing_payments[0]['account_type'];
 			$original_payment_type = $existing_payments[0]['payment_type'];
-			
+
 			// Validate amount
 			if(empty($new_amount) || $new_amount <= 0) {
 				$errors['amount'] = get_phrase('amount_paid_is_invalid');
 			}
-			
+
 			// Validate payment method details
 			if($data['payment_method'] == 3) {
 				if(empty($data['transaction_id']) || strlen($data['transaction_id']) < 10) {
 					$errors['transaction_id'] = get_phrase('invalid_transaction_id');
 				}
 			}
-			
+
 			if($data['payment_method'] == 2) {
 				if(empty($data['bank_name']) || strlen($data['bank_name']) < 3) {
 					$errors['bank_name'] = get_phrase('invalid_bank_name');
@@ -15293,12 +14937,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$errors['cheque_number'] = get_phrase('invalid_cheque_number');
 				}
 			}
-			
+
 			if(!empty($errors)) {
 				echo json_encode(['status' => 'error', 'message' => implode('<br>', $errors)]);
 				return false;
 			}
-			
+
 			// If amount changed, adjust amounts
 			$amount_diff = (floatval($new_amount) - floatval($current_total));
 			if($amount_diff != 0) {
@@ -15309,15 +14953,15 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$this->db->set('due', 'due + ' . $payment['amount'], FALSE);
 					$this->db->update('invoice');
 				}
-				
+
 				// Delete old payment records
 				$this->db->where('receipt_code', $receipt_code);
 				$this->db->delete('payment');
-				
+
 				// Get owing invoices
 				$owing_invoice_ids_array = $this->financial_report_model->getAllBillInvoicesIdsOwingByStudentId($student_id);
 				$owing_invoice_ids = array_column($owing_invoice_ids_array, 'invoice_id');
-				
+
 				// Recreate payment records with new amount but original timestamp
 				$amount_paid = $new_amount;
 				$payment_data['payment_type'] = $original_payment_type;
@@ -15333,21 +14977,21 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$payment_data['year'] = $original_year;
 				$payment_data['issuer_id'] = $original_issuer_id;
 				$payment_data['account_type'] = $original_account_type;
-				
+
 				if($original_term !== null) {
 					$payment_data['term'] = $original_term;
 				}
 				if($original_sem !== null) {
 					$payment_data['sem'] = $original_sem;
 				}
-				
+
 				$batchInsertArray = array();
 				foreach($owing_invoice_ids as $invoice_id) {
 					if($amount_paid < 1) break;
-					
+
 					$invoice_row = $this->db->get_where('invoice', array('invoice_id' => $invoice_id))->row();
 					$amount_due = $invoice_row->due;
-					
+
 					if($amount_due > $amount_paid) {
 						$payment_data['amount'] = $amount_paid;
 						$amount_paid = 0;
@@ -15355,13 +14999,13 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						$payment_data['amount'] = $amount_due;
 						$amount_paid -= $amount_due;
 					}
-					
+
 					$payment_data['invoice_id'] = $invoice_id;
 					$payment_data['invoice_code'] = $invoice_row->invoice_code;
 					$payment_data['residence_type'] = $this->crud_model->getStudentCurrentEnrollmentStatusRow($student_id)->residence_type;
 					$payment_data['title'] = $invoice_row->title;
 					$payment_data['description'] = $invoice_row->description;
-					
+
 					// Update invoice
 					$this->db->where('invoice_id', $invoice_id);
 					$this->db->set('amount_paid', 'amount_paid + ' . $payment_data['amount'], FALSE);
@@ -15369,20 +15013,20 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$this->db->set('payment_timestamp', $payment_data['timestamp']);
 					$this->db->set('payment_method', $payment_data['payment_method']);
 					$this->db->update('invoice');
-					
+
 					$batchInsertArray[] = $payment_data;
 				}
-				
+
 				// Insert updated payment records with original timestamp
 				if(count($batchInsertArray) > 0) {
 					$this->db->insert_batch('payment', $batchInsertArray);
 				}
-				
+
 				// Update invoice statuses
 				$owing_invoice_codes_array = $this->financial_report_model->getAllBillInvoicesOwingByStudentId($student_id);
 				$owing_invoice_codes = array_unique(array_column($owing_invoice_codes_array, 'invoice_code'));
 				$batchInvoiceUpdateArray = array();
-				
+
 				foreach($owing_invoice_codes as $invoice_code) {
 					$amount_owe = $this->financial_report_model->getBillOweSumByInvoiceCode($invoice_code);
 					$invoice_status = ($amount_owe > 0) ? 'unpaid' : 'paid';
@@ -15391,7 +15035,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						'status' => $invoice_status
 					);
 				}
-				
+
 				if(count($batchInvoiceUpdateArray) > 0) {
 					$this->db->update_batch('invoice', $batchInvoiceUpdateArray, 'invoice_code');
 				}
@@ -15400,7 +15044,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$this->db->where('receipt_code', $receipt_code);
 				$this->db->update('payment', $data);
 			}
-			
+
 			// Update balance due for this receipt
 			$this->db->select_sum('due');
 			$this->db->from('invoice');
@@ -15408,7 +15052,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$this->db->where('due !=', 0);
 			$this->db->where('student_id', $student_id);
 			$bal_due = $this->db->get()->row()->due;
-			
+
 			if($bal_due > 0) {
 				$this->db->where('receipt_code', $receipt_code);
 				$this->db->set('due', $bal_due);
@@ -15420,7 +15064,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$this->db->limit(1);
 				$this->db->update('payment');
 			}
-			
+
 			echo json_encode(['status' => 'success', 'message' => get_phrase('payment_updated_successfully')]);
 			return false;
 		}
@@ -15517,21 +15161,21 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$receipt_code = $user_receipt_code;
 				}
 
-				
+
 
 				$inv_ids_array = explode('-', $this->input->post($students_ids[$si] . '_invoice_ids_array'));
 
 				for ($vi = 0; $vi < count($inv_ids_array); $vi++) {
 
 					$data['invoice_id'] = $this->input->post('invoice_id_' . $inv_ids_array[$vi]);
-					
+
 					$invoice_query = $this->db->get_where('invoice', array('invoice_id' => $inv_ids_array[$vi]));
 					if ($invoice_query->num_rows() > 0) {
 						$data['invoice_code'] = $invoice_query->row()->invoice_code;
 					} else {
 						$data['invoice_code'] = null;
 					}
-					
+
 					$data['receipt_code'] = $receipt_code;
 					$data['student_id'] = $students_ids[$si];
 					$data['class_id'] = $this->input->post('class_id');
@@ -15885,14 +15529,14 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			for ($vi = 0; $vi < count($inv_ids_array); $vi++) {
 
 				$data['invoice_id'] = $this->input->post('invoice_id_' . $inv_ids_array[$vi]);
-				
+
 				$invoice_query = $this->db->get_where('invoice', array('invoice_id' => $inv_ids_array[$vi]));
 				if ($invoice_query->num_rows() > 0) {
 					$data['invoice_code'] = $invoice_query->row()->invoice_code;
 				} else {
 					$data['invoice_code'] = null;
 				}
-				
+
 				$data['receipt_code'] = $receipt_code;
 				$data['student_id'] = $this->input->post('student_id');
 				$data['class_id'] = $this->input->post('class_id');
@@ -16033,7 +15677,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				}
 			} //End of SMS
 
-			
+
 
 			$this->session->set_flashdata('flash_message', get_phrase('refund_successful'));
 
@@ -16201,7 +15845,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		}
 
 	}
-	
+
 
 	function get_invoices() {
 		//if ($this->session->userdata('admin_login') != 1)
@@ -16453,7 +16097,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			show_error('Student ID is required');
 			return;
 		}
-		
+
 		$page_data['student_id'] = $student_id;
 		$this->load->view('backend/admin/student_bill_report', $page_data);
 	}
@@ -16468,14 +16112,14 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			redirect(site_url('admin/student_invoice'));
 			return;
 		}
-		
+
 		$class = $this->db->get_where('class', array('class_id' => $class_id))->row();
 		$section = $this->db->get_where('section', array('section_id' => $section_id))->row();
-		
+
 		$page_data['class_id'] = $class_id;
 		$page_data['section_id'] = $section_id;
 		$page_data['class_name'] = $class->name . ' ' . $class->name_numeric . ' ' . $section->name;
-		
+
 		$this->load->view('backend/admin/student_bill_report_bulk', $page_data);
 	}
 
@@ -16489,12 +16133,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->load->view('backend/main', $page_data);
 	}
 
-	
+
 	// Income Dashboard
 	public function income_dashboard() {
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		$page_data['page_name'] = 'income_dashboard';
 		$page_data['page_title'] = get_phrase('income_dashboard');
 		$this->load->view('backend/main', $page_data);
@@ -16505,7 +16149,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$year = $this->input->post('year') ?: get_settings('running_year');
 		$start_date = $this->input->post('start_date');
 		$end_date = $this->input->post('end_date');
-		
+
 		// 1. Billed Invoices
 		$this->db->select_sum('amount');
 		$this->db->where('payment_type', 'income');
@@ -16513,18 +16157,18 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		if($start_date) $this->db->where('day_timestamp >=', strtotime($start_date));
 		if($end_date) $this->db->where('day_timestamp <=', strtotime($end_date . ' 23:59:59'));
 		$invoices = $this->db->get('payment')->row()->amount ?? 0;
-		
+
 		// 2. Daily Fees
 		$this->db->select_sum('total_amount');
 		$this->db->where('year', $year);
 		if($start_date) $this->db->where('payment_date >=', strtotime($start_date));
 		if($end_date) $this->db->where('payment_date <=', strtotime($end_date . ' 23:59:59'));
 		$daily_fees = $this->db->get('daily_fee_transactions')->row()->total_amount ?? 0;
-		
+
 		// 3. Inventory Sales
 		$this->load->model('Inventory_model');
 		$inventory_sales = $this->Inventory_model->get_total_sales_revenue($start_date, $end_date);
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'labels' => ['Billed Invoices', 'Daily Fees', 'Inventory Sales'],
@@ -16537,73 +16181,73 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$year = $this->input->post('year') ?: get_settings('running_year');
 		$selected_month = $this->input->post('month') ?: date('n');
 		$selected_year = $this->input->post('academic_year') ?: $year;
-		
+
 		// Total revenue from all 3 sources
 		$invoices = $this->db->select_sum('amount')->where('payment_type', 'income')->where('year', $year)->get('payment')->row()->amount ?? 0;
 		$daily_fees = $this->db->select_sum('total_amount')->where('year', $year)->get('daily_fee_transactions')->row()->total_amount ?? 0;
-		
+
 		$this->load->model('Inventory_model');
 		$inventory = $this->Inventory_model->get_total_sales_revenue();
-		
+
 		$total = $invoices + (floatval($daily_fees) + floatval($inventory));
-		
+
 		// Selected month
 		$month_start = strtotime(date('Y').'-'.str_pad($selected_month, 2, '0', STR_PAD_LEFT).'-01');
 		$month_end = strtotime(date('Y-m-t', $month_start));
-		
+
 		$this->db->select_sum('amount');
 		$this->db->where('payment_type', 'income');
 		$this->db->where('year', $year);
 		$this->db->where('day_timestamp >=', $month_start);
 		$this->db->where('day_timestamp <=', $month_end + 86399);
 		$month_invoices = $this->db->get('payment')->row()->amount ?? 0;
-		
+
 		$this->db->select_sum('total_amount');
 		$this->db->where('year', $year);
 		$this->db->where('payment_date >=', $month_start);
 		$this->db->where('payment_date <=', $month_end);
 		$month_daily = $this->db->get('daily_fee_transactions')->row()->total_amount ?? 0;
-		
+
 		$month_inventory = $this->Inventory_model->get_total_sales_revenue(date('Y-m-d', $month_start), date('Y-m-d', $month_end));
 		$month = $month_invoices + (floatval($month_daily) + floatval($month_inventory));
-		
+
 		// Selected month transaction count
 		$month_count = $this->db->where('payment_type', 'income')
 			->where('year', $year)
 			->where('day_timestamp >=', $month_start)
 			->where('day_timestamp <=', $month_end + 86399)
 			->count_all_results('payment');
-		
+
 		$month_count += $this->db->where('year', $year)
 			->where('payment_date >=', $month_start)
 			->where('payment_date <=', $month_end)
 			->count_all_results('daily_fee_transactions');
-		
+
 		// Outstanding invoices
 		$this->db->select_sum('due');
 		$this->db->where('year', $year);
 		$this->db->where('status', 'unpaid');
 		$outstanding = $this->db->get('invoice')->row()->due ?? 0;
-		
+
 		$outstanding_count = $this->db->where('year', $year)
 			->where('status', 'unpaid')
 			->count_all_results('invoice');
-		
+
 		// Selected academic year total
 		$year_invoices = $this->db->select_sum('amount')
 			->where('payment_type', 'income')
 			->where('year', $selected_year)
 			->get('payment')->row()->amount ?? 0;
-		
+
 		$year_daily = $this->db->select_sum('total_amount')
 			->where('year', $selected_year)
 			->get('daily_fee_transactions')->row()->total_amount ?? 0;
-		
+
 		$year_inventory = $this->Inventory_model->get_total_sales_revenue();
 		$year_total = $year_invoices + (floatval($year_daily) + floatval($year_inventory));
-		
+
 		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'total' => $total,
@@ -16622,36 +16266,36 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$year = $this->input->get('year') ?? date('Y');
 		$labels = [];
 		$values = [];
-		
+
 		$this->load->model('Inventory_model');
-		
+
 		for($m = 1; $m <= 12; $m++) {
 			$labels[] = date('M', mktime(0, 0, 0, $m, 1));
 			$start = strtotime($year . '-' . str_pad($m, 2, '0', STR_PAD_LEFT) . '-01');
 			$end = strtotime(date('Y-m-t', $start));
-			
+
 			// Invoices
 			$invoices = $this->db->select_sum('amount')
 				->where('payment_type', 'income')
 				->where('day_timestamp >=', $start)
 				->where('day_timestamp <=', $end + 86399)
 				->get('payment')->row()->amount ?? 0;
-			
+
 			// Daily Fees
 			$daily = $this->db->select_sum('total_amount')
 				->where('payment_date >=', $start)
 				->where('payment_date <=', $end)
 				->get('daily_fee_transactions')->row()->total_amount ?? 0;
-			
+
 			// Inventory
 			$inventory = $this->Inventory_model->get_total_sales_revenue(
-				date('Y-m-d', $start), 
+				date('Y-m-d', $start),
 				date('Y-m-d', $end)
 			);
-			
+
 			$values[] = floatval($invoices + $daily + $inventory);
 		}
-		
+
 		echo json_encode(['labels' => $labels, 'values' => $values]);
 	}
 
@@ -16660,7 +16304,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	function get_revenue_breakdown() {
 		$year = $this->input->get('year') ?: get_settings('running_year');
 		$period = $this->input->get('period') ?? 'month';
-		
+
 		if($period == 'month') {
 			$start = strtotime(date('Y-m-01'));
 			$end = strtotime(date('Y-m-t'));
@@ -16671,19 +16315,19 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$start = strtotime(date('Y-01-01'));
 			$end = time();
 		}
-		
+
 		$result = [
 			['source' => 'School Fees', 'amount' => 0, 'count' => 0],
 			['source' => 'Daily Fees', 'amount' => 0, 'count' => 0],
 			['source' => 'Other Income', 'amount' => 0, 'count' => 0]
 		];
-		
+
 		$total = array_sum(array_column($result, 'amount'));
-		
+
 		foreach($result as &$row) {
 			$row['percent'] = $total > 0 ? round(($row['amount'] / $total) * 100, 1) : 0;
 		}
-		
+
 		echo json_encode($result);
 	}
 
@@ -16691,7 +16335,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	function get_income_report_data() {
 		$period = $this->input->get('period') ?? 'month';
 		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
-		
+
 		if($period == 'month') {
 			$start = strtotime(date('Y-m-01'));
 			$end = strtotime(date('Y-m-t'));
@@ -16705,7 +16349,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$end = time();
 			$title = 'Income_Report_' . date('Y');
 		}
-		
+
 		$this->db->select('p.*, s.name as student_name')
 			->from('payment p')
 			->join('student s', 's.student_id = p.student_id', 'left')
@@ -16713,9 +16357,9 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			->where('p.timestamp >=', $start)
 			->where('p.timestamp <=', $end)
 			->order_by('p.timestamp', 'DESC');
-		
+
 		$payments = $this->db->get()->result_array();
-		
+
 		$data = [];
 		foreach($payments as $p) {
 			$data[] = [
@@ -16725,7 +16369,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				'Amount' => number_format($p['amount'], 2)
 			];
 		}
-		
+
 		echo json_encode(['status' => 'success', 'data' => $data, 'title' => $title, 'currency' => $currency]);
 	}
 
@@ -16742,12 +16386,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$selected_month = $this->input->post('month') ?: date('n');
 		$selected_year = $this->input->post('year') ?: get_settings('running_year');
 		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
-		
+
 		// Total expenditure
 		$total = $this->db->select_sum('amount')
 			->where('payment_type', 'expense')
 			->get('payment')->row()->amount ?? 0;
-		
+
 		// Selected month
 		$month_start = strtotime(date('Y').'-'.str_pad($selected_month, 2, '0', STR_PAD_LEFT).'-01');
 		$month_end = strtotime(date('Y-m-t', $month_start));
@@ -16756,12 +16400,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			->where('day_timestamp >=', $month_start)
 			->where('day_timestamp <=', $month_end + 86399)
 			->get('payment')->row()->amount ?? 0;
-		
+
 		$month_count = $this->db->where('payment_type', 'expense')
 			->where('day_timestamp >=', $month_start)
 			->where('day_timestamp <=', $month_end + 86399)
 			->count_all_results('payment');
-		
+
 		// Last month for comparison
 		$last_month_start = strtotime(date('Y-m-01', strtotime('-1 month')));
 		$last_month_end = strtotime(date('Y-m-t', strtotime('-1 month')));
@@ -16770,19 +16414,19 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			->where('day_timestamp >=', $last_month_start)
 			->where('day_timestamp <=', $last_month_end + 86399)
 			->get('payment')->row()->amount ?? 0;
-		
+
 		$change_percent = $last_month > 0 ? round((($month - $last_month) / $last_month) * 100, 1) : 0;
-		
+
 		// Selected academic year total (year field in payment table stores academic year like 2022-2023)
 		$year_total = $this->db->select_sum('amount')
 			->where('payment_type', 'expense')
 			->where('year', $selected_year)
 			->get('payment')->row()->amount ?? 0;
-		
+
 		// Total expense count
 		$expense_count = $this->db->where('payment_type', 'expense')
 			->count_all_results('payment');
-		
+
 		echo json_encode([
 			'total' => $total,
 			'month' => $month,
@@ -16799,21 +16443,21 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$year = $this->input->get('year') ?? date('Y');
 		$labels = [];
 		$values = [];
-		
+
 		for($m = 1; $m <= 12; $m++) {
 			$labels[] = date('M', mktime(0, 0, 0, $m, 1));
 			$start = strtotime($year . '-' . str_pad($m, 2, '0', STR_PAD_LEFT) . '-01');
 			$end = strtotime(date('Y-m-t', $start));
-			
+
 			$amount = $this->db->select_sum('amount')
 				->where('payment_type', 'expense')
 				->where('day_timestamp >=', $start)
 				->where('day_timestamp <=', $end)
 				->get('payment')->row()->amount ?? 0;
-			
+
 			$values[] = floatval($amount);
 		}
-		
+
 		echo json_encode(['labels' => $labels, 'values' => $values]);
 	}
 
@@ -16826,23 +16470,23 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			->group_by('p.expense_category_id')
 			->order_by('total', 'DESC')
 			->limit(6);
-		
+
 		$result = $this->db->get()->result_array();
 		$labels = [];
 		$values = [];
-		
+
 		foreach($result as $row) {
 			$labels[] = $row['name'];
 			$values[] = floatval($row['total']);
 		}
-		
+
 		echo json_encode(['labels' => $labels, 'values' => $values]);
 	}
 
 	// Get Top Categories
 	function get_top_categories() {
 		$period = $this->input->get('period') ?? 'month';
-		
+
 		if($period == 'month') {
 			$start = strtotime(date('Y-m-01'));
 			$end = strtotime(date('Y-m-t'));
@@ -16853,7 +16497,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$start = strtotime(date('Y-01-01'));
 			$end = time();
 		}
-		
+
 		$this->db->select('ec.name as category, SUM(p.amount) as amount, COUNT(*) as count')
 			->from('payment p')
 			->join('expense_category ec', 'ec.expense_category_id = p.expense_category_id')
@@ -16863,14 +16507,14 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			->group_by('p.expense_category_id')
 			->order_by('amount', 'DESC')
 			->limit(10);
-		
+
 		$result = $this->db->get()->result_array();
 		$total = array_sum(array_column($result, 'amount'));
-		
+
 		foreach($result as &$row) {
 			$row['percent'] = $total > 0 ? round(($row['amount'] / $total) * 100, 1) : 0;
 		}
-		
+
 		echo json_encode($result);
 	}
 
@@ -16878,7 +16522,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	function get_expenditure_report_data() {
 		$period = $this->input->get('period') ?? 'month';
 		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
-		
+
 		if($period == 'month') {
 			$start = strtotime(date('Y-m-01'));
 			$end = strtotime(date('Y-m-t'));
@@ -16892,7 +16536,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$end = time();
 			$title = 'Expenditure_Report_' . date('Y');
 		}
-		
+
 		$this->db->select('p.*, ec.name as category_name')
 			->from('payment p')
 			->join('expense_category ec', 'ec.expense_category_id = p.expense_category_id', 'left')
@@ -16900,9 +16544,9 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			->where('p.day_timestamp >=', $start)
 			->where('p.day_timestamp <=', $end)
 			->order_by('p.day_timestamp', 'DESC');
-		
+
 		$expenses = $this->db->get()->result_array();
-		
+
 		$data = [];
 		foreach($expenses as $e) {
 			$data[] = [
@@ -16912,14 +16556,14 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				'Amount' => number_format($e['amount'], 2)
 			];
 		}
-		
+
 		echo json_encode(['status' => 'success', 'data' => $data, 'title' => $title, 'currency' => $currency]);
 	}
 
 	// Generate Expenditure Report
 	function generate_expenditure_report($type = 'monthly') {
 		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
-		
+
 		if($type == 'monthly') {
 			$start = strtotime(date('Y-m-01'));
 			$end = strtotime(date('Y-m-t'));
@@ -16945,7 +16589,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$end = strtotime(date('Y-m-t'));
 			$title = 'Budget vs Actual Report';
 		}
-		
+
 		$this->db->select('p.*, ec.name as category_name')
 			->from('payment p')
 			->join('expense_category ec', 'ec.expense_category_id = p.expense_category_id', 'left')
@@ -16953,17 +16597,17 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			->where('p.day_timestamp >=', $start)
 			->where('p.day_timestamp <=', $end)
 			->order_by('p.day_timestamp', 'DESC');
-		
+
 		$expenses = $this->db->get()->result_array();
-		
+
 		header('Content-Type: text/csv');
 		header('Content-Disposition: attachment; filename="' . str_replace(' ', '_', $title) . '.csv"');
-		
+
 		$output = fopen('php://output', 'w');
 		fputcsv($output, ['Date', 'Title', 'Category', 'Amount (' . $currency . ')', 'Payment Method', 'Description']);
-		
+
 		$payment_methods = [1 => 'Cash', 2 => 'Cheque', 3 => 'Mobile Money', 4 => 'Bank Transfer'];
-		
+
 		foreach($expenses as $exp) {
 			fputcsv($output, [
 				date('d-m-Y', $exp['day_timestamp']),
@@ -16974,7 +16618,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$exp['description'] ?? ''
 			]);
 		}
-		
+
 		fclose($output);
 		exit;
 	}
@@ -16986,7 +16630,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$category = $this->input->get('category');
 		$payment_method = $this->input->get('payment_method');
 		$format = $this->input->get('format');
-		
+
 		if($date_range == 'today') {
 			$start = strtotime(date('Y-m-d'));
 			$end = strtotime(date('Y-m-d') . ' 23:59:59');
@@ -17008,35 +16652,35 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$start = strtotime(str_replace('-', '/', $start_date));
 			$end = strtotime(str_replace('-', '/', $end_date));
 		}
-		
+
 		$this->db->select('p.*, ec.name as category_name')
 			->from('payment p')
 			->join('expense_category ec', 'ec.expense_category_id = p.expense_category_id', 'left')
 			->where('p.payment_type', 'expense')
 			->where('p.day_timestamp >=', $start)
 			->where('p.day_timestamp <=', $end);
-		
+
 		if(!empty($category)) {
 			$this->db->where('p.expense_category_id', $category);
 		}
-		
+
 		if(!empty($payment_method)) {
 			$this->db->where('p.payment_method', $payment_method);
 		}
-		
+
 		$this->db->order_by('p.day_timestamp', 'DESC');
 		$expenses = $this->db->get()->result_array();
-		
+
 		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
-		
+
 		header('Content-Type: text/csv');
 		header('Content-Disposition: attachment; filename="Custom_Expenditure_Report_' . date('Y-m-d') . '.csv"');
-		
+
 		$output = fopen('php://output', 'w');
 		fputcsv($output, ['Date', 'Title', 'Category', 'Amount (' . $currency . ')', 'Payment Method', 'Description']);
-		
+
 		$payment_methods = [1 => 'Cash', 2 => 'Cheque', 3 => 'Mobile Money', 4 => 'Bank Transfer'];
-		
+
 		foreach($expenses as $exp) {
 			fputcsv($output, [
 				date('d-m-Y', $exp['day_timestamp']),
@@ -17047,7 +16691,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$exp['description'] ?? ''
 			]);
 		}
-		
+
 		fclose($output);
 		exit;
 	}
@@ -17067,7 +16711,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$date_range = $this->input->post('date_range');
 		$category = $this->input->post('category');
 		$payment_method = $this->input->post('payment_method');
-		
+
 		if($date_range == 'today') {
 			$start = strtotime(date('Y-m-d'));
 			$end = strtotime(date('Y-m-d') . ' 23:59:59');
@@ -17089,28 +16733,28 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$start = strtotime(str_replace('-', '/', $start_date));
 			$end = strtotime(str_replace('-', '/', $end_date));
 		}
-		
+
 		$this->db->select('p.*, ec.name as category_name')
 			->from('payment p')
 			->join('expense_category ec', 'ec.expense_category_id = p.expense_category_id', 'left')
 			->where('p.payment_type', 'expense')
 			->where('p.day_timestamp >=', $start)
 			->where('p.day_timestamp <=', $end);
-		
+
 		if(!empty($category)) {
 			$this->db->where('p.expense_category_id', $category);
 		}
-		
+
 		if(!empty($payment_method)) {
 			$this->db->where('p.payment_method', $payment_method);
 		}
-		
+
 		$this->db->order_by('p.day_timestamp', 'DESC');
 		$expenses = $this->db->get()->result_array();
-		
+
 		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
 		$payment_methods = [1 => 'Cash', 2 => 'Cheque', 3 => 'Mobile Money', 4 => 'Bank Transfer'];
-		
+
 		$data = [];
 		foreach($expenses as $exp) {
 			$data[] = [
@@ -17122,7 +16766,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				'Description' => $exp['description'] ?? ''
 			];
 		}
-		
+
 		$title = 'Custom Expenditure Report - ' . date('Y-m-d');
 		echo json_encode(['status' => 'success', 'data' => $data, 'title' => $title]);
 	}
@@ -17210,7 +16854,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$payment_id = $this->input->post('payment_id');
 		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
 		$fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
-		
+
 		$data['title'] = strtoupper($this->input->post('title'));
 		$data['expense_category_id'] = $this->input->post('expense_category_id');
 		$data['payment_type'] = 'expense';
@@ -17219,19 +16863,19 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$data['day_timestamp'] = strtotime($this->input->post('timestamp'));
 		$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		if ($this->input->post('description') != null) {
 			$data['description'] = $this->input->post('description');
 		} else {
 			$data['description'] = null;
 		}
-		
+
 		$this->db->where('payment_id', $payment_id);
 		$this->db->update('payment', $data);
-		
+
 		// Get total expenses for display
 		$totalExpenses = $this->ajaxload->all_expenses_total();
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'message' => get_phrase('expense_updated_successfully'),
@@ -17242,17 +16886,17 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	// Bulk Expense Creation
 	function expense_bulk_create() {
 		$expenses = $this->input->post('expenses');
-		
+
 		if(empty($expenses)) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('no_expenses_provided')]);
 			return;
 		}
-		
+
 		$year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		$this->db->trans_start();
-		
+
 		foreach($expenses as $expense) {
 			$selected_timestamp = strtotime($expense['date']);
 			$data = array(
@@ -17267,12 +16911,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				'term' => $term,
 				'description' => !empty($expense['description']) ? $expense['description'] : null
 			);
-			
+
 			$this->db->insert('payment', $data);
 		}
-		
+
 		$this->db->trans_complete();
-		
+
 		if($this->db->trans_status() === FALSE) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('operation_failed')]);
 		} else {
@@ -17285,7 +16929,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	function expense_bulk_edit() {
 		$start_date = $this->input->get('start_date');
 		$end_date = $this->input->get('end_date');
-		
+
 		$this->db->where('payment_type', 'expense');
 		if($start_date && $end_date) {
 			$this->db->where('day_timestamp >=', strtotime($start_date));
@@ -17295,21 +16939,21 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->db->limit(50);
 		$page_data['expenses'] = $this->db->get('payment')->result_array();
 		$page_data['categories'] = $this->db->get('expense_category')->result_array();
-		
+
 		$this->load->view('backend/admin/expense_bulk_edit', $page_data);
 	}
 
 	// Bulk Expense Update
 	function expense_bulk_update() {
 		$expenses = $this->input->post('expenses');
-		
+
 		if(empty($expenses)) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('no_expenses_provided')]);
 			return;
 		}
-		
+
 		$this->db->trans_start();
-		
+
 		foreach($expenses as $expense) {
 			$data = array(
 				'title' => strtoupper($expense['title']),
@@ -17319,13 +16963,13 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				'day_timestamp' => strtotime($expense['date']),
 				'description' => !empty($expense['description']) ? $expense['description'] : null
 			);
-			
+
 			$this->db->where('payment_id', $expense['id']);
 			$this->db->update('payment', $data);
 		}
-		
+
 		$this->db->trans_complete();
-		
+
 		if($this->db->trans_status() === FALSE) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('operation_failed')]);
 		} else {
@@ -17337,17 +16981,17 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	// Bulk Expense Delete
 	function expense_bulk_delete() {
 		$ids = $this->input->post('ids');
-		
+
 		if(empty($ids)) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('no_expenses_selected')]);
 			return;
 		}
-		
+
 		$this->db->trans_start();
 		$this->db->where_in('payment_id', $ids);
 		$this->db->delete('payment');
 		$this->db->trans_complete();
-		
+
 		if($this->db->trans_status() === FALSE) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('operation_failed')]);
 		} else {
@@ -17374,7 +17018,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				return;
 			}
 		}*/
-		
+
 		//if ($this->session->userdata('admin_login') != 1)
 		//redirect(site_url('login'));
 		//currency
@@ -17409,7 +17053,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 				$expenses = $this->ajaxload->all_expenses($limit, $start, $order, $dir);
 			}
-			
+
 		} else {
 			$search = $this->input->post('search')['value'];
 			$expenses = $this->ajaxload->expense_search($limit, $start, $search, $order, $dir);
@@ -17430,7 +17074,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			foreach ($expenses as $row) {
 				$category_row = $this->db->get_where('expense_category', array('expense_category_id' => $row->expense_category_id))->row();
 				$category = $category_row ? $category_row->name : 'N/A';
-				
+
 				// Simple inline action buttons
 				$options = '<div style="text-align:center;">
 					<a href="javascript:;" onclick="expense_edit_modal(' . $row->payment_id . ')" class="btn btn-sm btn-primary" style="margin-right:5px;">
@@ -17445,7 +17089,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$nestedData['title'] = $row->title;
 				$nestedData['year'] = $row->year . ' | Term ' . $row->term;
 				$nestedData['category'] = $category;
-				
+
 				// Convert payment method to readable name
 				$method_names = array(
 					'1' => 'Cash',
@@ -17458,7 +17102,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					'Mobile Money' => 'Mobile Money'
 				);
 				$nestedData['payment_method'] = isset($method_names[$row->payment_method]) ? $method_names[$row->payment_method] : $row->payment_method;
-				
+
 				// Format amount without currency symbol, just the number
 				$nestedData['amount'] = '<div style="text-align:right;">' . number_format($row->amount, 2) . '</div>';
 				$nestedData['date'] = date('d M, Y', $row->timestamp);
@@ -17520,7 +17164,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->load->view('backend/main', $page_data);
 	}
 
-		
+
 	// ============================================
 	// GET CATEGORIES (AJAX)
 	// ============================================
@@ -17528,7 +17172,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	{
 		try {
 			$categories = $this->db->get('expense_category')->result_array();
-			
+
 			// Add counts for each category
 			foreach($categories as &$cat) {
 				// Count expenses in this category
@@ -17536,18 +17180,18 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					->where('payment_type', 'expense')
 					->from('payment')
 					->count_all_results();
-				
+
 				// Sum total amount for this category
 				$cat['total_amount'] = $this->db->select_sum('amount')
 					->where('expense_category_id', $cat['expense_category_id'])
 					->where('payment_type', 'expense')
 					->get('payment')
 					->row()->amount ?? 0;
-				
+
 				$cat['icon'] = isset($cat['icon']) ? $cat['icon'] : 'folder';
 				$cat['description'] = isset($cat['description']) ? $cat['description'] : '';
 			}
-			
+
 			echo json_encode(['status' => 'success', 'data' => $categories]);
 		} catch(Exception $e) {
 			echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
@@ -17561,13 +17205,13 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	{
 		try {
 			$total = $this->db->count_all('expense_category');
-			
+
 			// Count only expense records (payment_type = 'expense')
 			$expenses = $this->db->where('payment_type', 'expense')
 				->where('expense_category_id IS NOT NULL')
 				->from('payment')
 				->count_all_results();
-			
+
 			// Count categories that have at least one expense
 			$active = $this->db->select('DISTINCT expense_category_id')
 				->from('payment')
@@ -17575,7 +17219,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				->where('expense_category_id IS NOT NULL')
 				->get()
 				->num_rows();
-			
+
 			// Get most used category
 			$most_used = $this->db->select('ec.name, COUNT(p.payment_id) as count')
 				->from('expense_category ec')
@@ -17585,7 +17229,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				->limit(1)
 				->get()
 				->row();
-			
+
 			echo json_encode([
 				'status' => 'success',
 				'data' => [
@@ -17623,7 +17267,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			'description' => $this->input->post('description'),
 			'icon' => $this->input->post('icon') ?: 'folder'
 		];
-		
+
 		if($id) {
 			$this->db->where('expense_category_id', $id);
 			$this->db->update('expense_category', $data);
@@ -17632,7 +17276,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$this->db->insert('expense_category', $data);
 			$message = get_phrase('category_created_successfully');
 		}
-		
+
 		echo json_encode(['status' => 'success', 'message' => $message]);
 	}
 
@@ -17645,15 +17289,15 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$count = $this->db->where('expense_category_id', $id)
 			->where('payment_type', 'expense')
 			->count_all_results('payment');
-		
+
 		if($count > 0) {
 			echo json_encode(['status' => 'error', 'message' => 'Cannot delete category with existing expenses']);
 			return;
 		}
-		
+
 		$this->db->where('expense_category_id', $id);
 		$this->db->delete('expense_category');
-		
+
 		echo json_encode(['status' => 'success', 'message' => get_phrase('category_deleted_successfully')]);
 	}
 
@@ -17671,14 +17315,14 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	public function bulk_create_categories()
 	{
 		$categories = json_decode($this->input->post('categories'), true);
-		
+
 		if(empty($categories)) {
 			echo json_encode(['status' => 'error', 'message' => 'No categories provided']);
 			return;
 		}
-		
+
 		$this->db->trans_start();
-		
+
 		$created = 0;
 		foreach($categories as $cat) {
 			if(!empty($cat['name'])) {
@@ -17690,9 +17334,9 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$created++;
 			}
 		}
-		
+
 		$this->db->trans_complete();
-		
+
 		if($this->db->trans_status() === FALSE) {
 			echo json_encode(['status' => 'error', 'message' => 'Failed to create categories']);
 		} else {
@@ -17810,7 +17454,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			}
 
 			$ajaxData['route'] = 'book';
-			
+
 			echo json_encode($ajaxData);
 			return;
 		}
@@ -17958,7 +17602,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			}
 
 			$ajaxData['route'] = 'transport';
-			
+
 			echo json_encode($ajaxData);
 			return;
 		}
@@ -17972,7 +17616,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	}
 
 	/**********ENHANCED TRANSPORT MANAGEMENT********************/
-	
+
 	function modal_transport_edit($param1 = '') {
 		$this->load->view('backend/admin/modal_transport_edit', array('param2' => $param1));
 	}
@@ -18037,7 +17681,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				->where('term', $running_term_count)
 				->where('mute', '0')
 				->from('enroll')->count_all_results();
-			
+
 			$options = '<div class="btn-group">'.get_action_button().'
 				<ul class="dropdown-menu dropdown-default pull-right" role="menu">
 					<li><a href="#" onclick="transport_edit_modal(' . $row->transport_id . ')" style="color: green;">
@@ -18071,7 +17715,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	function get_transport_report_data() {
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		$total_routes = $this->db->count_all('transport');
 		$students_count = $this->db->where('transport_id IS NOT NULL', null, false)
 			->where('year', $running_year)
@@ -18080,12 +17724,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			->from('enroll')->count_all_results();
 		$assigned_routes = $this->db->query("SELECT COUNT(DISTINCT transport_id) as count FROM enroll WHERE transport_id IS NOT NULL AND year = '$running_year' AND term = '$running_term'")->row()->count;
 		$total_collected = $this->db->query("SELECT COALESCE(SUM(transport_amount), 0) as total FROM daily_fee_transactions WHERE year = '$running_year'")->row()->total;
-		
+
 		$routes = $this->db->select('transport.*, (SELECT COUNT(*) FROM enroll WHERE enroll.transport_id = transport.transport_id AND year = "'.$running_year.'" AND term = "'.$running_term.'") as students_count')
 			->from('transport')
 			->get()
 			->result_array();
-		
+
 		echo json_encode(array(
 			'total_routes' => $total_routes,
 			'total_students' => $students_count,
@@ -18098,7 +17742,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	function get_transport_collected_fares_by_term() {
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		$students = $this->db->select('s.student_code, s.name as student_name, CONCAT(c.name, " ", c.name_numeric) as class_name, sec.name as section_name, SUM(t.transport_amount) as total_paid')
 			->from('daily_fee_transactions t')
 			->join('student s', 's.student_id = t.student_id')
@@ -18112,9 +17756,9 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			->order_by('s.name', 'asc')
 			->get()
 			->result_array();
-		
+
 		$total = array_sum(array_column($students, 'total_paid'));
-		
+
 		echo json_encode(array(
 			'status' => 'success',
 			'students' => $students,
@@ -18125,12 +17769,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 	function get_transport_template_data() {
 		require_once FCPATH . 'vendor/autoload.php';
-		
+
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
 		$class_ids = getAllClassList();
 		$students = array();
-		
+
 		foreach ($class_ids as $class_id) {
 			$class_students = $this->db->select('s.student_id, s.student_code, s.name, CONCAT(c.name, " ", c.name_numeric, " ", sec.name) as class_name, c.name_numeric as class_order, t.route_name as current_route')
 				->from('enroll e')
@@ -18145,12 +17789,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				->get()->result_array();
 			$students = array_merge($students, $class_students);
 		}
-		
+
 		$routes = $this->db->get('transport')->result_array();
-		
+
 		$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
 		$spreadsheet->removeSheetByIndex(0);
-		
+
 		// Instructions Sheet (Sheet 0)
 		$instructionsSheet = $spreadsheet->createSheet(0);
 		$instructionsSheet->setTitle('Instructions');
@@ -18171,7 +17815,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$instructionsSheet->setCellValue('A16', '- Fare: Auto-filled from route');
 		$instructionsSheet->setCellValue('A17', '- Vehicle Number: Auto-filled from route');
 		$instructionsSheet->getColumnDimension('A')->setWidth(80);
-		
+
 		// Routes Sheet (Sheet 1)
 		$routesSheet = $spreadsheet->createSheet(1);
 		$routesSheet->setTitle('Routes');
@@ -18179,7 +17823,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$routesSheet->setCellValue('B1', 'Vehicle Number');
 		$routesSheet->setCellValue('C1', 'Fare');
 		$routesSheet->getStyle('A1:C1')->getFont()->setBold(true);
-		
+
 		$row = 2;
 		foreach($routes as $route) {
 			$routesSheet->setCellValue('A' . $row, $route['route_name']);
@@ -18190,7 +17834,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		foreach(range('A','C') as $col) {
 			$routesSheet->getColumnDimension($col)->setAutoSize(true);
 		}
-		
+
 		// Students Sheet (Sheet 2)
 		$studentsSheet = $spreadsheet->createSheet(2);
 		$studentsSheet->setTitle('Students');
@@ -18201,10 +17845,10 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$studentsSheet->setCellValue('E1', 'Fare');
 		$studentsSheet->setCellValue('F1', 'Vehicle Number');
 		$studentsSheet->getStyle('A1:F1')->getFont()->setBold(true);
-		
+
 		// Enable AutoFilter on headers
 		$studentsSheet->setAutoFilter('A1:F1');
-		
+
 		$row = 2;
 		foreach($students as $student) {
 			$studentsSheet->setCellValue('A' . $row, $student['student_code']);
@@ -18213,7 +17857,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$studentsSheet->setCellValue('D' . $row, $student['current_route']);
 			$studentsSheet->setCellValue('E' . $row, '=IFERROR(INDEX(Routes!$C:$C,MATCH(D' . $row . ',Routes!$A:$A,0)),"")');
 			$studentsSheet->setCellValue('F' . $row, '=IFERROR(INDEX(Routes!$B:$B,MATCH(D' . $row . ',Routes!$A:$A,0)),"")');
-			
+
 			$validation = $studentsSheet->getCell('D' . $row)->getDataValidation();
 			$validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
 			$validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION);
@@ -18227,7 +17871,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		foreach(range('A','F') as $col) {
 			$studentsSheet->getColumnDimension($col)->setAutoSize(true);
 		}
-		
+
 		$spreadsheet->setActiveSheetIndex(2);
 		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -18236,50 +17880,50 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$writer->save('php://output');
 		exit;
 	}
-	
+
 	function import_transport_data() {
 		if(!isset($_FILES['excel_file']) || $_FILES['excel_file']['error'] != 0) {
 			echo json_encode(['status' => 'error', 'message' => 'No file uploaded']);
 			return;
 		}
-		
+
 		require_once FCPATH . 'vendor/autoload.php';
-		
+
 		try {
 			$file = $_FILES['excel_file']['tmp_name'];
 			$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
 			$sheet = $spreadsheet->getSheet(2); // Students sheet (index 2)
 			$highestRow = $sheet->getHighestRow();
-			
+
 			$running_year = get_settings('running_year');
 			$running_term = get_settings('running_term');
-			
+
 			$routes_created = 0;
 			$routes_updated = 0;
 			$students_assigned = 0;
 			$route_cache = array();
-			
+
 			$this->db->trans_start();
-			
+
 			for ($row = 2; $row <= $highestRow; $row++) {
 				$student_code = trim($sheet->getCell('A' . $row)->getCalculatedValue());
 				$route_name = trim($sheet->getCell('D' . $row)->getCalculatedValue());
 				$fare = trim($sheet->getCell('E' . $row)->getCalculatedValue());
 				$vehicle_number = trim($sheet->getCell('F' . $row)->getCalculatedValue());
-				
+
 				if (empty($student_code)) continue;
-				
+
 				$student = $this->db->get_where('student', array('student_code' => $student_code))->row();
 				if (!$student) continue;
-				
+
 				if (empty($route_name)) {
 					$students_assigned++;
 					continue;
 				}
-				
+
 				if (!isset($route_cache[$route_name])) {
 					$existing_route = $this->db->get_where('transport', array('route_name' => $route_name))->row();
-					
+
 					if (!$existing_route) {
 						$route_data = array(
 							'route_name' => $route_name,
@@ -18294,7 +17938,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						$route_cache[$route_name] = $existing_route->transport_id;
 					}
 				}
-				
+
 				if($route_cache[$route_name]) {
 					$this->db->where('student_id', $student->student_id)
 						->where('year', $running_year)
@@ -18303,9 +17947,9 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$students_assigned++;
 				}
 			}
-			
+
 			$this->db->trans_complete();
-			
+
 			if ($this->db->trans_status() === FALSE) {
 				echo json_encode(array('status' => 'error', 'message' => 'Import failed'));
 			} else {
@@ -18348,7 +17992,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$data = array();
 		foreach ($students as $row) {
 			$section = $this->db->get_where('section', array('section_id' => $row['section_id']))->row();
-			
+
 			$nestedData['student_code'] = $row['student_code'];
 			$nestedData['student_id'] = $row['student_id'];
 			$nestedData['name'] = $row['name'];
@@ -18506,7 +18150,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$transport_id = $this->input->post('transport_id');
 			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-			
+
 			$data['transport_id'] = ($transport_id && $transport_id != '0') ? $transport_id : null;
 			$count = 0;
 
@@ -18521,9 +18165,9 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					}
 				}
 			}
-			
+
 			$message = ($transport_id == '0') ? get_phrase('transport_unassigned_successfully') : get_phrase('transport_assigned_successfully');
-			
+
 			echo json_encode(array(
 				'status' => 'success',
 				'message' => $message,
@@ -18558,13 +18202,13 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$data = array();
 		foreach ($students as $student) {
 			$section = $this->db->get_where('section', array('section_id' => $student['section_id']))->row();
-			
+
 			$total_paid = $this->db->select_sum('amount_paid')
 				->where('student_id', $student['student_id'])
 				->where('year', $running_year)
 				->where('term', $running_term)
 				->get('daily_fee_wallet')->row()->amount_paid;
-			
+
 			$balance = $student['route_fare'] - ($total_paid ? $total_paid : 0);
 
 			$nestedData['student_id'] = $student['student_id'];
@@ -18592,27 +18236,27 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
 			$current_time = date('H:i');
-			
+
 			$count = 0;
 			if (is_array($attendance_data)) {
 				foreach ($attendance_data as $student_id => $status) {
 					// Get transport_id for this specific student
 					$student_transport_id = isset($transport_ids[$student_id]) ? $transport_ids[$student_id] : null;
-					
+
 					if ($student_transport_id) {
 						// Check for existing record
 						$existing = $this->db->get_where('bus_attendance', array(
 							'student_id' => $student_id,
 							'attendance_date' => $attendance_date
 						))->row();
-						
+
 						// Determine boarded status based on attendance status and type
 						$boarded_in = $existing ? $existing->boarded_in : 0;
 						$boarded_out = $existing ? $existing->boarded_out : 0;
 						$in_time = $existing ? $existing->in_time : null;
 						$out_time = $existing ? $existing->out_time : null;
 						$transport_direction = 'none';
-						
+
 						if ($status === 'present' || $status === 'late') {
 							if ($attendance_type === 'morning') {
 								$boarded_in = 1;
@@ -18630,7 +18274,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 								$transport_direction = 'both';
 							}
 						}
-						
+
 						$data = array(
 							'student_id' => $student_id,
 							'route_id' => $student_transport_id,
@@ -18645,7 +18289,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 							'term' => $running_term,
 							'created_at' => time()
 						);
-						
+
 						if ($existing) {
 							$this->db->where('id', $existing->id);
 							$this->db->update('bus_attendance', $data);
@@ -18656,7 +18300,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					}
 				}
 			}
-			
+
 			echo json_encode(array(
 				'status' => 'success',
 				'message' => get_phrase('attendance_marked_successfully'),
@@ -18664,7 +18308,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			));
 			return;
 		}
-		
+
 		$page_data['transports'] = $this->db->get('transport')->result_array();
 		$page_data['page_name'] = 'transport_attendance';
 		$page_data['page_title'] = get_phrase('transport_attendance');
@@ -18684,14 +18328,14 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->db->join('student', 'enroll.student_id = student.student_id');
 		$this->db->join('class', 'enroll.class_id = class.class_id');
 		$this->db->join('transport', 'enroll.transport_id = transport.transport_id', 'left');
-		
+
 		// Handle "all" routes or specific route
 		if ($transport_id !== 'all') {
 			$this->db->where('enroll.transport_id', $transport_id);
 		} else {
 			$this->db->where('enroll.transport_id IS NOT NULL', null, false);
 		}
-		
+
 		$this->db->where('enroll.year', $running_year);
 		$this->db->where('enroll.term', $running_term);
 		$this->db->where('student.mute', '0');
@@ -18702,7 +18346,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$data = array();
 		foreach ($students as $student) {
 			$section = $this->db->get_where('section', array('section_id' => $student['section_id']))->row();
-			
+
 			// Get bus attendance record
 			$bus_attendance = $this->db->get_where('bus_attendance', array(
 				'student_id' => $student['student_id'],
@@ -18784,12 +18428,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->db->join('class', 'enroll.class_id = class.class_id');
 		$this->db->where('student.student_id', $student_id);
 		$this->db->where('enroll.year', $year);
-		
+
 		// Filter by term if not "all"
 		if ($term !== 'all') {
 			$this->db->where('enroll.term', $term);
 		}
-		
+
 		$student = $this->db->get()->row();
 
 		if (!$student) {
@@ -18823,7 +18467,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		foreach ($attendance_records as $record) {
 			$session = 'none';
 			$status = 'absent';
-			
+
 			if ($record['boarded_in'] == 1 && $record['boarded_out'] == 1) {
 				$session = 'both';
 				$status = 'present';
@@ -18834,7 +18478,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$session = 'afternoon';
 				$status = 'present';
 			}
-			
+
 			$attendance[] = array(
 				'attendance_date' => date('Y-m-d', $record['attendance_date']),
 				'attendance_type' => $session,
@@ -18868,11 +18512,11 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->db->from('daily_fee_transactions');
 		$this->db->where('student_id', $student_id);
 		$this->db->where('year', $year);
-		
+
 		if ($term !== 'all') {
 			$this->db->where('term', $term);
 		}
-		
+
 		$this->db->where('transport_amount >', 0);
 		$payments = $this->db->get()->row();
 
@@ -18924,7 +18568,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$student_id = $this->input->post('student_id');
 		$year = $this->input->post('year');
 		$term = $this->input->post('term');
-		
+
 		// Get student basic info
 		$this->db->select('s.student_id, s.name, s.student_code, e.transport_id, t.route_name, t.route_fare, c.name as class');
 		$this->db->from('student s');
@@ -18938,12 +18582,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		}
 		$this->db->limit(1);
 		$student = $this->db->get()->row();
-		
+
 		if (!$student) {
 			echo json_encode(['status' => 'error', 'message' => 'Student not found']);
 			return;
 		}
-		
+
 		// Get attendance statistics from bus_attendance
 		$this->db->select('COUNT(DISTINCT attendance_date) as total_days, SUM(CASE WHEN (boarded_in = 1 OR boarded_out = 1) THEN 1 ELSE 0 END) as present');
 		$this->db->from('bus_attendance');
@@ -18953,11 +18597,11 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$this->db->where('term', $term);
 		}
 		$attendance_stats = $this->db->get()->row();
-		
+
 		$total_days = $attendance_stats->total_days ?? 0;
 		$present = $attendance_stats->present ?? 0;
 		$absent = $total_days - $present;
-		
+
 		$stats = [
 			'total_days' => $total_days,
 			'present' => $present,
@@ -18967,7 +18611,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			'late' => 0,
 			'late_percent' => 0
 		];
-		
+
 		// Get payment information
 		$this->db->select('COALESCE(SUM(transport_amount), 0) as total_paid, COUNT(*) as payment_count');
 		$this->db->from('daily_fee_transactions');
@@ -18978,7 +18622,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		}
 		$this->db->where('transport_amount >', 0);
 		$payment = $this->db->get()->row();
-		
+
 		// Get attendance history
 		$this->db->select('DATE(FROM_UNIXTIME(attendance_date)) as date, boarded_in, boarded_out, t.route_name');
 		$this->db->from('bus_attendance ba');
@@ -18991,7 +18635,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->db->order_by('ba.attendance_date', 'DESC');
 		$this->db->limit(50);
 		$attendance_history = $this->db->get()->result_array();
-		
+
 		// Format attendance history
 		$attendance = [];
 		foreach ($attendance_history as $record) {
@@ -19001,7 +18645,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				'route_name' => $record['route_name']
 			];
 		}
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'data' => [
@@ -19027,7 +18671,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$route_id = $this->input->post('route_id');
 		$year = $this->input->post('year');
 		$term = $this->input->post('term');
-		
+
 		// Build query for routes
 		$this->db->select('t.*');
 		$this->db->from('transport t');
@@ -19035,7 +18679,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$this->db->where('t.transport_id', $route_id);
 		}
 		$routes = $this->db->get()->result_array();
-		
+
 		$report_data = [];
 		foreach ($routes as $route) {
 			// Get student count
@@ -19046,22 +18690,22 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$this->db->where('e.term', $term);
 			}
 			$student_count = $this->db->count_all_results();
-			
+
 			// Get revenue - Fixed query to properly join and filter
 			$this->db->select('COALESCE(SUM(dft.transport_amount), 0) as total_revenue');
 			$this->db->from('daily_fee_transactions dft');
 			$this->db->join('enroll e', 'dft.student_id = e.student_id AND dft.year = e.year', 'inner');
 			$this->db->where('e.transport_id', $route['transport_id']);
 			$this->db->where('dft.year', $year);
-			
+
 			if ($term !== 'all') {
 				$this->db->where('dft.term', $term);
 				$this->db->where('e.term', $term);
 			}
-			
+
 			$this->db->where('dft.transport_amount >', 0);
 			$revenue = $this->db->get()->row();
-			
+
 			$report_data[] = [
 				'route_name' => $route['route_name'],
 				'route_fare' => $route['route_fare'],
@@ -19069,7 +18713,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				'total_revenue' => $revenue->total_revenue
 			];
 		}
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'data' => $report_data
@@ -19080,13 +18724,13 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$from_date = $this->input->post('from_date');
 		$to_date = $this->input->post('to_date');
 		$group_by = $this->input->post('group_by');
-		
+
 		$from_timestamp = strtotime($from_date);
 		$to_timestamp = strtotime($to_date . ' 23:59:59');
-		
+
 		// Use payment_date instead of payment_timestamp
-		$this->db->select('DATE(FROM_UNIXTIME(payment_date)) as payment_date, 
-						   SUM(transport_amount) as daily_revenue, 
+		$this->db->select('DATE(FROM_UNIXTIME(payment_date)) as payment_date,
+						   SUM(transport_amount) as daily_revenue,
 						   COUNT(DISTINCT student_id) as student_count');
 		$this->db->from('daily_fee_transactions');
 		$this->db->where('payment_date >=', $from_timestamp);
@@ -19095,7 +18739,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->db->group_by('payment_date');
 		$this->db->order_by('payment_date', 'ASC');
 		$revenue_data = $this->db->get()->result_array();
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'data' => $revenue_data
@@ -19106,12 +18750,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$route_id = $this->input->post('route_id');
 		$from_date = $this->input->post('from_date');
 		$to_date = $this->input->post('to_date');
-		
+
 		$from_timestamp = strtotime($from_date);
 		$to_timestamp = strtotime($to_date . ' 23:59:59');
-		
+
 		// Get attendance data grouped by date
-		$this->db->select('DATE(FROM_UNIXTIME(ba.attendance_date)) as attendance_date, 
+		$this->db->select('DATE(FROM_UNIXTIME(ba.attendance_date)) as attendance_date,
 						   t.route_name,
 						   COUNT(DISTINCT ba.student_id) as expected_count,
 						   SUM(CASE WHEN (ba.boarded_in = 1 OR ba.boarded_out = 1) THEN 1 ELSE 0 END) as boarded_count');
@@ -19119,15 +18763,15 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->db->join('transport t', 'ba.route_id = t.transport_id', 'left');
 		$this->db->where('ba.attendance_date >=', $from_timestamp);
 		$this->db->where('ba.attendance_date <=', $to_timestamp);
-		
+
 		if ($route_id !== 'all') {
 			$this->db->where('ba.route_id', $route_id);
 		}
-		
+
 		$this->db->group_by('attendance_date, t.route_name');
 		$this->db->order_by('attendance_date', 'DESC');
 		$attendance_data = $this->db->get()->result_array();
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'data' => $attendance_data
@@ -19148,7 +18792,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$to_date = $this->input->post('to_date');
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		// Build base query
 		$this->db->select('transport_fare_payment.*, student.name as student_name, student.student_code, transport.route_name, enroll.class_id');
 		$this->db->from('daily_fee_wallet');
@@ -19157,7 +18801,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->db->join('enroll', 'enroll.student_id = transport_fare_payment.student_id AND enroll.year = transport_fare_payment.year COLLATE utf8mb3_unicode_ci AND enroll.term = transport_fare_payment.term COLLATE utf8mb3_unicode_ci', 'left');
 		// $this->db->where('transport_fare.year', $running_year);
 		// $this->db->where('transport_fare.term', $running_term);
-		
+
 		if (!empty($transport_id)) {
 			$this->db->where('transport_fare_payment.transport_id', $transport_id);
 		}
@@ -19170,17 +18814,17 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		if (!empty($to_date)) {
 			$this->db->where('transport_fare_payment.payment_date <=', $to_date);
 		}
-		
+
 		// Get all payments for statistics
 		$all_payments_query = $this->db->get();
 		$all_payments = $all_payments_query->result_array();
-		
+
 		// Calculate statistics
 		$total = 0;
 		$cash_total = 0;
 		$momo_total = 0;
 		$total_count = count($all_payments);
-		
+
 		foreach ($all_payments as $payment) {
 			$total += $payment['amount'];
 			if ($payment['payment_method'] == 'cash') {
@@ -19189,7 +18833,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$momo_total += $payment['amount'];
 			}
 		}
-		
+
 		// Now get data for table (with ordering)
 		$this->db->select('transport_fare_payment.*, student.name as student_name, student.student_code, transport.route_name, enroll.class_id');
 		$this->db->from('daily_fee_wallet');
@@ -19198,7 +18842,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->db->join('enroll', 'enroll.student_id = transport_fare_payment.student_id AND enroll.year = transport_fare_payment.year COLLATE utf8mb3_unicode_ci AND enroll.term = transport_fare_payment.term COLLATE utf8mb3_unicode_ci', 'left');
 		// $this->db->where('transport_fare.year', $running_year);
 		// $this->db->where('transport_fare.term', $running_term);
-		
+
 		if (!empty($transport_id)) {
 			$this->db->where('transport_fare_payment.transport_id', $transport_id);
 		}
@@ -19211,10 +18855,10 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		if (!empty($to_date)) {
 			$this->db->where('transport_fare_payment.payment_date <=', $to_date);
 		}
-		
+
 		$this->db->order_by('transport_fare_payment.payment_date', 'DESC');
 		$payments = $this->db->get()->result_array();
-		
+
 		$data = array();
 		foreach ($payments as $payment) {
 			$class_name = '';
@@ -19224,14 +18868,14 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$class_name = $class->name . ' ' . $class->name_numeric;
 				}
 			}
-			
+
 			$details = '';
 			if ($payment['payment_method'] == 'mobile_money' && !empty($payment['momo_number'])) {
 				$details = 'MoMo: ' . ($payment['momo_number'] ? $payment['momo_number'] : 'N/A') . '<br>Trans ID: ' . ($payment['transaction_id'] ? $payment['transaction_id'] : 'N/A');
 			} elseif ($payment['payment_method'] == 'cheque' && !empty($payment['bank_name'])) {
 				$details = 'Bank: ' . ($payment['bank_name'] ? $payment['bank_name'] : 'N/A') . '<br>Cheque: ' . ($payment['cheque_number'] ? $payment['cheque_number'] : 'N/A');
 			}
-			
+
 			$data[] = array(
 				'receipt_number' => $payment['receipt_number'],
 				'student_name' => $payment['student_name'] . ' (' . $payment['student_code'] . ')',
@@ -19243,7 +18887,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				'details' => $details
 			);
 		}
-		
+
 		$this->output->set_content_type('application/json');
 		echo json_encode(array(
 			'data' => $data,
@@ -19261,7 +18905,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$to_date = $this->input->get('to_date');
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		$this->db->select('transport_fare_payment.*, student.name as student_name, student.student_code, transport.route_name, enroll.class_id');
 		$this->db->from('daily_fee_wallet');
 		$this->db->join('student', 'student.student_id = transport_fare_payment.student_id');
@@ -19269,7 +18913,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->db->join('enroll', 'enroll.student_id = transport_fare_payment.student_id AND enroll.year = transport_fare_payment.year COLLATE utf8mb3_unicode_ci AND enroll.term = transport_fare_payment.term COLLATE utf8mb3_unicode_ci', 'left');
 		$this->db->where('transport_fare_payment.year', $running_year);
 		$this->db->where('transport_fare_payment.term', $running_term);
-		
+
 		if (!empty($transport_id)) {
 			$this->db->where('transport_fare_payment.transport_id', $transport_id);
 		}
@@ -19282,16 +18926,16 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		if (!empty($to_date)) {
 			$this->db->where('transport_fare_payment.payment_date <=', $to_date);
 		}
-		
+
 		$this->db->order_by('transport_fare_payment.payment_date', 'DESC');
 		$payments = $this->db->get()->result_array();
-		
+
 		header('Content-Type: text/csv');
 		header('Content-Disposition: attachment; filename="transport_fare_report_' . date('Y-m-d') . '.csv"');
-		
+
 		$output = fopen('php://output', 'w');
 		fputcsv($output, array('Receipt No', 'Student Code', 'Student Name', 'Class', 'Route', 'Amount', 'Payment Date', 'Payment Method', 'MoMo Number', 'Transaction ID', 'Bank Name', 'Cheque Number', 'Remarks'));
-		
+
 		$total = 0;
 		foreach ($payments as $payment) {
 			$class_name = '';
@@ -19299,7 +18943,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$class = $this->db->get_where('class', array('class_id' => $payment['class_id']))->row();
 				$class_name = $class->name . ' ' . $class->name_numeric;
 			}
-			
+
 			fputcsv($output, array(
 				$payment['receipt_number'],
 				$payment['student_code'],
@@ -19317,7 +18961,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			));
 			$total += $payment['amount_paid'];
 		}
-		
+
 		fputcsv($output, array('', '', '', 'TOTAL', '', number_format($total, 2)));
 		fclose($output);
 	}
@@ -19352,7 +18996,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 		echo json_encode(array('data' => $data));
 	}
-	
+
 	/**********MANAGE DORMITORY / HOSTELS / ROOMS ********************/
 	function dormitory($param1 = '', $param2 = '', $param3 = '') {
 		//if ($this->session->userdata('admin_login') != 1)
@@ -19409,7 +19053,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			}
 
 			$ajaxData['route'] = 'dormitory';
-			
+
 			echo json_encode($ajaxData);
 			return;
 
@@ -19873,7 +19517,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			}
 
 			$ajaxData['route'] = 'noticeboard';
-			
+
 			echo json_encode($ajaxData);
 			return;
 
@@ -20678,11 +20322,11 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			// Get old prefix before updating
 			$old_prefix = $this->db->get_where('settings', array('type' => 'student_code_prefix'))->row()->description;
 			$new_prefix = $this->input->post('student_code_prefix');
-			
+
 			$data['description'] = $new_prefix;
 			$this->db->where('type', 'student_code_prefix');
 			$this->db->update('settings', $data);
-			
+
 			// Update all student codes if prefix changed
 			if ($old_prefix !== $new_prefix) {
 				$students = $this->db->get('student')->result();
@@ -20764,7 +20408,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					}
 				}
 			}
-			
+
 
 			$this->session->set_flashdata('flash_message', get_phrase('data_updated'));
 			redirect(site_url('admin/system_settings'));
@@ -20773,7 +20417,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		if ($param1 == 'upload_logo') {
 			move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/school_logo.png');
 
-			
+
 
 			$this->session->set_flashdata('flash_message', get_phrase('logo_successfully_uploaded'));
 			redirect(site_url('admin/system_settings'));
@@ -20785,7 +20429,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$config['allowed_types'] = 'png';
 			$config['file_name'] = 'head_teacher.png';
 			$config['max_size'] = 2048;
-			
+
 
 			$this->load->library('upload', $config);
 			$this->upload->initialize($config);
@@ -20818,7 +20462,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$this->db->where('type', 'skin_colour');
 			$this->db->update('settings', $data);
 
-			
+
 
 			$this->session->set_flashdata('flash_message', get_phrase('theme_selected'));
 			redirect(site_url('admin/system_settings'));
@@ -20897,14 +20541,14 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->load->library('form_validation');
 		if ($param1 == 'hubtel_payment') {
 			$fields = ['hubtel_payment_client_id', 'hubtel_payment_client_secret', 'hubtel_payment_merchant_number', 'hubtel_payment_enabled', 'hubtel_payment_test_mode'];
-			
+
 			foreach ($fields as $field) {
 				$value = $this->input->post($field);
 				if ($value !== null) {
 					$this->db->where('type', $field)->update('settings', ['description' => $value]);
 				}
 			}
-			
+
 			$this->db->cache_delete();
 			echo json_encode(['status' => 'success', 'message' => get_phrase('hubtel_payment_settings_updated')]);
 			return;
@@ -21185,7 +20829,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			if($enroll == 'enroll') {
 				//user wants a new enrollment into Academic year and term
 				//let's find out if students were promoted from the third term, else we deny
-				
+
 				//if use wants to still proceed anyway or not
 				if($confirm == 'no') {
 					$students_enrolled = $this->crud_model->students_enrolled($data['description'], $this->input->post('running_term')); //if false, it returns array of those classes ids
@@ -21212,7 +20856,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			} else {
 				$this->db->where('year', get_settings('running_year')); //we use the current year
 			}
-			
+
 			$this->db->where('term', $this->input->post('running_term'));
       $term_row = $this->db->get('enroll')->num_rows();
 
@@ -21221,7 +20865,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				echo json_encode($ajax_data);
 				sleep(3);
 
-				
+
       	$data_term['description'] = $this->input->post('running_term');
       	$this->db->where('type', 'running_term');
         $this->db->update('settings', $data_term);
@@ -21235,19 +20879,19 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$data['description'] = $this->input->post('running_year');
 		}
 
-		
+
 		$selected_academic_year = $data['description'];
 		$prev_academic_year = get_settings('running_year');
 		$ajax_data['message'] = 'Changing Academic Year from '.$prev_academic_year.' to '. $selected_academic_year;
 		echo json_encode($ajax_data);
 		sleep(3);
-		
+
 
 		//try to update the term as well - compare the ending years
 		$selected_year_parts = explode('-', $selected_academic_year);
 		$prev_year_parts = explode('-', $prev_academic_year);
 		if(intval($prev_year_parts[1]) > intval($selected_year_parts[1])) {
-			//if the previous year is greater than the selected year, then the user is just 
+			//if the previous year is greater than the selected year, then the user is just
 			//trying to go back to old records, so no need to do any other updates
 
 			//but let's also check if the selected year ever exists in the database
@@ -21258,11 +20902,11 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
       if($year_row > 0) {
 
       	$update_term = false; //update update the year
-      	
+
       } else {
       	$update_term = 'year not found'; //year selected never exists, no update will be effected
-      }	
-			
+      }
+
 		} else {
 
 			$update_term = $this->crud_model->automateNextTerm($data['description'], $confirm);
@@ -21292,7 +20936,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			// redirect(site_url('admin/dashboard'));
 		} else if($update_term == 'not_enrolled') {
 
-			
+
 
 			$students_enrolled = $this->crud_model->students_enrolled($data['description'], 1); //if false, it returns array of those classes ids
 
@@ -21301,7 +20945,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$className[] = getFullClassName($students_enrolled[$i], $sectionId);
 				}
 
-				
+
 				$yes = 'yes';
 				//terminate the code
 				$ajax_data['success'] = false;
@@ -21311,7 +20955,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 				echo json_encode($ajax_data);
 				return false;
-				
+
 
 		} else if($update_term == 'invalid year') {
 
@@ -21324,7 +20968,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 			// $this->session->set_flashdata("error_message", "Invalid year selected! You cannot change year in this term");
 			// redirect(site_url('admin/dashboard'));
- 
+
 		} else if($update_term == 'year not found') {
 
 			$this->db->cache_delete();
@@ -21368,7 +21012,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$ajax_data['message'] = 'System is attempting to enroll students for the term';
 			echo json_encode($ajax_data);
 			sleep(3);
-		
+
 
 			//we do few entries for this year and this term
 			//enroll students for this term
@@ -21378,7 +21022,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$ajax_data['message'] = 'Students enrollment successful';
 				echo json_encode($ajax_data);
 				sleep(3);
-				
+
 			}else if($enrollment_is_done == false) {
 
 				$ajax_data['message'] = 'Students enrollment failed. Students already enrolled for this term.';
@@ -21390,7 +21034,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				echo json_encode($ajax_data);
 				sleep(3);
 
-			} 
+			}
 
 			$ajax_data['message'] = 'System attempting to enroll subjects';
 			echo json_encode($ajax_data);
@@ -21428,30 +21072,30 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$ajax_data['message'] = 'Checking daily fee rates for the new academic year';
 			echo json_encode($ajax_data);
 			sleep(2);
-			
+
 			$new_year = $data['description'];
 			$new_term = $update_term;
-			
+
 			// Check if rates exist for new year/term
 			$rates_exist = $this->db->where('year', $new_year)
 				->where('term', $new_term)
 				->count_all_results('daily_fee_rates');
-			
+
 			if($rates_exist == 0) {
 				$ajax_data['message'] = 'Daily fee rates not found. Copying from previous session...';
 				echo json_encode($ajax_data);
 				sleep(2);
-				
+
 				// Get previous year and term (term 3 of previous year)
 				$prev_year_parts = explode('-', $new_year);
 				$prev_year = ($prev_year_parts[0] - 1) . '-' . ($prev_year_parts[1] - 1);
 				$prev_term = 3; // Always copy from term 3 when changing year
-				
+
 				$previous_rates = $this->db->where('year', $prev_year)
 					->where('term', $prev_term)
 					->get('daily_fee_rates')
 					->result_array();
-				
+
 				if(!empty($previous_rates)) {
 					$copied = 0;
 					foreach($previous_rates as $rate) {
@@ -21471,7 +21115,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						$this->db->insert('daily_fee_rates', $new_rate);
 						$copied++;
 					}
-					
+
 					$ajax_data['message'] = "Daily fee rates copied successfully ($copied classes)";
 					echo json_encode($ajax_data);
 					sleep(2);
@@ -21488,7 +21132,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 			//clear the cached database
 			$this->db->cache_delete();
-			
+
 			$ajax_data['success'] = true;
 			$ajax_data['message'] = 'Current Academic year is set to '.$data['description'].' and Term is '.$update_term;
 			echo json_encode($ajax_data);
@@ -21540,7 +21184,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
         $ajax_data['success'] = false;
 				echo json_encode($ajax_data);
 				return false;
-      } 
+      }
 
 			$this->db->where('type', 'running_term');
 			$this->db->update('settings', $data);
@@ -21563,7 +21207,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$ajax_data['message'] = 'Students enrollment successful';
 				echo json_encode($ajax_data);
 				sleep(3);
-				
+
 			}else if($enrollment_is_done == false) {
 
 				$ajax_data['message'] = 'Students enrollment failed. Students already enrolled for this term.';
@@ -21575,7 +21219,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				echo json_encode($ajax_data);
 				sleep(3);
 
-			} 
+			}
 
 			$ajax_data['message'] = 'System attempting to enroll subjects';
 			echo json_encode($ajax_data);
@@ -21616,20 +21260,20 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$ajax_data['message'] = 'Checking daily fee rates for the new term';
 			echo json_encode($ajax_data);
 			sleep(2);
-			
+
 			$new_term = $data['description'];
 			$running_year = get_settings('running_year');
-			
+
 			// Check if rates exist for new term
 			$rates_exist = $this->db->where('year', $running_year)
 				->where('term', $new_term)
 				->count_all_results('daily_fee_rates');
-			
+
 			if($rates_exist == 0) {
 				$ajax_data['message'] = 'Daily fee rates not found for new term. Copying from previous term...';
 				echo json_encode($ajax_data);
 				sleep(2);
-				
+
 				// Get previous term
 				$prev_term = $new_term - 1;
 				if($prev_term < 1) {
@@ -21637,7 +21281,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$prev_year_parts = explode('-', $running_year);
 					$prev_year = ($prev_year_parts[0] - 1) . '-' . ($prev_year_parts[1] - 1);
 					$prev_term = 3;
-					
+
 					$previous_rates = $this->db->where('year', $prev_year)
 						->where('term', $prev_term)
 						->get('daily_fee_rates')
@@ -21648,7 +21292,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						->get('daily_fee_rates')
 						->result_array();
 				}
-				
+
 				if(!empty($previous_rates)) {
 					$copied = 0;
 					foreach($previous_rates as $rate) {
@@ -21668,7 +21312,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 						$this->db->insert('daily_fee_rates', $new_rate);
 						$copied++;
 					}
-					
+
 					$ajax_data['message'] = "Daily fee rates copied successfully ($copied classes)";
 					echo json_encode($ajax_data);
 					sleep(2);
@@ -21710,13 +21354,13 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 		//clear the cached database
 		$this->db->cache_delete();
-		
+
 		$ajax_data['success'] = true;
 		$ajax_data['message'] = 'Term updated successfully';
 		echo json_encode($ajax_data);
 		return false;
 
-		
+
 	}
 
 	function change_sem() {
@@ -21880,7 +21524,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$this->session->set_flashdata('flash_message', get_phrase('data_updated'));
 			redirect(site_url('admin/sms_settings'));
 		}
-		
+
 		if ($param1 == 'attendance_sms') {
 			$value = $this->input->post('send_attendance_sms');
 			$exists = $this->db->get_where('settings', ['type' => 'send_attendance_sms'])->num_rows();
@@ -21984,7 +21628,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	function manage_profile($param1 = '', $param2 = '', $param3 = '') {
 		//if ($this->session->userdata('admin_login') != 1)
 		//redirect(site_url('login'));
-		
+
 		// Handle form submissions
 		if ($param1 == 'update_profile_info') {
 			$data['name'] = strtoupper($this->input->post('name'));
@@ -22060,17 +21704,17 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			}
 			return;
 		}
-		
+
 		// Get admin code from session and redirect to unified staff details page
 		$admin_id = $this->session->userdata('admin_id');
 		$admin_data = $this->db->get_where('admin', array('admin_id' => $admin_id))->row();
-		
+
 		if (empty($admin_data)) {
 			$this->session->set_flashdata('error_message', get_phrase('admin_not_found'));
 			redirect(site_url('admin/dashboard'));
 			return;
 		}
-		
+
 		// Redirect to unified staff details page using ID
 		redirect(site_url('admin/admin_details/'.$admin_data->admin_id));
 	}
@@ -22448,46 +22092,46 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	// CSV TEMPLATE GENERATION FOR BULK STUDENT ADMISSION
 	function generate_bulk_student_csv($class_id = '', $section_id = '') {
 		header('Content-Type: application/json');
-		
+
 		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
 		$class_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
 		$section_name = $this->db->get_where('section', array('section_id' => $section_id))->row()->name;
-		
+
 		$filename = 'Bulk_Student_' . $class_name . $class_numeric . $section_name . '_' . date('Y-m-d') . '.xls';
-		
+
 		$excel_content = $this->generate_excel_template();
-		
+
 		echo json_encode(array(
 			'file' => base64_encode($excel_content),
 			'filename' => $filename
 		));
 	}
-	
+
 	private function generate_excel_template() {
 		$html = '<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>';
 		$html .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:html="http://www.w3.org/TR/REC-html40">';
-		
+
 		$html .= '<Styles>';
 		$html .= '<Style ss:ID="Header"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/></Borders><Font ss:Bold="1" ss:Size="11" ss:Color="#FFFFFF"/><Interior ss:Color="#4472C4" ss:Pattern="Solid"/></Style>';
 		$html .= '<Style ss:ID="Data"><Alignment ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D0D0D0"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D0D0D0"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D0D0D0"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D0D0D0"/></Borders></Style>';
 		$html .= '<Style ss:ID="DateFormat"><Alignment ss:Vertical="Center"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D0D0D0"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D0D0D0"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D0D0D0"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D0D0D0"/></Borders><NumberFormat ss:Format="yyyy-mm-dd"/></Style>';
 		$html .= '</Styles>';
-		
+
 		$html .= '<Worksheet ss:Name="Student Data"><Table>';
-		
+
 		$columns = [100, 100, 80, 100, 60, 90, 70, 90, 120, 100, 90, 70, 90, 100, 150, 150, 90, 120, 90, 100, 150, 100, 100, 100, 100, 100, 100, 100, 120, 120, 100, 80, 80, 120, 120, 100, 100, 80, 150];
 		foreach($columns as $width) {
 			$html .= '<Column ss:Width="' . $width . '"/>';
 		}
-		
+
 		$headers = ['Student Code', 'First Name*', 'Middle Name', 'Last Name*', 'Gender*', 'Date of Birth (YYYY-MM-DD)*', 'Blood Group', 'Nationality', 'Ghana Card ID', 'Place of Birth', 'Hometown', 'Tribe', 'Religion', 'Student Phone', 'Email', 'Address', 'Admission Date', 'Former School', 'Class Reached', 'Guardian Name*', 'Guardian Phone*', 'Parent Email', 'Emergency Contact', 'Father Name', 'Father Phone', 'Father Occupation', 'Mother Name', 'Mother Phone', 'Mother Occupation', 'Allergies', 'Medical Conditions', 'NHIS Number', 'NHIS Status', 'Disability Status', 'Special Needs', 'Learning Support', 'Digital Literacy', 'Home Technology Access', 'Special Diet', 'Special Diet Details'];
-		
+
 		$html .= '<Row ss:Height="40">';
 		foreach($headers as $header) {
 			$html .= '<Cell ss:StyleID="Header"><Data ss:Type="String">' . htmlspecialchars($header) . '</Data></Cell>';
 		}
 		$html .= '</Row>';
-		
+
 		for($i = 0; $i < 60; $i++) {
 			$html .= '<Row ss:Height="25">';
 			foreach($headers as $index => $header) {
@@ -22499,7 +22143,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			}
 			$html .= '</Row>';
 		}
-		
+
 		$html .= '</Table></Worksheet></Workbook>';
 		return $html;
 	}
@@ -22677,7 +22321,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 							$row[0] = $n_stid + 1;
 
 							//checking if the first 4digits of the id equals the current year, if not, we create a new ID using the current year format
-		                        
+
 						if(intval(date('Y')) != intval(substr($row[0], 0, 4))) {
 								//new year so the student ID format has to change
 								//e.g in 2021, it will start with 2021001
@@ -22690,7 +22334,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 									$new_len = strlen($row[0]);
 									$act_len = ($old_len - $new_len);
 									$row[0] = substr($st_id, 0, $act_len) . $row[0];
-									
+
 								} else {
 									$row[0] = $row[0];
 								}
@@ -22879,7 +22523,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 						} else {
 
-							
+
 
 							$this->session->set_flashdata('error_message', 'Invalid Email(s) Found!');
 							redirect(site_url('admin/student_bulk_add?error=1&email=' . $data['email']));
@@ -22888,14 +22532,14 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					} else {
 						if ($array_size == 2) {
 
-							
+
 
 							$this->session->set_flashdata('error_message', get_phrase('this_email_id_"') . $data['email'] . get_phrase('"_is_not_available'));
 
 							redirect(site_url('admin/student_bulk_add?error=2&email=' . $data['email']));
 						} elseif ($array_size > 2) {
 
-							
+
 
 							$this->session->set_flashdata('error_message', get_phrase('some_of_the_emails_already_exist!'));
 							redirect(site_url('admin/student_bulk_add?error=3&email=' . $data['email']));
@@ -22931,7 +22575,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					} //parent validation ends
 				}
 
-				
+
 
 				$this->session->set_flashdata('flash_message', get_phrase('students_admitted_successfully!'));
 				redirect(site_url('admin/student_bulk_add?success=1'));
@@ -23022,16 +22666,16 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 			return;
 		}
-		
+
 		if($task == 'bulk_update_status') {
 			$ids = $this->input->post('ids');
 			$status = $this->input->post('status');
-			
+
 			if(empty($ids) || empty($status)) {
 				echo json_encode(['status' => 'error', 'message' => 'Invalid parameters']);
 				return;
 			}
-			
+
 			$updated_count = 0;
 			foreach($ids as $id) {
 				$data = array('status' => $status);
@@ -23040,12 +22684,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 					$updated_count++;
 				}
 			}
-			
+
 			//clear the cached database
 			$this->db->cache_delete();
-			
+
 			echo json_encode([
-				'status' => 'success', 
+				'status' => 'success',
 				'message' => $updated_count . ' material(s) updated successfully'
 			]);
 			return;
@@ -23112,20 +22756,20 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$invoice_code = $this->input->post('invoice_code');
 		$student_id = $this->input->post('student_id');
 		$currency = get_settings('currency');
-		
+
 		$invoices = $this->db->where('invoice_code', $invoice_code)
 			->where('student_id', $student_id)
 			->where('can_delete !=', 'trash')
 			->get('invoice')->result_array();
-		
+
 		$total_amount = 0;
 		$total_due = 0;
-		
+
 		foreach($invoices as $invoice) {
 			$total_amount += $invoice['amount'];
 			$total_due += $invoice['due'];
 		}
-		
+
 		echo '<div style="margin-bottom: 20px;">';
 		foreach($invoices as $invoice) {
 			echo '<div style="background: white; border-radius: 8px; padding: 15px; margin-bottom: 10px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">';
@@ -23145,7 +22789,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		echo '</div></div></div>';
 		echo '</div>';
 	}
-	
+
 	function get_discount_profile_form() {
 		$student_id = $this->input->post('student_id');
 		$invoice_code = $this->input->post('invoice_code');
@@ -23173,7 +22817,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$discount_details[] = $disc;
 			}
 		}
-		
+
 		// Get pending discount info
 		$pending_discount_query = $this->db->where('invoice_code', $invoice_code)->where('status', 'pending')->get('invoice_discounts');
 		$total_pending_discount = 0;
@@ -23184,10 +22828,10 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$pending_discount_details[] = $disc;
 			}
 		}
-		
+
 		// Calculate total before discount (round to avoid floating-point errors)
 		$total_before_discount = round(floatval($total_amount) + floatval($total_discount), 2);
-		
+
 		// Display summary if discount exists
 		if($total_discount > 0) {
 			echo '<div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-5 rounded">';
@@ -23202,7 +22846,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			echo '<div class="bill-item-card"><div class="row" style="align-items: center;"><div class="col-md-6"><strong style="color: #2c3e50; font-size: 15px;">'.$inv['title'].'</strong></div><div class="col-md-3 text-right"><span style="color: #95a5a6; font-size: 12px;">'.get_phrase('amount').':</span> <strong style="font-size: 14px;">'.$currency.' '.number_format($inv['amount'], 2).'</strong></div><div class="col-md-3 text-right"><span style="color: #95a5a6; font-size: 12px;">'.get_phrase('due').':</span> <strong style="color: #e74c3c; font-size: 14px;">'.$currency.' '.number_format($inv['due'], 2).'</strong></div></div></div>';
 		}
 		echo '<div class="bill-item-card bill-total-card"><div class="row" style="align-items: center;"><div class="col-md-6"><strong style="font-size: 16px;">'.get_phrase('total').'</strong></div><div class="col-md-3 text-right"><strong style="font-size: 15px;">'.$currency.' '.number_format($total_amount, 2).'</strong></div><div class="col-md-3 text-right"><strong style="font-size: 15px; color: #e74c3c;">'.$currency.' '.number_format($total_due, 2).'</strong></div></div></div>';
-		
+
 		if($total_discount > 0) {
 			echo '<div style="background: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin-top: 15px; border-radius: 8px;">';
 			echo '<div style="font-weight: 700; color: #155724; margin-bottom: 10px; font-size: 15px;"><i class="fa fa-tag"></i> '.get_phrase('discount_details').'</div>';
@@ -23216,7 +22860,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			}
 			echo '</div>';
 		}
-		
+
 		// Display pending discount in warning/yellow color
 		if($total_pending_discount > 0) {
 			echo '<div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-top: 15px; border-radius: 8px;">';
@@ -23351,7 +22995,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			}
 
 			$ajaxData['route'] = 'manage_online_exam';
-			
+
 			echo json_encode($ajaxData);
 			return;
 		}
@@ -23460,7 +23104,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		//clear the cached database
 		$this->db->cache_delete();
 
-		
+
 
 		if($queryExecuted) {
 				$this->session->set_flashdata('flash_message', get_phrase('question_deleted'));
@@ -23470,7 +23114,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			}
 
 			$ajaxData['route'] = 'manage_online_exam_question/' . $online_exam_id;
-			
+
 			echo json_encode($ajaxData);
 			return;
 
@@ -23838,7 +23482,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				}
 
 				$ajaxData['route'] = $page_name;
-				
+
 				echo json_encode($ajaxData);
 				return;
 
@@ -23875,7 +23519,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	function get_filtered_students() {
 		// Allow AJAX requests
 		header('Content-Type: application/json');
-		
+
 		$running_year = $this->input->post('year');
 		$running_term = $this->input->post('term');
 		$filter_residence = $this->input->post('residence');
@@ -24019,7 +23663,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		// Get filter parameters from GET request
 		$year = $this->input->get('year');
 		$term = $this->input->get('term');
-		
+
 		// Use filtered values or default to running year/term
 		$page_data['running_year'] = !empty($year) ? $year : get_settings('running_year');
 		$page_data['running_term'] = !empty($term) ? $term : get_settings('running_term');
@@ -24030,7 +23674,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 function parents_gender_report() {
 		//if ($this->session->userdata('admin_login') != 1)
 		//redirect(site_url('login'));
-	
+
 		$this->load->view('backend/admin/parents_gender_report');
 	}
 
@@ -24066,7 +23710,7 @@ function parents_gender_report() {
 		file_put_contents($file_name, $message_id, FILE_APPEND);
 		}else {
 		file_put_contents($file_name, $message_id);
-		} 
+		}
 	}
 
 	function get_deleted_messages_id() {
@@ -24368,7 +24012,7 @@ function parents_gender_report() {
 
 
 		$this->load->view('backend/admin/fct_receipt', $data);
-		
+
 	}
 
 	function pos_rec() {
@@ -24388,7 +24032,7 @@ function parents_gender_report() {
 	}
 
 
-	
+
 
 	//view the ips of those who visited the site
 	function visitor_tracker() {
@@ -24401,7 +24045,7 @@ function parents_gender_report() {
 	private function get_student_fee($student_id, $fee_type) {
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		// Check beneficiary_list first (if table exists)
 		if($this->db->table_exists('beneficiary_list')) {
 			$beneficiary = $this->db->get_where('beneficiary_list', array(
@@ -24409,7 +24053,7 @@ function parents_gender_report() {
 				'year' => $running_year,
 				'term' => $running_term
 			))->row();
-			
+
 			if ($beneficiary) {
 				$categories = json_decode($beneficiary->categories, true);
 				$total_amount = 0;
@@ -24419,7 +24063,7 @@ function parents_gender_report() {
 				return $total_amount > 0 ? $total_amount : null;
 			}
 		}
-		
+
 		// Fallback to old method for backward compatibility
 		$student = $this->db->get_where('student', array('student_id' => $student_id))->row();
 		if ($student->benefit_status != 0) {
@@ -24484,12 +24128,12 @@ function parents_gender_report() {
 		}
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		// Get all students with benefit_status
 		$students = $this->db->get_where('student', array('benefit_status !=' => 0))->result_array();
 		$migrated = 0;
 		$skipped = 0;
-		
+
 		foreach($students as $student) {
 			// Get student's current class
 			$enroll = $this->db->get_where('enroll', array(
@@ -24498,25 +24142,25 @@ function parents_gender_report() {
 				'term' => $running_term,
 				'mute' => '0'
 			))->row();
-			
+
 			if(!$enroll) continue;
-			
+
 			// Check if already migrated
 			$exists = $this->db->get_where('beneficiary_list', array(
 				'student_id' => $student['student_id'],
 				'year' => $running_year,
 				'term' => $running_term
 			))->row();
-			
+
 			if($exists) {
 				$skipped++;
 				continue;
 			}
-			
+
 			// Build categories data
 			$category_ids = explode(',', $student['benefit_status']);
 			$categories_data = array();
-			
+
 			foreach($category_ids as $cat_id) {
 				if(empty($cat_id)) continue;
 				$category = $this->db->get_where('benefit_category', array('category_id' => $cat_id))->row();
@@ -24529,9 +24173,9 @@ function parents_gender_report() {
 					);
 				}
 			}
-			
+
 			if(empty($categories_data)) continue;
-			
+
 			// Insert into beneficiary_list
 			$this->db->insert('beneficiary_list', array(
 				'student_id' => $student['student_id'],
@@ -24541,10 +24185,10 @@ function parents_gender_report() {
 				'categories' => json_encode($categories_data),
 				'created_at' => time()
 			));
-			
+
 			$migrated++;
 		}
-		
+
 		$this->session->set_flashdata('flash_message', "Migration completed: {$migrated} beneficiaries migrated, {$skipped} skipped (already exists)");
 		redirect(site_url('admin/beneficiary'));
 	}
@@ -24554,18 +24198,18 @@ function parents_gender_report() {
 		//redirect(site_url('login'));
 		if ($param1 == 'create') {
 			$data['name'] = strtoupper($this->input->post('cat_name'));
-			
+
 			$discount_type = $this->input->post('discount_type') ?: 'percentage';
 			$class_ids = $this->input->post('class_ids');
 			$feeding_charges = $this->input->post('feeding_charges');
 			$classes_charges = $this->input->post('classes_charges');
 			$tuition_charges = $this->input->post('tuition_charges');
-			
+
 			$details = array(
 				'discount_type' => $discount_type,
 				'classes' => array()
 			);
-			
+
 			if($class_ids && is_array($class_ids)) {
 				foreach($class_ids as $index => $class_id) {
 					$key = ($class_id === '0' || $class_id === 0) ? 'a' : $class_id;
@@ -24576,7 +24220,7 @@ function parents_gender_report() {
 					);
 				}
 			}
-			
+
 			$data['details'] = json_encode($details);
 			$data['created_by'] = $this->session->userdata('admin_id');
 			$data['created_at'] = time();
@@ -24594,18 +24238,18 @@ function parents_gender_report() {
 			$old = $this->db->get_where('benefit_category', array('category_id' => $param2))->row_array();
 
 			$data['name'] = strtoupper($this->input->post('cat_name'));
-			
+
 			$discount_type = $this->input->post('discount_type') ?: 'percentage';
 			$class_ids = $this->input->post('class_ids');
 			$feeding_charges = $this->input->post('feeding_charges');
 			$classes_charges = $this->input->post('classes_charges');
 			$tuition_charges = $this->input->post('tuition_charges');
-			
+
 			$details = array(
 				'discount_type' => $discount_type,
 				'classes' => array()
 			);
-			
+
 			if($class_ids && is_array($class_ids)) {
 				foreach($class_ids as $index => $class_id) {
 					$key = ($class_id === '0' || $class_id === 0) ? 'a' : $class_id;
@@ -24616,7 +24260,7 @@ function parents_gender_report() {
 					);
 				}
 			}
-			
+
 			$data['details'] = json_encode($details);
 			$data['updated_at'] = time();
 			$this->db->where('category_id', $param2);
@@ -24629,16 +24273,16 @@ function parents_gender_report() {
 			if($this->db->table_exists('beneficiary_list') && !empty($details['classes'])) {
 				$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 				$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-				
+
 				$beneficiaries = $this->db->get_where('beneficiary_list', array(
 					'year' => $running_year,
 					'term' => $running_term
 				))->result_array();
-			
+
 				foreach($beneficiaries as $ben) {
 					$categories = json_decode($ben['categories'], true);
 					$updated = false;
-					
+
 					foreach($categories as &$cat) {
 						if($cat['category_id'] == $param2) {
 							$class_id = $ben['class_id'];
@@ -24651,7 +24295,7 @@ function parents_gender_report() {
 							}
 						}
 					}
-					
+
 					if($updated) {
 						$this->db->where('id', $ben['id']);
 						$this->db->update('beneficiary_list', array(
@@ -24684,10 +24328,10 @@ function parents_gender_report() {
 				echo 'Category not found';
 				return;
 			}
-			
+
 			$details_json = isset($category['details']) && !empty($category['details']) ? json_decode($category['details'], true) : [];
 			$all_classes = $this->db->get('class')->result_array();
-			
+
 			// Convert new JSON structure to array format
 			$details = [];
 			if(isset($details_json['classes'])) {
@@ -24700,11 +24344,11 @@ function parents_gender_report() {
 					);
 				}
 			}
-			
+
 			if(empty($details)) {
 				$details = [['class_id' => '0', 'feeding_charge' => 0, 'classes_charge' => 0, 'tuition_charge' => 0]];
 			}
-			
+
 			$any_feeding = false;
 			$any_classes = false;
 			$any_tuition = false;
@@ -24713,9 +24357,9 @@ function parents_gender_report() {
 				if(isset($detail['classes_charge']) && $detail['classes_charge'] > 0) $any_classes = true;
 				if(isset($detail['tuition_charge']) && $detail['tuition_charge'] > 0) $any_tuition = true;
 			}
-			
+
 			$discount_type = isset($details_json['discount_type']) ? $details_json['discount_type'] : 'percentage';
-			
+
 			$html = '<div id="edit_details_'.$param2.'" style="min-width: 600px; width: 100%;">';
 			$html .= '<div class="row mb-3">';
 			$html .= '<div class="col-md-12"><label class="font-semibold">Discount Type</label>';
@@ -24730,12 +24374,12 @@ function parents_gender_report() {
 			$html .= '<div class="col-md-2"><input type="checkbox" id="edit_tuition_master_'.$param2.'" onchange="toggle_edit_column_fees(\'tuition\', '.$param2.')" '.($any_tuition ? 'checked' : '').'> <label class="font-semibold">Tuition Fee</label></div>';
 			$html .= '<div class="col-md-2"></div>';
 			$html .= '</div>';
-			
+
 			foreach($details as $index => $detail) {
 				$has_feeding = isset($detail['feeding_charge']);
 				$has_classes = isset($detail['classes_charge']);
 				$has_tuition = isset($detail['tuition_charge']);
-				
+
 				$html .= '<div class="row mb-2 edit-class-row">';
 				$html .= '<div class="col-md-3">';
 				$html .= '<select class="form-input-modern edit-class-select" style="min-width: 150px;" required>';
@@ -24746,30 +24390,30 @@ function parents_gender_report() {
 					$html .= '<option value="'.$class['class_id'].'" '.$selected.'>'.$class['name'].' '.$class['name_numeric'].'</option>';
 				}
 				$html .= '</select></div>';
-				
+
 				$html .= '<div class="col-md-3">';
 				$html .= '<input type="number" step="0.01" class="form-input-modern edit-feeding-input edit-feeding-input-'.$param2.'" style="min-width: 120px;" placeholder="0.00" value="'.($has_feeding ? $detail['feeding_charge'] : '0.00').'" '.($has_feeding ? '' : 'disabled').'>';
 				$html .= '</div>';
-				
+
 				$html .= '<div class="col-md-2">';
 				$html .= '<input type="number" step="0.01" class="form-input-modern edit-classes-input edit-classes-input-'.$param2.'" style="min-width: 100px;" placeholder="0.00" value="'.($has_classes ? $detail['classes_charge'] : '0.00').'" '.($has_classes ? '' : 'disabled').'>';
 				$html .= '</div>';
-				
+
 				$html .= '<div class="col-md-2">';
 				$html .= '<input type="number" step="0.01" class="form-input-modern edit-tuition-input edit-tuition-input-'.$param2.'" style="min-width: 100px;" placeholder="0.00" value="'.($has_tuition ? $detail['tuition_charge'] : '0.00').'" '.($has_tuition ? '' : 'disabled').'>';
 				$html .= '</div>';
-				
+
 				$html .= '<div class="col-md-2">';
 				$html .= '<button type="button" class="btn btn-sm btn-danger w-100" onclick="$(this).closest(\'.edit-class-row\').remove()" style="border-radius: 8px;"><i class="fa fa-trash"></i></button>';
 				$html .= '</div></div>';
 			}
-			
+
 			$html .= '<div class="row mt-3">';
 			$html .= '<div class="col-md-12">';
 			$html .= '<button type="button" id="add_btn_'.$param2.'" class="btn btn-success" onclick="add_edit_class_row_'.$param2.'()" style="border-radius: 8px;"><i class="fa fa-plus"></i> Add Class</button>';
 			$html .= '</div></div>';
 			$html .= '</div>';
-			
+
 			$classes_json = json_encode($all_classes);
 			$html .= '<script>';
 			$html .= '(function(){';
@@ -24805,7 +24449,7 @@ function parents_gender_report() {
 			$html .= '};';
 			$html .= '})();';
 			$html .= '</script>';
-			
+
 			echo $html;
 			return;
 		}
@@ -24818,7 +24462,7 @@ function parents_gender_report() {
 	//get benefit categories by class
 	function get_benefit_categories_by_class($class_id) {
 		$categories = $this->db->get('benefit_category')->result_array();
-		
+
 		foreach($categories as $row) {
 			$show = false;
 			if(isset($row['details']) && !empty($row['details'])) {
@@ -24836,7 +24480,7 @@ function parents_gender_report() {
 			} else if(isset($row['class_id'])) {
 				$show = ($row['class_id'] == 0 || $row['class_id'] == $class_id);
 			}
-			
+
 			if($show) {
 				echo '<option value="'.$row['category_id'].'">'.$row['name'].'</option>';
 			}
@@ -24847,7 +24491,7 @@ function parents_gender_report() {
 	function get_benefit_categories_for_students() {
 		$class_id = $this->input->post('class_id');
 		$student_ids = $this->input->post('student_ids');
-		
+
 		if(empty($student_ids)) {
 			$all_categories = $this->db->get('benefit_category')->result_array();
 			foreach($all_categories as $row) {
@@ -24866,10 +24510,10 @@ function parents_gender_report() {
 			}
 			return;
 		}
-		
+
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		$assigned_category_ids = array();
 		if($this->db->table_exists('beneficiary_list')) {
 			foreach($student_ids as $student_id) {
@@ -24878,7 +24522,7 @@ function parents_gender_report() {
 					'year' => $running_year,
 					'term' => $running_term
 				))->row();
-				
+
 				if($beneficiary) {
 					$categories = json_decode($beneficiary->categories, true);
 					if($categories) {
@@ -24889,15 +24533,15 @@ function parents_gender_report() {
 				}
 			}
 		}
-		
+
 		$assigned_category_ids = array_unique($assigned_category_ids);
-		
+
 		$all_categories = $this->db->get('benefit_category')->result_array();
 		$filtered_categories = array();
-		
+
 		foreach($all_categories as $row) {
 			if(!empty($assigned_category_ids) && in_array($row['category_id'], $assigned_category_ids)) continue;
-			
+
 			$show = false;
 			if(isset($row['details']) && !empty($row['details'])) {
 				$details = json_decode($row['details'], true);
@@ -24907,12 +24551,12 @@ function parents_gender_report() {
 					}
 				}
 			}
-			
+
 			if($show) {
 				$filtered_categories[] = $row;
 			}
 		}
-		
+
 		if(empty($filtered_categories)) {
 			if(!empty($assigned_category_ids)) {
 				echo '<option value="">All categories already assigned</option>';
@@ -24998,7 +24642,7 @@ function parents_gender_report() {
 
 			$this->session->set_flashdata('flash_message', get_phrase(count($invoice_array) . ' invoices_deleted'));
 
-			
+
 
 			if($location == '') {
 				$ajaxData['url'] = site_url('admin/income');
@@ -25026,7 +24670,7 @@ function parents_gender_report() {
 			}
 
 			$requestData['request_description'] = 'To delete the following invoices: '. implode(', ', $invoice_details_array);
-			$requestData['request_issuer_id'] = $this->session->userdata('login_user_id'); 
+			$requestData['request_issuer_id'] = $this->session->userdata('login_user_id');
 			$requestData['request_table'] = 'invoice';
 			$requestData['request_ids'] = implode(',', $invoice_array);
 
@@ -25072,13 +24716,13 @@ function parents_gender_report() {
 			echo json_encode($ajaxData);
 
 		} /*end of request submission*/
-		
+
 	}
 
 	//bulk invoice deletion
 	function bulk_students_delete($class_id) {
 		$student_array = $this->input->post('students_sel');
-		
+
 		if (empty($student_array)) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('no_students_selected')]);
 			return;
@@ -25111,7 +24755,7 @@ function parents_gender_report() {
 			foreach ($threads as $row) {
 				$sender = explode('-', $row['sender']);
 				$receiver = explode('-', $row['reciever']);
-				if (($sender[0] == 'student' && $sender[1] == $student_id) || 
+				if (($sender[0] == 'student' && $sender[1] == $student_id) ||
 					($receiver[0] == 'student' && $receiver[1] == $student_id)) {
 					$this->db->delete('message', ['message_thread_code' => $row['message_thread_code']]);
 					$this->db->delete('message_thread', ['message_thread_code' => $row['message_thread_code']]);
@@ -25206,7 +24850,7 @@ function parents_gender_report() {
 					$term = $this->input->post('term');
 					$year = $this->input->post('year');
 				}
-				
+
 				$type = $this->input->post('search_by_type');
 				$category = $this->input->post('search_by_category');
 				$class_id = $this->input->post('search_by_class');
@@ -25219,11 +24863,11 @@ function parents_gender_report() {
 				$page_data['year'] = $year;
 				$page_data['class_id'] = $class_id;
 				$page_data['all_customize'] = $all_customize;
-				
+
 
 				if($boarding_system == 'yes') {
 
-					$residence_type = $this->input->post('search_by_residence_type'); 
+					$residence_type = $this->input->post('search_by_residence_type');
 					$page_data['residence_type'] = $residence_type;
 
 					$page_data['report_data'] = $this->financial_report_model->accountsReceivables($term, $year, $type, $category, $class_id, $student, $all_customize, $residence_type);
@@ -25317,7 +24961,7 @@ function parents_gender_report() {
 				$bill_item = $this->input->post('search_by_bill_item');
 				$fct_type = $this->input->post('search_by_report_type');
 				$payment_method = $this->input->post('search_by_payment_method');
-				
+
 
 
 				//prepare data to send to the page
@@ -25331,7 +24975,7 @@ function parents_gender_report() {
 				$page_data['bill_item'] = $bill_item;
 				$page_data['fct_type'] = $fct_type;
 				$page_data['payment_method'] = $payment_method;
-				
+
 				if ($param3 == 'load_pivot' && ($class_id == 0 || $class_id == '0')) {
 
 
@@ -25342,24 +24986,24 @@ function parents_gender_report() {
 
 						$this->load->view('backend/admin/reports/get_payments_pivot', $page_data);
 
-						// $residence_type = $this->input->post('search_by_residence_type'); 
+						// $residence_type = $this->input->post('search_by_residence_type');
 						// $page_data['residence_type'] = $residence_type;
-	
+
 						// $page_data['report_data'] = $this->financial_report_model->paymentsReport($start_date, $end_date, $type, $category, $class_id, $student, $residence_type, $bill_item);
-	
+
 					} else {
-						
+
 						$this->load->view('backend/admin/reports/get_payments_pivot', $page_data);
 						// $page_data['report_data'] = $this->financial_report_model->paymentsReport($start_date, $end_date, $type, $category, $class_id, $student, '0', $bill_item);
 					}
 
 					return;
-					
+
 				} else {
 
 					if($boarding_system == 'yes') {
 
-						$residence_type = $this->input->post('search_by_residence_type'); 
+						$residence_type = $this->input->post('search_by_residence_type');
 						$page_data['residence_type'] = $residence_type;
 
 						$page_data['report_data'] = $this->financial_report_model->paymentsReport($start_date, $end_date, $type, $category, $class_id, $student, $residence_type, $bill_item, $payment_method);
@@ -25370,9 +25014,9 @@ function parents_gender_report() {
 					}
 				}
 
-				
 
-				
+
+
 
 				//LOAD THE PAGE NOW
 				if ($type == 1) {
@@ -25387,7 +25031,7 @@ function parents_gender_report() {
 
 						$this->load->view('backend/admin/reports/get_fct_weekly_payments', $page_data); //weekly
 					}
-					
+
 				}
 
 			} else {
@@ -25414,70 +25058,70 @@ function parents_gender_report() {
 				redirect(site_url('admin/dashboard'), 'refresh');
 				return;
 			}
-			
+
 			if ($param2 == 'load') {
 				// Log report access attempt with timestamp
 				$user_id = $this->session->userdata('admin_id');
 				$username = $this->session->userdata('name');
 				$timestamp = date('Y-m-d H:i:s');
 				log_message('info', "Monthly Payment Report accessed by user ID: {$user_id}, Name: {$username}, Timestamp: {$timestamp}");
-				
+
 				// Sanitize and retrieve input data
 				// Using intval() to ensure month values are integers and prevent SQL injection
 				$start_month = intval($this->input->post('start_month', TRUE));  // TRUE enables XSS filtering
 				$end_month = intval($this->input->post('end_month', TRUE));
 				// Using xss_clean for academic year to sanitize string input
 				$academic_year = $this->security->xss_clean($this->input->post('academic_year', TRUE));
-				
+
 				// Validate inputs - check for missing parameters
 				if (!$start_month || !$end_month || !$academic_year) {
 					log_message('info', "Monthly Payment Report: Missing parameters by user ID: {$user_id}, Timestamp: {$timestamp}");
 					echo json_encode(['error' => 'Missing required parameters']);
 					return;
 				}
-				
+
 				// Validate month range (1-12) - prevent invalid month values
 				if ($start_month < 1 || $start_month > 12 || $end_month < 1 || $end_month > 12) {
 					log_message('info', "Monthly Payment Report: Invalid month range ({$start_month}-{$end_month}) by user ID: {$user_id}, Timestamp: {$timestamp}");
 					echo json_encode(['error' => 'Invalid month range. Months must be between 1 and 12']);
 					return;
 				}
-				
+
 				// Validate start month <= end month - ensure logical date range
 				if ($start_month > $end_month) {
 					log_message('info', "Monthly Payment Report: Start month > end month ({$start_month} > {$end_month}) by user ID: {$user_id}, Timestamp: {$timestamp}");
 					echo json_encode(['error' => 'Start month cannot be after end month']);
 					return;
 				}
-				
+
 				// Validate academic year format (YYYY-YYYY) - prevent SQL injection through year parameter
 				if (!preg_match('/^\d{4}-\d{4}$/', $academic_year)) {
 					log_message('info', "Monthly Payment Report: Invalid academic year format ({$academic_year}) by user ID: {$user_id}, Timestamp: {$timestamp}");
 					echo json_encode(['error' => 'Invalid academic year format. Expected format: YYYY-YYYY']);
 					return;
 				}
-				
+
 				// Additional validation: Ensure academic year is reasonable (not in distant past/future)
 				$year_parts = explode('-', $academic_year);
 				$start_year = intval($year_parts[0]);
 				$end_year = intval($year_parts[1]);
 				$current_year = intval(date('Y'));
-				
+
 				if ($start_year < 2000 || $start_year > ($current_year + 5) || $end_year != ($start_year + 1)) {
 					log_message('info', "Monthly Payment Report: Unreasonable academic year ({$academic_year}) by user ID: {$user_id}, Timestamp: {$timestamp}");
 					echo json_encode(['error' => 'Invalid academic year. Please select a valid academic year.']);
 					return;
 				}
-				
+
 				// Log successful report generation with all parameters
 				log_message('info', "Monthly Payment Report generated successfully: Period {$start_month}-{$end_month}, Year: {$academic_year}, User ID: {$user_id}, Timestamp: {$timestamp}");
-				
+
 				// Prepare sanitized data to send to the view
 				// Data is already sanitized above, safe to pass to view
 				$page_data['start_month'] = $start_month;
 				$page_data['end_month'] = $end_month;
 				$page_data['academic_year'] = $academic_year;
-				
+
 				// Load the data view (uses parameterized queries for SQL injection prevention)
 				$this->load->view('backend/admin/reports/get_monthly_payment_by_invoice_item', $page_data);
 			} else {
@@ -25486,7 +25130,7 @@ function parents_gender_report() {
 				$username = $this->session->userdata('name');
 				$timestamp = date('Y-m-d H:i:s');
 				log_message('info', "Monthly Payment Report page accessed by user ID: {$user_id}, Name: {$username}, Timestamp: {$timestamp}");
-				
+
 				// Leads to the main page
 				$data['academic_years'] = $this->get_academic_years();
 				$data['page_name'] = 'monthly_payment_by_item';
@@ -25509,7 +25153,7 @@ function parents_gender_report() {
 	function getReceivablesSMSStep($step, $students='') {
 
 		$pageData['students'] = $students;
-		
+
 		if($step == 1) {
 			$this->load->view('backend/admin/reports/includes/sms_step1.php', $pageData);
 
@@ -25543,7 +25187,7 @@ function parents_gender_report() {
 
 			echo $param;
 		}
-		
+
 	}
 
 	//get the selected caption for the report
@@ -25591,13 +25235,13 @@ function parents_gender_report() {
 		// Access control check - only admin level 1, 2, or teachers with privilege can access
 		$user_type = $this->session->userdata('login_type');
 		$user_id = $this->session->userdata('login_user_id');
-		
+
 		if (!can_access_attendance_monitoring($user_type, $user_id)) {
 			$this->session->set_flashdata('error_message', get_phrase('access_denied_attendance_monitoring'));
 			redirect(site_url($user_type), 'refresh');
 			return;
 		}
-		
+
 		if ($timestamp != '' || $timestamp != null) {
 			if ($param2 == 'search' && $timestamp == 't') {
 				$page_data['timestamp'] = strtotime($this->input->post('date_sel'));
@@ -25620,7 +25264,7 @@ function parents_gender_report() {
 		// Access control check
 		$user_type = $this->session->userdata('login_type');
 		$user_id = $this->session->userdata('login_user_id');
-		
+
 		if (!can_access_attendance_monitoring($user_type, $user_id)) {
 			echo json_encode([
 				'status' => 'error',
@@ -25628,7 +25272,7 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Get parameters
 		$type = $this->input->post('type'); // present, absent, not_marked, total
 		$timestamp = $this->input->post('timestamp');
@@ -25636,7 +25280,7 @@ function parents_gender_report() {
 		$gender = $this->input->post('gender');
 		$residential_status = $this->input->post('residential_status');
 		$search = $this->input->post('search');
-		
+
 		// Validate required parameters
 		if (empty($type) || empty($timestamp)) {
 			echo json_encode([
@@ -25645,18 +25289,18 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		try {
 			// Get running year and term for enrollment lookup
 			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-			
+
 			// Build base query - get residence_type from enroll table
 			// CRITICAL FIX: Use INNER JOIN for enroll to ensure only enrolled students are included
 			// Also exclude muted students to match the summary card logic
-			$this->db->select('s.student_id, s.name, s.student_code, s.sex as gender, 
-			                   c.name as class_name, c.name_numeric as class_numeric, 
-			                   sec.name as section_name, 
+			$this->db->select('s.student_id, s.name, s.student_code, s.sex as gender,
+			                   c.name as class_name, c.name_numeric as class_numeric,
+			                   sec.name as section_name,
 			                   COALESCE(e.residence_type, "Day") as residential_status,
 			                   a.status as attendance_status');
 			$this->db->from('student s');
@@ -25664,10 +25308,10 @@ function parents_gender_report() {
 			$this->db->join('class c', 'c.class_id = e.class_id', 'left');
 			$this->db->join('section sec', 'sec.section_id = e.section_id', 'left');
 			$this->db->join('attendance a', 'a.student_id = s.student_id AND a.timestamp = ' . $this->db->escape($timestamp), 'left');
-			
+
 			// Exclude muted students at the student level as well
 			$this->db->where('s.mute', '0');
-			
+
 			// Apply type filter
 			switch ($type) {
 				case 'present':
@@ -25692,34 +25336,34 @@ function parents_gender_report() {
 					]);
 					return;
 			}
-			
+
 			// Apply additional filters
 			if (!empty($class_id)) {
 				$this->db->where('e.class_id', $class_id);
 			}
-			
+
 			if (!empty($gender)) {
 				$this->db->where('s.sex', $gender);
 			}
-			
+
 			if (!empty($residential_status)) {
 				// Filter by residence_type from enroll table
 				$this->db->where('e.residence_type', ucfirst($residential_status));
 			}
-			
+
 			if (!empty($search)) {
 				$this->db->group_start();
 				$this->db->like('s.name', $search);
 				$this->db->or_like('s.student_code', $search);
 				$this->db->group_end();
 			}
-			
+
 			// Order by name
 			$this->db->order_by('s.name', 'ASC');
-			
+
 			// Execute query
 			$students = $this->db->get()->result_array();
-			
+
 			// Format attendance status text
 			foreach ($students as &$student) {
 				if ($student['attendance_status'] == 1) {
@@ -25729,14 +25373,14 @@ function parents_gender_report() {
 				} else {
 					$student['attendance_status_text'] = get_phrase('not_marked');
 				}
-				
+
 				// Format gender
 				$student['gender'] = ucfirst($student['gender']);
-				
+
 				// Format residential status
 				$student['residential_status'] = ucfirst($student['residential_status']);
 			}
-			
+
 			// Return success response
 			echo json_encode([
 				'status' => 'success',
@@ -25744,7 +25388,7 @@ function parents_gender_report() {
 				'total' => count($students),
 				'filtered' => count($students)
 			]);
-			
+
 		} catch (Exception $e) {
 			log_message('error', 'Error in get_attendance_details: ' . $e->getMessage());
 			echo json_encode([
@@ -25760,13 +25404,13 @@ function parents_gender_report() {
 	function teacher_attendance_privileges() {
 		// Access control - only admin level 1
 		$admin_level = $this->db->get_where('admin', ['admin_id' => $this->session->userdata('login_user_id')])->row()->level;
-		
+
 		if ($admin_level != 1) {
 			$this->session->set_flashdata('error_message', get_phrase('access_denied'));
 			redirect(site_url('admin'), 'refresh');
 			return;
 		}
-		
+
 		$page_data['page_name'] = 'teacher_attendance_privileges';
 		$page_data['page_title'] = get_phrase('teacher_attendance_privileges');
 		$page_data['account_type'] = $this->session->userdata('login_type');
@@ -25780,7 +25424,7 @@ function parents_gender_report() {
 	function get_teachers_privilege_list() {
 		// Access control - only admin level 1
 		$admin_level = $this->db->get_where('admin', ['admin_id' => $this->session->userdata('login_user_id')])->row()->level;
-		
+
 		if ($admin_level != 1) {
 			echo json_encode([
 				'status' => 'error',
@@ -25788,17 +25432,17 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		try {
 			$teachers = get_teachers_with_privilege_status('attendance_monitoring');
 			$statistics = get_privilege_statistics('attendance_monitoring');
-			
+
 			echo json_encode([
 				'status' => 'success',
 				'data' => $teachers,
 				'statistics' => $statistics
 			]);
-			
+
 		} catch (Exception $e) {
 			log_message('error', 'Error getting teachers list: ' . $e->getMessage());
 			echo json_encode([
@@ -25815,7 +25459,7 @@ function parents_gender_report() {
 	function bulk_grant_privileges() {
 		// Access control - only admin level 1
 		$admin_level = $this->db->get_where('admin', ['admin_id' => $this->session->userdata('login_user_id')])->row()->level;
-		
+
 		if ($admin_level != 1) {
 			echo json_encode([
 				'status' => 'error',
@@ -25823,11 +25467,11 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		$teacher_ids = $this->input->post('teacher_ids');
 		$notes = $this->input->post('notes');
 		$granted_by = $this->session->userdata('login_user_id');
-		
+
 		if (empty($teacher_ids) || !is_array($teacher_ids)) {
 			echo json_encode([
 				'status' => 'error',
@@ -25835,10 +25479,10 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		$success_count = 0;
 		$failed_count = 0;
-		
+
 		foreach ($teacher_ids as $teacher_id) {
 			// Check if teacher already has privilege
 			$existing = $this->db->get_where('teacher_privileges', [
@@ -25846,12 +25490,12 @@ function parents_gender_report() {
 				'privilege_type' => 'attendance_monitoring',
 				'status' => 'active'
 			])->row();
-			
+
 			if ($existing) {
 				$failed_count++;
 				continue;
 			}
-			
+
 			// Grant privilege
 			$data = [
 				'teacher_id' => $teacher_id,
@@ -25861,14 +25505,14 @@ function parents_gender_report() {
 				'status' => 'active',
 				'notes' => $notes
 			];
-			
+
 			if ($this->db->insert('teacher_privileges', $data)) {
 				$success_count++;
 			} else {
 				$failed_count++;
 			}
 		}
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'message' => "Granted privileges to $success_count teacher(s)",
@@ -25884,7 +25528,7 @@ function parents_gender_report() {
 	function bulk_revoke_privileges() {
 		// Access control - only admin level 1
 		$admin_level = $this->db->get_where('admin', ['admin_id' => $this->session->userdata('login_user_id')])->row()->level;
-		
+
 		if ($admin_level != 1) {
 			echo json_encode([
 				'status' => 'error',
@@ -25892,11 +25536,11 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		$teacher_ids = $this->input->post('teacher_ids');
 		$notes = $this->input->post('notes');
 		$revoked_by = $this->session->userdata('login_user_id');
-		
+
 		if (empty($teacher_ids) || !is_array($teacher_ids)) {
 			echo json_encode([
 				'status' => 'error',
@@ -25904,31 +25548,31 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		$revoked_count = 0;
-		
+
 		foreach ($teacher_ids as $teacher_id) {
 			// Update active privileges to revoked
 			$this->db->where('teacher_id', $teacher_id);
 			$this->db->where('privilege_type', 'attendance_monitoring');
 			$this->db->where('status', 'active');
-			
+
 			$update_data = [
 				'status' => 'revoked',
 				'revoked_by' => $revoked_by,
 				'revoked_at' => date('Y-m-d H:i:s')
 			];
-			
+
 			// Add notes if provided
 			if (!empty($notes)) {
 				$update_data['notes'] = $notes;
 			}
-			
+
 			if ($this->db->update('teacher_privileges', $update_data)) {
 				$revoked_count++;
 			}
 		}
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'message' => "Revoked privileges from $revoked_count teacher(s)",
@@ -25943,7 +25587,7 @@ function parents_gender_report() {
 	function grant_privilege() {
 		// Access control - only admin level 1
 		$admin_level = $this->db->get_where('admin', ['admin_id' => $this->session->userdata('login_user_id')])->row()->level;
-		
+
 		if ($admin_level != 1) {
 			echo json_encode([
 				'status' => 'error',
@@ -25951,11 +25595,11 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		$teacher_id = $this->input->post('teacher_id');
 		$notes = $this->input->post('notes');
 		$granted_by = $this->session->userdata('login_user_id');
-		
+
 		if (empty($teacher_id)) {
 			echo json_encode([
 				'status' => 'error',
@@ -25963,14 +25607,14 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Check if teacher already has privilege
 		$existing = $this->db->get_where('teacher_privileges', [
 			'teacher_id' => $teacher_id,
 			'privilege_type' => 'attendance_monitoring',
 			'status' => 'active'
 		])->row();
-		
+
 		if ($existing) {
 			echo json_encode([
 				'status' => 'error',
@@ -25978,7 +25622,7 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Grant privilege
 		$data = [
 			'teacher_id' => $teacher_id,
@@ -25988,7 +25632,7 @@ function parents_gender_report() {
 			'status' => 'active',
 			'notes' => $notes
 		];
-		
+
 		if ($this->db->insert('teacher_privileges', $data)) {
 			echo json_encode([
 				'status' => 'success',
@@ -26009,7 +25653,7 @@ function parents_gender_report() {
 	function revoke_privilege() {
 		// Access control - only admin level 1
 		$admin_level = $this->db->get_where('admin', ['admin_id' => $this->session->userdata('login_user_id')])->row()->level;
-		
+
 		if ($admin_level != 1) {
 			echo json_encode([
 				'status' => 'error',
@@ -26017,11 +25661,11 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		$teacher_id = $this->input->post('teacher_id');
 		$notes = $this->input->post('notes');
 		$revoked_by = $this->session->userdata('login_user_id');
-		
+
 		if (empty($teacher_id)) {
 			echo json_encode([
 				'status' => 'error',
@@ -26029,23 +25673,23 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Update active privileges to revoked
 		$this->db->where('teacher_id', $teacher_id);
 		$this->db->where('privilege_type', 'attendance_monitoring');
 		$this->db->where('status', 'active');
-		
+
 		$update_data = [
 			'status' => 'revoked',
 			'revoked_by' => $revoked_by,
 			'revoked_at' => date('Y-m-d H:i:s')
 		];
-		
+
 		// Add notes if provided
 		if (!empty($notes)) {
 			$update_data['notes'] = $notes;
 		}
-		
+
 		if ($this->db->update('teacher_privileges', $update_data)) {
 			echo json_encode([
 				'status' => 'success',
@@ -26410,7 +26054,7 @@ function parents_gender_report() {
 						if ($num_rows > 0) {
 							//student owes school fees
 							//find amount
-							
+
 							$amount = $this->db
 								->select_sum('due')
 								->where('student_id', $student_id)
@@ -27050,7 +26694,7 @@ function parents_gender_report() {
 			$fromClassAllItemsQuery = $this->db->get('bill_item')->result_array();
 
 			$fromAllItemsTitles = array_column($fromClassAllItemsQuery, 'title');
-			
+
 			// Ensure it's always an array, never null
 			if(!is_array($fromAllItemsTitles)) {
 				$fromAllItemsTitles = [];
@@ -27069,7 +26713,7 @@ function parents_gender_report() {
 			$this->db->where('term', $running_term);
 			$this->db->where('year', $running_year);
 			$from_invoice_query = $this->db->get('invoice');
-			
+
 			// Check if invoice exists before accessing properties
 			if($from_invoice_query->num_rows() > 0) {
 				$from_invoice_code = $from_invoice_query->row()->invoice_code;
@@ -27126,7 +26770,7 @@ function parents_gender_report() {
 						$this->db->order_by('invoice_code', 'desc');
 						$this->db->limit(1);
 						$inv_query = $this->db->get('invoice');
-						
+
 						if ($inv_query->num_rows() > 0) {
 							$inv_id = $inv_query->row()->invoice_code;
 							$ndata['invoice_code'] = $inv_id + 1;
@@ -27238,9 +26882,9 @@ function parents_gender_report() {
 						$bill_data['creation_timestamp'] = $from_invoice_creation_timestamp;
 
 						$batchInsertArray[] = $bill_data;
-            
+
 					}
- 
+
 				}
 
 				/*batch insert for this student*/
@@ -27249,7 +26893,7 @@ function parents_gender_report() {
 					$this->db->insert_batch('invoice', $batchInsertArray); /*we insert now*/
 				}
 
-				
+
 
 				if(count($fromDeleteItemsTitles) > 0):
 
@@ -27317,7 +26961,7 @@ function parents_gender_report() {
 
 
 				} /*END CHECKING IF THERE IS ANY PAYMENT ITEMS THAT MUST BE DELETED*/
-				
+
 				/*END OF UPDATES FOR DAY STUDENT*/
 
 
@@ -27404,9 +27048,9 @@ function parents_gender_report() {
 						$bill_data['creation_timestamp'] = $from_invoice_creation_timestamp;
 
 						$batchInsertArray[] = $bill_data;
-            
+
 					}
- 
+
 				}
 
 				/*batch insert for this student*/
@@ -27417,7 +27061,7 @@ function parents_gender_report() {
 
 
 				if(count($fromDeleteItemsTitles) > 0):
-					
+
 					/*We delete those bill items not found in the current class bills*/
 					$this->db->where('student_id', $students_ids[$i]);
 					$this->db->where('class_id', $from_class_id);
@@ -27482,7 +27126,7 @@ function parents_gender_report() {
 
 
 				} /*END CHECKING IF THERE IS ANY PAYMENT ITEMS THAT MUST BE DELETED*/
-				
+
 				/*END OF UPDATES FOR BOARDING STUDENT*/
 
 			}
@@ -27556,7 +27200,7 @@ function parents_gender_report() {
 				->where('term', $running_term)
 				->where('year', $running_year)
 				->get('invoice_discounts')->result();
-			
+
 			if(count($existing_discounts) > 0) {
 				// Delete existing discount items first
 				foreach($existing_discounts as $existing) {
@@ -27570,7 +27214,7 @@ function parents_gender_report() {
 					->where('year', $running_year)
 					->delete('invoice_discounts');
 			}
-			
+
 			$this->db->where('student_id', $students_ids[$i]);
 			$this->db->where('status', 'approved');
 			$this->db->where('is_active', 1);
@@ -27582,7 +27226,7 @@ function parents_gender_report() {
 					$profile = $this->db->where('profile_id', $assignment->profile_id)
 						->where('is_active', 1)
 						->get('discount_profiles')->row();
-					
+
 					if($profile) {
 						// Get ALL invoice items for student in new class
 						$this->db->where('student_id', $students_ids[$i]);
@@ -27590,10 +27234,10 @@ function parents_gender_report() {
 						$this->db->where('term', $running_term);
 						$this->db->where('year', $running_year);
 						$new_invoices = $this->db->get('invoice')->result_array();
-						
+
 						$applicable_total = 0;
 						$applicable_invoices = array();
-						
+
 						if($profile->bill_item_ids === '*') {
 							// Wildcard: apply to ALL items
 							foreach($new_invoices as $inv) {
@@ -27611,12 +27255,12 @@ function parents_gender_report() {
 								}
 							}
 						}
-						
+
 						if(count($applicable_invoices) > 0) {
-							$total_discount = $profile->discount_method == 'percentage' 
-								? ($applicable_total * $profile->discount_value) / 100 
+							$total_discount = $profile->discount_method == 'percentage'
+								? ($applicable_total * $profile->discount_value) / 100
 								: min($profile->discount_value, $applicable_total);
-							
+
 							$this->db->insert('invoice_discounts', array(
 								'invoice_code' => $from_invoice_code,
 								'student_id' => $students_ids[$i],
@@ -27634,12 +27278,12 @@ function parents_gender_report() {
 								'term' => $running_term
 							));
 							$discount_id = $this->db->insert_id();
-							
+
 							foreach($applicable_invoices as $inv) {
 								$item_discount = ($profile->discount_method == 'percentage')
 									? ($inv['amount'] * $profile->discount_value / 100)
 									: (($inv['amount'] / $applicable_total) * $total_discount);
-								
+
 								$this->db->insert('invoice_discount_items', [
 									'discount_id' => $discount_id,
 									'invoice_id' => $inv['invoice_id'],
@@ -27650,7 +27294,7 @@ function parents_gender_report() {
 									'discount_amount' => $item_discount,
 									'discounted_amount' => $inv['amount'] - $item_discount
 								]);
-								
+
 								$this->db->where('invoice_id', $inv['invoice_id'])
 									->update('invoice', array(
 										'amount' => $inv['amount'] - $item_discount,
@@ -27662,7 +27306,7 @@ function parents_gender_report() {
 				}
 			}
 			// END DISCOUNT RECALCULATION
-			
+
 			// FINANCIAL SYNC: Sync updated invoices to ledger
 			sync_invoice_to_ledger($from_invoice_code, $students_ids[$i]);
 
@@ -27723,7 +27367,7 @@ function parents_gender_report() {
 		$data['year'] = $year;
 
 
-		
+
 
 		//for each student
 		for ($i = 0; $i < sizeof($students_ids); $i++) {
@@ -27761,7 +27405,7 @@ function parents_gender_report() {
 			$this->db->where('term', $term);
 			$this->db->where('year', $year);
 			$old_invoice_query = $this->db->get('invoice');
-			
+
 			// Check if invoice exists before accessing properties
 			if($old_invoice_query->num_rows() > 0) {
 				$old_invoice_code = $old_invoice_query->row()->invoice_code;
@@ -27778,7 +27422,7 @@ function parents_gender_report() {
 			/*get bill items for the old and new residence_type*/
 			$oldResidenceClassBills = $this->financial_report_model->getTermlyClassBillsForStudent($class_id, $year, $term, $current_residence_type);
 			$newResidenceClassBills = $this->financial_report_model->getTermlyClassBillsForStudent($class_id, $year, $term, $new_residence_type);
-			
+
 			$oldResidenceItemsIds = array_column($oldResidenceClassBills, 'bill_item_id');
 			$oldResidenceAllItemsTitles = array();
 			if(count($oldResidenceItemsIds) > 0) {
@@ -27787,7 +27431,7 @@ function parents_gender_report() {
 				$oldResidenceAllItemsQuery = $this->db->get('bill_item')->result_array();
 				$oldResidenceAllItemsTitles = array_column($oldResidenceAllItemsQuery, 'title');
 			}
-			
+
 			/*we check if any payment were made for the previous bill. If so, we sum up the amount and deduct it from the current bill*/
 			$studentPaid = false;
 			$amountPaidForThePreviousInvoiceItems = 0;
@@ -27884,7 +27528,7 @@ function parents_gender_report() {
 
 			}
 
-			
+
 
 			/*batch insert for this student*/
 			if(count($batchInsertArray) > 0) {
@@ -27946,7 +27590,7 @@ function parents_gender_report() {
 
 
 			} /*END CHECKING IF THERE IS ANY PAYMENT ITEMS THAT MUST BE DELETED*/
-				
+
 
 
 			/*WE ALSO NEED TO UPDATE THE PAYMENT TABLE WITH THE NEW OWING BALANCE*/
@@ -27998,14 +27642,14 @@ function parents_gender_report() {
 			endif;
 
 			/*END OF EACH STUDENT*/
-			
+
 			// DISCOUNT RECALCULATION FOR RESIDENCE STATUS CHANGE
 			$existing_discounts = $this->db->where('invoice_code', $old_invoice_code)
 				->where('student_id', $students_ids[$i])
 				->where('term', $term)
 				->where('year', $year)
 				->get('invoice_discounts')->result();
-			
+
 			if(count($existing_discounts) > 0) {
 				foreach($existing_discounts as $existing) {
 					$this->db->where('discount_id', $existing->discount_id)->delete('invoice_discount_items');
@@ -28016,7 +27660,7 @@ function parents_gender_report() {
 					->where('year', $year)
 					->delete('invoice_discounts');
 			}
-			
+
 			$this->db->where('student_id', $students_ids[$i]);
 			$this->db->where('status', 'approved');
 			$this->db->where('is_active', 1);
@@ -28028,17 +27672,17 @@ function parents_gender_report() {
 					$profile = $this->db->where('profile_id', $assignment->profile_id)
 						->where('is_active', 1)
 						->get('discount_profiles')->row();
-					
+
 					if($profile) {
 						$this->db->where('student_id', $students_ids[$i]);
 						$this->db->where('class_id', $class_id);
 						$this->db->where('term', $term);
 						$this->db->where('year', $year);
 						$new_invoices = $this->db->get('invoice')->result_array();
-						
+
 						$applicable_total = 0;
 						$applicable_invoices = array();
-						
+
 						if($profile->bill_item_ids === '*') {
 							foreach($new_invoices as $inv) {
 								$applicable_total += $inv['amount'];
@@ -28054,12 +27698,12 @@ function parents_gender_report() {
 								}
 							}
 						}
-						
+
 						if(count($applicable_invoices) > 0) {
-							$total_discount = $profile->discount_method == 'percentage' 
-								? ($applicable_total * $profile->discount_value) / 100 
+							$total_discount = $profile->discount_method == 'percentage'
+								? ($applicable_total * $profile->discount_value) / 100
 								: min($profile->discount_value, $applicable_total);
-							
+
 							$this->db->insert('invoice_discounts', array(
 								'invoice_code' => $old_invoice_code,
 								'student_id' => $students_ids[$i],
@@ -28077,12 +27721,12 @@ function parents_gender_report() {
 								'term' => $term
 							));
 							$discount_id = $this->db->insert_id();
-							
+
 							foreach($applicable_invoices as $inv) {
 								$item_discount = ($profile->discount_method == 'percentage')
 									? ($inv['amount'] * $profile->discount_value / 100)
 									: (($inv['amount'] / $applicable_total) * $total_discount);
-								
+
 								$this->db->insert('invoice_discount_items', [
 									'discount_id' => $discount_id,
 									'invoice_id' => $inv['invoice_id'],
@@ -28093,7 +27737,7 @@ function parents_gender_report() {
 									'discount_amount' => $item_discount,
 									'discounted_amount' => $inv['amount'] - $item_discount
 								]);
-								
+
 								$this->db->where('invoice_id', $inv['invoice_id'])
 									->update('invoice', array(
 										'amount' => $inv['amount'] - $item_discount,
@@ -28105,9 +27749,9 @@ function parents_gender_report() {
 				}
 			}
 			// END DISCOUNT RECALCULATION
-			
+
 			sync_invoice_to_ledger($old_invoice_code, $students_ids[$i]);
-			
+
 			/*update both invoice and payment tables with the residence type of the student*/
 
 
@@ -28125,7 +27769,7 @@ function parents_gender_report() {
 
 		}
 
-		
+
 
 		echo 'success';
 
@@ -28205,29 +27849,29 @@ function parents_gender_report() {
 	function getAttendanceReportData() {
 		// Get filters from POST
 		$filters = $this->input->post('filters');
-		
+
 		$dateRange = isset($filters['dateRange']) ? $filters['dateRange'] : null;
 		$status = isset($filters['status']) ? $filters['status'] : '';
 		$classId = isset($filters['class']) ? $filters['class'] : '';
 		$gender = isset($filters['gender']) ? $filters['gender'] : '';
 		$residential = isset($filters['residential']) ? $filters['residential'] : '';
 		$houseId = isset($filters['house']) ? $filters['house'] : '';
-		
+
 		// OPTIMIZATION 1: Fetch all settings in one query and cache them
 		$settings = $this->db->where_in('type', array('running_year', 'running_term', 'running_sem', 'boarding_enabled'))
 			->get('settings')
 			->result_array();
-		
+
 		$settings_map = array();
 		foreach ($settings as $setting) {
 			$settings_map[$setting['type']] = $setting['description'];
 		}
-		
+
 		$running_year = $settings_map['running_year'];
 		$running_term = $settings_map['running_term'];
 		$running_sem = $settings_map['running_sem'];
 		$is_boarding = (isset($settings_map['boarding_enabled']) && $settings_map['boarding_enabled'] == '1');
-		
+
 		// Build query for students - Use DISTINCT to prevent duplicates from enroll table
 		$this->db->distinct();
 		$this->db->select('s.student_id, s.student_code, s.name, s.sex, s.parent_id, e.class_id, e.section_id, p.name as parent_name, p.phone as parent_phone');
@@ -28237,17 +27881,17 @@ function parents_gender_report() {
 		$this->db->where('e.year', $running_year);
 		$this->db->where('e.term', $running_term);
 		$this->db->where('s.mute', '0');
-		
+
 		// Apply class filter
 		if (!empty($classId)) {
 			$this->db->where('e.class_id', $classId);
 		}
-		
+
 		// Apply gender filter
 		if (!empty($gender)) {
 			$this->db->where('s.sex', $gender);
 		}
-		
+
 		// Apply residential status filter (if boarding enabled)
 		if ($is_boarding && !empty($residential)) {
 			if ($residential == 'boarding') {
@@ -28256,23 +27900,23 @@ function parents_gender_report() {
 				$this->db->where('s.residence_type', 'day');
 			}
 		}
-		
+
 		// Apply boarding house filter (if boarding enabled)
 		if ($is_boarding && !empty($houseId)) {
 			$this->db->where('s.boarding_house_id', $houseId);
 		}
-		
+
 		// Group by student_id to ensure uniqueness
 		$this->db->group_by('s.student_id');
 		$this->db->order_by('s.name', 'ASC');
-		
+
 		$students_query = $this->db->get();
 		$students = $students_query->result_array();
-		
+
 		// OPTIMIZATION 2: Batch-fetch all class and section info in one query each
 		$class_ids = array_unique(array_filter(array_column($students, 'class_id')));
 		$section_ids = array_unique(array_filter(array_column($students, 'section_id')));
-		
+
 		$classes_map = array();
 		if (!empty($class_ids)) {
 			$classes = $this->db->where_in('class_id', $class_ids)->get('class')->result_array();
@@ -28280,7 +27924,7 @@ function parents_gender_report() {
 				$classes_map[$class['class_id']] = $class;
 			}
 		}
-		
+
 		$sections_map = array();
 		if (!empty($section_ids)) {
 			$sections = $this->db->where_in('section_id', $section_ids)->get('section')->result_array();
@@ -28288,11 +27932,11 @@ function parents_gender_report() {
 				$sections_map[$section['section_id']] = $section;
 			}
 		}
-		
+
 		// OPTIMIZATION 3: Batch-fetch all attendance records in one query
 		$student_ids = array_column($students, 'student_id');
 		$attendance_map = array();
-		
+
 		// Process date range
 		$startDate = null;
 		$endDate = null;
@@ -28300,10 +27944,10 @@ function parents_gender_report() {
 			$startDate = strtotime($dateRange['start']);
 			$endDate = strtotime($dateRange['end']);
 		}
-		
+
 		// If single date (start == end), use that date
 		$isSingleDate = ($startDate == $endDate);
-		
+
 		if (!empty($student_ids)) {
 			if ($isSingleDate) {
 				// Single date - get attendance for that specific date
@@ -28313,7 +27957,7 @@ function parents_gender_report() {
 					->where('year', $running_year)
 					->get('attendance')
 					->result_array();
-				
+
 				foreach ($attendance_records as $record) {
 					$attendance_map[$record['student_id']] = $record['status'];
 				}
@@ -28327,19 +27971,19 @@ function parents_gender_report() {
 					->where('year', $running_year)
 					->group_by('student_id')
 					->get_compiled_select('attendance');
-				
+
 				$attendance_records = $this->db->select('a.student_id, a.status')
 					->from('attendance a')
 					->join("($subquery) latest", 'a.student_id = latest.student_id AND a.timestamp = latest.max_timestamp', 'inner')
 					->get()
 					->result_array();
-				
+
 				foreach ($attendance_records as $record) {
 					$attendance_map[$record['student_id']] = $record['status'];
 				}
 			}
 		}
-		
+
 		// Initialize counters
 		$summary = array(
 			'total' => 0,
@@ -28352,7 +27996,7 @@ function parents_gender_report() {
 			'absentSickClinic' => 0,
 			'notMarked' => 0
 		);
-		
+
 		$chartData = array(
 			'distribution' => array(
 				'present' => 0,
@@ -28366,23 +28010,23 @@ function parents_gender_report() {
 			),
 			'byClass' => array()
 		);
-		
+
 		$studentRecords = array();
 		$processedStudents = array(); // Track processed students to prevent duplicates
-		
+
 		// Process each student
 		foreach ($students as $student) {
 			$student_id = $student['student_id'];
-			
+
 			// Skip if already processed (extra safety check)
 			if (isset($processedStudents[$student_id])) {
 				continue;
 			}
 			$processedStudents[$student_id] = true;
-			
+
 			$class_id = $student['class_id'];
 			$section_id = $student['section_id'];
-			
+
 			// OPTIMIZATION 4: Use pre-fetched class and section data
 			$class_name = '';
 			if ($class_id && isset($classes_map[$class_id])) {
@@ -28392,15 +28036,15 @@ function parents_gender_report() {
 					$class_name .= ' ' . $sections_map[$section_id]['name'];
 				}
 			}
-			
+
 			// OPTIMIZATION 5: Use pre-fetched attendance data
 			$att_status = isset($attendance_map[$student_id]) ? $attendance_map[$student_id] : 0; // Default: Not Marked
-			
+
 			// Apply status filter
 			// Status filter values: 1=Present (includes 1 and 3), 2=Absent (includes 2, 4, 5), 0=Not Marked
 			if ($status !== '' && $status !== null) {
 				$matchesFilter = false;
-				
+
 				if ($status == '1') {
 					// Present filter: includes Present (1) and Late (3)
 					$matchesFilter = ($att_status == 1 || $att_status == 3);
@@ -28411,12 +28055,12 @@ function parents_gender_report() {
 					// Not Marked filter
 					$matchesFilter = ($att_status == 0);
 				}
-				
+
 				if (!$matchesFilter) {
 					continue; // Skip this student if status doesn't match filter
 				}
 			}
-			
+
 			// Update summary counters
 			// Status values: 1=Present, 2=Absent, 3=Late, 4=Sick-Home, 5=Sick-Clinic, 0=Not Marked
 			$summary['total']++;
@@ -28455,7 +28099,7 @@ function parents_gender_report() {
 				$summary['notMarked']++;
 				$chartData['distribution']['notMarked']++;
 			}
-			
+
 			// Update class-wise chart data
 			$classKey = $class_name;
 			if (!isset($chartData['byClass'][$classKey])) {
@@ -28466,7 +28110,7 @@ function parents_gender_report() {
 					'notMarked' => 0
 				);
 			}
-			
+
 			if ($att_status == 1 || $att_status == 3) {
 				// Present or Late
 				$chartData['byClass'][$classKey]['present']++;
@@ -28477,10 +28121,10 @@ function parents_gender_report() {
 				// Not Marked
 				$chartData['byClass'][$classKey]['notMarked']++;
 			}
-			
+
 			// Get student photo
 			$photo_url = $this->crud_model->get_image_url('student', $student_id, $student['sex']);
-			
+
 			// Build student record
 			$studentRecords[] = array(
 				'studentId' => $student_id,
@@ -28494,12 +28138,12 @@ function parents_gender_report() {
 				'photo' => $photo_url
 			);
 		}
-		
+
 		// Convert byClass associative array to indexed array and sort by class order
 		// Use the same ordering as getFullClassList helper (CRECHE, NURSERY, KG, BASIC, JHS)
 		$class_order = array('CRECHE', 'NURSERY', 'KG', 'BASIC', 'JHS');
 		$sorted_by_class = array();
-		
+
 		// First, organize by class name and numeric
 		foreach ($chartData['byClass'] as $classData) {
 			$className = $classData['className'];
@@ -28507,20 +28151,20 @@ function parents_gender_report() {
 			$parts = explode(' ', trim($className));
 			$mainClassName = $parts[0];
 			$numeric = isset($parts[1]) ? intval($parts[1]) : 0;
-			
+
 			// Find order index
 			$orderIndex = array_search($mainClassName, $class_order);
 			if ($orderIndex === false) {
 				$orderIndex = 999; // Put unknown classes at the end
 			}
-			
+
 			$sorted_by_class[] = array(
 				'orderIndex' => $orderIndex,
 				'numeric' => $numeric,
 				'data' => $classData
 			);
 		}
-		
+
 		// Sort by order index first, then by numeric
 		usort($sorted_by_class, function($a, $b) {
 			if ($a['orderIndex'] != $b['orderIndex']) {
@@ -28528,12 +28172,12 @@ function parents_gender_report() {
 			}
 			return $a['numeric'] - $b['numeric'];
 		});
-		
+
 		// Extract just the data
 		$chartData['byClass'] = array_map(function($item) {
 			return $item['data'];
 		}, $sorted_by_class);
-		
+
 		// Get teacher information if class filter is applied
 		$teacherInfo = null;
 		if (!empty($classId)) {
@@ -28543,7 +28187,7 @@ function parents_gender_report() {
 					->where('teacher_id', $teacher_id)
 					->get('teacher')
 					->row();
-				
+
 				if ($teacher) {
 					$teacherInfo = array(
 						'name' => $teacher->name,
@@ -28552,7 +28196,7 @@ function parents_gender_report() {
 				}
 			}
 		}
-		
+
 		// Return JSON response
 		$response = array(
 			'success' => true,
@@ -28561,7 +28205,7 @@ function parents_gender_report() {
 			'students' => $studentRecords,
 			'teacherInfo' => $teacherInfo
 		);
-		
+
 		echo json_encode($response);
 	}
 
@@ -28798,33 +28442,33 @@ function parents_gender_report() {
 	function getAdmissionBillPreview() {
 		$class_id = $this->input->post('class_id');
 		$residence_type = $this->input->post('residence_type');
-		
+
 		if(empty($class_id)) {
 			echo json_encode(['status' => 'error', 'message' => 'Class ID is required']);
 			return;
 		}
-		
+
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		try {
 			// Get class category for filtering
 			$class_row = $this->db->get_where('class', ['class_id' => $class_id])->row();
 			$class_category = isset($class_row->category) ? $class_row->category : null;
-			
+
 			// Get all bill items
 			$this->db->select('id, title, description, amount, class_category, specific_class_ids');
 			$this->db->from('bill_item');
 			$all_bill_items = $this->db->get()->result_array();
-			
+
 			$billsArray = array();
-			
+
 			// Filter bill items using 3-tier logic
 			foreach($all_bill_items as $item) {
 				$specific_class_ids = isset($item['specific_class_ids']) ? $item['specific_class_ids'] : null;
 				$bill_class_category = isset($item['class_category']) ? $item['class_category'] : null;
 				$item_title = strtoupper($item['title']);
-				
+
 				// Skip residence-specific items that don't match
 				if($residence_type == 'Day') {
 					// Skip boarding-specific items
@@ -28837,9 +28481,9 @@ function parents_gender_report() {
 						continue; // Skip generic "ADMISSION FEE" when Boarding
 					}
 				}
-				
+
 				$applies = false;
-				
+
 				if(!empty($specific_class_ids)) {
 					// Priority 1: Check specific class IDs
 					$specific_classes = array_map('trim', explode(',', $specific_class_ids));
@@ -28855,7 +28499,7 @@ function parents_gender_report() {
 					// Priority 3: Global item (both NULL/empty)
 					$applies = true;
 				}
-				
+
 				if($applies) {
 					$billsArray[] = array(
 						'title' => $item_title,
@@ -28864,10 +28508,10 @@ function parents_gender_report() {
 					);
 				}
 			}
-			
+
 			// Get admission fee
 			$admission_fee = $this->boarding_model->getAdmissionFeeByResidentialStatus($residence_type);
-			
+
 			echo json_encode([
 				'status' => 'success',
 				'bills' => $billsArray,
@@ -29152,7 +28796,7 @@ function parents_gender_report() {
 
 	function get_exams_by_class() {
 		$class_id = $this->input->post('class_id');
-		
+
 		// Get all exams with marks for this class, ordered by date descending
 		$this->db->select('exam.exam_id, exam.name, exam.year, exam.term, exam.date');
 		$this->db->from('exam');
@@ -29163,7 +28807,7 @@ function parents_gender_report() {
 		$this->db->order_by('exam.term', 'DESC');
 		$this->db->order_by('exam.date', 'DESC');
 		$exams = $this->db->get()->result_array();
-		
+
 		echo '<option value="">'.get_phrase('select_exam').'</option>';
 		foreach($exams as $exam) {
 			$exam_label = $exam['name'] . ' - ' . $exam['year'] . ' Term ' . $exam['term'];
@@ -29186,13 +28830,13 @@ function parents_gender_report() {
 			show_error('Class ID and Exam ID are required');
 			return;
 		}
-		
+
 		// Get exam details to determine year/term
 		$exam_record = $this->db->get_where('exam', array('exam_id' => $exam_id))->row();
 		$year = $exam_record->year;
 		$term = isset($exam_record->term) ? $exam_record->term : null;
 		$sem = isset($exam_record->sem) ? $exam_record->sem : null;
-		
+
 		// Get all students in this class for this year/term
 		if($sem) {
 			$enrolls = $this->db->get_where('enroll', array(
@@ -29209,12 +28853,12 @@ function parents_gender_report() {
 				'mute' => '0'
 			))->result_array();
 		}
-		
+
 		// Get class name to determine report style
 		$class_name = $this->crud_model->get_class_name($class_id);
 		$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
 		$terminal_report_style = $this->db->get_where('settings', array('type' => 'terminal_report_style'))->row()->description;
-		
+
 		// Determine which bulk print view to use
 		if ($class_name == 'CRECHE') {
 			$page_name = 'student_marksheet_bulk_print_view_creche';
@@ -29227,7 +28871,7 @@ function parents_gender_report() {
 		} else {
 			$page_name = ($terminal_report_style == 'style_2') ? 'student_marksheet_bulk_print_view_2' : 'student_marksheet_bulk_print_view';
 		}
-		
+
 		// Prepare page data
 		$page_data['enrolls'] = $enrolls;
 		$page_data['class_id'] = $class_id;
@@ -29236,12 +28880,12 @@ function parents_gender_report() {
 		$page_data['term'] = $term;
 		$page_data['sem'] = $sem;
 		$page_data['page_name'] = $page_name;
-		
+
 		// Also need section_id for the bulk print views
 		// Get first section for this class (most schools have one section per class)
 		$section_row = $this->db->get_where('section', array('class_id' => $class_id))->row();
 		$page_data['section_id'] = $section_row ? $section_row->section_id : 0;
-		
+
 		// Load the bulk print view
 		$this->load->view('backend/admin/'.$page_name, $page_data);
 	}
@@ -29250,18 +28894,35 @@ function parents_gender_report() {
 		$student_id = $this->input->post('student_id');
 		$exam_id = $this->input->post('exam_id');
 		$class_id = $this->input->post('class_id');
-		
+
 		// Pass exam_id to student_marksheet so it can fetch the correct year/term
 		$this->student_marksheet($student_id, 'yes');
 	}
 
 	/*REQUEST APPROVAL*/
 	function manageRequestApproval($param='', $request_id='', $status='') {
-		// Only super admins can access approval page
+		// Financial approval workflows are restricted to super administrators.
 		$user_level = $this->session->userdata('user_type');
-		if($user_level != 1 && $param == '') {
-			$this->session->set_flashdata('error_message', 'Access denied. Only super administrators can manage approvals.');
-			redirect(site_url('admin/dashboard'));
+		if($user_level != 1) {
+			if($param === '') {
+				$this->session->set_flashdata('error_message', 'Access denied. Only super administrators can manage approvals.');
+				redirect(site_url('admin/dashboard'));
+			} else {
+				$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Access denied']));
+			}
+			return;
+		}
+		if(in_array($param, ['manage','quick_action'], true) && !in_array($status, ['Approved','Declined'], true)) {
+			if($param === 'manage') {
+				$this->output->set_status_header(422)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Invalid approval status']));
+			} else {
+				$this->session->set_flashdata('error_message', 'Invalid approval action');
+				redirect(site_url('admin/manageRequestApproval'));
+			}
+			return;
+		}
+		if($param === 'manage' && strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
 			return;
 		}
 
@@ -29276,31 +28937,31 @@ function parents_gender_report() {
 
 			if($result) {
 				// Get request details
-				$request = $this->db->where('request_id', $request_id)->get('invoice_requests')->row();
-				
+				$request = $this->db->where('request_id', $request_id)->get('request')->row();
+
 				if($request) {
 					// Notify requester
 					$requester = $this->db->where('admin_id', $request->request_issuer_id)->get('admin')->row();
 					$approver_name = $this->session->userdata('name');
 					$school_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
-					
+
 					// In-app notification
 					$this->db->insert('notifications', [
 						'user_id' => $request->request_issuer_id,
 						'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
 						'title' => 'Request ' . $status,
-						'message' => 'Your ' . $request->request_type . ' request has been ' . strtolower($status) . ' by ' . $approver_name,
+						'message' => 'Your ' . $request->request_table . ' request has been ' . strtolower($status) . ' by ' . $approver_name,
 						'type' => 'request_' . strtolower($status),
 						'created_at' => date('Y-m-d H:i:s')
 					]);
-					
+
 					// SMS notification
 					$active_sms = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row();
 					if($active_sms && $active_sms->description != 'disabled' && !empty($requester->phone)) {
-						$sms_message = "[$school_name] Your {$request->request_type} request has been {$status} by {$approver_name}.";
+						$sms_message = "[$school_name] Your {$request->request_table} request has been {$status} by {$approver_name}.";
 						$this->sms_model->send_sms($sms_message, [$requester->phone]);
 					}
-					
+
 					// Email notification
 					if(!empty($requester->email)) {
 						$status_color = $status == 'Approved' ? '#10b981' : '#ef4444';
@@ -29311,7 +28972,7 @@ function parents_gender_report() {
 							</div>
 							<div style='padding: 30px; background: #f9fafb;'>
 								<p style='font-size: 16px; color: #374151;'>Dear {$requester->name},</p>
-								<p style='font-size: 16px; color: #374151;'>Your <strong>{$request->request_type}</strong> request has been <span style='color: {$status_color}; font-weight: bold;'>{$status}</span> by {$approver_name}.</p>
+								<p style='font-size: 16px; color: #374151;'>Your <strong>{$request->request_table}</strong> request has been <span style='color: {$status_color}; font-weight: bold;'>{$status}</span> by {$approver_name}.</p>
 								<div style='background: white; padding: 20px; border-radius: 8px; margin: 20px 0;'>
 									<p style='margin: 5px 0; color: #6b7280;'><strong>Request ID:</strong> {$request->request_id}</p>
 									<p style='margin: 5px 0; color: #6b7280;'><strong>Description:</strong> {$request->request_description}</p>
@@ -29339,45 +29000,46 @@ function parents_gender_report() {
 		if($param == 'quick_action' && !empty($request_id) && !empty($status)) {
 			// Verify token for security
 			$token = $this->input->get('token');
-			$request = $this->db->where('request_id', $request_id)->get('invoice_requests')->row();
-			
+			$request = $this->db->where('request_id', $request_id)->get('request')->row();
+
 			if(!$request) {
 				$this->session->set_flashdata('error_message', 'Request not found');
 				redirect(site_url('admin/manageRequestApproval'));
 				return;
 			}
-			
+
 			// Verify token
-			$expected_token = md5($request->request_id . $request->request_created_timestamp . 'approval_secret');
-			if($token !== $expected_token) {
+			$secret = (string)$this->config->item('encryption_key');
+			$expected_token = $secret !== '' ? hash_hmac('sha256', $request->request_id . '|' . $request->request_created_timestamp . '|' . $status, $secret) : '';
+			if($token === '' || $expected_token === '' || !hash_equals($expected_token, (string)$token)) {
 				$this->session->set_flashdata('error_message', 'Invalid approval link');
 				redirect(site_url('admin/manageRequestApproval'));
 				return;
 			}
-			
+
 			// Process approval
 			$result = $this->crud_model->updateSingleInvoiceRequest($request_id, $status);
-			
+
 			if($result) {
 				// Send notifications (same as above)
 				$requester = $this->db->where('admin_id', $request->request_issuer_id)->get('admin')->row();
 				$approver_name = $this->session->userdata('name');
 				$school_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
-				
+
 				$this->db->insert('notifications', [
 					'user_id' => $request->request_issuer_id,
 					'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
 					'title' => 'Request ' . $status,
-					'message' => 'Your ' . $request->request_type . ' request has been ' . strtolower($status) . ' by ' . $approver_name,
+					'message' => 'Your ' . $request->request_table . ' request has been ' . strtolower($status) . ' by ' . $approver_name,
 					'type' => 'request_' . strtolower($status),
 					'created_at' => date('Y-m-d H:i:s')
 				]);
-				
+
 				$this->session->set_flashdata('flash_message', 'Request ' . $status . ' successfully');
 			} else {
 				$this->session->set_flashdata('error_message', 'Error processing request');
 			}
-			
+
 			redirect(site_url('admin/manageRequestApproval'));
 			return;
 		}
@@ -29385,10 +29047,10 @@ function parents_gender_report() {
 		/*general routing to the page*/
 		// Fetch receipt modification requests
 		$page_data['requests'] = $this->db->order_by('request_id', 'DESC')->get('receipt_modification_requests')->result_array();
-		
+
 		// Fetch invoice modification requests
 		$page_data['invoice_requests'] = $this->db->order_by('request_id', 'DESC')->get('invoice_modification_requests')->result_array();
-		
+
 		$page_data['page_name'] = 'receipt_invoice_modification_requests';
 		$page_data['page_title'] = get_phrase('invoice_&_receipt_approvals');
 		$page_data['account_type'] = $this->session->userdata('login_type');
@@ -29446,7 +29108,7 @@ function parents_gender_report() {
 				header('Content-Type: application/json');
 				echo json_encode(['success' => false, 'message' => is_string($result) ? $result : 'Failed to process payroll']);
 			}
-			
+
 			return;
 
 		}
@@ -29461,13 +29123,13 @@ function parents_gender_report() {
 
 		$page_data['account_type'] = $this->session->userdata('login_type');
 		$this->load->view('backend/admin/payroll_system', $page_data);
-		
+
 
 	}
 
 	/**
 	 * Wave 8 - Task 11.1: Payroll Approvals Page
-	 * 
+	 *
 	 * Displays the payroll approval workflow interface
 	 * Shows pending, approved, and rejected payrolls with filtering
 	 */
@@ -29485,7 +29147,7 @@ function parents_gender_report() {
 		$page_data['user_id'] = $this->session->userdata('admin_id');
 		$page_data['user_level'] = $this->session->userdata('user_type');
 		$page_data['user_role'] = $this->session->userdata('role');
-		
+
 		// Check permissions
 		// HR (level 1 or has HR role): can create and submit
 		// Manager/Principal (level 2): can approve/reject
@@ -29498,7 +29160,7 @@ function parents_gender_report() {
 		$page_data['page_name'] = 'payroll_approvals';
 		$page_data['page_title'] = get_phrase('payroll_approvals');
 		$page_data['account_type'] = $this->session->userdata('login_type');
-		
+
 		// Load the view directly (not through backend/main)
 		$this->load->view('backend/admin/payroll_approvals', $page_data);
 	}
@@ -29512,7 +29174,7 @@ function parents_gender_report() {
 		$page_data['statutory_rates'] = $this->payroll_statutory_model->get_all_settings();
 		$page_data['page_title'] = 'SSNIT REPORT - TIER 1';
 		$this->load->view('backend/admin/payroll_report_ssnit_tier1', $page_data);
-		
+
 
 	}
 
@@ -29524,19 +29186,19 @@ function parents_gender_report() {
 		$page_data['statutory_rates'] = $this->payroll_statutory_model->get_all_settings();
 		$page_data['page_title'] = 'SSNIT REPORT - TIER 2';
 		$this->load->view('backend/admin/payroll_report_ssnit_tier2', $page_data);
-		
+
 
 	}
 
 	function getStaffDetails() {
 
 		$pageData['ids'] = $this->input->post('staffData');
-		
+
 		// Load dynamic statutory rates
 		$this->load->model('Payroll_statutory_model');
 		$pageData['statutory_rates'] = $this->Payroll_statutory_model->get_all_settings();
 		$pageData['statutory_rates_json'] = $this->Payroll_statutory_model->get_rates_json();
-		
+
 		$this->load->view('backend/admin/getStaffDetailsForPayroll', $pageData);
 
 	}
@@ -29566,10 +29228,10 @@ function parents_gender_report() {
 			echo 'Not found';
 			return;
 		}
-		
+
 		// Query field preferences (system-wide, not user-specific)
 		$field_preferences = $this->db->get('form_field_preferences')->result_array();
-		
+
 		// Build array of hidden field names
 		$hidden_fields = [];
 		foreach ($field_preferences as $pref) {
@@ -29578,14 +29240,14 @@ function parents_gender_report() {
 			}
 		}
 		$pageData['hidden_fields'] = $hidden_fields;
-		
+
 		// ============================================
 		// Load dynamic statutory rates
 		// ============================================
 		$this->load->model('Payroll_statutory_model');
 		$pageData['statutory_rates'] = $this->Payroll_statutory_model->get_all_settings();
 		$pageData['statutory_rates_json'] = $this->Payroll_statutory_model->get_rates_json();
-		
+
 		// Load Tier 2 provider (get first active provider)
 		$pageData['tier2_provider'] = null;
 		if ($this->db->table_exists('pension_tier2_providers')) {
@@ -29606,14 +29268,14 @@ function parents_gender_report() {
 	function payslip_preview($staffCode, $month, $year, $employment_category) {
 		// Load required models
 		$this->load->model('payroll_statutory_model');
-		
+
 		// Get payroll data
 		$staffData = $this->payroll_model->getPayrollFormByStaffCode($staffCode, $month, $year);
-		
+
 		// Debug log
 		log_message('debug', 'Payslip Preview - Staff Code: ' . $staffCode . ', Month: ' . $month . ', Year: ' . $year);
 		log_message('debug', 'Payslip Preview - Staff Data Count: ' . count($staffData));
-		
+
 		// Validate that payroll data exists (check count, not empty)
 		if (count($staffData) === 0) {
 			// Redirect back with error message
@@ -29621,7 +29283,7 @@ function parents_gender_report() {
 			redirect(site_url('admin/payroll'));
 			return;
 		}
-		
+
 		// Prepare page data
 		$pageData['staffPayrollData'] = $staffData;
 		$pageData['staffCode'] = $staffCode;
@@ -29641,7 +29303,7 @@ function parents_gender_report() {
 			;
 		$pageData['staffPayrollData'] = $staffPayrollData;
 		$pageData['staffInfoData'] = $staffInfoData;
-		
+
 		// Route to appropriate view based on staff type and set correct page_name for navigation
 		if ($table === 'admin') {
 			$pageData['page_name'] = 'admin_list';  // Matches navigation menu for Administrators
@@ -29672,22 +29334,22 @@ function parents_gender_report() {
 		}
 
 		$staffInfoData = $this->crud_model->getStaffInfoById('admin', $admin_id);
-		
+
 		// Check if admin exists
 		if (empty($staffInfoData)) {
 			$this->session->set_flashdata('error_message', get_phrase('admin_not_found'));
 			redirect(site_url('admin/admins'));
 			return;
 		}
-		
+
 		// Get payroll data using admin_code
 		$staffPayrollData = $this->payroll_model->getStaffPayroll($staffInfoData->admin_code);
-		
+
 		$pageData['staffPayrollData'] = $staffPayrollData;
 		$pageData['staffInfoData'] = $staffInfoData;
 		$pageData['page_name'] = 'admin_details';
 		$pageData['page_title'] = 'Admin Profile';
-		
+
 		$this->load->view('backend/main', $pageData);
 	}
 
@@ -29700,22 +29362,22 @@ function parents_gender_report() {
 		}
 
 		$staffInfoData = $this->crud_model->getStaffInfoById('teacher', $teacher_id);
-		
+
 		// Check if teacher exists
 		if (empty($staffInfoData)) {
 			$this->session->set_flashdata('error_message', get_phrase('teacher_not_found'));
 			redirect(site_url('admin/teacher'));
 			return;
 		}
-		
+
 		// Get payroll data using teacher_code
 		$staffPayrollData = $this->payroll_model->getStaffPayroll($staffInfoData->teacher_code);
-		
+
 		$pageData['staffPayrollData'] = $staffPayrollData;
 		$pageData['staffInfoData'] = $staffInfoData;
 		$pageData['page_name'] = 'teacher_details';
 		$pageData['page_title'] = 'Teacher Profile';
-		
+
 		$this->load->view('backend/main', $pageData);
 	}
 
@@ -29728,22 +29390,22 @@ function parents_gender_report() {
 		}
 
 		$staffInfoData = $this->crud_model->getStaffInfoById('non_teaching_staff', $staff_id);
-		
+
 		// Check if staff exists
 		if (empty($staffInfoData)) {
 			$this->session->set_flashdata('error_message', get_phrase('staff_not_found'));
 			redirect(site_url('admin/non_teaching_staff'));
 			return;
 		}
-		
+
 		// Get payroll data using staff_code
 		$staffPayrollData = $this->payroll_model->getStaffPayroll($staffInfoData->staff_code);
-		
+
 		$pageData['staffPayrollData'] = $staffPayrollData;
 		$pageData['staffInfoData'] = $staffInfoData;
 		$pageData['page_name'] = 'non_teaching_staff_details';
 		$pageData['page_title'] = 'Staff Profile';
-		
+
 		$this->load->view('backend/main', $pageData);
 	}
 
@@ -29757,7 +29419,7 @@ function parents_gender_report() {
 			/*all*/
 			$pageData['payrollData'] = $this->payroll_model->getAllPayroll();
 		}
-		
+
 		$pageData['page_name'] = 'payslip_list';
 		$pageData['page_title'] = 'Staffs Payslip List';
 		$this->load->view('backend/main', $pageData);
@@ -29767,22 +29429,22 @@ function parents_gender_report() {
 	// Payroll Edit Form - AJAX
 	function payroll_edit_form($pay_id) {
 		$data['pay_id'] = $pay_id;
-		
+
 		// Load statutory rates
 		$this->load->model('payroll_statutory_model');
 		$data['statutory_rates'] = $this->payroll_statutory_model->get_all_settings();
 		$data['statutory_rates_json'] = $this->payroll_statutory_model->get_rates_json();
-		
+
 		$this->load->view('backend/admin/payroll_edit_form', $data);
 	}
 
 	// Payroll Update - AJAX
 	function payroll_update_ajax() {
 		$pay_id = $this->input->post('pay_id');
-		
+
 		// Get current payroll data for cache invalidation
 		$payroll = $this->db->get_where('pay_salary', ['pay_id' => $pay_id])->row();
-		
+
 		$data['basic_salary'] = $this->input->post('basic_salary');
 		$data['market_premium_allowance'] = $this->input->post('market_premium_allowance') ?: 0;
 		$data['teaching_allowance'] = $this->input->post('teaching_allowance') ?: 0;
@@ -29807,10 +29469,10 @@ function parents_gender_report() {
 		$data['total_deductions'] = $this->input->post('total_deductions') ?: 0;
 		$data['gross_salary'] = $this->input->post('gross_salary') ?: 0;
 		$data['net_salary'] = $this->input->post('net_salary') ?: 0;
-		
+
 		$this->db->where('pay_id', $pay_id);
 		$result = $this->db->update('pay_salary', $data);
-		
+
 		if($result) {
 			// Task 17.2: Invalidate dashboard cache after payroll update
 			if ($payroll) {
@@ -29818,7 +29480,7 @@ function parents_gender_report() {
 				$cache_key = "payroll_dashboard_" . $payroll->month . "_" . $payroll->year;
 				$this->cache->delete($cache_key);
 			}
-			
+
 			echo json_encode([
 				'status' => 'success',
 				'message' => get_phrase('payroll_updated_successfully')
@@ -29835,10 +29497,10 @@ function parents_gender_report() {
 	function payroll_delete($pay_id) {
 		// Get current payroll data for cache invalidation
 		$payroll = $this->db->get_where('pay_salary', ['pay_id' => $pay_id])->row();
-		
+
 		$this->db->where('pay_id', $pay_id);
 		$result = $this->db->delete('pay_salary');
-		
+
 		if($result) {
 			// Task 17.2: Invalidate dashboard cache after payroll delete
 			if ($payroll) {
@@ -29848,7 +29510,7 @@ function parents_gender_report() {
 				$cache_key = "payroll_dashboard_{$month_number}_{$payroll->year}";
 				$this->cache->delete($cache_key);
 			}
-			
+
 			echo json_encode([
 				'status' => 'success',
 				'message' => get_phrase('payroll_deleted_successfully')
@@ -29864,12 +29526,12 @@ function parents_gender_report() {
 	/**
 	 * PAYROLL SYSTEM ENHANCEMENTS - AJAX ENDPOINTS (Tasks 8.1-8.5)
 	 */
-	
+
 	/**
 	 * Task 8.1: Validate payroll data via AJAX
-	 * 
+	 *
 	 * Endpoint: POST /admin/payroll/validate
-	 * 
+	 *
 	 * Performs server-side validation of payroll form data before submission
 	 * Returns detailed validation errors or success status
 	 */
@@ -29879,10 +29541,10 @@ function parents_gender_report() {
 			show_404();
 			return;
 		}
-		
+
 		// Load Payroll_validator library
 		$this->load->library('Payroll_validator');
-		
+
 		// Collect all payroll data from POST
 		$payroll_data = [
 			'employee_code' => $this->input->post('employee_code'),
@@ -29914,10 +29576,10 @@ function parents_gender_report() {
 			'net_salary' => $this->input->post('net_salary'),
 			'employment_category' => $this->input->post('employment_category')
 		];
-		
+
 		// Run validation
 		$validation_errors = $this->payroll_validator->validate_payroll_data($payroll_data);
-		
+
 		// Return JSON response
 		if (empty($validation_errors)) {
 			echo json_encode([
@@ -29934,12 +29596,12 @@ function parents_gender_report() {
 			]);
 		}
 	}
-	
+
 	/**
 	 * Task 8.2: Calculate PAYE via AJAX
-	 * 
+	 *
 	 * Endpoint: POST /admin/payroll/calculate_paye
-	 * 
+	 *
 	 * Calculates Ghana PAYE based on monthly gross salary and SSNIT deductions
 	 * Returns monthly PAYE amount and detailed tax bracket breakdown
 	 */
@@ -29949,21 +29611,21 @@ function parents_gender_report() {
 			show_404();
 			return;
 		}
-		
+
 		// Clear tax calculator cache to ensure latest brackets are used
 		$this->load->library('Tax_calculator');
 		$this->tax_calculator->clear_cache();
-		
+
 		// Get input parameters
 		$monthly_gross = floatval($this->input->post('monthly_gross'));
 		$monthly_ssnit = floatval($this->input->post('monthly_ssnit'));
-		
+
 		// DEBUG: Log what brackets are being loaded
 		$brackets = $this->tax_calculator->load_active_tax_brackets();
 		log_message('debug', 'PAYE Calculation - Active brackets count: ' . count($brackets));
 		log_message('debug', 'PAYE Calculation - First bracket: ' . json_encode($brackets[0]));
 		log_message('debug', 'PAYE Calculation - Gross: ' . $monthly_gross . ', SSNIT: ' . $monthly_ssnit);
-		
+
 		// Validate inputs
 		if ($monthly_gross <= 0) {
 			echo json_encode([
@@ -29972,7 +29634,7 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		if ($monthly_ssnit < 0) {
 			echo json_encode([
 				'status' => 'error',
@@ -29980,13 +29642,13 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Load Payroll_model and calculate PAYE
 		$result = $this->payroll_model->calculate_paye_for_payroll($monthly_gross, $monthly_ssnit);
-		
+
 		// DEBUG: Log result
 		log_message('debug', 'PAYE Calculation Result: ' . json_encode($result));
-		
+
 		// Return JSON response
 		if ($result['success']) {
 			echo json_encode([
@@ -30004,12 +29666,12 @@ function parents_gender_report() {
 			]);
 		}
 	}
-	
+
 	/**
 	 * Task 8.3: Submit payroll for approval
-	 * 
+	 *
 	 * Endpoint: POST /admin/payroll/submit_for_approval/{pay_id}
-	 * 
+	 *
 	 * Submits a payroll record for approval workflow
 	 * Transitions status from 'draft' to 'pending_approval'
 	 */
@@ -30019,10 +29681,10 @@ function parents_gender_report() {
 			show_404();
 			return;
 		}
-		
+
 		// Get current user ID
 		$user_id = $this->session->userdata('admin_id');
-		
+
 		if (!$user_id) {
 			echo json_encode([
 				'status' => 'error',
@@ -30030,13 +29692,13 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Load Payroll_approval_model
 		$this->load->model('Payroll_approval_model', 'payroll_approval');
-		
+
 		// Submit for approval
 		$result = $this->payroll_approval->submit_for_approval($pay_id, $user_id);
-		
+
 		// Return JSON response
 		if ($result['success']) {
 			echo json_encode([
@@ -30051,12 +29713,12 @@ function parents_gender_report() {
 			]);
 		}
 	}
-	
+
 	/**
 	 * Task 8.4: Approve payroll
-	 * 
+	 *
 	 * Endpoint: POST /admin/payroll/approve/{pay_id}
-	 * 
+	 *
 	 * Approves a pending payroll record
 	 * Requires user to have approval permissions
 	 * Transitions status from 'pending_approval' to 'approved'
@@ -30067,11 +29729,11 @@ function parents_gender_report() {
 			show_404();
 			return;
 		}
-		
+
 		// Get current user ID and comments
 		$user_id = $this->session->userdata('admin_id');
 		$comments = $this->input->post('comments') ?: '';
-		
+
 		if (!$user_id) {
 			echo json_encode([
 				'status' => 'error',
@@ -30079,13 +29741,13 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Load Payroll_approval_model
 		$this->load->model('Payroll_approval_model', 'payroll_approval');
-		
+
 		// Approve payroll
 		$result = $this->payroll_approval->approve_payroll($pay_id, $user_id, $comments);
-		
+
 		// Return JSON response
 		if ($result['success']) {
 			echo json_encode([
@@ -30099,12 +29761,12 @@ function parents_gender_report() {
 			]);
 		}
 	}
-	
+
 	/**
 	 * Task 8.5: Reject payroll
-	 * 
+	 *
 	 * Endpoint: POST /admin/payroll/reject/{pay_id}
-	 * 
+	 *
 	 * Rejects a pending or approved payroll record
 	 * Requires user to have approval permissions
 	 * Requires rejection reason (minimum 10 characters)
@@ -30116,11 +29778,11 @@ function parents_gender_report() {
 			show_404();
 			return;
 		}
-		
+
 		// Get current user ID and rejection reason
 		$user_id = $this->session->userdata('admin_id');
 		$reason = $this->input->post('reason');
-		
+
 		if (!$user_id) {
 			echo json_encode([
 				'status' => 'error',
@@ -30128,7 +29790,7 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Validate rejection reason
 		if (empty($reason)) {
 			echo json_encode([
@@ -30137,7 +29799,7 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		if (strlen($reason) < 10) {
 			echo json_encode([
 				'status' => 'error',
@@ -30145,13 +29807,13 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Load Payroll_approval_model
 		$this->load->model('Payroll_approval_model', 'payroll_approval');
-		
+
 		// Reject payroll
 		$result = $this->payroll_approval->reject_payroll($pay_id, $user_id, $reason);
-		
+
 		// Return JSON response
 		if ($result['success']) {
 			echo json_encode([
@@ -30165,12 +29827,12 @@ function parents_gender_report() {
 			]);
 		}
 	}
-	
+
 	/**
 	 * Wave 8 - Task 11.3: Mark payroll as paid
-	 * 
+	 *
 	 * Endpoint: POST /admin/payroll_mark_paid/{pay_id}
-	 * 
+	 *
 	 * Marks an approved payroll as paid
 	 * Requires user to have finance permissions
 	 * Transitions status from 'approved' to 'paid'
@@ -30181,10 +29843,10 @@ function parents_gender_report() {
 			show_404();
 			return;
 		}
-		
+
 		// Get current user ID
 		$user_id = $this->session->userdata('admin_id');
-		
+
 		if (!$user_id) {
 			echo json_encode([
 				'status' => 'error',
@@ -30192,12 +29854,12 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Load Payroll_model
-		
+
 		// Check if payroll is in approved status
 		$payroll = $this->db->get_where('payroll', ['pay_id' => $pay_id])->row_array();
-		
+
 		if (!$payroll) {
 			echo json_encode([
 				'status' => 'error',
@@ -30205,7 +29867,7 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		if ($payroll['approval_status'] !== 'approved') {
 			echo json_encode([
 				'status' => 'error',
@@ -30213,16 +29875,16 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Update status to paid
 		$update_data = [
 			'approval_status' => 'paid',
 			'payment_date' => date('Y-m-d H:i:s')
 		];
-		
+
 		$this->db->where('pay_id', $pay_id);
 		$updated = $this->db->update('payroll', $update_data);
-		
+
 		if ($updated) {
 			// Log the action in audit log
 			$audit_data = [
@@ -30233,7 +29895,7 @@ function parents_gender_report() {
 				'comments' => 'Payment processed'
 			];
 			$this->db->insert('payroll_audit_log', $audit_data);
-			
+
 			echo json_encode([
 				'status' => 'success',
 				'message' => 'Payroll marked as paid successfully'
@@ -30245,12 +29907,12 @@ function parents_gender_report() {
 			]);
 		}
 	}
-	
+
 	/**
 	 * Get payslip preview HTML for modal display
-	 * 
+	 *
 	 * Endpoint: GET /admin/get_payslip_preview/{pay_id}
-	 * 
+	 *
 	 * Returns the HTML content of a payslip for display in a modal
 	 */
 	public function get_payslip_preview($pay_id) {
@@ -30259,13 +29921,13 @@ function parents_gender_report() {
 			echo '<p class="text-red-600">Unauthorized access</p>';
 			return;
 		}
-		
+
 		// Load models and statutory rates
 		$this->load->model('payroll_statutory_model');
-		
+
 		// Get payroll data
 		$payroll = $this->db->get_where('pay_salary', ['pay_id' => $pay_id])->row_array();
-		
+
 		if (!$payroll) {
 			echo '<div class="text-center py-12">
 				<svg class="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30275,13 +29937,13 @@ function parents_gender_report() {
 			</div>';
 			return;
 		}
-		
+
 		// Set the required variables that payslip_preview.php expects
 		$staffCode = $payroll['employee_code'];
 		$payMonth = $payroll['month'];
 		$payYear = $payroll['year'];
 		$employmentCategory = $payroll['employment_category'];
-		
+
 		// Pass variables to the view with statutory rates
 		$page_data = [
 			'staffCode' => $staffCode,
@@ -30291,28 +29953,28 @@ function parents_gender_report() {
 			'modal_view' => true,  // Flag to indicate this is for modal display
 			'statutory_rates' => $this->payroll_statutory_model->get_all_settings()
 		];
-		
+
 		// Extract variables for the view
 		extract($page_data);
-		
+
 		// Load the payslip preview view
 		$this->load->view('backend/admin/payslip_preview', $page_data);
 	}
-	
+
 	/**
 	 * BONUS: Get pending payroll approvals (for dashboard/notification system)
-	 * 
+	 *
 	 * Endpoint: GET /admin/payroll/pending_approvals
-	 * 
+	 *
 	 * Returns list of all payrolls awaiting approval
 	 */
 	public function payroll_pending_approvals() {
 		// Load Payroll_approval_model
 		$this->load->model('Payroll_approval_model', 'payroll_approval');
-		
+
 		// Get pending approvals
 		$pending = $this->payroll_approval->get_pending_approvals();
-		
+
 		// Return JSON response
 		echo json_encode([
 			'status' => 'success',
@@ -30320,21 +29982,21 @@ function parents_gender_report() {
 			'data' => $pending
 		]);
 	}
-	
+
 	/**
 	 * BONUS: Get payroll approval history
-	 * 
+	 *
 	 * Endpoint: GET /admin/payroll/approval_history/{pay_id}
-	 * 
+	 *
 	 * Returns complete approval workflow history for a payroll record
 	 */
 	public function payroll_approval_history($pay_id) {
 		// Load Payroll_approval_model
 		$this->load->model('Payroll_approval_model', 'payroll_approval');
-		
+
 		// Get approval history
 		$history = $this->payroll_approval->get_approval_history($pay_id);
-		
+
 		// Return JSON response
 		echo json_encode([
 			'status' => 'success',
@@ -30342,20 +30004,20 @@ function parents_gender_report() {
 			'data' => $history
 		]);
 	}
-	
+
 	/**
 	 * BONUS: Copy payroll from last month (for form pre-filling)
-	 * 
+	 *
 	 * Endpoint: GET /admin/payroll/copy_last_month/{employee_code}
-	 * 
+	 *
 	 * Returns previous month's payroll data for an employee
 	 */
 	public function payroll_copy_last_month($employee_code) {
 		// Load Payroll_model
-		
+
 		// Get last month's data
 		$last_month_data = $this->payroll_model->copy_from_last_month($employee_code);
-		
+
 		// Return JSON response
 		if ($last_month_data) {
 			echo json_encode([
@@ -30373,23 +30035,23 @@ function parents_gender_report() {
 
 	/**
 	 * Task 12.1: Detect duplicate payroll attempt
-	 * 
+	 *
 	 * Endpoint: POST /admin/payroll/check_duplicate
-	 * 
+	 *
 	 * Checks if a payroll record already exists for the given employee, month, and year
 	 * before submission. Returns existing payroll details if found.
-	 * 
+	 *
 	 * Used by the frontend to show a warning modal before attempting to create a duplicate
-	 * 
+	 *
 	 * Request POST params:
 	 * - employee_code: string
 	 * - month: string (month name like "January", "February", etc.)
 	 * - year: string/int
-	 * 
+	 *
 	 * Response JSON:
 	 * - exists: boolean
 	 * - record: object|null (existing payroll details if found)
-	 * 
+	 *
 	 * Requirements: 25.1 (Requirement 26.1-26.3)
 	 */
 	public function payroll_check_duplicate() {
@@ -30401,12 +30063,12 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Get POST parameters
 		$employee_code = $this->input->post('employee_code');
 		$month = $this->input->post('month'); // This comes as "06" from frontend
 		$year = $this->input->post('year');
-		
+
 		// Validate required parameters
 		if (empty($employee_code) || empty($month) || empty($year)) {
 			echo json_encode([
@@ -30415,7 +30077,7 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// BUGFIX: Convert numeric month (06) to month name (June) for database query
 		// The pay_salary table stores month as full month name, not numeric
 		$month_names = [
@@ -30423,29 +30085,29 @@ function parents_gender_report() {
 			'05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August',
 			'09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'
 		];
-		
+
 		// Convert numeric month to month name
 		$month_name = isset($month_names[$month]) ? $month_names[$month] : $month;
-		
+
 		// Load Payroll_model
-		
+
 		// Check for duplicate using month name
 		$duplicate_check = $this->payroll_model->check_duplicate_payroll($employee_code, $month_name, $year);
-		
+
 		if ($duplicate_check['exists']) {
 			// Duplicate found - fetch full details including staff info
 			$existing_record = $duplicate_check['record'];
-			
+
 			// Get staff information based on employment category
 			$employment_category = $existing_record['employment_category'];
 			$staff_info = null;
-			
+
 			if ($employment_category == 'teacher') {
 				$staff_info = $this->db->get_where('teacher', ['teacher_code' => $employee_code])->row_array();
 			} elseif ($employment_category == 'administrator') {
 				$staff_info = $this->db->get_where('admin', ['admin_code' => $employee_code])->row_array();
 			}
-			
+
 			// Format the response with full details
 			echo json_encode([
 				'success' => false, // BUGFIX: Use 'success' => false to indicate duplicate found
@@ -30482,17 +30144,17 @@ function parents_gender_report() {
 
 	/**
 	 * Task 12.3: Overwrite Existing Payroll Record
-	 * 
+	 *
 	 * Deletes the existing payroll record and allows creation of a new one.
 	 * Requires explicit user confirmation and logs the overwrite action in audit_logs.
-	 * 
+	 *
 	 * POST parameters:
 	 * - pay_id: int (required) - ID of existing payroll to overwrite
-	 * 
+	 *
 	 * Returns JSON:
 	 * - status: string ('success' or 'error')
 	 * - message: string (descriptive message)
-	 * 
+	 *
 	 * Requirements: 25.1 (Requirement 26.5-26.6)
 	 */
 	public function payroll_overwrite_existing() {
@@ -30504,10 +30166,10 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Get POST parameters
 		$pay_id = $this->input->post('pay_id');
-		
+
 		// Validate required parameter
 		if (empty($pay_id)) {
 			echo json_encode([
@@ -30516,21 +30178,21 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Load required models
 		$this->load->model('Audit_log_model', 'audit_log');
-		
+
 		// Get current user ID
 		$current_user_id = $this->session->userdata('login_user_id') ?? $this->session->userdata('admin_id');
-		
+
 		// Start database transaction
 		$this->db->trans_start();
-		
+
 		try {
 			// Fetch the existing record before deletion (for audit log)
 			$this->db->where('pay_id', $pay_id);
 			$existing_record = $this->db->get('pay_salary')->row_array();
-			
+
 			if (!$existing_record) {
 				echo json_encode([
 					'status' => 'error',
@@ -30538,32 +30200,32 @@ function parents_gender_report() {
 				]);
 				return;
 			}
-			
+
 			// Delete the existing payroll record
 			$this->db->where('pay_id', $pay_id);
 			$delete_result = $this->db->delete('pay_salary');
-			
+
 			if (!$delete_result) {
 				throw new Exception('Failed to delete existing payroll record');
 			}
-			
+
 			// Task 17.2: Invalidate dashboard cache after payroll deletion
 			$this->load->driver('cache', array('adapter' => 'file'));
 			$month_number = $this->get_month_number_from_name($existing_record['month']);
 			$cache_key = "payroll_dashboard_{$month_number}_{$existing_record['year']}";
 			$this->cache->delete($cache_key);
-			
+
 			// Log the overwrite action in audit_logs
 			$this->audit_log->log_action('payroll', 'overwrite_delete', $pay_id, $existing_record, null);
-			
+
 			// Complete transaction
 			$this->db->trans_complete();
-			
+
 			// Check transaction status
 			if ($this->db->trans_status() === FALSE) {
 				throw new Exception('Database transaction failed');
 			}
-			
+
 			// Return success response
 			echo json_encode([
 				'status' => 'success',
@@ -30576,14 +30238,14 @@ function parents_gender_report() {
 					'net_salary' => $existing_record['net_salary']
 				]
 			]);
-			
+
 		} catch (Exception $e) {
 			// Rollback transaction on error
 			$this->db->trans_rollback();
-			
+
 			// Log error
 			log_message('error', 'Payroll overwrite failed: ' . $e->getMessage());
-			
+
 			// Return error response
 			echo json_encode([
 				'status' => 'error',
@@ -30594,7 +30256,7 @@ function parents_gender_report() {
 
 	/**
 	 * Task 10.2: Payroll Dashboard Controller Method
-	 * 
+	 *
 	 * Displays the payroll dashboard with analytics and visualizations
 	 */
 	public function payroll_dashboard() {
@@ -30602,18 +30264,18 @@ function parents_gender_report() {
 		$page_data['page_name'] = 'payroll_dashboard';
 		$page_data['page_title'] = get_phrase('payroll_dashboard');
 		$page_data['account_type'] = $this->session->userdata('login_type');
-		
+
 		// Set default month and year
 		$page_data['current_month'] = date('n');
 		$page_data['current_year'] = date('Y');
-		
+
 		// Load the dashboard view
 		$this->load->view('backend/admin/payroll_dashboard', $page_data);
 	}
-	
+
 	/**
 	 * Task 10.3-10.11: Payroll Dashboard Data AJAX Endpoint
-	 * 
+	 *
 	 * Returns dashboard data for specified month/year including:
 	 * - Summary cards (gross, deductions, net, staff count)
 	 * - Payment status (paid, pending, overdue)
@@ -30629,15 +30291,15 @@ function parents_gender_report() {
 			show_404();
 			return;
 		}
-		
+
 		// Get month and year from POST
 		$month = $this->input->post('month') ?: date('n');
 		$year = $this->input->post('year') ?: date('Y');
-		
+
 		// Task 10.10: Check cache first (1 hour expiration)
 		$cache_key = "payroll_dashboard_{$month}_{$year}";
 		$this->load->driver('cache', array('adapter' => 'file'));
-		
+
 		$cached_data = $this->cache->get($cache_key);
 		if ($cached_data !== FALSE) {
 			echo json_encode([
@@ -30647,30 +30309,30 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Load Payroll_model
-		
+
 		// Task 10.3: Get summary card data
 		$summary = $this->get_payroll_summary($month, $year);
-		
+
 		// Task 10.11: Get payment status data
 		$payment_status = $this->get_payment_status($month, $year);
-		
+
 		// Task 10.4: Get employment category breakdown
 		$category_breakdown = $this->get_payroll_category_breakdown($month, $year);
-		
+
 		// Task 10.6: Get month-over-month comparison (current month vs previous month)
 		$month_comparison = $this->get_month_comparison($month, $year);
-		
+
 		// Task 10.7: Get category distribution for donut chart
 		$category_distribution = $this->get_category_distribution($month, $year);
-		
+
 		// Task 10.8: Get 12-month payroll trend
 		$payroll_trend = $this->get_payroll_trend($year);
-		
+
 		// Task 10.9: Get top 10 earners
 		$top_earners = $this->get_top_earners($month, $year);
-		
+
 		// Prepare response data
 		$dashboard_data = [
 			'summary' => $summary,
@@ -30681,10 +30343,10 @@ function parents_gender_report() {
 			'payroll_trend' => $payroll_trend,
 			'top_earners' => $top_earners
 		];
-		
+
 		// Task 10.10: Cache for 1 hour (3600 seconds)
 		$this->cache->save($cache_key, $dashboard_data, 3600);
-		
+
 		// Return JSON response
 		echo json_encode([
 			'success' => true,
@@ -30692,7 +30354,7 @@ function parents_gender_report() {
 			'cached' => false
 		]);
 	}
-	
+
 	/**
 	 * Helper: Get payroll summary for a month
 	 */
@@ -30706,9 +30368,9 @@ function parents_gender_report() {
 		$this->db->from('pay_salary');
 		$this->db->where('month', $month);
 		$this->db->where('year', $year);
-		
+
 		$result = $this->db->get()->row();
-		
+
 		return [
 			'staff_count' => $result->staff_count ?? 0,
 			'total_gross' => $result->total_gross ?? 0,
@@ -30716,7 +30378,7 @@ function parents_gender_report() {
 			'total_net' => $result->total_net ?? 0
 		];
 	}
-	
+
 	/**
 	 * Helper: Get payment status breakdown
 	 */
@@ -30726,7 +30388,7 @@ function parents_gender_report() {
 			->where('year', $year)
 			->where('approval_status', 'paid')
 			->count_all_results('pay_salary');
-		
+
 		// Count pending (pending_approval or approved but not paid)
 		$this->db->where('month', $month);
 		$this->db->where('year', $year);
@@ -30735,7 +30397,7 @@ function parents_gender_report() {
 		$this->db->or_where('approval_status', 'approved');
 		$this->db->group_end();
 		$pending = $this->db->count_all_results('pay_salary');
-		
+
 		// Count overdue (approved more than 5 days ago but not paid)
 		$five_days_ago = date('Y-m-d H:i:s', strtotime('-5 days'));
 		$this->db->where('month', $month);
@@ -30743,14 +30405,14 @@ function parents_gender_report() {
 		$this->db->where('approval_status', 'approved');
 		$this->db->where('updated_at <', $five_days_ago);
 		$overdue = $this->db->count_all_results('pay_salary');
-		
+
 		return [
 			'paid' => $paid,
 			'pending' => $pending,
 			'overdue' => $overdue
 		];
 	}
-	
+
 	/**
 	 * Wave 7 - Task 10.7: Helper for payroll category breakdown chart
 	 */
@@ -30766,17 +30428,17 @@ function parents_gender_report() {
 		$this->db->where('month', $month);
 		$this->db->where('year', $year);
 		$this->db->group_by('employment_category');
-		
+
 		$results = $this->db->get()->result_array();
-		
+
 		// Format category names
 		foreach ($results as &$row) {
 			$row['category'] = ucwords(str_replace('_', ' ', $row['category']));
 		}
-		
+
 		return $results;
 	}
-	
+
 	/**
 	 * Helper: Get month-over-month comparison
 	 */
@@ -30791,7 +30453,7 @@ function parents_gender_report() {
 		$this->db->where('month', $month);
 		$this->db->where('year', $year);
 		$current = $this->db->get()->row();
-		
+
 		// Previous month
 		$prev_month = $month - 1;
 		$prev_year = $year;
@@ -30799,7 +30461,7 @@ function parents_gender_report() {
 			$prev_month = 12;
 			$prev_year--;
 		}
-		
+
 		$this->db->select('
 			SUM(gross_salary) as gross,
 			SUM(total_deductions) as deductions,
@@ -30809,7 +30471,7 @@ function parents_gender_report() {
 		$this->db->where('month', $prev_month);
 		$this->db->where('year', $prev_year);
 		$previous = $this->db->get()->row();
-		
+
 		return [
 			'labels' => [
 				date('F Y', mktime(0, 0, 0, $prev_month, 1, $prev_year)),
@@ -30829,7 +30491,7 @@ function parents_gender_report() {
 			]
 		];
 	}
-	
+
 	/**
 	 * Helper: Get category distribution for donut chart
 	 */
@@ -30842,56 +30504,56 @@ function parents_gender_report() {
 		$this->db->where('month', $month);
 		$this->db->where('year', $year);
 		$this->db->group_by('employment_category');
-		
+
 		$results = $this->db->get()->result();
-		
+
 		$labels = [];
 		$values = [];
-		
+
 		foreach ($results as $row) {
 			$labels[] = ucwords(str_replace('_', ' ', $row->employment_category));
 			$values[] = floatval($row->total);
 		}
-		
+
 		return [
 			'labels' => $labels,
 			'values' => $values
 		];
 	}
-	
+
 	/**
 	 * Helper: Get 12-month payroll trend
 	 */
 	private function get_payroll_trend($year) {
 		$labels = [];
 		$values = [];
-		
+
 		// Get last 12 months
 		for ($i = 11; $i >= 0; $i--) {
 			$target_month = date('n', strtotime("-$i months"));
 			$target_year = date('Y', strtotime("-$i months"));
-			
+
 			$this->db->select('SUM(net_salary) as total');
 			$this->db->from('pay_salary');
 			$this->db->where('month', $target_month);
 			$this->db->where('year', $target_year);
 			$result = $this->db->get()->row();
-			
+
 			$labels[] = date('M Y', strtotime("-$i months"));
 			$values[] = $result->total ?? 0;
 		}
-		
+
 		return [
 			'labels' => $labels,
 			'values' => $values
 		];
 	}
-	
+
 	/**
 	 * Helper: Get top 10 earners
 	 */
 	private function get_top_earners($month, $year) {
-		$this->db->select('ps.*, 
+		$this->db->select('ps.*,
 			COALESCE(t.name, a.name, nts.name) as name,
 			ps.employee_code as code,
 			ps.employment_category as category,
@@ -30905,9 +30567,9 @@ function parents_gender_report() {
 		$this->db->where('ps.year', $year);
 		$this->db->order_by('ps.net_salary', 'DESC');
 		$this->db->limit(10);
-		
+
 		$results = $this->db->get()->result();
-		
+
 		$earners = [];
 		foreach ($results as $row) {
 			$earners[] = [
@@ -30917,16 +30579,16 @@ function parents_gender_report() {
 				'net_salary' => floatval($row->net_salary)
 			];
 		}
-		
+
 		return $earners;
 	}
-	
+
 	/**
 	 * Task 17.2: Helper method to convert month name to number
-	 * 
+	 *
 	 * Converts month names like "January", "February" to numbers "01", "02", etc.
 	 * Used for cache key generation in payroll operations
-	 * 
+	 *
 	 * @param string $month_name Month name (e.g., "January")
 	 * @return string Month number with leading zero (e.g., "01")
 	 */
@@ -30936,13 +30598,13 @@ function parents_gender_report() {
 			'May' => '05', 'June' => '06', 'July' => '07', 'August' => '08',
 			'September' => '09', 'October' => '10', 'November' => '11', 'December' => '12'
 		];
-		
+
 		return isset($months[$month_name]) ? $months[$month_name] : '01';
 	}
 
 	/**
 	 * Task 13.1-13.2: Audit Log Viewer
-	 * 
+	 *
 	 * Main audit log viewer page with filters
 	 * Requirements: 8.7, 8.9
 	 */
@@ -30953,37 +30615,37 @@ function parents_gender_report() {
 			redirect(site_url('login'), 'refresh');
 			return;
 		}
-		
+
 		// Set page data
 		$page_data['page_name'] = 'audit_log_viewer';
 		$page_data['page_title'] = get_phrase('audit_logs');
 		$page_data['account_type'] = $this->session->userdata('login_type');
-		
+
 		// Load Audit_log_model
 		$this->load->model('Audit_log_model', 'audit_log');
-		
+
 		// Get filter parameters
 		$module = $this->input->get('module');
 		$user_id = $this->input->get('user_id');
 		$date_from = $this->input->get('date_from');
 		$date_to = $this->input->get('date_to');
-		
+
 		// Get filtered logs
 		$page_data['logs'] = $this->audit_log->get_logs_filtered($module, $user_id, $date_from, $date_to);
-		
+
 		// Get unique modules for filter dropdown
 		$page_data['modules'] = $this->audit_log->get_all_modules();
-		
+
 		// Get all users for filter dropdown
 		$page_data['users'] = $this->get_all_users_for_audit();
-		
+
 		// Load the audit log viewer view
 		$this->load->view('backend/admin/audit_log_viewer', $page_data);
 	}
-	
+
 	/**
 	 * Task 13.2: Get filtered audit logs (AJAX endpoint)
-	 * 
+	 *
 	 * Returns filtered audit logs for DataTables
 	 * Requirements: 8.7
 	 */
@@ -30993,7 +30655,7 @@ function parents_gender_report() {
 			show_404();
 			return;
 		}
-		
+
 		// Restrict access to admin users only
 		if ($this->session->userdata('login_type') !== 'admin') {
 			echo json_encode([
@@ -31002,25 +30664,25 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Load Audit_log_model
 		$this->load->model('Audit_log_model', 'audit_log');
-		
+
 		// Get filter parameters
 		$module = $this->input->post('module');
 		$user_id = $this->input->post('user_id');
 		$date_from = $this->input->post('date_from');
 		$date_to = $this->input->post('date_to');
-		
+
 		// Get pagination parameters for DataTables
 		$start = $this->input->post('start') ?? 0;
 		$length = $this->input->post('length') ?? 50;
 		$search = $this->input->post('search')['value'] ?? '';
-		
+
 		// Get filtered logs with pagination
 		$logs = $this->audit_log->get_logs_filtered($module, $user_id, $date_from, $date_to, $start, $length, $search);
 		$total = $this->audit_log->get_logs_count($module, $user_id, $date_from, $date_to, $search);
-		
+
 		// Format logs for DataTables
 		$data = [];
 		foreach ($logs as $log) {
@@ -31035,7 +30697,7 @@ function parents_gender_report() {
 				'actions' => '<button class="btn btn-sm btn-primary view-details-btn" data-log-id="' . $log['log_id'] . '"><i class="fas fa-eye"></i> View Details</button>'
 			];
 		}
-		
+
 		// Return JSON response
 		echo json_encode([
 			'draw' => intval($this->input->post('draw')),
@@ -31044,10 +30706,10 @@ function parents_gender_report() {
 			'data' => $data
 		]);
 	}
-	
+
 	/**
 	 * Task 13.4: Get audit log details (AJAX endpoint)
-	 * 
+	 *
 	 * Returns detailed audit log information including before/after data
 	 * Requirements: 8.2, 8.9
 	 */
@@ -31057,7 +30719,7 @@ function parents_gender_report() {
 			show_404();
 			return;
 		}
-		
+
 		// Restrict access to admin users only
 		if ($this->session->userdata('login_type') !== 'admin') {
 			echo json_encode([
@@ -31066,10 +30728,10 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Get log ID
 		$log_id = $this->input->post('log_id');
-		
+
 		if (empty($log_id)) {
 			echo json_encode([
 				'status' => 'error',
@@ -31077,13 +30739,13 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Load Audit_log_model
 		$this->load->model('Audit_log_model', 'audit_log');
-		
+
 		// Get log details
 		$log = $this->audit_log->get_log_by_id($log_id);
-		
+
 		if (!$log) {
 			echo json_encode([
 				'status' => 'error',
@@ -31091,11 +30753,11 @@ function parents_gender_report() {
 			]);
 			return;
 		}
-		
+
 		// Parse JSON data
 		$before_data = json_decode($log['before_data'], true);
 		$after_data = json_decode($log['after_data'], true);
-		
+
 		// Return log details
 		echo json_encode([
 			'status' => 'success',
@@ -31113,10 +30775,10 @@ function parents_gender_report() {
 			]
 		]);
 	}
-	
+
 	/**
 	 * Task 13.5: Export audit logs to CSV
-	 * 
+	 *
 	 * Exports filtered audit logs to CSV file
 	 * Requirements: 8.7
 	 */
@@ -31127,29 +30789,29 @@ function parents_gender_report() {
 			redirect(site_url('admin/audit_logs'), 'refresh');
 			return;
 		}
-		
+
 		// Load Audit_log_model
 		$this->load->model('Audit_log_model', 'audit_log');
-		
+
 		// Get filter parameters
 		$module = $this->input->get('module');
 		$user_id = $this->input->get('user_id');
 		$date_from = $this->input->get('date_from');
 		$date_to = $this->input->get('date_to');
-		
+
 		// Get all filtered logs (no pagination)
 		$logs = $this->audit_log->get_logs_filtered($module, $user_id, $date_from, $date_to, 0, 999999);
-		
+
 		// Set CSV headers
 		header('Content-Type: text/csv');
 		header('Content-Disposition: attachment; filename="audit_logs_' . date('Y-m-d_His') . '.csv"');
-		
+
 		// Open output stream
 		$output = fopen('php://output', 'w');
-		
+
 		// Write CSV header row
 		fputcsv($output, ['Log ID', 'Module', 'Action', 'User', 'Record ID', 'IP Address', 'Date/Time']);
-		
+
 		// Write data rows
 		foreach ($logs as $log) {
 			fputcsv($output, [
@@ -31162,47 +30824,47 @@ function parents_gender_report() {
 				date('Y-m-d H:i:s', strtotime($log['created_at']))
 			]);
 		}
-		
+
 		fclose($output);
 		exit;
 	}
-	
+
 	/**
 	 * Helper: Get all users for audit log filter
 	 */
 	private function get_all_users_for_audit() {
 		$users = [];
-		
+
 		// Get admins
 		$this->db->select('admin_id as id, name');
 		$this->db->from('admin');
 		$admins = $this->db->get()->result_array();
-		
+
 		foreach ($admins as $admin) {
 			$users[] = [
 				'id' => $admin['id'],
 				'name' => $admin['name'] . ' (Admin)'
 			];
 		}
-		
+
 		// Get teachers
 		$this->db->select('teacher_id as id, name');
 		$this->db->from('teacher');
 		$teachers = $this->db->get()->result_array();
-		
+
 		foreach ($teachers as $teacher) {
 			$users[] = [
 				'id' => $teacher['id'],
 				'name' => $teacher['name'] . ' (Teacher)'
 			];
 		}
-		
+
 		return $users;
 	}
 
 	/**
 	 * Task 14.1-14.2: Payroll Register Report
-	 * 
+	 *
 	 * Displays payroll register with filters
 	 * Requirements: 15.1, 15.2
 	 */
@@ -31211,14 +30873,14 @@ function parents_gender_report() {
 		$page_data['page_name'] = 'payroll_register';
 		$page_data['page_title'] = get_phrase('payroll_register');
 		$page_data['account_type'] = $this->session->userdata('login_type');
-		
+
 		// Load the payroll register view
 		$this->load->view('backend/main', $page_data);
 	}
-	
+
 	/**
 	 * Task 14.2: Get payroll register data (AJAX endpoint)
-	 * 
+	 *
 	 * Returns filtered payroll data for DataTables
 	 * Requirements: 15.3, 15.4, 15.5, 15.6, 15.7, 15.9
 	 */
@@ -31228,20 +30890,20 @@ function parents_gender_report() {
 			show_404();
 			return;
 		}
-		
+
 		// Get filter parameters
 		$month = $this->input->post('month');
 		$year = $this->input->post('year');
 		$category = $this->input->post('category');
 		$status = $this->input->post('status');
-		
+
 		// Get pagination parameters for DataTables
 		$start = $this->input->post('start') ?? 0;
 		$length = $this->input->post('length') ?? 50;
 		$search = $this->input->post('search')['value'] ?? '';
-		
+
 		// Build query
-		$this->db->select('ps.*, 
+		$this->db->select('ps.*,
 			COALESCE(t.name, a.name, nts.name) as staff_name,
 			ps.employee_code as staff_code,
 			ps.employment_category as category,
@@ -31249,7 +30911,7 @@ function parents_gender_report() {
 			ps.total_deductions,
 			ps.net_salary,
 			ps.approval_status as status,
-			CASE 
+			CASE
 				WHEN ps.payment_method = 1 THEN "Cash"
 				WHEN ps.payment_method = 2 THEN "Bank Transfer"
 				WHEN ps.payment_method = 3 THEN "Mobile Money"
@@ -31261,19 +30923,19 @@ function parents_gender_report() {
 		$this->db->join('teacher t', 'ps.employee_code = t.teacher_code AND ps.employment_category = "teacher"', 'left');
 		$this->db->join('admin a', 'ps.employee_code = a.admin_code AND ps.employment_category = "administrator"', 'left');
 		$this->db->join('non_teaching_staff nts', 'ps.employee_code = nts.staff_code AND ps.employment_category = "non_teaching_staff"', 'left');
-		
+
 		// Apply filters
 		$this->db->where('ps.month', $month);
 		$this->db->where('ps.year', $year);
-		
+
 		if (!empty($category)) {
 			$this->db->where('ps.employment_category', $category);
 		}
-		
+
 		if (!empty($status)) {
 			$this->db->where('ps.approval_status', $status);
 		}
-		
+
 		// Apply search
 		if (!empty($search)) {
 			$this->db->group_start();
@@ -31281,17 +30943,17 @@ function parents_gender_report() {
 			$this->db->or_like('ps.employee_code', $search);
 			$this->db->group_end();
 		}
-		
+
 		// Get total count before pagination
 		$total_query = clone $this->db;
 		$total = $total_query->count_all_results();
-		
+
 		// Get totals for footer
 		$this->db->select('SUM(ps.gross_salary) as total_gross, SUM(ps.total_deductions) as total_deductions, SUM(ps.net_salary) as total_net');
 		$totals_result = $this->db->get()->row();
-		
+
 		// Reset query for data fetch
-		$this->db->select('ps.*, 
+		$this->db->select('ps.*,
 			COALESCE(t.name, a.name, nts.name) as staff_name,
 			ps.employee_code as staff_code,
 			ps.employment_category as category,
@@ -31299,7 +30961,7 @@ function parents_gender_report() {
 			ps.total_deductions,
 			ps.net_salary,
 			ps.approval_status as status,
-			CASE 
+			CASE
 				WHEN ps.payment_method = 1 THEN "Cash"
 				WHEN ps.payment_method = 2 THEN "Bank Transfer"
 				WHEN ps.payment_method = 3 THEN "Mobile Money"
@@ -31311,19 +30973,19 @@ function parents_gender_report() {
 		$this->db->join('teacher t', 'ps.employee_code = t.teacher_code AND ps.employment_category = "teacher"', 'left');
 		$this->db->join('admin a', 'ps.employee_code = a.admin_code AND ps.employment_category = "administrator"', 'left');
 		$this->db->join('non_teaching_staff nts', 'ps.employee_code = nts.staff_code AND ps.employment_category = "non_teaching_staff"', 'left');
-		
+
 		// Apply same filters
 		$this->db->where('ps.month', $month);
 		$this->db->where('ps.year', $year);
-		
+
 		if (!empty($category)) {
 			$this->db->where('ps.employment_category', $category);
 		}
-		
+
 		if (!empty($status)) {
 			$this->db->where('ps.approval_status', $status);
 		}
-		
+
 		// Apply search again
 		if (!empty($search)) {
 			$this->db->group_start();
@@ -31331,13 +30993,13 @@ function parents_gender_report() {
 			$this->db->or_like('ps.employee_code', $search);
 			$this->db->group_end();
 		}
-		
+
 		// Apply pagination
 		$this->db->order_by('staff_name', 'ASC');
 		$this->db->limit($length, $start);
-		
+
 		$results = $this->db->get()->result_array();
-		
+
 		// Format data for DataTables
 		$data = [];
 		foreach ($results as $row) {
@@ -31352,7 +31014,7 @@ function parents_gender_report() {
 				'payment_method' => $row['payment_method']
 			];
 		}
-		
+
 		// Return JSON response
 		echo json_encode([
 			'draw' => intval($this->input->post('draw')),
@@ -31366,10 +31028,10 @@ function parents_gender_report() {
 			]
 		]);
 	}
-	
+
 	/**
 	 * Task 14.3: Export payroll register to Excel
-	 * 
+	 *
 	 * Exports filtered payroll data to Excel file
 	 * Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6
 	 */
@@ -31379,9 +31041,9 @@ function parents_gender_report() {
 		$year = $this->input->get('year');
 		$category = $this->input->get('category');
 		$status = $this->input->get('status');
-		
+
 		// Build query
-		$this->db->select('ps.*, 
+		$this->db->select('ps.*,
 			COALESCE(t.name, a.name, nts.name) as staff_name,
 			ps.employee_code as staff_code,
 			ps.employment_category as category,
@@ -31389,7 +31051,7 @@ function parents_gender_report() {
 			ps.total_deductions,
 			ps.net_salary,
 			ps.approval_status as status,
-			CASE 
+			CASE
 				WHEN ps.payment_method = 1 THEN "Cash"
 				WHEN ps.payment_method = 2 THEN "Bank Transfer"
 				WHEN ps.payment_method = 3 THEN "Mobile Money"
@@ -31401,48 +31063,48 @@ function parents_gender_report() {
 		$this->db->join('teacher t', 'ps.employee_code = t.teacher_code AND ps.employment_category = "teacher"', 'left');
 		$this->db->join('admin a', 'ps.employee_code = a.admin_code AND ps.employment_category = "administrator"', 'left');
 		$this->db->join('non_teaching_staff nts', 'ps.employee_code = nts.staff_code AND ps.employment_category = "non_teaching_staff"', 'left');
-		
+
 		// Apply filters
 		$this->db->where('ps.month', $month);
 		$this->db->where('ps.year', $year);
-		
+
 		if (!empty($category)) {
 			$this->db->where('ps.employment_category', $category);
 		}
-		
+
 		if (!empty($status)) {
 			$this->db->where('ps.approval_status', $status);
 		}
-		
+
 		$this->db->order_by('staff_name', 'ASC');
 		$results = $this->db->get()->result_array();
-		
+
 		// Calculate totals
 		$total_gross = 0;
 		$total_deductions = 0;
 		$total_net = 0;
-		
+
 		foreach ($results as $row) {
 			$total_gross += $row['gross_salary'];
 			$total_deductions += $row['total_deductions'];
 			$total_net += $row['net_salary'];
 		}
-		
+
 		// Set CSV headers (simpler than Excel for now)
 		$month_name = date('F', mktime(0, 0, 0, $month, 1));
 		header('Content-Type: text/csv');
 		header('Content-Disposition: attachment; filename="Payroll_Report_' . $month_name . '_' . $year . '_' . date('YmdHis') . '.csv"');
-		
+
 		// Open output stream
 		$output = fopen('php://output', 'w');
-		
+
 		// Write header
 		fputcsv($output, ['Payroll Register - ' . $month_name . ' ' . $year]);
 		fputcsv($output, []); // Empty line
-		
+
 		// Write column headers
 		fputcsv($output, ['Staff Name', 'Staff Code', 'Category', 'Gross Salary (GH¢)', 'Total Deductions (GH¢)', 'Net Salary (GH¢)', 'Status', 'Payment Method']);
-		
+
 		// Write data rows
 		foreach ($results as $row) {
 			fputcsv($output, [
@@ -31456,33 +31118,33 @@ function parents_gender_report() {
 				$row['payment_method']
 			]);
 		}
-		
+
 		// Write totals row
 		fputcsv($output, []); // Empty line
 		fputcsv($output, ['TOTALS', '', '', number_format($total_gross, 2), number_format($total_deductions, 2), number_format($total_net, 2), '', '']);
-		
+
 		fclose($output);
 		exit;
 	}
-	
+
 	/**
 	 * Task 14.4: Export payroll register to PDF
-	 * 
+	 *
 	 * Exports filtered payroll data to PDF file
 	 * Requirements: 16.7, 16.8, 16.9
 	 */
 	public function export_payroll_register_pdf() {
 		// This is a placeholder - full PDF implementation would require TCPDF or mPDF library
 		// For now, we'll create a simple HTML-based PDF using print CSS
-		
+
 		// Get filter parameters
 		$month = $this->input->get('month');
 		$year = $this->input->get('year');
 		$category = $this->input->get('category');
 		$status = $this->input->get('status');
-		
+
 		// Build query (same as Excel)
-		$this->db->select('ps.*, 
+		$this->db->select('ps.*,
 			COALESCE(t.name, a.name, nts.name) as staff_name,
 			ps.employee_code as staff_code,
 			ps.employment_category as category,
@@ -31490,7 +31152,7 @@ function parents_gender_report() {
 			ps.total_deductions,
 			ps.net_salary,
 			ps.approval_status as status,
-			CASE 
+			CASE
 				WHEN ps.payment_method = 1 THEN "Cash"
 				WHEN ps.payment_method = 2 THEN "Bank Transfer"
 				WHEN ps.payment_method = 3 THEN "Mobile Money"
@@ -31502,33 +31164,33 @@ function parents_gender_report() {
 		$this->db->join('teacher t', 'ps.employee_code = t.teacher_code AND ps.employment_category = "teacher"', 'left');
 		$this->db->join('admin a', 'ps.employee_code = a.admin_code AND ps.employment_category = "administrator"', 'left');
 		$this->db->join('non_teaching_staff nts', 'ps.employee_code = nts.staff_code AND ps.employment_category = "non_teaching_staff"', 'left');
-		
+
 		// Apply filters
 		$this->db->where('ps.month', $month);
 		$this->db->where('ps.year', $year);
-		
+
 		if (!empty($category)) {
 			$this->db->where('ps.employment_category', $category);
 		}
-		
+
 		if (!empty($status)) {
 			$this->db->where('ps.approval_status', $status);
 		}
-		
+
 		$this->db->order_by('staff_name', 'ASC');
 		$results = $this->db->get()->result_array();
-		
+
 		// Calculate totals
 		$total_gross = 0;
 		$total_deductions = 0;
 		$total_net = 0;
-		
+
 		foreach ($results as $row) {
 			$total_gross += $row['gross_salary'];
 			$total_deductions += $row['total_deductions'];
 			$total_net += $row['net_salary'];
 		}
-		
+
 		// Pass data to view
 		$month_name = date('F', mktime(0, 0, 0, $month, 1));
 		$page_data['month_name'] = $month_name;
@@ -31537,13 +31199,13 @@ function parents_gender_report() {
 		$page_data['total_gross'] = $total_gross;
 		$page_data['total_deductions'] = $total_deductions;
 		$page_data['total_net'] = $total_net;
-		
+
 		$this->load->view('backend/admin/reports/payroll_register_pdf', $page_data);
 	}
 
 	/**
 	 * Task 14.5: Department-wise payroll report view
-	 * 
+	 *
 	 * Display department-wise payroll report interface
 	 * Requirements: 17.1, 17.2, 17.3, 17.4, 17.5, 17.6, 17.7, 17.8
 	 */
@@ -31552,23 +31214,23 @@ function parents_gender_report() {
 		$page_data['page_title'] = get_phrase('department_wise_payroll_report');
 		$this->load->view('backend/index', $page_data);
 	}
-	
+
 	/**
 	 * Task 14.5: Get department payroll data (AJAX)
-	 * 
+	 *
 	 * Returns payroll data grouped by department with totals and percentages
 	 * Requirements: 17.1, 17.2, 17.3, 17.4, 17.5, 17.6
 	 */
 	public function get_department_payroll_data() {
 		$month = $this->input->post('month');
 		$year = $this->input->post('year');
-		
+
 		// Validate inputs
 		if (empty($month) || empty($year)) {
 			echo json_encode(['success' => false, 'message' => 'Month and year are required']);
 			return;
 		}
-		
+
 		// Query to get department-wise totals
 		// First, get all departments with staff
 		$this->db->select('d.department_id, d.name as department_name');
@@ -31576,14 +31238,14 @@ function parents_gender_report() {
 		$this->db->join('teacher t', 'd.department_id = t.department_id', 'left');
 		$this->db->group_by('d.department_id');
 		$departments = $this->db->get()->result_array();
-		
+
 		$department_data = [];
 		$grand_total_net = 0;
-		
+
 		foreach ($departments as $dept) {
 			$dept_id = $dept['department_id'];
 			$dept_name = $dept['department_name'];
-			
+
 			// Get staff in this department with payroll for selected month/year
 			$this->db->select('
 				COUNT(ps.pay_id) as staff_count,
@@ -31596,12 +31258,12 @@ function parents_gender_report() {
 			$this->db->where('ps.month', $month);
 			$this->db->where('ps.year', $year);
 			$this->db->where('t.department_id', $dept_id);
-			
+
 			$result = $this->db->get()->row_array();
-			
+
 			if ($result && $result['staff_count'] > 0) {
 				$grand_total_net += $result['total_net'];
-				
+
 				$department_data[] = [
 					'department_id' => $dept_id,
 					'department_name' => $dept_name,
@@ -31613,7 +31275,7 @@ function parents_gender_report() {
 				];
 			}
 		}
-		
+
 		// Calculate percentages
 		foreach ($department_data as &$dept) {
 			if ($grand_total_net > 0) {
@@ -31621,7 +31283,7 @@ function parents_gender_report() {
 				$dept['percentage'] = number_format($percentage, 2, '.', '');
 			}
 		}
-		
+
 		echo json_encode([
 			'success' => true,
 			'data' => [
@@ -31630,10 +31292,10 @@ function parents_gender_report() {
 			]
 		]);
 	}
-	
+
 	/**
 	 * Task 14.5: Get staff details for a department (AJAX)
-	 * 
+	 *
 	 * Returns individual staff payroll details for a specific department
 	 * Requirements: 17.3, 17.4
 	 */
@@ -31641,13 +31303,13 @@ function parents_gender_report() {
 		$department_id = $this->input->post('department_id');
 		$month = $this->input->post('month');
 		$year = $this->input->post('year');
-		
+
 		// Validate inputs
 		if (empty($department_id) || empty($month) || empty($year)) {
 			echo json_encode(['success' => false, 'message' => 'Department ID, month and year are required']);
 			return;
 		}
-		
+
 		// Query staff payroll details for this department
 		$this->db->select('
 			t.name as staff_name,
@@ -31665,9 +31327,9 @@ function parents_gender_report() {
 		$this->db->where('ps.year', $year);
 		$this->db->where('t.department_id', $department_id);
 		$this->db->order_by('t.name', 'ASC');
-		
+
 		$results = $this->db->get()->result_array();
-		
+
 		// Format results
 		$staff_details = [];
 		foreach ($results as $row) {
@@ -31682,30 +31344,30 @@ function parents_gender_report() {
 				'net_salary' => number_format($row['net_salary'], 2, '.', '')
 			];
 		}
-		
+
 		echo json_encode([
 			'success' => true,
 			'data' => $staff_details
 		]);
 	}
-	
+
 	/**
 	 * Task 14.5: Export department payroll to Excel
-	 * 
+	 *
 	 * Exports department-wise payroll summary to CSV file
 	 * Requirements: 17.7, 17.8
 	 */
 	public function export_department_payroll_excel() {
 		$month = $this->input->get('month');
 		$year = $this->input->get('year');
-		
+
 		// Get department data (reuse logic from get_department_payroll_data)
 		$this->db->select('d.department_id, d.name as department_name');
 		$this->db->from('department d');
 		$this->db->join('teacher t', 'd.department_id = t.department_id', 'left');
 		$this->db->group_by('d.department_id');
 		$departments = $this->db->get()->result_array();
-		
+
 		$department_data = [];
 		$grand_total = [
 			'staff_count' => 0,
@@ -31713,11 +31375,11 @@ function parents_gender_report() {
 			'deductions' => 0,
 			'net' => 0
 		];
-		
+
 		foreach ($departments as $dept) {
 			$dept_id = $dept['department_id'];
 			$dept_name = $dept['department_name'];
-			
+
 			$this->db->select('
 				COUNT(ps.pay_id) as staff_count,
 				SUM(ps.gross_salary) as total_gross,
@@ -31729,9 +31391,9 @@ function parents_gender_report() {
 			$this->db->where('ps.month', $month);
 			$this->db->where('ps.year', $year);
 			$this->db->where('t.department_id', $dept_id);
-			
+
 			$result = $this->db->get()->row_array();
-			
+
 			if ($result && $result['staff_count'] > 0) {
 				$department_data[] = [
 					'department_name' => $dept_name,
@@ -31740,14 +31402,14 @@ function parents_gender_report() {
 					'total_deductions' => $result['total_deductions'],
 					'total_net' => $result['total_net']
 				];
-				
+
 				$grand_total['staff_count'] += $result['staff_count'];
 				$grand_total['gross'] += $result['total_gross'];
 				$grand_total['deductions'] += $result['total_deductions'];
 				$grand_total['net'] += $result['total_net'];
 			}
 		}
-		
+
 		// Calculate percentages
 		foreach ($department_data as &$dept) {
 			if ($grand_total['net'] > 0) {
@@ -31755,21 +31417,21 @@ function parents_gender_report() {
 				$dept['avg_per_staff'] = $dept['total_net'] / $dept['staff_count'];
 			}
 		}
-		
+
 		// Set CSV headers
 		$month_name = date('F', mktime(0, 0, 0, $month, 1));
 		header('Content-Type: text/csv');
 		header('Content-Disposition: attachment; filename="Department_Payroll_' . $month_name . '_' . $year . '_' . date('YmdHis') . '.csv"');
-		
+
 		$output = fopen('php://output', 'w');
-		
+
 		// Write header
 		fputcsv($output, ['Department-wise Payroll Report - ' . $month_name . ' ' . $year]);
 		fputcsv($output, []);
-		
+
 		// Write column headers
 		fputcsv($output, ['Department', 'Staff Count', 'Total Gross (GH¢)', 'Total Deductions (GH¢)', 'Total Net (GH¢)', '% of Total', 'Avg per Staff (GH¢)']);
-		
+
 		// Write data rows
 		foreach ($department_data as $dept) {
 			fputcsv($output, [
@@ -31782,7 +31444,7 @@ function parents_gender_report() {
 				number_format($dept['avg_per_staff'], 2)
 			]);
 		}
-		
+
 		// Write grand totals
 		fputcsv($output, []);
 		fputcsv($output, [
@@ -31794,7 +31456,7 @@ function parents_gender_report() {
 			'100.00%',
 			''
 		]);
-		
+
 		fclose($output);
 		exit;
 	}
@@ -31807,7 +31469,7 @@ function parents_gender_report() {
 
 	/**
 	 * Task 14.6: Statutory compliance reports view
-	 * 
+	 *
 	 * Display statutory reports interface
 	 * Requirements: 18.1, 18.2, 18.3, 18.4, 18.5
 	 */
@@ -31816,19 +31478,19 @@ function parents_gender_report() {
 		$page_data['page_title'] = get_phrase('statutory_compliance_reports');
 		$this->load->view('backend/index', $page_data);
 	}
-	
+
 	/**
 	 * Task 14.6: Validate staff for statutory reporting (AJAX)
-	 * 
+	 *
 	 * Validates that all staff have required identifiers (SSNIT number, TIN)
 	 * Requirements: 18.7
 	 */
 	public function validate_statutory_staff() {
 		$month = $this->input->post('month');
 		$year = $this->input->post('year');
-		
+
 		// Get all staff with payroll for this period
-		$this->db->select('ps.employee_code, ps.employment_category, 
+		$this->db->select('ps.employee_code, ps.employment_category,
 			COALESCE(t.name, a.name, nts.name) as staff_name,
 			t.ssnit_number as teacher_ssnit, t.tin as teacher_tin,
 			a.ssnit_number as admin_ssnit, a.tin as admin_tin,
@@ -31841,13 +31503,13 @@ function parents_gender_report() {
 		$this->db->where('ps.month', $month);
 		$this->db->where('ps.year', $year);
 		$results = $this->db->get()->result_array();
-		
+
 		$missing_data = [];
-		
+
 		foreach ($results as $row) {
 			$ssnit = $row['teacher_ssnit'] ?: ($row['admin_ssnit'] ?: $row['nts_ssnit']);
 			$tin = $row['teacher_tin'] ?: ($row['admin_tin'] ?: $row['nts_tin']);
-			
+
 			$missing = [];
 			if (empty($ssnit)) {
 				$missing[] = 'SSNIT Number';
@@ -31855,7 +31517,7 @@ function parents_gender_report() {
 			if (empty($tin)) {
 				$missing[] = 'TIN';
 			}
-			
+
 			if (!empty($missing)) {
 				$missing_data[] = [
 					'name' => $row['staff_name'],
@@ -31863,7 +31525,7 @@ function parents_gender_report() {
 				];
 			}
 		}
-		
+
 		if (empty($missing_data)) {
 			echo json_encode([
 				'valid' => true,
@@ -31876,22 +31538,22 @@ function parents_gender_report() {
 			]);
 		}
 	}
-	
+
 	/**
 	 * Task 14.6: Generate statutory reports (AJAX)
-	 * 
+	 *
 	 * Generates SSNIT Tier 1, Tier 2, and PAYE reports
 	 * Requirements: 18.2, 18.3, 18.4, 18.5, 18.6, 18.8
 	 */
 	public function generate_statutory_reports() {
 		$month = $this->input->post('month');
 		$year = $this->input->post('year');
-		
+
 		// Get school information
 		$school_name = $this->db->get_where('settings', ['type' => 'system_name'])->row()->description;
 		$school_ssnit = $this->db->get_where('settings', ['type' => 'school_ssnit_number'])->row()->description ?? 'N/A';
 		$school_tin = $this->db->get_where('settings', ['type' => 'school_tin'])->row()->description ?? 'N/A';
-		
+
 		// Get payroll data with staff details
 		$this->db->select('
 			COALESCE(t.name, a.name, nts.name) as staff_name,
@@ -31911,7 +31573,7 @@ function parents_gender_report() {
 		$this->db->where('ps.year', $year);
 		$this->db->order_by('staff_name', 'ASC');
 		$results = $this->db->get()->result_array();
-		
+
 		// Generate SSNIT Tier 1 data (13.5% of BASIC salary, NOT gross)
 		$tier1_data = [];
 		foreach ($results as $row) {
@@ -31923,7 +31585,7 @@ function parents_gender_report() {
 				'tier1_contribution' => number_format($tier1_contribution, 2, '.', '')
 			];
 		}
-		
+
 		// Generate SSNIT Tier 2 data (5% of BASIC salary, NOT gross)
 		$tier2_data = [];
 		foreach ($results as $row) {
@@ -31935,14 +31597,14 @@ function parents_gender_report() {
 				'tier2_contribution' => number_format($tier2_contribution, 2, '.', '')
 			];
 		}
-		
+
 		// Generate PAYE data
 		$paye_data = [];
 		foreach ($results as $row) {
 			// Taxable income = Gross - SSNIT Tier 1 - SSNIT Tier 2 (based on BASIC salary, NOT gross)
 			$ssnit_total = ($row['basic_salary'] * 0.135) + ($row['basic_salary'] * 0.05);
 			$taxable_income = $row['gross_salary'] - $ssnit_total;
-			
+
 			$paye_data[] = [
 				'staff_name' => $row['staff_name'],
 				'tin' => $row['tin'],
@@ -31951,7 +31613,7 @@ function parents_gender_report() {
 				'paye_tax' => number_format($row['income_tax'], 2, '.', '')
 			];
 		}
-		
+
 		echo json_encode([
 			'success' => true,
 			'data' => [
@@ -31966,10 +31628,10 @@ function parents_gender_report() {
 			]
 		]);
 	}
-	
+
 	/**
 	 * Task 14.6: Export statutory report to Excel
-	 * 
+	 *
 	 * Exports selected statutory report to CSV/Excel
 	 * Requirements: 18.9, 18.10
 	 */
@@ -31977,12 +31639,12 @@ function parents_gender_report() {
 		$type = $this->input->get('type'); // tier1, tier2, or paye
 		$month = $this->input->get('month');
 		$year = $this->input->get('year');
-		
+
 		// Get school information
 		$school_name = $this->db->get_where('settings', ['type' => 'system_name'])->row()->description;
 		$school_ssnit = $this->db->get_where('settings', ['type' => 'school_ssnit_number'])->row()->description ?? 'N/A';
 		$school_tin = $this->db->get_where('settings', ['type' => 'school_tin'])->row()->description ?? 'N/A';
-		
+
 		// Get payroll data
 		$this->db->select('
 			COALESCE(t.name, a.name, nts.name) as staff_name,
@@ -32000,26 +31662,26 @@ function parents_gender_report() {
 		$this->db->where('ps.year', $year);
 		$this->db->order_by('staff_name', 'ASC');
 		$results = $this->db->get()->result_array();
-		
+
 		$month_name = date('F', mktime(0, 0, 0, $month, 1));
-		
+
 		// Set headers
 		header('Content-Type: text/csv');
-		
+
 		if ($type === 'tier1') {
 			header('Content-Disposition: attachment; filename="SSNIT_Tier1_' . $month_name . '_' . $year . '.csv"');
 			$output = fopen('php://output', 'w');
-			
+
 			// School info
 			fputcsv($output, ['SSNIT Tier 1 Contribution Report (13.5%)']);
 			fputcsv($output, ['School Name:', $school_name]);
 			fputcsv($output, ['SSNIT Number:', $school_ssnit]);
 			fputcsv($output, ['Period:', $month_name . ' ' . $year]);
 			fputcsv($output, []);
-			
+
 			// Headers
 			fputcsv($output, ['Staff Name', 'SSNIT Number', 'Basic Salary (GH¢)', 'Tier 1 Contribution (GH¢)']);
-			
+
 			// Data (FIXED: Tier 1 calculated on BASIC salary, NOT gross)
 			$total_basic = 0;
 			$total_contribution = 0;
@@ -32027,7 +31689,7 @@ function parents_gender_report() {
 				$contribution = $row['basic_salary'] * 0.135;
 				$total_basic += $row['basic_salary'];
 				$total_contribution += $contribution;
-				
+
 				fputcsv($output, [
 					$row['staff_name'],
 					$row['ssnit_number'],
@@ -32035,25 +31697,25 @@ function parents_gender_report() {
 					number_format($contribution, 2)
 				]);
 			}
-			
+
 			// Totals
 			fputcsv($output, []);
 			fputcsv($output, ['TOTAL', '', number_format($total_basic, 2), number_format($total_contribution, 2)]);
-			
+
 		} else if ($type === 'tier2') {
 			header('Content-Disposition: attachment; filename="SSNIT_Tier2_' . $month_name . '_' . $year . '.csv"');
 			$output = fopen('php://output', 'w');
-			
+
 			// School info
 			fputcsv($output, ['SSNIT Tier 2 Contribution Report (5%)']);
 			fputcsv($output, ['School Name:', $school_name]);
 			fputcsv($output, ['SSNIT Number:', $school_ssnit]);
 			fputcsv($output, ['Period:', $month_name . ' ' . $year]);
 			fputcsv($output, []);
-			
+
 			// Headers
 			fputcsv($output, ['Staff Name', 'SSNIT Number', 'Basic Salary (GH¢)', 'Tier 2 Contribution (GH¢)']);
-			
+
 			// Data (FIXED: Tier 2 calculated on BASIC salary, NOT gross)
 			$total_basic = 0;
 			$total_contribution = 0;
@@ -32061,7 +31723,7 @@ function parents_gender_report() {
 				$contribution = $row['basic_salary'] * 0.05;
 				$total_basic += $row['basic_salary'];
 				$total_contribution += $contribution;
-				
+
 				fputcsv($output, [
 					$row['staff_name'],
 					$row['ssnit_number'],
@@ -32069,25 +31731,25 @@ function parents_gender_report() {
 					number_format($contribution, 2)
 				]);
 			}
-			
+
 			// Totals
 			fputcsv($output, []);
 			fputcsv($output, ['TOTAL', '', number_format($total_basic, 2), number_format($total_contribution, 2)]);
-			
+
 		} else if ($type === 'paye') {
 			header('Content-Disposition: attachment; filename="PAYE_Report_' . $month_name . '_' . $year . '.csv"');
 			$output = fopen('php://output', 'w');
-			
+
 			// School info
 			fputcsv($output, ['PAYE Tax Report']);
 			fputcsv($output, ['School Name:', $school_name]);
 			fputcsv($output, ['TIN:', $school_tin]);
 			fputcsv($output, ['Period:', $month_name . ' ' . $year]);
 			fputcsv($output, []);
-			
+
 			// Headers
 			fputcsv($output, ['Staff Name', 'TIN', 'Gross Salary (GH¢)', 'Taxable Income (GH¢)', 'PAYE Tax (GH¢)']);
-			
+
 			// Data (FIXED: SSNIT calculated on BASIC salary, NOT gross)
 			$total_gross = 0;
 			$total_taxable = 0;
@@ -32095,11 +31757,11 @@ function parents_gender_report() {
 			foreach ($results as $row) {
 				$ssnit_total = ($row['basic_salary'] * 0.135) + ($row['basic_salary'] * 0.05);
 				$taxable_income = $row['gross_salary'] - $ssnit_total;
-				
+
 				$total_gross += $row['gross_salary'];
 				$total_taxable += $taxable_income;
 				$total_tax += $row['income_tax'];
-				
+
 				fputcsv($output, [
 					$row['staff_name'],
 					$row['tin'],
@@ -32108,12 +31770,12 @@ function parents_gender_report() {
 					number_format($row['income_tax'], 2)
 				]);
 			}
-			
+
 			// Totals
 			fputcsv($output, []);
 			fputcsv($output, ['TOTAL', '', number_format($total_gross, 2), number_format($total_taxable, 2), number_format($total_tax, 2)]);
 		}
-		
+
 		fclose($output);
 		exit;
 	}
@@ -32130,19 +31792,19 @@ function parents_gender_report() {
 	function transport_student_unassign($transport_id, $student_id) {
 		 $running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		 $running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		 $this->db->where('student_id', $student_id);
 		 $this->db->where('year', $running_year);
 		 $this->db->where('term', $running_term);
 		 $this->db->update('enroll', array('transport_id' => NULL));
-		
+
 		echo json_encode(array('status' => 'success', 'message' => get_phrase('student_unassigned_successfully')));
 	}
-	
+
 	function transport_student_reassign($from_transport_id, $student_id, $to_transport_id) {
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		$this->db->where('student_id', $student_id);
 		$this->db->where('year', $running_year);
 		$this->db->where('term', $running_term);
@@ -32243,10 +31905,10 @@ function parents_gender_report() {
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
 		$class_filter = $this->input->get('class_filter');
-		
+
 		$html = '';
 		$classes_data = array();
-		
+
 		if($type == 'invoices') {
 			$this->db->select('SUM(invoice.amount) as total_amount, student.student_id, student.name as student_name, class.name as class_name, class.name_numeric, section.name as section_name');
 			$this->db->from('invoice');
@@ -32255,17 +31917,17 @@ function parents_gender_report() {
 			$this->db->join('class', 'class.class_id = enroll.class_id');
 			$this->db->join('section', 'section.section_id = enroll.section_id');
 			$this->db->where('invoice.status', 'unpaid');
-			
+
 			// Add class filter if provided
 			if(!empty($class_filter)) {
 				$this->db->where('class.class_id', $class_filter);
 			}
-			
+
 			$this->db->group_by('student.student_id, class.class_id, section.section_id');
 			$this->db->order_by('class.name', 'ASC');
 			$this->db->order_by('class.name_numeric', 'ASC');
 			$invoices = $this->db->get()->result_array();
-			
+
 			foreach($invoices as $invoice) {
 				$class_key = $invoice['class_name'] . ' ' . $invoice['name_numeric'] . $invoice['section_name'];
 				if(!isset($classes_data[$class_key])) {
@@ -32279,7 +31941,7 @@ function parents_gender_report() {
 			}
 			$title = 'Billed Invoices';
 			$color = 'blue';
-			
+
 		} elseif($type == 'feeding') {
 			$this->db->select('daily_fee_wallet.feeding_arrears as total_amount, student.student_id, student.name as student_name, class.name as class_name, class.name_numeric, section.name as section_name');
 			$this->db->from('daily_fee_wallet');
@@ -32290,16 +31952,16 @@ function parents_gender_report() {
 			$this->db->where('daily_fee_wallet.feeding_arrears >', 0);
 			$this->db->where('daily_fee_wallet.year', $running_year);
 			$this->db->where('daily_fee_wallet.term', $running_term);
-			
+
 			// Add class filter if provided
 			if(!empty($class_filter)) {
 				$this->db->where('class.class_id', $class_filter);
 			}
-			
+
 			$this->db->order_by('class.name', 'ASC');
 			$this->db->order_by('class.name_numeric', 'ASC');
 			$fees = $this->db->get()->result_array();
-			
+
 			foreach($fees as $fee) {
 				$class_key = $fee['class_name'] . ' ' . $fee['name_numeric'] . $fee['section_name'];
 				if(!isset($classes_data[$class_key])) {
@@ -32313,7 +31975,7 @@ function parents_gender_report() {
 			}
 			$title = 'Feeding Fee';
 			$color = 'green';
-			
+
 		} elseif($type == 'classes') {
 			$this->db->select('daily_fee_wallet.classes_arrears as total_amount, student.student_id, student.name as student_name, class.name as class_name, class.name_numeric, section.name as section_name');
 			$this->db->from('daily_fee_wallet');
@@ -32324,16 +31986,16 @@ function parents_gender_report() {
 			$this->db->where('daily_fee_wallet.classes_arrears >', 0);
 			$this->db->where('daily_fee_wallet.year', $running_year);
 			$this->db->where('daily_fee_wallet.term', $running_term);
-			
+
 			// Add class filter if provided
 			if(!empty($class_filter)) {
 				$this->db->where('class.class_id', $class_filter);
 			}
-			
+
 			$this->db->order_by('class.name', 'ASC');
 			$this->db->order_by('class.name_numeric', 'ASC');
 			$fees = $this->db->get()->result_array();
-			
+
 			foreach($fees as $fee) {
 				$class_key = $fee['class_name'] . ' ' . $fee['name_numeric'] . $fee['section_name'];
 				if(!isset($classes_data[$class_key])) {
@@ -32347,7 +32009,7 @@ function parents_gender_report() {
 			}
 			$title = 'Classes Fee';
 			$color = 'purple';
-			
+
 		} elseif($type == 'transport') {
 			$this->db->select('daily_fee_wallet.transport_arrears as total_amount, student.student_id, student.name as student_name, class.name as class_name, class.name_numeric, section.name as section_name');
 			$this->db->from('daily_fee_wallet');
@@ -32358,16 +32020,16 @@ function parents_gender_report() {
 			$this->db->where('daily_fee_wallet.transport_arrears >', 0);
 			$this->db->where('daily_fee_wallet.year', $running_year);
 			$this->db->where('daily_fee_wallet.term', $running_term);
-			
+
 			// Add class filter if provided
 			if(!empty($class_filter)) {
 				$this->db->where('class.class_id', $class_filter);
 			}
-			
+
 			$this->db->order_by('class.name', 'ASC');
 			$this->db->order_by('class.name_numeric', 'ASC');
 			$fees = $this->db->get()->result_array();
-			
+
 			foreach($fees as $fee) {
 				$class_key = $fee['class_name'] . ' ' . $fee['name_numeric'] . $fee['section_name'];
 				if(!isset($classes_data[$class_key])) {
@@ -32381,7 +32043,7 @@ function parents_gender_report() {
 			}
 			$title = 'Transport Fare';
 			$color = 'orange';
-			
+
 		} elseif($type == 'water') {
 			$this->db->select('daily_fee_wallet.water_arrears as total_amount, student.student_id, student.name as student_name, class.name as class_name, class.name_numeric, section.name as section_name');
 			$this->db->from('daily_fee_wallet');
@@ -32392,16 +32054,16 @@ function parents_gender_report() {
 			$this->db->where('daily_fee_wallet.water_arrears >', 0);
 			$this->db->where('daily_fee_wallet.year', $running_year);
 			$this->db->where('daily_fee_wallet.term', $running_term);
-			
+
 			// Add class filter if provided
 			if(!empty($class_filter)) {
 				$this->db->where('class.class_id', $class_filter);
 			}
-			
+
 			$this->db->order_by('class.name', 'ASC');
 			$this->db->order_by('class.name_numeric', 'ASC');
 			$fees = $this->db->get()->result_array();
-			
+
 			foreach($fees as $fee) {
 				$class_key = $fee['class_name'] . ' ' . $fee['name_numeric'] . $fee['section_name'];
 				if(!isset($classes_data[$class_key])) {
@@ -32415,7 +32077,7 @@ function parents_gender_report() {
 			}
 			$title = 'Water Fee';
 			$color = 'cyan';
-			
+
 		} elseif($type == 'breakfast') {
 			$this->db->select('daily_fee_wallet.breakfast_arrears as total_amount, student.student_id, student.name as student_name, class.name as class_name, class.name_numeric, section.name as section_name');
 			$this->db->from('daily_fee_wallet');
@@ -32426,16 +32088,16 @@ function parents_gender_report() {
 			$this->db->where('daily_fee_wallet.breakfast_arrears >', 0);
 			$this->db->where('daily_fee_wallet.year', $running_year);
 			$this->db->where('daily_fee_wallet.term', $running_term);
-			
+
 			// Add class filter if provided
 			if(!empty($class_filter)) {
 				$this->db->where('class.class_id', $class_filter);
 			}
-			
+
 			$this->db->order_by('class.name', 'ASC');
 			$this->db->order_by('class.name_numeric', 'ASC');
 			$fees = $this->db->get()->result_array();
-			
+
 			foreach($fees as $fee) {
 				$class_key = $fee['class_name'] . ' ' . $fee['name_numeric'] . $fee['section_name'];
 				if(!isset($classes_data[$class_key])) {
@@ -32449,17 +32111,17 @@ function parents_gender_report() {
 			}
 			$title = 'Breakfast Fee';
 			$color = 'yellow';
-			
+
 		} else {
 			echo json_encode(array('status' => 'error', 'message' => 'Invalid type'));
 			return;
 		}
-		
+
 		if(empty($classes_data)) {
 			$html = '<div class="text-center py-8"><div class="text-gray-500 text-lg"><i class="fa fa-check-circle text-green-500 text-4xl mb-3"></i><p>' . get_phrase('no_students_owing') . '</p></div></div>';
 		} else {
 			$html .= '<div class="mt-6"><h4 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b-2 border-' . $color . '-500">' . get_phrase($title) . ' - ' . get_phrase('class_based_list') . '</h4>';
-			
+
 			foreach($classes_data as $class_name => $data) {
 				$html .= '<div class="mb-6 bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">';
 				$html .= '<div class="bg-gradient-to-r from-' . $color . '-500 to-' . $color . '-600 px-4 py-3 flex justify-between items-center">';
@@ -32469,7 +32131,7 @@ function parents_gender_report() {
 				$html .= '<div class="p-4"><div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200">';
 				$html .= '<thead class="bg-gray-50"><tr><th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">#</th><th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">' . get_phrase('student_name') . '</th><th class="px-4 py-3 text-right text-xs font-bold text-gray-700 uppercase">' . get_phrase('amount_owed') . '</th></tr></thead>';
 				$html .= '<tbody class="bg-white divide-y divide-gray-200">';
-				
+
 				$counter = 1;
 				foreach($data['students'] as $student) {
 					$html .= '<tr class="hover:bg-gray-50">';
@@ -32478,14 +32140,14 @@ function parents_gender_report() {
 					$html .= '<td class="px-4 py-3 text-sm font-bold text-right text-red-600">GHC ' . number_format($student['amount'], 2) . '</td>';
 					$html .= '</tr>';
 				}
-				
+
 				$html .= '<tr class="bg-' . $color . '-50 font-bold"><td colspan="2" class="px-4 py-3 text-sm text-gray-900 text-right">' . get_phrase('total') . ':</td><td class="px-4 py-3 text-sm text-right text-' . $color . '-700">GHC ' . number_format($data['total'], 2) . '</td></tr>';
 				$html .= '</tbody></table></div></div></div>';
 			}
-			
+
 			$html .= '</div>';
 		}
-		
+
 		echo json_encode(array('status' => 'success', 'html' => $html, 'has_data' => !empty($classes_data)));
 	}
 
@@ -32493,7 +32155,7 @@ function parents_gender_report() {
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
 		$classes_data = array();
-		
+
 		if($type == 'invoices') {
 			$this->db->select('invoice.*, student.name as student_name, class.name as class_name, class.name_numeric, section.name as section_name');
 			$this->db->from('invoice');
@@ -32747,88 +32409,88 @@ function parents_gender_report() {
 	function search_student_for_fees() {
 		$search_term = $this->input->post('search_term');
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
-		
+
 		// Get students with their latest enrollment and outstanding fees
-		$sql = "SELECT 
-					s.student_id, 
-					s.name, 
-					s.student_code, 
+		$sql = "SELECT
+					s.student_id,
+					s.name,
+					s.student_code,
 					e.class_id,
-					(SELECT SUM(i.due) 
-					 FROM invoice i 
-					 WHERE i.student_id = s.student_id 
-					 AND i.due > 0 
+					(SELECT SUM(i.due)
+					 FROM invoice i
+					 WHERE i.student_id = s.student_id
+					 AND i.due > 0
 					 AND i.can_delete != 'trash') as total_due
 				FROM student s
 				INNER JOIN enroll e ON s.student_id = e.student_id
 				WHERE e.year = ?
 				AND e.mute = '0'
 				AND e.enroll_id = (
-					SELECT MAX(enroll_id) 
-					FROM enroll 
-					WHERE student_id = s.student_id 
+					SELECT MAX(enroll_id)
+					FROM enroll
+					WHERE student_id = s.student_id
 					AND year = ?
 					AND mute = '0'
 				)
 				AND (s.name LIKE ? OR s.student_code LIKE ?)
 				AND EXISTS (
-					SELECT 1 FROM invoice i2 
-					WHERE i2.student_id = s.student_id 
-					AND i2.due > 0 
+					SELECT 1 FROM invoice i2
+					WHERE i2.student_id = s.student_id
+					AND i2.due > 0
 					AND i2.can_delete != 'trash'
 				)
 				LIMIT 10";
-		
+
 		$search_pattern = '%' . $search_term . '%';
 		$query = $this->db->query($sql, array($running_year, $running_year, $search_pattern, $search_pattern));
 		$students = $query->result_array();
-		
+
 		foreach($students as &$student) {
 			$student['class_name'] = $this->crud_model->getFullClassName($student['class_id']);
 			$student['total_due'] = number_format($student['total_due'], 2, '.', '');
 		}
-		
+
 		echo json_encode(['success' => true, 'students' => $students]);
 	}
 
 	function search_all_students() {
 		$search_term = $this->input->post('search_term');
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
-		
+
 		// Search ALL students (not just those with outstanding fees) - for student ledger
-		$sql = "SELECT 
-					s.student_id, 
-					s.name, 
-					s.student_code, 
+		$sql = "SELECT
+					s.student_id,
+					s.name,
+					s.student_code,
 					e.class_id,
-					(SELECT SUM(i.due) 
-					 FROM invoice i 
-					 WHERE i.student_id = s.student_id 
-					 AND i.due > 0 
+					(SELECT SUM(i.due)
+					 FROM invoice i
+					 WHERE i.student_id = s.student_id
+					 AND i.due > 0
 					 AND i.can_delete != 'trash') as total_due
 				FROM student s
 				INNER JOIN enroll e ON s.student_id = e.student_id
 				WHERE e.year = ?
 				AND e.mute = '0'
 				AND e.enroll_id = (
-					SELECT MAX(enroll_id) 
-					FROM enroll 
-					WHERE student_id = s.student_id 
+					SELECT MAX(enroll_id)
+					FROM enroll
+					WHERE student_id = s.student_id
 					AND year = ?
 					AND mute = '0'
 				)
 				AND (s.name LIKE ? OR s.student_code LIKE ?)
 				LIMIT 10";
-		
+
 		$search_pattern = '%' . $search_term . '%';
 		$query = $this->db->query($sql, array($running_year, $running_year, $search_pattern, $search_pattern));
 		$students = $query->result_array();
-		
+
 		foreach($students as &$student) {
 			$student['class_name'] = $this->crud_model->getFullClassName($student['class_id']);
 			$student['total_due'] = $student['total_due'] ? number_format($student['total_due'], 2, '.', '') : '0.00';
 		}
-		
+
 		echo json_encode(['status' => 'success', 'students' => $students]);
 	}
 
@@ -32838,38 +32500,38 @@ function parents_gender_report() {
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
 		$student = $this->db->get_where('student', array('student_id' => $student_id))->row();
 		$enroll = $this->db->get_where('enroll', array('student_id' => $student_id, 'year' => $running_year))->row();
-		
+
 		$class_info = $this->db->get_where('class', array('class_id' => $enroll->class_id))->row();
 		$feeding_fee = $class_info->feeding_fee ?? 0;
 		$classes_fee = $class_info->classes_fee ?? 0;
-		
+
 		$this->db->select_sum('due');
 		$this->db->where('student_id', $student_id);
 		$this->db->where('year', $running_year);
 		$this->db->where('term', $running_term);
 		$feeding_owing_base = $this->db->get('daily_fee_wallet')->row()->due ?? 0;
-		
+
 		$this->db->select_sum('due');
 		$this->db->where('student_id', $student_id);
 		$this->db->where('year', $running_year);
 		$this->db->where('term', $running_term);
 		$classes_owing_base = $this->db->get('daily_fee_wallet')->row()->due ?? 0;
-		
+
 		$this->db->select_sum('due');
 		$this->db->where('student_id', $student_id);
 		$this->db->where('year', $running_year);
 		$this->db->where('term', $running_term);
 		$transport_owing_base = $this->db->get('daily_fee_wallet')->row()->due ?? 0;
-		
+
 		// NEW: Use discount system instead of benefit system
-		
+
 		// Get bill category IDs
 		$feeding_cat = $this->db->select('category_id')->like('name', 'feeding', 'both')->get('bill_category')->row();
 		$feeding_cat_id = $feeding_cat ? $feeding_cat->category_id : NULL;
-		
+
 		$classes_cat = $this->db->select('category_id')->like('name', 'class', 'both')->get('bill_category')->row();
 		$classes_cat_id = $classes_cat ? $classes_cat->category_id : NULL;
-		
+
 		// Calculate discounts using new discount system
 		$feeding_discount = $this->discount_model->calculate_discount(
 			$student_id,
@@ -32879,7 +32541,7 @@ function parents_gender_report() {
 			$running_year,
 			$running_term
 		);
-		
+
 		$classes_discount = $this->discount_model->calculate_discount(
 			$student_id,
 			$enroll->class_id,
@@ -32888,17 +32550,17 @@ function parents_gender_report() {
 			$running_year,
 			$running_term
 		);
-		
+
 		// Get breakfast and water categories
 		$breakfast_cat = $this->db->select('category_id')->like('name', 'breakfast', 'both')->get('bill_category')->row();
 		$breakfast_cat_id = $breakfast_cat ? $breakfast_cat->category_id : NULL;
-		
+
 		$water_cat = $this->db->select('category_id')->like('name', 'water', 'both')->get('bill_category')->row();
 		$water_cat_id = $water_cat ? $water_cat->category_id : NULL;
-		
+
 		$breakfast_fee = $class_info->breakfast_fee ?? 0;
 		$water_fee = $class_info->water_fee ?? 0;
-		
+
 		// Calculate breakfast and water discounts
 		$breakfast_discount = $this->discount_model->calculate_discount(
 			$student_id,
@@ -32908,7 +32570,7 @@ function parents_gender_report() {
 			$running_year,
 			$running_term
 		);
-		
+
 		$water_discount = $this->discount_model->calculate_discount(
 			$student_id,
 			$enroll->class_id,
@@ -32917,31 +32579,31 @@ function parents_gender_report() {
 			$running_year,
 			$running_term
 		);
-		
+
 		// Update is_beneficiary check
 		$is_beneficiary = ($feeding_discount > 0 || $classes_discount > 0 || $breakfast_discount > 0 || $water_discount > 0);
-		
+
 		$feeding_fee_today = max(0, $feeding_fee - $feeding_discount);
 		$classes_fee_today = max(0, $classes_fee - $classes_discount);
 		$breakfast_fee_today = max(0, $breakfast_fee - $breakfast_discount);
 		$water_fee_today = max(0, $water_fee - $water_discount);
-		
+
 		$transport_fee_today = 0;
 		$transport_id = $enroll->transport_id ?? 0;
 		if($transport_id > 0) {
 			$transport_info = $this->db->get_where('transport', array('transport_id' => $transport_id))->row();
 			$transport_fee_today = $transport_info->route_fare ?? 0;
 		}
-		
+
 		$feeding_due = (floatval($feeding_owing_base) + floatval($feeding_fee_today));
 		$classes_due = (floatval($classes_owing_base) + floatval($classes_fee_today));
 		$transport_due = (floatval($transport_owing_base) + floatval($transport_fee_today));
-		
+
 		// Check if fees should be hidden (100% discount or no transport or module disabled)
 		$hide_feeding = ($feeding_discount >= $feeding_fee) || !is_fee_module_enabled('feeding');
 		$hide_classes = ($classes_discount >= $classes_fee) || !is_fee_module_enabled('classes');
 		$hide_transport = ($transport_id == 0) || !is_fee_module_enabled('transport');
-		
+
 		$payment_date = $this->input->post('payment_date');
 		$selected_timestamp = $payment_date ? strtotime($payment_date) : strtotime(date('d-m-Y'));
 		$feeding_paid_today = 0;
@@ -32950,34 +32612,34 @@ function parents_gender_report() {
 		$feeding_owing_on_date = $feeding_due;
 		$classes_owing_on_date = $classes_due;
 		$transport_owing_on_date = $transport_due;
-		
+
 		$existing_feeding = $this->db->get_where('daily_fee_wallet', ['student_id' => $student_id, 'day_timestamp' => $selected_timestamp, 'year' => $running_year, 'term' => $running_term])->row();
 		if($existing_feeding) {
 			$feeding_paid_today = $existing_feeding->amount;
 			$feeding_owing_on_date = $existing_feeding->due;
 		}
-		
+
 		$existing_classes = $this->db->get_where('daily_fee_wallet', ['student_id' => $student_id, 'day_timestamp' => $selected_timestamp, 'year' => $running_year, 'term' => $running_term])->row();
 		if($existing_classes) {
 			$classes_paid_today = $existing_classes->amount;
 			$classes_owing_on_date = $existing_classes->due;
 		}
-		
+
 		$existing_transport = $this->db->get_where('daily_fee_wallet', ['student_id' => $student_id, 'day_timestamp' => $selected_timestamp, 'year' => $running_year, 'term' => $running_term])->row();
 		if($existing_transport) {
 			$transport_paid_today = $existing_transport->amount;
 			$transport_owing_on_date = $existing_transport->due;
 		}
-		
+
 		echo json_encode([
-			'status' => 'success', 
-			'student' => $student, 
-			'class_name' => $class_info->name, 
-			'class_numeric' => $class_info->name_numeric, 
-			'section' => $this->db->get_where('section', array('section_id' => $enroll->section_id))->row()->name ?? '', 
-			'feeding_due' => $feeding_owing_on_date, 
-			'classes_due' => $classes_owing_on_date, 
-			'transport_due' => $transport_owing_on_date, 
+			'status' => 'success',
+			'student' => $student,
+			'class_name' => $class_info->name,
+			'class_numeric' => $class_info->name_numeric,
+			'section' => $this->db->get_where('section', array('section_id' => $enroll->section_id))->row()->name ?? '',
+			'feeding_due' => $feeding_owing_on_date,
+			'classes_due' => $classes_owing_on_date,
+			'transport_due' => $transport_owing_on_date,
 			'total_due' => $feeding_owing_on_date + $classes_owing_on_date + $transport_owing_on_date,
 			'is_beneficiary' => $is_beneficiary,
 			'feeding_discount' => $feeding_discount,
@@ -33001,13 +32663,13 @@ function parents_gender_report() {
 		$timestamp = strtotime($payment_date);
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		$exists = $this->db->where('student_id', $student_id)
 			->where('day_timestamp', $timestamp)
 			->where('year', $running_year)
 			->where('term', $running_term)
 			->get('daily_fee_wallet')->num_rows() > 0;
-		
+
 		echo json_encode(['exists' => $exists]);
 	}
 
@@ -33022,7 +32684,7 @@ function parents_gender_report() {
 			'created_at' => time(),
 			'created_by' => $this->session->userdata('admin_id') ?? $this->session->userdata('login_user_id')
 		);
-		
+
 		if(!$this->db->table_exists('incomplete_fee_transactions')) {
 			$this->db->query("CREATE TABLE incomplete_fee_transactions (
 				id INT AUTO_INCREMENT PRIMARY KEY,
@@ -33036,7 +32698,7 @@ function parents_gender_report() {
 				created_by INT
 			)");
 		}
-		
+
 		$this->db->insert('incomplete_fee_transactions', $data);
 		echo json_encode(['status' => 'success', 'message' => get_phrase('transaction_saved_successfully')]);
 	}
@@ -33046,14 +32708,14 @@ function parents_gender_report() {
 			echo json_encode(['transactions' => []]);
 			return;
 		}
-		
+
 		$this->db->select('incomplete_fee_transactions.*, student.name as student_name');
 		$this->db->from('incomplete_fee_transactions');
 		$this->db->join('student', 'student.student_id = incomplete_fee_transactions.student_id');
 		$this->db->where('incomplete_fee_transactions.status', 'pending');
 		$this->db->order_by('incomplete_fee_transactions.created_at', 'DESC');
 		$transactions = $this->db->get()->result_array();
-		
+
 		$result = array();
 		foreach($transactions as $t) {
 			$fees = json_decode($t['fees'], true);
@@ -33066,21 +32728,21 @@ function parents_gender_report() {
 				'total' => number_format($total, 2)
 			);
 		}
-		
+
 		echo json_encode(['transactions' => $result]);
 	}
 
 	function load_saved_transaction() {
 		$id = $this->input->post('id');
 		$txn = $this->db->get_where('incomplete_fee_transactions', array('id' => $id))->row();
-		
+
 		if($txn) {
 			$student_id = $txn->student_id;
 			$fees = json_decode($txn->fees, true);
-			
+
 			$this->db->where('id', $id);
 			$this->db->delete('incomplete_fee_transactions');
-			
+
 			$_POST['student_id'] = $student_id;
 			$this->get_student_outstanding_fees();
 		}
@@ -33118,7 +32780,7 @@ function parents_gender_report() {
 				$prev = $this->db->get('daily_fee_wallet')->row();
 				$prev_feeding_due = $prev->due ?? 0;
 				$this->db->insert('daily_fee_wallet', array('student_id' => $student_id, 'class_id' => $class_id, 'section_id' => $section_id, 'year' => $year, 'term' => $term, 'day_timestamp' => $timestamp, 'amount' => 0, 'due' => $prev_feeding_due + $feeding_fee_payment));
-				
+
 				$this->db->where('student_id', $student_id);
 				$this->db->where('day_timestamp <', $timestamp);
 				$this->db->order_by('day_timestamp', 'DESC');
@@ -33134,7 +32796,7 @@ function parents_gender_report() {
 /**
  * ENTERPRISE-GRADE: Attendance Update Method
  * Refactored to use Daily_fee_model for all fee calculations and accounting
- * 
+ *
  * Replace the existing attendance_update method in Admin.php (line 23520) with this code
  */
 
@@ -33147,51 +32809,51 @@ function attendance_update($class_id, $section_id, $timestamp) {
 	$collect_classes = $this->input->post('collect_classes');
 	$collect_water = $this->input->post('collect_water');
 	$collect_transport = $this->input->post('collect_transport');
-	
+
 	$running_year = $this->db->get_where('settings', ['type' => 'running_year'])->row()->description;
 	$running_term = $this->db->get_where('settings', ['type' => 'running_term'])->row()->description;
 	$issuer_id = $this->session->userdata('login_user_id');
-	
+
 	// Load Daily_fee_model for enterprise-grade processing
 	$counter = 0;
 	foreach($students_array as $student_id) {
 		// Get attendance record
 		$attendance = $this->db->get_where('attendance', [
-			'student_id' => $student_id, 
-			'timestamp' => $timestamp, 
+			'student_id' => $student_id,
+			'timestamp' => $timestamp,
 			'class_id' => $class_id
 		])->row();
-		
+
 		if(!$attendance) continue;
-		
+
 		// Get status from form
 		$status = $this->input->post('status_' . $attendance->attendance_id);
 		if(!$status) continue;
-		
+
 		// Get transport status from form (in/out/both/none/pending)
 		$transport_status = $this->input->post('transport_' . $attendance->attendance_id) ?? 'pending';
-		
+
 		// Update attendance status first
 		$this->db->where('attendance_id', $attendance->attendance_id);
 		$this->db->update('attendance', ['status' => $status]);
-		
+
 		// CRITICAL: Always process daily charges when student is marked PRESENT
 		// Breakfast/water subscription handled via student preferences in database
 		if($status == 1) {
 			$options = ['transport_status' => $transport_status];
-			
+
 			// ALWAYS process charges - this deducts from prepaid or adds to arrears
 			// This runs whether payment collection is enabled or not
 			$charges = $this->Daily_fee_model->process_daily_charges(
-				$student_id, 
-				$timestamp, 
-				$class_id, 
-				$running_year, 
-				$running_term, 
+				$student_id,
+				$timestamp,
+				$class_id,
+				$running_year,
+				$running_term,
 				null, // sem
 				$options
 			);
-			
+
 			// Update attendance record with calculated charges
 			if($charges) {
 				$this->db->where('attendance_id', $attendance->attendance_id);
@@ -33204,7 +32866,7 @@ function attendance_update($class_id, $section_id, $timestamp) {
 				]);
 			}
 		}
-		
+
 		// ENTERPRISE-GRADE: Process payments with update/create logic
 		if($collect_feeding || $collect_breakfast || $collect_classes || $collect_water || $collect_transport) {
 			$feeding_paid = floatval($this->input->post('feeding_' . $student_id) ?? 0);
@@ -33213,19 +32875,19 @@ function attendance_update($class_id, $section_id, $timestamp) {
 			$water_paid = floatval($this->input->post('water_' . $student_id) ?? 0);
 			$transport_paid = floatval($this->input->post('transport_' . $student_id) ?? 0);
 			$total_paid = $feeding_paid + $breakfast_paid + $classes_paid + (floatval($water_paid) + floatval($transport_paid));
-			
+
 			if($total_paid > 0) {
 				// Get wallet and auto-determine payment type
 				$wallet_data = $this->Daily_fee_model->get_student_wallet($student_id);
 				$payment_type = $this->determine_payment_type(
-					$wallet_data, 
-					$feeding_paid, 
-					$breakfast_paid, 
-					$classes_paid, 
-					$water_paid, 
+					$wallet_data,
+					$feeding_paid,
+					$breakfast_paid,
+					$classes_paid,
+					$water_paid,
 					$transport_paid
 				);
-				
+
 				$payment_data = [
 					'student_id' => $student_id,
 					'payment_date' => $timestamp,
@@ -33240,13 +32902,13 @@ function attendance_update($class_id, $section_id, $timestamp) {
 					'collection_point' => 'attendance_portal',
 					'modified_by' => $issuer_id
 				];
-				
+
 				// ENTERPRISE: Check if payment already exists for this date (PREVENT DUPLICATES)
 				$existing_payment = $this->db->get_where('daily_fee_transactions', [
 					'student_id' => $student_id,
 					'payment_date' => $timestamp
 				])->row();
-				
+
 				if($existing_payment) {
 					// UPDATE existing payment (editing mode)
 					$result = $this->Daily_fee_model->update_payment($existing_payment->transaction_id, $payment_data);
@@ -33257,34 +32919,34 @@ function attendance_update($class_id, $section_id, $timestamp) {
 			}
 		}
 	}
-	
+
 	echo json_encode([
-		'status' => 'success', 
+		'status' => 'success',
 		'message' => get_phrase('attendance_and_fees_saved_successfully')
 	]);
 }
 
 // Auto-determine payment type based on wallet status
 private function determine_payment_type($wallet, $feeding, $breakfast, $classes, $water, $transport) {
-	$has_arrears = ($wallet['feeding_arrears'] + $wallet['breakfast_arrears'] + 
-				   $wallet['classes_arrears'] + $wallet['water_arrears'] + 
+	$has_arrears = ($wallet['feeding_arrears'] + $wallet['breakfast_arrears'] +
+				   $wallet['classes_arrears'] + $wallet['water_arrears'] +
 				   $wallet['transport_arrears']) > 0;
-	
+
 	$total_payment = $feeding + $breakfast + $classes + (floatval($water) + floatval($transport));
-	$total_arrears = $wallet['feeding_arrears'] + $wallet['breakfast_arrears'] + 
-					$wallet['classes_arrears'] + $wallet['water_arrears'] + 
+	$total_arrears = $wallet['feeding_arrears'] + $wallet['breakfast_arrears'] +
+					$wallet['classes_arrears'] + $wallet['water_arrears'] +
 					$wallet['transport_arrears'];
-	
+
 	// If has arrears and payment covers or exceeds arrears, it's mixed
 	if ($has_arrears && $total_payment >= $total_arrears) {
 		return 'mixed';
 	}
-	
+
 	// If has arrears and payment is less than arrears, it's arrears only
 	if ($has_arrears && $total_payment < $total_arrears) {
 		return 'arrears';
 	}
-	
+
 	// If no arrears, it's advance payment
 	return 'advance';
 }
@@ -33303,27 +32965,27 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$item_type = $this->input->post('item_type');
 			$class_id = $this->input->post('class_id');
 			$student_name = $this->input->post('student_name');
-			
+
 			if(empty($date)) {
 				echo json_encode(['status' => 'error', 'message' => 'Please select a date']);
 				return;
 			}
-			
+
 			$date_parts = explode('-', $date);
 			if(count($date_parts) != 3) {
 				echo json_encode(['status' => 'error', 'message' => 'Invalid date format. Please use dd-mm-yyyy']);
 				return;
 			}
-			
+
 			$date_timestamp = strtotime($date_parts[2].'-'.$date_parts[1].'-'.$date_parts[0]);
 			if($date_timestamp === false) {
 				echo json_encode(['status' => 'error', 'message' => 'Invalid date provided']);
 				return;
 			}
-			
+
 			$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
 			$payments = array();
-			
+
 			// Query daily fee transactions
 			$this->db->select('t.*, student.name as student_name, student.student_code, enroll.class_id');
 			$this->db->from('daily_fee_transactions t');
@@ -33334,9 +32996,9 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$this->db->where('t.payment_date <', $date_timestamp + 86400);
 			if(!empty($class_id)) $this->db->where('enroll.class_id', $class_id);
 			if(!empty($student_name)) $this->db->like('student.name', $student_name);
-			
+
 			$transactions = $this->db->get()->result_array();
-			
+
 			// Expand transactions into individual fee items
 			foreach($transactions as $trans) {
 				if($trans['feeding_amount'] > 0 && ($item_type == 'all' || $item_type == 'Feeding Fee')) {
@@ -33353,13 +33015,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					$payments[] = array_merge($trans, ['title' => 'Water', 'amount' => $trans['water_amount'], 'class_name' => $trans['name'], 'class_numeric' => $trans['name_numeric']]);
 				}
 			}
-			
+
 			// Sort by student name and title
 			usort($payments, function($a, $b) {
 				$cmp = strcmp($a['student_name'], $b['student_name']);
 				return $cmp != 0 ? $cmp : strcmp($a['title'], $b['title']);
 			});
-			
+
 			if(empty($payments)) {
 				$filter_info = 'on '.date('l, F d, Y', $date_timestamp);
 				if($item_type != 'all') $filter_info .= ' for '.$item_type;
@@ -33375,13 +33037,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'error', 'message' => 'An error occurred while loading receipts. Please try again.']);
 			return;
 		}
-		
+
 		$html = '<div style="font-family: Arial, sans-serif;">';
 		$html .= '<div style="text-align: center; margin-bottom: 20px; border-bottom: 3px solid #3b82f6; padding-bottom: 15px;">';
 		$html .= '<h2 style="margin: 0; color: #1f2937;">Payment Receipts</h2>';
 		$html .= '<p style="margin: 5px 0; color: #6b7280;">Date: '.date('l, F d, Y', $date_timestamp).'</p>';
 		$html .= '</div>';
-		
+
 		$current_student = '';
 		foreach($payments as $payment) {
 			if($current_student != $payment['student_id']) {
@@ -33396,13 +33058,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$html .= '<button onclick="printStudentReceipt('.$payment['student_id'].')" class="btn-modern btn-print-student no-print" style="margin-left: 10px;" data-no-print="true"><i class="fa fa-print"></i> Print</button>';
 				$html .= '</div>';
 			}
-			
+
 			$balance = $payment['due'];
 			$balance_color = $balance > 0 ? '#ef4444' : '#10b981';
 			$balance_text = $balance > 0 ? 'Balance: '.$currency.number_format($balance, 2) : ($balance < 0 ? 'Paid In Advance' : 'Paid in Full');
 			$method_map = array(1 => 'Cash', 2 => 'Cheque', 3 => 'Mobile Money', 4 => 'Bank Transfer');
 			$method = isset($method_map[$payment['payment_method']]) ? $method_map[$payment['payment_method']] : 'Cash';
-			
+
 			$html .= '<div class="receipt-item" style="border: 1px solid #e5e7eb; border-top: none; padding: 15px; background: white;">';
 			$html .= '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
 			$html .= '<div><strong style="color: #3b82f6; font-size: 14px;">Receipt: '.$payment['receipt_number'].'</strong></div>';
@@ -33416,10 +33078,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$html .= '</div>';
 			$html .= '</div>';
 		}
-		
+
 		if($current_student != '') $html .= '</div>';
 		$html .= '</div>';
-		
+
 		echo json_encode(['status' => 'success', 'html' => $html]);
 	}
 
@@ -33429,19 +33091,19 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$item_type = $this->input->post('item_type');
 			$class_id = $this->input->post('class_id');
 			$student_name = $this->input->post('student_name');
-			
+
 			log_message('debug', 'Received date: ' . $date);
-			
+
 			if(empty($date)) {
 				echo json_encode(['status' => 'error', 'message' => 'Please select a date', 'debug' => 'Date received: ' . var_export($date, true)]);
 				return;
 			}
-			
+
 			$date_parts = explode('-', $date);
 			$date_timestamp = strtotime($date_parts[2].'-'.$date_parts[1].'-'.$date_parts[0]);
 			$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
 			$school_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
-			
+
 			$this->db->select('t.transaction_code, t.student_id, t.payment_date, t.feeding_amount, t.breakfast_amount, t.classes_amount, t.water_amount, t.transport_amount, t.total_amount, t.receipt_number, s.name as student_name, s.student_code, c.name as class_name, c.name_numeric, sec.name as section_name, e.class_id');
 			$this->db->from('daily_fee_transactions t');
 			$this->db->join('student s', 's.student_id = t.student_id');
@@ -33453,12 +33115,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			if(!empty($student_name)) $this->db->like('s.name', $student_name);
 			$this->db->order_by('s.name', 'ASC');
 			$transactions = $this->db->get()->result_array();
-			
+
 			if(empty($transactions)) {
 				echo json_encode(['status' => 'warning', 'message' => 'No payment receipts found']);
 				return;
 			}
-			
+
 			$payments = array();
 			foreach($transactions as $trans) {
 				$fee_map = [
@@ -33468,7 +33130,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					'Water Fee' => $trans['water_amount'],
 					'Transport Fare' => $trans['transport_amount']
 				];
-				
+
 				foreach($fee_map as $fee_type => $amount) {
 					if($amount > 0 && ($item_type == 'all' || $item_type == $fee_type)) {
 						$wallet = $this->db->get_where('daily_fee_wallet', ['student_id' => $trans['student_id']])->row();
@@ -33479,7 +33141,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 							'Water Fee' => $wallet ? $wallet->water_arrears : 0,
 							'Transport Fare' => $wallet ? $wallet->transport_arrears : 0
 						];
-						
+
 						$payments[] = [
 							'student_id' => $trans['student_id'],
 							'student_name' => $trans['student_name'],
@@ -33496,17 +33158,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					}
 				}
 			}
-			
+
 			usort($payments, function($a, $b) {
 				$cmp = strcmp($a['student_name'], $b['student_name']);
 				return $cmp != 0 ? $cmp : strcmp($a['title'], $b['title']);
 			});
-			
+
 			$html = '';
 			$current_student = '';
 			$student_payments = array();
 			$student_total = 0;
-			
+
 			foreach($payments as $payment) {
 				if($current_student != $payment['student_id']) {
 					if($current_student != '') {
@@ -33520,17 +33182,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$student_payments[] = $payment;
 				$student_total += $payment['amount'];
 			}
-			
+
 			if($current_student != '') {
 				$html .= $this->generate_thermal_receipt($current_student_data, $student_payments, $student_total, $currency, $school_name, $date_timestamp);
 			}
-			
+
 			echo json_encode(['status' => 'success', 'html' => $html]);
 		} catch(Exception $e) {
 			echo json_encode(['status' => 'error', 'message' => 'An error occurred: ' .$e->getMessage()]);
 		}
 	}
-	
+
 	private function generate_thermal_receipt($student_data, $payments, $total, $currency, $school_name, $date_timestamp) {
 		$html = '<div class="receipt" id="student_receipt_'.$student_data['student_id'].'" style="width: 80mm; margin: 20px auto; font-family: \'Courier New\', monospace; font-size: 12px; page-break-after: always;">';
 		$html .= '<div class="header" style="text-align: center; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 8px;">';
@@ -33565,13 +33227,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	}
 
 	function export_payables_excel($fee_type, $date) {
-		
+
 		$currency = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
 		$fee_labels = ['feeding' => 'Feeding Fee', 'breakfast' => 'Breakfast Fee', 'classes' => 'Classes Fee', 'water' => 'Water Fee', 'transport' => 'Transport Fare'];
 		$arrears_field = ['feeding' => 'feeding_arrears', 'breakfast' => 'breakfast_arrears', 'classes' => 'classes_arrears', 'water' => 'water_arrears', 'transport' => 'transport_arrears'];
 		$field = $arrears_field[$fee_type];
 		$label = $fee_labels[$fee_type];
-		
+
 		// Get students with negative arrears (advance payments)
 		$this->db->select('student_id, ' . $field . ' as arrears');
 		$this->db->where($field . ' <', 0);
@@ -33579,7 +33241,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$payables = $this->db->get('daily_fee_wallet')->result_array();
 
 		require_once FCPATH . 'vendor/autoload.php';
-		
+
 		$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
 		$spreadsheet->setActiveSheetIndex(0);
 		$sheet = $spreadsheet->getActiveSheet();
@@ -33618,19 +33280,19 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$arrears_field = ['feeding' => 'feeding_arrears', 'breakfast' => 'breakfast_arrears', 'classes' => 'classes_arrears', 'water' => 'water_arrears', 'transport' => 'transport_arrears'];
 		$field = $arrears_field[$fee_type];
 		$label = $fee_labels[$fee_type];
-		
+
 		// Get students with negative arrears (advance payments)
 		$this->db->select('student_id, ' . $field . ' as arrears');
 		$this->db->where($field . ' <', 0);
 		$this->db->order_by($field, 'ASC');
 		$payables = $this->db->get('daily_fee_wallet')->result_array();
-		
+
 		$page_data = ['school_name' => $school_name, 'label' => $label, 'date' => date('l, F d, Y', strtotime($date)), 'payables' => $payables, 'currency' => $currency, 'arrears_field' => 'arrears'];
 		$this->load->view('backend/admin/payables_print', $page_data);
 	}
 
 	function export_outstanding_excel($fee_type, $date) {
-		
+
 		$currency = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
 		$fee_labels = ['feeding' => 'Feeding Fee', 'classes' => 'Classes Fee', 'transport' => 'Transport Fare'];
 		$table_map = ['feeding' => 'daily_fee_wallet', 'classes' => 'daily_fee_wallet', 'transport' => 'daily_fee_wallet'];
@@ -33729,28 +33391,28 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$page = $this->input->get('page') ?: 1;
 		$per_page = 20;
 		$offset = ($page - 1) * $per_page;
-		
+
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
-		
+
 		$this->db->select('s.student_id as id, CONCAT(s.student_code, " - ", s.name) as text');
 		$this->db->from('student s');
 		$this->db->join('enroll e', 's.student_id = e.student_id');
 		$this->db->where('e.year', $running_year);
 		$this->db->where('e.term', $running_term);
-		
+
 		if(!empty($search)) {
 			$this->db->group_start();
 			$this->db->like('s.name', $search);
 			$this->db->or_like('s.student_code', $search);
 			$this->db->group_end();
 		}
-		
+
 		$this->db->order_by('s.name', 'ASC');
 		$this->db->limit($per_page, $offset);
-		
+
 		$students = $this->db->get()->result_array();
-		
+
 		// Check if there are more results
 		$this->db->from('student s');
 		$this->db->join('enroll e', 's.student_id = e.student_id');
@@ -33763,7 +33425,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$this->db->group_end();
 		}
 		$total = $this->db->count_all_results();
-		
+
 		echo json_encode([
 			'results' => $students,
 			'pagination' => [
@@ -33775,7 +33437,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	function fct_debtors($timestamp = '', $fee_type = '') {
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'));
-		
+
 		$page_data['timestamp'] = $timestamp;
 		$page_data['fee_type'] = $fee_type;
 		$page_data['page_name'] = 'fct_debtors';
@@ -33812,36 +33474,36 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$currency = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
 		$school_name = $this->db->get_where('settings', ['type' => 'system_name'])->row()->description;
 		$student = $this->db->get_where('student', ['student_id' => $student_id])->row();
-		
+
 		if(!$student) {
 			die('Student not found');
 		}
-		
+
 		$enroll = $this->db->get_where('enroll', ['student_id' => $student_id])->row();
 		if(!$enroll) {
 			die('Enrollment not found');
 		}
-		
+
 		$class = $this->db->get_where('class', ['class_id' => $enroll->class_id])->row();
 		$section = $enroll->section_id ? $this->db->get_where('section', ['section_id' => $enroll->section_id])->row() : null;
-		
+
 		// Find transaction - try both payment_date and created_at
 		if($timestamp) {
 			// First try payment_date
 			$this->db->where('student_id', $student_id);
 			$this->db->where('payment_date', $timestamp);
 			$transaction = $this->db->get('daily_fee_transactions', 1)->row();
-			
+
 		}
-		
+
 		if(!$transaction) {
 			die('Transaction not found for student ID: ' . $student_id . ' on: ' . date('d-m-Y', $timestamp));
 		}
-		
+
 		$wallet = $this->db->get_where('daily_fee_wallet', ['student_id' => $student_id])->row();
 		$payments = [];
 		$total = 0;
-		
+
 		if($transaction->feeding_amount > 0) {
 			$payments[] = ['label' => 'Feeding Fee', 'amount' => $transaction->feeding_amount, 'owing' => $wallet ? $wallet->feeding_arrears : 0];
 			$total += $transaction->feeding_amount;
@@ -33868,7 +33530,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$receipt_code = $transaction->receipt_number ?? $transaction->transaction_code ?? 'N/A';
 		$payment_datetime = $transaction->created_at;
 		$payment_method = get_payment_method_name($transaction->payment_method);
-		
+
 		$page_data = [
 			'school_name' => $school_name,
 			'student' => $student,
@@ -33938,18 +33600,18 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$breakfast_rates = $this->input->post('breakfast_rates');
 		$classes_rates = $this->input->post('classes_rates');
 		$water_rates = $this->input->post('water_rates');
-		
+
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
-		
+
 		$updated = 0;
 		$created = 0;
-		
+
 		for ($i = 0; $i < count($class_ids); $i++) {
 			if (empty($feeding_rates[$i]) && empty($breakfast_rates[$i]) && empty($classes_rates[$i]) && empty($water_rates[$i])) {
 				continue;
 			}
-			
+
 			$data = [
 				'feeding_rate' => $feeding_rates[$i] ?: 0,
 				'breakfast_rate' => $breakfast_rates[$i] ?: 0,
@@ -33958,7 +33620,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'breakfast_enabled' => !empty($breakfast_rates[$i]) ? 1 : 0,
 				'water_enabled' => !empty($water_rates[$i]) ? 1 : 0
 			];
-			
+
 			if ($rate_ids[$i] > 0) {
 				$data['updated_at'] = time();
 				$this->db->where('id', $rate_ids[$i]);
@@ -33973,7 +33635,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$created++;
 			}
 		}
-		
+
 		echo json_encode(['status' => 'success', 'message' => get_phrase('rates_saved_successfully') . " ($created created, $updated updated)"]);
 	}
 
@@ -33983,7 +33645,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function get_previous_term_rates() {
 		$year = $this->input->post('year');
 		$term = $this->input->post('term');
-		
+
 		// Get all rates for the selected term
 		$rates = $this->db->select('r.*, c.name as class_name, c.name_numeric')
 			->from('daily_fee_rates r')
@@ -33994,12 +33656,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			->order_by('c.name_numeric', 'ASC')
 			->get()
 			->result_array();
-		
+
 		if (empty($rates)) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('no_rates_found_for_selected_term')]);
 			return;
 		}
-		
+
 		// Generate HTML for preview
 		$html = '<div style="overflow-x: auto;">';
 		$html .= '<table class="table table-bordered table-hover" style="margin: 0;">';
@@ -34013,7 +33675,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$html .= '</tr>';
 		$html .= '</thead>';
 		$html .= '<tbody>';
-		
+
 		foreach ($rates as $rate) {
 			$html .= '<tr class="import-rate-row" data-class-id="' . $rate['class_id'] . '">';
 			$html .= '<td style="font-weight: 600; padding: 12px;">' . $rate['class_name'] . ' ' . $rate['name_numeric'] . '</td>';
@@ -34023,11 +33685,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$html .= '<td style="padding: 8px;"><input type="number" class="form-control water-rate" value="' . $rate['water_rate'] . '" step="0.01" min="0" style="text-align: center; font-size: 16px; padding: 10px;"></td>';
 			$html .= '</tr>';
 		}
-		
+
 		$html .= '</tbody>';
 		$html .= '</table>';
 		$html .= '</div>';
-		
+
 		echo json_encode(['status' => 'success', 'rates' => $rates, 'html' => $html]);
 	}
 
@@ -34037,19 +33699,19 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function import_daily_fee_rates() {
 		$rates_json = $this->input->post('rates');
 		$rates = json_decode($rates_json, true);
-		
+
 		if (empty($rates)) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('no_rates_to_import')]);
 			return;
 		}
-		
+
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
-		
+
 		$created = 0;
 		$updated = 0;
 		$skipped = 0;
-		
+
 		foreach ($rates as $rate) {
 			// Check if rate already exists for this class in current term
 			$existing = $this->db->get_where('daily_fee_rates', [
@@ -34057,7 +33719,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'year' => $running_year,
 				'term' => $running_term
 			])->row();
-			
+
 			$data = [
 				'feeding_rate' => $rate['feeding_rate'],
 				'breakfast_rate' => $rate['breakfast_rate'],
@@ -34065,7 +33727,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'water_rate' => $rate['water_rate'],
 				'updated_at' => time()
 			];
-			
+
 			if ($existing) {
 				// Update existing rate
 				$this->db->where('id', $existing->id);
@@ -34081,7 +33743,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$created++;
 			}
 		}
-		
+
 		$message = get_phrase('rates_imported_successfully') . ": $created " . get_phrase('created') . ", $updated " . get_phrase('updated');
 		echo json_encode(['status' => 'success', 'message' => $message]);
 	}
@@ -34110,13 +33772,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	function modal_popup_payments_details($fee_type, $date) {
 		$date_parts = explode('-', $date);
 		$date_timestamp = strtotime($date_parts[2] . '-' . $date_parts[1] . '-' . $date_parts[0]);
-		
+
 		$running_year = $this->db->get_where('settings', ['type' => 'running_year'])->row()->description;
 		$running_term = $this->db->get_where('settings', ['type' => 'running_term'])->row()->description;
-		
+
 		$amount_field = $fee_type . '_amount';
-		
-		$this->db->select("t.*, student.name as student_name, student.student_code, 
+
+		$this->db->select("t.*, student.name as student_name, student.student_code,
 						   class.name as class_name, class.name_numeric, section.name as section_name,
 						   t.$amount_field as amount");
 		$this->db->from('daily_fee_transactions t');
@@ -34128,12 +33790,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->where('t.payment_date <', $date_timestamp + 86400);
 		$this->db->where("t.$amount_field >", 0);
 		$this->db->order_by('student.name', 'ASC');
-		
+
 		$page_data['payments'] = $this->db->get()->result_array();
 		$page_data['fee_type'] = ucfirst($fee_type);
 		$page_data['date'] = date('l, F d, Y', $date_timestamp);
 		$page_data['currency'] = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
-		
+
 		$this->load->view('backend/admin/modal_payments_details', $page_data);
 	}
 
@@ -34141,12 +33803,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	function modal_popup_outstanding_details($fee_type, $date) {
 		$date_parts = explode('-', $date);
 		$date_timestamp = strtotime($date_parts[2] . '-' . $date_parts[1] . '-' . $date_parts[0]);
-		
+
 		$running_year = $this->db->get_where('settings', ['type' => 'running_year'])->row()->description;
 		$running_term = $this->db->get_where('settings', ['type' => 'running_term'])->row()->description;
-		
+
 		$charge_field = $fee_type . '_charged';
-		
+
 		$this->db->select("a.*, student.name as student_name, student.student_code,
 						   class.name as class_name, class.name_numeric, section.name as section_name,
 						   a.$charge_field as amount_owed");
@@ -34159,12 +33821,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->where('a.payment_status', 'unpaid');
 		$this->db->where("a.$charge_field >", 0);
 		$this->db->order_by('student.name', 'ASC');
-		
+
 		$page_data['outstanding'] = $this->db->get()->result_array();
 		$page_data['fee_type'] = ucfirst($fee_type);
 		$page_data['date'] = date('l, F d, Y', $date_timestamp);
 		$page_data['currency'] = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
-		
+
 		$this->load->view('backend/admin/modal_outstanding_details', $page_data);
 	}
 
@@ -34172,9 +33834,9 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	function modal_popup_payables_details($fee_type, $date) {
 		$running_year = $this->db->get_where('settings', ['type' => 'running_year'])->row()->description;
 		$running_term = $this->db->get_where('settings', ['type' => 'running_term'])->row()->description;
-		
+
 		$balance_field = $fee_type . '_balance';
-		
+
 		$this->db->select("w.*, student.name as student_name, student.student_code,
 						   class.name as class_name, class.name_numeric, section.name as section_name,
 						   w.$balance_field as prepaid_balance");
@@ -34185,11 +33847,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->join('section', 'section.section_id = enroll.section_id');
 		$this->db->where("w.$balance_field >", 0);
 		$this->db->order_by('student.name', 'ASC');
-		
+
 		$page_data['payables'] = $this->db->get()->result_array();
 		$page_data['fee_type'] = ucfirst($fee_type);
 		$page_data['currency'] = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
-		
+
 		$this->load->view('backend/admin/modal_payables_details', $page_data);
 	}
 
@@ -34197,9 +33859,9 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	function modal_popup_payments_details_term($fee_type, $year, $term) {
 		$year_start = strtotime($year . '-01-01');
 		$year_end = strtotime($year . '-12-31 23:59:59');
-		
+
 		$amount_field = $fee_type . '_amount';
-		
+
 		$this->db->select("t.*, student.name as student_name, student.student_code,
 						   class.name as class_name, class.name_numeric, section.name as section_name,
 						   SUM(t.$amount_field) as total_amount");
@@ -34213,18 +33875,18 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->where("t.$amount_field >", 0);
 		$this->db->group_by('t.student_id');
 		$this->db->order_by('student.name', 'ASC');
-		
+
 		$page_data['payments'] = $this->db->get()->result_array();
 		$page_data['fee_type'] = ucfirst($fee_type);
 		$page_data['period'] = 'Term ' . $term . ', ' . $year;
 		$page_data['currency'] = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
-		
+
 		$this->load->view('backend/admin/modal_payments_details', $page_data);
 	}
 
 	function modal_popup_outstanding_details_term($fee_type, $year, $term) {
 		$arrears_field = $fee_type . '_arrears';
-		
+
 		$this->db->select("w.*, student.name as student_name, student.student_code,
 						   class.name as class_name, class.name_numeric, section.name as section_name,
 						   w.$arrears_field as amount_owed");
@@ -34236,18 +33898,18 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->where('enroll.term', $term);
 		$this->db->where("w.$arrears_field >", 0);
 		$this->db->order_by('student.name', 'ASC');
-		
+
 		$page_data['outstanding'] = $this->db->get()->result_array();
 		$page_data['fee_type'] = ucfirst($fee_type);
 		$page_data['period'] = 'Term ' . $term . ', ' . $year;
 		$page_data['currency'] = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
-		
+
 		$this->load->view('backend/admin/modal_outstanding_details', $page_data);
 	}
 
 	function modal_popup_payables_details_term($fee_type, $year, $term) {
 		$balance_field = $fee_type . '_balance';
-		
+
 		$this->db->select("w.*, student.name as student_name, student.student_code,
 						   class.name as class_name, class.name_numeric, section.name as section_name,
 						   w.$balance_field as prepaid_balance");
@@ -34259,16 +33921,16 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->where('enroll.term', $term);
 		$this->db->where("w.$balance_field >", 0);
 		$this->db->order_by('student.name', 'ASC');
-		
+
 		$page_data['payables'] = $this->db->get()->result_array();
 		$page_data['fee_type'] = ucfirst($fee_type);
 		$page_data['period'] = 'Term ' . $term . ', ' . $year;
 		$page_data['currency'] = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
-		
+
 		$this->load->view('backend/admin/modal_payables_details', $page_data);
 	}
 
-	
+
 	// Student Payment Behavior Analysis
 	function student_payment_behavior($student_id) {
 		$analysis = get_payment_behavior_analysis($student_id);
@@ -34289,7 +33951,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					$this->db->insert('settings', ['type' => 'daily_fee_collection_mode', 'description' => $daily_mode]);
 				}
 			}
-			
+
 			// 2. Update teacher fee collection mode
 			$teacher_mode = $this->input->post('teacher_fee_collection_mode');
 			if ($teacher_mode) {
@@ -34301,7 +33963,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					$this->db->insert('settings', ['type' => 'teacher_fee_collection_mode', 'description' => $teacher_mode]);
 				}
 			}
-			
+
 			// 3. Update fee module toggles
 			$modules = ['feeding', 'classes', 'transport', 'breakfast', 'water'];
 			foreach ($modules as $module) {
@@ -34314,17 +33976,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					$this->db->insert('settings', ['type' => 'fee_module_' . $module, 'description' => $value]);
 				}
 			}
-			
+
 			echo json_encode(['status' => 'success', 'message' => get_phrase('settings_updated_successfully')]);
 			return;
 		}
-		
+
 		$page_data['page_name'] = 'fee_collection_settings';
 		$page_data['page_title'] = get_phrase('fee_collection_settings');
 		$page_data['account_type'] = $this->session->userdata('login_type');
 		$this->load->view('backend/main', $page_data);
 	}
-	
+
 	// Daily Fee Module Settings (redirects to consolidated page)
 	function daily_fee_module_settings($param1 = '') {
 		// Redirect to the new consolidated page
@@ -34340,12 +34002,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$page_data['account_type'] = $this->session->userdata('login_type');
 		$this->load->view('backend/main', $page_data);
 	}
-	
+
 	// Get students with unpaid invoices
 	function get_students_with_unpaid_invoices() {
 		$year = $this->input->post('year');
 		$term = $this->input->post('term');
-		
+
 		$this->db->select('s.student_id, s.name, s.student_code');
 		$this->db->from('student s');
 		$this->db->join('invoice i', 'i.student_id = s.student_id');
@@ -34356,21 +34018,21 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->group_by('s.student_id');
 		$this->db->order_by('s.name', 'ASC');
 		$students = $this->db->get()->result_array();
-		
+
 		$html = '<option value="">'.get_phrase('select_student').'</option>';
 		foreach($students as $student) {
 			$html .= '<option value="'.$student['student_id'].'">'.$student['name'].' ('.$student['student_code'].')</option>';
 		}
-		
+
 		echo $html;
 	}
-	
+
 	// Get unpaid invoice codes for a student
 	function get_student_unpaid_invoices() {
 		$student_id = $this->input->post('student_id');
 		$year = $this->input->post('year');
 		$term = $this->input->post('term');
-		
+
 		$this->db->select('invoice_code, SUM(due) as total_due');
 		$this->db->from('invoice');
 		$this->db->where('student_id', $student_id);
@@ -34381,16 +34043,16 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->group_by('invoice_code');
 		$this->db->order_by('invoice_code', 'ASC');
 		$invoices = $this->db->get()->result_array();
-		
+
 		$currency = get_settings('currency');
 		$html = '<option value="">'.get_phrase('select_invoice').'</option>';
 		foreach($invoices as $invoice) {
 			$html .= '<option value="'.$invoice['invoice_code'].'">'.$invoice['invoice_code'].' (Due: '.$currency.' '.number_format($invoice['total_due'], 2).')</option>';
 		}
-		
+
 		echo $html;
 	}
-	
+
 	// Get invoice discount types only (category_id = 1)
 	function get_invoice_discount_types() {
 		$types = $this->db
@@ -34407,25 +34069,25 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	function get_invoice_discount_summary() {
 		$invoice_code = $this->input->post('invoice_code');
 		$currency = get_settings('currency');
-		
+
 		$discounts = $this->db->where('invoice_code', $invoice_code)
 			->where_in('status', ['approved', 'pending'])
 			->get('invoice_discounts')->result_array();
-		
+
 		$result = ['has_discount' => false, 'approved_amount' => 0, 'pending_amount' => 0, 'details' => []];
-		
+
 		foreach($discounts as $disc) {
 			$result['has_discount'] = true;
 			if($disc['status'] == 'approved') $result['approved_amount'] += $disc['discount_amount'];
 			if($disc['status'] == 'pending') $result['pending_amount'] += $disc['discount_amount'];
-			
+
 			$profile = $this->db->where('profile_id', $disc['profile_id'])->get('discount_profiles')->row();
 			$applies_to = 'All Bill Items';
 			if($profile && $profile->bill_item_ids !== '*') {
 				$bill_items = $this->db->where_in('id', explode(',', $profile->bill_item_ids))->get('bill_item')->result_array();
 				$applies_to = implode(', ', array_column($bill_items, 'title'));
 			}
-			
+
 			$result['details'][] = [
 				'profile_name' => $profile ? $profile->profile_name : 'Unknown',
 				'method' => $profile ? $profile->discount_method : '',
@@ -34436,7 +34098,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'currency' => $currency
 			];
 		}
-		
+
 		echo json_encode($result);
 	}
 
@@ -34449,7 +34111,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$year = get_settings('running_year');
 			$term = get_settings('running_term');
 			$assigned_by = $this->session->userdata('admin_id');
-			
+
 			if(empty($student_ids) || !is_array($student_ids)) {
 				echo json_encode(['status' => 'error', 'message' => 'No students selected']);
 				return;
@@ -34458,7 +34120,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				echo json_encode(['status' => 'error', 'message' => 'No profiles selected']);
 				return;
 			}
-			
+
 			// Check for duplicates
 			if(!$confirm) {
 				$duplicates = [];
@@ -34468,7 +34130,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 							->where('profile_id', $profile_id)
 							->where('is_active', 1)
 							->get('student_discount_assignments')->row();
-						
+
 						if($exists) {
 							$student = $this->db->where('student_id', $student_id)->get('student')->row();
 							$profile = $this->db->where('profile_id', $profile_id)->get('discount_profiles')->row();
@@ -34476,29 +34138,29 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						}
 					}
 				}
-				
+
 				if(!empty($duplicates)) {
 					echo json_encode(['status' => 'confirm', 'message' => 'Some assignments already exist', 'duplicates' => $duplicates]);
 					return;
 				}
 			}
-			
+
 			// Process assignments
 			$current_user_id = $this->session->userdata('login_user_id');
 			$user = $this->db->get_where('admin', ['admin_id' => $current_user_id])->row();
 			$is_super_admin = ($user && ($user->level == 1 || $user->level == '1'));
-			
+
 			foreach($student_ids as $student_id) {
 				foreach($profile_ids as $profile_id) {
 					// Get profile details
 					$profile = $this->db->where('profile_id', $profile_id)->get('discount_profiles')->row();
 					if(!$profile) continue;
-					
+
 					$exists = $this->db->where('student_id', $student_id)
 						->where('profile_id', $profile_id)
 						->where('is_active', 1)
 						->get('student_discount_assignments')->row();
-					
+
 					$data = [
 						'discount_category' => $profile->discount_category,
 						'discount_method' => $profile->discount_method,
@@ -34513,7 +34175,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						'approved_by' => $is_super_admin ? $assigned_by : null,
 						'approved_at' => $is_super_admin ? date('Y-m-d H:i:s') : null
 					];
-					
+
 					if($exists) {
 						$this->db->where('student_id', $student_id)
 							->where('profile_id', $profile_id)
@@ -34526,20 +34188,20 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					}
 				}
 			}
-			
+
 			// Notify super admins if assignment requires approval
 			if(!$is_super_admin) {
 				$this->notify_super_admins_discount_approval($student_ids, $profile_ids, $assigned_by);
 			}
-			
-			$success_message = $is_super_admin ? 
-				get_phrase('discount_assigned_successfully') : 
+
+			$success_message = $is_super_admin ?
+				get_phrase('discount_assigned_successfully') :
 				get_phrase('discount_assignment_submitted_for_approval');
-			
+
 			echo json_encode(['status' => 'success', 'message' => $success_message, 'requires_approval' => !$is_super_admin]);
 			return;
 		}
-		
+
 		// Filter profiles based on user role
 		$user_level = $this->session->userdata('user_type');
 		$this->db->where('is_active', 1);
@@ -34557,50 +34219,50 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	function assign_student_discount_modal() {
 		// Fetch active discount profiles with their default values
 		// Rules are applied during discount calculation based on student's class
-		
+
 		// Filter by daily_fees category only for cashier role (level = 4)
 		$user_level = $this->session->userdata('user_type'); // Correct session key is 'user_type'
-		
+
 		$this->db->select('profile_id, profile_name, discount_type, discount_category, discount_method, discount_value, bill_item_ids, description');
 		$this->db->from('discount_profiles');
 		$this->db->where('is_active', 1);
-		
+
 		if($user_level == 4) {
 			$this->db->where('discount_category', 'daily_fees');
 		}
-		
+
 		$this->db->order_by('profile_name', 'ASC');
 		$page_data['profiles'] = $this->db->get()->result_array();
-		
+
 		$bill_items = $this->db->select('id, title')->from('bill_item')->get()->result_array();
 		$page_data['bill_items_map'] = array_column($bill_items, 'title', 'id');
-		
+
 		$this->load->view('backend/admin/assign_student_discount_modal', $page_data);
 	}
-	
+
 	function edit_student_discount_modal($assignment_id) {
 		$assignment = $this->db->where('assignment_id', $assignment_id)->get('student_discount_assignments')->row();
 		if(!$assignment) {
 			echo '<div class="alert alert-danger">Assignment not found</div>';
 			return;
 		}
-		
+
 		$this->db->select('profile_id, profile_name, discount_type, discount_category, discount_method, discount_value, bill_item_ids, description');
 		$this->db->from('discount_profiles');
 		$this->db->where('is_active', 1);
-		
+
 		// Filter by daily_fees category only for cashier role (level = 4)
 		$user_level = $this->session->userdata('user_type');
 		if($user_level == 4) {
 			$this->db->where('discount_category', 'daily_fees');
 		}
-		
+
 		$this->db->order_by('profile_name', 'ASC');
 		$page_data['profiles'] = $this->db->get()->result_array();
-		
+
 		$bill_items = $this->db->select('id, title')->from('bill_item')->get()->result_array();
 		$page_data['bill_items_map'] = array_column($bill_items, 'title', 'id');
-		
+
 		$assigned_profiles = $this->db->select('profile_id')
 			->from('student_discount_assignments')
 			->where('student_id', $assignment->student_id)
@@ -34608,17 +34270,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			->where('is_active', 1)
 			->get()->result_array();
 		$page_data['assigned_profile_ids'] = array_column($assigned_profiles, 'profile_id');
-		
+
 		$page_data['assignment'] = $assignment;
 		$this->load->view('backend/admin/edit_student_discount_modal', $page_data);
 	}
-	
+
 
 	function get_discount_categories() {
 		$categories = $this->db->get('discount_categories')->result_array();
 		echo json_encode($categories);
 	}
-	
+
 	function get_discount_types_by_category($category_id) {
 		$types = $this->db->select('discount_type_id, name, icon, description, is_active, category_id, default_method, default_value')
 			->where('category_id', $category_id)
@@ -34626,70 +34288,70 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			->get('discount_types')->result_array();
 		echo json_encode($types);
 	}
-	
+
 	function get_students_for_discount() {
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
-		
-		$query = "SELECT DISTINCT s.student_id, s.name, s.student_code, 
-				  CONCAT(c.name, ' ', c.name_numeric, ' ', sec.name) as class_name 
-				  FROM student s 
-				  JOIN enroll e ON s.student_id = e.student_id 
-				  JOIN class c ON e.class_id = c.class_id 
+
+		$query = "SELECT DISTINCT s.student_id, s.name, s.student_code,
+				  CONCAT(c.name, ' ', c.name_numeric, ' ', sec.name) as class_name
+				  FROM student s
+				  JOIN enroll e ON s.student_id = e.student_id
+				  JOIN class c ON e.class_id = c.class_id
 				  JOIN section sec ON e.section_id = sec.section_id
 				  WHERE e.year = ? AND e.term = ? AND e.mute = '0'
 				  ORDER BY s.name ASC";
-		
+
 		$students = $this->db->query($query, array($running_year, $running_term))->result_array();
 		echo json_encode(array('status' => 'success', 'data' => $students));
 	}
-	
+
 	function get_student_assigned_profiles() {
 		$student_id = $this->input->get('student_id');
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
-		
-		$query = "SELECT sda.profile_id, dp.profile_name 
+
+		$query = "SELECT sda.profile_id, dp.profile_name
 				  FROM student_discount_assignments sda
 				  JOIN discount_profiles dp ON sda.profile_id = dp.profile_id
 				  WHERE sda.student_id = ? AND sda.year = ? AND sda.term = ? AND sda.is_active = 1";
-		
+
 		$profiles = $this->db->query($query, array($student_id, $running_year, $running_term))->result_array();
 		echo json_encode(array('status' => 'success', 'data' => $profiles));
 	}
-	
+
 	function get_invoice_discounts($student_id) {
 		$query = "SELECT sda.*, dp.profile_name, dp.discount_type
 				  FROM student_discount_assignments sda
 				  JOIN discount_profiles dp ON sda.profile_id = dp.profile_id
-				  WHERE sda.student_id = ? AND sda.is_active = 1
+				  WHERE sda.student_id = ? AND sda.is_active = 1 AND sda.status = 'approved'
 				  ORDER BY sda.year DESC, sda.term DESC";
 		return $this->db->query($query, array($student_id))->result_array();
 	}
-	
+
 
 	function bulk_assign_by_class_modal() {
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
-		
+
 		$class_order = array('CRECHE', 'NURSERY', 'KG', 'BASIC', 'JHS');
 		$classes_data = array();
-		
+
 		foreach($class_order as $class_name) {
 			$query = "SELECT c.class_id, c.name, c.name_numeric, sec.name as section_name,
 					  COUNT(DISTINCT e.student_id) as student_count
 					  FROM class c
 					  JOIN section sec ON c.class_id = sec.class_id
-					  LEFT JOIN enroll e ON c.class_id = e.class_id AND e.section_id = sec.section_id 
+					  LEFT JOIN enroll e ON c.class_id = e.class_id AND e.section_id = sec.section_id
 							AND e.year = ? AND e.term = ? AND e.mute = '0'
 					  WHERE c.name = ?
 					  GROUP BY c.class_id, sec.section_id
 					  ORDER BY c.name_numeric, sec.name";
-			
+
 			$result = $this->db->query($query, array($running_year, $running_term, $class_name))->result_array();
 			$classes_data = array_merge($classes_data, $result);
 		}
-		
+
 		$profiles_query = $this->db->query("
 			SELECT dp.profile_id, dp.profile_name, dp.discount_type, dp.discount_category, GROUP_CONCAT(DISTINCT dpr.discount_value ORDER BY dpr.discount_value SEPARATOR ', ') as discount_values
 			FROM discount_profiles dp
@@ -34697,21 +34359,30 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			WHERE dp.is_active = 1
 			GROUP BY dp.profile_id
 		");
-		
+
 		$page_data['classes'] = $classes_data;
 		$page_data['profiles'] = $profiles_query->result_array();
 		$this->load->view('backend/admin/bulk_assign_by_class_modal', $page_data);
 	}
 	function discount_reports($param1 = '') {
+		if($param1 == 'diagnostics') {
+			$negative_rows=(int)$this->db->query('SELECT COUNT(*) c FROM invoice WHERE amount < -0.01 OR due < -0.01')->row()->c;
+			$settled_over=(int)$this->db->query('SELECT COUNT(*) c FROM invoice WHERE (amount_paid + credit_applied) > amount + 0.01')->row()->c;
+			$discount_drift=(int)$this->db->query("SELECT COUNT(*) c FROM invoice_discount_items idi JOIN invoice_discounts id ON id.discount_id=idi.discount_id JOIN invoice i ON i.invoice_id=idi.invoice_id WHERE id.status='approved' AND ABS(i.amount-idi.discounted_amount) > 0.01")->row()->c;
+			$ledger_drift=(int)$this->db->query("SELECT COUNT(*) c FROM (SELECT i.invoice_code,i.student_id,SUM(i.amount)+COALESCE(d.discount_total,0) desired,COALESCE(l.ledger_net,0) ledger_net FROM invoice i LEFT JOIN (SELECT invoice_code,student_id,SUM(discount_amount) discount_total FROM invoice_discounts WHERE status='approved' GROUP BY invoice_code,student_id) d ON d.invoice_code=i.invoice_code AND d.student_id=i.student_id LEFT JOIN (SELECT reference_id,student_id,SUM(debit_amount-credit_amount) ledger_net FROM student_ledger WHERE reference_type='invoice' GROUP BY reference_id,student_id) l ON l.reference_id=i.invoice_code AND l.student_id=i.student_id GROUP BY i.invoice_code,i.student_id,d.discount_total,l.ledger_net HAVING ABS(desired-ledger_net)>0.01) x")->row()->c;
+			echo json_encode(['status'=>'success','data'=>['negative_invoice_rows'=>$negative_rows,'settled_over_amount'=>$settled_over,'discount_item_drift'=>$discount_drift,'invoice_ledger_drift'=>$ledger_drift]]);
+			return;
+		}
+
 		if($param1 == 'get_data') {
 			$type = $this->input->get('type');
 			$year = $this->input->get('year') ?: get_settings('running_year');
 			$term = $this->input->get('term') ?: get_settings('running_term');
-			
+
 			if($type == 'by_class') {
-				$query = "SELECT c.name as class_name, c.name_numeric, 
+				$query = "SELECT c.name as class_name, c.name_numeric,
 						  COUNT(DISTINCT id.student_id) as student_count,
-						  AVG(id.discount_value) as avg_discount, 
+						  AVG(id.discount_value) as avg_discount,
 						  SUM(id.discount_value) as total_discount,
 						  SUM(id.discount_amount) as total_amount
 						  FROM invoice_discounts id
@@ -34722,7 +34393,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						  ORDER BY c.name, c.name_numeric";
 				$data = $this->db->query($query, [$year, $term, $year, $term])->result_array();
 			} elseif($type == 'by_profile') {
-				$query = "SELECT 
+				$query = "SELECT
 						  COALESCE(dp.profile_name, 'Direct Discount') as profile_name,
 						  COALESCE(dp.discount_category, id.discount_category) as discount_category,
 						  COALESCE(dp.discount_type, '-') as discount_type,
@@ -34732,7 +34403,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						  COUNT(DISTINCT id.student_id) as student_count,
 						  SUM(id.discount_amount) as total_amount
 						  FROM invoice_discounts id
-						  LEFT JOIN student_discount_assignments sda ON id.student_id = sda.student_id AND sda.is_active = 1
+						  LEFT JOIN student_discount_assignments sda ON id.student_id = sda.student_id AND sda.is_active = 1 AND sda.status = 'approved'
 						  LEFT JOIN discount_profiles dp ON sda.profile_id = dp.profile_id
 						  WHERE id.status = 'approved' AND id.year = ? AND id.term = ?
 						  GROUP BY COALESCE(dp.profile_id, 0), COALESCE(dp.discount_category, id.discount_category), COALESCE(dp.discount_method, id.discount_method)
@@ -34752,7 +34423,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						  JOIN student s ON id.student_id = s.student_id
 						  JOIN enroll e ON s.student_id = e.student_id AND e.year = ? AND e.term = ?
 						  JOIN class c ON e.class_id = c.class_id
-						  LEFT JOIN student_discount_assignments sda ON id.student_id = sda.student_id AND sda.is_active = 1
+						  LEFT JOIN student_discount_assignments sda ON id.student_id = sda.student_id AND sda.is_active = 1 AND sda.status = 'approved'
 						  LEFT JOIN discount_profiles dp ON sda.profile_id = dp.profile_id
 						  WHERE id.status = 'approved' AND id.year = ? AND id.term = ?
 						  GROUP BY s.student_id, COALESCE(dp.profile_id, 0)
@@ -34761,11 +34432,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			} else {
 				$data = [];
 			}
-			
+
 			echo json_encode(['status' => 'success', 'data' => $data]);
 			return;
 		}
-		
+
 		$page_data['page_name'] = 'discount_reports';
 		$page_data['page_title'] = get_phrase('discount_reports');
 		$page_data['account_type'] = $this->session->userdata('login_type');
@@ -34773,22 +34444,22 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	}
 
 	function discount_reports_export() {
-		
+
 		$type = $this->input->post('type');
 		$data = json_decode($this->input->post('data'), true);
 		$year = $this->input->post('year');
 		$term = $this->input->post('term');
-		
+
 		require_once FCPATH . 'vendor/autoload.php';
-		
+
 		$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
 		$spreadsheet->setActiveSheetIndex(0);
 		$sheet = $spreadsheet->getActiveSheet();
-		
+
 		$sheet->getStyle('A1:Z1')->getFont()->setBold(true);
 		$sheet->getStyle('A1:Z1')->getFill()->setFillType(PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB('667eea');
 		$sheet->getStyle('A1:Z1')->getFont()->getColor()->setRGB('FFFFFF');
-		
+
 		if($type === 'by_class') {
 			$sheet->setCellValue('A1', 'Class');
 			$sheet->setCellValue('B1', 'Students');
@@ -34840,32 +34511,32 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$row++;
 			}
 		}
-		
+
 		foreach(range('A','G') as $col) {
 			$sheet->getColumnDimension($col)->setAutoSize(true);
 		}
-		
+
 		$filename = 'discount_report_'.$type.'_'.date('Y-m-d').'.xlsx';
 		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 		header('Content-Disposition: attachment;filename="'.$filename.'"');
 		header('Cache-Control: max-age=0');
-		
+
 		$objWriter = PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Excel2007');
 		$objWriter->save('php://output');
 	}
-	
+
 	function get_discount_report_data() {
 		$type = $this->input->get('type');
 		$year = $this->input->get('year') ?: get_settings('running_year');
 		$term = $this->input->get('term') ?: get_settings('running_term');
-		
+
 		if($type == 'by_class') {
 			$query = "SELECT c.name as class_name, COUNT(DISTINCT sda.student_id) as student_count,
 					  AVG(sda.discount_value) as avg_discount
 					  FROM student_discount_assignments sda
 					  JOIN enroll e ON sda.student_id = e.student_id
 					  JOIN class c ON e.class_id = c.class_id
-					  WHERE e.year = ? AND e.term = ? AND sda.is_active = 1
+					  WHERE e.year = ? AND e.term = ? AND sda.is_active = 1 AND sda.status = 'approved'
 					  GROUP BY c.class_id
 					  ORDER BY c.name_numeric";
 			$data = $this->db->query($query, [$year, $term])->result_array();
@@ -34880,29 +34551,29 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		} else {
 			$data = [];
 		}
-		
+
 		echo json_encode(['status' => 'success', 'data' => $data]);
 	}
-	
+
 	function discount_management() {
 		$page_data['page_name'] = 'discount_management';
 		$page_data['page_title'] = get_phrase('discount_management');
 		$page_data['account_type'] = $this->session->userdata('login_type');
 		$this->load->view('backend/main', $page_data);
 	}
-	
+
 	function manage_discount_assignments($param1 = '') {
 		if($param1 == 'get_data') {
 			// Check if user is cashier (level 4)
 			$admin_id = $this->session->userdata('admin_id');
 			$admin_level = $this->db->get_where('admin', ['admin_id' => $admin_id])->row()->level;
 			$is_cashier = ($admin_level == 4);
-			
+
 			// Build query with category filter for cashiers - filter by discount_profiles.discount_category
 			$category_filter = $is_cashier ? "AND dp.discount_category = 'daily_fees'" : "";
-			
+
 			// Get all assignments first
-			$query = "SELECT sda.*, s.name as student_name, s.student_code, 
+			$query = "SELECT sda.*, s.name as student_name, s.student_code,
 					  dp.profile_name, dp.discount_category, sda.discount_type, sda.discount_method, sda.discount_value, sda.bill_item_ids, sda.status,
 					  CONCAT(c.name, ' ', c.name_numeric, ' ', sec.name) as class_name,
 					  admin.name as assigned_by_name
@@ -34917,17 +34588,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					  $category_filter
 					  ORDER BY sda.is_active DESC, s.name ASC";
 			$all_data = $this->db->query($query, [get_settings('running_year'), get_settings('running_term')])->result_array();
-			
+
 			// Filter by enabled modules
 			$filtered_data = [];
 			foreach($all_data as $row) {
 				$include = true;
-				
+
 				// Check if it's a daily fees discount
 				if($row['discount_category'] === 'daily_fees' && !empty($row['discount_type'])) {
 					$types = explode(',', $row['discount_type']);
 					$enabled_types = [];
-					
+
 					foreach($types as $type) {
 						$type = trim($type);
 						// Check if this fee module is enabled
@@ -34935,7 +34606,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 							$enabled_types[] = $type;
 						}
 					}
-					
+
 					// Only include if at least one type is enabled
 					if(empty($enabled_types)) {
 						$include = false;
@@ -34944,12 +34615,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						$row['discount_type'] = implode(',', $enabled_types);
 					}
 				}
-				
+
 				// Check if it's an invoice discount with specific bill items
 				if($row['discount_category'] === 'invoice' && !empty($row['bill_item_ids']) && $row['bill_item_ids'] !== '*') {
 					$bill_ids = explode(',', $row['bill_item_ids']);
 					$valid_bills = [];
-					
+
 					foreach($bill_ids as $bill_id) {
 						$bill_id = trim($bill_id);
 						// Check if this bill item exists
@@ -34958,7 +34629,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 							$valid_bills[] = $bill_id;
 						}
 					}
-					
+
 					// Only include if at least one bill item exists
 					if(empty($valid_bills)) {
 						$include = false;
@@ -34967,102 +34638,88 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						$row['bill_item_ids'] = implode(',', $valid_bills);
 					}
 				}
-				
+
 				if($include) {
 					$filtered_data[] = $row;
 				}
 			}
-			
+
 			echo json_encode(['status' => 'success', 'data' => $filtered_data]);
 			return;
 		}
-		
+
 		if($param1 == 'toggle_status') {
-			$assignment_id = $this->input->post('assignment_id');
-			$current_status = $this->db->where('assignment_id', $assignment_id)->get('student_discount_assignments')->row()->is_active;
-			$new_status = $current_status ? 0 : 1;
-			$this->db->where('assignment_id', $assignment_id)->update('student_discount_assignments', ['is_active' => $new_status]);
-			echo json_encode(['status' => 'success', 'message' => $new_status ? get_phrase('discount_activated') : get_phrase('discount_deactivated')]);
+			if(strtoupper($this->input->method()) !== 'POST') { $this->output->set_status_header(405); echo json_encode(['status'=>'error','message'=>'POST request required']); return; }
+			$assignment_id = (int)$this->input->post('assignment_id');
+			$assignment = $this->db->where('assignment_id',$assignment_id)->get('student_discount_assignments')->row();
+			if(!$assignment) { echo json_encode(['status'=>'error','message'=>'Assignment not found']); return; }
+			if(!$assignment->is_active && $assignment->status !== 'approved') { echo json_encode(['status'=>'error','message'=>'Only approved assignments can be activated']); return; }
+			$new_status = $assignment->is_active ? 0 : 1;
+			$data = ['is_active'=>$new_status];
+			if($new_status) { $data['deactivated_at']=null; $data['deactivated_by']=null; }
+			else { $data['deactivated_at']=time(); $data['deactivated_by']=(int)$this->session->userdata('admin_id'); }
+			$this->db->where('assignment_id',$assignment_id)->update('student_discount_assignments',$data);
+			echo json_encode(['status'=>'success','message'=>$new_status?get_phrase('discount_activated'):get_phrase('discount_deactivated')]);
 			return;
 		}
-		
+
 		if($param1 == 'delete') {
-			$assignment_id = $this->input->post('assignment_id');
-			$assignment = $this->db->where('assignment_id', $assignment_id)->get('student_discount_assignments')->row();
-			
-			$this->db->where('assignment_id', $assignment_id)->delete('student_discount_assignments');
-			echo json_encode(['status' => 'success', 'message' => get_phrase('assignment_deleted')]);
+			if(strtoupper($this->input->method()) !== 'POST') { $this->output->set_status_header(405); echo json_encode(['status'=>'error','message'=>'POST request required']); return; }
+			$assignment_id = (int)$this->input->post('assignment_id');
+			$assignment = $this->db->where('assignment_id',$assignment_id)->get('student_discount_assignments')->row();
+			if(!$assignment) { echo json_encode(['status'=>'error','message'=>'Assignment not found']); return; }
+			if($assignment->status === 'approved') { echo json_encode(['status'=>'error','message'=>'Approved assignments cannot be deleted directly. Deactivate or revoke them so the audit trail is preserved.']); return; }
+			$this->db->where('assignment_id',$assignment_id)->delete('student_discount_assignments');
+			echo json_encode(['status'=>'success','message'=>get_phrase('assignment_deleted')]);
 			return;
 		}
-		
+
 		if($param1 == 'approve') {
-			$assignment_id = $this->input->post('assignment_id');
-			$admin_id = $this->session->userdata('admin_id');
-			$login_type = $this->session->userdata('login_type');
-			$admin_level = $this->session->userdata('user_type');
-			
-			if($admin_level != 1 && $admin_level != '1') {
-				echo json_encode(['status' => 'error', 'message' => get_phrase('only_super_admin_can_approve')]);
-				return;
-			}
-			
-			$this->db->where('assignment_id', $assignment_id)->update('student_discount_assignments', [
-				'status' => 'approved',
-				'is_active' => 1,
-				'approved_by' => $admin_id,
-				'approved_at' => date('Y-m-d H:i:s')
-			]);
-			
-			echo json_encode(['status' => 'success', 'message' => get_phrase('assignment_approved')]);
+			if(strtoupper($this->input->method()) !== 'POST') { $this->output->set_status_header(405); echo json_encode(['status'=>'error','message'=>'POST request required']); return; }
+			if($this->session->userdata('user_type') != 1) { $this->output->set_status_header(403); echo json_encode(['status'=>'error','message'=>get_phrase('only_super_admin_can_approve')]); return; }
+			$result = $this->approve_discount_record((int)$this->input->post('assignment_id'),'profile_assignment',(int)$this->session->userdata('admin_id'));
+			echo json_encode($result);
 			return;
 		}
-		
+
 		if($param1 == 'reject') {
-			$assignment_id = $this->input->post('assignment_id');
-			$admin_id = $this->session->userdata('admin_id');
-			$login_type = $this->session->userdata('login_type');
-			$admin_level = $this->session->userdata('user_type');
-			
-			if($admin_level != 1 && $admin_level != '1') {
-				echo json_encode(['status' => 'error', 'message' => get_phrase('only_super_admin_can_reject')]);
-				return;
-			}
-			
-			$this->db->where('assignment_id', $assignment_id)->update('student_discount_assignments', [
-				'status' => 'rejected',
-				'is_active' => 0
-			]);
-			
-			echo json_encode(['status' => 'success', 'message' => get_phrase('assignment_rejected')]);
+			if(strtoupper($this->input->method()) !== 'POST') { $this->output->set_status_header(405); echo json_encode(['status'=>'error','message'=>'POST request required']); return; }
+			if($this->session->userdata('user_type') != 1) { $this->output->set_status_header(403); echo json_encode(['status'=>'error','message'=>get_phrase('only_super_admin_can_reject')]); return; }
+			$result = $this->reject_discount_record((int)$this->input->post('assignment_id'),'profile_assignment',(int)$this->session->userdata('admin_id'),false);
+			echo json_encode($result);
 			return;
 		}
-		
+
 		if($param1 == 'update') {
-			$assignment_id = $this->input->post('assignment_id');
+			if(strtoupper($this->input->method()) !== 'POST') { $this->output->set_status_header(405); echo json_encode(['status'=>'error','message'=>'POST request required']); return; }
+			$assignment_id = (int)$this->input->post('assignment_id');
+			$current_assignment = $this->db->where('assignment_id',$assignment_id)->get('student_discount_assignments')->row();
+			if(!$current_assignment) { echo json_encode(['status'=>'error','message'=>'Assignment not found']); return; }
+			if($current_assignment->status === 'approved' && $this->session->userdata('user_type') != 1) { $this->output->set_status_header(403); echo json_encode(['status'=>'error','message'=>'Only a super administrator can modify an approved discount assignment']); return; }
 			$profile_id = $this->input->post('profile_id');
 			$action = $this->input->post('action');
-			
+
 			if(empty($assignment_id) || empty($profile_id)) {
 				echo json_encode(['status' => 'error', 'message' => get_phrase('invalid_data')]);
 				return;
 			}
-			
+
 			$profile = $this->db->where('profile_id', $profile_id)->where('is_active', 1)->get('discount_profiles')->row();
 			if(!$profile) {
 				echo json_encode(['status' => 'error', 'message' => get_phrase('invalid_profile')]);
 				return;
 			}
-			
+
 			$rule = $this->db->where('profile_id', $profile_id)->get('discount_profile_rules')->row();
 			$this->db->where('assignment_id', $assignment_id)->update('student_discount_assignments', [
 				'profile_id' => $profile_id,
 				'discount_value' => $rule ? $rule->discount_value : $profile->discount_value
 			]);
-			
+
 			echo json_encode(['status' => 'success', 'message' => get_phrase('assignment_updated')]);
 			return;
 		}
-		
+
 		if($param1 == 'bulk_deactivate') {
 			$ids = $this->input->post('ids');
 			if(!empty($ids)) {
@@ -35073,9 +34730,9 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			}
 			return;
 		}
-		
+
 		$page_data['classes'] = $this->db->get('class')->result_array();
-		
+
 		// Filter profiles based on user role
 		$user_level = $this->session->userdata('user_type');
 		$this->db->where('is_active', 1);
@@ -35083,10 +34740,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$this->db->where('discount_category', 'daily_fees');
 		}
 		$page_data['profiles'] = $this->db->get('discount_profiles')->result_array();
-		
+
 		$bill_items = $this->db->select('id, title')->from('bill_item')->get()->result_array();
 		$page_data['bill_items_map'] = array_column($bill_items, 'title', 'id');
-		
+
 		$page_data['page_name'] = 'manage_discount_assignments';
 		$page_data['page_title'] = get_phrase('manage_discount_assignments');
 
@@ -35094,8 +34751,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$ids = $this->input->post('ids');
 			if(!empty($ids)) {
 				foreach($ids as $id) {
-					$current = $this->db->where('assignment_id', $id)->get('student_discount_assignments')->row();
-					$this->db->where('assignment_id', $id)->update('student_discount_assignments', ['is_active' => $current->is_active ? 0 : 1]);
+					$current = $this->db->where('assignment_id', (int)$id)->get('student_discount_assignments')->row();
+					if(!$current) continue;
+					$new_status = $current->is_active ? 0 : 1;
+					if($new_status && $current->status !== 'approved') continue;
+					$this->db->where('assignment_id', (int)$id)->update('student_discount_assignments', ['is_active'=>$new_status,'deactivated_at'=>$new_status?null:time(),'deactivated_by'=>$new_status?null:(int)$this->session->userdata('admin_id')]);
 				}
 				echo json_encode(['status' => 'success', 'message' => get_phrase('bulk_toggle_successful')]);
 			} else {
@@ -35107,31 +34767,31 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$page_data['account_type'] = $this->session->userdata('login_type');
 		$this->load->view('backend/main', $page_data);
 	}
-	
+
 	function discount_profiles($param1 = '') {
 		// Check if user is cashier (level 4)
 		$user_level = $this->session->userdata('user_type');
 		$is_cashier = ($user_level == 4);
-		
+
 		if($param1 == 'stats') {
 			$this->db->select('*');
 			if($is_cashier) {
 				$this->db->where('discount_category', 'daily_fees');
 			}
 			$total = $this->db->count_all_results('discount_profiles');
-			
+
 			$this->db->where('is_active', 1);
 			if($is_cashier) {
 				$this->db->where('discount_category', 'daily_fees');
 			}
 			$active = $this->db->count_all_results('discount_profiles');
-			
+
 			$this->db->where('is_active', 0);
 			if($is_cashier) {
 				$this->db->where('discount_category', 'daily_fees');
 			}
 			$inactive = $this->db->count_all_results('discount_profiles');
-			
+
 			// For cashier, only show daily_fees counts
 			if($is_cashier) {
 				$invoice = 0;
@@ -35140,20 +34800,20 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$invoice = $this->db->where('discount_category', 'invoice')->count_all_results('discount_profiles');
 				$daily = $this->db->where('discount_category', 'daily_fees')->count_all_results('discount_profiles');
 			}
-			
+
 			echo json_encode([
-				'status' => 'success', 
+				'status' => 'success',
 				'data' => [
-					'total' => $total, 
-					'active' => $active, 
-					'inactive' => $inactive, 
-					'invoice' => $invoice, 
+					'total' => $total,
+					'active' => $active,
+					'inactive' => $inactive,
+					'invoice' => $invoice,
 					'daily_fees' => $daily
 				]
 			]);
 			return;
 		}
-		
+
 		if($this->input->get('ajax')) {
 			if($is_cashier) {
 				$profiles = $this->db->where('discount_category', 'daily_fees')->get('discount_profiles')->result_array();
@@ -35163,14 +34823,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'success', 'profiles' => $profiles]);
 			return;
 		}
-		
+
 		if($param1 == 'get_data') {
 			$profile_id = $this->input->get('profile_id');
 			$profile = $this->db->where('profile_id', $profile_id)->get('discount_profiles')->row_array();
 			echo json_encode($profile);
 			return;
 		}
-		
+
 		if($param1 == 'create') {
 			// Check if cashier is trying to create invoice discount
 			$category = $this->input->post('discount_category');
@@ -35179,9 +34839,9 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				echo json_encode(['status' => 'error', 'message' => get_phrase('you_can_only_create_daily_fees_discounts')]);
 				return;
 			}
-			
+
 			$discount_types = $this->input->post('discount_type');
-			
+
 			// Handle array or string
 			if (is_array($discount_types)) {
 				$discount_types = array_filter($discount_types);
@@ -35189,9 +34849,9 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			} else {
 				$discount_type_str = trim($discount_types);
 			}
-			
+
 			$category = $this->input->post('discount_category');
-			
+
 			$data = [
 				'profile_name' => $this->input->post('profile_name'),
 				'discount_category' => $category,
@@ -35201,7 +34861,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'is_active' => 1,
 				'created_by' => $this->session->userdata('login_user_id')
 			];
-			
+
 			// Store IDs for invoice, names for daily_fees
 			if ($category == 'invoice') {
 				if ($discount_type_str == 'all_invoice_items' || strpos($discount_type_str, 'all_invoice_items') !== false) {
@@ -35214,7 +34874,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$data['discount_type'] = $discount_type_str ?: NULL;
 				$data['bill_item_ids'] = NULL;
 			}
-			
+
 			try {
 				$this->db->insert('discount_profiles', $data);
 				echo json_encode(['status' => 'success', 'message' => get_phrase('profile_created_successfully')]);
@@ -35228,7 +34888,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			}
 			return;
 		}
-		
+
 		if($param1 == 'update') {
 			// Check if cashier is trying to update to invoice discount
 			$category = $this->input->post('discount_category');
@@ -35237,11 +34897,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				echo json_encode(['status' => 'error', 'message' => get_phrase('you_can_only_update_daily_fees_discounts')]);
 				return;
 			}
-			
+
 			$profile_id = $this->input->post('profile_id');
 			$action = $this->input->post('action');
 			$discount_types = $this->input->post('discount_type');
-			
+
 			// Handle array or string
 			if (is_array($discount_types)) {
 				$discount_types = array_filter($discount_types);
@@ -35249,9 +34909,9 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			} else {
 				$discount_type_str = trim($discount_types);
 			}
-			
+
 			$category = $this->input->post('discount_category');
-			
+
 			$data = [
 				'profile_name' => $this->input->post('profile_name'),
 				'discount_category' => $category,
@@ -35259,7 +34919,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'discount_value' => $this->input->post('discount_value') ?: 0,
 				'description' => $this->input->post('description')
 			];
-			
+
 			// Store IDs for invoice, names for daily_fees
 			if ($category == 'invoice') {
 				if ($discount_type_str == 'all_invoice_items' || strpos($discount_type_str, 'all_invoice_items') !== false) {
@@ -35272,7 +34932,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$data['discount_type'] = $discount_type_str ?: NULL;
 				$data['bill_item_ids'] = NULL;
 			}
-			
+
 			try {
 				$this->db->where('profile_id', $profile_id)->update('discount_profiles', $data);
 				echo json_encode(['status' => 'success', 'message' => get_phrase('profile_updated_successfully')]);
@@ -35286,7 +34946,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			}
 			return;
 		}
-		
+
 		if($param1 == 'delete') {
 			$profile_id = $this->input->post('profile_id');
 			$action = $this->input->post('action');
@@ -35294,7 +34954,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'success', 'message' => get_phrase('profile_deleted_successfully')]);
 			return;
 		}
-		
+
 		if($param1 == 'toggle_status') {
 			$profile_id = $this->input->post('profile_id');
 			$action = $this->input->post('action');
@@ -35304,11 +34964,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'success', 'message' => $new_status ? get_phrase('profile_activated') : get_phrase('profile_deactivated')]);
 			return;
 		}
-		
-		$page_data['profiles'] = $is_cashier 
+
+		$page_data['profiles'] = $is_cashier
 			? $this->db->where('discount_category', 'daily_fees')->get('discount_profiles')->result_array()
 			: $this->db->get('discount_profiles')->result_array();
-		
+
 		// Build bill_items_map for JavaScript
 		$bill_items = $this->db->get('bill_item')->result_array();
 		$bill_items_map = [];
@@ -35316,19 +34976,19 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$bill_items_map[$item['id']] = $item['title'];
 		}
 		$page_data['bill_items_map'] = $bill_items_map;
-		
+
 		$page_data['page_name'] = 'discount_profiles';
 		$page_data['page_title'] = get_phrase('discount_profiles');
 		$page_data['account_type'] = $this->session->userdata('login_type');
 		$this->load->view('backend/main', $page_data);
 	}
-	
+
 	function discount_profile_rules($profile_id, $param1 = '') {
 		if($param1 == 'create') {
 			$class_ids = $this->input->post('class_ids');
 			$bill_category_id = $this->input->post('bill_category_id') ?: NULL;
 			$discount_value = $this->input->post('discount_value');
-			
+
 			if(empty($class_ids)) {
 				$data = [
 					'profile_id' => $profile_id,
@@ -35351,7 +35011,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'success', 'message' => get_phrase('rule_created_successfully')]);
 			return;
 		}
-		
+
 		if($param1 == 'update') {
 			$rule_id = $this->input->post('rule_id');
 			$data = [
@@ -35363,18 +35023,18 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'success', 'message' => get_phrase('rule_updated_successfully')]);
 			return;
 		}
-		
+
 		if($param1 == 'delete') {
 			$rule_id = $this->input->post('rule_id');
 			$this->db->where('rule_id', $rule_id)->delete('discount_profile_rules');
 			echo json_encode(['status' => 'success', 'message' => get_phrase('rule_deleted_successfully')]);
 			return;
 		}
-		
+
 		$page_data['profile'] = $this->db->where('profile_id', $profile_id)->get('discount_profiles')->row_array();
 		$page_data['rules'] = $this->db->where('profile_id', $profile_id)->get('discount_profile_rules')->result_array();
 		$page_data['classes'] = $this->db->get('class')->result_array();
-		
+
 		// Get categories based on profile's discount_category
 		if($page_data['profile']['discount_category'] == 'invoice') {
 			$items = $this->db->get('bill_item')->result_array();
@@ -35395,63 +35055,63 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				['category_id' => 'transport', 'name' => 'Transport']
 			];
 		}
-		
+
 		echo $this->load->view('backend/admin/discount_profile_rules', $page_data, TRUE);
 	}
-	
+
 	// Get all discounts (pre-assigned + post-assigned)
 	function get_all_discounts() {
 		header('Content-Type: application/json');
-		
+
 		$year = $this->input->get('year');
 		$term = $this->input->get('term');
 		$category = $this->input->get('category');
-		
+
 		if(!$year) $year = get_settings('running_year');
 		if(!$term) $term = get_settings('running_term');
-		
+
 		$result = [];
-		
+
 		// Get pre-assigned discounts
-		$query = "SELECT sda.assignment_id as id, s.name as student_name, s.student_code, 
+		$query = "SELECT sda.assignment_id as id, s.name as student_name, s.student_code,
 				dp.profile_name, dp.discount_type,
-				a.name as assigned_by_name, sda.year, sda.term, 
+				a.name as assigned_by_name, sda.year, sda.term,
 				'pre-assigned' as discount_source, 'Active' as status
 				FROM student_discount_assignments sda
 				JOIN student s ON s.student_id = sda.student_id
 				JOIN discount_profiles dp ON dp.profile_id = sda.profile_id
 				JOIN admin a ON a.admin_id = sda.assigned_by
 				WHERE sda.year = ? AND sda.term = ? AND sda.is_active = 1";
-		
+
 		$result = $this->db->query($query, [$year, $term])->result_array();
-		
+
 		foreach($result as &$row) {
 			$row['rules'] = $this->db->where('profile_id', $row['id'])->get('discount_profile_rules')->result_array();
 		}
-		
+
 		echo json_encode($result);
 		exit;
 	}
-	
+
 	function get_discount_stats() {
 		// Get total count
 		$total = $this->db->count_all('discount_profiles');
-		
+
 		// Get active count
 		$active = $this->db->where('is_active', 1)->count_all_results('discount_profiles');
-		
+
 		// Get inactive count
 		$inactive = $this->db->where('is_active', 0)->count_all_results('discount_profiles');
-		
+
 		// Get invoice count
 		$invoice = $this->db->where('discount_category', 'invoice')->count_all_results('discount_profiles');
-		
+
 		// Get daily_fees count
 		$daily_fees = $this->db->where('discount_category', 'daily_fees')->count_all_results('discount_profiles');
-		
+
 		// Debug: Get actual daily_fees records
 		$daily_records = $this->db->where('discount_category', 'daily_fees')->get('discount_profiles')->result_array();
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'data' => [
@@ -35467,14 +35127,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			]
 		]);
 	}
-	
+
 	function create_discount_profile_modal() {
 		// Load the create form modal
 		$page_data['bill_items'] = $this->db->get('bill_item')->result_array();
 		$page_data['classes'] = $this->db->get('class')->result_array();
 		echo $this->load->view('backend/admin/create_discount_profile_modal', $page_data, TRUE);
 	}
-	
+
 	function edit_discount_profile_modal($profile_id) {
 		// Load the edit form modal with profile data
 		$page_data['profile'] = $this->db->where('profile_id', $profile_id)->get('discount_profiles')->row_array();
@@ -35482,18 +35142,18 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$page_data['classes'] = $this->db->get('class')->result_array();
 		echo $this->load->view('backend/admin/edit_discount_profile_modal', $page_data, TRUE);
 	}
-	
+
 	function assign_students_to_profile_modal($profile_id) {
 		// Load the assign students modal
 		$profile = $this->db->where('profile_id', $profile_id)->get('discount_profiles')->row_array();
-		
+
 		// Filter by daily_fees category only for cashier role (level 4)
 		$user_level = $this->session->userdata('user_type');
 		if($user_level == 4 && $profile['discount_category'] != 'daily_fees') {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('you_do_not_have_permission_to_assign_this_profile')]);
 			return;
 		}
-		
+
 		$page_data['profile'] = $profile;
 		$page_data['students'] = $this->db->select('s.*, c.name as class_name, sec.name as section_name')
 			->from('student s')
@@ -35506,11 +35166,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			->get()->result_array();
 		echo $this->load->view('backend/admin/assign_student_discount_modal', $page_data, TRUE);
 	}
-	
+
 	function toggle_discount_profile_status() {
 		$profile_id = $this->input->post('profile_id');
 		$current = $this->db->where('profile_id', $profile_id)->get('discount_profiles')->row();
-		
+
 		if($current) {
 			$new_status = $current->is_active ? 0 : 1;
 			$this->db->where('profile_id', $profile_id)->update('discount_profiles', ['is_active' => $new_status]);
@@ -35522,13 +35182,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'error', 'message' => get_phrase('profile_not_found')]);
 		}
 	}
-	
+
 	function delete_discount_profile() {
 		$profile_id = $this->input->post('profile_id');
-		
+
 		// Check if profile exists
 		$profile = $this->db->where('profile_id', $profile_id)->get('discount_profiles')->row();
-		
+
 		if($profile) {
 			// Soft delete: set is_active to 0
 			$this->db->where('profile_id', $profile_id)->update('discount_profiles', ['is_active' => 0]);
@@ -35537,44 +35197,44 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'error', 'message' => get_phrase('profile_not_found')]);
 		}
 	}
-	
+
 	function get_discount_filters() {
 		$years = $this->db->select('DISTINCT year')->order_by('year', 'DESC')->get('student_discount_assignments')->result_array();
 		$profiles = $this->db->where('is_active', 1)->get('discount_profiles')->result_array();
 		echo json_encode(['years' => array_column($years, 'year'), 'profiles' => $profiles]);
 	}
-	
+
 	function get_discount_assignments() {
 		$year = $this->input->get('year');
 		$term = $this->input->get('term');
 		$profile_id = $this->input->get('profile_id');
-		
+
 		$this->db->select('sda.*, s.name as student_name, s.student_code, dp.profile_name, dp.discount_type, a.name as assigned_by_name')
 			->from('student_discount_assignments sda')
 			->join('student s', 's.student_id = sda.student_id')
 			->join('discount_profiles dp', 'dp.profile_id = sda.profile_id')
 			->join('admin a', 'a.admin_id = sda.assigned_by')
 			->where('sda.is_active', 1);
-		
+
 		if($year) $this->db->where('sda.year', $year);
 		if($term) $this->db->where('sda.term', $term);
 		if($profile_id) $this->db->where('sda.profile_id', $profile_id);
-		
+
 		$result = $this->db->order_by('s.name', 'ASC')->get()->result_array();
 		echo json_encode($result);
 	}
-	
+
 	function unassign_discount() {
 		$assignment_id = $this->input->post('assignment_id');
 		$this->db->where('assignment_id', $assignment_id)->update('student_discount_assignments', ['is_active' => 0]);
 		echo json_encode(['status' => 'success', 'message' => get_phrase('discount_unassigned_successfully')]);
 	}
-	
+
 	// Unassign student from discount
 	function unassign_student_discount() {
 		$source = $this->input->post('source');
 		$id = $this->input->post('id');
-		
+
 		if($source == 'pre-assigned') {
 			$this->db->where('assignment_id', $id);
 			$this->db->update('student_discount_assignments', ['is_active' => 0]);
@@ -35582,7 +35242,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$this->db->where('discount_id', $id);
 			$this->db->delete('invoice_discounts');
 		}
-		
+
 		echo json_encode(['status' => 'success', 'message' => get_phrase('discount_unassigned_successfully')]);
 	}
 
@@ -35599,7 +35259,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->join('invoice i', 'i.student_id = d.student_id AND i.invoice_code = d.invoice_code', 'left');
 		$this->db->where('i.year', $year);
 		$this->db->where('i.term', $term);
-		
+
 		if ($type) {
 			$this->db->where('d.discount_type', $type);
 		}
@@ -35632,7 +35292,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	// Get invoice summary with discounts
 	function get_invoice_summary($student_id, $invoice_code) {
 		$summary = $this->db->query(
-			"SELECT * FROM invoice_summary 
+			"SELECT * FROM invoice_summary
 			 WHERE student_id = ? AND invoice_code = ?",
 			[$student_id, $invoice_code]
 		)->row();
@@ -35717,7 +35377,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			->where('student_id', $student_id)
 			->where('invoice_code', $invoice_code)
 			->get('invoice')->row();
-		
+
 		// Insert discount record
 		$discount_data = array(
 			'student_id' => $student_id,
@@ -35841,15 +35501,15 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	function delete_discount_type() {
 		try {
 			$id = $this->input->post('id');
-			
+
 			if (empty($id)) {
 				echo json_encode(['status' => 'error', 'message' => 'Discount type ID is required']);
 				return;
 			}
-			
+
 			$this->db->where('id', $id);
 			$this->db->delete('discount_types');
-			
+
 			if ($this->db->affected_rows() > 0) {
 				echo json_encode(['status' => 'success', 'message' => 'Discount type deleted successfully']);
 			} else {
@@ -35951,6 +35611,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Request discount type approval
 	function request_discount_approval() {
+		if ($this->session->userdata('admin_login') != 1 || strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Admin POST request required']));
+			return;
+		}
+
 		$discount_type_id = $this->input->post('discount_type_id');
 		$reason = $this->input->post('reason');
 		$this->db->insert('discount_approvals', [
@@ -35964,7 +35629,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Approve discount type
 	function approve_discount_type() {
-		if($this->session->userdata('admin_role') != '1') {
+		if (strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
+			return;
+		}
+
+		if($this->session->userdata('user_type') != 1) {
+			$this->output->set_status_header(403);
 			echo json_encode(['status' => 'error', 'message' => get_phrase('only_super_admin_can_approve')]);
 			return;
 		}
@@ -35982,7 +35653,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Reject discount type
 	function reject_discount_type() {
-		if($this->session->userdata('admin_role') != '1') {
+		if (strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
+			return;
+		}
+
+		if($this->session->userdata('user_type') != 1) {
+			$this->output->set_status_header(403);
 			echo json_encode(['status' => 'error', 'message' => get_phrase('only_super_admin_can_reject')]);
 			return;
 		}
@@ -35999,545 +35676,523 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	}
 
 	function get_details() {
-		$assignment_id = $this->input->post('assignment_id');
-		$source = $this->input->post('source');
+		if (strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
+			return;
+		}
+
+		if ($this->session->userdata('user_type') != 1) {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Only super administrators can view discount approval details']));
+			return;
+		}
+
+		$assignment_id = (int)$this->input->post('assignment_id');
+		$source = (string)$this->input->post('source');
+		if(!$assignment_id || !in_array($source, ['profile_assignment','invoice_discount'], true)) {
+			echo json_encode(['status'=>'error','message'=>'Invalid discount approval record']);
+			return;
+		}
+
 		$currency = get_settings('currency');
-		
-		if($source == 'profile_assignment') {
+		if($source === 'profile_assignment') {
 			$this->db->select('sda.*, s.name as student_name, s.student_code, dp.profile_name, dp.discount_category, dp.discount_method, dp.discount_value, dp.bill_item_ids, dp.discount_type, c.name as class_name, c.name_numeric, sec.name as section_name, a.name as assigned_by_name, e.residence_type');
 			$this->db->from('student_discount_assignments sda');
 			$this->db->join('student s', 's.student_id = sda.student_id');
 			$this->db->join('discount_profiles dp', 'dp.profile_id = sda.profile_id');
 			$this->db->join('enroll e', 'e.student_id = sda.student_id AND e.year = sda.year AND e.term = sda.term');
 			$this->db->join('class c', 'c.class_id = e.class_id');
-			$this->db->join('section sec', 'sec.section_id = e.section_id');
-			$this->db->join('admin a', 'a.admin_id = sda.assigned_by');
+			$this->db->join('section sec', 'sec.section_id = e.section_id', 'left');
+			$this->db->join('admin a', 'a.admin_id = sda.assigned_by', 'left');
 			$this->db->where('sda.assignment_id', $assignment_id);
-			$details = $this->db->get()->row();
+			$details = $this->db->get()->row_array();
 		} else {
-			$this->db->select('id.*, s.name as student_name, s.student_code, c.name as class_name, c.name_numeric, sec.name as section_name, a.name as applied_by_name, dp.profile_name, dp.discount_category, dp.discount_method, dp.discount_value, dp.bill_item_ids, dp.discount_type, e.residence_type');
+			$this->db->select('id.*, s.name as student_name, s.student_code, c.name as class_name, c.name_numeric, sec.name as section_name, a.name as applied_by_name, dp.profile_name, COALESCE(dp.discount_category,id.discount_category) as resolved_category, COALESCE(dp.discount_method,id.discount_method) as resolved_method, COALESCE(dp.discount_value,id.discount_value) as resolved_value, dp.bill_item_ids, dp.discount_type, e.residence_type', false);
 			$this->db->from('invoice_discounts id');
 			$this->db->join('student s', 's.student_id = id.student_id');
 			$this->db->join('enroll e', 'e.student_id = id.student_id AND e.year = id.year AND e.term = id.term');
 			$this->db->join('class c', 'c.class_id = e.class_id');
-			$this->db->join('section sec', 'sec.section_id = e.section_id');
-			$this->db->join('admin a', 'a.admin_id = id.applied_by');
+			$this->db->join('section sec', 'sec.section_id = e.section_id', 'left');
+			$this->db->join('admin a', 'a.admin_id = id.applied_by', 'left');
 			$this->db->join('discount_profiles dp', 'dp.profile_id = id.profile_id', 'left');
 			$this->db->where('id.discount_id', $assignment_id);
-			$details = $this->db->get()->row();
+			$details = $this->db->get()->row_array();
+			if($details) {
+				$details['discount_category'] = $details['resolved_category'];
+				$details['discount_method'] = $details['resolved_method'];
+				$details['discount_value'] = $details['resolved_value'];
+			}
 		}
-		
-		if($details) {
-			$method_text = $details->discount_method == 'percentage' ? $details->discount_value . '%' : $currency . number_format($details->discount_value, 2);
-			$full_class_name = $details->class_name . ' ' . $details->name_numeric . ' ' . $details->section_name;
-			
-			// Get bill items for invoice category only
-			$bill_items_text = '';
-			if($details->discount_category == 'invoice') {
-				if(empty($details->bill_item_ids) || $details->bill_item_ids == '[]' || $details->bill_item_ids == 'null') {
-					$bill_items_text = 'All bill items';
+
+		if(!$details) {
+			echo json_encode(['status'=>'error','message'=>'Details not found']);
+			return;
+		}
+
+		$method_text = $details['discount_method'] === 'percentage'
+			? number_format((float)$details['discount_value'], 2) . '%'
+			: $currency . ' ' . number_format((float)$details['discount_value'], 2);
+		$full_class_name = trim(($details['class_name'] ?? '') . ' ' . ($details['name_numeric'] ?? '') . ' ' . ($details['section_name'] ?? ''));
+		$bill_items_text = '';
+		if(($details['discount_category'] ?? '') === 'invoice') {
+			$raw_ids = trim((string)($details['bill_item_ids'] ?? ''));
+			if($raw_ids === '' || $raw_ids === '*' || $raw_ids === '[]' || strtolower($raw_ids) === 'null') {
+				$bill_items_text = 'All bill items';
+			} else {
+				$decoded = json_decode($raw_ids, true);
+				$item_ids = is_array($decoded) ? $decoded : explode(',', $raw_ids);
+				$item_ids = array_values(array_filter(array_map('intval', $item_ids)));
+				if($item_ids) {
+					$items = $this->db->select('title')->where_in('id', $item_ids)->get('bill_item')->result_array();
+					$bill_items_text = $items ? implode(', ', array_column($items, 'title')) : 'All bill items';
 				} else {
-					$item_ids = json_decode($details->bill_item_ids, true);
-					if(is_array($item_ids) && count($item_ids) > 0) {
-						$items = $this->db->where_in('bill_item_id', $item_ids)->get('bill_items')->result_array();
-						if(count($items) > 0) {
-							$item_names = array_column($items, 'title');
-							$bill_items_text = implode(', ', $item_names);
-						} else {
-							$bill_items_text = 'All bill items';
-						}
-					} else {
-						$bill_items_text = 'All bill items';
-					}
+					$bill_items_text = 'All bill items';
 				}
 			}
-			
-			// Get invoice totals if invoice discount
-			$invoice_section = '';
-			if($source == 'invoice_discount' && !empty($details->invoice_code)) {
-				$invoice_query = $this->db->select_sum('amount')->where('invoice_code', $details->invoice_code)->get('invoice');
-				$current_total = $invoice_query->row()->amount ?? 0;
-				
-				// Use the specific discount amount from this discount record
-				$this_discount_amount = $details->discount_amount ?? 0;
-				
-				// Calculate original total (current + this discount if approved, or just current if pending)
-				$original_total = $details->status == 'approved' ? ($current_total + $this_discount_amount) : $current_total;
-				$new_total = $details->status == 'approved' ? $current_total : ($current_total - $this_discount_amount);
-				
-				$invoice_section = '
-				<div class="col-12 mt-4">
-					<div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 12px; padding: 20px; border: 2px solid #0ea5e9;">
-						<h6 style="color: #0c4a6e; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-							<i class="fa fa-file-invoice" style="color: #0ea5e9;"></i> Invoice Summary
-						</h6>
-						<div class="row">
-							<div class="col-md-4">
-								<div style="text-align: center; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-									<div style="font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Original Total</div>
-									<div style="font-size: 24px; font-weight: 700; color: #475569; margin-top: 8px;">'.$currency.' '.number_format($original_total, 2).'</div>
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div style="text-align: center; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-									<div style="font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Discount</div>
-									<div style="font-size: 24px; font-weight: 700; color: #ef4444; margin-top: 8px;">- '.$currency.' '.number_format($this_discount_amount, 2).'</div>
-								</div>
-							</div>
-							<div class="col-md-4">
-								<div style="text-align: center; padding: 15px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
-									<div style="font-size: 12px; color: rgba(255,255,255,0.9); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">New Total</div>
-									<div style="font-size: 24px; font-weight: 700; color: white; margin-top: 8px;">'.$currency.' '.number_format($new_total, 2).'</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>';
-			}
-			
-			$html = '
-			<style>
-				.detail-card { background: #f8fafc; border-radius: 8px; padding: 15px; margin-bottom: 12px; border-left: 4px solid #3b82f6; }
-				.detail-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-				.detail-value { font-size: 15px; color: #1e293b; font-weight: 600; }
-				.badge-modern { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; }
-			</style>
-			<div class="row">
-				<div class="col-md-6">
-					<div class="detail-card">
-						<div class="detail-label"><i class="fa fa-user"></i> Student</div>
-						<div class="detail-value">'.$details->student_name.'</div>
-						<div style="font-size: 13px; color: #64748b; margin-top: 4px;">'.$details->student_code.'</div>
-					</div>
-				</div>
-				<div class="col-md-6">
-					<div class="detail-card">
-						<div class="detail-label"><i class="fa fa-school"></i> Class</div>
-						<div class="detail-value">'.$full_class_name.'</div>
-						<div style="font-size: 13px; color: #64748b; margin-top: 4px;">'.ucfirst($details->residence_type).'</div>
-					</div>
-				</div>
-				<div class="col-md-6 mt-2">
-					<div class="detail-card" style="border-left-color: #8b5cf6;">
-						<div class="detail-label"><i class="fa fa-tag"></i> Discount Profile</div>
-						<div class="detail-value">'.($details->profile_name ?: 'N/A').'</div>
-						<div style="margin-top: 8px;">
-							<span class="badge-modern" style="background: #ddd6fe; color: #6b21a8;">'.ucwords(str_replace('_', ' ', $details->discount_category)).'</span>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-6 mt-2">
-					<div class="detail-card" style="border-left-color: #10b981;">
-						<div class="detail-label"><i class="fa fa-percent"></i> Discount Value</div>
-						<div class="detail-value">'.$method_text.'</div>
-						<div style="margin-top: 8px;">
-							<span class="badge-modern" style="background: #d1fae5; color: #065f46;">'.ucfirst($details->discount_method).'</span>
-							<span class="badge-modern" style="background: #fef3c7; color: #92400e;">Term '.$details->term.' / '.$details->year.'</span>
-						</div>
-					</div>
-				</div>';
-			
-			if($bill_items_text) {
-				$html .= '
-				<div class="col-12 mt-2">
-					<div class="detail-card" style="border-left-color: #f59e0b;">
-						<div class="detail-label"><i class="fa fa-list"></i> Bill Items Covered</div>
-						<div class="detail-value">'.$bill_items_text.'</div>
-					</div>
-				</div>';
-			}
-			
-			$html .= $invoice_section;
-			
-			$html .= '
-				<div class="col-12 mt-2">
-					<div class="detail-card" style="border-left-color: #6366f1;">
-						<div class="detail-label"><i class="fa fa-user-shield"></i> Assigned By</div>
-						<div class="detail-value">'.($details->assigned_by_name ?: $details->applied_by_name).'</div>
-					</div>
-				</div>
-			</div>';
-			
-			echo json_encode(['status' => 'success', 'html' => $html]);
-		} else {
-			echo json_encode(['status' => 'error', 'message' => 'Details not found']);
 		}
+
+		$student_name = html_escape((string)($details['student_name'] ?? ''));
+		$student_code = html_escape((string)($details['student_code'] ?? ''));
+		$class_name = html_escape($full_class_name);
+		$residence = html_escape(ucfirst((string)($details['residence_type'] ?? '')));
+		$profile_name = html_escape((string)($details['profile_name'] ?? 'N/A'));
+		$category = html_escape(ucwords(str_replace('_', ' ', (string)($details['discount_category'] ?? ''))));
+		$method = html_escape(ucfirst((string)($details['discount_method'] ?? '')));
+		$assigned_by = html_escape((string)($details['assigned_by_name'] ?? $details['applied_by_name'] ?? 'N/A'));
+		$year = html_escape((string)($details['year'] ?? ''));
+		$term = html_escape((string)($details['term'] ?? ''));
+		$bill_items_safe = html_escape($bill_items_text);
+
+		$html = '<style>.approval-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.approval-detail-card{padding:14px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc}.approval-detail-label{margin-bottom:5px;color:#64748b;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.approval-detail-value{color:#0f172a;font-size:15px;font-weight:800;line-height:1.45}.approval-detail-muted{margin-top:4px;color:#64748b;font-size:13px}.approval-detail-full{grid-column:1/-1}.approval-detail-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.approval-detail-metric{padding:13px;border:1px solid #e2e8f0;border-radius:9px;background:#fff;text-align:center}.approval-detail-metric span{display:block;color:#64748b;font-size:11px;font-weight:800;text-transform:uppercase}.approval-detail-metric strong{display:block;margin-top:6px;color:#0f172a;font-size:20px}@media(max-width:640px){.approval-detail-grid,.approval-detail-summary{grid-template-columns:1fr}.approval-detail-full{grid-column:auto}}</style>';
+		$html .= '<div class="approval-detail-grid">';
+		$html .= '<div class="approval-detail-card"><div class="approval-detail-label">Student</div><div class="approval-detail-value">'.$student_name.'</div><div class="approval-detail-muted">'.$student_code.'</div></div>';
+		$html .= '<div class="approval-detail-card"><div class="approval-detail-label">Class</div><div class="approval-detail-value">'.$class_name.'</div><div class="approval-detail-muted">'.$residence.'</div></div>';
+		$html .= '<div class="approval-detail-card"><div class="approval-detail-label">Discount Profile</div><div class="approval-detail-value">'.$profile_name.'</div><div class="approval-detail-muted">'.$category.'</div></div>';
+		$html .= '<div class="approval-detail-card"><div class="approval-detail-label">Discount Value</div><div class="approval-detail-value">'.html_escape($method_text).'</div><div class="approval-detail-muted">'.$method.' · Term '.$term.' / '.$year.'</div></div>';
+		if($bill_items_text !== '') $html .= '<div class="approval-detail-card approval-detail-full"><div class="approval-detail-label">Bill Items Covered</div><div class="approval-detail-value">'.$bill_items_safe.'</div></div>';
+
+		if($source === 'invoice_discount' && !empty($details['invoice_code'])) {
+			$current_total = (float)($this->db->select_sum('amount')->where('invoice_code', $details['invoice_code'])->get('invoice')->row()->amount ?? 0);
+			$discount_amount = (float)($details['discount_amount'] ?? 0);
+			$original_total = ($details['status'] ?? '') === 'approved' ? $current_total + $discount_amount : $current_total;
+			$new_total = ($details['status'] ?? '') === 'approved' ? $current_total : max(0, $current_total - $discount_amount);
+			$html .= '<div class="approval-detail-card approval-detail-full"><div class="approval-detail-label">Invoice Summary</div><div class="approval-detail-summary">';
+			$html .= '<div class="approval-detail-metric"><span>Original Total</span><strong>'.html_escape($currency).' '.number_format($original_total,2).'</strong></div>';
+			$html .= '<div class="approval-detail-metric"><span>Discount</span><strong>- '.html_escape($currency).' '.number_format($discount_amount,2).'</strong></div>';
+			$html .= '<div class="approval-detail-metric"><span>Resulting Total</span><strong>'.html_escape($currency).' '.number_format($new_total,2).'</strong></div></div></div>';
+		}
+		$html .= '<div class="approval-detail-card approval-detail-full"><div class="approval-detail-label">Assigned / Applied By</div><div class="approval-detail-value">'.$assigned_by.'</div></div></div>';
+		echo json_encode(['status'=>'success','html'=>$html]);
 	}
 
 	// View and apply action to pending discounts and profile assignment approvals
 	function discount_approvals($param1 = '') {
+		if($this->session->userdata('user_type') != 1) {
+			if($param1 === '') {
+				$this->session->set_flashdata('error_message', 'Only super administrators can manage discount approvals.');
+				redirect(site_url('admin/dashboard'));
+			} else {
+				$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Only super administrators can manage discount approvals']));
+			}
+			return;
+		}
+
 		if($param1 == 'get_data') {
 			$year = get_settings('running_year');
 			$term = get_settings('running_term');
 			$status_filter = $this->input->get('status') ?: 'all';
-			
-			// Query for profile assignments
-			$this->db->select("'profile_assignment' as source, sda.assignment_id as id, sda.student_id, 
-					COALESCE(sda.status, 'pending') as status,
-					s.name as student_name, s.student_code, sda.discount_type, sda.discount_category, sda.discount_value, sda.discount_method, NULL as discount_amount,
-					CONCAT(c.name, ' ', c.name_numeric, ' ', sec.name) as class_name,
-					dp.profile_name, admin.name as assigned_by_name, NULL as invoice_code, 
-					sda.assigned_at as created_at", FALSE);
+			$allowed_statuses = ['all','pending','approved','rejected','pending_removal'];
+			if(!in_array($status_filter, $allowed_statuses, true)) $status_filter = 'all';
+
+			$this->db->select("'profile_assignment' as source, sda.assignment_id as id, sda.student_id, COALESCE(sda.status, 'pending') as status, s.name as student_name, s.student_code, sda.discount_type, sda.discount_category, sda.discount_value, sda.discount_method, NULL as discount_amount, CONCAT(c.name, ' ', c.name_numeric, ' ', sec.name) as class_name, dp.profile_name, admin.name as assigned_by_name, NULL as invoice_code, sda.assigned_at as created_at", FALSE);
 			$this->db->from('student_discount_assignments sda');
 			$this->db->join('student s', 'sda.student_id = s.student_id');
 			$this->db->join('discount_profiles dp', 'sda.profile_id = dp.profile_id');
-			$this->db->join('enroll e', "s.student_id = e.student_id AND e.year = '$year' AND e.term = '$term'");
+			$this->db->join('enroll e', "s.student_id = e.student_id AND e.year = ".$this->db->escape($year)." AND e.term = ".$this->db->escape($term));
 			$this->db->join('class c', 'e.class_id = c.class_id');
 			$this->db->join('section sec', 'e.section_id = sec.section_id');
-			$this->db->join('admin', 'sda.assigned_by = admin.admin_id');
-			if($status_filter !== 'all') {
-				$this->db->where('sda.status', $status_filter);
-			}
+			$this->db->join('admin', 'sda.assigned_by = admin.admin_id', 'left');
+			if($status_filter !== 'all') $this->db->where('sda.status', $status_filter);
 			$query1 = $this->db->get_compiled_select();
-			
-			// Query for invoice discounts
-			$this->db->select("'invoice_discount' as source, id.discount_id as id, id.student_id, 
-					COALESCE(id.status, 'pending') as status,
-					s.name as student_name, s.student_code, NULL as discount_type, id.discount_category, id.discount_value, id.discount_method, id.discount_amount,
-					CONCAT(c.name, ' ', c.name_numeric, ' ', sec.name) as class_name,
-					dp.profile_name, admin.name as assigned_by_name, id.invoice_code, 
-					id.applied_at as created_at", FALSE);
+
+			$this->db->select("'invoice_discount' as source, id.discount_id as id, id.student_id, COALESCE(id.status, 'pending') as status, s.name as student_name, s.student_code, NULL as discount_type, id.discount_category, id.discount_value, id.discount_method, id.discount_amount, CONCAT(c.name, ' ', c.name_numeric, ' ', sec.name) as class_name, dp.profile_name, admin.name as assigned_by_name, id.invoice_code, id.applied_at as created_at", FALSE);
 			$this->db->from('invoice_discounts id');
 			$this->db->join('student s', 'id.student_id = s.student_id');
-			$this->db->join('enroll e', "s.student_id = e.student_id AND e.year = '$year' AND e.term = '$term'");
+			$this->db->join('enroll e', "s.student_id = e.student_id AND e.year = ".$this->db->escape($year)." AND e.term = ".$this->db->escape($term));
 			$this->db->join('class c', 'e.class_id = c.class_id');
 			$this->db->join('section sec', 'e.section_id = sec.section_id');
 			$this->db->join('admin', 'id.applied_by = admin.admin_id', 'left');
 			$this->db->join('discount_profiles dp', 'id.profile_id = dp.profile_id', 'left');
-			if($status_filter !== 'all') {
-				$this->db->where('id.status', $status_filter);
-			}
+			if($status_filter !== 'all') $this->db->where('id.status', $status_filter);
 			$query2 = $this->db->get_compiled_select();
-			
-			$final_query = "$query1 UNION ALL $query2 ORDER BY created_at DESC";
-			$data = $this->db->query($final_query)->result_array();
-			
-			echo json_encode(['status' => 'success', 'data' => $data]);
+
+			$data = $this->db->query("$query1 UNION ALL $query2 ORDER BY created_at DESC")->result_array();
+			echo json_encode(['status'=>'success','data'=>$data]);
 			return;
 		}
-		
-		if($param1 == 'approve') {
-			$id = $this->input->post('id');
-			$source = $this->input->post('source');
-			$admin_id = $this->session->userdata('admin_id');
-			$admin_level = $this->session->userdata('user_type');
-			
-			if($admin_level != 1 && $admin_level != '1') {
-				echo json_encode(['status' => 'error', 'message' => get_phrase('only_super_admin_can_approve')]);
-				return;
-			}
-			
-			if($source === 'profile_assignment') {
-				$this->db->where('assignment_id', $id)->update('student_discount_assignments', [
-					'status' => 'approved',
-					'is_active' => 1,
-					'approved_by' => $admin_id,
-					'approved_at' => date('Y-m-d H:i:s')
-				]);
-			} else {
-				// Get discount details
-				$discount = $this->db->where('discount_id', $id)->get('invoice_discounts')->row();
-				
-				if($discount) {
-					// Update status
-					$this->db->where('discount_id', $id)->update('invoice_discounts', [
-						'status' => 'approved',
-						'approved_by' => $admin_id,
-						'approved_at' => date('Y-m-d H:i:s')
-					]);
-					
-					// Apply discount to invoice items
-					$invoice_items = $this->db->where('invoice_code', $discount->invoice_code)
-						->where('student_id', $discount->student_id)
-						->get('invoice')->result_array();
-					
-					$profile = $this->db->where('profile_id', $discount->profile_id)->get('discount_profiles')->row();
-					
-					// Get applicable bill items from profile
-					$applicable_total = 0;
-					$applicable_items = array();
-					
-					if($profile->bill_item_ids === '*') {
-						// Wildcard: apply to ALL invoice items
-						foreach($invoice_items as $idx => $item) {
-							$applicable_total += $item['amount'];
-							$applicable_items[] = $idx;
-						}
-					} else {
-						// Specific items: match by bill_item_id
-						$profile_bill_items = explode(',', $profile->bill_item_ids);
-						foreach($invoice_items as $idx => $item) {
-							// Get bill item details to match by title
-							if(isset($item['bill_item_id'])) {
-								if(in_array($item['bill_item_id'], $profile_bill_items)) {
-									$applicable_total += $item['amount'];
-									$applicable_items[] = $idx;
-								}
-							} else {
-								// Match by title if bill_item_id not available
-								foreach($profile_bill_items as $bill_item_id) {
-									$bill_item = $this->db->where('id', trim($bill_item_id))->get('bill_item')->row();
-									if($bill_item && strtolower(trim($item['title'])) == strtolower(trim($bill_item->title))) {
-										$applicable_total += $item['amount'];
-										$applicable_items[] = $idx;
-										break;
-									}
-								}
-							}
-						}
-					}
-					
-					if(count($applicable_items) > 0) {
-						if($discount->discount_method == 'percentage') {
-							// Percentage: each item gets percentage off its own amount
-							foreach($applicable_items as $idx) {
-								$item = $invoice_items[$idx];
-								$item_discount = ($item['amount'] * $discount->discount_value) / 100;
-								
-								// $this->db->insert('invoice_discount_items', [
-								// 	'discount_id' => $discount->discount_id,
-								// 	'invoice_id' => $item['invoice_id'],
-								// 	'invoice_code' => $discount->invoice_code,
-								// 	'student_id' => $discount->student_id,
-								// 	'item_title' => $item['title'],
-								// 	'original_amount' => $item['amount'],
-								// 	'discount_amount' => $item_discount,
-								// 	'discounted_amount' => $item['amount'] - $item_discount
-								// ]);
-								
-								$this->db->where('invoice_id', $item['invoice_id'])
-									->update('invoice', [
-										'amount' => $item['amount'] - $item_discount,
-										'due' => $item['due'] - $item_discount
-									]);
-							}
-						} else {
-							// Fixed amount: proportionate distribution
-							foreach($applicable_items as $idx) {
-								$item = $invoice_items[$idx];
-								$item_discount = ($item['amount'] / $applicable_total) * $discount->discount_amount;
-								
-								// $this->db->insert('invoice_discount_items', [
-								// 	'discount_id' => $discount->discount_id,
-								// 	'invoice_id' => $item['invoice_id'],
-								// 	'invoice_code' => $discount->invoice_code,
-								// 	'student_id' => $discount->student_id,
-								// 	'item_title' => $item['title'],
-								// 	'original_amount' => $item['amount'],
-								// 	'discount_amount' => $item_discount,
-								// 	'discounted_amount' => $item['amount'] - $item_discount
-								// ]);
-								
-								$this->db->where('invoice_id', $item['invoice_id'])
-									->update('invoice', [
-										'amount' => $item['amount'] - $item_discount,
-										'due' => $item['due'] - $item_discount
-									]);
-							}
-						}
-					}
-				}
-			}
-			echo json_encode(['status' => 'success', 'message' => get_phrase('discount_approved')]);
+
+		$admin_id = (int)$this->session->userdata('admin_id');
+		if(in_array($param1, ['approve','reject','revoke','bulk_approve','bulk_reject'], true) && strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
 			return;
 		}
-		
-		if($param1 == 'reject') {
-			$id = $this->input->post('id');
-			$source = $this->input->post('source');
-			$admin_level = $this->session->userdata('user_type');
-			
-			if($admin_level != 1 && $admin_level != '1') {
-				echo json_encode(['status' => 'error', 'message' => get_phrase('only_super_admin_can_reject')]);
-				return;
+		if(in_array($param1, ['approve','reject','revoke'], true)) {
+			$id = (int)$this->input->post('id');
+			$source = (string)$this->input->post('source');
+			if(!$id || !in_array($source, ['profile_assignment','invoice_discount'], true)) {
+				echo json_encode(['status'=>'error','message'=>'Invalid approval request']); return;
 			}
-			
-			if($source === 'profile_assignment') {
-				$this->db->where('assignment_id', $id)->update('student_discount_assignments', [
-					'status' => 'rejected',
-					'is_active' => 0
-				]);
-			} else {
-				$this->db->where('discount_id', $id)->update('invoice_discounts', [
-					'status' => 'rejected'
-				]);
-			}
-			echo json_encode(['status' => 'success', 'message' => get_phrase('discount_rejected')]);
-			return;
+			if($param1 === 'approve') $result = $this->approve_discount_record($id, $source, $admin_id);
+			elseif($param1 === 'revoke') $result = $this->reject_discount_record($id, $source, $admin_id, true);
+			else $result = $this->reject_discount_record($id, $source, $admin_id, false);
+			echo json_encode($result); return;
 		}
-		
-		if($param1 == 'bulk_approve') {
-			$items = $this->input->post('items');
-			$admin_id = $this->session->userdata('admin_id');
-			$admin_level = $this->session->userdata('user_type');
-			
-			if($admin_level != 1 && $admin_level != '1') {
-				echo json_encode(['status' => 'error', 'message' => get_phrase('only_super_admin_can_approve')]);
-				return;
+
+		if(in_array($param1, ['bulk_approve','bulk_reject'], true)) {
+			$items = (array)$this->input->post('items');
+			if(!$items) { echo json_encode(['status'=>'error','message'=>'No items selected']); return; }
+			$success=0; $already=0; $failed=0;
+			foreach(array_slice($items,0,500) as $item) {
+				$id=(int)($item['id'] ?? 0); $source=(string)($item['source'] ?? '');
+				if(!$id || !in_array($source,['profile_assignment','invoice_discount'],true)) { $failed++; continue; }
+				$result = $param1 === 'bulk_approve' ? $this->approve_discount_record($id,$source,$admin_id) : $this->reject_discount_record($id,$source,$admin_id,false);
+				if(($result['status'] ?? '') === 'success') $success++;
+				elseif(($result['status'] ?? '') === 'already') $already++;
+				else $failed++;
 			}
-			
-			if(empty($items)) {
-				echo json_encode(['status' => 'error', 'message' => 'No items selected']);
-				return;
-			}
-			
-			$profile_ids = [];
-			$invoice_ids = [];
-			
-			foreach($items as $item) {
-				if($item['source'] === 'profile_assignment') {
-					$profile_ids[] = $item['id'];
-				} else {
-					$invoice_ids[] = $item['id'];
-				}
-			}
-			
-			$total_count = count($items);
-			
-			if(!empty($profile_ids)) {
-				$this->db->where_in('assignment_id', $profile_ids)
-					->update('student_discount_assignments', [
-						'status' => 'approved',
-						'is_active' => 1,
-						'approved_by' => $admin_id,
-						'approved_at' => date('Y-m-d H:i:s')
-					]);
-			}
-			
-			if(!empty($invoice_ids)) {
-				$this->db->where_in('discount_id', $invoice_ids)
-					->update('invoice_discounts', [
-						'status' => 'approved',
-						'approved_by' => $admin_id,
-						'approved_at' => date('Y-m-d H:i:s')
-					]);
-				
-				// Apply each invoice discount
-				foreach($invoice_ids as $discount_id) {
-					$discount = $this->db->where('discount_id', $discount_id)->get('invoice_discounts')->row();
-					
-					if($discount) {
-						$invoice_items = $this->db->where('invoice_code', $discount->invoice_code)
-							->where('student_id', $discount->student_id)
-							->get('invoice')->result_array();
-						
-						$profile = $this->db->where('profile_id', $discount->profile_id)->get('discount_profiles')->row();
-						
-						// Get applicable bill items from profile
-						$applicable_total = 0;
-						$applicable_items = array();
-						
-						if($profile->bill_item_ids === '*') {
-							// Wildcard: apply to ALL invoice items
-							foreach($invoice_items as $idx => $item) {
-								$applicable_total += $item['amount'];
-								$applicable_items[] = $idx;
-							}
-						} else {
-							// Specific items: match by bill_item_id
-							$profile_bill_items = explode(',', $profile->bill_item_ids);
-							foreach($invoice_items as $idx => $item) {
-								// Get bill item details to match by title
-								if(isset($item['bill_item_id'])) {
-									if(in_array($item['bill_item_id'], $profile_bill_items)) {
-										$applicable_total += $item['amount'];
-										$applicable_items[] = $idx;
-									}
-								} else {
-									// Match by title if bill_item_id not available
-									foreach($profile_bill_items as $bill_item_id) {
-										$bill_item = $this->db->where('id', trim($bill_item_id))->get('bill_item')->row();
-										if($bill_item && strtolower(trim($item['title'])) == strtolower(trim($bill_item->title))) {
-											$applicable_total += $item['amount'];
-											$applicable_items[] = $idx;
-											break;
-										}
-									}
-								}
-							}
-						}
-						
-						if(count($applicable_items) > 0) {
-							foreach($applicable_items as $idx) {
-								$item = $invoice_items[$idx];
-								$item_discount = ($item['amount'] / $applicable_total) * $discount->discount_amount;
-								
-								$this->db->insert('invoice_discount_items', [
-									'discount_id' => $discount->discount_id,
-									'invoice_id' => $item['invoice_id'],
-									'invoice_code' => $discount->invoice_code,
-									'student_id' => $discount->student_id,
-									'item_title' => $item['title'],
-									'original_amount' => $item['amount'],
-									'discount_amount' => $item_discount,
-									'discounted_amount' => $item['amount'] - $item_discount
-								]);
-								
-								$this->db->where('invoice_id', $item['invoice_id'])
-									->update('invoice', [
-										'amount' => $item['amount'] - $item_discount,
-										'due' => $item['due'] - $item_discount
-									]);
-							}
-						}
-					}
-				}
-			}
-			
-			echo json_encode(['status' => 'success', 'message' => "$total_count discount(s) approved successfully"]);
-			return;
+			$message = "$success processed" . ($already ? ", $already already processed" : '') . ($failed ? ", $failed failed" : '');
+			echo json_encode(['status'=>$failed && !$success ? 'error':'success','message'=>$message]); return;
 		}
-		
-		if($param1 == 'bulk_reject') {
-			$items = $this->input->post('items');
-			$admin_level = $this->session->userdata('user_type');
-			
-			if($admin_level != 1 && $admin_level != '1') {
-				echo json_encode(['status' => 'error', 'message' => get_phrase('only_super_admin_can_reject')]);
-				return;
-			}
-			
-			if(empty($items)) {
-				echo json_encode(['status' => 'error', 'message' => 'No items selected']);
-				return;
-			}
-			
-			$profile_ids = [];
-			$invoice_ids = [];
-			
-			foreach($items as $item) {
-				if($item['source'] === 'profile_assignment') {
-					$profile_ids[] = $item['id'];
-				} else {
-					$invoice_ids[] = $item['id'];
-				}
-			}
-			
-			$total_count = count($items);
-			
-			if(!empty($profile_ids)) {
-				$this->db->where_in('assignment_id', $profile_ids)
-					->update('student_discount_assignments', [
-						'status' => 'rejected',
-						'is_active' => 0
-					]);
-			}
-			
-			if(!empty($invoice_ids)) {
-				$this->db->where_in('discount_id', $invoice_ids)
-					->update('invoice_discounts', [
-						'status' => 'rejected'
-					]);
-			}
-			
-			echo json_encode(['status' => 'success', 'message' => "$total_count discount(s) rejected successfully"]);
-			return;
-		}
-		
+
 		$page_data['page_name'] = 'discount_approvals';
 		$page_data['page_title'] = get_phrase('discount_approvals');
 		$page_data['account_type'] = $this->session->userdata('login_type');
 		$this->load->view('backend/main', $page_data);
+	}
+
+	private function approve_discount_record($id, $source, $admin_id, $sync_ledger = true) {
+		$id = (int)$id;
+		$admin_id = (int)$admin_id;
+		if(!$id) return ['status'=>'error','message'=>'Invalid discount request'];
+
+		if($source === 'profile_assignment') {
+			$this->db->trans_begin();
+			$row = $this->db->query('SELECT * FROM student_discount_assignments WHERE assignment_id = ? FOR UPDATE', [$id])->row_array();
+			if(!$row) { $this->db->trans_rollback(); return ['status'=>'error','message'=>'Discount assignment not found']; }
+			if($row['status'] === 'approved' && (int)$row['is_active'] === 1) { $this->db->trans_rollback(); return ['status'=>'already','message'=>'Discount assignment is already approved']; }
+			if($row['status'] === 'pending_removal') { $this->db->trans_rollback(); return ['status'=>'error','message'=>'Removal-pending assignments cannot be approved from this action']; }
+			$ok = $this->db->where('assignment_id',$id)->update('student_discount_assignments', [
+				'status'=>'approved','is_active'=>1,'approved_by'=>$admin_id,'approved_at'=>date('Y-m-d H:i:s'),'rejection_reason'=>null,
+				'deactivated_at'=>null,'deactivated_by'=>null
+			]);
+			if(!$ok || $this->db->trans_status() === FALSE) { $this->db->trans_rollback(); return ['status'=>'error','message'=>get_phrase('operation_failed')]; }
+			$this->db->trans_commit();
+			return ['status'=>'success','message'=>get_phrase('discount_approved')];
+		}
+
+		$this->db->trans_begin();
+		$discount = $this->db->query('SELECT * FROM invoice_discounts WHERE discount_id = ? FOR UPDATE', [$id])->row_array();
+		if(!$discount) { $this->db->trans_rollback(); return ['status'=>'error','message'=>'Invoice discount not found']; }
+		if($discount['status'] === 'approved') { $this->db->trans_rollback(); return ['status'=>'already','message'=>'Discount is already approved']; }
+		if($discount['status'] === 'pending_removal') { $this->db->trans_rollback(); return ['status'=>'error','message'=>'Removal-pending discounts cannot be approved from this action']; }
+		if(!in_array($discount['status'], ['pending','rejected'], true)) { $this->db->trans_rollback(); return ['status'=>'error','message'=>'Discount is not in an approvable state']; }
+		if($this->db->where('discount_id',$id)->count_all_results('invoice_discount_items') > 0) {
+			$this->db->trans_rollback();
+			return ['status'=>'error','message'=>'Pending discounts must not contain allocation rows. Reconcile this legacy request before approval.'];
+		}
+
+		$replacement = null;
+		if(!empty($discount['replacement_discount_id'])) {
+			$replacement = $this->db->query('SELECT * FROM invoice_discounts WHERE discount_id = ? FOR UPDATE', [(int)$discount['replacement_discount_id']])->row_array();
+			if(!$replacement || $replacement['status'] !== 'approved' || (int)$replacement['student_id'] !== (int)$discount['student_id'] || (string)$replacement['invoice_code'] !== (string)$discount['invoice_code']) {
+				$this->db->trans_rollback();
+				return ['status'=>'error','message'=>'The approved discount selected for replacement is no longer available.'];
+			}
+			$old_items = $this->db->where('discount_id',(int)$replacement['discount_id'])->order_by('id','ASC')->get('invoice_discount_items')->result_array();
+			if(!$old_items) {
+				$this->db->trans_rollback();
+				return ['status'=>'error','message'=>'This historical discount has no item-allocation audit rows, so it cannot be safely replaced automatically. Reconcile it manually first.'];
+			}
+			foreach($old_items as $old_item) {
+				$invoice = $this->db->query('SELECT * FROM invoice WHERE invoice_id = ? FOR UPDATE', [(int)$old_item['invoice_id']])->row_array();
+				if(!$invoice) { $this->db->trans_rollback(); return ['status'=>'error','message'=>'An invoice item required for safe replacement no longer exists']; }
+				$restore = (float)$old_item['discount_amount'];
+				$new_amount = round((float)$invoice['amount'] + $restore, 2);
+				$new_due = round(min($new_amount, max(0, (float)$invoice['due'] + $restore)), 2);
+				$paid_or_credit = (float)($invoice['amount_paid'] ?? 0) + (float)($invoice['credit_applied'] ?? 0);
+				$new_status = $new_due <= 0 ? 'paid' : ($paid_or_credit > 0 ? 'partial' : 'unpaid');
+				$this->db->where('invoice_id',(int)$invoice['invoice_id'])->update('invoice',['amount'=>$new_amount,'due'=>$new_due,'status'=>$new_status]);
+			}
+			if($this->discount_has_unreversed_ledger_effect($replacement)) {
+				$this->Finance_model->reverse_discount_ledger($replacement['invoice_code'], $replacement['student_id'], (float)$replacement['discount_amount'], (int)$replacement['discount_id']);
+			}
+			$this->db->where('discount_id',(int)$replacement['discount_id'])->update('invoice_discounts', [
+				'status'=>'rejected',
+				'rejection_reason'=>'Replaced by approved discount #'.$id
+			]);
+		} else {
+			$existing_approved = $this->db->where('student_id',$discount['student_id'])->where('invoice_code',$discount['invoice_code'])->where('discount_category','invoice')->where('status','approved')->where('discount_id !=',$id)->get('invoice_discounts')->row_array();
+			if($existing_approved) {
+				$this->db->trans_rollback();
+				return ['status'=>'error','message'=>'This invoice already has an approved discount. Submit an explicit replacement request instead.'];
+			}
+		}
+
+		$profile = !empty($discount['profile_id']) ? $this->db->where('profile_id',$discount['profile_id'])->where('is_active',1)->get('discount_profiles')->row_array() : null;
+		if(!$profile) { $this->db->trans_rollback(); return ['status'=>'error','message'=>'Discount profile is missing or inactive']; }
+
+		$invoice_items = $this->db->query('SELECT * FROM invoice WHERE invoice_code = ? AND student_id = ? ORDER BY invoice_id ASC FOR UPDATE', [$discount['invoice_code'], $discount['student_id']])->result_array();
+		$calculation = $this->build_invoice_discount_allocations($invoice_items, $profile);
+		$allocations = $calculation['allocations'];
+		if(!$allocations || $calculation['eligible_total'] <= 0) { $this->db->trans_rollback(); return ['status'=>'error','message'=>'No eligible invoice items found for this discount']; }
+
+		foreach($allocations as $allocation) {
+			$item = $allocation['item'];
+			$item_discount = (float)$allocation['discount'];
+			if($item_discount > max(0,(float)$item['due']) + 0.009) {
+				$this->db->trans_rollback();
+				return ['status'=>'error','message'=>'This discount exceeds the outstanding due on a partially paid invoice item. Reconcile the overpayment/credit before approving the discount.'];
+			}
+		}
+
+		$total_applied = 0.0;
+		foreach($allocations as $allocation) {
+			$item = $allocation['item'];
+			$item_discount = (float)$allocation['discount'];
+			if($item_discount <= 0) continue;
+			$total_applied += $item_discount;
+			$new_amount = round(max(0,(float)$item['amount'] - $item_discount),2);
+			$new_due = round(max(0,(float)$item['due'] - $item_discount),2);
+			$paid_or_credit = (float)($item['amount_paid'] ?? 0) + (float)($item['credit_applied'] ?? 0);
+			$new_status = $new_due <= 0 ? 'paid' : ($paid_or_credit > 0 ? 'partial' : 'unpaid');
+			$this->db->insert('invoice_discount_items', [
+				'discount_id'=>$id,'invoice_id'=>$item['invoice_id'],'invoice_code'=>$discount['invoice_code'],'student_id'=>$discount['student_id'],
+				'item_title'=>$item['title'],'original_amount'=>$item['amount'],'discount_amount'=>$item_discount,'discounted_amount'=>$new_amount
+			]);
+			$this->db->where('invoice_id',$item['invoice_id'])->update('invoice',['amount'=>$new_amount,'due'=>$new_due,'status'=>$new_status]);
+		}
+		if($total_applied <= 0) { $this->db->trans_rollback(); return ['status'=>'error','message'=>'Calculated discount amount is zero']; }
+
+		$this->db->where('discount_id',$id)->update('invoice_discounts', [
+			'status'=>'approved','approved_by'=>$admin_id,'approved_at'=>date('Y-m-d H:i:s'),'discount_amount'=>round($total_applied,2),'rejection_reason'=>null
+		]);
+		$this->sync_invoice_discount_assignment($discount, $profile, $admin_id);
+		if($sync_ledger) {
+			sync_invoice_to_ledger($discount['invoice_code'], $discount['student_id']);
+			sync_discount_to_ledger($discount['invoice_code'], $discount['student_id'], round($total_applied,2), $id);
+		}
+
+		if($this->db->trans_status() === FALSE) { $this->db->trans_rollback(); return ['status'=>'error','message'=>get_phrase('operation_failed')]; }
+		$this->db->trans_commit();
+		return ['status'=>'success','message'=>get_phrase('discount_approved')];
+	}
+
+	private function reject_discount_record($id, $source, $admin_id, $revoke=false) {
+		$id = (int)$id;
+		$admin_id = (int)$admin_id;
+		if($source === 'profile_assignment') {
+			$this->db->trans_begin();
+			$row = $this->db->query('SELECT * FROM student_discount_assignments WHERE assignment_id = ? FOR UPDATE', [$id])->row_array();
+			if(!$row) { $this->db->trans_rollback(); return ['status'=>'error','message'=>'Discount assignment not found']; }
+			if($row['status'] === 'rejected' && !(int)$row['is_active']) { $this->db->trans_rollback(); return ['status'=>'already','message'=>'Discount assignment is already rejected']; }
+			$ok = $this->db->where('assignment_id',$id)->update('student_discount_assignments', [
+				'status'=>'rejected','is_active'=>0,'rejection_reason'=>$revoke?'Approval revoked by super administrator':'Rejected by super administrator',
+				'deactivated_at'=>time(),'deactivated_by'=>$admin_id
+			]);
+			if(!$ok || $this->db->trans_status() === FALSE) { $this->db->trans_rollback(); return ['status'=>'error','message'=>get_phrase('operation_failed')]; }
+			$this->db->trans_commit();
+			return ['status'=>'success','message'=>$revoke?'Discount approval revoked':get_phrase('discount_rejected')];
+		}
+
+		$this->db->trans_begin();
+		$discount = $this->db->query('SELECT * FROM invoice_discounts WHERE discount_id = ? FOR UPDATE', [$id])->row_array();
+		if(!$discount) { $this->db->trans_rollback(); return ['status'=>'error','message'=>'Invoice discount not found']; }
+		if($revoke) {
+			if($discount['status'] !== 'approved') { $this->db->trans_rollback(); return ['status'=>'error','message'=>'Only an approved discount can be revoked']; }
+			$items = $this->db->where('discount_id',$id)->order_by('id','ASC')->get('invoice_discount_items')->result_array();
+			if(!$items) { $this->db->trans_rollback(); return ['status'=>'error','message'=>'Cannot safely revoke this historical discount because its item allocation audit rows are missing']; }
+			foreach($items as $item) {
+				$invoice = $this->db->query('SELECT * FROM invoice WHERE invoice_id = ? FOR UPDATE', [(int)$item['invoice_id']])->row_array();
+				if(!$invoice) continue;
+				$restore = (float)$item['discount_amount'];
+				$new_amount = round((float)$invoice['amount'] + $restore,2);
+				$new_due = round(min($new_amount,max(0,(float)$invoice['due'] + $restore)),2);
+				$paid_or_credit = (float)($invoice['amount_paid'] ?? 0) + (float)($invoice['credit_applied'] ?? 0);
+				$new_status = $new_due <= 0 ? 'paid' : ($paid_or_credit > 0 ? 'partial' : 'unpaid');
+				$this->db->where('invoice_id',$item['invoice_id'])->update('invoice',['amount'=>$new_amount,'due'=>$new_due,'status'=>$new_status]);
+			}
+			if($this->discount_has_unreversed_ledger_effect($discount)) {
+				$this->Finance_model->reverse_discount_ledger($discount['invoice_code'], $discount['student_id'], (float)$discount['discount_amount'], $id);
+			}
+			$this->db->where('discount_id',$id)->update('invoice_discounts',['status'=>'rejected','rejection_reason'=>'Approval revoked by super administrator']);
+			sync_invoice_to_ledger($discount['invoice_code'], $discount['student_id']);
+			$this->deactivate_invoice_discount_assignment($discount, $admin_id);
+		} else {
+			if($discount['status'] === 'approved') { $this->db->trans_rollback(); return ['status'=>'error','message'=>'Approved discounts must be revoked so invoice amounts can be restored safely']; }
+			if($discount['status'] === 'rejected') { $this->db->trans_rollback(); return ['status'=>'already','message'=>'Discount is already rejected']; }
+			$this->db->where('discount_id',$id)->update('invoice_discounts',['status'=>'rejected','rejection_reason'=>'Rejected by super administrator']);
+			$this->db->where('student_id',$discount['student_id'])->where('profile_id',$discount['profile_id'])->where('discount_category','invoice')->where('status','pending')->update('student_discount_assignments', [
+				'status'=>'rejected','is_active'=>0,'rejection_reason'=>'Rejected by super administrator','deactivated_at'=>time(),'deactivated_by'=>$admin_id
+			]);
+		}
+		if($this->db->trans_status() === FALSE) { $this->db->trans_rollback(); return ['status'=>'error','message'=>get_phrase('operation_failed')]; }
+		$this->db->trans_commit();
+		return ['status'=>'success','message'=>$revoke?'Discount approval revoked':get_phrase('discount_rejected')];
+	}
+
+	private function build_invoice_discount_allocations($invoice_items, $profile, $amount_overrides = []) {
+		$raw_ids = trim((string)($profile['bill_item_ids'] ?? '*'));
+		$allowed_titles = null;
+		if($raw_ids !== '' && $raw_ids !== '*') {
+			$decoded = json_decode($raw_ids, true);
+			$ids = is_array($decoded) ? $decoded : explode(',', $raw_ids);
+			$ids = array_values(array_filter(array_map('intval', $ids)));
+			$allowed_titles = [];
+			if($ids) {
+				$bill_items = $this->db->where_in('id',$ids)->get('bill_item')->result_array();
+				foreach($bill_items as $bill_item) $allowed_titles[] = strtolower(trim((string)$bill_item['title']));
+			}
+		}
+
+		$eligible = [];
+		$total = 0.0;
+		foreach((array)$invoice_items as $item) {
+			$match = $allowed_titles === null || in_array(strtolower(trim((string)$item['title'])), $allowed_titles, true);
+			if(!$match) continue;
+			$base_amount = array_key_exists((int)$item['invoice_id'], $amount_overrides) ? (float)$amount_overrides[(int)$item['invoice_id']] : (float)$item['amount'];
+			if($base_amount <= 0) continue;
+			$item['_discount_base_amount'] = $base_amount;
+			$eligible[] = $item;
+			$total += $base_amount;
+		}
+
+		$allocations = [];
+		if(!$eligible || $total <= 0) return ['eligible_total'=>0,'allocations'=>[]];
+		$method = (string)($profile['discount_method'] ?? 'percentage');
+		$value = max(0,(float)($profile['discount_value'] ?? 0));
+		if($method === 'percentage') {
+			$rate = min(100,$value);
+			foreach($eligible as $item) $allocations[] = ['item'=>$item,'discount'=>round($item['_discount_base_amount']*$rate/100,2)];
+		} else {
+			$target = min($value,$total);
+			$remaining = round($target,2);
+			$last = count($eligible)-1;
+			foreach($eligible as $idx=>$item) {
+				$portion = $idx === $last ? $remaining : round($target*((float)$item['_discount_base_amount']/$total),2);
+				$portion = min($portion,(float)$item['_discount_base_amount']);
+				$remaining = round($remaining-$portion,2);
+				$allocations[] = ['item'=>$item,'discount'=>$portion];
+			}
+		}
+		return ['eligible_total'=>round($total,2),'allocations'=>$allocations];
+	}
+
+	private function discount_has_unreversed_ledger_effect($discount) {
+		if(empty($discount['discount_id']) || !$this->db->table_exists('student_ledger')) return false;
+		$reference = $discount['invoice_code'] . ':discount:' . (int)$discount['discount_id'];
+		$row = $this->db->select('COALESCE(SUM(credit_amount),0) - COALESCE(SUM(debit_amount),0) AS net_effect', false)
+			->where('student_id',$discount['student_id'])->where('reference_type','discount')->where('reference_id',$reference)->get('student_ledger')->row_array();
+		return (float)($row['net_effect'] ?? 0) > 0.005;
+	}
+
+	private function sync_invoice_discount_assignment($discount, $profile, $admin_id) {
+		$student_id = (int)$discount['student_id'];
+		$profile_id = (int)$discount['profile_id'];
+		$year = $discount['year'] ?: get_settings('running_year');
+		$term = $discount['term'] ?: get_settings('running_term');
+		$assignment = $this->db->where('student_id',$student_id)->where('profile_id',$profile_id)->where('discount_category','invoice')->where('year',$year)->where('term',$term)->order_by('assignment_id','DESC')->get('student_discount_assignments')->row_array();
+		$target_id = $assignment ? (int)$assignment['assignment_id'] : 0;
+
+		$this->db->where('student_id',$student_id)->where('discount_category','invoice')->where('is_active',1);
+		if($target_id) $this->db->where('assignment_id !=',$target_id);
+		$this->db->update('student_discount_assignments',['is_active'=>0,'deactivated_at'=>time(),'deactivated_by'=>$admin_id]);
+
+		$data = [
+			'profile_id'=>$profile_id,'discount_category'=>'invoice','discount_method'=>$profile['discount_method'],'discount_value'=>$profile['discount_value'],
+			'discount_type'=>$profile['discount_type'],'bill_item_ids'=>$profile['bill_item_ids'],'year'=>$year,'term'=>$term,
+			'status'=>'approved','is_active'=>1,'approved_by'=>$admin_id,'approved_at'=>date('Y-m-d H:i:s'),'rejection_reason'=>null,
+			'deactivated_at'=>null,'deactivated_by'=>null
+		];
+		if($target_id) {
+			$this->db->where('assignment_id',$target_id)->update('student_discount_assignments',$data);
+		} else {
+			$data['student_id']=$student_id;
+			$data['assigned_by']=(int)$discount['applied_by'];
+			$data['created_by']=(int)$discount['applied_by'];
+			$data['notes']='Invoice discount activated after approval';
+			$this->db->insert('student_discount_assignments',$data);
+		}
+	}
+
+	private function deactivate_invoice_discount_assignment($discount, $admin_id) {
+		$this->db->where('student_id',$discount['student_id'])->where('profile_id',$discount['profile_id'])->where('discount_category','invoice')->where('is_active',1)->update('student_discount_assignments', [
+			'is_active'=>0,'deactivated_at'=>time(),'deactivated_by'=>$admin_id
+		]);
+	}
+
+	private function apply_admission_discount_profiles($student_id, $invoice_code, $invoice_profile_id, $daily_fees_profile_id, $year, $term, $is_super_admin, $student_name='Student') {
+		$admin_id = (int)$this->session->userdata('login_user_id');
+		$created_pending = false;
+
+		if(!empty($invoice_profile_id)) {
+			$profile = $this->db->where('profile_id',(int)$invoice_profile_id)->where('is_active',1)->where('discount_category','invoice')->get('discount_profiles')->row_array();
+			if($profile) {
+				$invoice_items = $this->db->where('invoice_code',$invoice_code)->where('student_id',$student_id)->order_by('invoice_id','ASC')->get('invoice')->result_array();
+				$calc = $this->build_invoice_discount_allocations($invoice_items,$profile);
+				$preview = 0.0;
+				foreach($calc['allocations'] as $allocation) $preview += (float)$allocation['discount'];
+				$preview = round($preview,2);
+				if($preview > 0) {
+					$this->db->insert('invoice_discounts', [
+						'invoice_code'=>$invoice_code,'student_id'=>$student_id,'profile_id'=>(int)$invoice_profile_id,'replacement_discount_id'=>null,
+						'discount_category'=>'invoice','discount_method'=>$profile['discount_method'],'discount_value'=>$profile['discount_value'],'discount_amount'=>$preview,
+						'reason'=>'Profile: '.$profile['profile_name'].' · admission','status'=>'pending','applied_by'=>$admin_id,'created_by'=>$admin_id,
+						'approved_by'=>null,'approved_at'=>null,'year'=>$year,'term'=>$term
+					]);
+					$discount_id=(int)$this->db->insert_id();
+					if($discount_id) {
+						if($is_super_admin) {
+							$result=$this->approve_discount_record($discount_id,'invoice_discount',$admin_id,true);
+							if(($result['status'] ?? '') !== 'success') log_message('error','Admission invoice discount #'.$discount_id.' could not be auto-approved: '.($result['message'] ?? 'unknown error'));
+						} else $created_pending=true;
+					}
+				}
+			}
+		}
+
+		if(!empty($daily_fees_profile_id)) {
+			$profile = $this->db->where('profile_id',(int)$daily_fees_profile_id)->where('is_active',1)->where('discount_category','daily_fees')->get('discount_profiles')->row_array();
+			if($profile) {
+				$status=$is_super_admin?'approved':'pending';
+				$data=[
+					'student_id'=>$student_id,'profile_id'=>(int)$daily_fees_profile_id,'discount_category'=>'daily_fees','discount_method'=>$profile['discount_method'],
+					'discount_value'=>$profile['discount_value'],'discount_type'=>$profile['discount_type'],'bill_item_ids'=>$profile['bill_item_ids'],'year'=>$year,'term'=>$term,
+					'assigned_by'=>$admin_id,'created_by'=>$admin_id,'is_active'=>$is_super_admin?1:0,'status'=>$status,
+					'approved_by'=>$is_super_admin?$admin_id:null,'approved_at'=>$is_super_admin?date('Y-m-d H:i:s'):null,'notes'=>'Daily fees discount assigned during admission'
+				];
+				$this->db->insert('student_discount_assignments',$data);
+				if(!$is_super_admin) $created_pending=true;
+			}
+		}
+
+		if($created_pending) {
+			$requester=$this->db->where('admin_id',$admin_id)->get('admin')->row();
+			$school_name=get_settings('system_name');
+			foreach($this->db->where('level',1)->get('admin')->result() as $admin) {
+				$this->db->insert('notifications',[
+					'user_id'=>$admin->admin_id,'user_type'=>'superadmin','title'=>'Discount Approval Required',
+					'message'=>($requester?$requester->name:'Administrator').' assigned a discount profile to '.$student_name.' during admission',
+					'type'=>'discount_approval','created_at'=>date('Y-m-d H:i:s')
+				]);
+				$active_sms=get_settings('active_sms_service');
+				if($active_sms && $active_sms !== 'disabled' && !empty($admin->phone)) {
+					$this->sms_model->send_sms('['.$school_name.'] Discount approval needed for '.$student_name.'. Review at: '.site_url('admin/discount_approvals'),[$admin->phone]);
+				}
+				if(!empty($admin->email)) {
+					$message="<div style='font-family:Arial,sans-serif'><h3>Discount Approval Required</h3><p>A discount assigned during admission for ".html_escape($student_name)." requires your approval.</p><p><a href='".site_url('admin/discount_approvals')."'>Review approvals</a></p></div>";
+					$this->email_model->do_email($message,'Discount Approval Required',$admin->email,$school_name);
+				}
+			}
+		}
 	}
 
 	// Invoice summary view
@@ -36575,10 +36230,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$student_id = $this->input->post('student_id');
 		$year = $this->input->post('year');
 		$term = $this->input->post('term');
-		
+
 		// Group by invoice_code and sum amounts
-		$this->db->select('i.invoice_code, MIN(i.creation_timestamp) as creation_timestamp, MIN(s.name) as student_name, MIN(s.student_code) as student_code, MIN(i.year) as year, MIN(i.term) as term, 
-						   SUM(i.amount) as total_amount, SUM(i.amount_paid) as total_paid, 
+		$this->db->select('i.invoice_code, MIN(i.creation_timestamp) as creation_timestamp, MIN(s.name) as student_name, MIN(s.student_code) as student_code, MIN(i.year) as year, MIN(i.term) as term,
+						   SUM(i.amount) as total_amount, SUM(i.amount_paid) as total_paid,
 						   GROUP_CONCAT(DISTINCT i.title SEPARATOR ", ") as descriptions');
 		$this->db->from('invoice i');
 		$this->db->join('student s', 's.student_id = i.student_id');
@@ -36588,12 +36243,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->group_by('i.invoice_code');
 		$this->db->order_by('i.creation_timestamp', 'DESC');
 		$transactions = $this->db->get()->result_array();
-		
+
 		$html = '<div class="data-card">';
 		$html .= '<table id="ledgerTable" class="table-modern" style="width:100%"><thead><tr>';
 		$html .= '<th>Date</th><th>Student</th><th>Description</th><th>Invoice Code</th>';
 		$html .= '<th style="text-align:right">Debit</th><th style="text-align:right">Credit</th><th style="text-align:right">Balance</th></tr></thead><tbody>';
-		
+
 		$balance = 0;
 		foreach($transactions as $t) {
 			$balance += $t['total_amount'] - $t['total_paid'];
@@ -36608,7 +36263,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$html .= '</tr>';
 		}
 		$html .= '</tbody></table></div>';
-		
+
 		echo json_encode(['status' => 'success', 'html' => $html]);
 	}
 
@@ -36622,19 +36277,19 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->where('i.due >', 0);
 		$this->db->group_by('i.invoice_code');
 		$invoices = $this->db->get()->result_array();
-		
+
 		$summary = ['current' => 0, 'current_count' => 0, 'days30' => 0, 'days30_count' => 0, 'days60' => 0, 'days60_count' => 0, 'days90' => 0, 'days90_count' => 0];
 		$details = [];
-		
+
 		foreach($invoices as $inv) {
 			$days = floor((time() - $inv['creation_timestamp']) / 86400);
 			$category = $days <= 30 ? 'Current' : ($days <= 60 ? '31-60 Days' : ($days <= 90 ? '61-90 Days' : 'Over 90 Days'));
-			
+
 			if($days <= 30) { $summary['current'] += $inv['total_due']; $summary['current_count']++; }
 			elseif($days <= 60) { $summary['days30'] += $inv['total_due']; $summary['days30_count']++; }
 			elseif($days <= 90) { $summary['days60'] += $inv['total_due']; $summary['days60_count']++; }
 			else { $summary['days90'] += $inv['total_due']; $summary['days90_count']++; }
-			
+
 			$details[] = [
 				'student_name' => $inv['student_name'],
 				'class_name' => $this->crud_model->getFullClassName($inv['class_id']),
@@ -36645,7 +36300,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'age_category' => $category
 			];
 		}
-		
+
 		echo json_encode(['status' => 'success', 'summary' => $summary, 'details' => $details]);
 	}
 
@@ -36654,7 +36309,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$student_id = $this->input->get('student_id');
 		$year = $this->input->get('year');
 		$term = $this->input->get('term');
-		
+
 		$this->db->select('i.*, s.name as student_name');
 		$this->db->from('invoice i');
 		$this->db->join('student s', 's.student_id = i.student_id');
@@ -36663,13 +36318,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		if($term) $this->db->where('i.term', $term);
 		$this->db->order_by('i.creation_timestamp', 'DESC');
 		$transactions = $this->db->get()->result_array();
-		
+
 		header('Content-Type: text/csv');
 		header('Content-Disposition: attachment; filename="student_ledger_'.date('Y-m-d').'.csv"');
-		
+
 		$output = fopen('php://output', 'w');
 		fputcsv($output, ['Date', 'Student', 'Description', 'Invoice Code', 'Debit', 'Credit', 'Balance']);
-		
+
 		$balance = 0;
 		foreach($transactions as $t) {
 			$balance += $t['amount'] - $t['amount_paid'];
@@ -36696,13 +36351,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->where('i.due >', 0);
 		$this->db->group_by('i.student_id, i.invoice_code');
 		$invoices = $this->db->get()->result_array();
-		
+
 		header('Content-Type: text/csv');
 		header('Content-Disposition: attachment; filename="aging_report_'.date('Y-m-d').'.csv"');
-		
+
 		$output = fopen('php://output', 'w');
 		fputcsv($output, ['Student', 'Class', 'Invoice Code', 'Invoice Date', 'Days Outstanding', 'Amount Due', 'Category']);
-		
+
 		foreach($invoices as $inv) {
 			$days = floor((time() - $inv['creation_timestamp']) / 86400);
 			$category = $days <= 30 ? 'Current' : ($days <= 60 ? '31-60 Days' : ($days <= 90 ? '61-90 Days' : 'Over 90 Days'));
@@ -36766,13 +36421,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 		$criteria = $this->input->post('criteria');
 		$template_code = $this->input->post('template');
-		
+
 		$this->db->select('i.student_id, i.invoice_code, i.due, i.creation_timestamp, s.name as student_name, p.name as parent_name, p.phone');
 		$this->db->from('invoice i');
 		$this->db->join('student s', 's.student_id = i.student_id');
 		$this->db->join('parent p', 'p.parent_id = s.parent_id');
 		$this->db->where('i.due >', 0);
-		
+
 		if($criteria == 'overdue_30') {
 			$this->db->where('i.creation_timestamp <', time() - (30 * 86400));
 		} elseif($criteria == 'overdue_60') {
@@ -36780,13 +36435,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		} elseif($criteria == 'overdue_90') {
 			$this->db->where('i.creation_timestamp <', time() - (90 * 86400));
 		}
-		
+
 		$this->db->group_by('i.student_id');
 		$students = $this->db->get()->result_array();
-		
+
 		$template = $this->db->get_where('sms_templates', ['code' => $template_code])->row();
 		$school_name = $this->db->get_where('settings', ['type' => 'system_name'])->row()->description;
-		
+
 		$sent = 0;
 		foreach($students as $student) {
 			$message = str_replace(
@@ -36794,7 +36449,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				[$student['parent_name'], $student['student_name'], number_format($student['due'], 2), $student['invoice_code'], $school_name, floor((time() - $student['creation_timestamp']) / 86400)],
 				$template->message
 			);
-			
+
 			if($this->sms_model->send_sms($message, [$student['phone']])) {
 				$sent++;
 				$this->db->insert('sms_log', [
@@ -36807,7 +36462,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				]);
 			}
 		}
-		
+
 		echo json_encode(['status' => 'success', 'message' => $sent.' SMS sent successfully']);
 	}
 
@@ -36839,7 +36494,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
     public function get_financial_alerts() {
         $alerts = [];
         $currency = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
-        
+
         // Critical outstanding balances
         $this->db->select('s.student_id, s.name, s.student_code, SUM(i.due) as total_due, MIN(i.creation_timestamp) as oldest');
         $this->db->from('invoice i');
@@ -36850,7 +36505,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
         $this->db->having('total_due >', 1000);
         $this->db->limit(3);
         $critical_debts = $this->db->get()->result_array();
-        
+
         foreach ($critical_debts as $debt) {
             $days = floor((time() - $debt['oldest']) / 86400);
             $alert_key = 'debt_' . $debt['student_id'];
@@ -36866,7 +36521,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
                 ];
             }
         }
-        
+
         // Collection efficiency
         $today_start = strtotime(date('Y-m-d') . ' 00:00:00');
         $today_end = strtotime(date('Y-m-d') . ' 23:59:59');
@@ -36874,10 +36529,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
         $this->db->where('payment_date >=', $today_start);
         $this->db->where('payment_date <=', $today_end);
         $today_collection = $this->db->get('daily_fee_transactions')->row();
-        
+
         $target = 15000;
         $rate = $target > 0 ? ($today_collection->total / $target) * 100 : 0;
-        
+
         if ($rate < 70 && !$this->is_alert_resolved('efficiency_' . date('Y-m-d'))) {
             $alerts[] = [
                 'id' => 'efficiency_' . date('Y-m-d'),
@@ -36889,14 +36544,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
                 'icon' => 'chart-line'
             ];
         }
-        
+
         // Bank reconciliation overdue
         if ($this->db->table_exists('bank_accounts')) {
             $this->db->select('account_name, account_number, last_reconciled');
             $this->db->where('last_reconciled <', time() - (7 * 86400));
             $this->db->or_where('last_reconciled', null);
             $overdue_accounts = $this->db->get('bank_accounts')->result_array();
-            
+
             foreach ($overdue_accounts as $account) {
                 $days = $account['last_reconciled'] ? floor((time() - $account['last_reconciled']) / 86400) : 30;
                 $alert_key = 'recon_' . $account['account_number'];
@@ -36913,14 +36568,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
                 }
             }
         }
-        
+
         // Rapid transaction detection
         $this->db->select('collector_id, COUNT(*) as count, MIN(payment_date) as first, MAX(payment_date) as last');
         $this->db->where('payment_date >=', time() - 600);
         $this->db->group_by('collector_id');
         $this->db->having('count >', 10);
         $rapid_trans = $this->db->get('daily_fee_transactions')->result_array();
-        
+
         foreach ($rapid_trans as $trans) {
             $minutes = floor(($trans['last'] - $trans['first']) / 60);
             $collector = $this->db->get_where('admin', ['admin_id' => $trans['collector_id']])->row();
@@ -36937,7 +36592,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
                 ];
             }
         }
-        
+
         // Success alert
         if ($rate >= 100 && !$this->is_alert_resolved('success_' . date('Y-m-d'))) {
             $alerts[] = [
@@ -36950,7 +36605,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
                 'icon' => 'check-circle'
             ];
         }
-        
+
         echo json_encode($alerts);
     }
 
@@ -36963,14 +36618,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
     public function resolve_financial_alert() {
         $alert_id = $this->input->post('alert_id');
         $notes = $this->input->post('notes');
-        
+
         $data = [
             'alert_key' => $alert_id,
             'resolved_by' => $this->session->userdata('login_user_id'),
             'resolved_at' => time(),
             'notes' => $notes
         ];
-        
+
         $this->db->insert('financial_alert_resolutions', $data);
         echo json_encode(['status' => 'success', 'message' => get_phrase('alert_resolved_successfully')]);
     }
@@ -37004,7 +36659,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
                 'email_notifications' => $this->input->post('email_notifications'),
                 'notification_emails' => $this->input->post('notification_emails')
             ];
-            
+
             foreach ($settings as $key => $value) {
                 $this->db->where('type', 'alert_' . $key);
                 if ($this->db->count_all_results('settings') > 0) {
@@ -37014,11 +36669,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
                     $this->db->insert('settings', ['type' => 'alert_' . $key, 'description' => $value]);
                 }
             }
-            
+
             echo json_encode(['status' => 'success', 'message' => 'Settings updated successfully']);
             return;
         }
-        
+
         $page_data['page_name'] = 'alert_settings';
         $page_data['page_title'] = get_phrase('alert_settings');
         $this->load->view('backend/main', $page_data);
@@ -37027,16 +36682,16 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
     private function send_alert_email($alert) {
         $email_enabled = $this->db->get_where('settings', ['type' => 'alert_email_notifications'])->row();
         if (!$email_enabled || $email_enabled->description != '1') return;
-        
+
         $emails = $this->db->get_where('settings', ['type' => 'alert_notification_emails'])->row();
         if (!$emails) return;
-        
+
         $email_list = explode(',', $emails->description);
         $school_name = $this->db->get_where('settings', ['type' => 'system_name'])->row()->description;
-        
+
         $subject = "[{$alert['severity']}] Financial Alert: {$alert['title']}";
         $message = "<h3>{$alert['title']}</h3><p>{$alert['description']}</p><p><strong>Category:</strong> {$alert['category']}<br><strong>Severity:</strong> {$alert['severity']}<br><strong>Time:</strong> {$alert['timestamp']}</p>";
-        
+
         foreach ($email_list as $email) {
             $this->email_model->do_email($message, $subject, trim($email), $school_name);
         }
@@ -37050,24 +36705,24 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
     }
 
     function get_audit_trail() {
-        
+
         $columns = ['audit_id', 'performed_at', 'record_type', 'record_id', 'action', 'performed_by', 'ip_address', 'notes'];
-        
+
         $limit = $this->input->post('length');
         $start = $this->input->post('start');
         $order = $columns[$this->input->post('order')[0]['column']] ?? 'performed_at';
         $dir = $this->input->post('order')[0]['dir'] ?? 'desc';
         $search = $this->input->post('search')['value'] ?? '';
-        
+
         $filter_type = $this->input->post('filter_type');
         $filter_action = $this->input->post('filter_action');
         $filter_date_from = $this->input->post('filter_date_from');
         $filter_date_to = $this->input->post('filter_date_to');
-        
+
         $this->db->select('audit_trail.*, admin.name as performed_by_name');
         $this->db->from('audit_trail');
         $this->db->join('admin', 'admin.admin_id = audit_trail.performed_by', 'left');
-        
+
         if ($filter_type) $this->db->where('record_type', $filter_type);
         if ($filter_action) $this->db->where('action', $filter_action);
         if ($filter_date_from) $this->db->where('DATE(performed_at) >=', $filter_date_from);
@@ -37080,12 +36735,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
             $this->db->or_like('notes', $search);
             $this->db->group_end();
         }
-        
+
         $totalFiltered = $this->db->count_all_results('', false);
         $this->db->order_by($order, $dir);
         $this->db->limit($limit, $start);
         $query = $this->db->get();
-        
+
         $data = [];
         foreach ($query->result() as $row) {
             $action_class = 'action-' . strtolower($row->action);
@@ -37099,7 +36754,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
                 'notes' => $row->notes ?? '-'
             ];
         }
-        
+
         echo json_encode([
             'draw' => intval($this->input->post('draw')),
             'recordsTotal' => $this->db->count_all('audit_trail'),
@@ -37110,28 +36765,28 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
     function export_audit_trail() {
         $this->load->dbutil();
-        
+
         $filter_type = $this->input->get('type');
         $filter_action = $this->input->get('action');
         $filter_date_from = $this->input->get('date_from');
         $filter_date_to = $this->input->get('date_to');
-        
+
         $this->db->select('audit_trail.*, admin.name as performed_by_name');
         $this->db->from('audit_trail');
         $this->db->join('admin', 'admin.admin_id = audit_trail.performed_by', 'left');
-        
+
         if ($filter_type) $this->db->where('record_type', $filter_type);
         if ($filter_action) $this->db->where('action', $filter_action);
         if ($filter_date_from) $this->db->where('DATE(performed_at) >=', $filter_date_from);
         if ($filter_date_to) $this->db->where('DATE(performed_at) <=', $filter_date_to);
-        
+
         $this->db->order_by('performed_at', 'DESC');
         $query = $this->db->get();
-        
+
         $delimiter = ",";
         $newline = "\r\n";
         $filename = 'audit_trail_' . date('Y-m-d_His') . '.csv';
-        
+
         $data = $this->dbutil->csv_from_result($query, $delimiter, $newline);
         force_download($filename, $data);
     }
@@ -37139,16 +36794,16 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
     function get_audit_stats() {
         $this->db->where('action', 'lock');
         $total_locks = $this->db->count_all_results('audit_trail');
-        
+
         $this->db->where('action', 'unlock');
         $total_unlocks = $this->db->count_all_results('audit_trail');
-        
+
         $this->db->where('action', 'edit');
         $total_edits = $this->db->count_all_results('audit_trail');
-        
+
         $this->db->where('DATE(performed_at)', date('Y-m-d'));
         $today_actions = $this->db->count_all_results('audit_trail');
-        
+
         echo json_encode([
             'total_locks' => $total_locks,
             'total_unlocks' => $total_unlocks,
@@ -37164,35 +36819,35 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
         $year = $this->input->post('year');
         $term = $this->input->post('term');
         $currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
-        
+
         $this->db->where('student_id', $student_id);
         // Exclude daily fee receipts (where invoice_code and invoice_id are NULL)
         $this->db->where('invoice_code IS NOT NULL', NULL, FALSE);
         $this->db->where('invoice_id IS NOT NULL', NULL, FALSE);
-        
+
         if($start_date) {
             $start_timestamp = strtotime(str_replace('-', '/', $start_date));
             $this->db->where('timestamp >=', $start_timestamp);
         }
-        
+
         if($end_date) {
             $end_timestamp = strtotime(str_replace('-', '/', $end_date) . ' 23:59:59');
             $this->db->where('timestamp <=', $end_timestamp);
         }
-        
+
         if($year) $this->db->where('year', $year);
         if($term) $this->db->where('term', $term);
-        
+
         // Group by receipt_code since single payment can cover multiple invoices
         $this->db->group_by('receipt_code');
         $this->db->order_by('timestamp', 'DESC');
         $receipts = $this->db->get('payment')->result_array();
-        
+
         $theme_color = $this->db->get_where('settings', array('type' => 'theme_color'))->row()->description;
         if(strpos($theme_color, '#') !== 0) {
             $theme_color = '#' . $theme_color;
         }
-        
+
         if(count($receipts) > 0) {
             foreach($receipts as $receipt) {
                 // Get all invoice codes covered by this receipt
@@ -37204,10 +36859,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
                     ->result_array();
                 $invoice_codes_list = array_unique(array_column($invoice_codes, 'invoice_code'));
                 $total_amount = array_sum(array_column($invoice_codes, 'amount'));
-                $invoice_display = count($invoice_codes_list) > 1 ? 
-                    '#' . implode(', #', array_slice($invoice_codes_list, 0, 2)) . (count($invoice_codes_list) > 2 ? '...' : '') : 
+                $invoice_display = count($invoice_codes_list) > 1 ?
+                    '#' . implode(', #', array_slice($invoice_codes_list, 0, 2)) . (count($invoice_codes_list) > 2 ? '...' : '') :
                     '#' . $invoice_codes_list[0];
-                
+
                 $payment_method = '';
                 $method_icon = '';
                 $method_color = '';
@@ -37232,7 +36887,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
                     $method_icon = 'fa-wallet';
                     $method_color = '#6b7280';
                 }
-                
+
                 echo '<tr style="border-bottom: 1px solid #e2e8f0;">';
                 echo '<td style="padding: 15px;"><span style="font-weight: 700; color: '.$theme_color.'; font-size: 14px;">#'.$receipt['receipt_code'].'</span></td>';
                 echo '<td style="padding: 15px;"><span style="font-weight: 600; color: #4a5568;" title="'.implode(', ', array_map(function($c) { return '#'.$c; }, $invoice_codes_list)).'">';
@@ -37305,23 +36960,23 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
         if($param1 == 'assign') {
             $class_ids = $this->input->post('class_names');
             $profile_ids = $this->input->post('profile_ids');
-            
+
             if(empty($class_ids) || empty($profile_ids)) {
                 echo json_encode(array('status' => 'error', 'message' => get_phrase('please_select_classes_and_profiles')));
                 return;
             }
-            
+
             $assigned_count = 0;
             $running_year = get_settings('running_year');
             $running_term = get_settings('running_term');
-            
+
             foreach($class_ids as $class_id) {
                 $students = $this->db->where('class_id', $class_id)
                     ->where('year', $running_year)
                     ->where('term', $running_term)
                     ->where('mute', '0')
                     ->get('enroll')->result_array();
-                    
+
                 foreach($students as $student) {
                     foreach($profile_ids as $profile_id) {
                         $exists = $this->db->where('student_id', $student['student_id'])
@@ -37339,7 +36994,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
                     }
                 }
             }
-            
+
             echo json_encode(array('status' => 'success', 'message' => get_phrase('assigned_successfully') . ' (' . $assigned_count . ')'));
         }
     }
@@ -37357,15 +37012,15 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			'ip_address' => $this->input->ip_address(),
 			'user_agent' => substr($this->input->user_agent(), 0, 255)
 		);
-		
+
 		if ($old_values !== null) {
 			$audit_data['old_values'] = json_encode($old_values);
 		}
-		
+
 		if ($new_values !== null) {
 			$audit_data['new_values'] = json_encode($new_values);
 		}
-		
+
 		$this->db->insert('discount_audit_trail', $audit_data);
 	}
 
@@ -37388,15 +37043,15 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	 * Get discount amount report data via AJAX
 	 */
 	function get_discount_amount_report() {
-		
+
 		$filters = [
 			'category' => $this->input->get('category'),
 			'year' => $this->input->get('year') ?: get_settings('running_year'),
 			'term' => $this->input->get('term')
 		];
-		
+
 		$data = get_discount_applications_report($filters);
-		
+
 		$summary = [
 			'total_applications' => count($data),
 			'total_original_amount' => array_sum(array_column($data, 'original_amount')),
@@ -37404,7 +37059,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			'total_final_amount' => array_sum(array_column($data, 'final_amount')),
 			'unique_students' => count(array_unique(array_column($data, 'student_id')))
 		];
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'data' => $data,
@@ -37416,35 +37071,35 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	 * Export discount amount report to Excel
 	 */
 	function export_discount_amount_report() {
-		
+
 		$filters = [
 			'category' => $this->input->get('category'),
 			'year' => $this->input->get('year') ?: get_settings('running_year'),
 			'term' => $this->input->get('term')
 		];
-		
+
 		$data = get_discount_applications_report($filters);
-		
+
 		$this->load->view('backend/admin/export_discount_report', ['data' => $data]);
 	}
-	
+
 	/**
 	 * Get bill items via AJAX for refresh
 	 */
 	function get_bill_item() {
 		$items = $this->db->get('bill_item')->result_array();
 		$allBillCategory = $this->crud_model->getAllBillCategory();
-		
+
 		$data = [];
 		foreach($items as $item) {
 			$category_name = $this->crud_model->getBillCategoryNameById($item['bill_category_id']);
-			
+
 			$category_options = '';
 			foreach($allBillCategory as $cat) {
 				$selected = ($item['bill_category_id'] == $cat['bill_category_id']) ? 'selected' : '';
 				$category_options .= '<option value="'.$cat['bill_category_id'].'" '.$selected.'>'.$cat['bill_category_name'].'</option>';
 			}
-			
+
 			// Get class category options
 			$this->db->distinct();
 			$this->db->select('category');
@@ -37452,14 +37107,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$this->db->where('category IS NOT NULL', NULL, FALSE);
 			$this->db->where('category !=', '');
 			$categories = $this->db->get()->result_array();
-			
+
 			$order_map = array('Pre-School' => 1, 'Lower Primary' => 2, 'Upper Primary' => 3, 'JHS' => 4);
 			usort($categories, function($a, $b) use ($order_map) {
 				$order_a = isset($order_map[$a['category']]) ? $order_map[$a['category']] : 999;
 				$order_b = isset($order_map[$b['category']]) ? $order_map[$b['category']] : 999;
 				return $order_a - $order_b;
 			});
-			
+
 			$class_category_options = '<option value="">All Classes</option>';
 			foreach($categories as $cat) {
 				if(!empty($cat['category'])) {
@@ -37467,7 +37122,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					$class_category_options .= '<option value="'.$cat['category'].'" '.$selected.'>'.$cat['category'].'</option>';
 				}
 			}
-			
+
 			// Get specific classes display
 			$specific_classes_display = '-';
 			if(!empty($item['specific_class_ids'])) {
@@ -37485,13 +37140,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				}
 				$specific_classes_display = implode(', ', $class_names);
 			}
-			
+
 			// Get all classes for multi-select
 			$this->db->select('class.class_id, class.name, class.name_numeric, section.name as section_name');
 			$this->db->from('class');
 			$this->db->join('section', 'section.class_id = class.class_id', 'left');
 			$all_classes = $this->db->get()->result_array();
-			
+
 			$class_order = array('CRECHE' => 1, 'NURSERY' => 2, 'KG' => 3, 'BASIC' => 4, 'JHS' => 5);
 			usort($all_classes, function($a, $b) use ($class_order) {
 				$order_a = isset($class_order[$a['name']]) ? $class_order[$a['name']] : 999;
@@ -37501,7 +37156,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				}
 				return $order_a - $order_b;
 			});
-			
+
 			$specific_class_ids_array = !empty($item['specific_class_ids']) ? explode(',', $item['specific_class_ids']) : [];
 			$specific_classes_options = '';
 			foreach($all_classes as $ac) {
@@ -37509,7 +37164,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$selected = in_array($ac['class_id'], $specific_class_ids_array) ? 'selected' : '';
 				$specific_classes_options .= '<option value="'.$ac['class_id'].'" '.$selected.'>'.$full_name.'</option>';
 			}
-			
+
 			$data[] = [
 				'id' => $item['id'],
 				'title' => $item['title'],
@@ -37526,7 +37181,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'description' => $item['description']
 			];
 		}
-		
+
 		echo json_encode(['status' => 'success', 'data' => $data]);
 	}
 
@@ -37535,7 +37190,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$student_count = count($student_ids);
 		$profile_count = count($profile_ids);
 		$super_admins = $this->db->where('level', 1)->get('admin')->result();
-		
+
 		foreach($super_admins as $admin) {
 			$this->db->insert('notifications', [
 				'user_id' => $admin->admin_id,
@@ -37546,14 +37201,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'is_read' => 0,
 				'created_at' => date('Y-m-d H:i:s')
 			]);
-			
+
 			$active_sms = $this->db->get_where('settings', ['type' => 'active_sms_service'])->row();
 			if($active_sms && $active_sms->description != 'disabled' && !empty($admin->phone)) {
 				$school_name = get_settings('system_name');
 				$sms_message = "[$school_name] Discount approval needed: {$requester->name} requested {$student_count} student discount(s). Review at: " . site_url('admin/discount_approvals');
 				$this->sms_model->send_sms($sms_message, [$admin->phone]);
 			}
-			
+
 			if(!empty($admin->email)) {
 				$school_name = get_settings('system_name');
 				$subject = "Discount Assignment Approval Required - $school_name";
@@ -37579,13 +37234,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function get_discount_types_for_profiles() {
 		$category = $this->input->get('category');
 		$response = array('status' => 'error', 'message' => 'Invalid category', 'data' => array());
-		
+
 		if($category == 'invoice') {
 			$this->db->select('id, title');
 			$this->db->from('bill_item');
 			$this->db->order_by('title', 'ASC');
 			$query = $this->db->get();
-			
+
 			if($query->num_rows() > 0) {
 				$items = array();
 				foreach($query->result() as $row) {
@@ -37594,12 +37249,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						'label' => $row->title
 					);
 				}
-				
+
 				array_unshift($items, array(
 					'value' => 'all_invoice_items',
 					'label' => 'All Invoice Items'
 				));
-				
+
 				$response = array(
 					'status' => 'success',
 					'message' => 'Invoice items loaded',
@@ -37612,16 +37267,16 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					'data' => array()
 				);
 			}
-			
+
 		} elseif($category == 'daily_fees') {
 			$items = array();
 			$fee_types = array('feeding', 'classes', 'water', 'breakfast', 'transport');
-			
+
 			foreach($fee_types as $fee_type) {
 				$setting = $this->db->get_where('settings', array(
 					'type' => 'fee_module_' . $fee_type
 				))->row();
-				
+
 				if($setting && $setting->description == '1') {
 					$items[] = array(
 						'value' => $fee_type,
@@ -37629,21 +37284,21 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					);
 				}
 			}
-			
+
 			if(count($items) > 0) {
 				array_unshift($items, array(
 					'value' => 'all_daily_fees',
 					'label' => 'All Daily Fees'
 				));
 			}
-			
+
 			$response = array(
 				'status' => 'success',
 				'message' => 'Daily fees loaded',
 				'data' => $items
 			);
 		}
-		
+
 		echo json_encode($response);
 	}
 
@@ -37651,33 +37306,33 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$profile_id = $this->input->post('profile_id');
 		$action = $this->input->post('action');
 		$class_id = $this->input->post('class_id');
-		
+
 		if(!$profile_id) {
 			echo json_encode(['status' => 'error', 'message' => 'Profile ID required']);
 			return;
 		}
-		
+
 		$profile = $this->db->where('profile_id', $profile_id)->get('discount_profiles')->row_array();
-		
+
 		if(!$profile) {
 			echo json_encode(['status' => 'error', 'message' => 'Profile not found']);
 			return;
 		}
-		
+
 		$running_year = $this->db->get_where('settings', ['type' => 'running_year'])->row()->description;
 		$running_term = $this->db->get_where('settings', ['type' => 'running_term'])->row()->description;
 		$residence_type = $this->input->post('residence_type');
-		
+
 		$items = array();
 		$is_all_items = false;
 		$item_names = array();
-		
+
 		if(!empty($profile['bill_item_ids'])) {
 			if($profile['bill_item_ids'] === '*') {
 				// Wildcard: applies to ALL bill items
 				$is_all_items = true;
 				$bill_items = $this->db->get('bill_item')->result_array();
-				
+
 				foreach($bill_items as $bill_item) {
 					$items[] = array(
 						'bill_item_id' => $bill_item['id'],
@@ -37695,7 +37350,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					$item_id = trim($item_id);
 					if(!empty($item_id)) {
 						$bill_item = $this->db->where('id', $item_id)->get('bill_item')->row_array();
-						
+
 						if($bill_item) {
 							$items[] = array(
 								'bill_item_id' => $bill_item['id'],
@@ -37709,13 +37364,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				}
 			}
 		}
-		
+
 		$profile['items'] = $items;
 		$profile['is_all_items'] = $is_all_items;
 		$profile['item_names'] = $item_names;
 		$profile['items_count'] = count($items);
 		$profile['currency'] = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
-		
+
 		echo json_encode(['status' => 'success', 'profile' => $profile]);
 	}
 
@@ -37725,12 +37380,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$student_id = $this->input->post('student_id');
 		$running_year = $this->db->get_where('settings', ['type' => 'running_year'])->row()->description;
 		$running_term = $this->db->get_where('settings', ['type' => 'running_term'])->row()->description;
-		
+
 		$enroll = $this->db->where('student_id', $student_id)
 			->where('year', $running_year)
 			->where('term', $running_term)
 			->get('enroll')->row();
-		
+
 		if($enroll) {
 			echo json_encode([
 				'class_id' => $enroll->class_id,
@@ -37743,264 +37398,83 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Applies assigns discount profile and applies discount to student's invoice. Approval is required for the actual deductions to take effect if not initiated by super admin
 	function assign_profile_to_invoice() {
-		$student_id = $this->input->post('student_id');
-		$invoice_code = $this->input->post('invoice_code');
-		$profile_id = $this->input->post('profile_id');
-		$action = $this->input->post('action');
+		if($this->session->userdata('admin_login') != 1 || strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Admin POST request required']));
+			return;
+		}
+		$student_id = (int)$this->input->post('student_id');
+		$invoice_code = trim((string)$this->input->post('invoice_code'));
+		$profile_id = (int)$this->input->post('profile_id');
+		$action = (string)$this->input->post('action');
+		if(!in_array($action,['add','replace'],true)) $action='add';
+		if(!$student_id || $invoice_code === '' || !$profile_id) { echo json_encode(['status'=>'error','message'=>get_phrase('missing_required_fields')]); return; }
 
-		$is_super_admin = $this->session->userdata('user_type') == 1;
-		
-		if(!$student_id || !$invoice_code || !$profile_id) {
-			echo json_encode(['status' => 'error', 'message' => get_phrase('missing_required_fields')]);
-			return;
+		$invoice_items = $this->db->where('invoice_code',$invoice_code)->where('student_id',$student_id)->order_by('invoice_id','ASC')->get('invoice')->result_array();
+		if(!$invoice_items) { echo json_encode(['status'=>'error','message'=>'Invoice not found for this student']); return; }
+		$pending = $this->db->where('invoice_code',$invoice_code)->where('student_id',$student_id)->where('discount_category','invoice')->where('status','pending')->get('invoice_discounts')->row_array();
+		if($pending) { echo json_encode(['status'=>'error','message'=>get_phrase('pending_approval_exists_for_this_invoice')]); return; }
+
+		$existing = $this->db->where('invoice_code',$invoice_code)->where('student_id',$student_id)->where('discount_category','invoice')->where('status','approved')->order_by('discount_id','DESC')->get('invoice_discounts')->row_array();
+		if($existing && (int)$existing['profile_id'] === $profile_id) { echo json_encode(['status'=>'error','message'=>'This profile is already approved for this invoice']); return; }
+		if($existing && $action !== 'replace') { echo json_encode(['status'=>'error','message'=>'This invoice already has an approved discount. Confirm replacement to continue.']); return; }
+		if(!$existing && $action === 'replace') $action='add';
+
+		$profile = $this->db->where('profile_id',$profile_id)->where('is_active',1)->where('discount_category','invoice')->get('discount_profiles')->row_array();
+		if(!$profile) { echo json_encode(['status'=>'error','message'=>get_phrase('profile_not_found')]); return; }
+
+		$overrides = [];
+		$replacement_id = null;
+		if($existing && $action === 'replace') {
+			$old_items = $this->db->where('discount_id',$existing['discount_id'])->get('invoice_discount_items')->result_array();
+			if(!$old_items) { echo json_encode(['status'=>'error','message'=>'This historical approved discount has no item-allocation audit rows and cannot be safely replaced automatically. Reconcile it first.']); return; }
+			foreach($old_items as $old_item) $overrides[(int)$old_item['invoice_id']] = (float)$old_item['original_amount'];
+			$replacement_id = (int)$existing['discount_id'];
 		}
-		
-		// Check if there's already a pending approval for this invoice
-		$pending_discount = $this->db->where('invoice_code', $invoice_code)
-			->where('student_id', $student_id)
-			->where('discount_category', 'invoice')
-			->where('status', 'pending')
-			->get('invoice_discounts')->row();
-		
-		if($pending_discount) {
-			echo json_encode(['status' => 'error', 'message' => get_phrase('pending_approval_exists_for_this_invoice')]);
+
+		$calculation = $this->build_invoice_discount_allocations($invoice_items,$profile,$overrides);
+		$preview_amount = 0.0;
+		foreach($calculation['allocations'] as $allocation) $preview_amount += (float)$allocation['discount'];
+		$preview_amount = round($preview_amount,2);
+		if($preview_amount <= 0) { echo json_encode(['status'=>'error','message'=>'The selected profile does not apply to any positive invoice item']); return; }
+
+		$running_year = get_settings('running_year');
+		$running_term = get_settings('running_term');
+		$admin_id = (int)$this->session->userdata('login_user_id');
+		$this->db->trans_begin();
+		$this->db->insert('invoice_discounts', [
+			'invoice_code'=>$invoice_code,'student_id'=>$student_id,'profile_id'=>$profile_id,'replacement_discount_id'=>$replacement_id,
+			'discount_category'=>'invoice','discount_method'=>$profile['discount_method'],'discount_value'=>$profile['discount_value'],
+			'discount_amount'=>$preview_amount,'reason'=>'Profile: '.$profile['profile_name'].($replacement_id?' · replacement request for discount #'.$replacement_id:''),
+			'status'=>'pending','applied_by'=>$admin_id,'created_by'=>$admin_id,'approved_by'=>null,'approved_at'=>null,'year'=>$running_year,'term'=>$running_term
+		]);
+		$discount_id = (int)$this->db->insert_id();
+		if(!$discount_id || $this->db->trans_status() === FALSE) { $this->db->trans_rollback(); echo json_encode(['status'=>'error','message'=>get_phrase('operation_failed')]); return; }
+		$this->db->trans_commit();
+
+		if($this->session->userdata('user_type') == 1) {
+			$result = $this->approve_discount_record($discount_id,'invoice_discount',$admin_id);
+			if(($result['status'] ?? '') === 'success') { echo json_encode(['status'=>'success','message'=>get_phrase('discount_profile_assigned_successfully')]); return; }
+			echo json_encode(['status'=>'error','message'=>($result['message'] ?? 'Discount approval failed').' The request remains pending for review.']);
 			return;
 		}
 
-		if($action == 'replace') {
-			// Get old discount item details to restore exact amounts
-			$old_discount = $this->db->where('student_id', $student_id)
-				->where('invoice_code', $invoice_code)
-				->where('discount_category', 'invoice')
-				->where('status', 'approved')
-				->get('invoice_discounts')->row();
-			
-			if($old_discount) {
-				// Get per-item discount details
-				$discount_items = $this->db->where('discount_id', $old_discount->discount_id)
-					->get('invoice_discount_items')->result_array();
-				
-				if(count($discount_items) > 0) {
-					// Restore exact amounts from tracked data
-					foreach($discount_items as $disc_item) {
-						$this->db->where('invoice_id', $disc_item['invoice_id'])
-							->set('amount', 'amount + ' . $disc_item['discount_amount'], FALSE)
-							->set('due', 'due + ' . $disc_item['discount_amount'], FALSE)
-							->update('invoice');
-					}
-					// Delete per-item discount records
-					$this->db->where('discount_id', $old_discount->discount_id)->delete('invoice_discount_items');
-				}
-				
-				// Financial Hook: Reverse discount in ledger BEFORE deleting
-				$this->Finance_model->reverse_discount_ledger($invoice_code, $student_id, $old_discount->discount_amount);
-			}
-			
-			// Delete old discount records
-			$this->db->where('student_id', $student_id)
-				->where('invoice_code', $invoice_code)
-				->where('discount_category', 'invoice')
-				->delete('invoice_discounts');
-			
-			// Set old assignments to inactive
-			$this->db->where('student_id', $student_id)
-				->where('discount_category', 'invoice')
-				->where('is_active', 1)
-				->update('student_discount_assignments', ['is_active' => 0]);
-		}
-		
-		$running_year = $this->db->get_where('settings', ['type' => 'running_year'])->row()->description;
-		$running_term = $this->db->get_where('settings', ['type' => 'running_term'])->row()->description;
-		
-		$profile = $this->db->where('profile_id', $profile_id)
-			->where('is_active', 1)
-			->where('discount_category', 'invoice')
-			->get('discount_profiles')->row();
-		
-		if(!$profile) {
-			echo json_encode(['status' => 'error', 'message' => get_phrase('profile_not_found')]);
-			return;
-		}
-		
-		$user_level = $this->session->userdata('user_type');
-		$is_super_admin = ($user_level == 1);
-		$discount_status = 'approved';
-		$approved_by = $this->session->userdata('login_user_id');
-		$approved_at = date('Y-m-d H:i:s');
-		
-		$existing = $this->db->where('student_id', $student_id)
-			->where('profile_id', $profile_id)
-			->where('discount_category', 'invoice')
-			->where('is_active', 1)
-			->get('student_discount_assignments')->row();
-		
-		if(!$existing) {
-			$this->db->insert('student_discount_assignments', [
-				'student_id' => $student_id,
-				'profile_id' => $profile_id,
-				'discount_category' => $profile->discount_category,
-				'discount_method' => $profile->discount_method,
-				'discount_value' => $profile->discount_value,
-				'discount_type' => $profile->discount_type,
-				'bill_item_ids' => $profile->bill_item_ids,
-				'year' => $running_year,
-				'term' => $running_term,
-				'assigned_by' => $this->session->userdata('login_user_id'),
-				'created_by' => $this->session->userdata('login_user_id'),
-				'is_active' => 1,
-				'status' => $discount_status,
-				'approved_by' => $approved_by,
-				'approved_at' => $approved_at,
-				'notes' => 'Invoice discount assigned via apply_discount page'
+		$requester = $this->db->where('admin_id',$admin_id)->get('admin')->row();
+		$student = $this->db->where('student_id',$student_id)->get('student')->row();
+		$super_admins = $this->db->where('level',1)->get('admin')->result();
+		foreach($super_admins as $admin) {
+			$this->db->insert('notifications', [
+				'user_id'=>$admin->admin_id,'user_type'=>'superadmin','title'=>'Discount Approval Required',
+				'message'=>($requester?$requester->name:'Administrator').' requested '.($replacement_id?'replacement of':'an').' invoice discount for '.($student?$student->name:'student').' on invoice '.$invoice_code,
+				'type'=>'discount_approval','created_at'=>date('Y-m-d H:i:s')
 			]);
 		}
-		
-		$invoice_items = $this->db->where('invoice_code', $invoice_code)
-			->where('student_id', $student_id)
-			->get('invoice')->result_array();
-		
-		// Get applicable bill items from profile
-		$applicable_total = 0;
-		$applicable_items = array();
-		
-		if($profile->bill_item_ids === '*') {
-			// Wildcard: apply to ALL invoice items
-			foreach($invoice_items as $idx => $item) {
-				$applicable_total += $item['amount'];
-				$applicable_items[] = $idx;
-			}
-		} else {
-			// Specific items: match by bill_item_id
-			$profile_bill_items = explode(',', $profile->bill_item_ids);
-			foreach($invoice_items as $idx => $item) {
-				// Get bill item details to match by title
-				if(isset($item['bill_item_id'])) {
-					if(in_array($item['bill_item_id'], $profile_bill_items)) {
-						$applicable_total += $item['amount'];
-						$applicable_items[] = $idx;
-					}
-				} else {
-					// Match by title if bill_item_id not available
-					foreach($profile_bill_items as $bill_item_id) {
-						$bill_item = $this->db->where('id', trim($bill_item_id))->get('bill_item')->row();
-						if($bill_item && strtolower(trim($item['title'])) == strtolower(trim($bill_item->title))) {
-							$applicable_total += $item['amount'];
-							$applicable_items[] = $idx;
-							break;
-						}
-					}
-				}
-			}
-		}
-		
-		$discount_amount = $profile->discount_method == 'percentage' 
-			? ($applicable_total * $profile->discount_value) / 100 
-			: min($profile->discount_value, $applicable_total);
-		
-		$this->db->insert('invoice_discounts', [
-			'invoice_code' => $invoice_code,
-			'student_id' => $student_id,
-			'profile_id' => $profile_id,
-			'discount_category' => 'invoice',
-			'discount_method' => $profile->discount_method,
-			'discount_value' => $profile->discount_value,
-			'discount_amount' => $discount_amount,
-			'reason' => 'Profile: ' . $profile->profile_name,
-			'status' => $is_super_admin ? $discount_status : 'pending',
-			'applied_by' => $this->session->userdata('login_user_id'),
-			'approved_by' => $is_super_admin ? $approved_by : NULL,
-			'approved_at' => $is_super_admin ? $approved_at : NULL,
-			'year' => $running_year,
-			'term' => $running_term
-		]);
-		
-		$discount_id = $this->db->insert_id();
-		
-		if(count($applicable_items) > 0) {
-			if($profile->discount_method == 'percentage') {
-				foreach($applicable_items as $idx) {
-					$item = $invoice_items[$idx];
-					$item_discount = ($item['amount'] * $profile->discount_value) / 100;
-					
-					$this->db->insert('invoice_discount_items', [
-						'discount_id' => $discount_id,
-						'invoice_id' => $item['invoice_id'],
-						'invoice_code' => $invoice_code,
-						'student_id' => $student_id,
-						'item_title' => $item['title'],
-						'original_amount' => $item['amount'],
-						'discount_amount' => $item_discount,
-						'discounted_amount' => $item['amount'] - $item_discount
-					]);
-					
-					if($is_super_admin) {
-						$this->db->where('invoice_code', $invoice_code)
-							->where('title', $item['title'])
-							->where('student_id', $student_id)
-							->update('invoice', [
-								'amount' => $item['amount'] - $item_discount,
-								'due' => $item['due'] - $item_discount
-							]);
-					}
-				}
-			} else {
-				foreach($applicable_items as $idx) {
-					$item = $invoice_items[$idx];
-					$item_discount = ($item['amount'] / $applicable_total) * $discount_amount;
-					
-					$this->db->insert('invoice_discount_items', [
-						'discount_id' => $discount_id,
-						'invoice_id' => $item['invoice_id'],
-						'invoice_code' => $invoice_code,
-						'student_id' => $student_id,
-						'item_title' => $item['title'],
-						'original_amount' => $item['amount'],
-						'discount_amount' => $item_discount,
-						'discounted_amount' => $item['amount'] - $item_discount
-					]);
-
-					if($is_super_admin) {
-						$this->db->where('invoice_code', $invoice_code)
-							->where('title', $item['title'])
-							->where('student_id', $student_id)
-							->update('invoice', [
-								'amount' => $item['amount'] - $item_discount,
-								'due' => $item['due'] - $item_discount
-							]);
-					}
-				}
-			}
-		}
-		
-		if(!$is_super_admin) {
-			$requester = $this->db->where('admin_id', $this->session->userdata('login_user_id'))->get('admin')->row();
-			$student = $this->db->where('student_id', $student_id)->get('student')->row();
-			$school_name = $this->db->get_where('settings', ['type' => 'system_name'])->row()->description;
-			$super_admins = $this->db->where('level', 1)->get('admin')->result();
-			
-			foreach($super_admins as $admin) {
-				$this->db->insert('notifications', [
-					'user_id' => $admin->admin_id,
-					'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
-					'title' => 'Discount Approval Required',
-					'message' => $requester->name . ' assigned discount profile to ' . $student->name . ' for invoice ' . $invoice_code,
-					'type' => 'discount_approval',
-					'created_at' => date('Y-m-d H:i:s')
-				]);
-			}
-
-			$responseMessage = get_phrase('discount_profile_assignment_is_pending_approval');
-		} else {
-			$responseMessage = get_phrase('discount_profile_assigned_successfully');
-		}
-		
-		echo json_encode(['status' => 'success', 'message' => $responseMessage]);
+		echo json_encode(['status'=>'success','message'=>get_phrase('discount_profile_assignment_is_pending_approval')]);
 	}
 
 	function check_existing_profile() {
 		$student_id = $this->input->post('student_id');
 		$invoice_code = $this->input->post('invoice_code');
-		
+
 		$existing = $this->db->select('dp.profile_name, ida.profile_id')
 			->from('invoice_discounts ida')
 			->join('discount_profiles dp', 'dp.profile_id = ida.profile_id', 'left')
@@ -38009,7 +37483,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			->where('ida.discount_category', 'invoice')
 			->where('ida.status', 'approved')
 			->get()->row();
-		
+
 		if($existing) {
 			echo json_encode([
 				'has_profile' => true,
@@ -38021,21 +37495,21 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		}
 	}
 
-	
+
 	// Notification methods
 	function clear_all_notifications() {
 		$user_id = $this->session->userdata('login_user_id');
 		$user_type = $this->session->userdata('login_type');
-		
+
 		if (!$user_id) {
 			echo json_encode(['status' => 'error', 'message' => 'User not logged in']);
 			return;
 		}
-		
+
 		$this->db->where('user_id', $user_id);
 		$this->db->where('user_type', $user_type);
 		$this->db->delete('notifications');
-		
+
 		echo json_encode(['status' => 'success', 'message' => 'All notifications cleared successfully']);
 	}
 
@@ -38047,19 +37521,19 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$items = $this->input->post('items');
 		$user_id = $this->session->userdata('login_user_id');
 		$admin_level = $this->db->get_where('admin', array('admin_id' => $user_id))->row()->level;
-		
+
 		if(empty($invoice_codes)) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('no_invoices_selected')]);
 			return;
 		}
-		
+
 		$modified_count = 0;
-		
+
 		foreach($invoice_codes as $invoice_code) {
 			$old_invoice_items = $this->db->where('invoice_code', $invoice_code)->get('invoice')->result_array();
 			$old_data = json_encode($old_invoice_items);
 			$student_id = $old_invoice_items[0]['student_id'];
-			
+
 			if($admin_level == 1) {
 				if($request_type == 'edit') {
 					$this->apply_invoice_edit($invoice_code, $items[$invoice_code]);
@@ -38082,11 +37556,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$modified_count++;
 			}
 		}
-		
+
 		if($admin_level != 1) {
 			$requester = $this->db->where('admin_id', $user_id)->get('admin')->row();
 			$super_admins = $this->db->where('level', 1)->get('admin')->result();
-			
+
 			foreach($super_admins as $admin) {
 				$this->db->insert('notifications', [
 					'user_id' => $admin->admin_id,
@@ -38098,14 +37572,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				]);
 			}
 		}
-		
-		$message = $admin_level == 1 
-			? get_phrase('invoices_modified_successfully') 
+
+		$message = $admin_level == 1
+			? get_phrase('invoices_modified_successfully')
 			: get_phrase('modification_request_submitted');
-			
+
 		echo json_encode(['status' => 'success', 'message' => $message, 'count' => $modified_count]);
 	}
-	
+
 	private function time_ago($timestamp) {
 		if(!is_numeric($timestamp)) {
 			$timestamp = strtotime($timestamp);
@@ -38135,12 +37609,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->where('i.mute', '0');
 		$this->db->where('i.can_delete !=', 'trash');
 		$this->db->where('i.due >=', 0); // Exclude negative due amounts
-		
+
 		// Only filter by term if provided
 		if(!empty($term)) {
 			$this->db->where('i.term', $term);
 		}
-		
+
 		// Only filter by year if provided
 		if(!empty($year)) {
 			$this->db->where('i.year', $year);
@@ -38161,7 +37635,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		}
 
 		$this->db->group_by('i.invoice_code, i.student_id');
-		
+
 		// Apply status filter using HAVING clause (after grouping)
 		if(!empty($status)) {
 			if($status === 'paid') {
@@ -38172,7 +37646,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$this->db->having('SUM(i.due) > 0 AND SUM(i.amount_paid) >', 0);
 			}
 		}
-		
+
 		$this->db->order_by('i.invoice_code', 'ASC');
 
 		$invoices = $this->db->get()->result_array();
@@ -38202,18 +37676,18 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	private function apply_discount_to_invoice($assignment, $invoice_code) {
 		$profile = $this->db->where('profile_id', $assignment->profile_id)->get('discount_profiles')->row();
 		if(!$profile) return;
-		
+
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
-		
+
 		$invoice_items = $this->db->where('invoice_code', $invoice_code)
 			->where('student_id', $assignment->student_id)
 			->get('invoice')->result_array();
-		
+
 		// Get applicable bill items from profile
 		$applicable_total = 0;
 		$applicable_items = array();
-		
+
 		if($profile->bill_item_ids === '*') {
 			// Wildcard: apply to ALL invoice items
 			foreach($invoice_items as $idx => $item) {
@@ -38243,11 +37717,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				}
 			}
 		}
-		
-		$total_discount = ($profile->discount_method == 'percentage') 
+
+		$total_discount = ($profile->discount_method == 'percentage')
 			? ($applicable_total * $profile->discount_value / 100)
 			: $profile->discount_value;
-		
+
 		$this->db->insert('invoice_discounts', [
 			'invoice_code' => $invoice_code,
 			'student_id' => $assignment->student_id,
@@ -38264,14 +37738,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			'year' => $running_year,
 			'term' => $running_term
 		]);
-		
+
 		$discount_id = $this->db->insert_id();
-		
+
 		foreach($applicable_items as $item) {
-			$discount_amount = ($profile->discount_method == 'percentage') 
+			$discount_amount = ($profile->discount_method == 'percentage')
 				? ($item['amount'] * $profile->discount_value / 100)
 				: ($item['amount'] / $applicable_total) * $total_discount;
-			
+
 			$this->db->insert('invoice_discount_items', [
 				'discount_id' => $discount_id,
 				'invoice_id' => $item['invoice_id'],
@@ -38282,28 +37756,28 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'discount_amount' => $discount_amount,
 				'discounted_amount' => $item['amount'] - $discount_amount
 			]);
-			
+
 			$this->db->where('invoice_id', $item['invoice_id'])
 				->set('amount', 'amount - ' . $discount_amount, FALSE)
 				->set('due', 'due - ' . $discount_amount, FALSE)
 				->update('invoice');
 		}
-		
+
 		// Recalculate payment allocation after discount
 		$this->recalculate_invoice_payments($invoice_code);
 	}
-	
+
 	private function apply_discount_to_invoice_direct($discount) {
 		$invoice_items = $this->db->where('invoice_code', $discount->invoice_code)
 			->where('student_id', $discount->student_id)
 			->get('invoice')->result_array();
-		
+
 		$profile = $this->db->where('profile_id', $discount->profile_id)->get('discount_profiles')->row();
-		
+
 		// Get applicable bill items from profile
 		$applicable_total = 0;
 		$applicable_items = array();
-		
+
 		if($profile->bill_item_ids === '*') {
 			// Wildcard: apply to ALL invoice items
 			foreach($invoice_items as $idx => $item) {
@@ -38333,12 +37807,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				}
 			}
 		}
-		
+
 		foreach($applicable_items as $item) {
-			$discount_amount = ($discount->discount_method == 'percentage') 
+			$discount_amount = ($discount->discount_method == 'percentage')
 				? ($item['amount'] * $discount->discount_value / 100)
 				: ($item['amount'] / $applicable_total) * $discount->discount_amount;
-			
+
 			$this->db->insert('invoice_discount_items', [
 				'discount_id' => $discount->discount_id,
 				'invoice_id' => $item['invoice_id'],
@@ -38349,13 +37823,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'discount_amount' => $discount_amount,
 				'discounted_amount' => $item['amount'] - $discount_amount
 			]);
-			
+
 			$this->db->where('invoice_id', $item['invoice_id'])
 				->set('amount', 'amount - ' . $discount_amount, FALSE)
 				->set('due', 'due - ' . $discount_amount, FALSE)
 				->update('invoice');
 		}
-		
+
 		// Recalculate payment allocation after discount
 		$this->recalculate_invoice_payments($discount->invoice_code);
 	}
@@ -38377,10 +37851,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	function bulk_arrears_student_selection() {
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
-		
+
 		// Get all class IDs in proper order
 		$class_ids = getAllClassList();
-		
+
 		$students = [];
 		foreach($class_ids as $class_id) {
 			$class_students = $this->db->select('s.student_id, s.name, s.student_code, e.class_id')
@@ -38391,7 +37865,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				->where('e.term', $running_term)
 				->order_by('s.name', 'ASC')
 				->get()->result_array();
-			
+
 			foreach($class_students as $student) {
 				$class_name = $this->crud_model->get_class_name($class_id);
 				$class_numeric = $this->crud_model->get_class_name_numeric($class_id);
@@ -38400,7 +37874,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$students[] = $student;
 			}
 		}
-		
+
 		$page_data['students'] = $students;
 		$this->load->view('backend/admin/bulk_arrears_student_selection', $page_data);
 	}
@@ -38410,15 +37884,15 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	 */
 	function generate_arrears_template() {
 		$student_ids = $this->input->post('student_ids');
-		
+
 		if(empty($student_ids)) {
 			echo json_encode(['status' => 'error', 'message' => 'No students selected']);
 			return;
 		}
-		
+
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
-		
+
 		$students = [];
 		foreach($student_ids as $student_id) {
 			$student = $this->db->select('s.student_id, s.name, s.student_code, e.class_id')
@@ -38428,7 +37902,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				->where('e.year', $running_year)
 				->where('e.term', $running_term)
 				->get()->row_array();
-			
+
 			if($student) {
 				$class_name = $this->crud_model->get_class_name($student['class_id']);
 				$class_numeric = $this->crud_model->get_class_name_numeric($student['class_id']);
@@ -38437,7 +37911,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$students[] = $student;
 			}
 		}
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'students' => $students,
@@ -38451,89 +37925,89 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	function bulk_arrears_import($param1 = '') {
 		if($param1 == 'process') {
 			$json_data = $this->input->post('arrears_data');
-			
+
 			if(empty($json_data)) {
 				echo json_encode(['status' => 'error', 'message' => 'No data received']);
 				return;
 			}
-			
+
 			$data = json_decode($json_data, true);
 			if(!$data) {
 				echo json_encode(['status' => 'error', 'message' => 'Invalid data format']);
 				return;
 			}
-			
+
 			try {
 				$running_year = get_settings('running_year');
 				$running_term = get_settings('running_term');
 				$creation_timestamp = strtotime('now');
-				
+
 				$success_count = 0;
 				$skip_count = 0;
 				$error_count = 0;
 				$errors = [];
-				
+
 				foreach($data as $index => $row) {
 					$row_num = $index + 2; // +2 because index starts at 0 and we skip header
 					$student_id = trim($row['Student ID']);
 					$amount = floatval($row['Amount Owed']);
-					
+
 					if($amount <= 0) {
 						$skip_count++;
 						continue;
 					}
-					
+
 					$student = $this->db->where('student_id', $student_id)->get('student')->row();
 					if(!$student) {
 						$error_count++;
 						$errors[] = "Row $row_num: Student ID $student_id not found";
 						continue;
 					}
-					
+
 					$enroll = $this->db->where('student_id', $student_id)
 						->where('year', $running_year)
 						->where('term', $running_term)
 						->get('enroll')->row();
-					
+
 					if(!$enroll) {
 						$error_count++;
 						$errors[] = "Row $row_num: Student not enrolled in current term/year";
 						continue;
 					}
-					
+
 					$residence_type = $this->boarding_model->get_residence_type($student_id);
-					
+
 					$existing = $this->db->where('student_id', $student_id)
 						->where('title', 'ARREARS')
 						->where('year', $running_year)
 						->where('term', $running_term)
 						->where('can_delete !=', 'trash')
 						->get('invoice')->row();
-					
+
 					if($existing) {
 						$old_amount = $existing->amount;
 						$old_due = $existing->due;
 						$amount_diff = (floatval($amount) - floatval($old_amount));
-						
+
 						$this->db->where('invoice_id', $existing->invoice_id)
 							->update('invoice', [
 								'amount' => $amount,
 								'due' => $old_due + $amount_diff
 							]);
-						
+
 						$success_count++;
 					} else {
 						$invoice_code_f = $this->db->get_where('settings', array('type' => 'invoice_number_format'))->row()->description;
-						
+
 						$this->db->select('invoice_code');
 						$this->db->order_by('invoice_code', 'desc');
 						$this->db->limit(1);
 						$inv_query = $this->db->get('invoice');
-						
+
 						if ($inv_query->num_rows() > 0) {
 							$inv_id = $inv_query->row()->invoice_code;
 							$invoice_code = $inv_id + 1;
-							
+
 							if (substr($inv_id, 0, 1) == 0) {
 								$old_len = strlen($inv_id);
 								$new_len = strlen($invoice_code);
@@ -38543,7 +38017,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						} else {
 							$inv_id = $invoice_code_f;
 							$invoice_code = $inv_id;
-							
+
 							if (substr($inv_id, 0, 1) == 0) {
 								$old_len = strlen($inv_id);
 								$new_len = strlen($invoice_code);
@@ -38551,7 +38025,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 								$invoice_code = substr($inv_id, 0, $act_len) . $invoice_code;
 							}
 						}
-						
+
 						$invoice_data = [
 							'invoice_code' => $invoice_code,
 							'student_id' => $student_id,
@@ -38569,12 +38043,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 							'can_delete' => 'default',
 							'can_edit' => 'default'
 						];
-						
+
 						$this->db->insert('invoice', $invoice_data);
 						$success_count++;
 					}
 				}
-				
+
 				$message = "Import completed: $success_count invoice(s) created/updated";
 				if($skip_count > 0) {
 					$message .= ", $skip_count skipped (zero amount)";
@@ -38582,7 +38056,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				if($error_count > 0) {
 					$message .= ", $error_count error(s)";
 				}
-				
+
 				echo json_encode([
 					'status' => 'success',
 					'message' => $message,
@@ -38593,14 +38067,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						'error_messages' => $errors
 					]
 				]);
-				
+
 			} catch(Exception $e) {
 				echo json_encode(['status' => 'error', 'message' => 'Error processing data: ' . $e->getMessage()]);
 			}
-			
+
 			return;
 		}
-		
+
 		$this->load->view('backend/admin/bulk_arrears_import_modal');
 	}
 
@@ -38609,94 +38083,59 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	// ============================================================================
 
 	function request_receipt_modification() {
-		$receipt_code = $this->input->post('receipt_code');
-		$request_type = $this->input->post('request_type');
-		$reason = $this->input->post('reason');
-		$new_data = $this->input->post('new_data');
-		
-		$user_id = $this->session->userdata('login_user_id');
-		if(!$user_id) {
-			echo json_encode(['status' => 'error', 'message' => 'User session expired. Please login again.']);
+		if(strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
 			return;
 		}
-		
-		$is_super_admin = $this->session->userdata('user_type') == 1;
-		
-		$payments = $this->db->where('receipt_code', $receipt_code)->get('payment')->result_array();
-		if(empty($payments)) {
-			echo json_encode(['status' => 'error', 'message' => get_phrase('receipt_not_found')]);
-			return;
+		$receipt_code=trim((string)$this->input->post('receipt_code'));
+		$request_type=trim((string)$this->input->post('request_type'));
+		$reason=trim((string)$this->input->post('reason'));
+		$user_id=(int)$this->session->userdata('login_user_id');
+		if(!$user_id || $receipt_code==='' || !in_array($request_type,['edit','delete'],true) || $reason===''){echo json_encode(['status'=>'error','message'=>'Receipt, action and reason are required']);return;}
+		$payments=$this->db->where('receipt_code',$receipt_code)->order_by('payment_id','ASC')->get('payment')->result_array();
+		if(!$payments){echo json_encode(['status'=>'error','message'=>get_phrase('receipt_not_found')]);return;}
+		$student_id=(int)$payments[0]['student_id'];foreach($payments as $payment){if((int)$payment['student_id']!==$student_id){echo json_encode(['status'=>'error','message'=>'Receipt contains inconsistent student records']);return;}}
+
+		$new_data=null;
+		if($request_type==='delete'){
+			$new_data=json_encode(['credit_snapshot'=>$this->snapshot_receipt_derived_credits($receipt_code,$student_id)]);
 		}
-		
-		// Check if there's already a pending request for this receipt
-		$existing_request = $this->db->where('receipt_code', $receipt_code)
-			->where('status', 'pending')
-			->get('receipt_modification_requests')
-			->row();
-		
-		if($existing_request) {
-			echo json_encode(['status' => 'error', 'message' => 'A pending modification request already exists for this receipt. Please wait for approval or rejection before submitting a new request.']);
-			return;
+		if($request_type==='edit'){
+			$decoded=json_decode((string)$this->input->post('new_data'),true);
+			if(!is_array($decoded) || !isset($decoded['amount']) || !is_numeric($decoded['amount'])){echo json_encode(['status'=>'error','message'=>'A valid new receipt amount is required']);return;}
+			$amount=round((float)$decoded['amount'],2);
+			$raw_method=strtolower(trim((string)($decoded['payment_method']??'')));
+			$method_map=['cash'=>1,'cheque'=>2,'momo'=>3,'mobile money'=>3,'bank_transfer'=>4,'bank transfer'=>4];
+			$method=is_numeric($raw_method)?(int)$raw_method:($method_map[$raw_method]??0);
+			if($amount<=0){echo json_encode(['status'=>'error','message'=>'Receipt amount must be greater than zero']);return;}
+			if(!in_array($method,[1,2,3,4],true)){echo json_encode(['status'=>'error','message'=>'Invalid payment method']);return;}
+			$new_data=json_encode(['amount'=>$amount,'payment_method'=>$method]);
 		}
-		
-		if($is_super_admin) {
-			// Super admin can modify directly without approval
-			$this->db->trans_start();
-			
-			// Create a mock request object for the process methods
-			$mock_request = (object)[
-				'receipt_code' => $receipt_code,
-				'request_type' => $request_type,
-				'original_data' => json_encode($payments),
-				'new_data' => $new_data
-			];
-			
-			if($request_type == 'delete') {
-				$this->process_receipt_deletion($mock_request, $user_id);
-			} else {
-				$this->process_receipt_edit($mock_request, $user_id);
-			}
-			
-			$this->db->trans_complete();
-			
-			if($this->db->trans_status() === FALSE) {
-				echo json_encode(['status' => 'error', 'message' => 'Transaction failed']);
-			} else {
-				echo json_encode(['status' => 'success', 'message' => get_phrase('modification_completed')]);
-			}
-			return;
+
+		$existing=$this->db->where('receipt_code',$receipt_code)->where_in('status',['pending','processing'])->get('receipt_modification_requests')->row();
+		if($existing){echo json_encode(['status'=>'error','message'=>'A pending or processing modification request already exists for this receipt']);return;}
+		$is_super_admin=$this->session->userdata('user_type')==1;
+		if($is_super_admin){
+			$this->db->trans_start();$mock=(object)['receipt_code'=>$receipt_code,'request_type'=>$request_type,'original_data'=>json_encode($payments),'new_data'=>$new_data];
+			if($request_type==='delete')$this->process_receipt_deletion($mock,$user_id);else $this->process_receipt_edit($mock,$user_id);
+			$this->db->trans_complete();echo json_encode($this->db->trans_status()===FALSE?['status'=>'error','message'=>'Transaction failed']:['status'=>'success','message'=>get_phrase('modification_completed')]);return;
 		}
-		
-		$request_data = [
-			'receipt_code' => $receipt_code,
-			'payment_id' => $payments[0]['payment_id'],
-			'request_type' => $request_type,
-			'requested_by' => $user_id,
-			'requested_at' => time(),
-			'reason' => $reason,
-			'status' => 'pending',
-			'original_data' => json_encode($payments),
-			'new_data' => $new_data,
-			'notification_sent' => 0
-		];
-		
-		$this->db->insert('receipt_modification_requests', $request_data);
-		$request_id = $this->db->insert_id();
-		
-		$this->send_modification_notifications($request_id);
-		
-		echo json_encode(['status' => 'success', 'message' => get_phrase('modification_request_submitted')]);
+
+		$this->db->insert('receipt_modification_requests',['receipt_code'=>$receipt_code,'payment_id'=>$payments[0]['payment_id'],'request_type'=>$request_type,'requested_by'=>$user_id,'requested_at'=>time(),'reason'=>mb_substr($reason,0,2000),'status'=>'pending','original_data'=>json_encode($payments),'new_data'=>$new_data,'notification_sent'=>0]);
+		$request_id=(int)$this->db->insert_id();$this->send_modification_notifications($request_id);
+		echo json_encode(['status'=>'success','message'=>get_phrase('modification_request_submitted')]);
 	}
+
 
 	function get_receipt_modification_status() {
 		$receipt_code = $this->input->post('receipt_code');
-		
+
 		$request = $this->db->where('receipt_code', $receipt_code)
 			->where_in('status', ['pending', 'rejected'])
 			->order_by('requested_at', 'DESC')
 			->get('receipt_modification_requests')
 			->row();
-		
+
 		if($request) {
 			echo json_encode([
 				'has_request' => true,
@@ -38709,8 +38148,9 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	}
 
 	function get_receipt_modification_requests() {
+		if ($this->session->userdata('user_type') != 1) { $this->output->set_status_header(403); echo '<div class="empty-state">Access denied</div>'; return; }
 		$requests = $this->db->order_by('requested_at', 'DESC')->get('receipt_modification_requests')->result_array();
-		
+
 		if(empty($requests)) {
 			echo '<div class="empty-state">
 				<i class="fa fa-inbox"></i>
@@ -38718,12 +38158,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			</div>';
 			return;
 		}
-		
+
 		foreach($requests as $request) {
 			$payments = json_decode($request['original_data'], true);
 			$payment = is_array($payments) && !empty($payments) ? $payments[0] : null;
 			if(!$payment) continue;
-			
+
 			$student = $this->db->where('student_id', $payment['student_id'])->get('student')->row();
 			$requester = $this->db->where('admin_id', $request['requested_by'])->get('admin')->row();
 			$total_amount = is_array($payments) ? array_sum(array_column($payments, 'amount')) : 0;
@@ -38802,39 +38242,45 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	}
 
 	function approve_receipt_modification() {
+		if (strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
+			return;
+		}
+
+		if ($this->session->userdata('user_type') != 1) {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Only super administrators can manage approvals']));
+			return;
+		}
+
 		$request_id = $this->input->post('request_id');
 		$user_id = $this->session->userdata('login_user_id');
-		
+
 		// Idempotency: Use database lock to prevent concurrent processing
 		$this->db->trans_start();
-		
+
 		// Lock the row for update to prevent race conditions
-		$request = $this->db->where('request_id', $request_id)
-			->where('status', 'pending')
-			->limit(1)
-			->get('receipt_modification_requests')
-			->row();
-		
+		$request = $this->db->query('SELECT * FROM receipt_modification_requests WHERE request_id = ? AND status = ? FOR UPDATE', [(int)$request_id, 'pending'])->row();
+
 		if(!$request) {
 			$this->db->trans_rollback();
-			
+
 			// Check actual status for better error message
 			$existing = $this->db->where('request_id', $request_id)
 				->get('receipt_modification_requests')
 				->row();
-			
+
 			if(!$existing) {
 				echo json_encode(['status' => 'error', 'message' => 'Request not found']);
 			} else {
 				echo json_encode([
-					'status' => 'error', 
+					'status' => 'error',
 					'message' => 'Request has already been ' . $existing->status,
 					'already_processed' => true
 				]);
 			}
 			return;
 		}
-		
+
 		// Immediately update status to prevent duplicate processing
 		$this->db->where('request_id', $request_id)
 			->update('receipt_modification_requests', [
@@ -38842,7 +38288,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'approved_by' => $user_id,
 				'approved_at' => time()
 			]);
-		
+
 		try {
 			// Process modification based on type
 			if($request->request_type == 'delete') {
@@ -38850,136 +38296,137 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			} else {
 				$this->process_receipt_edit($request, $user_id);
 			}
-			
+
 			// Mark as approved after successful processing
 			$this->db->where('request_id', $request_id)
 				->update('receipt_modification_requests', ['status' => 'approved']);
-			
+
 			// Log audit trail
 			$this->log_modification_audit($request_id, $request->receipt_code, $request->request_type, $user_id);
-			
+
 			// Notify requester
 			$this->notify_requester($request->requested_by, 'approved', $request_id);
-			
+
 			// Complete transaction
 			$this->db->trans_complete();
-			
+
 			if($this->db->trans_status() === FALSE) {
 				throw new Exception('Transaction failed');
 			}
-			
+
 			echo json_encode([
-				'status' => 'success', 
+				'status' => 'success',
 				'message' => get_phrase('request_approved_successfully')
 			]);
-			
+
 		} catch(Exception $e) {
 			$this->db->trans_rollback();
-			
+
 			// Revert status back to pending on failure
 			$this->db->where('request_id', $request_id)
 				->update('receipt_modification_requests', ['status' => 'pending']);
-			
+
 			echo json_encode([
-				'status' => 'error', 
+				'status' => 'error',
 				'message' => 'Processing failed: ' . $e->getMessage()
 			]);
 		}
 	}
-	
+
 	private function process_receipt_deletion($request, $user_id) {
 		$payments = json_decode($request->original_data, true);
-		
+		if(!$payments) throw new Exception('Receipt payment snapshot is missing');
+		$student_id=(int)$payments[0]['student_id'];
+		$this->reverse_receipt_derived_credits($request->receipt_code,$student_id);
+
 		foreach($payments as $payment) {
 			// Reverse financial entries
 			$this->Finance_model->reverse_payment_sync($payment['payment_id']);
-			
+
 			// Update invoice: reverse amount_paid and restore due
 			$this->db->where('invoice_id', $payment['invoice_id']);
-			$this->db->set('amount_paid', 'amount_paid - ' . $payment['amount'], FALSE);
-			$this->db->set('due', 'due + ' . $payment['amount'], FALSE);
+			$this->db->set('amount_paid', 'GREATEST(amount_paid - ' . (float)$payment['amount'] . ', 0)', FALSE);
+			$this->db->set('due', 'LEAST(amount, GREATEST(due + ' . (float)$payment['amount'] . ', 0))', FALSE);
 			$this->db->update('invoice');
+			$this->refresh_invoice_payment_status((int)$payment['invoice_id']);
 		}
-		
+
 		// Delete payment records
 		$this->db->where('receipt_code', $request->receipt_code)->delete('payment');
 	}
-	
+
+	private function snapshot_receipt_derived_credits($receipt_code,$student_id) {
+		$credits=$this->db->where('source_receipt_code',(string)$receipt_code)->where('student_id',(int)$student_id)->order_by('credit_id','ASC')->get('student_credits')->result_array();
+		$applications=[];
+		foreach($credits as $credit){
+			$rows=$this->db->where('credit_id',(int)$credit['credit_id'])->order_by('application_id','ASC')->get('credit_applications')->result_array();
+			foreach($rows as $row)$applications[]=$row;
+		}
+		return ['credits'=>$credits,'applications'=>$applications];
+	}
+
+	private function reverse_receipt_derived_credits($receipt_code,$student_id) {
+		$credits=$this->db->query('SELECT * FROM student_credits WHERE source_receipt_code = ? AND student_id = ? FOR UPDATE',[(string)$receipt_code,(int)$student_id])->result_array();
+		foreach($credits as $credit){
+			$applications=$this->db->where('credit_id',(int)$credit['credit_id'])->get('credit_applications')->result_array();
+			foreach($applications as $app){
+				$this->db->where('invoice_id',(int)$app['invoice_id']);
+				$this->db->set('credit_applied','GREATEST(credit_applied - '.(float)$app['applied_amount'].',0)',FALSE);
+				$this->db->set('due','LEAST(amount,GREATEST(due + '.(float)$app['applied_amount'].',0))',FALSE);
+				$this->db->update('invoice');
+				$this->refresh_invoice_payment_status((int)$app['invoice_id']);
+			}
+			$this->db->where('credit_id',(int)$credit['credit_id'])->delete('credit_applications');
+		}
+		if($credits)$this->db->where('source_receipt_code',(string)$receipt_code)->where('student_id',(int)$student_id)->delete('student_credits');
+	}
+
 	private function process_receipt_edit($request, $user_id) {
 		$old_payments = json_decode($request->original_data, true);
 		$new_data = json_decode($request->new_data, true);
-		$new_amount = $new_data['amount'];
+		$new_amount = (float)$new_data['amount'];
+		$new_payment_method = $new_data['payment_method'] ?? $old_payments[0]['payment_method'];
 		$receipt_code = $request->receipt_code;
 		$student_id = $old_payments[0]['student_id'];
-		
+
 		// Load Credit model for credit handling
 		$this->load->model('Credit_model');
-		
+
 		// Step 1: Reverse ALL old payments AND delete associated credits
 		foreach($old_payments as $payment) {
 			$this->Finance_model->reverse_payment_sync($payment['payment_id']);
-			
+
 			// Reverse invoice amounts
 			$this->db->where('invoice_id', $payment['invoice_id']);
-			$this->db->set('amount_paid', 'amount_paid - ' . $payment['amount'], FALSE);
-			$this->db->set('due', 'due + ' . $payment['amount'], FALSE);
+			$this->db->set('amount_paid', 'GREATEST(amount_paid - ' . (float)$payment['amount'] . ', 0)', FALSE);
+			$this->db->set('due', 'LEAST(amount, GREATEST(due + ' . (float)$payment['amount'] . ', 0))', FALSE);
 			$this->db->update('invoice');
+			$this->refresh_invoice_payment_status((int)$payment['invoice_id']);
 		}
-		
-		// Delete old credit records associated with this receipt
-		$old_credits = $this->db->where('source_receipt_code', $receipt_code)
-			->where('student_id', $student_id)
-			->get('student_credits')->result_array();
-		
-		if(!empty($old_credits)) {
-			foreach($old_credits as $credit) {
-				// If credit was already applied to invoices, we need to reverse those applications
-				if($credit['applied_amount'] > 0) {
-					// Get applications
-					$applications = $this->db->where('credit_id', $credit['credit_id'])
-						->get('credit_applications')->result_array();
-					
-					foreach($applications as $app) {
-						// Reverse the credit application on the invoice
-						$this->db->where('invoice_id', $app['invoice_id']);
-						$this->db->set('credit_applied', 'credit_applied - ' . $app['applied_amount'], FALSE);
-						$this->db->set('due', 'due + ' . $app['applied_amount'], FALSE);
-						$this->db->update('invoice');
-						
-						// Delete the application record
-						$this->db->where('application_id', $app['application_id'])->delete('credit_applications');
-					}
-				}
-			}
-			
-			// Delete the credit records
-			$this->db->where('source_receipt_code', $receipt_code)
-				->where('student_id', $student_id)
-				->delete('student_credits');
-		}
-		
+
+		$this->reverse_receipt_derived_credits($receipt_code,$student_id);
+
 		// Step 2: Delete old payment records
 		$this->db->where('receipt_code', $receipt_code)->delete('payment');
-		
+
 		// Step 3: Get ALL owing invoices for this student (like line 11600)
 		$owing_invoice_ids_array = $this->financial_report_model->getAllBillInvoicesIdsOwingByStudentId($student_id);
 		$owing_invoice_ids = array_column($owing_invoice_ids_array, 'invoice_id');
-		
-		if(empty($owing_invoice_ids)) {
-			return; // No invoices to pay
-		}
-		
+
+		// If there are no owing invoices, the loop below is skipped and the entire
+		// edited receipt amount becomes prepaid student credit in Step 6.
+
 		// Step 4: Redistribute new amount using exact payment allocation logic from line 11600
 		$remaining_amount = $new_amount;
 		$payment_template = $old_payments[0]; // Use first payment as template for metadata
-		
+
 		foreach($owing_invoice_ids as $invoice_id) {
 			if($remaining_amount < 1) break;
-			
+
 			// Get invoice details
 			$invoice = $this->db->where('invoice_id', $invoice_id)->get('invoice')->row();
 			$amount_due = $invoice->due;
-			
+
 			// Determine payment amount for this invoice
 			if($amount_due > $remaining_amount) {
 				$payment_amount = $remaining_amount;
@@ -38988,7 +38435,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$payment_amount = $amount_due;
 				$remaining_amount -= $amount_due;
 			}
-			
+
 			// Create new payment record
 			$payment_data = [
 				'receipt_code' => $receipt_code,
@@ -38998,7 +38445,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'invoice_code' => $invoice->invoice_code,
 				'amount' => $payment_amount,
 				'payment_type' => $payment_template['payment_type'],
-				'payment_method' => $payment_template['payment_method'],
+				'payment_method' => $new_payment_method,
 				'transaction_id' => $payment_template['transaction_id'] ?? null,
 				'bank_name' => $payment_template['bank_name'] ?? null,
 				'cheque_number' => $payment_template['cheque_number'] ?? null,
@@ -39013,23 +38460,24 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'issuer_id' => $payment_template['issuer_id'],
 				'account_type' => $payment_template['account_type']
 			];
-			
+
 			$this->db->insert('payment', $payment_data);
 			$payment_id = $this->db->insert_id();
-			
+
 			// Update invoice (matching line 11600 logic)
 			$this->db->where('invoice_id', $invoice->invoice_id);
-			$this->db->set('amount_paid', 'amount_paid + ' . $payment_amount, FALSE);
-			$this->db->set('due', 'due - ' . $payment_amount, FALSE);
+			$this->db->set('amount_paid', 'amount_paid + ' . (float)$payment_amount, FALSE);
+			$this->db->set('due', 'GREATEST(due - ' . (float)$payment_amount . ', 0)', FALSE);
 			$this->db->set('payment_timestamp', $payment_data['timestamp']);
 			$this->db->set('payment_method', $payment_data['payment_method']);
 			$this->db->update('invoice');
-			
+			$this->refresh_invoice_payment_status((int)$invoice->invoice_id);
+
 			// Sync to financial system
 			sync_payment_to_accounts($payment_id);
 			sync_payment_to_ledger($payment_id);
 		}
-		
+
 		// Step 5: Update payment.due with total remaining balance (matching line 14850-14854)
 		$this->db->select_sum('due');
 		$this->db->from('invoice');
@@ -39037,7 +38485,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->where('due !=', 0);
 		$this->db->where('student_id', $student_id);
 		$bal_due_query = $this->db->get();
-		
+
 		if($bal_due_query->num_rows() > 0) {
 			$bal_due = $bal_due_query->row()->due;
 		} else {
@@ -39051,7 +38499,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$this->db->limit(1);
 			$this->db->update('payment');
 		}
-		
+
 		// Step 6: Handle overpayment - create credit if remaining_amount > 0
 		if($remaining_amount > 0) {
 			// Student overpaid - create new credit
@@ -39062,10 +38510,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'created_by' => $user_id,
 				'notes' => "Overpayment from edited receipt #{$receipt_code}. Amount received exceeded total outstanding invoices."
 			];
-			
+
 			$this->db->insert('student_credits', $credit_data);
 			$credit_id = $this->db->insert_id();
-			
+
 			// Record the overpayment in payment table for accounting
 			$overpayment_record = [
 				'receipt_code' => $receipt_code,
@@ -39075,7 +38523,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'invoice_code' => null,
 				'amount' => $remaining_amount,
 				'payment_type' => $payment_template['payment_type'],
-				'payment_method' => $payment_template['payment_method'],
+				'payment_method' => $new_payment_method,
 				'transaction_id' => $payment_template['transaction_id'] ?? null,
 				'bank_name' => $payment_template['bank_name'] ?? null,
 				'cheque_number' => $payment_template['cheque_number'] ?? null,
@@ -39090,114 +38538,192 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'issuer_id' => $payment_template['issuer_id'],
 				'account_type' => $payment_template['account_type']
 			];
-			
+
 			$this->db->insert('payment', $overpayment_record);
+			$overpayment_payment_id=(int)$this->db->insert_id();
+			if($overpayment_payment_id){
+				sync_payment_to_accounts($overpayment_payment_id);
+				sync_payment_to_ledger($overpayment_payment_id);
+			}
 		}
 	}
 
+	private function refresh_invoice_payment_status($invoice_id) {
+		$invoice = $this->db->where('invoice_id', (int)$invoice_id)->get('invoice')->row();
+		if(!$invoice) return;
+		$due = max(0, (float)$invoice->due);
+		$settled = (float)($invoice->amount_paid ?? 0) + (float)($invoice->credit_applied ?? 0);
+		$status = $due <= 0.005 ? 'paid' : ($settled > 0.005 ? 'partial' : 'unpaid');
+		$this->db->where('invoice_id', (int)$invoice_id)->update('invoice', ['due'=>round($due,2),'status'=>$status]);
+	}
+
 	function reject_receipt_modification() {
-		$request_id = $this->input->post('request_id');
-		$reason = $this->input->post('reason');
-		$user_id = $this->session->userdata('login_user_id');
-		
-		$this->db->where('request_id', $request_id)->update('receipt_modification_requests', [
+		if (strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
+			return;
+		}
+
+		if ($this->session->userdata('user_type') != 1) {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Only super administrators can manage approvals']));
+			return;
+		}
+
+		$request_id = (int)$this->input->post('request_id');
+		$reason = trim((string)$this->input->post('reason'));
+		$user_id = (int)$this->session->userdata('login_user_id');
+		$request = $this->db->where(['request_id'=>$request_id,'status'=>'pending'])->get('receipt_modification_requests')->row();
+		if(!$request) {
+			echo json_encode(['status'=>'error','message'=>'Only pending receipt requests can be rejected']);
+			return;
+		}
+		$result = $this->db->where(['request_id'=>$request_id,'status'=>'pending'])->update('receipt_modification_requests', [
 			'status' => 'rejected',
 			'approved_by' => $user_id,
 			'approved_at' => time(),
-			'rejection_reason' => $reason
+			'rejection_reason' => $reason !== '' ? $reason : 'Rejected by super administrator'
 		]);
-		
-		$request = $this->db->where('request_id', $request_id)->get('receipt_modification_requests')->row();
+		if(!$result || $this->db->affected_rows() !== 1) {
+			echo json_encode(['status'=>'error','message'=>'Request status changed before it could be rejected']);
+			return;
+		}
 		$this->notify_requester($request->requested_by, 'rejected', $request_id);
-		
 		echo json_encode(['status' => 'success', 'message' => get_phrase('request_rejected')]);
 	}
 
 	function revoke_receipt_approval() {
-		$request_id = $this->input->post('request_id');
-		$user_id = $this->session->userdata('login_user_id');
-		
-		if($this->session->userdata('user_type') != 1) {
-			echo json_encode(['status' => 'error', 'message' => 'Only super admin can revoke approvals']);
+		if ($this->session->userdata('user_type') != 1) {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Only super administrators can revoke approvals']));
 			return;
 		}
-		
-		$request = $this->db->where('request_id', $request_id)->get('receipt_modification_requests')->row();
-		
-		if(!$request || $request->status != 'approved') {
-			echo json_encode(['status' => 'error', 'message' => 'Invalid request or not approved']);
+		if(strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
 			return;
 		}
-		
-		// Reverse the changes that were made during approval
-		if($request->request_type == 'delete') {
-			// Restore deleted receipt - recreate payments from original_data
-			$original_payments = json_decode($request->original_data, true);
-			foreach($original_payments as $payment) {
-				$this->db->insert('payment', $payment);
-				
-				// Update invoice balances
-				$this->db->where('invoice_id', $payment['invoice_id'])
-					->set('amount_paid', 'amount_paid + ' . $payment['amount'], FALSE)
-					->set('due', 'due - ' . $payment['amount'], FALSE)
+
+		$request_id = (int)$this->input->post('request_id');
+		$user_id = (int)$this->session->userdata('login_user_id');
+		$this->db->trans_begin();
+		$request = $this->db->query('SELECT * FROM receipt_modification_requests WHERE request_id = ? AND status = ? FOR UPDATE', [$request_id, 'approved'])->row();
+		if(!$request) {
+			$this->db->trans_rollback();
+			echo json_encode(['status'=>'error','message'=>'Only an approved receipt request can be revoked']);
+			return;
+		}
+		if($request->request_type !== 'delete') {
+			$this->db->trans_rollback();
+			echo json_encode(['status'=>'error','message'=>'Approved receipt edits cannot be safely auto-revoked because the original credit/allocation state is not fully snapshotted. Submit a new receipt modification request instead.']);
+			return;
+		}
+
+		$original_payments = json_decode($request->original_data, true);
+		$delete_data = json_decode((string)$request->new_data, true);
+		$credit_snapshot = is_array($delete_data) && isset($delete_data['credit_snapshot']) && is_array($delete_data['credit_snapshot']) ? $delete_data['credit_snapshot'] : ['credits'=>[],'applications'=>[]];
+		if(!is_array($original_payments) || !$original_payments) {
+			$this->db->trans_rollback();
+			echo json_encode(['status'=>'error','message'=>'Original receipt snapshot is missing; automatic revoke is blocked']);
+			return;
+		}
+		if($this->db->where('receipt_code',$request->receipt_code)->count_all_results('payment') > 0) {
+			$this->db->trans_rollback();
+			echo json_encode(['status'=>'error','message'=>'A payment with this receipt code already exists; automatic restore is blocked']);
+			return;
+		}
+
+		foreach($original_payments as $payment) {
+			if(!isset($payment['amount']) || !is_numeric($payment['amount'])) {
+				$this->db->trans_rollback();
+				echo json_encode(['status'=>'error','message'=>'Original payment snapshot is incomplete; automatic restore is blocked']);
+				return;
+			}
+			if(!empty($payment['payment_id']) && $this->db->where('payment_id',$payment['payment_id'])->count_all_results('payment') > 0) {
+				$this->db->trans_rollback();
+				echo json_encode(['status'=>'error','message'=>'An original payment ID has already been reused; automatic restore is blocked']);
+				return;
+			}
+			if(!empty($payment['invoice_id']) && !$this->db->where('invoice_id',(int)$payment['invoice_id'])->count_all_results('invoice')) {
+				$this->db->trans_rollback();
+				echo json_encode(['status'=>'error','message'=>'An invoice required by the original receipt no longer exists; automatic restore is blocked']);
+				return;
+			}
+			$this->db->insert('payment', $payment);
+			$restored_payment_id = !empty($payment['payment_id']) ? (int)$payment['payment_id'] : (int)$this->db->insert_id();
+			if(!empty($payment['invoice_id'])) {
+				$this->db->where('invoice_id',(int)$payment['invoice_id'])
+					->set('amount_paid','amount_paid + '.(float)$payment['amount'],FALSE)
+					->set('due','GREATEST(due - '.(float)$payment['amount'].',0)',FALSE)
 					->update('invoice');
-				
-				// Update invoice status
-				$invoice = $this->db->where('invoice_id', $payment['invoice_id'])->get('invoice')->row();
-				$status = $invoice->due <= 0 ? 'paid' : ($invoice->amount_paid > 0 ? 'partial' : 'unpaid');
-				$this->db->where('invoice_id', $payment['invoice_id'])->update('invoice', ['status' => $status]);
+				$this->refresh_invoice_payment_status((int)$payment['invoice_id']);
 			}
-		} else {
-			// Reverse edit - restore original payment data
-			$original_payments = json_decode($request->original_data, true);
-			foreach($original_payments as $payment) {
-				$this->db->where('payment_id', $payment['payment_id'])->update('payment', $payment);
-				
-				// Recalculate invoice balances
-				$invoice = $this->db->where('invoice_id', $payment['invoice_id'])->get('invoice')->row();
-				$total_paid = $this->db->where('invoice_id', $payment['invoice_id'])
-					->select_sum('amount')
-					->get('payment')->row()->amount ?? 0;
-				
-				$this->db->where('invoice_id', $payment['invoice_id'])->update('invoice', [
-					'amount_paid' => $total_paid,
-					'due' => $invoice->amount - $total_paid,
-					'status' => ($invoice->amount - $total_paid) <= 0 ? 'paid' : ($total_paid > 0 ? 'partial' : 'unpaid')
-				]);
-			}
+			sync_payment_to_accounts($restored_payment_id);
+			sync_payment_to_ledger($restored_payment_id);
 		}
-		
-		// Update request status
+
+		$credits=(array)($credit_snapshot['credits'] ?? []);
+		$applications=(array)($credit_snapshot['applications'] ?? []);
+		foreach($credits as $credit) {
+			if(empty($credit['credit_id']) || $this->db->where('credit_id',(int)$credit['credit_id'])->count_all_results('student_credits') > 0) {
+				$this->db->trans_rollback();
+				echo json_encode(['status'=>'error','message'=>'A credit ID from the original receipt has already been reused; automatic restore is blocked']);
+				return;
+			}
+			$credit_restore=$credit;
+			unset($credit_restore['remaining_amount']); // generated STORED column
+			$this->db->insert('student_credits',$credit_restore);
+		}
+		foreach($applications as $application) {
+			if(empty($application['application_id']) || empty($application['credit_id']) || empty($application['invoice_id'])) {
+				$this->db->trans_rollback();echo json_encode(['status'=>'error','message'=>'Original credit application snapshot is incomplete']);return;
+			}
+			if($this->db->where('application_id',(int)$application['application_id'])->count_all_results('credit_applications') > 0 || !$this->db->where('invoice_id',(int)$application['invoice_id'])->count_all_results('invoice')) {
+				$this->db->trans_rollback();echo json_encode(['status'=>'error','message'=>'Original credit application can no longer be restored safely']);return;
+			}
+			$this->db->insert('credit_applications',$application);
+			$this->db->where('invoice_id',(int)$application['invoice_id'])
+				->set('credit_applied','credit_applied + '.(float)$application['applied_amount'],FALSE)
+				->set('due','GREATEST(due - '.(float)$application['applied_amount'].',0)',FALSE)
+				->update('invoice');
+			$this->refresh_invoice_payment_status((int)$application['invoice_id']);
+		}
+
 		$this->db->where('request_id', $request_id)->update('receipt_modification_requests', [
-			'status' => 'revoked',
-			'revoked_by' => $user_id,
-			'revoked_at' => time()
+			'status'=>'revoked', 'revoked_by'=>$user_id, 'revoked_at'=>time()
 		]);
-		
-		// Log the revocation
 		$this->db->insert('receipt_modification_audit', [
-			'request_id' => $request_id,
-			'receipt_code' => $request->receipt_code,
-			'payment_id' => $request->payment_id,
-			'action' => 'revoke',
-			'performed_by' => $user_id,
-			'performed_at' => time(),
-			'ip_address' => $this->input->ip_address(),
-			'user_agent' => $this->input->user_agent()
+			'request_id'=>$request_id,
+			'receipt_code'=>$request->receipt_code,
+			'payment_id'=>$request->payment_id,
+			'action'=>'revoke',
+			'performed_by'=>$user_id,
+			'performed_at'=>time(),
+			'before_data'=>$request->new_data,
+			'after_data'=>$request->original_data,
+			'ip_address'=>$this->input->ip_address(),
+			'user_agent'=>$this->input->user_agent()
 		]);
-		
+		if($this->db->trans_status() === FALSE) {
+			$this->db->trans_rollback();
+			echo json_encode(['status'=>'error','message'=>'Receipt restoration failed; no changes were committed']);
+			return;
+		}
+		$this->db->trans_commit();
 		$this->notify_requester($request->requested_by, 'revoked', $request_id);
-		
-		echo json_encode(['status' => 'success', 'message' => get_phrase('approval_revoked_successfully')]);
+		echo json_encode(['status'=>'success','message'=>get_phrase('approval_revoked_successfully')]);
 	}
-	
+
 	function receipt_modification_details($request_id) {
+		if ($this->session->userdata('user_type') != 1) {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Only super administrators can manage approvals']));
+			return;
+		}
+
 		$request = $this->db->where('request_id', $request_id)->get('receipt_modification_requests')->row_array();
 		$page_data['request'] = $request;
 		$this->load->view('backend/admin/receipt_modification_details', $page_data);
 	}
-	
+
 	function get_payment_by_receipt($receipt_code) {
+		if ($this->session->userdata('admin_login') != 1) { redirect(site_url('login')); return; }
+
 		$payments = $this->db->where('receipt_code', $receipt_code)->get('payment')->result_array();
 		if(!empty($payments)) {
 			echo json_encode(['status' => 'success', 'payments' => $payments, 'receipt_code' => $receipt_code]);
@@ -39210,12 +38736,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	private function send_modification_notifications($request_id) {
 		$request = $this->db->where('request_id', $request_id)->get('receipt_modification_requests')->row();
 		$requester = $this->db->where('admin_id', $request->requested_by)->get('admin')->row();
-		
+
 		$super_admins = $this->db->where('level', 1)->get('admin')->result();
 		$approval_link = base_url() . 'admin/modification_requests';
 		$action = $request->request_type == 'edit' ? 'Edit' : 'Delete';
 		$message = $requester->name . ' has requested to ' . strtolower($action) . ' receipt #' . $request->receipt_code . '. <a href="' . $approval_link . '" class="btn btn-sm btn-primary" style="margin-left: 10px;"><i class="fa fa-check-circle"></i> Review Request</a>';
-		
+
 		foreach($super_admins as $admin) {
 			$this->db->insert('notifications', [
 				'user_id' => $admin->admin_id,
@@ -39227,7 +38753,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'created_at' => date('Y-m-d H:i:s')
 			]);
 		}
-		
+
 		$this->db->where('request_id', $request_id)->update('receipt_modification_requests', ['notification_sent' => 1]);
 	}
 
@@ -39235,15 +38761,15 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$request = $this->db->where('request_id', $request_id)->get('receipt_modification_requests')->row();
 		$view_link = base_url() . 'admin/student_invoice#receipt_modifications';
 		$type_label = ucfirst($request->request_type);
-		
+
 		$messages = [
 			'approved' => 'Your ' . $type_label . ' Receipt request for #' . $request->receipt_code . ' has been approved. <a href="' . $view_link . '" class="btn btn-sm btn-success notification-link" style="margin-left: 10px;" onclick="handleNotificationClick(event, \'receipt_modifications\'); return false;"><i class="fa fa-eye"></i> View Details</a>',
 			'rejected' => 'Your ' . $type_label . ' Receipt request for #' . $request->receipt_code . ' has been rejected. <a href="' . $view_link . '" class="btn btn-sm btn-danger notification-link" style="margin-left: 10px;" onclick="handleNotificationClick(event, \'receipt_modifications\'); return false;"><i class="fa fa-eye"></i> View Details</a>',
 			'revoked' => 'The approval for your ' . $type_label . ' Receipt request #' . $request->receipt_code . ' has been revoked. <a href="' . $view_link . '" class="btn btn-sm btn-warning notification-link" style="margin-left: 10px;" onclick="handleNotificationClick(event, \'receipt_modifications\'); return false;"><i class="fa fa-eye"></i> View Details</a>'
 		];
-		
+
 		$message = $messages[$status] ?? 'Your receipt modification request status has changed';
-		
+
 		$this->db->insert('notifications', [
 			'user_id' => $user_id,
 			'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
@@ -39257,7 +38783,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	private function log_modification_audit($request_id, $receipt_code, $action, $user_id) {
 		$request = $this->db->where('request_id', $request_id)->get('receipt_modification_requests')->row();
-		
+
 		$this->db->insert('receipt_modification_audit', [
 			'request_id' => $request_id,
 			'receipt_code' => $receipt_code,
@@ -39274,22 +38800,37 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 
 	function invoice_modification_details($request_id) {
+		if ($this->session->userdata('user_type') != 1) {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Only super administrators can manage approvals']));
+			return;
+		}
+
 		$request = $this->db->where('request_id', $request_id)->get('invoice_modification_requests')->row_array();
 		$page_data['request'] = $request;
 		$this->load->view('backend/admin/invoice_modification_details', $page_data);
 	}
 
 	function get_modification_requests() {
+		if ($this->session->userdata('user_type') != 1) {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Only super administrators can view approval queues']));
+			return;
+		}
+
 		$status = $this->input->get('status') ?: 'pending';
 		$requests = $this->db->where('status', $status)
 			->order_by('requested_at', 'DESC')
 			->get('receipt_modification_requests')
 			->result_array();
-		
+
 		echo json_encode(['status' => 'success', 'data' => $requests]);
 	}
 
 	function receipt_modification_requests_view() {
+		if ($this->session->userdata('user_type') != 1) {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Only super administrators can view approval queues']));
+			return;
+		}
+
 		$status = $this->input->get('status') ?: 'pending';
 		$page_data['requests'] = $this->db->where('status', $status)
 			->order_by('requested_at', 'DESC')
@@ -39299,6 +38840,8 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	}
 
 	function receipt_modification_modal($payment_id) {
+		if ($this->session->userdata('admin_login') != 1) { redirect(site_url('login')); return; }
+
 		$this->load->view('backend/admin/receipt_modification_modal');
 	}
 
@@ -39306,10 +38849,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	public function update_arrears_tab_setting() {
 		$enable = $this->input->post('enable'); // 'yes' or 'no'
-		
+
 		// Check if setting exists
 		$exists = $this->db->get_where('settings', array('type' => 'enable_arrears_tab'))->num_rows();
-		
+
 		if($exists > 0) {
 			// Update existing setting
 			$this->db->where('type', 'enable_arrears_tab');
@@ -39321,14 +38864,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'description' => $enable
 			));
 		}
-		
+
 		echo json_encode(array('status' => 'success'));
 	}
 
 	// =================================================================
 	// INVOICE MODIFICATION PROCESS & APPROVAL WORK FLOW===
 	// ==================================================================
-	
+
 	// Invoice Modification Modal
 	function invoice_modification_modal($invoice_code = '') {
 		$page_data['invoice_code'] = $invoice_code;
@@ -39337,496 +38880,235 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Request Invoice Modification
 	function request_invoice_modification() {
-		$invoice_code = $this->input->post('invoice_code');
-		$student_id = $this->input->post('student_id');
-		$request_type = $this->input->post('request_type');
-		$reason = $this->input->post('reason');
-		$user_id = $this->session->userdata('login_user_id');
-		$admin_level = $this->db->get_where('admin', array('admin_id' => $user_id))->row()->level;
-		
-		// Check for payments if delete request
-		if($request_type == 'delete') {
-			$payments = $this->db->where('invoice_code', $invoice_code)->get('payment')->result_array();
-			if(!empty($payments)) {
-				echo json_encode([
-					'status' => 'warning',
-					'message' => 'This invoice has payment records. Deleting will affect financial records.',
-					'has_payments' => true,
-					'payment_count' => count($payments)
-				]);
+		if(strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
+			return;
+		}
+
+		$invoice_code = trim((string)$this->input->post('invoice_code'));
+		$posted_student_id = (int)$this->input->post('student_id');
+		$request_type = trim((string)$this->input->post('request_type'));
+		$reason = trim((string)$this->input->post('reason'));
+		$user_id = (int)$this->session->userdata('login_user_id');
+		if(!in_array($request_type,['edit','delete'],true)) { echo json_encode(['status'=>'error','message'=>'Invalid modification type']); return; }
+		if($invoice_code==='' || !$user_id || $reason==='') { echo json_encode(['status'=>'error','message'=>'Invoice, user session and reason are required']); return; }
+
+		$invoice_rows=$this->db->where('invoice_code',$invoice_code)->order_by('invoice_id','ASC')->get('invoice')->result_array();
+		if(!$invoice_rows) { echo json_encode(['status'=>'error','message'=>'Invoice not found']); return; }
+		$student_id=(int)$invoice_rows[0]['student_id'];
+		if($posted_student_id && $posted_student_id!==$student_id) { echo json_encode(['status'=>'error','message'=>'Invoice/student mismatch']); return; }
+		foreach($invoice_rows as $row) { if((int)$row['student_id']!==$student_id){ echo json_encode(['status'=>'error','message'=>'Invoice contains inconsistent student records']); return; } }
+		$admin=$this->db->get_where('admin',['admin_id'=>$user_id])->row();
+		if(!$admin) { echo json_encode(['status'=>'error','message'=>'Admin session is invalid']); return; }
+		$admin_level=(int)$admin->level;
+
+		$existing_request=$this->db->where('invoice_code',$invoice_code)->where_in('status',['pending','processing'])->get('invoice_modification_requests')->row();
+		if($existing_request) { echo json_encode(['status'=>'error','message'=>'A pending or processing modification request already exists for this invoice']); return; }
+
+		if($request_type==='delete') {
+			$payments=$this->db->where('invoice_code',$invoice_code)->get('payment')->result_array();
+			if($payments) {
+				echo json_encode(['status'=>'warning','message'=>'This invoice has payment records. Deleting will reverse those financial records.','has_payments'=>true,'payment_count'=>count($payments)]);
 				return;
 			}
 		}
-		
-		// Get old invoice data
-		$old_invoice_items = $this->db->where('invoice_code', $invoice_code)->get('invoice')->result_array();
-		$old_data = json_encode($old_invoice_items);
-		
-		// Get new data for edit
-		$new_data = null;
-		if($request_type == 'edit') {
-			$items_json = $this->input->post('items');
-			$items = json_decode($items_json, true);
-			$new_data = $items_json;
+
+		$old_data=json_encode($invoice_rows);
+		$new_data=null;
+		$items=null;
+		if($request_type==='edit') {
+			$items=json_decode((string)$this->input->post('items'),true);
+			$error='';
+			$items=$this->normalize_invoice_edit_payload($invoice_code,$student_id,$items,$error);
+			if($items===false){ echo json_encode(['status'=>'error','message'=>$error]); return; }
+			$new_data=json_encode($items);
 		}
-		
-		// If super admin, apply changes directly
-		if($admin_level == 1) {
-			if($request_type == 'edit') {
-				$result = $this->apply_invoice_edit($invoice_code, $items);
-			} else {
-				$result = $this->apply_invoice_delete($invoice_code);
-			}
-			
-			if($result) {
-				echo json_encode([
-					'status' => 'success',
-					'message' => get_phrase('invoice_modified_successfully')
-				]);
-			} else {
-				echo json_encode([
-					'status' => 'error',
-					'message' => get_phrase('operation_failed')
-				]);
-			}
+
+		if($admin_level===1) {
+			$result=$request_type==='edit' ? $this->apply_invoice_edit($invoice_code,$items) : $this->apply_invoice_delete($invoice_code);
+			echo json_encode($result ? ['status'=>'success','message'=>get_phrase('invoice_modified_successfully')] : ['status'=>'error','message'=>get_phrase('operation_failed')]);
 			return;
 		}
-		
-		// For non-super admin, create modification request
-		$data = array(
-			'invoice_code' => $invoice_code,
-			'student_id' => $student_id,
-			'request_type' => $request_type,
-			'requested_by' => $user_id,
-			'request_reason' => $reason,
-			'old_data' => $old_data,
-			'new_data' => $new_data,
-			'status' => 'pending',
-			'created_at' => date('Y-m-d H:i:s')
-		);
-		
-		$this->db->insert('invoice_modification_requests', $data);
-		$request_id = $this->db->insert_id();
-		
-		// Send notification to super admin
+
+		$data=[
+			'invoice_code'=>$invoice_code,'student_id'=>$student_id,'request_type'=>$request_type,'requested_by'=>$user_id,
+			'request_reason'=>mb_substr($reason,0,2000),'old_data'=>$old_data,'new_data'=>$new_data,'status'=>'pending','created_at'=>date('Y-m-d H:i:s')
+		];
+		$this->db->insert('invoice_modification_requests',$data);
+		$request_id=(int)$this->db->insert_id();
 		$this->send_invoice_modification_notification($request_id);
-		
-		echo json_encode([
-			'status' => 'success',
-			'message' => get_phrase('modification_request_submitted')
-		]);
+		echo json_encode(['status'=>'success','message'=>get_phrase('modification_request_submitted')]);
 	}
 
 	// Confirm Invoice Delete with Payments
 	function confirm_invoice_delete_with_payments() {
-		$invoice_code = $this->input->post('invoice_code');
-		$student_id = $this->input->post('student_id');
-		$reason = $this->input->post('reason');
-		$user_id = $this->session->userdata('login_user_id');
-		$admin_level = $this->db->get_where('admin', array('admin_id' => $user_id))->row()->level;
-		
-		// Get old invoice data
-		$old_invoice_items = $this->db->where('invoice_code', $invoice_code)->get('invoice')->result_array();
-		$old_data = json_encode($old_invoice_items);
-		
-		// If super admin, apply delete directly
-		if($admin_level == 1) {
-			$result = $this->apply_invoice_delete($invoice_code);
-			
-			if($result) {
-				echo json_encode([
-					'status' => 'success',
-					'message' => get_phrase('invoice_deleted_successfully')
-				]);
-			} else {
-				echo json_encode([
-					'status' => 'error',
-					'message' => get_phrase('operation_failed')
-				]);
-			}
+		if(strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
 			return;
 		}
-		
-		// For non-super admin, create modification request
-		$data = array(
-			'invoice_code' => $invoice_code,
-			'student_id' => $student_id,
-			'request_type' => 'delete',
-			'requested_by' => $user_id,
-			'request_reason' => $reason,
-			'old_data' => $old_data,
-			'new_data' => null,
-			'status' => 'pending',
-			'created_at' => date('Y-m-d H:i:s')
-		);
-		
-		$this->db->insert('invoice_modification_requests', $data);
-		$request_id = $this->db->insert_id();
-		
-		// Send notification to super admin
-		$this->send_invoice_modification_notification($request_id);
-		
-		echo json_encode([
-			'status' => 'success',
-			'message' => get_phrase('modification_request_submitted')
+		$invoice_code=trim((string)$this->input->post('invoice_code'));
+		$posted_student_id=(int)$this->input->post('student_id');
+		$reason=trim((string)$this->input->post('reason'));
+		$user_id=(int)$this->session->userdata('login_user_id');
+		$invoice_rows=$this->db->where('invoice_code',$invoice_code)->order_by('invoice_id','ASC')->get('invoice')->result_array();
+		if(!$invoice_rows || !$user_id || $reason===''){ echo json_encode(['status'=>'error','message'=>'Invoice, user session and reason are required']); return; }
+		$student_id=(int)$invoice_rows[0]['student_id'];
+		if($posted_student_id && $posted_student_id!==$student_id){ echo json_encode(['status'=>'error','message'=>'Invoice/student mismatch']); return; }
+		$admin=$this->db->get_where('admin',['admin_id'=>$user_id])->row();
+		if(!$admin){ echo json_encode(['status'=>'error','message'=>'Admin session is invalid']); return; }
+		$existing=$this->db->where('invoice_code',$invoice_code)->where_in('status',['pending','processing'])->get('invoice_modification_requests')->row();
+		if($existing){ echo json_encode(['status'=>'error','message'=>'A pending or processing modification request already exists for this invoice']); return; }
+		$old_data=json_encode($invoice_rows);
+		if((int)$admin->level===1){
+			$result=$this->apply_invoice_delete($invoice_code);
+			echo json_encode($result?['status'=>'success','message'=>get_phrase('invoice_deleted_successfully')]:['status'=>'error','message'=>get_phrase('operation_failed')]);
+			return;
+		}
+		$this->db->insert('invoice_modification_requests',[
+			'invoice_code'=>$invoice_code,'student_id'=>$student_id,'request_type'=>'delete','requested_by'=>$user_id,
+			'request_reason'=>mb_substr($reason,0,2000),'old_data'=>$old_data,'new_data'=>null,'status'=>'pending','created_at'=>date('Y-m-d H:i:s')
 		]);
+		$request_id=(int)$this->db->insert_id();
+		$this->send_invoice_modification_notification($request_id);
+		echo json_encode(['status'=>'success','message'=>get_phrase('modification_request_submitted')]);
 	}
 
 	// Apply Invoice Edit
-	private function apply_invoice_edit($invoice_code, $items) {
-		$this->db->trans_start();
-		
-		// ============================================
-		// CREDIT SYSTEM: Handle credits before invoice edit
-		// ============================================
-		$this->load->model('Credit_model');
-		
-		// Get all invoice items for this invoice_code to reverse credits
-		$invoice_items_to_update = $this->db->where('invoice_code', $invoice_code)->get('invoice')->result();
-		
-		foreach($invoice_items_to_update as $inv_item) {
-			$invoice_id = $inv_item->invoice_id;
-			
-			// Step 1: Get old credit applications for this invoice item
-			$old_credit_apps = $this->db->where('invoice_id', $invoice_id)->get('credit_applications')->result();
-			
-			// Step 2: Reverse old credit applications
-			foreach($old_credit_apps as $app) {
-				$credit = $this->db->get_where('student_credits', ['credit_id' => $app->credit_id])->row();
-				if($credit) {
-					$new_applied = max(0, $credit->applied_amount - $app->applied_amount);
-					$new_status = ($new_applied >= $credit->credit_amount) ? 'fully_applied' : 'active';
-					$this->db->where('credit_id', $app->credit_id)
-						->update('student_credits', [
-							'applied_amount' => $new_applied,
-							'status' => $new_status
-						]);
-				}
-			}
-			
-			// Step 3: Delete old credit application records
-			$this->db->where('invoice_id', $invoice_id)->delete('credit_applications');
-			
-			// Step 4: Reset invoice credit_applied field
-			$this->db->where('invoice_id', $invoice_id)->update('invoice', ['credit_applied' => 0]);
+	private function normalize_invoice_edit_payload($invoice_code, $student_id, $items, &$error='') {
+		if(!is_array($items) || !$items || count($items)>200){$error='Invoice edit must contain between 1 and 200 items';return false;}
+		$existing=$this->db->where('invoice_code',$invoice_code)->where('student_id',(int)$student_id)->get('invoice')->result_array();
+		if(!$existing){$error='Invoice not found';return false;}
+		$existing_by_id=[];foreach($existing as $row)$existing_by_id[(int)$row['invoice_id']]=$row;
+		$has_payments=$this->db->where('invoice_code',$invoice_code)->count_all_results('payment')>0;
+		$seen=[];$normalized=[];$total=0.0;
+		foreach($items as $item){
+			if(!is_array($item)){ $error='Invalid invoice item payload'; return false; }
+			$title=trim((string)($item['title']??''));$description=trim((string)($item['description']??''));
+			if($title==='' || !isset($item['amount']) || !is_numeric($item['amount'])){$error='Every invoice item requires a title and numeric amount';return false;}
+			$amount=round((float)$item['amount'],2);if($amount<0){$error='Invoice item amounts cannot be negative';return false;}
+			$invoice_id=!empty($item['invoice_id'])?(int)$item['invoice_id']:null;
+			if($invoice_id){
+				if(!isset($existing_by_id[$invoice_id])){$error='An invoice item does not belong to this invoice';return false;}
+				if(isset($seen[$invoice_id])){$error='Duplicate invoice item in edit payload';return false;}
+				$seen[$invoice_id]=true;
+				if($has_payments && strcasecmp(trim((string)$existing_by_id[$invoice_id]['title']),$title)!==0){$error='Paid invoices cannot change bill-item identity; edit only the amount/description or use a controlled reversal';return false;}
+			}elseif($has_payments){$error='Paid invoices cannot add new bill items during an edit';return false;}
+			$normalized[]=['invoice_id'=>$invoice_id,'title'=>mb_substr($title,0,255),'description'=>mb_substr($description,0,2000),'amount'=>$amount];
+			$total+=$amount;
 		}
-		// ============================================
-		
-		// Get discount info before modification
-		$discount = $this->db->where('invoice_code', $invoice_code)
-			->where('status', 'approved')
-			->get('invoice_discounts')->row();
-		
-		$has_discount = !empty($discount);
-		$discount_profile = null;
-		
-		if($has_discount) {
-			$discount_profile = $this->db->where('profile_id', $discount->profile_id)
-				->get('discount_profiles')->row();
+		if($total<=0.005){$error='Use the delete workflow instead of editing an invoice total to zero';return false;}
+		if($has_payments){
+			$expected=array_keys($existing_by_id);sort($expected);$submitted=array_keys($seen);sort($submitted);
+			if($expected!==$submitted){$error='Paid invoices cannot remove bill items during an edit';return false;}
 		}
-		
-		// Get existing invoice items
-		$existing_items = $this->db->where('invoice_code', $invoice_code)->get('invoice')->result_array();
-		$existing_ids = array_column($existing_items, 'invoice_id');
-		$submitted_ids = array();
-		
-		// Get student_id and other info from first existing item
-		$first_item = !empty($existing_items) ? $existing_items[0] : null;
-		$student_id = $first_item ? $first_item['student_id'] : null;
-		$class_id = $first_item ? $first_item['class_id'] : null;
-		$year = $first_item ? $first_item['year'] : null;
-		$term = $first_item ? $first_item['term'] : null;
-		$creation_timestamp = $first_item ? $first_item['creation_timestamp'] : null;
-		
-		// Process submitted items (update or insert)
-		foreach($items as $item) {
-			if(!empty($item['invoice_id'])) {
-				// Existing item - update (preserve original creation_timestamp)
-				$invoice_id = $item['invoice_id'];
-				$submitted_ids[] = $invoice_id;
-				
-				$current_item = $this->db->where('invoice_id', $invoice_id)->get('invoice')->row();
-				$amount_paid = $current_item->amount_paid;
-				$new_amount = $item['amount'];
-				$new_due = (floatval($new_amount) - floatval($amount_paid));
-				
-				if($new_due <= 0) {
-					$status = 'paid';
-				} elseif($amount_paid > 0) {
-					$status = 'partial';
-				} else {
-					$status = 'unpaid';
-				}
-				
-				$this->db->where('invoice_id', $invoice_id)->update('invoice', array(
-					'description' => $item['description'],
-					'amount' => $new_amount,
-					'due' => $new_due,
-					'status' => $status
-					// creation_timestamp preserved (not updated)
-				));
-			} else {
-				// New item - insert with original invoice creation timestamp
-				$insert_data = array(
-					'invoice_code' => $invoice_code,
-					'student_id' => $student_id,
-					'class_id' => $class_id,
-					'year' => $year,
-					'term' => $term,
-					'title' => strtoupper($item['title']),
-					'description' => $item['description'],
-					'amount' => $item['amount'],
-					'amount_paid' => 0,
-					'due' => $item['amount'],
-					'status' => 'unpaid',
-					'creation_timestamp' => $creation_timestamp
-				);
-				$this->db->insert('invoice', $insert_data);
-				$submitted_ids[] = $this->db->insert_id();
-			}
-		}
-		
-		// Delete items that were removed
-		$items_to_delete = array_diff($existing_ids, $submitted_ids);
-		if(!empty($items_to_delete)) {
-			$this->db->where_in('invoice_id', $items_to_delete)->delete('invoice');
-		}
-		
-		// Recalculate discount if exists
-		if($has_discount && $discount_profile) {
-			// Get old invoice items BEFORE modification to compare
-			$old_items_map = array();
-			foreach($existing_items as $old_item) {
-				$old_items_map[$old_item['title']] = $old_item;
-			}
+		return $normalized;
+	}
 
-			// Get old discount items for comparison
-			$old_discount_items = $this->db->where('discount_id', $discount->discount_id)
-				->get('invoice_discount_items')->result_array();
-			$old_discount_map = array();
-			foreach($old_discount_items as $disc_item) {
-				$old_discount_map[$disc_item['item_title']] = $disc_item;
+	private function apply_invoice_edit($invoice_code, $items) {
+		$first=$this->db->where('invoice_code',$invoice_code)->order_by('invoice_id','ASC')->get('invoice')->row_array();
+		if(!$first) return false;
+		$error='';$items=$this->normalize_invoice_edit_payload($invoice_code,(int)$first['student_id'],$items,$error);
+		if($items===false){log_message('error','Invoice edit blocked for '.$invoice_code.': '.$error);return false;}
+
+		$this->db->trans_start();
+		$existing_items=$this->db->query('SELECT * FROM invoice WHERE invoice_code = ? ORDER BY invoice_id ASC FOR UPDATE',[$invoice_code])->result_array();
+		if(!$existing_items){$this->db->trans_rollback();return false;}
+		$first_item=$existing_items[0];$student_id=(int)$first_item['student_id'];
+		$existing_by_id=[];foreach($existing_items as $row)$existing_by_id[(int)$row['invoice_id']]=$row;
+
+		$this->load->model('Credit_model');
+		foreach($existing_items as $inv_item){
+			$credit_apps=$this->db->where('invoice_id',$inv_item['invoice_id'])->get('credit_applications')->result_array();
+			foreach($credit_apps as $app){
+				$credit=$this->db->query('SELECT * FROM student_credits WHERE credit_id = ? FOR UPDATE',[(int)$app['credit_id']])->row_array();
+				if($credit){$new_applied=max(0,(float)$credit['applied_amount']-(float)$app['applied_amount']);$new_status=$new_applied>=(float)$credit['credit_amount']?'fully_applied':'active';$this->db->where('credit_id',$credit['credit_id'])->update('student_credits',['applied_amount'=>$new_applied,'status'=>$new_status]);}
 			}
-			
-			// Get current invoice items (still have discount applied)
-			$current_items = $this->db->where('invoice_code', $invoice_code)->get('invoice')->result_array();
-			
-			// Check if applicable items' amounts changed
-			$applicable_changed = false;
-			
-			if($discount_profile->bill_item_ids === '*') {
-				// Wildcard: check ALL items
-				foreach($current_items as $item) {
-					if(isset($old_items_map[$item['title']])) {
-						// Compare current amount (with discount) to old amount (with discount)
-						if(abs($item['amount'] - $old_items_map[$item['title']]['amount']) > 0.01) {
-							$applicable_changed = true;
-							break;
-						}
-					} else {
-						// New item added
-						$applicable_changed = true;
-						break;
-					}
-				}
-			} else {
-				// Specific items: only check items that discount applies to
-				$profile_bill_items = explode(',', $discount_profile->bill_item_ids);
-				foreach($current_items as $item) {
-					$is_applicable = false;
-					if(isset($item['bill_item_id']) && in_array($item['bill_item_id'], $profile_bill_items)) {
-						$is_applicable = true;
-					} else {
-						// Match by title
-						foreach($profile_bill_items as $bill_item_id) {
-							$bill_item = $this->db->where('id', trim($bill_item_id))->get('bill_item')->row();
-							if($bill_item && strtolower(trim($item['title'])) == strtolower(trim($bill_item->title))) {
-								$is_applicable = true;
-								break;
-							}
-						}
-					}
-					
-					if($is_applicable) {
-						if(isset($old_items_map[$item['title']])) {
-							// Compare amounts
-							if(abs($item['amount'] - $old_items_map[$item['title']]['amount']) > 0.01) {
-								$applicable_changed = true;
-								break;
-							}
-						} else {
-							// New applicable item added
-							$applicable_changed = true;
-							break;
-						}
-					}
-				}
-			}
-			
-			// Only recalculate discount if applicable items changed
-			if($applicable_changed) {
-				// Restore original amounts
-				if(count($old_discount_items) > 0) {
-					foreach($old_discount_items as $disc_item) {
-						$this->db->where('invoice_id', $disc_item['invoice_id'])
-							->set('amount', 'amount + ' . $disc_item['discount_amount'], FALSE)
-							->set('due', 'due + ' . $disc_item['discount_amount'], FALSE)
-							->update('invoice');
-					}
-				}
-				
-				// Delete old discount items
-				$this->db->where('discount_id', $discount->discount_id)->delete('invoice_discount_items');
-				
-				// Get updated invoice items (with restored amounts)
-				$updated_items = $this->db->where('invoice_code', $invoice_code)->get('invoice')->result_array();
-				
-				// Determine applicable items and calculate discount
-				$applicable_items = array();
-				$applicable_total = 0;
-				
-				if($discount_profile->bill_item_ids === '*') {
-					foreach($updated_items as $idx => $item) {
-						$applicable_total += $item['amount'];
-						$applicable_items[] = $idx;
-					}
-				} else {
-					$profile_bill_items = explode(',', $discount_profile->bill_item_ids);
-					foreach($updated_items as $idx => $item) {
-						$is_applicable = false;
-						if(isset($item['bill_item_id']) && in_array($item['bill_item_id'], $profile_bill_items)) {
-							$is_applicable = true;
-						} else {
-							foreach($profile_bill_items as $bill_item_id) {
-								$bill_item = $this->db->where('id', trim($bill_item_id))->get('bill_item')->row();
-								if($bill_item && strtolower(trim($item['title'])) == strtolower(trim($bill_item->title))) {
-									$is_applicable = true;
-									break;
-								}
-							}
-						}
-						if($is_applicable) {
-							$applicable_total += $item['amount'];
-							$applicable_items[] = $idx;
-						}
-					}
-				}
-				
-				// Calculate new discount
-				$new_discount_amount = ($discount_profile->discount_method == 'percentage') 
-					? ($applicable_total * $discount_profile->discount_value / 100)
-					: min($discount_profile->discount_value, $applicable_total);
-				
-				// Update discount record
-				$this->db->where('discount_id', $discount->discount_id)->update('invoice_discounts', array(
-					'discount_amount' => $new_discount_amount
-				));
-				
-				// Apply discount to items
-				if(count($applicable_items) > 0) {
-					if($discount_profile->discount_method == 'percentage') {
-						foreach($applicable_items as $idx) {
-							$item = $updated_items[$idx];
-							$item_discount = ($item['amount'] * $discount_profile->discount_value) / 100;
-							
-							$this->db->insert('invoice_discount_items', array(
-								'discount_id' => $discount->discount_id,
-								'invoice_id' => $item['invoice_id'],
-								'invoice_code' => $invoice_code,
-								'student_id' => $item['student_id'],
-								'item_title' => $item['title'],
-								'original_amount' => $item['amount'],
-								'discount_amount' => $item_discount,
-								'discounted_amount' => $item['amount'] - $item_discount
-							));
-							
-							$this->db->where('invoice_id', $item['invoice_id'])
-								->set('amount', 'amount - ' . $item_discount, FALSE)
-								->set('due', 'due - ' . $item_discount, FALSE)
-								->update('invoice');
-						}
-					} else {
-						foreach($applicable_items as $idx) {
-							$item = $updated_items[$idx];
-							$item_discount = ($item['amount'] / $applicable_total) * $new_discount_amount;
-							
-							$this->db->insert('invoice_discount_items', array(
-								'discount_id' => $discount->discount_id,
-								'invoice_id' => $item['invoice_id'],
-								'invoice_code' => $invoice_code,
-								'student_id' => $item['student_id'],
-								'item_title' => $item['title'],
-								'original_amount' => $item['amount'],
-								'discount_amount' => $item_discount,
-								'discounted_amount' => $item['amount'] - $item_discount
-							));
-							
-							$this->db->where('invoice_id', $item['invoice_id'])
-								->set('amount', 'amount - ' . $item_discount, FALSE)
-								->set('due', 'due - ' . $item_discount, FALSE)
-								->update('invoice');
-						}
-					}
-				}
-			}
-			// If applicable items didn't change, discount remains as-is (no action needed)
+			$this->db->where('invoice_id',$inv_item['invoice_id'])->delete('credit_applications');
+			$this->db->where('invoice_id',$inv_item['invoice_id'])->update('invoice',['credit_applied'=>0]);
 		}
-		
-		// Recalculate payment allocation after modification
-		$this->recalculate_invoice_payments($invoice_code);
-		
-		// ============================================
-		// CREDIT SYSTEM: Reapply credits after invoice edit
-		// ============================================
-		// Get updated invoice items and reapply credits
-		$updated_invoice_items = $this->db->where('invoice_code', $invoice_code)->get('invoice')->result();
-		
-		foreach($updated_invoice_items as $updated_item) {
-			// Reapply credits to each invoice item with the new amounts
-			$this->Credit_model->apply_credits_to_invoice($updated_item->invoice_id);
+
+		$approved_discounts=$this->db->where('invoice_code',$invoice_code)->where('status','approved')->get('invoice_discounts')->result_array();
+		if(count($approved_discounts)>1){$this->db->trans_rollback();log_message('error','Invoice '.$invoice_code.' has multiple approved discounts; edit blocked');return false;}
+		$discount=$approved_discounts?$approved_discounts[0]:null;$discount_profile=null;
+		if($discount){$discount_profile=$this->db->where('profile_id',$discount['profile_id'])->where('is_active',1)->get('discount_profiles')->row_array();if(!$discount_profile){$this->db->trans_rollback();return false;}$this->db->where('discount_id',$discount['discount_id'])->delete('invoice_discount_items');}
+
+		$submitted_ids=[];
+		foreach($items as $item){
+			if($item['invoice_id']){
+				$id=(int)$item['invoice_id'];$submitted_ids[]=$id;$current=$existing_by_id[$id];$paid=(float)$current['amount_paid'];
+				if((float)$item['amount']+0.005<$paid){$this->db->trans_rollback();return false;}
+				$due=round(max(0,(float)$item['amount']-$paid),2);$status=$due<=0.005?'paid':($paid>0.005?'partial':'unpaid');
+				$this->db->where('invoice_id',$id)->update('invoice',['title'=>strtoupper($item['title']),'description'=>$item['description'],'amount'=>$item['amount'],'due'=>$due,'status'=>$status]);
+			}else{
+				$data=['invoice_code'=>$invoice_code,'student_id'=>$student_id,'class_id'=>$first_item['class_id'],'residence_type'=>$first_item['residence_type'],'year'=>$first_item['year'],'term'=>$first_item['term'],'title'=>strtoupper($item['title']),'description'=>$item['description'],'amount'=>$item['amount'],'amount_paid'=>0,'credit_applied'=>0,'due'=>$item['amount'],'status'=>'unpaid','creation_timestamp'=>$first_item['creation_timestamp']];
+				$this->db->insert('invoice',$data);$submitted_ids[]=(int)$this->db->insert_id();
+			}
 		}
-		// ============================================
-		
+		$existing_ids=array_keys($existing_by_id);$delete_ids=array_values(array_diff($existing_ids,$submitted_ids));
+		if($delete_ids)$this->db->where_in('invoice_id',$delete_ids)->delete('invoice');
+
+		$current_items=$this->db->where('invoice_code',$invoice_code)->order_by('invoice_id','ASC')->get('invoice')->result_array();
+		if($discount && $discount_profile){
+			$calc=$this->build_invoice_discount_allocations($current_items,$discount_profile);$total_discount=0.0;
+			if(!$calc['allocations'] || $calc['eligible_total']<=0){$this->db->trans_rollback();return false;}
+			foreach($calc['allocations'] as $allocation){
+				$item=$allocation['item'];$item_discount=round((float)$allocation['discount'],2);if($item_discount<=0)continue;
+				$settled=(float)$item['amount_paid'];if($item_discount>max(0,(float)$item['amount']-$settled)+0.009){$this->db->trans_rollback();return false;}
+				$new_amount=round(max(0,(float)$item['amount']-$item_discount),2);$new_due=round(max(0,$new_amount-$settled),2);$status=$new_due<=0.005?'paid':($settled>0.005?'partial':'unpaid');
+				$this->db->insert('invoice_discount_items',['discount_id'=>$discount['discount_id'],'invoice_id'=>$item['invoice_id'],'invoice_code'=>$invoice_code,'student_id'=>$student_id,'item_title'=>$item['title'],'original_amount'=>$item['amount'],'discount_amount'=>$item_discount,'discounted_amount'=>$new_amount]);
+				$this->db->where('invoice_id',$item['invoice_id'])->update('invoice',['amount'=>$new_amount,'due'=>$new_due,'status'=>$status]);$total_discount+=$item_discount;
+			}
+			$this->db->where('discount_id',$discount['discount_id'])->update('invoice_discounts',['discount_amount'=>round($total_discount,2)]);
+		}
+
+		$updated_items=$this->db->where('invoice_code',$invoice_code)->get('invoice')->result();
+		foreach($updated_items as $updated_item){$this->Credit_model->apply_credits_to_invoice($updated_item->invoice_id);$this->refresh_invoice_payment_status((int)$updated_item->invoice_id);}
+
+		// Keep invoice and discount ledger effects aligned inside the same transaction.
+		sync_invoice_to_ledger($invoice_code,$student_id);
+		if($discount){$fresh_discount=$this->db->where('discount_id',$discount['discount_id'])->get('invoice_discounts')->row_array();if($fresh_discount)sync_discount_to_ledger($invoice_code,$student_id,(float)$fresh_discount['discount_amount'],(int)$fresh_discount['discount_id']);}
+
 		$this->db->trans_complete();
 		return $this->db->trans_status();
 	}
+
 
 	// Recalculate Invoice Payments After Modification
 	private function recalculate_invoice_payments($invoice_code) {
 		$invoice_items = $this->db->where('invoice_code', $invoice_code)->get('invoice')->result_array();
 		if(empty($invoice_items)) return;
-		
+
 		$payments = $this->db->where('invoice_code', $invoice_code)->order_by('timestamp', 'asc')->get('payment')->result_array();
 		if(empty($payments)) return;
-		
+
 		$total_paid = array_sum(array_column($payments, 'amount'));
 		$new_invoice_total = array_sum(array_column($invoice_items, 'amount'));
-		
+
 		// Reset all items (including credit_applied for clean state)
 		foreach($invoice_items as $item) {
 			$this->db->where('invoice_id', $item['invoice_id'])->update('invoice', array(
-				'amount_paid' => 0, 
+				'amount_paid' => 0,
 				'credit_applied' => 0,
-				'due' => $item['amount'], 
+				'due' => $item['amount'],
 				'status' => 'unpaid'
 			));
 		}
-		
+
 		// Reallocate payments proportionally
 		$remaining_payment = $total_paid;
 		foreach($invoice_items as $item) {
 			if($remaining_payment <= 0) break;
-			
+
 			$payment_for_item = min($item['amount'], $remaining_payment);
 			$new_due = $item['amount'] - $payment_for_item;
 			$status = $new_due <= 0 ? 'paid' : ($payment_for_item > 0 ? 'partial' : 'unpaid');
-			
+
 			$this->db->where('invoice_id', $item['invoice_id'])->update('invoice', array(
 				'amount_paid' => $payment_for_item,
 				'due' => max(0, $new_due),
 				'status' => $status
 			));
-			
+
 			$remaining_payment -= $payment_for_item;
 		}
 	}
@@ -39834,21 +39116,21 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	// Apply Invoice Delete
 	private function apply_invoice_delete($invoice_code) {
 		$this->db->trans_start();
-		
+
 		// ============================================
 		// CREDIT SYSTEM: Reverse credits before invoice deletion
 		// ============================================
 		$this->load->model('Credit_model');
-		
+
 		// Get all invoice items for this invoice_code
 		$invoice_items_to_delete = $this->db->where('invoice_code', $invoice_code)->get('invoice')->result();
-		
+
 		foreach($invoice_items_to_delete as $inv_item) {
 			$invoice_id = $inv_item->invoice_id;
-			
+
 			// Step 1: Get credit applications for this invoice item
 			$credit_apps = $this->db->where('invoice_id', $invoice_id)->get('credit_applications')->result();
-			
+
 			// Step 2: Reverse each credit application
 			foreach($credit_apps as $app) {
 				$credit = $this->db->get_where('student_credits', ['credit_id' => $app->credit_id])->row();
@@ -39856,20 +39138,20 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					// Return the credit back to the student's available pool
 					$new_applied = max(0, $credit->applied_amount - $app->applied_amount);
 					$new_status = ($new_applied >= $credit->credit_amount) ? 'fully_applied' : 'active';
-					
+
 					$this->db->where('credit_id', $app->credit_id)
 						->update('student_credits', [
 							'applied_amount' => $new_applied,
 							'status' => $new_status
 						]);
-					
+
 					// Log the credit reversal
 					$this->Credit_model->log_credit_action(
-						'credit_reversed_invoice_deleted', 
-						$inv_item->student_id, 
-						$app->applied_amount, 
-						$invoice_id, 
-						'invoice', 
+						'credit_reversed_invoice_deleted',
+						$inv_item->student_id,
+						$app->applied_amount,
+						$invoice_id,
+						'invoice',
 						[
 							'credit_id' => $app->credit_id,
 							'invoice_code' => $invoice_code,
@@ -39878,44 +39160,44 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					);
 				}
 			}
-			
+
 			// Step 3: Delete credit application records
 			$this->db->where('invoice_id', $invoice_id)->delete('credit_applications');
 		}
 		// ============================================
-		
+
 		// Get invoice and payment data before deletion
 		$invoice_item = $this->db->where('invoice_code', $invoice_code)->get('invoice')->row();
 		$student_id = $invoice_item ? $invoice_item->student_id : null;
 		$payments = $this->db->where('invoice_code', $invoice_code)->get('payment')->result_array();
-		
+
 		// Reverse payment ledger entries first (before deleting payments)
 		if(!empty($payments) && $student_id) {
 			foreach($payments as $payment) {
 				$this->Finance_model->reverse_payment_sync($payment['payment_id']);
 			}
 		}
-		
+
 		// Delete payments
 		$this->db->where('invoice_code', $invoice_code)->delete('payment');
-		
-		// Delete discount items
-		$discount = $this->db->where('invoice_code', $invoice_code)->get('invoice_discounts')->row();
-		if($discount) {
-			$this->db->where('discount_id', $discount->discount_id)->delete('invoice_discount_items');
-			$this->db->where('invoice_code', $invoice_code)->delete('invoice_discounts');
+
+		// Reverse every approved discount ledger effect and remove all allocation rows.
+		$discounts = $this->db->where('invoice_code', $invoice_code)->get('invoice_discounts')->result_array();
+		$discount_ids = [];
+		foreach($discounts as $discount) {
+			$discount_ids[] = (int)$discount['discount_id'];
+			if($student_id && $discount['status'] === 'approved') {
+				$this->Finance_model->reverse_discount_ledger($invoice_code, $student_id, (float)$discount['discount_amount'], (int)$discount['discount_id']);
+			}
 		}
-		
-		// Delete invoice items
+		if($discount_ids) $this->db->where_in('discount_id', $discount_ids)->delete('invoice_discount_items');
+		$this->db->where('invoice_code', $invoice_code)->delete('invoice_discounts');
+
+		// Reconcile the invoice reference to zero before deleting its rows.
+		if($student_id) $this->Finance_model->reverse_invoice_ledger($invoice_code, $student_id);
 		$this->db->where('invoice_code', $invoice_code)->delete('invoice');
-		
+
 		$this->db->trans_complete();
-		
-		// Reverse invoice ledger entry after successful deletion
-		if($this->db->trans_status() && $student_id) {
-			$this->Finance_model->reverse_invoice_ledger($invoice_code, $student_id);
-		}
-		
 		return $this->db->trans_status();
 	}
 
@@ -39924,14 +39206,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$request = $this->db->where('request_id', $request_id)->get('invoice_modification_requests')->row();
 		$requester = $this->db->where('admin_id', $request->requested_by)->get('admin')->row();
 		$student = $this->db->where('student_id', $request->student_id)->get('student')->row();
-		
+
 		// Get all super admins
 		$super_admins = $this->db->where('level', 1)->get('admin')->result_array();
-		
+
 		$action = $request->request_type == 'edit' ? 'Edit' : 'Delete';
 		$approval_link = base_url() . 'admin/invoice_modification_requests';
 		$message = $requester->name . ' has requested to ' . strtolower($action) . ' invoice #' . $request->invoice_code . ' for student ' . $student->name . '. <a href="' . $approval_link . '" class="btn btn-sm btn-primary" style="margin-left: 10px;"><i class="fa fa-check-circle"></i> Review Request</a>';
-		
+
 		foreach($super_admins as $admin) {
 			$this->db->insert('notifications', array(
 				'user_id' => $admin['admin_id'],
@@ -39953,9 +39235,23 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Approve/Decline Invoice Modification
 	function review_invoice_modification($request_id, $action) {
+		if(strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
+			return;
+		}
+
+		if ($this->session->userdata('user_type') != 1) {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Only super administrators can manage approvals']));
+			return;
+		}
+
+		if(!in_array($action, ['approve','decline'], true)) {
+			echo json_encode(['status'=>'error','message'=>'Invalid review action']);
+			return;
+		}
 		$user_id = $this->session->userdata('login_user_id');
 		$admin_level = $this->db->get_where('admin', array('admin_id' => $user_id))->row()->level;
-		
+
 		if($admin_level != 1) {
 			echo json_encode([
 				'status' => 'error',
@@ -39963,24 +39259,20 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			]);
 			return;
 		}
-		
+
 		// Start transaction for idempotency
 		$this->db->trans_start();
-		
+
 		// Lock row and check status atomically
-		$request = $this->db->where('request_id', $request_id)
-			->where('status', 'pending')
-			->limit(1)
-			->get('invoice_modification_requests')
-			->row();
-		
+		$request = $this->db->query('SELECT * FROM invoice_modification_requests WHERE request_id = ? AND status = ? FOR UPDATE', [(int)$request_id, 'pending'])->row();
+
 		if(!$request) {
 			$this->db->trans_rollback();
-			
+
 			$existing = $this->db->where('request_id', $request_id)
 				->get('invoice_modification_requests')
 				->row();
-			
+
 			if(!$existing) {
 				echo json_encode(['status' => 'error', 'message' => get_phrase('request_not_found')]);
 			} else {
@@ -39992,11 +39284,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			}
 			return;
 		}
-		
+
 		// Immediately mark as processing
 		$this->db->where('request_id', $request_id)
 			->update('invoice_modification_requests', ['status' => 'processing']);
-		
+
 		if($action == 'approve') {
 			// Apply the modification
 			if($request->request_type == 'edit') {
@@ -40005,7 +39297,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			} else {
 				$result = $this->apply_invoice_delete($request->invoice_code);
 			}
-			
+
 			if($result) {
 				// Update request status
 				$this->db->where('request_id', $request_id)->update('invoice_modification_requests', array(
@@ -40013,19 +39305,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					'reviewed_by' => $user_id,
 					'reviewed_at' => date('Y-m-d H:i:s')
 				));
-				
-				// Financial Hook: Sync modification to ledger
-				if($request->request_type == 'edit') {
-					sync_invoice_to_ledger($request->invoice_code, $request->student_id);
-				} else {
-					$this->Finance_model->reverse_invoice_ledger($request->invoice_code, $request->student_id);
-				}
-				
+
+				// apply_invoice_edit/apply_invoice_delete own all ledger reconciliation.
+
 				// Notify requester
 				$this->notify_request_decision($request_id, 'approved');
-				
+
 				$this->db->trans_complete();
-				
+				if($this->db->trans_status() === FALSE) {
+					echo json_encode(['status'=>'error','message'=>get_phrase('operation_failed')]);
+					return;
+				}
 				echo json_encode([
 					'status' => 'success',
 					'message' => get_phrase('request_approved_successfully'),
@@ -40047,12 +39337,15 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'reviewed_by' => $user_id,
 				'reviewed_at' => date('Y-m-d H:i:s')
 			));
-			
+
 			// Notify requester
 			$this->notify_request_decision($request_id, 'declined');
-			
+
 			$this->db->trans_complete();
-			
+			if($this->db->trans_status() === FALSE) {
+				echo json_encode(['status'=>'error','message'=>get_phrase('operation_failed')]);
+				return;
+			}
 			echo json_encode([
 				'status' => 'success',
 				'message' => get_phrase('request_declined'),
@@ -40066,11 +39359,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$request = $this->db->where('request_id', $request_id)->get('invoice_modification_requests')->row();
 		$reviewer = $this->db->where('admin_id', $request->reviewed_by)->get('admin')->row();
 		$view_link = base_url() . 'admin/student_invoice#receipt_modifications';
-		
+
 		$action = $request->request_type == 'edit' ? 'edit' : 'delete';
 		$btn_class = $decision == 'approved' ? 'btn-success' : 'btn-danger';
 		$message = 'Your request to ' . $action . ' invoice #' . $request->invoice_code . ' has been ' . $decision . ' by ' . $reviewer->name . '. <a href="' . $view_link . '" class="btn btn-sm ' . $btn_class . '" style="margin-left: 10px;" data-dismiss="modal"><i class="fa fa-eye"></i> View Details</a>';
-		
+
 		$this->db->insert('notifications', array(
 			'user_id' => $request->requested_by,
 			'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
@@ -40085,7 +39378,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	// Export Selected Invoices
 	public function export_invoices() {
 		$invoice_codes = $this->input->post('invoice_codes');
-		
+
 		if(empty($invoice_codes)) {
 			echo json_encode(['status' => 'error', 'message' => 'No invoices selected']);
 			return;
@@ -40094,16 +39387,16 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		// Get school info
 		$school_name = $this->db->get_where('settings', array('type' => 'system_name'))->row();
 		$school_name = $school_name ? $school_name->description : '';
-		
+
 		$school_address = $this->db->get_where('settings', array('type' => 'address'))->row();
 		$school_address = $school_address ? $school_address->description : '';
-		
+
 		$school_phone = $this->db->get_where('settings', array('type' => 'phone'))->row();
 		$school_phone = $school_phone ? $school_phone->description : '';
-		
+
 		$school_email = $this->db->get_where('settings', array('type' => 'system_email'))->row();
 		$school_email = $school_email ? $school_email->description : '';
-		
+
 		$logo_url = $this->db->get_where('settings', array('type' => 'logo'))->row();
 		$logo_url = $logo_url ? $logo_url->description : '';
 
@@ -40126,7 +39419,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			} elseif($inv['total_paid'] > 0) {
 				$status = 'Partial';
 			}
-			
+
 			$data[] = [
 				'Invoice Code' => $inv['invoice_code'],
 				'Student Name' => $inv['student_name'],
@@ -40142,7 +39435,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		}
 
 		echo json_encode([
-			'status' => 'success', 
+			'status' => 'success',
 			'data' => $data,
 			'school_info' => [
 				'name' => $school_name,
@@ -40156,17 +39449,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 
 	// ==================== STUDENT LEDGER INTEGRATION ====================
-	
+
 	private function update_student_ledger_for_invoice($invoice_code, $student_id) {
 		$invoice_items = $this->db->where('invoice_code', $invoice_code)->get('invoice')->result();
 		$total_amount = 0;
 		foreach($invoice_items as $item) {
 			$total_amount += $item->amount;
 		}
-		
+
 		$current_balance = $this->get_student_ledger_balance($student_id);
 		$new_balance = (floatval($current_balance) + floatval($total_amount));
-		
+
 		$this->db->insert('student_ledger', [
 			'student_id' => $student_id,
 			'transaction_date' => date('Y-m-d'),
@@ -40182,20 +39475,20 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			'created_by' => $this->session->userdata('admin_id'),
 			'created_at' => time()
 		]);
-		
+
 		if($this->db->field_exists('synced_to_ledger', 'invoice')) {
 			$this->db->where('invoice_code', $invoice_code)
 				->update('invoice', ['synced_to_ledger' => 1, 'ledger_entry_id' => $this->db->insert_id()]);
 		}
 	}
-	
+
 	private function update_student_ledger_for_payment($payment_id) {
 		$payment = $this->db->where('payment_id', $payment_id)->get('payment')->row();
 		if(!$payment) return;
-		
+
 		$current_balance = $this->get_student_ledger_balance($payment->student_id);
 		$new_balance = $current_balance - $payment->amount;
-		
+
 		$this->db->insert('student_ledger', [
 			'student_id' => $payment->student_id,
 			'transaction_date' => date('Y-m-d', $payment->timestamp),
@@ -40212,21 +39505,21 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			'created_at' => time()
 		]);
 	}
-	
+
 	private function get_student_ledger_balance($student_id) {
 		if(!$this->db->table_exists('student_ledger')) return 0;
-		
+
 		$last_entry = $this->db->where('student_id', $student_id)
 			->order_by('ledger_id', 'DESC')
 			->limit(1)
 			->get('student_ledger')->row();
 		return $last_entry ? $last_entry->balance : 0;
 	}
-	
+
 	private function update_student_ledger_for_discount($invoice_code, $student_id, $discount_amount) {
 		$current_balance = $this->get_student_ledger_balance($student_id);
 		$new_balance = (floatval($current_balance) - floatval($discount_amount));
-		
+
 		$this->db->insert('student_ledger', [
 			'student_id' => $student_id,
 			'transaction_date' => date('Y-m-d'),
@@ -40250,25 +39543,25 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	 * Comprehensive report for cashiers to render daily accounts and reconcile with other collectors
 	 */
 	function my_collections() {
-		
+
 		$page_data['page_name'] = 'my_collections';
 		$page_data['page_title'] = get_phrase('my_collections_report');
 		$page_data['account_type'] = $this->session->userdata('login_type');
 		$this->load->view('backend/main', $page_data);
 	}
-	
+
 	/**
 	 * Get collections data with filters (AJAX endpoint)
 	 */
 	function get_collections_data() {
-		
+
 		$report_type = $this->input->post('report_type') ?: 'detailed';
-		
+
 		if($report_type == 'class_summary') {
 			$this->get_collections_class_summary();
 			return;
 		}
-		
+
 		$collector_id = $this->input->post('collector_id');
 		// If no collector specified: Admin (level < 4) sees all, Cashier (level >= 4) sees only their own
 		if(!$collector_id) {
@@ -40279,13 +39572,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			}
 			// Admin (level < 4): $collector_id stays null = show all
 		}
-		
+
 		$date_from = strtotime($this->input->post('date_from')) ?: strtotime(date('Y-m-d'));
 		$date_to = strtotime($this->input->post('date_to')) ?: strtotime(date('Y-m-d'));
 		$class_id = $this->input->post('class_id');
 		$payment_method = $this->input->post('payment_method');
 		$student_id = $this->input->post('student_id');
-		
+
 		$this->db->select('dft.*, s.name as student_name, s.student_code, c.name as class_name, c.name_numeric, sec.name as section_name, a.name as collector_name');
 		$this->db->from('daily_fee_transactions dft');
 		$this->db->join('student s', 's.student_id = dft.student_id');
@@ -40293,40 +39586,40 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->join('class c', 'c.class_id = e.class_id', 'left');
 		$this->db->join('section sec', 'sec.section_id = e.section_id', 'left');
 		$this->db->join('admin a', 'a.admin_id = dft.collected_by');
-		
+
 		if($collector_id) {
 			$this->db->where('dft.collected_by', $collector_id);
 		}
-		
+
 		$this->db->where('dft.payment_date >=', $date_from);
 		$this->db->where('dft.payment_date <=', $date_to);
-		
+
 		if($class_id) {
 			$this->db->where('e.class_id', $class_id);
 		}
-		
+
 		if($payment_method && $payment_method != '') {
 			$this->db->where('dft.payment_method', $payment_method);
 		}
-		
+
 		if($student_id && $student_id != '') {
 			$this->db->where('dft.student_id', $student_id);
 		}
-		
+
 		$this->db->order_by('dft.created_at', 'DESC');
 		$transactions = $this->db->get()->result_array();
-		
+
 		// Add payment method names using helper function
 		for($i = 0; $i < count($transactions); $i++) {
 			$transactions[$i]['payment_method_name'] = get_payment_method_name($transactions[$i]['payment_method']);
 		}
-		
+
 		// Calculate totals
 		$totals = [
-			'feeding' => 0, 'breakfast' => 0, 'classes' => 0, 
+			'feeding' => 0, 'breakfast' => 0, 'classes' => 0,
 			'water' => 0, 'transport' => 0, 'grand_total' => 0, 'count' => count($transactions)
 		];
-		
+
 		foreach($transactions as $t) {
 			$totals['feeding'] += $t['feeding_amount'];
 			$totals['breakfast'] += $t['breakfast_amount'];
@@ -40335,10 +39628,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$totals['transport'] += $t['transport_amount'];
 			$totals['grand_total'] += $t['total_amount'];
 		}
-		
+
 		echo json_encode(['status' => 'success', 'transactions' => $transactions, 'totals' => $totals]);
 	}
-	
+
 	function get_collections_class_summary() {
 
 		$collector_id = $this->input->post('collector_id');
@@ -40357,7 +39650,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$date_to = strtotime($this->input->post('date_to')) ?: strtotime(date('Y-m-d'));
 		$class_id = $this->input->post('class_id');
 		$payment_method = $this->input->post('payment_method');
-		
+
 		$this->db->select('e.class_id, e.section_id, c.name as class_name, c.name_numeric, sec.name as section_name,
 			SUM(dft.feeding_amount) as feeding_total,
 			SUM(dft.breakfast_amount) as breakfast_total,
@@ -40378,29 +39671,29 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		if($collector_id) {
 			$this->db->where('dft.collected_by', $collector_id);
 		}
-		
+
 		$this->db->where('dft.payment_date >=', $date_from);
 		$this->db->where('dft.payment_date <=', $date_to);
-		
+
 		if($class_id) {
 			$this->db->where('e.class_id', $class_id);
 		}
-		
+
 		if($payment_method && $payment_method != '') {
 			$this->db->where('dft.payment_method', $payment_method);
 		}
-		
+
 		$this->db->group_by('e.class_id, e.section_id');
 		$this->db->order_by('c.name_numeric', 'ASC');
 		$this->db->order_by('sec.name', 'ASC');
 		$class_summary = $this->db->get()->result_array();
-		
+
 		$totals = [
 			'feeding' => 0, 'breakfast' => 0, 'classes' => 0,
 			'water' => 0, 'transport' => 0, 'grand_total' => 0,
 			'cash' => 0, 'bank' => 0, 'momo' => 0, 'cheque' => 0
 		];
-		
+
 		foreach($class_summary as $row) {
 			$totals['feeding'] += $row['feeding_total'];
 			$totals['breakfast'] += $row['breakfast_total'];
@@ -40413,47 +39706,54 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$totals['momo'] += $row['momo_total'];
 			$totals['cheque'] += $row['cheque_total'];
 		}
-		
+
 		echo json_encode(['status' => 'success', 'class_summary' => $class_summary, 'totals' => $totals]);
 	}
-	
-	
+
+
 
 	// Bulk Approve Modifications
 	public function bulk_approve_modifications() {
+		if (strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
+			return;
+		}
+
+		if ($this->session->userdata('user_type') != 1) {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Only super administrators can manage approvals']));
+			return;
+		}
+
 		$user_id = $this->session->userdata('login_user_id');
 		$admin_level = $this->db->get_where('admin', array('admin_id' => $user_id))->row()->level;
-		
+
 		if($admin_level != 1) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('unauthorized_access')]);
 			return;
 		}
-		
+
 		$requests_json = $this->input->post('requests');
 		$requests = json_decode($requests_json, true);
-		
+
 		if(empty($requests)) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('no_requests_selected')]);
 			return;
 		}
-		
+
 		$success_count = 0;
 		$failed_count = 0;
 		$already_processed = 0;
-		
+
 		foreach($requests as $req) {
 			$request_id = $req['id'];
 			$is_receipt = $req['is_receipt'];
-			
+
 			if($is_receipt) {
 				// Receipt: Use same logic as approve_receipt_modification
 				$this->db->trans_start();
-				
-				$request = $this->db->where('request_id', $request_id)
-					->where('status', 'pending')
-					->get('receipt_modification_requests', 1, 0, true)
-					->row();
-				
+
+				$request = $this->db->query('SELECT * FROM receipt_modification_requests WHERE request_id = ? AND status = ? FOR UPDATE', [(int)$request_id, 'pending'])->row();
+
 				if(!$request) {
 					$this->db->trans_rollback();
 					$existing = $this->db->where('request_id', $request_id)->get('receipt_modification_requests')->row();
@@ -40464,26 +39764,26 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					}
 					continue;
 				}
-				
+
 				$this->db->where('request_id', $request_id)->update('receipt_modification_requests', [
 					'status' => 'processing',
 					'approved_by' => $user_id,
 					'approved_at' => time()
 				]);
-				
+
 				try {
 					if($request->request_type == 'delete') {
 						$this->process_receipt_deletion($request, $user_id);
 					} else {
 						$this->process_receipt_edit($request, $user_id);
 					}
-					
+
 					$this->db->where('request_id', $request_id)->update('receipt_modification_requests', ['status' => 'approved']);
 					$this->log_modification_audit($request_id, $request->receipt_code, $request->request_type, $user_id);
 					$this->notify_requester($request->requested_by, 'approved', $request_id);
-					
+
 					$this->db->trans_complete();
-					
+
 					if($this->db->trans_status() === FALSE) {
 						throw new Exception('Transaction failed');
 					}
@@ -40494,13 +39794,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					$failed_count++;
 				}
 			} else {
-				// Invoice: Use same logic as review_invoice_modification
-				$request = $this->db->where('request_id', $request_id)
-					->where('status', 'pending')
-					->get('invoice_modification_requests')
-					->row();
-				
+				// Invoice: use the same lock/state transition as single review.
+				$this->db->trans_start();
+				$request = $this->db->query('SELECT * FROM invoice_modification_requests WHERE request_id = ? AND status = ? FOR UPDATE', [(int)$request_id, 'pending'])->row();
+
 				if(!$request) {
+					$this->db->trans_rollback();
 					$existing = $this->db->where('request_id', $request_id)->get('invoice_modification_requests')->row();
 					if($existing && $existing->status != 'pending') {
 						$already_processed++;
@@ -40509,76 +39808,86 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					}
 					continue;
 				}
-				
+
+				$this->db->where('request_id',$request_id)->update('invoice_modification_requests',['status'=>'processing']);
 				if($request->request_type == 'edit') {
 					$items = json_decode($request->new_data, true);
 					$result = $this->apply_invoice_edit($request->invoice_code, $items);
 				} else {
 					$result = $this->apply_invoice_delete($request->invoice_code);
 				}
-				
+
 				if($result) {
 					$this->db->where('request_id', $request_id)->update('invoice_modification_requests', [
 						'status' => 'approved',
 						'reviewed_by' => $user_id,
 						'reviewed_at' => date('Y-m-d H:i:s')
 					]);
-					
-					if($request->request_type == 'edit') {
-						sync_invoice_to_ledger($request->invoice_code, $request->student_id);
-					} else {
-						$this->Finance_model->reverse_invoice_ledger($request->invoice_code, $request->student_id);
-					}
+
+					// apply_invoice_edit/apply_invoice_delete own all ledger reconciliation.
 					$this->notify_request_decision($request_id, 'approved');
-					$success_count++;
+					$this->db->trans_complete();
+					if($this->db->trans_status() === FALSE) { $failed_count++; } else { $success_count++; }
 				} else {
+					$this->db->trans_rollback();
+					$this->db->where('request_id',$request_id)->update('invoice_modification_requests',['status'=>'pending']);
 					$failed_count++;
 				}
 			}
 		}
-		
+
 		$message = "$success_count " . get_phrase('approved');
 		if($failed_count > 0) $message .= ", $failed_count " . get_phrase('failed');
 		if($already_processed > 0) $message .= ", $already_processed " . get_phrase('already_processed');
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'message' => $message
 		]);
 	}
-	
+
 	// Bulk Reject Modifications
 	public function bulk_reject_modifications() {
+		if (strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
+			return;
+		}
+
+		if ($this->session->userdata('user_type') != 1) {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Only super administrators can manage approvals']));
+			return;
+		}
+
 		$user_id = $this->session->userdata('login_user_id');
 		$admin_level = $this->db->get_where('admin', array('admin_id' => $user_id))->row()->level;
-		
+
 		if($admin_level != 1) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('unauthorized_access')]);
 			return;
 		}
-		
+
 		$requests_json = $this->input->post('requests');
 		$requests = json_decode($requests_json, true);
-		
+
 		if(empty($requests)) {
 			echo json_encode(['status' => 'error', 'message' => get_phrase('no_requests_selected')]);
 			return;
 		}
-		
+
 		$success_count = 0;
 		$failed_count = 0;
 		$already_processed = 0;
-		
+
 		foreach($requests as $req) {
 			$request_id = $req['id'];
 			$is_receipt = $req['is_receipt'];
-			
+
 			if($is_receipt) {
 				$request = $this->db->where('request_id', $request_id)
 					->where('status', 'pending')
 					->get('receipt_modification_requests')
 					->row();
-				
+
 				if(!$request) {
 					$existing = $this->db->where('request_id', $request_id)->get('receipt_modification_requests')->row();
 					if($existing && $existing->status != 'pending') {
@@ -40588,15 +39897,16 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					}
 					continue;
 				}
-				
+
 				$result = $this->db->where('request_id', $request_id)->update('receipt_modification_requests', [
 					'status' => 'rejected',
-					'reviewed_by' => $user_id,
-					'reviewed_at' => date('Y-m-d H:i:s'),
+					'approved_by' => $user_id,
+					'approved_at' => time(),
 					'rejection_reason' => 'Bulk rejection'
 				]);
-				
+
 				if($result) {
+					$this->notify_requester($request->requested_by, 'rejected', $request_id);
 					$success_count++;
 				} else {
 					$failed_count++;
@@ -40606,7 +39916,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					->where('status', 'pending')
 					->get('invoice_modification_requests')
 					->row();
-				
+
 				if(!$request) {
 					$existing = $this->db->where('request_id', $request_id)->get('invoice_modification_requests')->row();
 					if($existing && $existing->status != 'pending') {
@@ -40616,25 +39926,26 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					}
 					continue;
 				}
-				
+
 				$result = $this->db->where('request_id', $request_id)->update('invoice_modification_requests', [
 					'status' => 'declined',
 					'reviewed_by' => $user_id,
 					'reviewed_at' => date('Y-m-d H:i:s')
 				]);
-				
+
 				if($result) {
+					$this->notify_request_decision($request_id, 'declined');
 					$success_count++;
 				} else {
 					$failed_count++;
 				}
 			}
 		}
-		
+
 		$message = "$success_count " . get_phrase('rejected');
 		if($failed_count > 0) $message .= ", $failed_count " . get_phrase('failed');
 		if($already_processed > 0) $message .= ", $already_processed " . get_phrase('already_processed');
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'message' => $message
@@ -40643,6 +39954,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Check for pending invoice modification request
 	function check_invoice_modification_request() {
+		if ($this->session->userdata('admin_login') != 1 || strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Admin POST request required']));
+			return;
+		}
+
 		$invoice_code = $this->input->post('invoice_code');
 		$pending = $this->db->where('invoice_code', $invoice_code)
 			->where('status', 'pending')
@@ -40653,6 +39969,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Check for pending receipt modification request
 	function check_receipt_modification_request() {
+		if ($this->session->userdata('admin_login') != 1 || strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Admin POST request required']));
+			return;
+		}
+
 		$receipt_code = $this->input->post('receipt_code');
 		$pending = $this->db->where('receipt_code', $receipt_code)
 			->where('status', 'pending')
@@ -40663,6 +39984,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Get receipt code from payment ID
 	function get_payment_receipt_code() {
+		if ($this->session->userdata('admin_login') != 1 || strtoupper($this->input->method()) !== 'POST') {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Admin POST request required']));
+			return;
+		}
+
 		$payment_id = $this->input->post('payment_id');
 		$payment = $this->db->where('payment_id', $payment_id)->get('payment')->row();
 		echo json_encode(['receipt_code' => $payment ? $payment->receipt_code : null]);
@@ -40674,10 +40000,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$running_term = get_settings('running_term');
 		$currency = get_settings('currency');
 		$school_name = get_settings('system_name');
-		
+
 		// Get all parents with their students' outstanding balances
 		$parents_data = [];
-		
+
 		$students = $this->db->select('s.student_id, s.name, s.parent_id, p.phone, p.name as parent_name')
 			->from('student s')
 			->join('parent p', 's.parent_id = p.parent_id')
@@ -40688,15 +40014,15 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			->where('p.phone !=', '')
 			->order_by('p.name', 'ASC')
 			->get()->result_array();
-		
+
 		foreach ($students as $student) {
 			$balance = $this->db->select('SUM(due) as total_due')
 				->where('student_id', $student['student_id'])
 				->where('due >', 0)
 				->get('invoice')->row();
-			
+
 			$owing = $balance ? floatval($balance->total_due) : 0;
-			
+
 			if ($owing > 0) {
 				$parent_id = $student['parent_id'];
 				if (!isset($parents_data[$parent_id])) {
@@ -40712,13 +40038,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				];
 			}
 		}
-		
+
 		$messages = [];
 		foreach ($parents_data as $parent_id => $data) {
 			$child_word = count($data['students']) > 1 ? 'children' : 'child';
 			$bill_word = count($data['students']) > 1 ? 'bills' : 'bill';
 			$message = "Bill Reminder from " . $school_name . ". Dear cherished parent, kindly be reminded of your " . $child_word . "'s outstanding " . $bill_word . ": ";
-			
+
 			$bills = [];
 			$total_owing = 0;
 			foreach ($data['students'] as $student) {
@@ -40726,14 +40052,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$total_owing += $student['owing'];
 			}
 			$message .= implode(", ", $bills) . ". Total: " . $currency . number_format($total_owing, 2) . ". Please settle outstanding fees. Thank you.";
-			
+
 			$messages[] = [
 				'phone' => $data['phone'],
 				'parent_name' => $data['parent_name'],
 				'message' => $message
 			];
 		}
-		
+
 		if (!empty($messages)) {
 			$page_data['messages'] = $messages;
 			$page_data['page_name'] = 'bill_reminder_preview';
@@ -40750,7 +40076,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$running_term = get_settings('running_term');
 		$currency = get_settings('currency');
 		$school_name = get_settings('system_name');
-		
+
 		$parents_data = [];
 		$students = $this->db->select('s.student_id, s.name, s.parent_id, p.phone')
 			->from('student s')
@@ -40761,15 +40087,15 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			->where('e.mute', '0')
 			->where('p.phone !=', '')
 			->get()->result_array();
-		
+
 		foreach ($students as $student) {
 			$balance = $this->db->select('SUM(due) as total_due')
 				->where('student_id', $student['student_id'])
 				->where('due >', 0)
 				->get('invoice')->row();
-			
+
 			$owing = $balance ? floatval($balance->total_due) : 0;
-			
+
 			if ($owing > 0) {
 				$parent_id = $student['parent_id'];
 				if (!isset($parents_data[$parent_id])) {
@@ -40784,15 +40110,15 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				];
 			}
 		}
-		
+
 		$phones = [];
 		$messages = [];
-		
+
 		foreach ($parents_data as $parent_id => $data) {
 			$child_word = count($data['students']) > 1 ? 'children' : 'child';
 			$bill_word = count($data['students']) > 1 ? 'bills' : 'bill';
 			$message = "Bill Reminder from " . $school_name . ". Dear cherished parent, kindly be reminded of your " . $child_word . "'s outstanding " . $bill_word . ": ";
-			
+
 			$bills = [];
 			$total_owing = 0;
 			foreach ($data['students'] as $student) {
@@ -40800,11 +40126,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$total_owing += $student['owing'];
 			}
 			$message .= implode(", ", $bills) . ". Total: " . $currency . number_format($total_owing, 2) . ". Please settle outstanding fees. Thank you.";
-			
+
 			$phones[] = $data['phone'];
 			$messages[] = $message;
 		}
-		
+
 		if (!empty($phones)) {
 			// Build personalized recipients array for batch SMS
 			$personalizedRecipients = [];
@@ -40816,9 +40142,9 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				];
 				$i++;
 			}
-			
+
 			$result = $this->sms_model->send_sms_batch_personalized($personalizedRecipients);
-			
+
 			if ($result === 0) {
 				$sent_count = count($phones);
 				echo json_encode(['status' => 'success', 'message' => "Bill reminders sent to $sent_count parent(s)"]);
@@ -40852,17 +40178,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		}
 
 		$test_phones = $this->input->post('test_phones');
-		
+
 		if (empty($test_phones)) {
 			echo json_encode(['status' => 'error', 'message' => 'No phone numbers provided']);
 			return;
 		}
-		
+
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
 		$currency = get_settings('currency');
 		$school_name = get_settings('system_name');
-		
+
 		// Get parent with actual outstanding balance
 		$parents_data = [];
 		$students = $this->db->select('s.student_id, s.name, s.parent_id, p.phone, p.name as parent_name')
@@ -40874,15 +40200,15 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			->where('e.mute', '0')
 			->where('p.phone !=', '')
 			->get()->result_array();
-		
+
 		foreach ($students as $student) {
 			$balance = $this->db->select('SUM(due) as total_due')
 				->where('student_id', $student['student_id'])
 				->where('due >', 0)
 				->get('invoice')->row();
-			
+
 			$owing = $balance ? floatval($balance->total_due) : 0;
-			
+
 			if ($owing > 0) {
 				$parent_id = $student['parent_id'];
 				if (!isset($parents_data[$parent_id])) {
@@ -40897,18 +40223,18 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				];
 			}
 		}
-		
+
 		if (empty($parents_data)) {
 			echo json_encode(['status' => 'error', 'message' => 'No students with outstanding balances found']);
 			return;
 		}
-		
+
 		// Get first parent with actual owing
 		$first_parent = reset($parents_data);
 		$child_word = count($first_parent['students']) > 1 ? 'children' : 'child';
 		$bill_word = count($first_parent['students']) > 1 ? 'bills' : 'bill';
 		$message = "Bill Reminder from " . $school_name . ". Dear cherished parent, kindly be reminded of your " . $child_word . "'s outstanding " . $bill_word . ": ";
-		
+
 		$bills = [];
 		$total_owing = 0;
 		foreach ($first_parent['students'] as $student) {
@@ -40916,16 +40242,16 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$total_owing += $student['owing'];
 		}
 		$message .= implode(", ", $bills) . ". Total: " . $currency . number_format($total_owing, 2) . ". Please settle outstanding fees. Thank you.";
-		
+
 		// Parse phone numbers
 		$phones = array_map('trim', explode(',', $test_phones));
 		$phones = array_filter($phones);
-		
+
 		if (empty($phones)) {
 			echo json_encode(['status' => 'error', 'message' => 'No valid phone numbers provided']);
 			return;
 		}
-		
+
 		// Build personalized recipients array (formatting handled by model)
 		$personalizedRecipients = [];
 		foreach ($phones as $phone) {
@@ -40934,9 +40260,9 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'Content' => $message
 			];
 		}
-		
+
 		$result = $this->sms_model->send_sms_batch_personalized($personalizedRecipients);
-		
+
 		if ($result === 0) {
 			$sent_count = count($phones);
 			echo json_encode(['status' => 'success', 'message' => "Test SMS sent to $sent_count number(s)"]);
@@ -40958,17 +40284,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 		$message_count = $this->input->post('message_count');
 		$messages = $this->input->post('messages'); // Array of message texts
-		
+
 		$balance_info = $this->sms_model->get_hubtel_balance();
 		$cost_info = $this->sms_model->calculate_sms_cost($messages ? $messages : array_fill(0, $message_count, str_repeat('x', 160)));
-		
+
 		echo json_encode([
 			'balance' => $balance_info,
 			'cost' => $cost_info
 		]);
 	}
 
-	
+
 
 	public function save_form_preference() {
 		$field = $this->input->post('field_name');
@@ -40982,13 +40308,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	}
 
 
-	
+
 	/**
 	* Enhanced payment processing with credit management
 	*/
 	public function process_payment_with_credits() {
 		$this->load->model('Credit_model');
-		
+
 		$payment_data = [
 			'student_id' => $this->input->post('student_id'),
 			'invoice_id' => $this->input->post('invoice_id'),
@@ -40996,27 +40322,27 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			'payment_method' => $this->input->post('payment_method'),
 			'receipt_code' => $this->generate_receipt_code()
 		];
-		
+
 		$this->db->trans_start();
-		
+
 		// 1. Process normal payment
 		$payment_result = $this->process_normal_payment($payment_data);
-		
+
 		if ($payment_result['status'] == 'success') {
 			// 2. Check for overpayment and create credit
 			$credit_result = $this->Credit_model->process_overpayment($payment_data);
-			
+
 			if ($credit_result['status'] == 'success') {
 				$payment_result['credit_created'] = $credit_result;
 			}
 		}
-		
+
 		$this->db->trans_complete();
-		
+
 		echo json_encode($payment_result);
 	}
 
-		
+
 	/**
 	 * Enhanced payment processing with credit management
 	 * Modify your existing payment method to include this logic
@@ -41024,20 +40350,20 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function student_payment_with_credits($param1 = '', $param2 = '', $param3 = '') {
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		$this->load->model('Credit_model');
-		
+
 		if($_POST) {
 			$student_id = $this->input->post('student_id');
 			$invoice_id = $this->input->post('invoice_id');
 			$amount_paid = $this->input->post('amount');
 			$payment_method = $this->input->post('payment_method');
-			
+
 			$this->db->trans_start();
-			
+
 			// Generate receipt code
 			$receipt_code = 'RCP' . date('Ymd') . rand(1000, 9999);
-			
+
 			// Process normal payment first
 			$payment_data = array(
 				'invoice_id' => $invoice_id,
@@ -41051,22 +40377,22 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'issuer_id' => $this->session->userdata('login_user_id'),
 				'account_type' => 'income'
 			);
-			
+
 			$this->db->insert('payment', $payment_data);
 			$payment_id = $this->db->insert_id();
-			
+
 			// Update invoice amount_paid
 			$invoice = $this->db->get_where('invoice', ['invoice_id' => $invoice_id])->row();
 			$new_amount_paid = $invoice->amount_paid + $amount_paid;
 			$new_due = max(0, $invoice->amount - $new_amount_paid - ($invoice->credit_applied ?? 0));
-			
+
 			$this->db->where('invoice_id', $invoice_id)
 					->update('invoice', [
 						'amount_paid' => $new_amount_paid,
 						'due' => $new_due,
 						'status' => $new_due <= 0 ? 'paid' : 'unpaid'
 					]);
-			
+
 			// Check for overpayment and create credit
 			$credit_data = [
 				'student_id' => $student_id,
@@ -41075,21 +40401,21 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'receipt_code' => $receipt_code,
 				'payment_id' => $payment_id
 			];
-			
+
 			$credit_result = $this->Credit_model->process_overpayment($credit_data);
-			
+
 			$this->db->trans_complete();
-			
+
 			if($this->db->trans_status() === FALSE) {
 				echo json_encode(['status' => 'error', 'message' => 'Payment processing failed']);
 			} else {
 				$response = ['status' => 'success', 'message' => 'Payment processed successfully'];
-				
+
 				if($credit_result['status'] == 'success') {
 					$response['credit_created'] = $credit_result;
 					$response['message'] .= '. ' . $credit_result['message'];
 				}
-				
+
 				echo json_encode($response);
 			}
 		}
@@ -41103,12 +40429,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
 			return;
 		}
-		
+
 		$this->load->model('Credit_model');
-		
+
 		if($_POST) {
 			$this->db->trans_start();
-			
+
 			// Create invoice normally (your existing logic)
 			$invoice_data = array(
 				'student_id' => $this->input->post('student_id'),
@@ -41121,15 +40447,15 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'timestamp' => time(),
 				'status' => 'unpaid'
 			);
-			
+
 			$this->db->insert('invoice', $invoice_data);
 			$invoice_id = $this->db->insert_id();
-			
+
 			// Apply available credits automatically
 			$credit_result = $this->Credit_model->apply_credits_to_invoice($invoice_id);
-			
+
 			$this->db->trans_complete();
-			
+
 			if($this->db->trans_status() === FALSE) {
 				echo json_encode(['status' => 'error', 'message' => 'Invoice creation failed']);
 			} else {
@@ -41138,12 +40464,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					'message' => 'Invoice created successfully',
 					'invoice_id' => $invoice_id
 				];
-				
+
 				if($credit_result['credit_applied'] > 0) {
 					$response['credit_applied'] = $credit_result;
 					$response['message'] .= '. ' . $credit_result['message'];
 				}
-				
+
 				echo json_encode($response);
 			}
 		}
@@ -41155,16 +40481,16 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function get_student_credit_info($student_id = null) {
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		$this->load->model('Credit_model');
-		
+
 		if(!$student_id) {
 			$student_id = $this->input->post('student_id') ?? $this->input->get('student_id');
 		}
-		
+
 		$total_credit = $this->Credit_model->get_student_total_credit($student_id);
 		$credit_history = $this->Credit_model->get_credit_history($student_id);
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'total_credit' => $total_credit,
@@ -41180,20 +40506,20 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
 			return;
 		}
-		
+
 		$this->load->model('Credit_model');
-		
+
 		$student_id = $this->input->post('student_id');
 		$amount = floatval($this->input->post('amount'));
 		$reason = $this->input->post('reason');
 		$admin_id = $this->session->userdata('login_user_id');
-		
+
 		// Validate inputs
 		if(!$student_id || !$amount || !$reason) {
 			echo json_encode(['status' => 'error', 'message' => 'All fields are required']);
 			return;
 		}
-		
+
 		$result = $this->Credit_model->adjust_credit($student_id, $amount, $reason, $admin_id);
 		echo json_encode($result);
 	}
@@ -41204,14 +40530,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function student_credits() {
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		$this->load->model('Credit_model');
-		
+
 		$page_data['page_name'] = 'student_credits';
 		$page_data['page_title'] = get_phrase('student_credits');
 		$page_data['students_with_credits'] = $this->Credit_model->get_students_with_credits();
 		$page_data['credit_statistics'] = $this->Credit_model->get_credit_statistics();
-		
+
 		$this->load->view('backend/index', $page_data);
 	}
 
@@ -41221,13 +40547,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function credit_statistics() {
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		$this->load->model('Credit_model');
-		
+
 		$page_data['page_name'] = 'credit_statistics';
 		$page_data['page_title'] = get_phrase('credit_statistics');
 		$page_data['statistics'] = $this->Credit_model->get_credit_statistics();
-		
+
 		$this->load->view('backend/index', $page_data);
 	}
 
@@ -41239,25 +40565,25 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
 			return;
 		}
-		
+
 		$this->load->model('Credit_model');
-		
+
 		$from_student_id = $this->input->post('from_student_id');
 		$to_student_id = $this->input->post('to_student_id');
 		$amount = floatval($this->input->post('amount'));
 		$reason = $this->input->post('reason');
 		$admin_id = $this->session->userdata('login_user_id');
-		
+
 		if(!$from_student_id || !$to_student_id || !$amount || !$reason) {
 			echo json_encode(['status' => 'error', 'message' => 'All fields are required']);
 			return;
 		}
-		
+
 		if($from_student_id == $to_student_id) {
 			echo json_encode(['status' => 'error', 'message' => 'Cannot transfer to the same student']);
 			return;
 		}
-		
+
 		$result = $this->Credit_model->transfer_credit($from_student_id, $to_student_id, $amount, $reason, $admin_id);
 		echo json_encode($result);
 	}
@@ -41270,20 +40596,20 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
 			return;
 		}
-		
+
 		$this->load->model('Credit_model');
-		
+
 		$student_id = $this->input->post('student_id');
 		$amount = floatval($this->input->post('amount'));
 		$fee_type = $this->input->post('fee_type');
 		$reason = $this->input->post('reason');
 		$admin_id = $this->session->userdata('login_user_id');
-		
+
 		if(!$student_id || !$amount || !$fee_type) {
 			echo json_encode(['status' => 'error', 'message' => 'Student, amount, and fee type are required']);
 			return;
 		}
-		
+
 		$result = $this->Credit_model->transfer_credit_to_daily_fees($student_id, $amount, $fee_type, $reason, $admin_id);
 		echo json_encode($result);
 	}
@@ -41294,13 +40620,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function credit_history_modal($student_id) {
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		$this->load->model('Credit_model');
-		
+
 		$student = $this->db->select('name, student_code')->from('student')->where('student_id', $student_id)->get()->row_array();
 		$credit_history = $this->Credit_model->get_credit_history($student_id);
 		$total_credit = $this->Credit_model->get_student_total_credit($student_id);
-		
+
 		?>
 		<style>
 		.modal-header-credit-history {
@@ -41358,13 +40684,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			padding: 10px 25px;
 		}
 		</style>
-		
+
 		<div class="modal-header modal-header-credit-history">
 			<h4 class="modal-title">
 				<i class="fa fa-history"></i> Credit History - <?php echo $student['name']; ?>
 			</h4>
 		</div>
-		
+
 		<div class="modal-body" style="padding: 25px 30px;">
 			<div class="credit-history-info">
 				<div class="row">
@@ -41386,7 +40712,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="table-responsive">
 				<table class="table table-striped table-bordered table-hover" id="creditHistoryTable">
 					<thead style="background: #667eea; color: white;">
@@ -41435,13 +40761,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				</table>
 			</div>
 		</div>
-		
+
 		<div class="modal-footer">
 			<button type="button" class="btn btn-secondary" data-dismiss="modal">
 				<i class="fa fa-times"></i> Close
 			</button>
 		</div>
-		
+
 		<script>
 		$(document).ready(function() {
 			$('#creditHistoryTable').DataTable({
@@ -41465,17 +40791,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function credit_adjust_modal($student_id = null) {
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		$this->load->model('Credit_model');
-		
+
 		$student = null;
 		$current_credit = 0;
-		
+
 		if($student_id) {
 			$student = $this->db->select('name, student_code')->from('student')->where('student_id', $student_id)->get()->row_array();
 			$current_credit = $this->Credit_model->get_student_total_credit($student_id);
 		}
-		
+
 		?>
 		<style>
 		.modal-dialog { max-width: 550px !important; }
@@ -41560,17 +40886,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			margin-top: 3px;
 		}
 		</style>
-		
+
 		<div class="modal-header compact-modal-header">
 			<h4 class="modal-title">
 				<i class="fa fa-edit"></i> Adjust Credit
 			</h4>
 		</div>
-		
+
 		<form id="creditAdjustForm">
 			<div class="modal-body compact-modal-body">
 				<input type="hidden" id="adjust_student_id" name="student_id" value="<?php echo $student_id; ?>">
-				
+
 				<?php if($student): ?>
 					<div class="compact-info-card">
 						<div class="student-name"><?php echo $student['name']; ?> (<?php echo $student['student_code']; ?>)</div>
@@ -41578,7 +40904,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						<div class="balance"><sup style="font-size: 12px;">GH₵</sup><?php echo number_format($current_credit, 2); ?></div>
 					</div>
 				<?php endif; ?>
-				
+
 				<div class="row">
 					<div class="col-md-6">
 						<div class="compact-form-group">
@@ -41589,26 +40915,26 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 							</select>
 						</div>
 					</div>
-					
+
 					<div class="col-md-6">
 						<div class="compact-form-group">
 							<label><i class="fa fa-money-bill-wave"></i> Amount (GH₵)</label>
-							<input type="number" class="form-control compact-form-control" name="amount" id="adjustment_amount" 
+							<input type="number" class="form-control compact-form-control" name="amount" id="adjustment_amount"
 								   step="0.01" min="0.01" placeholder="0.00" required>
 						</div>
 					</div>
 				</div>
-				
+
 				<div class="compact-form-group">
 					<label><i class="fa fa-comment-dots"></i> Reason</label>
-					<textarea class="form-control compact-form-control" name="reason" rows="3" required 
+					<textarea class="form-control compact-form-control" name="reason" rows="3" required
 							  placeholder="Enter reason for adjustment..."></textarea>
 					<small class="form-text-sm">
 						<i class="fa fa-info-circle"></i> Recorded in audit trail
 					</small>
 				</div>
 			</div>
-			
+
 			<div class="modal-footer compact-modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">
 					<i class="fa fa-times"></i> Cancel
@@ -41618,37 +40944,37 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				</button>
 			</div>
 		</form>
-		
+
 		<script>
 		// Handle credit adjustment form
 		$('#creditAdjustForm').submit(function(e) {
 			e.preventDefault();
-			
+
 			const adjustmentType = $('#adjustment_type').val();
 			let amount = parseFloat($('#adjustment_amount').val());
-			
+
 			if(isNaN(amount) || amount <= 0) {
 				showAjaxModal_alert('Please enter a valid amount', 'error');
 				return;
 			}
-			
+
 			// Make amount negative for debit adjustments
 			if (adjustmentType === 'debit') {
 				amount = -Math.abs(amount);
 			}
-			
+
 			// Build form data with corrected amount
 			const formData = {
 				student_id: $('#adjust_student_id').val(),
 				amount: amount,
 				reason: $('textarea[name="reason"]').val()
 			};
-			
+
 			showAjaxModal_alert('Processing...', 'loading');
-			
+
 			$.post('<?=site_url("admin/adjust_student_credit")?>', formData, function(response) {
 				const data = JSON.parse(response);
-				
+
 				if (data.status === 'success') {
 					showAjaxModal_alert(data.message, 'success');
 					$('#createModal').modal('hide');
@@ -41670,16 +40996,16 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function credit_transfer_modal($from_student_id = null) {
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		$this->load->model('Credit_model');
-		
+
 		// Get running year and term
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
-		
+
 		// Get all students with credits for the "from" dropdown
 		$students_with_credits = $this->Credit_model->get_students_with_credits();
-		
+
 		// Get all active students with class information for the "to" dropdown
 		$all_students = $this->db->select('s.student_id, s.name, s.student_code, c.name as class_name, c.name_numeric, sec.name as section_name')
 								 ->from('student s')
@@ -41689,7 +41015,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 								 ->where('s.active_status', 1)
 								 ->order_by('s.name')
 								 ->get()->result_array();
-		
+
 		?>
 		<style>
 		.modal-dialog { max-width: 600px !important; }
@@ -41742,19 +41068,19 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			border-color: #9b59b6 !important;
 		}
 		</style>
-		
+
 		<div class="modal-header compact-transfer-header">
 			<h4 class="modal-title">
 				<i class="fa fa-exchange-alt"></i> Transfer Credit
 			</h4>
 		</div>
-		
+
 		<form id="creditTransferForm">
 			<div class="modal-body compact-modal-body">
 				<div class="transfer-banner">
 					<i class="fa fa-info-circle"></i> Move credit from one student to another
 				</div>
-				
+
 				<div class="row">
 					<div class="col-md-6">
 						<div class="compact-form-group">
@@ -41762,7 +41088,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 							<select class="form-control compact-form-control select2" name="from_student_id" id="from_student_select" required>
 								<option value="">-- Select source --</option>
 								<?php foreach($students_with_credits as $student): ?>
-									<option value="<?php echo $student['student_id']; ?>" 
+									<option value="<?php echo $student['student_id']; ?>"
 											data-credit="<?php echo $student['total_credit']; ?>"
 											<?php echo ($from_student_id == $student['student_id']) ? 'selected' : ''; ?>>
 										<?php echo $student['name']; ?> (GH₵ <?php echo number_format($student['total_credit'], 2); ?>)
@@ -41771,7 +41097,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 							</select>
 						</div>
 					</div>
-					
+
 					<div class="col-md-6">
 						<div class="compact-form-group">
 							<label><i class="fa fa-user-plus"></i> To (Destination)</label>
@@ -41786,16 +41112,16 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						</div>
 					</div>
 				</div>
-				
+
 				<div class="row">
 					<div class="col-md-7">
 						<div class="compact-form-group">
 							<label><i class="fa fa-money-bill-wave"></i> Amount (GH₵) <span style="color: red;">*</span></label>
-							<input type="number" class="form-control compact-form-control" name="amount" id="transfer_amount" 
+							<input type="number" class="form-control compact-form-control" name="amount" id="transfer_amount"
 								   step="0.01" min="0.01" placeholder="0.00" required>
 						</div>
 					</div>
-					
+
 					<div class="col-md-5">
 						<div class="compact-form-group">
 							<label><i class="fa fa-wallet"></i> Available</label>
@@ -41805,17 +41131,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						</div>
 					</div>
 				</div>
-				
+
 				<div class="compact-form-group">
 					<label><i class="fa fa-comment-dots"></i> Reason</label>
-					<textarea class="form-control compact-form-control" name="reason" rows="3" required 
+					<textarea class="form-control compact-form-control" name="reason" rows="3" required
 							  placeholder="Enter transfer reason..."></textarea>
 					<small class="form-text-sm">
 						<i class="fa fa-info-circle"></i> Recorded in both students' history
 					</small>
 				</div>
 			</div>
-			
+
 			<div class="modal-footer compact-modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">
 					<i class="fa fa-times"></i> Cancel
@@ -41825,7 +41151,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				</button>
 			</div>
 		</form>
-		
+
 		<script>
 		$(document).ready(function() {
 			// Initialize Select2
@@ -41835,7 +41161,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				width: '100%',
 				dropdownParent: $('#createModal')
 			});
-			
+
 			// Update available credit on load
 			if($('#from_student_select').val()) {
 				updateAvailableCredit();
@@ -41856,38 +41182,38 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		// Handle transfer form
 		$('#creditTransferForm').submit(function(e) {
 			e.preventDefault();
-			
+
 			const fromStudentId = $('#from_student_select').val();
 			const toStudentId = $('#to_student_select').val();
 			const amount = parseFloat($('#transfer_amount').val());
 			const availableCredit = parseFloat($('#from_student_select').find('option:selected').data('credit'));
-			
+
 			// Validation
 			if(!fromStudentId || !toStudentId) {
 				showAjaxModal_alert('Please select both students', 'error');
 				return;
 			}
-			
+
 			if(fromStudentId === toStudentId) {
 				showAjaxModal_alert('Cannot transfer to same student', 'error');
 				return;
 			}
-			
+
 			if(isNaN(amount) || amount <= 0) {
 				showAjaxModal_alert('Please enter valid amount', 'error');
 				return;
 			}
-			
+
 			if(amount > availableCredit) {
 				showAjaxModal_alert('Amount (GH₵ ' + amount.toFixed(2) + ') exceeds available credit (GH₵ ' + availableCredit.toFixed(2) + ')', 'error');
 				return;
 			}
-			
+
 			showAjaxModal_alert('Processing...', 'loading');
-			
+
 			$.post('<?=site_url("admin/transfer_student_credit")?>', $(this).serialize(), function(response) {
 				const data = JSON.parse(response);
-				
+
 				if (data.status === 'success') {
 					showAjaxModal_alert(data.message, 'success');
 					$('#createModal').modal('hide');
@@ -41909,21 +41235,21 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	private function generate_invoice_code() {
 		$year = date('Y');
 		$month = date('m');
-		
+
 		// Get last invoice number for this month
 		$this->db->select('invoice_code');
 		$this->db->like('invoice_code', "INV{$year}{$month}", 'after');
 		$this->db->order_by('invoice_id', 'DESC');
 		$this->db->limit(1);
 		$last_invoice = $this->db->get('invoice')->row();
-		
+
 		if($last_invoice) {
 			$last_number = intval(substr($last_invoice->invoice_code, -4));
 			$new_number = $last_number + 1;
 		} else {
 			$new_number = 1;
 		}
-		
+
 		return "INV{$year}{$month}" . str_pad($new_number, 4, '0', STR_PAD_LEFT);
 	}
 
@@ -41933,17 +41259,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function credit_to_daily_fees_modal($student_id = null) {
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		$this->load->model('Credit_model');
-		
+
 		$student = null;
 		$current_credit = 0;
-		
+
 		if($student_id) {
 			$student = $this->db->select('student_id, name, student_code')->from('student')->where('student_id', $student_id)->get()->row_array();
 			$current_credit = $this->Credit_model->get_student_total_credit($student_id);
 		}
-		
+
 		?>
 		<style>
 		.modal-dialog { max-width: 650px !important; }
@@ -42014,13 +41340,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			color: #856404;
 		}
 		</style>
-		
+
 		<div class="modal-header compact-daily-header">
 			<h4 class="modal-title">
 				<i class="fa fa-utensils"></i> Transfer to Daily Fees
 			</h4>
 		</div>
-		
+
 		<div class="modal-body compact-modal-body">
 			<?php if($student): ?>
 				<div class="compact-info-card">
@@ -42029,11 +41355,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					<div class="balance"><sup style="font-size: 12px;">GH₵</sup><?php echo number_format($current_credit, 2); ?></div>
 				</div>
 			<?php endif; ?>
-			
+
 			<div class="info-banner-compact">
 				<i class="fa fa-info-circle"></i> Transfer credit to prepaid daily fees account
 			</div>
-			
+
 			<form id="transfer_daily_fees_form">
 				<?php if(!$student): ?>
 				<div class="compact-form-group">
@@ -42056,7 +41382,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				<?php else: ?>
 				<input type="hidden" name="student_id" value="<?php echo $student_id; ?>">
 				<?php endif; ?>
-				
+
 				<div class="compact-form-group">
 					<label><i class="fa fa-tags"></i> Fee Type <span style="color: red;">*</span></label>
 					<div class="fee-grid-compact">
@@ -42097,7 +41423,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						</div>
 					</div>
 				</div>
-				
+
 				<div class="row">
 					<div class="col-md-6">
 						<div class="compact-form-group">
@@ -42114,7 +41440,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				</div>
 			</form>
 		</div>
-		
+
 		<div class="modal-footer compact-modal-footer">
 			<button type="button" class="btn btn-secondary" data-dismiss="modal">
 				<i class="fa fa-times"></i> Cancel
@@ -42123,7 +41449,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				<i class="fa fa-check"></i> Transfer
 			</button>
 		</div>
-		
+
 		<script>
 		$(document).ready(function() {
 			$('.select2').select2({
@@ -42132,11 +41458,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				placeholder: 'Select student'
 			});
 		});
-		
+
 		function updateStudentCredit() {
 			var selectedOption = $('#student_id_select option:selected');
 			var credit = selectedOption.data('credit');
-			
+
 			if(credit) {
 				$('#credit_amount').text(parseFloat(credit).toFixed(2));
 				$('#selected_student_credit').show();
@@ -42145,23 +41471,23 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$('#selected_student_credit').hide();
 			}
 		}
-		
+
 		function submitDailyFeesTransfer() {
 			var form = $('#transfer_daily_fees_form');
-			
+
 			// Validate form
 			if(!form[0].checkValidity()) {
 				form[0].reportValidity();
 				return;
 			}
-			
+
 			var formData = form.serialize();
-			
+
 			showAjaxModal_alert('Processing transfer...', 'loading');
-			
+
 			$.post('<?=site_url("admin/transfer_credit_to_daily_fees")?>', formData, function(response) {
 				const data = JSON.parse(response);
-				
+
 				if(data.status === 'success') {
 					showAjaxModal_alert(data.message, 'success');
 					setTimeout(function() {
@@ -42186,9 +41512,9 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
 			return;
 		}
-		
+
 		$this->load->model('Credit_model');
-		
+
 		$statistics = $this->Credit_model->get_credit_statistics();
 		echo json_encode(['status' => 'success', 'data' => $statistics]);
 	}
@@ -42202,7 +41528,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function terminal_bills_selection() {
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		$page_data['page_name'] = 'terminal_bills_selection';
 		$page_data['page_title'] = 'Terminal Bills Report';
 		$this->load->view('backend/index', $page_data);
@@ -42211,14 +41537,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	// 2. AJAX endpoint to get students by class
 	public function get_students_for_terminal_bill_by_class_json() {
 		$class_id = $this->input->post('class_id');
-		
+
 		if(empty($class_id)) {
 			echo json_encode(['status' => 'error', 'message' => 'Class ID required']);
 			return;
 		}
-		
+
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
-		
+
 		$this->db->select('s.student_id, s.name, s.student_code');
 		$this->db->distinct(); // Prevent duplicate students
 		$this->db->from('student s');
@@ -42229,9 +41555,9 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$this->db->where('e.mute', '0'); // Active students only (not muted)
 		$this->db->group_by('s.student_id'); // Group by student_id to avoid duplicates
 		$this->db->order_by('s.name', 'ASC');
-		
+
 		$students = $this->db->get()->result_array();
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'students' => $students
@@ -42242,13 +41568,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function terminal_bills_report() {
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		// Load Credit model for fetching student credits
 		$this->load->model('Credit_model');
-		
+
 		// Get student IDs from POST or GET
 		$student_ids = $this->input->post('student_ids') ?: $this->input->get('student_ids');
-		
+
 		if(empty($student_ids)) {
 			echo '<div style="text-align: center; padding: 50px; font-family: Arial;">
 					<h3 style="color: #e74c3c;">No students selected</h3>
@@ -42257,17 +41583,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				  </div>';
 			return;
 		}
-		
+
 		if(!is_array($student_ids)) {
 			$student_ids = explode(',', $student_ids);
 		}
-		
+
 		// Get next term and year
 		$next_term = $this->input->post('next_term') ?: $this->input->get('next_term');
 		$next_year = $this->input->post('next_year') ?: $this->input->get('next_year');
 		$fee_category = $this->input->post('fee_category') ?: $this->input->get('fee_category');
 		$orientation = $this->input->post('orientation') ?: $this->input->get('orientation');
-		
+
 		// Default values
 		if(empty($next_term)) {
 			$next_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
@@ -42281,19 +41607,19 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		if(empty($orientation)) {
 			$orientation = 'portrait';
 		}
-		
+
 		$students_data = array();
-		
+
 		foreach($student_ids as $student_id) {
 			// Get student info
 			$student = $this->db->get_where('student', array('student_id' => $student_id))->row();
 			if(!$student) continue;
-			
+
 			// Get class info
 			$this->db->order_by('enroll_id', 'desc');
 			$this->db->limit(1);
 			$enroll = $this->db->get_where('enroll', array('student_id' => $student_id))->row();
-			
+
 			if($enroll) {
 				$class = $this->db->get_where('class', array('class_id' => $enroll->class_id))->row();
 				$section = $this->db->get_where('section', array('section_id' => $enroll->section_id))->row();
@@ -42303,14 +41629,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$class_name = 'N/A';
 				$class_numeric = '';
 			}
-			
+
 			// Initialize arrays
 			$invoices_owe = array();
 			$invoices_next_term = array();
 			$feeding_owe = 0;
 			$classes_owe = 0;
 			$transport_owe = 0;
-			
+
 			// Handle fee category filter
 			if($fee_category == 'all' || $fee_category == 'billed_invoice') {
 				// Get invoices owe (arrears) - ALL invoices EXCLUDING next term and year
@@ -42324,7 +41650,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$this->db->order_by('year', 'ASC');
 				$this->db->order_by('term', 'ASC');
 				$invoices_owe = $this->db->get()->result_array();
-				
+
 				// Get next term invoices - ONLY for selected next term and year
 				// NOTE: We include ALL invoices (regardless of payment status)
 				$this->db->select('*');
@@ -42334,28 +41660,28 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				$this->db->where('term', $next_term);
 				$this->db->where('can_delete !=', 'trash');
 				$invoices_next_term = $this->db->get()->result_array();
-				
+
 				// Calculate total credit applied to next term invoices
 				$next_term_credit_applied = 0;
 				foreach($invoices_next_term as $inv) {
 					$next_term_credit_applied += floatval($inv['credit_applied'] ?? 0);
 				}
 			}
-			
+
 			if($fee_category == 'all' || $fee_category == 'daily_fees') {
 				// Get daily fee wallet
 				$wallet = $this->db->get_where('daily_fee_wallet', array('student_id' => $student_id))->row();
-				
+
 				if($wallet) {
 					$feeding_owe = $wallet->feeding_arrears > 0 ? $wallet->feeding_arrears : 0;
 					$classes_owe = $wallet->classes_arrears > 0 ? $wallet->classes_arrears : 0;
 					$transport_owe = $wallet->transport_arrears > 0 ? $wallet->transport_arrears : 0;
 				}
 			}
-			
+
 			// Get student credit balance
 			$student_credit = $this->Credit_model->get_student_total_credit($student_id);
-			
+
 			$students_data[] = array(
 				'student' => $student,
 				'class_name' => $class_name,
@@ -42382,7 +41708,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			$has_next_term_invoices = !empty($student_data['invoices_next_term']);
 			$has_daily_fees = ($student_data['feeding_owe'] + $student_data['classes_owe'] + $student_data['transport_owe']) > 0;
 			$has_credit = $student_data['student_credit'] > 0;
-			
+
 			// Include student if they have ANY financial activity:
 			// - Arrears (owing from past terms)
 			// - Next term bills (future obligations)
@@ -42391,9 +41717,9 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			// This ensures complete financial transparency
 			return $has_arrears_invoices || $has_next_term_invoices || $has_daily_fees || $has_credit;
 		});
-		
+
 		$page_data['students_data'] = $students_data;
-		
+
 		// Load appropriate view based on orientation
 		if($orientation == 'landscape') {
 			$this->load->view('backend/admin/creche_bill_landscape', $page_data);
@@ -42428,7 +41754,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			);
 
 			$result = $this->Curriculum_model->create_strand($data);
-			
+
 			// Check if AJAX request
 			if ($this->input->is_ajax_request()) {
 				if ($result) {
@@ -42444,7 +41770,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				}
 				return;
 			}
-			
+
 			// Regular request (fallback)
 			if ($result) {
 				$this->session->set_flashdata('flash_message', get_phrase('strand_created_successfully'));
@@ -42463,7 +41789,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			);
 
 			$result = $this->Curriculum_model->update_strand($param2, $data);
-			
+
 			// Check if AJAX request
 			if ($this->input->is_ajax_request()) {
 				if ($result) {
@@ -42479,7 +41805,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				}
 				return;
 			}
-			
+
 			// Regular request (fallback)
 			if ($result) {
 				$this->session->set_flashdata('flash_message', get_phrase('strand_updated_successfully'));
@@ -42490,7 +41816,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 		} elseif ($param1 == 'delete') {
 			$result = $this->Curriculum_model->delete_strand($param2);
-			
+
 			// Check if AJAX request
 			if ($this->input->is_ajax_request()) {
 				if ($result) {
@@ -42506,7 +41832,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				}
 				return;
 			}
-			
+
 			// Regular request (fallback)
 			if ($result) {
 				$this->session->set_flashdata('flash_message', get_phrase('strand_deleted_successfully'));
@@ -42518,10 +41844,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 		// Get all strands with subject and class info
 		$page_data['strands'] = $this->Curriculum_model->get_all_strands();
-		
+
 		// Get sub_strands count for statistics
 		$page_data['sub_strands'] = $this->Curriculum_model->get_all_sub_strands();
-		
+
 		$page_data['page_name'] = 'curriculum_strands_modern';
 		$page_data['page_title'] = get_phrase('curriculum_strands');
 		$this->load->view('backend/index', $page_data);
@@ -42538,7 +41864,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		}
 
 		$class_id = $this->input->post('class_id');
-		
+
 		if (empty($class_id)) {
 			echo json_encode(array('success' => false, 'message' => 'Class ID required'));
 			return;
@@ -42546,7 +41872,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 		// Get subjects for the selected class
 		$subjects = $this->crud_model->get_subjects_by_class($class_id);
-		
+
 		echo json_encode(array(
 			'success' => true,
 			'subjects' => $subjects
@@ -42573,7 +41899,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			);
 
 			$result = $this->Curriculum_model->create_sub_strand($data);
-			
+
 			// Return JSON for AJAX
 			echo json_encode(array(
 				'success' => $result ? true : false,
@@ -42590,7 +41916,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			);
 
 			$result = $this->Curriculum_model->update_sub_strand($param2, $data);
-			
+
 			// Return JSON for AJAX
 			echo json_encode(array(
 				'success' => $result ? true : false,
@@ -42600,7 +41926,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 		} elseif ($param1 == 'delete') {
 			$result = $this->Curriculum_model->delete_sub_strand($param2);
-			
+
 			// Return JSON for AJAX
 			echo json_encode(array(
 				'success' => $result ? true : false,
@@ -42639,7 +41965,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			);
 
 			$result = $this->Curriculum_model->create_content_standard($data);
-			
+
 			// Return JSON for AJAX
 			echo json_encode(array(
 				'success' => $result ? true : false,
@@ -42656,7 +41982,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			);
 
 			$result = $this->Curriculum_model->update_content_standard($param2, $data);
-			
+
 			// Return JSON for AJAX
 			echo json_encode(array(
 				'success' => $result ? true : false,
@@ -42666,7 +41992,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 		} elseif ($param1 == 'delete') {
 			$result = $this->Curriculum_model->delete_content_standard($param2);
-			
+
 			// Return JSON for AJAX
 			echo json_encode(array(
 				'success' => $result ? true : false,
@@ -42824,8 +42150,8 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					$result = $this->Curriculum_model->import_curriculum_from_file($file);
 
 					if ($result['success']) {
-						$this->session->set_flashdata('flash_message', 
-							get_phrase('import_completed') . ': ' . 
+						$this->session->set_flashdata('flash_message',
+							get_phrase('import_completed') . ': ' .
 							$result['imported'] . ' ' . get_phrase('records_imported'));
 					} else {
 						$this->session->set_flashdata('error_message', $result['message']);
@@ -43126,7 +42452,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$page_data['high_decline_teachers'] = $this->Lesson_note_model->get_high_decline_teachers($filters);
 		$page_data['weekly_breakdown'] = $this->Lesson_note_model->get_weekly_breakdown($filters);
 		$page_data['trend_data'] = $this->Lesson_note_model->get_compliance_trend($filters);
-		
+
 		$page_data['teachers'] = $this->db->get('teacher')->result();
 		$page_data['subjects'] = $this->db->get('subject')->result();
 		$page_data['classes'] = $this->db->order_by('name_numeric', 'ASC')->get('class')->result();
@@ -43182,7 +42508,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		}
 
 		$teacher_id = $this->input->get('teacher_id');
-		
+
 		if (!$teacher_id) {
 			echo '<div class="alert alert-danger">' . get_phrase('teacher_id_required') . '</div>';
 			return;
@@ -43192,7 +42518,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 		// Get teacher details
 		$teacher = $this->db->get_where('teacher', array('teacher_id' => $teacher_id))->row();
-		
+
 		// Get teacher's lesson notes by subject
 		$this->db->select('s.name as subject_name, c.name as class_name, c.name_numeric,
 			COUNT(ln.id) as total_notes,
@@ -43323,7 +42649,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 									<td><?php echo $note->week_number; ?></td>
 									<td>
 										<?php
-										$status_class = ($note->status == 'approved') ? 'label-success' : 
+										$status_class = ($note->status == 'approved') ? 'label-success' :
 											(($note->status == 'pending') ? 'label-warning' : 'label-danger');
 										?>
 										<span class="label <?php echo $status_class; ?>"><?php echo ucfirst($note->status); ?></span>
@@ -43370,7 +42696,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 		// Get HODs (teachers with HOD role)
 		$page_data['hods'] = $this->db->query(
-			"SELECT t.teacher_id, t.name FROM teacher t 
+			"SELECT t.teacher_id, t.name FROM teacher t
 			 WHERE t.is_hod = 1 OR EXISTS (
 				 SELECT 1 FROM admin a WHERE a.teacher_id = t.teacher_id
 			 )
@@ -43379,10 +42705,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 		$page_data['subjects'] = $this->db->get('subject')->result();
 		$page_data['assignments'] = $this->db->query(
-			"SELECT hs.*, t.name as hod_name, s.name as subject_name 
-			 FROM hod_subjects hs 
-			 JOIN teacher t ON t.teacher_id = hs.hod_id 
-			 JOIN subject s ON s.subject_id = hs.subject_id 
+			"SELECT hs.*, t.name as hod_name, s.name as subject_name
+			 FROM hod_subjects hs
+			 JOIN teacher t ON t.teacher_id = hs.hod_id
+			 JOIN subject s ON s.subject_id = hs.subject_id
 			 ORDER BY t.name, s.name"
 		)->result();
 
@@ -43394,11 +42720,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	// ===================================
 	// LESSON NOTE NOTIFICATIONS =========
 	// ===================================
-	
+
 	/**
 	 * Get lesson note notifications for admin
 	 * AJAX endpoint for notification system
-	 * 
+	 *
 	 * Requirements: 17.6, 17.7, 20.4
 	 */
 	function get_lesson_note_notifications() {
@@ -43406,33 +42732,33 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
 			return;
 		}
-		
+
 		$this->load->model('Lesson_note_model');
-		
+
 		$admin_id = $this->session->userdata('admin_id');
 		$limit = $this->input->get('limit') ?? 10;
-		
+
 		// Get notifications
 		$notifications = $this->Lesson_note_model->get_notifications_for_user($admin_id, 'admin', $limit);
-		
+
 		// Get unread count
 		$unread_count = $this->Lesson_note_model->get_unread_notification_count($admin_id, 'admin');
-		
+
 		// Add URLs to notifications
 		foreach ($notifications as &$notification) {
 			$notification->url = $this->generate_lesson_note_notification_url($notification);
 		}
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'notifications' => $notifications,
 			'unread_count' => $unread_count
 		]);
 	}
-	
+
 	/**
 	 * Mark lesson note notification as read
-	 * 
+	 *
 	 * Requirements: 17.7
 	 */
 	function mark_lesson_note_notification_read() {
@@ -43440,29 +42766,29 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
 			return;
 		}
-		
+
 		$this->load->model('Lesson_note_model');
-		
+
 		$notification_id = $this->input->post('notification_id');
 		$admin_id = $this->session->userdata('admin_id');
-		
+
 		if (empty($notification_id)) {
 			echo json_encode(['status' => 'error', 'message' => 'Notification ID required']);
 			return;
 		}
-		
+
 		$result = $this->Lesson_note_model->mark_notification_read($notification_id, $admin_id, 'admin');
-		
+
 		if ($result) {
 			echo json_encode(['status' => 'success', 'message' => 'Notification marked as read']);
 		} else {
 			echo json_encode(['status' => 'error', 'message' => 'Failed to mark notification as read']);
 		}
 	}
-	
+
 	/**
 	 * Mark all lesson note notifications as read
-	 * 
+	 *
 	 * Requirements: 17.7
 	 */
 	function mark_all_lesson_note_notifications_read() {
@@ -43470,71 +42796,71 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
 			return;
 		}
-		
+
 		$this->load->model('Lesson_note_model');
-		
+
 		$admin_id = $this->session->userdata('admin_id');
-		
+
 		$result = $this->Lesson_note_model->mark_all_notifications_read($admin_id, 'admin');
-		
+
 		if ($result) {
 			echo json_encode(['status' => 'success', 'message' => 'All notifications marked as read']);
 		} else {
 			echo json_encode(['status' => 'error', 'message' => 'Failed to mark notifications as read']);
 		}
 	}
-	
+
 	/**
 	 * View all lesson note notifications page
-	 * 
+	 *
 	 * Requirements: 17.7
 	 */
 	function lesson_note_notifications() {
 		if ($this->session->userdata('admin_login') != 1) {
 			redirect(base_url());
 		}
-		
+
 		$this->load->model('Lesson_note_model');
-		
+
 		$admin_id = $this->session->userdata('admin_id');
-		
+
 		// Get all notifications (paginated)
 		$page = $this->input->get('page') ?? 1;
 		$per_page = 20;
 		$offset = ($page - 1) * $per_page;
-		
+
 		$notifications = $this->Lesson_note_model->get_notifications_for_user($admin_id, 'admin', $per_page, $offset);
 		$total_count = $this->Lesson_note_model->get_notification_count($admin_id, 'admin');
-		
+
 		// Add URLs to notifications
 		foreach ($notifications as &$notification) {
 			$notification->url = $this->generate_lesson_note_notification_url($notification);
 		}
-		
+
 		$page_data['notifications'] = $notifications;
 		$page_data['total_count'] = $total_count;
 		$page_data['current_page'] = $page;
 		$page_data['total_pages'] = ceil($total_count / $per_page);
 		$page_data['page_name'] = 'lesson_note_notifications';
 		$page_data['page_title'] = get_phrase('notifications');
-		
+
 		$this->load->view('backend/index', $page_data);
 	}
-	
+
 	/**
 	 * Generate URL for lesson note notification based on type
-	 * 
+	 *
 	 * @param object $notification
 	 * @return string
 	 */
 	private function generate_lesson_note_notification_url($notification) {
 		$base = base_url();
-		
+
 		switch ($notification->reference_type) {
 			case 'lesson_note_endorsed':
 			case 'lesson_note_submitted':
 				return $base . 'admin/lesson_note_review/' . $notification->reference_id;
-			
+
 			default:
 				return $base . 'admin/lesson_notes_pending';
 		}
@@ -43546,31 +42872,31 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
     $this->db->where('student_id', $student_id);
     $this->db->update('student', ['name' => $before->name]);
     $after = $this->db->get_where('student', ['student_id' => $student_id])->row();
-    
+
     echo "BEFORE: sync_status={$before->sync_status}, version={$before->version}<br>";
     echo "AFTER: sync_status={$after->sync_status}, version={$after->version}<br>";
-    echo ($after->sync_status === 'PENDING' && $after->version > $before->version) 
-        ? "<h3 style='color:green;'>✅ WORKING!</h3>" 
+    echo ($after->sync_status === 'PENDING' && $after->version > $before->version)
+        ? "<h3 style='color:green;'>✅ WORKING!</h3>"
         : "<h3 style='color:red;'>❌ NOT WORKING</h3>";
 }
 
 	public function check_pending_settings() {
 		echo "<h2>Pending Settings Records</h2>";
-		
+
 		$pending_settings = $this->db
 			->select('settings_id, type, description, sync_status, last_modified_at, device_id')
 			->where('sync_status', 'PENDING')
 			->order_by('last_modified_at', 'DESC')
 			->get('settings')
 			->result_array();
-		
+
 		if (count($pending_settings) > 0) {
 			echo "<p><strong>Found " . count($pending_settings) . " pending settings:</strong></p>";
 			echo "<table border='1' cellpadding='10' style='border-collapse: collapse; width: 100%;'>";
 			echo "<tr style='background: #f0f0f0;'>";
 			echo "<th>ID</th><th>Type</th><th>Description</th><th>Sync Status</th><th>Last Modified</th><th>Device ID</th>";
 			echo "</tr>";
-			
+
 			foreach ($pending_settings as $row) {
 				echo "<tr>";
 				echo "<td>" . $row['settings_id'] . "</td>";
@@ -43581,18 +42907,18 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				echo "<td>" . $row['device_id'] . "</td>";
 				echo "</tr>";
 			}
-			
+
 			echo "</table>";
-			
+
 			// Analysis
 			echo "<hr><h3>Analysis</h3>";
 			$sync_metadata_count = 0;
 			$other_count = 0;
-			
+
 			foreach ($pending_settings as $row) {
 				$type = $row['type'];
-				if ($type === 'last_sync_time' || 
-					$type === 'last_sync_status' || 
+				if ($type === 'last_sync_time' ||
+					$type === 'last_sync_status' ||
 					$type === 'last_sync_error' ||
 					strpos($type, 'last_pull_sync_') === 0) {
 					$sync_metadata_count++;
@@ -43600,10 +42926,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					$other_count++;
 				}
 			}
-			
+
 			echo "<p><strong>Sync Metadata Settings:</strong> $sync_metadata_count</p>";
 			echo "<p><strong>Other Settings:</strong> $other_count</p>";
-			
+
 			if ($sync_metadata_count > 0 && $other_count === 0) {
 				echo "<div style='background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; margin: 10px 0;'>";
 				echo "<h4 style='color: #155724; margin-top: 0;'>✅ Expected Behavior</h4>";
@@ -43618,11 +42944,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				echo "<p>These should have been synced. Please investigate.</p>";
 				echo "</div>";
 			}
-			
+
 		} else {
 			echo "<p style='color: green;'><strong>✅ No pending settings records found.</strong></p>";
 		}
-		
+
 		echo "<hr>";
 		echo "<p><a href='" . site_url('admin/sync_dashboard') . "'>← Back to Sync Dashboard</a></p>";
 	}
@@ -43643,7 +42969,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			// Validate input
 			$this->form_validation->set_rules('provider_name', 'Provider Name', 'required|trim');
 			$this->form_validation->set_rules('provider_code', 'Provider Code', 'required|trim|is_unique[pension_tier2_providers.provider_code]');
-			
+
 			if ($this->form_validation->run() == FALSE) {
 				$ajax_data['message'] = 'failed';
 				$ajax_data['errors'] = validation_errors();
@@ -43675,12 +43001,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 			// Validate input
 			$this->form_validation->set_rules('provider_name', 'Provider Name', 'required|trim');
-			
+
 			// Check if provider_code is unique (excluding current record)
 			$this->db->where('provider_code', $this->input->post('provider_code'));
 			$this->db->where('provider_id !=', $provider_id);
 			$existing = $this->db->get('pension_tier2_providers')->num_rows();
-			
+
 			if ($existing > 0) {
 				$ajax_data['message'] = 'failed';
 				$ajax_data['errors'] = 'Provider code already exists';
@@ -43713,10 +43039,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 			// Get current status
 			$provider = $this->db->get_where('pension_tier2_providers', array('provider_id' => $provider_id))->row();
-			
+
 			// Toggle status
 			$new_status = $provider->is_active == 1 ? 0 : 1;
-			
+
 			$this->db->where('provider_id', $provider_id);
 			$this->db->update('pension_tier2_providers', array(
 				'is_active' => $new_status,
@@ -43775,29 +43101,29 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		echo json_encode($provider);
 	}
 
-	
+
 	// ===================================
 	// NOTIFICATION SYSTEM METHODS =========
 	// ===================================
-	
+
 	/**
 	 * Get notifications for current user
-	 * 
+	 *
 	 * Returns JSON with notifications array and unread count
 	 * for the notification polling system
-	 * 
+	 *
 	 * Requirements: 3.3, 3.5, 3.9
-	 * 
+	 *
 	 * @return void Outputs JSON response
 	 */
 	public function get_notifications() {
 		// Clean any previous output and set JSON header
 		if (ob_get_level()) ob_clean();
 		header('Content-Type: application/json');
-		
+
 		// Get logged-in user ID from session
 		$user_id = $this->session->userdata('admin_id');
-		
+
 		if (!$user_id) {
 			echo json_encode(array(
 				'status' => 'error',
@@ -43805,7 +43131,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			));
 			return;
 		}
-		
+
 		// TEMPORARY FIX: Return empty notifications until model is updated to match table structure
 		// The Notification_manager model expects columns (module, event_type, reference_id, read_status)
 		// but the notifications table has (type, user_type, is_read) instead
@@ -43815,20 +43141,20 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			'unread_count' => 0
 		));
 		return;
-		
+
 		// TODO: Fix Notification_manager model to match actual notifications table structure
 		// Original code commented out below:
 		/*
 		// Load Notification_manager model
 		$this->load->model('Notification_manager');
-		
+
 		try {
 			// Get user notifications (10 most recent)
 			$notifications = $this->Notification_manager->get_user_notifications($user_id, 10, false);
-			
+
 			// Get unread count
 			$unread_count = $this->Notification_manager->get_unread_count($user_id);
-			
+
 			// Return JSON response
 			echo json_encode(array(
 				'status' => 'success',
@@ -43843,25 +43169,25 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		}
 		*/
 	}
-	
+
 	/**
 	 * Mark single notification as read
-	 * 
+	 *
 	 * Requirements: 3.5, 3.9
-	 * 
+	 *
 	 * @return void Outputs JSON response
 	 */
 	public function mark_notification_read() {
 		// Clean any previous output and set JSON header
 		if (ob_get_level()) ob_clean();
 		header('Content-Type: application/json');
-		
+
 		// Get notification ID from POST data
 		$notification_id = $this->input->post('notification_id');
-		
+
 		// Get logged-in user ID from session
 		$user_id = $this->session->userdata('admin_id');
-		
+
 		if (!$user_id) {
 			echo json_encode(array(
 				'status' => 'error',
@@ -43869,7 +43195,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			));
 			return;
 		}
-		
+
 		if (!$notification_id) {
 			echo json_encode(array(
 				'status' => 'error',
@@ -43877,14 +43203,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			));
 			return;
 		}
-		
+
 		// Load Notification_manager model
 		$this->load->model('Notification_manager');
-		
+
 		try {
 			// Mark notification as read
 			$result = $this->Notification_manager->mark_as_read($notification_id, $user_id);
-			
+
 			echo json_encode(array(
 				'status' => $result ? 'success' : 'error',
 				'message' => $result ? 'Notification marked as read' : 'Failed to mark notification as read'
@@ -43896,18 +43222,18 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			));
 		}
 	}
-	
+
 	/**
 	 * Mark all notifications as read for current user
-	 * 
+	 *
 	 * Requirements: 3.5, 3.9
-	 * 
+	 *
 	 * @return void Outputs JSON response
 	 */
 	public function mark_all_notifications_read() {
 		// Get logged-in user ID from session
 		$user_id = $this->session->userdata('admin_id');
-		
+
 		if (!$user_id) {
 			echo json_encode(array(
 				'status' => 'error',
@@ -43915,14 +43241,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			));
 			return;
 		}
-		
+
 		// Load Notification_manager model
 		$this->load->model('Notification_manager');
-		
+
 		try {
 			// Mark all notifications as read
 			$result = $this->Notification_manager->mark_all_as_read($user_id);
-			
+
 			echo json_encode(array(
 				'status' => $result ? 'success' : 'error',
 				'message' => $result ? 'All notifications marked as read' : 'Failed to mark notifications as read'
@@ -43934,57 +43260,57 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			));
 		}
 	}
-	
+
 	/**
 	 * Display notification settings page
-	 * 
+	 *
 	 * Requirements: 2.1, 2.2, 2.7
-	 * 
+	 *
 	 * @return void Loads notification settings view
 	 */
 	public function notification_settings() {
 		// Get logged-in user ID from session
 		$user_id = $this->session->userdata('admin_id');
-		
+
 		if (!$user_id) {
 			redirect(base_url() . 'login', 'refresh');
 			return;
 		}
-		
+
 		// Load User_notification_preferences model
 		$this->load->model('User_notification_preferences');
-		
+
 		// Get current SMS preference
 		$sms_enabled = $this->User_notification_preferences->get_user_sms_preference($user_id);
-		
+
 		// Get phone number from admin table
 		$user = $this->db->select('phone')->where('admin_id', $user_id)->get('admin')->row();
 		$phone_number = $user ? $user->phone : '';
-		
+
 		// Set page data
 		$page_data['page_name'] = 'notification_settings';
 		$page_data['page_title'] = get_phrase('notification_settings');
 		$page_data['sms_enabled'] = $sms_enabled;
 		$page_data['phone_number'] = $phone_number;
-		
+
 		// Load view
 		$this->load->view('backend/index', $page_data);
 	}
-	
+
 	/**
 	 * Update notification preferences
-	 * 
+	 *
 	 * Requirements: 2.3, 2.4, 2.8
-	 * 
+	 *
 	 * @return void Outputs JSON response
 	 */
 	public function update_notification_preferences() {
 		// Get SMS enabled status from POST data
 		$sms_enabled = $this->input->post('sms_enabled');
-		
+
 		// Get logged-in user ID from session
 		$user_id = $this->session->userdata('admin_id');
-		
+
 		if (!$user_id) {
 			echo json_encode(array(
 				'success' => false,
@@ -43992,17 +43318,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			));
 			return;
 		}
-		
+
 		// Convert to boolean
 		$sms_enabled = ($sms_enabled === '1' || $sms_enabled === 'true' || $sms_enabled === true);
-		
+
 		// Load User_notification_preferences model
 		$this->load->model('User_notification_preferences');
-		
+
 		try {
 			// Update SMS preference
 			$result = $this->User_notification_preferences->set_user_sms_preference($user_id, $sms_enabled);
-			
+
 			if ($result['success']) {
 				echo json_encode(array(
 					'success' => true,
@@ -44026,7 +43352,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	 * PAYROLL FIELD CUSTOMIZATION API ENDPOINTS
 	 * Database-driven field visibility preferences
 	 */
-	
+
 	/**
 	 * Get all payroll field preferences
 	 * Returns: JSON array of {field_name, is_visible}
@@ -44040,10 +43366,10 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			]);
 			return;
 		}
-		
+
 		$this->db->select('field_name, is_visible');
 		$query = $this->db->get('form_field_preferences');
-		
+
 		if ($query) {
 			echo json_encode([
 				'status' => 'success',
@@ -44056,7 +43382,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			]);
 		}
 	}
-	
+
 	/**
 	 * Save or update a single field preference
 	 * POST parameters: fieldName, isVisible
@@ -44070,13 +43396,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			]);
 			return;
 		}
-		
+
 		$fieldName = $this->input->post('fieldName');
 		$isVisible = (int)$this->input->post('isVisible');
-		
+
 		// Define required fields that cannot be hidden
 		$requiredFields = ['basicSalary', 'payrollMonth'];
-		
+
 		// Validate required field protection
 		if (in_array($fieldName, $requiredFields) && $isVisible === 0) {
 			echo json_encode([
@@ -44085,14 +43411,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			]);
 			return;
 		}
-		
+
 		// Define allowed fields for validation
 		$allowedFields = [
 			'basicSalary', 'payrollMonth', 'marketPremium', 'teachingAllowance',
 			'responsibilityAllowance', 'extraClasses', 'ruralAllowance', 'otherAllowances',
 			'petra', 'incomeTax', 'salaryAdvance', 'loans', 'welfare', 'gnat', 'otherDeductions'
 		];
-		
+
 		// Validate field name
 		if (!in_array($fieldName, $allowedFields)) {
 			echo json_encode([
@@ -44101,7 +43427,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			]);
 			return;
 		}
-		
+
 		// Validate isVisible value
 		if ($isVisible !== 0 && $isVisible !== 1) {
 			echo json_encode([
@@ -44110,14 +43436,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			]);
 			return;
 		}
-		
+
 		// Use INSERT ... ON DUPLICATE KEY UPDATE for upsert operation
-		$sql = "INSERT INTO form_field_preferences (field_name, is_visible) 
-				VALUES (?, ?) 
+		$sql = "INSERT INTO form_field_preferences (field_name, is_visible)
+				VALUES (?, ?)
 				ON DUPLICATE KEY UPDATE is_visible = ?";
-		
+
 		$result = $this->db->query($sql, [$fieldName, $isVisible, $isVisible]);
-		
+
 		if ($result) {
 			echo json_encode([
 				'status' => 'success',
@@ -44131,7 +43457,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			]);
 		}
 	}
-	
+
 	/**
 	 * Reset all field preferences to default (all visible)
 	 * Truncates the form_field_preferences table
@@ -44145,12 +43471,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			]);
 			return;
 		}
-		
+
 		$this->db->truncate('form_field_preferences');
-		
+
 		// truncate() returns void, check if table is empty after truncate
 		$count = $this->db->count_all('form_field_preferences');
-		
+
 		if ($count === 0) {
 			echo json_encode([
 				'status' => 'success',
@@ -44163,7 +43489,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			]);
 		}
 	}
-	
+
 	/**
 	 * Promotion Status Checker
 	 * Shows students who haven't been promoted or repeated yet
@@ -44174,23 +43500,23 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		if ($this->session->userdata('admin_login') != 1) {
 			redirect(site_url('login'));
 		}
-		
+
 		// Check admin level (only level 1 and 2 can access)
 		$admin_id = $this->session->userdata('admin_id');
 		$admin_level = $this->db->get_where('admin', array('admin_id' => $admin_id))->row()->level;
-		
+
 		if ($admin_level > 2) {
 			$this->session->set_flashdata('error_message', 'You do not have permission to access this page.');
 			redirect(site_url('admin/dashboard'));
 		}
-		
+
 		// Load Head Teacher Remarks Model
 		$this->load->model('Head_teacher_remarks_model');
-		
+
 		// Get current academic year and term
 		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-		
+
 		// Get the last exam of the current term (exclude portfolio assessments)
 		$last_exam = $this->db->where('year', $running_year)
 			->where('term', $running_term)
@@ -44199,12 +43525,12 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			->limit(1)
 			->get('exam')
 			->row();
-		
+
 		// Get all classes
 		$classes = $this->db->get('class')->result_array();
-		
+
 		$unpromoted_data = array();
-		
+
 		foreach ($classes as $class) {
 			// Get students enrolled in this class for current year/term
 			$enrolled_students = $this->db->where('class_id', $class['class_id'])
@@ -44213,19 +43539,19 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				->where('mute', '0')
 				->get('enroll')
 				->result_array();
-			
+
 			if (empty($enrolled_students)) {
 				continue; // Skip classes with no students
 			}
-			
+
 			$unpromoted_students = array();
-			
+
 			foreach ($enrolled_students as $enrolled) {
 				$student_id = $enrolled['student_id'];
-				
+
 				// Check if student has been promoted/repeated in enroll table for next period
 				$next_term = ($running_term == '3') ? '1' : ($running_term + 1);
-				
+
 				// Calculate next year properly for year format "2025-2026"
 				if ($running_term == '3') {
 					$year_parts = explode('-', $running_year);
@@ -44233,17 +43559,17 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				} else {
 					$next_year = $running_year;
 				}
-				
+
 				$promoted_check = $this->db->where('student_id', $student_id)
 					->where('year', $next_year)
 					->where('term', $next_term)
 					->get('enroll')
 					->row();
-				
+
 				// If student not found in next period, they're unpromoted
 				if (!$promoted_check) {
 					$student_info = $this->db->get_where('student', array('student_id' => $student_id))->row_array();
-					
+
 					// Get exam statistics for this student
 					$exam_stats = array(
 						'total_subjects' => 0,
@@ -44251,13 +43577,13 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						'average_percentage' => 0,
 						'principal_remark' => 'N/A'
 					);
-					
+
 					if ($last_exam) {
 						// Get total subjects for this class
 						$total_subjects = $this->db->where('class_id', $class['class_id'])
 							->get('subject')
 							->num_rows();
-						
+
 						// Get subjects with marks for this student
 						$marks = $this->db->where('student_id', $student_id)
 							->where('exam_id', $last_exam->exam_id)
@@ -44266,11 +43592,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 							->where('term', $running_term)
 							->get('mark')
 							->result_array();
-						
+
 						$subjects_written = 0;
 						$total_marks_obtained = 0;
 						$total_marks_possible = 0;
-						
+
 						foreach ($marks as $mark) {
 							// Check if mark_obtained is not null and not empty
 							if ($mark['mark_obtained'] !== null && $mark['mark_obtained'] !== '') {
@@ -44281,21 +43607,21 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 								$total_marks_possible += $mark_total_value;
 							}
 						}
-						
+
 						// Calculate average percentage
 						$average_percentage = 0;
 						if ($total_marks_possible > 0) {
 							$average_percentage = ($total_marks_obtained / $total_marks_possible) * 100;
 							$average_percentage = round($average_percentage, 2);
 						}
-						
+
 						// Get principal remark based on percentage
 						$principal_remark = 'N/A';
 						if ($average_percentage > 0) {
 							$auto_head_remark = $this->Head_teacher_remarks_model->find_by_percentage($average_percentage);
 							$principal_remark = $auto_head_remark ? $auto_head_remark->remark_text : 'No remark set for this range';
 						}
-						
+
 						$exam_stats = array(
 							'total_subjects' => $total_subjects,
 							'subjects_written' => $subjects_written,
@@ -44303,18 +43629,18 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 							'principal_remark' => $principal_remark
 						);
 					}
-					
+
 					$student_info['exam_stats'] = $exam_stats;
 					$unpromoted_students[] = $student_info;
 				}
 			}
-			
+
 			// Only add class to list if it has unpromoted students
 			if (!empty($unpromoted_students)) {
 				// Get class teacher details
 				$teacher_id = $class['teacher_id'];
 				$teacher_info = array();
-				
+
 				if ($teacher_id && $teacher_id > 0) {
 					$teacher = $this->db->get_where('teacher', array('teacher_id' => $teacher_id))->row_array();
 					if ($teacher) {
@@ -44325,7 +43651,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 						);
 					}
 				}
-				
+
 				$unpromoted_data[] = array(
 					'class' => $class,
 					'teacher' => $teacher_info,
@@ -44334,14 +43660,14 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				);
 			}
 		}
-		
+
 		$page_data['unpromoted_data'] = $unpromoted_data;
 		$page_data['running_year'] = $running_year;
 		$page_data['running_term'] = $running_term;
 		$page_data['last_exam'] = $last_exam;
 		$page_data['page_name'] = 'promotion_status_checker';
 		$page_data['page_title'] = 'Promotion Status Checker';
-		
+
 		$this->load->view('backend/main', $page_data);
 	}
 
@@ -44351,7 +43677,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	public function import_daily_fee_rates_form() {
 		$this->load->view('backend/admin/import_daily_fee_rates_modal');
 	}
-	
+
 	/**
 	 * Get invoice preview data - which bill items apply to which classes
 	 * Used for confirmation modal to show accurate per-class breakdown
@@ -44359,45 +43685,45 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	function get_invoice_preview_data() {
 		$class_ids = $this->input->post('class_ids');
 		$bill_items_data = $this->input->post('bill_items'); // Now contains {title, amount}
-		
+
 		if(empty($class_ids) || empty($bill_items_data)) {
 			echo json_encode(['success' => false, 'message' => 'Missing data']);
 			return;
 		}
-		
+
 		$result = [];
-		
+
 		// For each class, determine which items apply
 		foreach($class_ids as $class_id) {
 			// Get class details
 			$class_row = $this->db->get_where('class', ['class_id' => $class_id])->row();
 			if(!$class_row) continue;
-			
+
 			$class_category = isset($class_row->category) ? $class_row->category : null;
 			$class_name = $class_row->name . ' ' . $class_row->name_numeric;
-			
+
 			// Always get and append section name
 			$section_row = $this->db->get_where('section', ['class_id' => $class_id])->row();
 			if($section_row) {
 				$class_name .= ' ' . $section_row->name;
 			}
-			
+
 			$class_items = [];
-			
+
 			// Check each bill item
 			foreach($bill_items_data as $item_data) {
 				$title = $item_data['title'];
 				$user_amount = floatval($item_data['amount']); // Amount from form input
-				
+
 				$bill_item = $this->db->get_where('bill_item', ['title' => $title])->row();
 				if(!$bill_item) continue;
-				
+
 				$specific_class_ids = isset($bill_item->specific_class_ids) ? $bill_item->specific_class_ids : null;
 				$bill_class_category = isset($bill_item->class_category) ? $bill_item->class_category : null;
-				
+
 				// Apply 3-tier filtering logic
 				$applies = false;
-				
+
 				if(!empty($specific_class_ids)) {
 					// Priority 1: Check specific class IDs
 					$specific_classes = array_map('trim', explode(',', $specific_class_ids));
@@ -44413,7 +43739,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					// Priority 3: Global item (both NULL/empty)
 					$applies = true;
 				}
-				
+
 				if($applies) {
 					$class_items[] = [
 						'title' => $bill_item->title,
@@ -44422,20 +43748,20 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 					];
 				}
 			}
-			
+
 			$result[] = [
 				'class_id' => $class_id,
 				'class_name' => $class_name,
 				'items' => $class_items
 			];
 		}
-		
+
 		echo json_encode(['success' => true, 'classes' => $result]);
 	}
 
 	/**
 	 * Payroll Statutory Settings Management Page
-	 * 
+	 *
 	 * Allows admins to configure SSNIT, GETFund, NHIL and other statutory percentages
 	 * Date: September 5, 2026
 	 */
@@ -44443,24 +43769,24 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		// Check authentication
 		if($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'), 'refresh');
-		
+
 		// Load model
 		$this->load->model('Payroll_statutory_model');
-		
+
 		// Get all settings
 		$page_data['settings'] = $this->Payroll_statutory_model->get_all_settings_full();
-		
+
 		// Set page data for navigation
 		$page_data['page_name'] = 'payroll_statutory_settings';
 		$page_data['page_title'] = get_phrase('statutory_settings');
-		
+
 		// Load through main backend layout
 		$this->load->view('backend/index', $page_data);
 	}
 
 	/**
 	 * Update single statutory setting (AJAX)
-	 * 
+	 *
 	 * @return JSON response
 	 */
 	public function payroll_statutory_update() {
@@ -44469,36 +43795,36 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
 			return;
 		}
-		
+
 		// Check authentication
 		if($this->session->userdata('admin_login') != 1) {
 			echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
 			return;
 		}
-		
+
 		// Load model
 		$this->load->model('Payroll_statutory_model');
-		
+
 		// Get parameters
 		$setting_id = $this->input->post('setting_id');
 		$new_value = $this->input->post('new_value');
 		$reason = $this->input->post('reason') ?: 'Administrative update';
 		$admin_id = $this->session->userdata('login_user_id');
-		
+
 		// Validate
 		if(empty($setting_id) || !is_numeric($new_value)) {
 			echo json_encode(['status' => 'error', 'message' => 'Invalid parameters']);
 			return;
 		}
-		
+
 		if($new_value < 0 || $new_value > 100) {
 			echo json_encode(['status' => 'error', 'message' => 'Rate must be between 0 and 100']);
 			return;
 		}
-		
+
 		// Update setting
 		$result = $this->Payroll_statutory_model->update_setting($setting_id, $new_value, $admin_id, $reason);
-		
+
 		if($result) {
 			echo json_encode([
 				'status' => 'success',
@@ -44514,7 +43840,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	/**
 	 * Bulk update statutory settings (AJAX)
-	 * 
+	 *
 	 * @return JSON response
 	 */
 	public function payroll_statutory_update_bulk() {
@@ -44523,33 +43849,33 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 			echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
 			return;
 		}
-		
+
 		// Check authentication
 		if($this->session->userdata('admin_login') != 1) {
 			echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
 			return;
 		}
-		
+
 		// Load model
 		$this->load->model('Payroll_statutory_model');
-		
+
 		// Get parameters
 		$changes_json = $this->input->post('changes');
 		$reason = $this->input->post('reason') ?: 'Bulk administrative update';
 		$admin_id = $this->session->userdata('login_user_id');
-		
+
 		// Validate
 		if(empty($changes_json)) {
 			echo json_encode(['status' => 'error', 'message' => 'Invalid parameters']);
 			return;
 		}
-		
+
 		$changes = json_decode($changes_json, true);
 		if(!is_array($changes) || empty($changes)) {
 			echo json_encode(['status' => 'error', 'message' => 'No changes provided']);
 			return;
 		}
-		
+
 		// Validate all changes before processing
 		foreach($changes as $change) {
 			// Validate required fields
@@ -44557,35 +43883,35 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				echo json_encode(['status' => 'error', 'message' => 'Invalid change format']);
 				return;
 			}
-			
+
 			// Validate numeric value
 			if(!is_numeric($change['new_value'])) {
 				echo json_encode(['status' => 'error', 'message' => 'Rate must be numeric']);
 				return;
 			}
-			
+
 			// Validate range
 			if($change['new_value'] < 0 || $change['new_value'] > 100) {
 				echo json_encode(['status' => 'error', 'message' => 'Rate must be between 0 and 100']);
 				return;
 			}
 		}
-		
+
 		// Process each change
 		$success_count = 0;
 		foreach($changes as $change) {
 			$result = $this->Payroll_statutory_model->update_setting(
-				$change['setting_id'], 
-				$change['new_value'], 
-				$admin_id, 
+				$change['setting_id'],
+				$change['new_value'],
+				$admin_id,
 				$reason
 			);
-			
+
 			if($result) {
 				$success_count++;
 			}
 		}
-		
+
 		if($success_count > 0) {
 			echo json_encode([
 				'status' => 'success',
@@ -44601,16 +43927,16 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	/**
 	 * Get statutory rates as JSON (for AJAX calls)
-	 * 
+	 *
 	 * @return JSON response
 	 */
 	public function payroll_statutory_get_rates() {
 		// Load model
 		$this->load->model('Payroll_statutory_model');
-		
+
 		// Get rates
 		$rates = $this->Payroll_statutory_model->get_all_settings();
-		
+
 		echo json_encode([
 			'status' => 'success',
 			'rates' => $rates
@@ -44620,29 +43946,29 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	// ===================================
 	/**
 	 * Test GRA PAYE Calculation
-	 * 
+	 *
 	 * Tests the payroll system's PAYE calculation against official GRA rates
 	 * from the Revised Annual PAYE Schedule (2024).
-	 * 
+	 *
 	 * URL: admin/test_gra_paye
 	 */
 	public function test_gra_paye() {
 		// Load required libraries and models
 		$this->load->library('Tax_calculator');
 		$this->load->model('Payroll_statutory_model');
-		
+
 		// Get current SSNIT rates
 		$rates = $this->Payroll_statutory_model->get_rates_array();
 		$ssnit_tier1_employee_rate = $rates['ssnit_tier1_employee'] / 100;
 		$ssnit_tier2_rate = $rates['ssnit_tier2'] / 100;
-		
+
 		// IMPORTANT: For PAYE calculation, only Tier 2 is deductible from taxable income
 		// Tier 1 is NOT deductible according to GRA rules
 		$tax_deductible_ssnit_rate = $ssnit_tier2_rate; // Only Tier 2
-		
+
 		// Total SSNIT deducted from employee salary (for payslip display)
 		$total_ssnit_employee_rate = $ssnit_tier1_employee_rate + $ssnit_tier2_rate;
-		
+
 		// Test cases
 		$test_cases = array(
 			array(
@@ -44676,24 +44002,24 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'description' => 'Top tier salary, maximum tax rate'
 			)
 		);
-		
+
 		// Process test cases
 		$results = array();
 		foreach ($test_cases as $test) {
 			$monthly_basic = $test['monthly_basic'];
 			$monthly_gross = $test['monthly_gross'];
-			
+
 			// Calculate total SSNIT deducted from employee
 			$monthly_ssnit_tier1 = $monthly_basic * $ssnit_tier1_employee_rate;
 			$monthly_ssnit_tier2 = $monthly_basic * $ssnit_tier2_rate;
 			$monthly_total_ssnit = $monthly_ssnit_tier1 + $monthly_ssnit_tier2;
-			
+
 			// For PAYE calculation: Only Tier 2 is deductible
 			$monthly_ssnit_for_tax = $monthly_ssnit_tier2;
-			
+
 			// Calculate PAYE (using only Tier 2 deduction)
 			$calculation = $this->tax_calculator->get_detailed_calculation($monthly_gross, $monthly_ssnit_for_tax);
-			
+
 			$results[] = array(
 				'name' => $test['name'],
 				'description' => $test['description'],
@@ -44717,7 +44043,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 				'effective_rate' => ($calculation['annual_paye'] / $calculation['annual_taxable']) * 100
 			);
 		}
-		
+
 		// Prepare page data
 		$page_data['test_results'] = $results;
 		$page_data['rates'] = $rates;
@@ -44727,7 +44053,7 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 		$page_data['tax_deductible_ssnit_rate'] = $tax_deductible_ssnit_rate * 100;
 		$page_data['page_name'] = 'test_gra_paye';
 		$page_data['page_title'] = 'GRA PAYE Calculation Test';
-		
+
 		// Load view
 		$this->load->view('backend/admin/test_gra_paye', $page_data);
 	}
@@ -44736,4 +44062,4 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 	// ===================================
 } // end of controller
 
-	
+

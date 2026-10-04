@@ -117,7 +117,7 @@ foreach($invoice_items as $item) {
     <input type="hidden" name="invoice_code" value="<?php echo $invoice_code; ?>">
     <input type="hidden" name="student_id" value="<?php echo $student_id; ?>">
     <input type="hidden" name="request_type" id="request_type" value="">
-    
+
     <script>
     (function() {
         var selectedAction = null;
@@ -128,7 +128,7 @@ foreach($invoice_items as $item) {
 
         function loadInvoiceItems() {
             $('#invoice_items_container').html('<center class="py-5"><i class="fa fa-spinner fa-spin fa-2x"></i><p class="mt-3">Loading invoice items...</p></center>');
-            
+
             $.ajax({
                 url: '<?php echo site_url('admin/getStudentBillByInvoiceCode'); ?>',
                 type: 'POST',
@@ -151,10 +151,10 @@ foreach($invoice_items as $item) {
             var title_value = $('#' + id + '_title').val();
             list_bill_items_array.push(title_value);
             bill_list_item_ids.push(id);
-            
+
             $.ajax({
                 url: '<?php echo site_url('admin/add_list_invoice_item/'); ?>' + type,
-                data: { 
+                data: {
                     bill_items_array: list_bill_items_array,
                     exclude_items: list_bill_items_array
                 },
@@ -168,7 +168,7 @@ foreach($invoice_items as $item) {
         window.getItemDetails = function(row_id, val) {
             if(!val) return;
             var baseId = row_id.replace('_title', '');
-            
+
             $.ajax({
                 url: '<?php echo site_url('admin/invoice/get_bill_item_details'); ?>',
                 type: 'POST',
@@ -214,10 +214,10 @@ foreach($invoice_items as $item) {
             var action = $(this).data('action');
             selectedAction = action;
             $('#request_type').val(action);
-            
+
             $('.modal-action-btn').removeClass('selected');
             $(this).addClass('selected');
-            
+
             if(action === 'edit') {
                 $('#editFields').slideDown(300);
                 $('#deleteWarning, #discountFields').slideUp(300);
@@ -231,7 +231,7 @@ foreach($invoice_items as $item) {
                 loadDiscountProfiles();
             }
         });
-        
+
         function loadDiscountProfiles() {
             var studentId = <?php echo $student_id; ?>;
             $.ajax({
@@ -251,8 +251,8 @@ foreach($invoice_items as $item) {
                 $.ajax({
                     url: '<?php echo site_url("admin/getDiscountProfileDetails"); ?>',
                     type: 'POST',
-                    data: { 
-                        profile_id: profileId, 
+                    data: {
+                        profile_id: profileId,
                         invoice_code: invoiceCode,
                         class_id: window.studentClassData.class_id,
                         residence_type: window.studentClassData.residence_type
@@ -261,10 +261,10 @@ foreach($invoice_items as $item) {
                     success: function(response) {
                         if(response.status === 'success' && response.profile) {
                             var methodText = response.profile.discount_method === 'percentage' ? 'Percentage Discount' : 'Fixed Amount Discount';
-                            var valueText = response.profile.discount_method === 'percentage' 
-                                ? '<span style="font-size: 32px; font-weight: 800; color: #059669;">' + response.profile.discount_value + '%</span>' 
+                            var valueText = response.profile.discount_method === 'percentage'
+                                ? '<span style="font-size: 32px; font-weight: 800; color: #059669;">' + response.profile.discount_value + '%</span>'
                                 : '<span style="font-size: 32px; font-weight: 800; color: #059669;">' + currency + ' ' + parseFloat(response.profile.discount_value).toFixed(2) + '</span>';
-                            
+
                             var html = '<div style="display: flex; gap: 20px; align-items: start;">';
                             html += '<div style="flex: 0 0 200px; text-align: center; background: #ecfdf5; padding: 20px; border-radius: 10px; border: 2px solid #10b981;">';
                             html += '<div style="font-size: 12px; color: #065f46; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">' + methodText + '</div>';
@@ -272,7 +272,7 @@ foreach($invoice_items as $item) {
                             html += '<div style="flex: 1;"><h6 style="color: #065f46; font-weight: 700; margin-bottom: 12px; font-size: 16px;"><i class="fa fa-info-circle"></i> Profile Details</h6>';
                             html += '<div style="font-size: 14px; color: #047857; line-height: 1.8;">';
                             html += '<div style="margin-bottom: 8px;"><strong style="color: #064e3b;">Profile Name:</strong> <span style="font-weight: 600;">' + response.profile.profile_name + '</span></div>';
-                            
+
                             if(response.profile.bill_item_ids === '*') {
                                 html += '<div style="margin-bottom: 8px;"><strong style="color: #064e3b;">Applies to:</strong> <span style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 12px;">All Bill Items</span></div>';
                             } else if(response.profile.items && response.profile.items.length > 0) {
@@ -295,19 +295,19 @@ foreach($invoice_items as $item) {
         // Form submission
         $('#invoiceModificationForm').off('submit').on('submit', function(e) {
             e.preventDefault();
-            
+
             if(!selectedAction) {
                 showAjaxModal_alert('Please select an action (Edit, Delete, or Apply Discount)', 'warning');
                 return;
             }
-            
+
             if(selectedAction === 'discount') {
                 var profileId = $('#discount_profile_select').val();
                 if(!profileId) {
                     showAjaxModal_alert('Please select a discount profile', 'warning');
                     return;
                 }
-                
+
                 $.ajax({
                     url: '<?php echo site_url("admin/check_existing_profile"); ?>',
                     type: 'POST',
@@ -335,9 +335,9 @@ foreach($invoice_items as $item) {
                 });
                 return;
             }
-            
+
             var formData = $(this).serializeArray();
-            
+
             // Collect invoice items if editing
             if(selectedAction === 'edit') {
                 var items = [];
@@ -346,9 +346,11 @@ foreach($invoice_items as $item) {
                     if(rowId) {
                         var title = $('#' + rowId + '_title').val();
                         var description = $('#' + rowId + '_description').val();
-                        var amount = $('#' + rowId + '_amount').val();
-                        if(title && amount) {
+                        var amount = parseFloat($('#' + rowId + '_amount').val());
+                        var invoiceId = parseInt($('#' + rowId + '_invoice_id').val(), 10) || null;
+                        if(title && Number.isFinite(amount) && amount >= 0) {
                             items.push({
+                                invoice_id: invoiceId,
                                 title: title,
                                 description: description,
                                 amount: amount
@@ -358,9 +360,9 @@ foreach($invoice_items as $item) {
                 });
                 formData.push({name: 'items', value: JSON.stringify(items)});
             }
-            
+
             showAjaxModal_alert('Processing...', 'loading');
-            
+
             $.ajax({
                 url: $(this).attr('action'),
                 type: 'POST',
@@ -368,20 +370,20 @@ foreach($invoice_items as $item) {
                 dataType: 'json'
             }).done(function(response) {
                 if(response.status === 'success') {
-                    showAjaxModal_alert(response.message + ' Christian', 'success', false);
-                    setTimeout(function() { 
+                    showAjaxModal_alert(response.message, 'success', false);
+                    setTimeout(function() {
                         // Close all modal instances
                         $('#createModal, #ajaxModal, #invoiceModificationModal, .modal').modal('hide');
                         $('.modal-backdrop').remove();
                         $('body').removeClass('modal-open').css('padding-right', '');
-                        
+
                         // Trigger custom event for parent page to handle refresh
                         var event = $.Event('invoiceModificationComplete');
                         $(document).trigger(event, {
                             invoice_code: invoiceCode,
                             action: selectedAction
                         });
-                        
+
                         // Fallback: reload only if event wasn't handled
                         if(!event.isDefaultPrevented()) {
                             setTimeout(function() {
@@ -396,11 +398,11 @@ foreach($invoice_items as $item) {
                 showAjaxModal_alert('An error occurred', 'error');
             });
         });
-        
+
         function processProfileAssignment(profileId, action) {
             $('.close')[0].click();
             showAjaxModal_alert('Assigning profile...', 'loading');
-            
+
             $.ajax({
                 url: '<?php echo site_url("admin/assign_profile_to_invoice"); ?>',
                 type: 'POST',
@@ -414,19 +416,19 @@ foreach($invoice_items as $item) {
                 success: function(response) {
                     if(response.status === 'success') {
                         showAjaxModal_alert(response.message, 'success', false);
-                        setTimeout(function() { 
+                        setTimeout(function() {
                             // Close all modal instances
                             $('#createModal, #ajaxModal, #invoiceModificationModal, .modal').modal('hide');
                             $('.modal-backdrop').remove();
                             $('body').removeClass('modal-open').css('padding-right', '');
-                            
+
                             // Trigger custom event for parent page to handle refresh
                             var event = $.Event('invoiceModificationComplete');
                             $(document).trigger(event, {
                                 invoice_code: invoiceCode,
                                 action: 'discount'
                             });
-                            
+
                             // Fallback: reload only if event wasn't handled
                             if(!event.isDefaultPrevented()) {
                                 setTimeout(function() {
@@ -445,7 +447,7 @@ foreach($invoice_items as $item) {
         }
     })();
     </script>
-    
+
     <div style="padding: 24px;">
         <!-- Invoice Info Card -->
         <div style="background: linear-gradient(135deg, <?php echo $gradient_light; ?> 0%, <?php echo $gradient_dark; ?> 100%); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);">
@@ -562,7 +564,7 @@ foreach($invoice_items as $item) {
                     <i class="fa fa-tag" style="color: #0ea5e9;"></i>
                     <?php echo get_phrase('assign_discount_profile'); ?>
                 </h5>
-                
+
                 <!-- Invoice Items List -->
                 <div style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; border: 2px solid #bfdbfe;">
                     <h6 style="color: #1e40af; font-weight: 700; margin-bottom: 15px;"><i class="fa fa-list"></i> Invoice Items</h6>
@@ -586,7 +588,7 @@ foreach($invoice_items as $item) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label style="font-weight: 600; color: #374151; margin-bottom: 10px;"><?php echo get_phrase('select_discount_profile'); ?></label>
                     <select name="profile_id" id="discount_profile_select" class="form-control" style="height: 50px; border: 2px solid #3b82f6; border-radius: 10px; font-weight: 600;">
@@ -596,8 +598,8 @@ foreach($invoice_items as $item) {
                         foreach($profiles as $profile):
                             $method_display = $profile['discount_method'] === 'percentage' ? $profile['discount_value'] . '%' : $currency . ' ' . number_format($profile['discount_value'], 2);
                         ?>
-                        <option value="<?php echo $profile['profile_id']; ?>" 
-                                data-method="<?php echo $profile['discount_method']; ?>" 
+                        <option value="<?php echo $profile['profile_id']; ?>"
+                                data-method="<?php echo $profile['discount_method']; ?>"
                                 data-value="<?php echo $profile['discount_value']; ?>">
                             <?php echo $profile['profile_name'] . ' (' . $method_display . ')'; ?>
                         </option>
@@ -636,7 +638,7 @@ foreach($invoice_items as $item) {
             <label style="display: block; font-size: 15px; font-weight: 700; color: #1f2937; margin-bottom: 8px;">
                 <i class="fa fa-comment-dots"></i> Reason for Modification <span style="color: #ef4444;">*</span>
             </label>
-            <textarea name="reason" class="form-control" rows="4" required 
+            <textarea name="reason" class="form-control" rows="4" required
                       placeholder="Please provide a detailed reason for this modification request..."
                       style="border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; font-size: 14px; resize: vertical; transition: all 0.3s;"
                       onfocus="this.style.borderColor='<?php echo $theme_color; ?>'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)'"
@@ -657,11 +659,11 @@ foreach($invoice_items as $item) {
 
         <!-- Action Buttons -->
         <div style="display: flex; gap: 12px; justify-content: flex-end;">
-            <button type="button" class="btn btn-default" data-dismiss="modal" 
+            <button type="button" class="btn btn-default" data-dismiss="modal"
                     style="padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 14px; border: 2px solid #e5e7eb;">
                 <i class="fa fa-times"></i> Cancel
             </button>
-            <button type="submit" class="btn btn-primary" 
+            <button type="submit" class="btn btn-primary"
                     style="padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 14px; background: linear-gradient(135deg, <?php echo $gradient_light; ?> 0%, <?php echo $gradient_dark; ?> 100%); border: none; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">
                 <i class="fa fa-paper-plane"></i> <?php echo $admin_level == 1 ? 'Apply Changes' : 'Submit Request'; ?>
             </button>

@@ -96,7 +96,8 @@ function remove_discount(student_id) {
 			showAjaxModal_alert('<?php echo get_phrase("removing"); ?>...', 'loading');
 			$.ajax({
 				url: '<?php echo site_url('discount/remove_assignment/'); ?>' + student_id,
-				type: 'GET',
+				type: 'POST',
+				data: <?php echo json_encode([$this->security->get_csrf_token_name() => $this->security->get_csrf_hash()]); ?>,
 				dataType: 'json'
 			}).done(function(response) {
 				if(response.status === 'success') {

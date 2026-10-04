@@ -34,14 +34,14 @@ DELIMITER $$
 CREATE DEFINER=CURRENT_USER PROCEDURE `add_sync_operation_type_column` (IN `table_name` VARCHAR(64))   BEGIN
     DECLARE column_exists INT;
     DECLARE sync_status_exists INT;
-    
+
     -- Check if table has sync_status column (required prerequisite)
     SELECT COUNT(*) INTO sync_status_exists
     FROM INFORMATION_SCHEMA.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE()
       AND TABLE_NAME = table_name
       AND COLUMN_NAME = 'sync_status';
-    
+
     IF sync_status_exists = 0 THEN
         SELECT CONCAT('⚠️  Table ', table_name, ' does not have sync_status column - SKIPPED') AS message;
     ELSE
@@ -51,7 +51,7 @@ CREATE DEFINER=CURRENT_USER PROCEDURE `add_sync_operation_type_column` (IN `tabl
         WHERE TABLE_SCHEMA = DATABASE()
           AND TABLE_NAME = table_name
           AND COLUMN_NAME = 'sync_operation_type';
-        
+
         IF column_exists = 0 THEN
             -- Add the column
             SET @sql = CONCAT('ALTER TABLE `', table_name, '` ',
@@ -61,7 +61,7 @@ CREATE DEFINER=CURRENT_USER PROCEDURE `add_sync_operation_type_column` (IN `tabl
             PREPARE stmt FROM @sql;
             EXECUTE stmt;
             DEALLOCATE PREPARE stmt;
-            
+
             -- Backfill existing PENDING records
             SET @sql = CONCAT('UPDATE `', table_name, '` ',
                             'SET sync_operation_type = ''insert'' ',
@@ -70,7 +70,7 @@ CREATE DEFINER=CURRENT_USER PROCEDURE `add_sync_operation_type_column` (IN `tabl
             PREPARE stmt FROM @sql;
             EXECUTE stmt;
             DEALLOCATE PREPARE stmt;
-            
+
             SELECT CONCAT('✅ Added sync_operation_type to ', table_name) AS message;
         ELSE
             SELECT CONCAT('ℹ️  sync_operation_type already exists in ', table_name) AS message;
@@ -80,52 +80,52 @@ END$$
 
 CREATE DEFINER=CURRENT_USER PROCEDURE `calculate_daily_totals` (IN `target_date` DATE)   BEGIN
     DECLARE target_timestamp INT;
-    
-    
+
+
     SET target_timestamp = UNIX_TIMESTAMP(target_date);
-    
-    
-    SELECT 
-        
+
+
+    SELECT
+
         COUNT(DISTINCT dcl.student_id) AS students_billed,
         COUNT(DISTINCT dft.student_id) AS students_paid,
-        
-        
+
+
         SUM(dcl.feeding_charged) AS feeding_charged,
         SUM(dft.feeding_amount) AS feeding_collected,
         SUM(dcl.feeding_charged) - IFNULL(SUM(dft.feeding_amount), 0) AS feeding_outstanding,
-        
-        
+
+
         SUM(dcl.breakfast_charged) AS breakfast_charged,
         SUM(dft.breakfast_amount) AS breakfast_collected,
         SUM(dcl.breakfast_charged) - IFNULL(SUM(dft.breakfast_amount), 0) AS breakfast_outstanding,
-        
-        
+
+
         SUM(dcl.classes_charged) AS classes_charged,
         SUM(dft.classes_amount) AS classes_collected,
         SUM(dcl.classes_charged) - IFNULL(SUM(dft.classes_amount), 0) AS classes_outstanding,
-        
-        
+
+
         SUM(dcl.water_charged) AS water_charged,
         SUM(dft.water_amount) AS water_collected,
         SUM(dcl.water_charged) - IFNULL(SUM(dft.water_amount), 0) AS water_outstanding,
-        
-        
+
+
         SUM(dcl.transport_charged) AS transport_charged,
         SUM(dft.transport_amount) AS transport_collected,
         SUM(dcl.transport_charged) - IFNULL(SUM(dft.transport_amount), 0) AS transport_outstanding,
-        
-        
+
+
         SUM(dcl.total_charged) AS total_charged,
         SUM(dft.total_amount) AS total_collected,
         SUM(dcl.total_charged) - IFNULL(SUM(dft.total_amount), 0) AS total_outstanding
-        
+
     FROM daily_charge_log dcl
-    LEFT JOIN daily_fee_transactions dft 
-        ON dcl.student_id = dft.student_id 
+    LEFT JOIN daily_fee_transactions dft
+        ON dcl.student_id = dft.student_id
         AND dcl.charge_date = dft.payment_date
     WHERE dcl.charge_date = target_timestamp;
-    
+
 END$$
 
 DELIMITER ;
@@ -711,7 +711,7 @@ CREATE TABLE `bank_accounts` (
   `opening_balance` decimal(15,2) DEFAULT '0.00',
   `current_balance` decimal(15,2) DEFAULT '0.00',
   `chart_account_id` int DEFAULT NULL,
-  `is_active` tinyint(1) DEFAULT '1',
+  `is_active` tinyint(1) DEFAULT '0',
   `branch` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
   `swift_code` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
   `notes` text COLLATE utf8mb4_unicode_520_ci,
@@ -3554,6 +3554,7 @@ CREATE TABLE `invoice_discounts` (
   `invoice_code` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `discount_category` enum('invoice','daily_fees') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'invoice',
   `profile_id` int DEFAULT NULL,
+  `replacement_discount_id` int DEFAULT NULL,
   `discount_method` enum('percentage','fixed') COLLATE utf8mb4_unicode_520_ci NOT NULL,
   `discount_value` decimal(10,2) NOT NULL,
   `discount_amount` decimal(10,2) NOT NULL,
@@ -3627,7 +3628,7 @@ CREATE TABLE `invoice_modification_requests` (
   `request_reason` text COLLATE utf8mb4_general_ci NOT NULL,
   `old_data` text COLLATE utf8mb4_general_ci NOT NULL COMMENT 'JSON of original invoice items',
   `new_data` text COLLATE utf8mb4_general_ci COMMENT 'JSON of new invoice items for edit',
-  `status` enum('pending','approved','declined') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'pending',
+  `status` enum('pending','processing','approved','declined') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'pending',
   `reviewed_by` int DEFAULT NULL,
   `review_comment` text COLLATE utf8mb4_general_ci,
   `reviewed_at` datetime DEFAULT NULL,
@@ -5284,7 +5285,7 @@ CREATE TABLE `receipt_modification_audit` (
   `receipt_code` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `request_id` int NOT NULL,
   `payment_id` int NOT NULL,
-  `action` enum('edit','delete') COLLATE utf8mb4_general_ci NOT NULL,
+  `action` enum('edit','delete','revoke') COLLATE utf8mb4_general_ci NOT NULL,
   `performed_by` int NOT NULL,
   `performed_at` int NOT NULL,
   `before_data` text COLLATE utf8mb4_general_ci,
@@ -5314,7 +5315,7 @@ CREATE TABLE `receipt_modification_requests` (
   `requested_by` int NOT NULL COMMENT 'User who requested',
   `requested_at` int NOT NULL,
   `reason` text COLLATE utf8mb4_general_ci NOT NULL,
-  `status` enum('pending','approved','rejected','revoked') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'pending',
+  `status` enum('pending','processing','approved','rejected','revoked') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'pending',
   `approved_by` int DEFAULT NULL,
   `approved_at` int DEFAULT NULL,
   `rejection_reason` text COLLATE utf8mb4_general_ci,

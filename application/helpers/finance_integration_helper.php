@@ -31,10 +31,10 @@ if (!function_exists('sync_payment_to_ledger')) {
 }
 
 if (!function_exists('sync_discount_to_ledger')) {
-    function sync_discount_to_ledger($invoice_code, $student_id, $discount_amount) {
+    function sync_discount_to_ledger($invoice_code, $student_id, $discount_amount, $discount_id = null) {
         $CI =& get_instance();
         $CI->load->model('Finance_model');
-        return $CI->Finance_model->update_student_ledger_for_discount($invoice_code, $student_id, $discount_amount);
+        return $CI->Finance_model->update_student_ledger_for_discount($invoice_code, $student_id, $discount_amount, $discount_id);
     }
 }
 
