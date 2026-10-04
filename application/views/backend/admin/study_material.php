@@ -1,426 +1,492 @@
 <script src="<?php echo base_url(); ?>assets/cdn/js/tailwindcss.js"></script>
 
 <style>
-    /* Enhanced readability and responsive layout */
-    .study-materials-admin-container {
-        width: 100%;
-        max-width: 100%;
-        margin: 0 auto;
-        padding: 0 1rem;
-    }
-    
-    /* Better table readability */
-    #table-2 {
-        font-size: 1rem;
-        line-height: 1.7;
-        width: 100% !important;
-    }
-    
-    #table-2 thead th {
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        padding: 1rem;
-        white-space: nowrap;
-        font-size: 0.875rem;
-    }
-    
-    #table-2 tbody td {
-        padding: 1.25rem 1rem;
-        vertical-align: middle;
-        font-size: 1rem;
-    }
-    
-    /* Responsive table wrapper */
-    .table-responsive-wrapper {
-        width: 100%;
-        overflow-x: auto;
-    }
-    
-    /* DataTable wrapper adjustments */
-    .dataTables_wrapper {
-        width: 100% !important;
-        padding: 1.5rem;
-    }
-    
-    .dataTables_wrapper .dataTables_length,
-    .dataTables_wrapper .dataTables_filter {
-        margin-bottom: 1rem;
-    }
-    
-    .dataTables_wrapper .dataTables_length select,
-    .dataTables_wrapper .dataTables_filter input {
-        padding: 0.625rem 0.875rem !important;
-        border: 2px solid #e5e7eb !important;
-        border-radius: 0.5rem !important;
-        font-size: 0.875rem !important;
-        height: 42px !important;
-        background: white !important;
-        transition: all 0.2s !important;
-    }
-    
-    .dataTables_wrapper .dataTables_length select:focus,
-    .dataTables_wrapper .dataTables_filter input:focus {
-        border-color: #3b82f6 !important;
-        outline: none !important;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-    }
-    
-    .dataTables_wrapper .dataTables_length label,
-    .dataTables_wrapper .dataTables_filter label {
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-        font-weight: 500 !important;
-        color: #374151 !important;
-    }
-    
-    /* Consistent input heights */
-    .filter-input,
-    .filter-select {
-        height: 42px !important;
-        padding: 0.625rem 0.875rem !important;
-        border: 2px solid #e5e7eb !important;
-        border-radius: 0.5rem !important;
-        font-size: 1.0625rem !important;
-        transition: all 0.2s !important;
-    }
-    
-    .filter-input:focus,
-    .filter-select:focus {
-        border-color: #3b82f6 !important;
-        outline: none !important;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-    }
-    
-    /* Filter labels */
-    .filter-input + label,
-    .filter-select + label,
-    label {
-        font-size: 1rem !important;
-        font-weight: 500 !important;
-    }
-    
-    /* Bulk actions bar */
+.study-material-workspace {
+    margin: 0 !important;
+    padding: 24px 28px 40px !important;
+    background: #f8fafc;
+    min-height: 100%;
+    color: #334155;
+}
+.study-material-head {
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.study-material-eyebrow {
+    margin: 0 0 4px;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.study-material-head h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 30px !important;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+.study-material-head p:last-child {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.5;
+}
+.study-filter-card,
+.study-table-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+}
+.study-filter-card {
+    margin-bottom: 16px;
+    padding: 14px;
+}
+.study-filter-row {
+    display: grid;
+    grid-template-columns: minmax(150px,1.05fr) minmax(170px,1.1fr) minmax(145px,.8fr) minmax(145px,.8fr) auto;
+    gap: 10px;
+    align-items: end;
+}
+.study-filter-field {
+    min-width: 0;
+}
+.study-filter-field label {
+    display: block;
+    margin: 0 0 6px;
+    color: #475569;
+    font-size: 13px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+}
+.study-filter-field select,
+.study-filter-field input {
+    width: 100%;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 9px 11px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 9px !important;
+    background: #fff !important;
+    color: #0f172a !important;
+    font-size: 14px !important;
+    line-height: 1.35;
+    box-sizing: border-box;
+}
+.study-filter-field input[type="date"] { cursor: pointer; }
+.study-filter-field select:focus,
+.study-filter-field input:focus {
+    border-color: #2563eb !important;
+    outline: 0 !important;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+}
+.study-filter-actions {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    white-space: nowrap;
+}
+.study-filter-actions button {
+    min-height: 44px;
+    padding: 9px 13px !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #fff;
+    color: #334155;
+    font-size: 13px !important;
+    font-weight: 800;
+    box-shadow: none;
+}
+.study-filter-actions button.primary {
+    border-color: #2563eb;
+    background: #2563eb;
+    color: #fff;
+}
+.study-filter-actions button:hover { background: #f8fafc; }
+.study-filter-actions button.primary:hover { background: #1d4ed8; }
+.study-table-card { overflow: hidden; }
+.study-table-holder { min-height: 180px; overflow-x: auto; }
+.study-loading,
+.study-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    padding: 28px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+}
+.study-error { color: #b91c1c; }
+
+/* Styles applied to the table returned by admin/study_material/load. */
+.study-material-workspace #table-2 {
+    width: 100% !important;
+    min-width: 980px;
+    margin: 0 !important;
+    border-collapse: collapse !important;
+    font-size: 14px !important;
+    line-height: 1.45;
+}
+.study-material-workspace #table-2 thead th {
+    padding: 11px 12px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-size: 12px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.study-material-workspace #table-2 tbody td {
+    padding: 11px 12px !important;
+    border-bottom: 1px solid #eef2f7 !important;
+    color: #334155 !important;
+    font-size: 14px !important;
+    line-height: 1.45;
+    vertical-align: middle !important;
+}
+.study-material-workspace #table-2 tbody tr:hover { background: #f8fbff; }
+.study-material-workspace .table-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.study-material-workspace .dataTables_wrapper {
+    width: 100% !important;
+    min-width: 980px;
+    padding: 14px !important;
+}
+.study-material-workspace .dataTables_length,
+.study-material-workspace .dataTables_filter,
+.study-material-workspace .dataTables_info,
+.study-material-workspace .dataTables_paginate {
+    color: #475569 !important;
+    font-size: 13px !important;
+}
+.study-material-workspace .dataTables_length select,
+.study-material-workspace .dataTables_filter input {
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 7px 9px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    background: #fff !important;
+    color: #0f172a !important;
+    font-size: 14px !important;
+}
+.study-material-workspace .dataTables_length label,
+.study-material-workspace .dataTables_filter label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    color: #475569 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+}
+.study-material-workspace .bulk-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #2563eb;
+}
+
+.bulk-actions-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 14px;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    gap: 7px;
+    width: max-content;
+    max-width: calc(100vw - 28px);
+    padding: 9px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 11px;
+    background: rgba(255,255,255,.98);
+    box-shadow: 0 12px 28px rgba(15,23,42,.18);
+    transform: translateX(-50%) translateY(18px);
+    opacity: 0;
+    transition: transform .2s ease, opacity .2s ease;
+    backdrop-filter: blur(8px);
+}
+.bulk-actions-bar.show {
+    display: flex;
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+.bulk-actions-count {
+    padding: 0 8px;
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.bulk-actions-bar button {
+    min-height: 38px;
+    padding: 7px 10px !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    color: #334155;
+    font-size: 12px !important;
+    font-weight: 800;
+    white-space: nowrap;
+    box-shadow: none;
+}
+.bulk-actions-bar button.approve { border-color: #10b981; color: #047857; }
+.bulk-actions-bar button.decline { border-color: #ef4444; color: #b91c1c; }
+.bulk-actions-bar button.pending { border-color: #f59e0b; color: #b45309; }
+
+@media (max-width: 1120px) {
+    .study-filter-row { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .study-filter-actions { grid-column: 1 / -1; justify-content: flex-end; }
+}
+@media (max-width: 767px) {
+    .study-material-workspace { padding: 18px 14px 32px !important; }
+    .study-material-head h1 { font-size: 26px !important; }
+    .study-filter-row { grid-template-columns: 1fr; }
+    .study-filter-actions { grid-column: auto; display: grid; grid-template-columns: 1fr 1fr; }
+    .study-filter-field select,
+    .study-filter-field input { font-size: 16px !important; }
     .bulk-actions-bar {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%) translateY(150%);
-        background: white;
-        padding: 1.5rem 2.5rem;
-        border-radius: 16px;
-        box-shadow: 0 -6px 30px rgba(0,0,0,0.2), 0 4px 20px rgba(0,0,0,0.15);
-        display: none;
-        gap: 1.25rem;
-        align-items: center;
-        z-index: 999999;
-        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-        min-width: 700px;
-        border: 3px solid #e5e7eb;
-        opacity: 0;
+        width: calc(100vw - 20px);
+        max-width: none;
+        flex-wrap: wrap;
+        justify-content: center;
+        bottom: 10px;
     }
-    
-    .bulk-actions-bar.show {
-        display: flex;
-        transform: translateX(-50%) translateY(0);
-        opacity: 1;
-    }
-    
-    .bulk-checkbox {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-        accent-color: #3b82f6;
-    }
-    
-    @media (max-width: 768px) {
-        .bulk-actions-bar {
-            min-width: 95%;
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 1.25rem 1rem;
-            gap: 0.75rem;
-            bottom: 10px;
-        }
-    }
+    .bulk-actions-count { width: 100%; text-align: center; }
+}
+@media (max-width: 460px) {
+    .study-filter-actions { grid-template-columns: 1fr; }
+    .bulk-actions-bar button { flex: 1 1 45%; }
+}
 </style>
 
-<div class="study-materials-admin-container">
-    <div class="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-8 mb-6">
-        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-                    <span class="bg-blue-100 text-blue-600 p-3 rounded-lg">
-                        <i class="entypo-book-open text-2xl"></i>
-                    </span>
-                    <?php echo get_phrase('study_materials');?>
-                </h1>
-                <p class="text-gray-600 text-lg"><?php echo get_phrase('review_and_approve_study_materials');?></p>
-            </div>
-        </div>
+<?php
+$classes = $this->db->order_by('name_numeric', 'ASC')->get('class')->result_array();
+$teachers = $this->db->order_by('name', 'ASC')->get('teacher')->result_array();
+?>
+
+<div class="study-material-workspace">
+    <div class="study-material-head">
+        <p class="study-material-eyebrow">Academics</p>
+        <h1><?php echo get_phrase('study_materials'); ?></h1>
+        <p><?php echo get_phrase('review_and_approve_study_materials'); ?> Filter by class, teacher or date, then review individual or bulk status changes.</p>
     </div>
 
-    <!-- Filters Section -->
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-        <div class="flex items-center gap-3 mb-4">
-            <i class="entypo-filter text-2xl text-blue-600"></i>
-            <h2 class="text-xl font-bold text-gray-900">Filters</h2>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Class Filter -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2" style="font-size: 1rem !important;">
-                    <i class="entypo-users text-gray-500"></i> Class
-                </label>
-                <select id="filter_class" class="filter-select w-full bg-white text-gray-900">
+    <div class="study-filter-card">
+        <div class="study-filter-row">
+            <div class="study-filter-field">
+                <label for="filter_class"><i class="fa fa-users"></i> Class</label>
+                <select id="filter_class">
                     <option value="">All Classes</option>
-                    <?php
-                    $classes = $this->db->get('class')->result_array();
-                    foreach($classes as $class):
-                        $section = $this->db->get_where('section', array('class_id' => $class['class_id']))->row();
-                        $section_name = $section ? ' - ' . $section->name : '';
+                    <?php foreach($classes as $class):
+                        $section = $this->db->get_where('section', array('class_id' => $class['class_id']))->row_array();
+                        $section_name = !empty($section['name']) ? ' - ' . $section['name'] : '';
+                        $class_label = trim($class['name'] . ' ' . $class['name_numeric'] . $section_name);
                     ?>
-                        <option value="<?php echo $class['class_id']; ?>">
-                            <?php echo $class['name'].' '.$class['name_numeric'].$section_name; ?>
-                        </option>
+                        <option value="<?php echo (int)$class['class_id']; ?>"><?php echo html_escape($class_label); ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
 
-            <!-- Teacher Filter -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2" style="font-size: 1rem !important;">
-                    <i class="entypo-user text-gray-500"></i> Teacher
-                </label>
-                <select id="filter_teacher" class="filter-select w-full bg-white text-gray-900">
+            <div class="study-filter-field">
+                <label for="filter_teacher"><i class="fa fa-user"></i> Teacher</label>
+                <select id="filter_teacher">
                     <option value="">All Teachers</option>
-                    <?php
-                    $teachers = $this->db->get('teacher')->result_array();
-                    foreach($teachers as $teacher):
-                    ?>
-                        <option value="<?php echo $teacher['teacher_id']; ?>">
-                            <?php echo $teacher['name']; ?>
-                        </option>
+                    <?php foreach($teachers as $teacher): ?>
+                        <option value="<?php echo (int)$teacher['teacher_id']; ?>"><?php echo html_escape($teacher['name']); ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
 
-            <!-- Start Date Filter -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2" style="font-size: 1rem !important;">
-                    <i class="entypo-calendar text-gray-500"></i> Start Date From
-                </label>
-                <input type="date" id="filter_start_date" class="filter-input w-full bg-white text-gray-900">
+            <div class="study-filter-field">
+                <label for="filter_start_date"><i class="fa fa-calendar"></i> From</label>
+                <input type="date" id="filter_start_date">
             </div>
 
-            <!-- End Date Filter -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2" style="font-size: 1rem !important;">
-                    <i class="entypo-calendar text-gray-500"></i> End Date To
-                </label>
-                <input type="date" id="filter_end_date" class="filter-input w-full bg-white text-gray-900">
+            <div class="study-filter-field">
+                <label for="filter_end_date"><i class="fa fa-calendar"></i> To</label>
+                <input type="date" id="filter_end_date">
             </div>
-        </div>
 
-        <div class="flex gap-3 mt-4">
-            <button onclick="applyFilters()" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold shadow-sm transition" style="font-size: 1rem !important;">
-                <i class="entypo-search"></i>
-                <span>Apply Filters</span>
-            </button>
-            <button onclick="clearFilters()" class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold transition" style="font-size: 1rem !important;">
-                <i class="entypo-ccw"></i>
-                <span>Clear Filters</span>
-            </button>
+            <div class="study-filter-actions">
+                <button type="button" class="primary" onclick="applyFilters()"><i class="fa fa-search"></i> Apply</button>
+                <button type="button" onclick="clearFilters()"><i class="fa fa-undo"></i> Clear</button>
+            </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div class="table-responsive-wrapper" id="table_holder">
-            <div class="flex items-center justify-center p-12">
-                <p class="text-lg text-gray-600">Loading data, please wait... <i class="fa-solid fa-spinner fa-pulse ml-2"></i></p>
-            </div>
+    <div class="study-table-card">
+        <div class="study-table-holder" id="table_holder">
+            <div class="study-loading"><span>Loading study materials… <i class="fa fa-spinner fa-spin"></i></span></div>
         </div>
     </div>
 </div>
 
-<!-- Bulk Actions Bar -->
-<div class="bulk-actions-bar" id="bulk-actions-bar">
-    <span class="font-bold text-gray-800" id="selected-count" style="font-size: 1.125rem;">0 selected</span>
-    <button onclick="bulkApprove()" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold transition shadow-md hover:shadow-lg" style="font-size: 1.0625rem !important;">
-        <i class="entypo-check" style="font-size: 1.25rem;"></i>
-        <span>Approve Selected</span>
-    </button>
-    <button onclick="bulkDecline()" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition shadow-md hover:shadow-lg" style="font-size: 1.0625rem !important;">
-        <i class="entypo-cancel" style="font-size: 1.25rem;"></i>
-        <span>Decline Selected</span>
-    </button>
-    <button onclick="bulkPending()" class="inline-flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-bold transition shadow-md hover:shadow-lg" style="font-size: 1.0625rem !important;">
-        <i class="entypo-clock" style="font-size: 1.25rem;"></i>
-        <span>Mark Pending</span>
-    </button>
-    <button onclick="clearSelection()" class="inline-flex items-center gap-2 bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-3 rounded-lg font-bold transition shadow-md hover:shadow-lg" style="font-size: 1.0625rem !important;">
-        <i class="entypo-cancel-circled" style="font-size: 1.25rem;"></i>
-        <span>Clear</span>
-    </button>
+<div class="bulk-actions-bar" id="bulk-actions-bar" aria-live="polite">
+    <span class="bulk-actions-count" id="selected-count">0 selected</span>
+    <button type="button" class="approve" onclick="bulkApprove()"><i class="fa fa-check"></i> Approve</button>
+    <button type="button" class="decline" onclick="bulkDecline()"><i class="fa fa-times"></i> Decline</button>
+    <button type="button" class="pending" onclick="bulkPending()"><i class="fa fa-clock"></i> Pending</button>
+    <button type="button" onclick="clearSelection()"><i class="fa fa-undo"></i> Clear</button>
 </div>
 
-<script type="text/javascript">
+<script>
+$(function() {
+    loadTable();
+});
 
-    $(function(ev) {
-        loadTable(); /*load automatically*/
-    })
-    
-    function loadTable(filters = {}) {
-        $.ajax({
-            url: '<?= site_url('admin/study_material/load');?>',
-            type: 'post',
-            dataType: 'html',
-            cache: false,
-            data: filters
-        })
-        .done(function(response) {
-            $('#table_holder').html(response);
-        })
-        .fail(function(err) {
-            $('#table_holder').html('<div class="p-12 text-center"><p class="text-red-600 text-lg">Could not load table, please try again!</p></div>');
-        })
+function studyNotify(message, type) {
+    if (typeof showAjaxModal_alert === 'function') {
+        showAjaxModal_alert(message, type || 'info');
+    } else {
+        alert(message);
     }
+}
 
-    function applyFilters() {
-        var filters = {
-            class_id: $('#filter_class').val(),
-            teacher_id: $('#filter_teacher').val(),
-            start_date: $('#filter_start_date').val(),
-            end_date: $('#filter_end_date').val()
-        };
-        loadTable(filters);
-    }
+function currentStudyFilters() {
+    return {
+        class_id: $('#filter_class').val(),
+        teacher_id: $('#filter_teacher').val(),
+        start_date: $('#filter_start_date').val(),
+        end_date: $('#filter_end_date').val()
+    };
+}
 
-    function clearFilters() {
-        $('#filter_class').val('');
-        $('#filter_teacher').val('');
-        $('#filter_start_date').val('');
-        $('#filter_end_date').val('');
-        loadTable();
-    }
+function loadTable(filters) {
+    filters = filters || {};
+    $('#table_holder').html('<div class="study-loading"><span>Loading study materials… <i class="fa fa-spinner fa-spin"></i></span></div>');
 
-    function updateStatus(status, id) {
-        if(status == '') return;
+    $.ajax({
+        url: '<?php echo site_url('admin/study_material/load'); ?>',
+        type: 'POST',
+        dataType: 'html',
+        cache: false,
+        data: filters
+    }).done(function(response) {
+        $('#table_holder').html(response);
+        updateBulkActions();
+    }).fail(function() {
+        $('#table_holder').html('<div class="study-error">Could not load study materials. Please try again.</div>');
+    });
+}
 
-        $.ajax({
-            url: '<?= site_url('admin/study_material/update_status');?>',
-            type: 'post',
-            dataType: 'text',
-            cache: false,
-            data: {id: id, status: status},
-        })
-        .done(function(response) {
-            $('#table_holder').html('<div class="flex items-center justify-center p-12"><p class="text-lg text-gray-600">Loading data, please wait... <i class="fa-solid fa-spinner fa-pulse ml-2"></i></p></div>');
-            // Reapply current filters
-            applyFilters();
-        })
-        .fail(function(err) {
-           alert(err.responseText);
-        })
-    }
-    
-    // Bulk actions functions
-    function updateBulkActions() {
-        const selectedCheckboxes = $('.material-checkbox:checked');
-        const count = selectedCheckboxes.length;
-        
-        $('#selected-count').text(count + ' selected');
-        
-        if (count > 0) {
-            $('#bulk-actions-bar').addClass('show');
+function applyFilters() {
+    loadTable(currentStudyFilters());
+}
+
+function clearFilters() {
+    $('#filter_class, #filter_teacher').val('');
+    $('#filter_start_date, #filter_end_date').val('');
+    clearSelection();
+    loadTable();
+}
+
+function updateStatus(status, id) {
+    if (!status || !id) return;
+
+    $.ajax({
+        url: '<?php echo site_url('admin/study_material/update_status'); ?>',
+        type: 'POST',
+        dataType: 'text',
+        cache: false,
+        data: {id: id, status: status}
+    }).done(function() {
+        loadTable(currentStudyFilters());
+    }).fail(function(xhr) {
+        studyNotify(xhr.responseText || 'Could not update the material status.', 'error');
+    });
+}
+
+function updateBulkActions() {
+    var count = $('.material-checkbox:checked').length;
+    $('#selected-count').text(count + ' selected');
+    $('#bulk-actions-bar').toggleClass('show', count > 0);
+}
+
+function getSelectedIds() {
+    var ids = [];
+    $('.material-checkbox:checked').each(function() {
+        ids.push($(this).data('id'));
+    });
+    return ids;
+}
+
+function bulkApprove() {
+    var ids = getSelectedIds();
+    if (!ids.length) return;
+    showConfirmModal(
+        'Approve Materials',
+        'Are you sure you want to approve ' + ids.length + ' selected material(s)?',
+        function() { bulkUpdateStatus(ids, 'Approved'); },
+        'Approve',
+        'success'
+    );
+}
+
+function bulkDecline() {
+    var ids = getSelectedIds();
+    if (!ids.length) return;
+    showConfirmModal(
+        'Decline Materials',
+        'Are you sure you want to decline ' + ids.length + ' selected material(s)?',
+        function() { bulkUpdateStatus(ids, 'Declined'); },
+        'Decline',
+        'danger'
+    );
+}
+
+function bulkPending() {
+    var ids = getSelectedIds();
+    if (!ids.length) return;
+    showConfirmModal(
+        'Mark as Pending',
+        'Are you sure you want to mark ' + ids.length + ' selected material(s) as pending?',
+        function() { bulkUpdateStatus(ids, 'Pending'); },
+        'Mark Pending',
+        'warning'
+    );
+}
+
+function bulkUpdateStatus(ids, status) {
+    $.ajax({
+        url: '<?php echo site_url('admin/study_material/bulk_update_status'); ?>',
+        type: 'POST',
+        dataType: 'json',
+        data: {ids: ids, status: status}
+    }).done(function(response) {
+        if (response.status === 'success') {
+            studyNotify(response.message || 'Status updated successfully.', 'success');
+            clearSelection();
+            loadTable(currentStudyFilters());
         } else {
-            $('#bulk-actions-bar').removeClass('show');
+            studyNotify(response.message || 'Failed to update status.', 'error');
         }
-    }
-    
-    function getSelectedIds() {
-        const ids = [];
-        $('.material-checkbox:checked').each(function() {
-            ids.push($(this).data('id'));
-        });
-        return ids;
-    }
-    
-    function bulkApprove() {
-        const ids = getSelectedIds();
-        if (ids.length === 0) return;
-        
-        showConfirmModal(
-            'Approve Materials',
-            `Are you sure you want to approve ${ids.length} selected material(s)?`,
-            function() {
-                bulkUpdateStatus(ids, 'Approved');
-            },
-            'Approve',
-            'success'
-        );
-    }
-    
-    function bulkDecline() {
-        const ids = getSelectedIds();
-        if (ids.length === 0) return;
-        
-        showConfirmModal(
-            'Decline Materials',
-            `Are you sure you want to decline ${ids.length} selected material(s)?`,
-            function() {
-                bulkUpdateStatus(ids, 'Declined');
-            },
-            'Decline',
-            'danger'
-        );
-    }
-    
-    function bulkPending() {
-        const ids = getSelectedIds();
-        if (ids.length === 0) return;
-        
-        showConfirmModal(
-            'Mark as Pending',
-            `Are you sure you want to mark ${ids.length} selected material(s) as pending?`,
-            function() {
-                bulkUpdateStatus(ids, 'Pending');
-            },
-            'Mark Pending',
-            'warning'
-        );
-    }
-    
-    function bulkUpdateStatus(ids, status) {
-        $.ajax({
-            url: '<?= site_url('admin/study_material/bulk_update_status');?>',
-            type: 'post',
-            dataType: 'json',
-            data: {ids: ids, status: status},
-        })
-        .done(function(response) {
-            if (response.status === 'success') {
-                showAjaxModal_alert(response.message || 'Status updated successfully', 'Success', false);
-                clearSelection();
-                applyFilters();
-            } else {
-                showAjaxModal_alert(response.message || 'Failed to update status', 'Error', true);
-            }
-        })
-        .fail(function(err) {
-            showAjaxModal_alert('Error updating status: ' + (err.responseText || 'Unknown error'), 'Error', true);
-        })
-    }
-    
-    function clearSelection() {
-        $('.material-checkbox').prop('checked', false);
-        $('#select-all').prop('checked', false);
-        updateBulkActions();
-    }
-    
-    function toggleSelectAll(checked) {
-        $('.material-checkbox').prop('checked', checked);
-        updateBulkActions();
-    }
+    }).fail(function(xhr) {
+        studyNotify(xhr.responseText || 'Could not update the selected materials.', 'error');
+    });
+}
+
+function clearSelection() {
+    $('.material-checkbox').prop('checked', false);
+    $('#select-all').prop('checked', false);
+    updateBulkActions();
+}
+
+function toggleSelectAll(checked) {
+    $('.material-checkbox').prop('checked', checked);
+    updateBulkActions();
+}
 </script>
