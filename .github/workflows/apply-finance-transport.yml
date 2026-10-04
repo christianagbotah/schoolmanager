@@ -46,13 +46,13 @@ jobs:
           test "$(git rev-parse finance-local)" = '6d9e2dd57cc5b6523bcfe104a8e690ba7a08cd14'
           SOURCE_TREE="$(git rev-parse finance-local^{tree})"
           echo "Bundled Finance tree: ${SOURCE_TREE}"
-          test "${SOURCE_TREE}" = 'b6a1ac812a55b3b08e21550fd29798e5d67d74d7'
+          test "${SOURCE_TREE}" = 'b6a1ac812a965bafb5ad2d3040fc9bee0d332463'
           git read-tree "${SOURCE_TREE}"
           git checkout-index -a -f
           rm -f .github/workflows/apply-finance-transport.yml
           INDEX_TREE="$(git write-tree)"
           echo "Prepared Finance tree: ${INDEX_TREE}"
-          test "${INDEX_TREE}" = 'b6a1ac812a55b3b08e21550fd29798e5d67d74d7'
+          test "${INDEX_TREE}" = 'b6a1ac812a965bafb5ad2d3040fc9bee0d332463'
 
       - name: Commit exact tree and verify
         shell: bash
@@ -63,7 +63,7 @@ jobs:
           git commit -m 'fix(finance): harden discount and modification approvals'
           FINAL_TREE="$(git rev-parse HEAD^{tree})"
           echo "Final tree: ${FINAL_TREE}"
-          test "${FINAL_TREE}" = 'b6a1ac812a55b3b08e21550fd29798e5d67d74d7'
+          test "${FINAL_TREE}" = 'b6a1ac812a965bafb5ad2d3040fc9bee0d332463'
 
       - name: Push verified Finance tree
         shell: bash
