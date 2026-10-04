@@ -1396,97 +1396,127 @@ class Crud_model extends MY_Model {
     }
 
     ////////private message//////
+    function is_valid_message_user_key($user_key) {
+        $user_key = trim((string)$user_key);
+        if (!preg_match('/^(admin|accountant|librarian|parent|student|teacher)-(\d+)$/', $user_key, $matches)) {
+            return false;
+        }
+        $table = $matches[1];
+        $id = (int)$matches[2];
+        return $id > 0 && $this->db->where($table . '_id', $id)->count_all_results($table) === 1;
+    }
+
+    function is_message_thread_participant($message_thread_code, $user_key = null) {
+        $message_thread_code = trim((string)$message_thread_code);
+        if ($message_thread_code === '') return false;
+        if ($user_key === null) {
+            $user_key = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
+        }
+        $thread = $this->db->get_where('message_thread', array('message_thread_code' => $message_thread_code))->row_array();
+        return $thread && ($thread['sender'] === $user_key || $thread['reciever'] === $user_key);
+    }
+
     function send_new_private_message() {
-        $message    = $this->input->post('message');
-        $timestamp  = strtotime(date("Y-m-d H:i:s"));
+        $message = trim((string)$this->input->post('message'));
+        $timestamp = time();
+        $reciever = trim((string)$this->input->post('reciever'));
+        $sender = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
 
-        $reciever   = $this->input->post('reciever');
-        $sender     = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
-
-        //check if the thread between those 2 users exists, if not create new thread
-        $num1 = $this->db->get_where('message_thread', array('sender' => $sender, 'reciever' => $reciever))->num_rows();
-        $num2 = $this->db->get_where('message_thread', array('sender' => $reciever, 'reciever' => $sender))->num_rows();
-
-        //check if file is attached or not
-        if ($_FILES['attached_file_on_messaging']['name'] != "") {
-          $data_message['attached_file_name'] = $_FILES['attached_file_on_messaging']['name'];
+        if ($message === '' || !$this->is_valid_message_user_key($sender) || !$this->is_valid_message_user_key($reciever) || $sender === $reciever) {
+            return false;
         }
 
-        if ($num1 == 0 && $num2 == 0) {
-            $message_thread_code                        = substr(md5(rand(100000000, 20000000000)), 0, 15);
-            $data_message_thread['message_thread_code'] = $message_thread_code;
-            $data_message_thread['sender']              = $sender;
-            $data_message_thread['reciever']            = $reciever;
-            $this->db->insert('message_thread', $data_message_thread);
+        $this->db->trans_start();
+        $thread = $this->db->where('sender', $sender)->where('reciever', $reciever)->get('message_thread')->row_array();
+        if (!$thread) {
+            $thread = $this->db->where('sender', $reciever)->where('reciever', $sender)->get('message_thread')->row_array();
         }
-        if ($num1 > 0)
-            $message_thread_code = $this->db->get_where('message_thread', array('sender' => $sender, 'reciever' => $reciever))->row()->message_thread_code;
-        if ($num2 > 0)
-            $message_thread_code = $this->db->get_where('message_thread', array('sender' => $reciever, 'reciever' => $sender))->row()->message_thread_code;
 
+        if ($thread) {
+            $message_thread_code = $thread['message_thread_code'];
+        } else {
+            $message_thread_code = bin2hex(random_bytes(8));
+            $this->db->insert('message_thread', array(
+                'message_thread_code' => $message_thread_code,
+                'sender' => $sender,
+                'reciever' => $reciever,
+                'last_message_timestamp' => $timestamp
+            ));
+        }
 
-        $data_message['message_thread_code']    = $message_thread_code;
-        $data_message['message']                = $message;
-        $data_message['sender']                 = $sender;
-        $data_message['timestamp']              = $timestamp;
+        $data_message = array(
+            'message_thread_code' => $message_thread_code,
+            'message' => $message,
+            'sender' => $sender,
+            'timestamp' => $timestamp,
+            'read_status' => 0
+        );
+        if (!empty($_FILES['attached_file_on_messaging']['name'])) {
+            $data_message['attached_file_name'] = basename($_FILES['attached_file_on_messaging']['name']);
+        }
         $this->db->insert('message', $data_message);
+        $this->db->where('message_thread_code', $message_thread_code)->update('message_thread', array('last_message_timestamp' => $timestamp));
+        $this->db->trans_complete();
 
-        // notify email to email reciever
-//        $this->email_model->notify_email('new_message_notification', $this->db->insert_id());
-
-        return $message_thread_code;
+        return $this->db->trans_status() ? $message_thread_code : false;
     }
 
     function send_reply_message($message_thread_code) {
-        $message    = $this->input->post('message');
-        $timestamp  = strtotime(date("Y-m-d H:i:s"));
-        $sender     = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
-        //check if file is attached or not
-        if ($_FILES['attached_file_on_messaging']['name'] != "") {
-          $data_message['attached_file_name'] = $_FILES['attached_file_on_messaging']['name'];
+        $message = trim((string)$this->input->post('message'));
+        $timestamp = time();
+        $sender = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
+        if ($message === '' || !$this->is_message_thread_participant($message_thread_code, $sender)) {
+            return false;
         }
-        $data_message['message_thread_code']    = $message_thread_code;
-        $data_message['message']                = $message;
-        $data_message['sender']                 = $sender;
-        $data_message['timestamp']              = $timestamp;
-        $this->db->insert('message', $data_message);
 
-        // notify email to email reciever
-        //$this->email_model->notify_email('new_message_notification', $this->db->insert_id());
+        $data_message = array(
+            'message_thread_code' => $message_thread_code,
+            'message' => $message,
+            'sender' => $sender,
+            'timestamp' => $timestamp,
+            'read_status' => 0
+        );
+        if (!empty($_FILES['attached_file_on_messaging']['name'])) {
+            $data_message['attached_file_name'] = basename($_FILES['attached_file_on_messaging']['name']);
+        }
+
+        $this->db->trans_start();
+        $this->db->insert('message', $data_message);
+        $this->db->where('message_thread_code', $message_thread_code)->update('message_thread', array('last_message_timestamp' => $timestamp));
+        $this->db->trans_complete();
+        return $this->db->trans_status();
     }
 
     function send_reply_group_message($message_thread_code) {
         $message    = $this->input->post('message');
         $timestamp  = strtotime(date("Y-m-d H:i:s"));
         $sender     = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
-        //check if file is attached or not
         if ($_FILES['attached_file_on_messaging']['name'] != "") {
-          $data_message['attached_file_name'] = $_FILES['attached_file_on_messaging']['name'];
+          $data_message['attached_file_name'] = basename($_FILES['attached_file_on_messaging']['name']);
         }
-        $data_message['group_message_thread_code']    = $message_thread_code;
-        $data_message['message']                = $message;
-        $data_message['sender']                 = $sender;
-        $data_message['timestamp']              = $timestamp;
+        $data_message['group_message_thread_code'] = $message_thread_code;
+        $data_message['message'] = $message;
+        $data_message['sender'] = $sender;
+        $data_message['timestamp'] = $timestamp;
         $this->db->insert('group_message', $data_message);
     }
 
     function mark_thread_messages_read($message_thread_code) {
-        // mark read only the oponnent messages of this thread, not currently logged in user's sent messages
         $current_user = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
+        if (!$this->is_message_thread_participant($message_thread_code, $current_user)) return false;
         $this->db->where('sender !=', $current_user);
         $this->db->where('message_thread_code', $message_thread_code);
         $this->db->update('message', array('read_status' => 1));
+        return true;
     }
 
     function count_unread_message_of_thread($message_thread_code) {
-        $unread_message_counter = 0;
         $current_user = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
-        $messages = $this->db->get_where('message', array('message_thread_code' => $message_thread_code))->result_array();
-        foreach ($messages as $row) {
-            if ($row['sender'] != $current_user && $row['read_status'] == '0')
-                $unread_message_counter++;
-        }
-        return $unread_message_counter;
+        if (!$this->is_message_thread_participant($message_thread_code, $current_user)) return 0;
+        return $this->db->where('message_thread_code', $message_thread_code)
+            ->where('sender !=', $current_user)
+            ->where('read_status', 0)
+            ->count_all_results('message');
     }
 
     // QUESTION PAPER

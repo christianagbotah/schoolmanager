@@ -118,6 +118,7 @@ $theme_light = '#' . str_pad(dechex(min(255, $r + 20)), 2, '0', STR_PAD_LEFT) . 
 .phone-message-text { font-size: 12px; line-height: 1.4; color: #1a202c; word-wrap: break-word; }
 .phone-message-time { font-size: 9px; color: #9ca3af; margin-top: 3px; text-align: right; }
 @keyframes messageSlide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.sms-compose-grid { display:grid; grid-template-columns:minmax(0,1fr) 280px; gap:24px; margin-top:24px; }
 @media (max-width: 768px) {
     .messaging-wrapper { padding: 12px; }
     .msg-tabs { flex-direction: column; }
@@ -125,17 +126,19 @@ $theme_light = '#' . str_pad(dechex(min(255, $r + 20)), 2, '0', STR_PAD_LEFT) . 
     .msg-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e5e7eb; }
     .msg-body { min-height: 500px; }
     .sms-container { padding: 20px; }
+    .sms-compose-grid { grid-template-columns: 1fr; }
+    .phone-simulator { margin: 0 auto; max-width: 100%; }
 }
 </style>
 
 <div class="messaging-wrapper">
     <!-- Tabs -->
     <div class="msg-tabs">
-        <button class="msg-tab active" onclick="switchTab('sms')">
+        <button class="msg-tab active" onclick="switchTab('sms', this)">
             <i class="fa fa-mobile-alt"></i>
             <span><?php echo get_phrase('sms_messages'); ?></span>
         </button>
-        <button class="msg-tab" onclick="switchTab('inapp')">
+        <button class="msg-tab" onclick="switchTab('inapp', this)">
             <i class="fa fa-comments"></i>
             <span><?php echo get_phrase('in_app_messages'); ?></span>
         </button>
@@ -153,17 +156,17 @@ $theme_light = '#' . str_pad(dechex(min(255, $r + 20)), 2, '0', STR_PAD_LEFT) . 
             </div>
 
             <div class="sms-type-selector">
-                <div class="sms-type-card" onclick="showSMSForm('individual')">
+                <div class="sms-type-card" onclick="showSMSForm('individual', this)">
                     <i class="fa fa-user"></i>
                     <h3><?php echo get_phrase('individual_sms'); ?></h3>
                     <p><?php echo get_phrase('send_to_specific_person'); ?></p>
                 </div>
-                <div class="sms-type-card" onclick="showSMSForm('bulk')">
+                <div class="sms-type-card" onclick="showSMSForm('bulk', this)">
                     <i class="fa fa-users"></i>
                     <h3><?php echo get_phrase('bulk_sms'); ?></h3>
                     <p><?php echo get_phrase('send_to_groups'); ?></p>
                 </div>
-                <div class="sms-type-card" onclick="showSMSForm('custom')">
+                <div class="sms-type-card" onclick="showSMSForm('custom', this)">
                     <i class="fa fa-phone"></i>
                     <h3><?php echo get_phrase('custom_numbers'); ?></h3>
                     <p><?php echo get_phrase('enter_phone_numbers'); ?></p>
@@ -226,23 +229,25 @@ $theme_light = '#' . str_pad(dechex(min(255, $r + 20)), 2, '0', STR_PAD_LEFT) . 
                             else
                                 $user_to_show = explode('-', $row['sender']);
 
+                            if (count($user_to_show) !== 2 || !in_array($user_to_show[0], ['admin','accountant','librarian','parent','student','teacher'], true) || !ctype_digit((string)$user_to_show[1])) continue;
                             $user_to_show_type = $user_to_show[0];
-                            $user_to_show_id = $user_to_show[1];
+                            $user_to_show_id = (int)$user_to_show[1];
                             $user_data = $this->db->get_where($user_to_show_type, array($user_to_show_type . '_id' => $user_to_show_id))->row();
+                            if (!$user_data) continue;
                             $unread_message_number = $this->crud_model->count_unread_message_of_thread($row['message_thread_code']);
-                            $last_message_time = isset($row['last_message_timestamp']) ? $row['last_message_timestamp'] : time();
+                            $last_message_time = !empty($row['last_message_timestamp']) ? (int)$row['last_message_timestamp'] : time();
                             ?>
                             <div class="msg-thread <?php if (isset($current_message_thread_code) && $current_message_thread_code == $row['message_thread_code']) echo 'active'; ?>" 
-                                 data-name="<?php echo strtolower($user_data->name); ?>"
+                                 data-name="<?php echo html_escape(strtolower($user_data->name)); ?>"
                                  onclick="navigation('<?php echo site_url('admin/message/message_read/'.$row['message_thread_code']); ?>')">
                                 <div class="msg-thread-header">
                                     <div>
-                                        <span class="msg-thread-name"><?php echo $user_data->name; ?></span>
+                                        <span class="msg-thread-name"><?php echo html_escape($user_data->name); ?></span>
                                         <?php if ($unread_message_number > 0): ?>
                                             <span class="msg-unread"><?php echo $unread_message_number; ?></span>
                                         <?php endif; ?>
                                     </div>
-                                    <span class="msg-thread-badge"><?php echo ucfirst($user_to_show_type); ?></span>
+                                    <span class="msg-thread-badge"><?php echo html_escape(ucfirst($user_to_show_type)); ?></span>
                                 </div>
                                 <div class="msg-thread-time">
                                     <i class="fa fa-clock"></i> <?php echo date('d M, H:i', $last_message_time); ?>
@@ -272,10 +277,9 @@ $theme_light = '#' . str_pad(dechex(min(255, $r + 20)), 2, '0', STR_PAD_LEFT) . 
 </div>
 
 <script>
-function switchTab(tab) {
-    // Update tab buttons
+function switchTab(tab, button) {
     document.querySelectorAll('.msg-tab').forEach(btn => btn.classList.remove('active'));
-    event.target.closest('.msg-tab').classList.add('active');
+    if(button) button.classList.add('active');
     
     // Update tab content
     document.querySelectorAll('.msg-tab-content').forEach(content => content.classList.remove('active'));
@@ -323,17 +327,15 @@ function deleteMessage(message_thread_code) {
     );
 }
 
-function showSMSForm(type) {
+function showSMSForm(type, card) {
     const container = document.getElementById('smsFormContainer');
     container.style.display = 'block';
     container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     
-    // Remove selected class from all cards
-    document.querySelectorAll('.sms-type-card').forEach(card => card.classList.remove('selected'));
-    // Add selected class to clicked card
-    event.target.closest('.sms-type-card').classList.add('selected');
+    document.querySelectorAll('.sms-type-card').forEach(item => item.classList.remove('selected'));
+    if(card) card.classList.add('selected');
     
-    let formHTML = `<div style="display: grid; grid-template-columns: 1fr 280px; gap: 24px; margin-top: 24px;"><div style="background: white; padding: 32px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); animation: fadeIn 0.3s;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;"><h3 style="margin: 0; color: #1a202c; font-weight: 700;"><i class="fa fa-${type === 'individual' ? 'user' : type === 'bulk' ? 'users' : 'phone'}"></i> ${type === 'individual' ? '<?php echo get_phrase("individual_sms"); ?>' : type === 'bulk' ? '<?php echo get_phrase("bulk_sms"); ?>' : '<?php echo get_phrase("custom_numbers"); ?>'}</h3><button onclick="document.getElementById('smsFormContainer').style.display='none'" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;"><i class="fa fa-times"></i> <?php echo get_phrase("close"); ?></button></div><form id="smsForm">`;
+    let formHTML = `<div class="sms-compose-grid"><div style="background: white; padding: 32px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); animation: fadeIn 0.3s;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;"><h3 style="margin: 0; color: #1a202c; font-weight: 700;"><i class="fa fa-${type === 'individual' ? 'user' : type === 'bulk' ? 'users' : 'phone'}"></i> ${type === 'individual' ? '<?php echo get_phrase("individual_sms"); ?>' : type === 'bulk' ? '<?php echo get_phrase("bulk_sms"); ?>' : '<?php echo get_phrase("custom_numbers"); ?>'}</h3><button onclick="document.getElementById('smsFormContainer').style.display='none'" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;"><i class="fa fa-times"></i> <?php echo get_phrase("close"); ?></button></div><form id="smsForm">`;
     
     if(type === 'individual') {
         formHTML += `<div style="margin-bottom: 20px;"><label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;"><i class="fa fa-users"></i> Select Recipients:</label><div class="tags-input-container" id="recipientsContainer" onclick="document.getElementById('recipientsInput').focus()"><input type="text" id="recipientsInput" class="tags-input" placeholder="Type to search and select..."></div><input type="hidden" name="reciever[]" id="recipientsHidden"><div style="margin-top: 8px; max-height: 200px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; display: none;" id="recipientsList"></div></div><input type="hidden" name="bulk" value="1">`;
@@ -343,7 +345,7 @@ function showSMSForm(type) {
         formHTML += `<div style="margin-bottom: 20px;"><label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;"><i class="fa fa-phone"></i> <?php echo get_phrase("phone_numbers"); ?>:</label><div class="tags-input-container" id="phoneContainer" onclick="document.getElementById('phoneInput').focus()"><input type="text" id="phoneInput" class="tags-input" placeholder="Enter phone number and press Enter..."></div><input type="hidden" name="phone[]" id="phoneHidden"><small style="color: #6b7280; margin-top: 4px; display: block;">Press Enter or comma to add each number</small></div><input type="hidden" name="bulk" value="5">`;
     }
     
-    formHTML += `<div style="margin-bottom: 20px;"><label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;"><i class="fa fa-comment"></i> <?php echo get_phrase("message"); ?>:</label><textarea id="smsMessage" name="message" required rows="5" class="sms-form-textarea" placeholder="Type your message..." onkeyup="updateSMSPreview(this)"></textarea><div style="display: flex; justify-content: space-between; margin-top: 4px;"><small style="color: #6b7280;"><span id="charCount">0</span>/160 characters</small><small style="color: #6b7280;"><span id="smsCount">1</span> SMS</small></div></div><button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer;"><i class="fa fa-paper-plane"></i> <?php echo get_phrase("send_sms"); ?></button></form></div><div><div class="phone-simulator"><div class="phone-screen"><div class="phone-notch"><div class="phone-camera"></div></div><div class="phone-status"><span>9:41</span><span><i class="fa fa-signal"></i> <i class="fa fa-wifi"></i> <i class="fa fa-battery-full"></i></span></div><div class="phone-header"><div class="phone-avatar"><?php echo strtoupper(substr($sms_sender, 0, 1)); ?></div><div class="phone-contact"><div class="phone-contact-name"><?php echo $sms_sender; ?></div><div class="phone-contact-number">SMS Preview</div></div></div><div class="phone-messages" id="phoneMessages"><div style="text-align: center; color: #9ca3af; font-size: 12px; padding: 20px;">Type your message to see preview</div></div></div></div></div></div>`;
+    formHTML += `<div style="margin-bottom: 20px;"><label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;"><i class="fa fa-comment"></i> <?php echo get_phrase("message"); ?>:</label><textarea id="smsMessage" name="message" required rows="5" class="sms-form-textarea" placeholder="Type your message..." onkeyup="updateSMSPreview(this)"></textarea><div style="display: flex; justify-content: space-between; margin-top: 4px;"><small style="color: #6b7280;"><span id="charCount">0</span>/160 characters</small><small style="color: #6b7280;"><span id="smsCount">1</span> SMS</small></div></div><button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer;"><i class="fa fa-paper-plane"></i> <?php echo get_phrase("send_sms"); ?></button></form></div><div><div class="phone-simulator"><div class="phone-screen"><div class="phone-notch"><div class="phone-camera"></div></div><div class="phone-status"><span>9:41</span><span><i class="fa fa-signal"></i> <i class="fa fa-wifi"></i> <i class="fa fa-battery-full"></i></span></div><div class="phone-header"><div class="phone-avatar"><?php echo html_escape(strtoupper(substr($sms_sender, 0, 1))); ?></div><div class="phone-contact"><div class="phone-contact-name"><?php echo html_escape($sms_sender); ?></div><div class="phone-contact-number">SMS Preview</div></div></div><div class="phone-messages" id="phoneMessages"><div style="text-align: center; color: #9ca3af; font-size: 12px; padding: 20px;">Type your message to see preview</div></div></div></div></div></div>`;
     
     container.innerHTML = formHTML;
     
@@ -390,12 +392,16 @@ function updateSMSPreview(textarea) {
     document.getElementById('smsCount').textContent = smsCount;
     
     const phoneMessages = document.getElementById('phoneMessages');
+    phoneMessages.innerHTML = '';
     if(message.trim()) {
         const now = new Date();
         const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-        phoneMessages.innerHTML = `<div class="phone-message"><div class="phone-message-text">${message.replace(/\n/g, '<br>')}</div><div class="phone-message-time">${time}</div></div>`;
+        const bubble = document.createElement('div'); bubble.className = 'phone-message';
+        const body = document.createElement('div'); body.className = 'phone-message-text'; body.textContent = message;
+        const stamp = document.createElement('div'); stamp.className = 'phone-message-time'; stamp.textContent = time;
+        bubble.appendChild(body); bubble.appendChild(stamp); phoneMessages.appendChild(bubble);
     } else {
-        phoneMessages.innerHTML = '<div style="text-align: center; color: #9ca3af; font-size: 12px; padding: 20px;">Type your message to see preview</div>';
+        const empty = document.createElement('div'); empty.style.cssText = 'text-align:center;color:#9ca3af;font-size:12px;padding:20px;'; empty.textContent = 'Type your message to see preview'; phoneMessages.appendChild(empty);
     }
 }
 
@@ -424,7 +430,7 @@ if(!empty($st_ids_array)) {
         }
     }
 }
-echo json_encode($all_recipients);
+echo json_encode($all_recipients, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 ?>;
 
 let selectedRecipients = [];
@@ -445,12 +451,21 @@ function initRecipientsTags() {
         ).slice(0, 10);
         
         if(filtered.length > 0) {
-            list.innerHTML = filtered.map(r => 
-                `<div style="padding: 10px; cursor: pointer; border-bottom: 1px solid #f3f4f6; hover:background: #f9fafb;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='white'" onclick="addRecipient('${r.value}', '${r.label}', '${r.type}')">
-                    <div style="font-weight: 600; font-size: 14px;">${r.label}</div>
-                    <div style="font-size: 12px; color: #9ca3af;">${r.type}</div>
-                </div>`
-            ).join('');
+            list.innerHTML = '';
+            filtered.forEach(function(r) {
+                const item = document.createElement('div');
+                item.style.cssText = 'padding:10px;cursor:pointer;border-bottom:1px solid #f3f4f6;';
+                item.addEventListener('mouseenter', function(){ item.style.background = '#f9fafb'; });
+                item.addEventListener('mouseleave', function(){ item.style.background = 'white'; });
+                item.addEventListener('click', function(){ addRecipient(r.value, r.label, r.type); });
+                const name = document.createElement('div');
+                name.style.cssText = 'font-weight:600;font-size:14px;';
+                name.textContent = r.label;
+                const type = document.createElement('div');
+                type.style.cssText = 'font-size:12px;color:#9ca3af;';
+                type.textContent = r.type;
+                item.appendChild(name); item.appendChild(type); list.appendChild(item);
+            });
             list.style.display = 'block';
         } else {
             list.style.display = 'none';
@@ -464,7 +479,12 @@ function addRecipient(value, label, type) {
     const input = document.getElementById('recipientsInput');
     const tag = document.createElement('div');
     tag.className = 'tag-item';
-    tag.innerHTML = `<span>${label} <small>(${type})</small></span><span class="tag-remove" onclick="removeRecipient('${value}', this.parentElement)">×</span>`;
+    const text = document.createElement('span');
+    text.textContent = label + ' (' + type + ')';
+    const remove = document.createElement('span');
+    remove.className = 'tag-remove'; remove.textContent = '×';
+    remove.addEventListener('click', function(){ removeRecipient(value, tag); });
+    tag.appendChild(text); tag.appendChild(remove);
     container.insertBefore(tag, input);
     input.value = '';
     document.getElementById('recipientsList').style.display = 'none';
@@ -503,7 +523,10 @@ function addPhoneNumber() {
         const container = document.getElementById('phoneContainer');
         const tag = document.createElement('div');
         tag.className = 'tag-item';
-        tag.innerHTML = `<span>${number}</span><span class="tag-remove" onclick="removePhoneNumber('${number}', this.parentElement)">×</span>`;
+        const text = document.createElement('span'); text.textContent = number;
+        const remove = document.createElement('span'); remove.className = 'tag-remove'; remove.textContent = '×';
+        remove.addEventListener('click', function(){ removePhoneNumber(number, tag); });
+        tag.appendChild(text); tag.appendChild(remove);
         container.insertBefore(tag, input);
         input.value = '';
         document.getElementById('phoneHidden').value = phoneNumbers.join(',');

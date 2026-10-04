@@ -19921,293 +19921,253 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->load->view('backend/admin/noticeboard');
 	}
 	/* private messaging */
+	private function prepareMessageAttachment($field, $subdirectory, $max_size = 4097152) {
+		if (empty($_FILES[$field]) || empty($_FILES[$field]['name']) || (int)$_FILES[$field]['error'] === UPLOAD_ERR_NO_FILE) {
+			return ['ok' => true, 'name' => ''];
+		}
+		$file = $_FILES[$field];
+		if ((int)$file['error'] !== UPLOAD_ERR_OK) return ['ok' => false, 'message' => 'Attachment upload failed.'];
+		if ((int)$file['size'] > $max_size) return ['ok' => false, 'message' => get_phrase('file_size_can_not_be_larger_that_4_Megabyte')];
+		if (!is_uploaded_file($file['tmp_name'])) return ['ok' => false, 'message' => 'Invalid attachment upload.'];
+
+		$extension = strtolower(pathinfo(basename($file['name']), PATHINFO_EXTENSION));
+		$allowed_extensions = ['pdf','doc','docx','jpg','jpeg','png'];
+		if (!in_array($extension, $allowed_extensions, true)) return ['ok' => false, 'message' => 'Unsupported attachment type.'];
+
+		if (function_exists('finfo_open')) {
+			$finfo = finfo_open(FILEINFO_MIME_TYPE);
+			$mime = $finfo ? finfo_file($finfo, $file['tmp_name']) : '';
+			if ($finfo) finfo_close($finfo);
+			$allowed_mimes = [
+				'application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+				'application/zip','image/jpeg','image/png'
+			];
+			if ($mime && !in_array($mime, $allowed_mimes, true)) return ['ok' => false, 'message' => 'Attachment content does not match an allowed file type.'];
+		}
+
+		$directory = FCPATH . 'uploads/' . trim($subdirectory, '/') . '/';
+		if (!is_dir($directory) && !@mkdir($directory, 0755, true)) return ['ok' => false, 'message' => 'Attachment directory is unavailable.'];
+		$stem = preg_replace('/[^A-Za-z0-9_-]+/', '_', pathinfo(basename($file['name']), PATHINFO_FILENAME));
+		$stem = trim(substr($stem ?: 'attachment', 0, 60), '_');
+		$file_name = 'msg_' . date('YmdHis') . '_' . bin2hex(random_bytes(4)) . '_' . $stem . '.' . $extension;
+		if (!move_uploaded_file($file['tmp_name'], $directory . $file_name)) return ['ok' => false, 'message' => 'Attachment could not be saved.'];
+		$_FILES[$field]['name'] = $file_name;
+		return ['ok' => true, 'name' => $file_name];
+	}
+
+	private function appendSmsRecipients(&$phones, &$names, $raw_phone, $name = '') {
+		foreach (preg_split('/[,\/;]+/', (string)$raw_phone) as $part) {
+			$number = preg_replace('/[^0-9+]/', '', trim($part));
+			if ($number === '' || !preg_match('/^\+?[0-9]{7,15}$/', $number)) continue;
+			if (in_array($number, $phones, true)) continue;
+			$phones[] = $number;
+			$names[] = (string)$name;
+		}
+	}
+
+	private function messageRequestFailed($message, $redirect_url, $status = 422) {
+		if ($this->input->is_ajax_request()) {
+			$this->output->set_status_header($status);
+			echo json_encode(['status' => 'error', 'message' => $message]);
+			return;
+		}
+		$this->session->set_flashdata('error_message', $message);
+		redirect($redirect_url);
+	}
+
+	private function messageRequestSucceeded($message, $redirect_url, $payload = []) {
+		if ($this->input->is_ajax_request()) {
+			echo json_encode(array_merge(['status' => 'success', 'message' => $message], $payload));
+			return;
+		}
+		$this->session->set_flashdata('flash_message', $message);
+		redirect($redirect_url);
+	}
+
+	private function removeMessageAttachment($file_name, $subdirectory = 'private_messaging_attached_file') {
+		if (empty($file_name)) return;
+		$path = FCPATH . 'uploads/' . trim($subdirectory, '/') . '/' . basename($file_name);
+		if (is_file($path)) @unlink($path);
+	}
 
 	function message($param1 = 'message_home', $param2 = '', $param3 = '') {
-		//if ($this->session->userdata('admin_login') != 1)
-		//redirect(site_url('login'));
+		if ($this->session->userdata('admin_login') != 1)
+			redirect(site_url('login'));
 
 		$running_year = get_settings('running_year');
 		$running_term = get_settings('running_term');
 		$running_sem = get_settings('running_sem');
 		$max_size = 4097152;
+		$current_user = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
 
 		if ($param1 == 'send_new') {
-			if (!file_exists('uploads/private_messaging_attached_file/')) {
-				$oldmask = umask(0); // helpful when used in linux server
-				mkdir('uploads/private_messaging_attached_file/', 0777);
+			$recipient = trim((string)$this->input->post('reciever'));
+			if (!$this->crud_model->is_valid_message_user_key($recipient) || $recipient === $current_user || trim((string)$this->input->post('message')) === '') {
+				$this->messageRequestFailed('Select a valid recipient and enter a message.', site_url('admin/message/message_new'));
+				return;
 			}
-			if ($_FILES['attached_file_on_messaging']['name'] != "") {
-				if ($_FILES['attached_file_on_messaging']['size'] > $max_size) {
-					$this->session->set_flashdata('error_message', get_phrase('file_size_can_not_be_larger_that_4_Megabyte'));
-					redirect(site_url('admin/message/message_new'));
-				} else {
-					$file_path = 'uploads/private_messaging_attached_file/' . $_FILES['attached_file_on_messaging']['name'];
-					move_uploaded_file($_FILES['attached_file_on_messaging']['tmp_name'], $file_path);
-				}
+			$attachment = $this->prepareMessageAttachment('attached_file_on_messaging', 'private_messaging_attached_file', $max_size);
+			if (!$attachment['ok']) {
+				$this->messageRequestFailed($attachment['message'], site_url('admin/message/message_new'));
+				return;
 			}
 
 			$message_thread_code = $this->crud_model->send_new_private_message();
-
-			//clear the cached database
+			if (!$message_thread_code) {
+				$this->removeMessageAttachment($attachment['name']);
+				$this->messageRequestFailed('Message could not be sent.', site_url('admin/message/message_new'), 500);
+				return;
+			}
 			$this->db->cache_delete();
-
-			$this->session->set_flashdata('flash_message', get_phrase('message_sent!'));
-			redirect(site_url('admin/message/message_read/' . $message_thread_code));
+			$this->messageRequestSucceeded(get_phrase('message_sent!'), site_url('admin/message/message_read/' . $message_thread_code), ['thread_code' => $message_thread_code]);
+			return;
 		}
 
 		if ($param1 == 'send_reply') {
-
-			if (!file_exists('uploads/private_messaging_attached_file/')) {
-				$oldmask = umask(0); // helpful when used in linux server
-				mkdir('uploads/private_messaging_attached_file/', 0777);
+			$reply_url = site_url('admin/message/message_read/' . rawurlencode($param2));
+			if (!$this->crud_model->is_message_thread_participant($param2, $current_user)) {
+				$this->messageRequestFailed('Message thread not found or access denied.', site_url('admin/message'), 403);
+				return;
 			}
-			if ($_FILES['attached_file_on_messaging']['name'] != "") {
-				if ($_FILES['attached_file_on_messaging']['size'] > $max_size) {
-					$this->session->set_flashdata('error_message', get_phrase('file_size_can_not_be_larger_that_4_Megabyte'));
-					redirect(site_url('admin/message/message_read/' . $param2));
-				} else {
-					$file_path = 'uploads/private_messaging_attached_file/' . $_FILES['attached_file_on_messaging']['name'];
-					move_uploaded_file($_FILES['attached_file_on_messaging']['tmp_name'], $file_path);
-				}
+			if (trim((string)$this->input->post('message')) === '') {
+				$this->messageRequestFailed('Message cannot be empty.', $reply_url);
+				return;
 			}
-
-			$this->crud_model->send_reply_message($param2); //$param2 = message_thread_code
-
-			//clear the cached database
+			$attachment = $this->prepareMessageAttachment('attached_file_on_messaging', 'private_messaging_attached_file', $max_size);
+			if (!$attachment['ok']) {
+				$this->messageRequestFailed($attachment['message'], $reply_url);
+				return;
+			}
+			if (!$this->crud_model->send_reply_message($param2)) {
+				$this->removeMessageAttachment($attachment['name']);
+				$this->messageRequestFailed('Reply could not be sent.', $reply_url, 500);
+				return;
+			}
 			$this->db->cache_delete();
-
-			$this->session->set_flashdata('flash_message', get_phrase('message_sent!'));
-			redirect(site_url('admin/message/message_read/' . $param2));
+			$this->messageRequestSucceeded(get_phrase('message_sent!'), $reply_url, ['thread_code' => $param2]);
+			return;
 		}
 
 		if ($param1 == 'message_read') {
-			$page_data['current_message_thread_code'] = $param2; // $param2 = message_thread_code
+			if (!$this->crud_model->is_message_thread_participant($param2, $current_user)) {
+				show_error('Message thread not found or access denied.', 403);
+				return;
+			}
+			$page_data['current_message_thread_code'] = $param2;
 			$this->crud_model->mark_thread_messages_read($param2);
-
-			//clear the cached database
 			$this->db->cache_delete();
 		}
 
 		if ($param1 == 'delete') {
-			$this->db->where('message_thread_code', $param2);
-			$this->db->delete('message_thread');
-
-			$this->db->where('message_thread_code', $param2);
-			$queryExecuted = $this->db->delete('message');
-
-			//clear the cached database
-			$this->db->cache_delete();
-
-			$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
-
-			if($queryExecuted) {
-				$ajaxData['message'] = 'done';
-			} else {
-				$ajaxData['message'] = 'failed';
+			if (!$this->crud_model->is_message_thread_participant($param2, $current_user)) {
+				$this->output->set_status_header(403);
+				echo json_encode(['message' => 'failed', 'error' => 'Access denied', 'route' => 'message']);
+				return;
 			}
-
-			$ajaxData['route'] = 'message';
-			
-			echo json_encode($ajaxData);
+			$attachment_rows = $this->db->select('attached_file_name')->get_where('message', ['message_thread_code' => $param2])->result_array();
+			$this->db->trans_start();
+			$this->db->where('message_thread_code', $param2)->delete('message');
+			$this->db->where('message_thread_code', $param2)->delete('message_thread');
+			$this->db->trans_complete();
+			$queryExecuted = $this->db->trans_status();
+			if ($queryExecuted) {
+				foreach ($attachment_rows as $attachment_row) $this->removeMessageAttachment($attachment_row['attached_file_name']);
+			}
+			$this->db->cache_delete();
+			if ($queryExecuted) $this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+			echo json_encode(['message' => $queryExecuted ? 'done' : 'failed', 'route' => 'message']);
 			return;
-
 		}
 
-		//sms sending
 		if ($param1 == 'sms_send') {
+			$admin = $this->db->select('level')->get_where('admin', ['admin_id' => $this->session->userdata('admin_id')])->row();
+			$admin_level = $admin ? (int)$admin->level : 99;
+			$permission_ok = ($admin_level === 1);
+			if ($admin_level === 2) {
+				$permission = $this->db->get_where('user_permission', ['user_type'=>'admin','user_level'=>'2','permission_title'=>'Can send SMS'])->row();
+				$permission_ok = $permission && (int)$permission->permission_status === 1;
+			}
+			if (!$permission_ok) {
+				if ($param2 == 'sms_submitted') {
+					$this->output->set_status_header(403);
+					echo json_encode(['send_sms' => 'failed - SMS permission denied']);
+					return;
+				}
+				show_error('SMS permission denied.', 403);
+				return;
+			}
 
 			if ($param2 == 'sms_submitted') {
-				$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
-				$admin_contact = substr($this->db->get_where('settings', array('type' => 'phone'))->row()->description, 0, 10,);
+				$active_sms_service = (string)get_settings('active_sms_service');
+				if ($active_sms_service === '' || $active_sms_service === 'disabled') {
+					echo json_encode(['send_sms' => 'failed - SMS service is not activated']);
+					return;
+				}
 
+				$bulk_selector = (int)$this->input->post('bulk');
+				$message = trim(strip_tags(str_replace(['&nbsp;','<br>','<br/>','<br />'], [' ',' ',' ',' '], (string)$this->input->post('message'))));
+				if ($message === '') {
+					echo json_encode(['send_sms' => 'failed - Message cannot be empty']);
+					return;
+				}
 
-				$phone_num = array();
-				///who to send to
-				$bulk_selector = $this->input->post('bulk');
-				$user_id = $this->input->post('reciever');
-				$message = str_replace('&nbsp;', '', $this->input->post('message'));
-				$message = str_replace('<br>', ' ', $message);
-				$message = strip_tags($message);
-				
-				// Fix: Check if phone post data exists and is an array before accessing
-				$phone_data = $this->input->post('phone');
-				if (!empty($phone_data) && is_array($phone_data) && isset($phone_data[0])) {
-					$explode = explode(',', $phone_data[0]);
+				$data_phone = [];
+				$data_user_name = [];
+
+				if ($bulk_selector === 6) {
+					$admins = $this->db->get_where('admin', ['block_limit' => '0'])->result_array();
+					foreach ($admins as $row) $this->appendSmsRecipients($data_phone, $data_user_name, $row['phone'], $row['name']);
+				} elseif ($bulk_selector === 2) {
+					$teachers = $this->db->get_where('teacher', ['block_limit' => '0'])->result_array();
+					foreach ($teachers as $row) $this->appendSmsRecipients($data_phone, $data_user_name, $row['phone'], $row['name']);
+				} elseif ($bulk_selector === 3) {
+					$this->db->where('year', $running_year)->where('mute', '0');
+					$this->db->group_start()->where('term', $running_term)->or_where('sem', $running_sem)->group_end();
+					$enrollments = $this->db->get('enroll')->result_array();
+					$seen_students = [];
+					foreach ($enrollments as $enrollment) {
+						$student_id = (int)$enrollment['student_id'];
+						if (!$student_id || isset($seen_students[$student_id])) continue;
+						$seen_students[$student_id] = true;
+						$student = $this->db->get_where('student', ['student_id' => $student_id])->row_array();
+						if ($student) $this->appendSmsRecipients($data_phone, $data_user_name, $student['phone'], $student['name']);
+					}
+				} elseif ($bulk_selector === 4) {
+					$parents = $this->db->get_where('parent', ['block_limit' => '0'])->result_array();
+					foreach ($parents as $row) $this->appendSmsRecipients($data_phone, $data_user_name, $row['phone'], $row['name']);
+				} elseif ($bulk_selector === 1) {
+					$posted_recipients = (array)$this->input->post('reciever');
+					$recipient_keys = [];
+					foreach ($posted_recipients as $posted) {
+						foreach (explode(',', (string)$posted) as $key) if (trim($key) !== '') $recipient_keys[] = trim($key);
+					}
+					foreach (array_unique($recipient_keys) as $recipient_key) {
+						if (!$this->crud_model->is_valid_message_user_key($recipient_key)) continue;
+						list($table, $id) = explode('-', $recipient_key, 2);
+						$user = $this->db->get_where($table, [$table.'_id' => (int)$id])->row_array();
+						if ($user) $this->appendSmsRecipients($data_phone, $data_user_name, $user['phone'], $user['name']);
+					}
+				} elseif ($bulk_selector === 5) {
+					foreach ((array)$this->input->post('phone') as $posted_phone) {
+						$this->appendSmsRecipients($data_phone, $data_user_name, $posted_phone, '');
+					}
 				} else {
-					$explode = array();
+					echo json_encode(['send_sms' => 'failed - Invalid recipient selection']);
+					return;
 				}
 
-				for ($e = 0; $e < count($explode); $e++) {
-					array_push($phone_num, $explode[$e]);
+				if (!$data_phone) {
+					echo json_encode(['send_sms' => 'failed - No valid recipient phone numbers found']);
+					return;
 				}
-
-				$data_phone = array($admin_contact, '0243618186');
-				$data_user_name = array('Director', 'Developer');
-
-				if ($bulk_selector == 6) {
-					//all admins selected
-					$admins = $this->db->get_where('admin', array('block_limit' => '0'))->result_array();
-
-					foreach ($admins as $a) {
-						if ($a['phone'] != '' || $a['phone'] != null) {
-							array_push($data_phone, trim($a['phone']));
-							$user_name = $a['name'];
-							array_push($data_user_name, $user_name);
-						}
-					}
-
-					$data['send_sms'] = $this->sms_model->send_sms($message, $data_phone, $data_user_name);
-
-				} else if ($bulk_selector == 2) {
-					//all teachers selected
-					$teachers = $this->db->get_where('teacher', array('block_limit' => '0'))->result_array();
-
-					foreach ($teachers as $t) {
-						if ($t['phone'] != '' || $t['phone'] != null) {
-							array_push($data_phone, trim($t['phone']));
-							$user_name = $t['name'];
-							array_push($data_user_name, $user_name);
-						}
-					}
-
-					$data['send_sms'] = $this->sms_model->send_sms($message, $data_phone, $data_user_name);
-
-				} else if ($bulk_selector == 3) {
-					//all students selected
-					$this->db->where('sem', $running_sem);
-					$this->db->or_where('term', $running_term);
-					$students = $this->db->get_where('enroll', array('year' => $running_year, 'mute' => '0'))->result_array();
-
-					foreach ($students as $s) {
-						$query = $this->db->get_where('student', array('student_id' => $s['student_id']));
-						$sphone = trim($query->row()->phone);
-						$user_name = $query->row()->name;
-
-						if ($sphone != '' || $sphone != null) {
-
-							if (strpos($sphone, ',')) {
-								//using multiple numbers separated by ,
-								$pn_array = explode(',', $sphone);
-								for ($n = 0; $n < count($pn_array); $n++) {
-									array_push($data_phone, $pn_array[$n]);
-									array_push($data_user_name, $user_name);
-								}
-
-							} else if (strpos($sphone, '/')) {
-								//using multiple numbers separated by /
-
-								$pn_array = explode('/', $sphone);
-								for ($n = 0; $n < count($pn_array); $n++) {
-									array_push($data_phone, $pn_array[$n]);
-									array_push($data_user_name, $user_name);
-								}
-
-							} else {
-								array_push($data_phone, $sphone);
-
-								array_push($data_user_name, $user_name);
-							}
-						}
-					}
-
-					$data['send_sms'] = $this->sms_model->send_sms($message, $data_phone, $data_user_name);
-
-				} else if ($bulk_selector == 4) {
-					//all parents selected
-					$parents = $this->db->get_where('parent', array('block_limit' => '0'))->result_array();
-
-					foreach ($parents as $p) {
-						$pPhone = trim($p['phone']);
-
-						if ($pPhone != '' || $pPhone != null) {
-
-							if (strpos($pPhone, ',')) {
-								//using multiple numbers separated by ,
-								$pn_array = explode(',', $pPhone);
-								for ($n = 0; $n < count($pn_array); $n++) {
-									array_push($data_phone, $pn_array[$n]);
-
-									$user_name = $p['name'];
-									array_push($data_user_name, $user_name);
-								}
-
-							} else if (strpos($pPhone, '/')) {
-								//using multiple numbers separated by /
-
-								$pn_array = explode('/', $pPhone);
-								for ($n = 0; $n < count($pn_array); $n++) {
-									array_push($data_phone, $pn_array[$n]);
-
-									$user_name = $p['name'];
-									array_push($data_user_name, $user_name);
-								}
-
-							} else {
-								array_push($data_phone, $pPhone);
-								$user_name = $p['name'];
-								array_push($data_user_name, $user_name);
-							}
-
-						}
-					}
-
-					$data['send_sms'] = $this->sms_model->send_sms($message, $data_phone, $data_user_name);
-
-				} else if ($bulk_selector == 1) {
-					//just a single user or a selected number of them were selected
-
-					for ($s = 0; $s < count($user_id); $s++) {
-
-						$user_id_exp = explode('-', $user_id[$s]);
-						
-						// Validate the exploded array has both table name and id
-						if(count($user_id_exp) < 2) {
-							continue; // Skip invalid format
-						}
-						
-						$table_name = $user_id_exp[0];
-						$id = $user_id_exp[1];
-						
-						// Validate table name and id
-						if(empty($table_name) || empty($id)) {
-							continue; // Skip if either is empty
-						}
-
-						$user_phone = trim($this->db->get_where($table_name, array($table_name . '_id' => $id))->row()->phone);
-						$user_name = $this->db->get_where($table_name, array($table_name . '_id' => $id))->row()->name;
-
-						if ($user_phone != '' || $user_phone != null) {
-							array_push($data_phone, $user_phone);
-							array_push($data_user_name, $user_name);
-						} else {
-							//$this->session->set_flashdata('error_message' , get_phrase('SMS Not Sent! No phone number found.'));
-							// redirect(site_url('admin/message/sms_send?success=2'));
-
-							$data['send_sms'] = get_phrase('SMS Not Sent! No phone number found.');
-							echo json_encode($data);
-							return false;
-
-						}
-
-					}
-					$data['send_sms'] = $this->sms_model->send_sms($message, $data_phone, $data_user_name);
-
-				} else if ($bulk_selector == 5) {
-					//Phone number entered
-					if (count($phone_num) > 0) {
-						$data_phone = $phone_num;
-					}
-
-					$data['send_sms'] = $this->sms_model->send_sms($message, $data_phone, '');
-				}
-
+				$data['send_sms'] = $this->sms_model->send_sms($message, $data_phone, $data_user_name);
 				echo json_encode($data);
-				return false;
+				return;
 			}
-
 		}
 
-		$page_data['message_inner_page_name'] = $param1;
+		$allowed_message_views = ['message_home', 'message_new', 'message_read', 'sms_send'];
+		$page_data['message_inner_page_name'] = in_array($param1, $allowed_message_views, true) ? $param1 : 'message_home';
 		$page_data['page_name'] = 'message';
 		$page_data['page_title'] = get_phrase('private_messaging');
 		$page_data['account_type'] = $this->session->userdata('login_type');

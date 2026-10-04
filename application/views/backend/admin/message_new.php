@@ -12,7 +12,7 @@
             <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 8px;">
                 <i class="fa fa-user"></i> <?php echo get_phrase('recipient'); ?>:
             </label>
-            <select class="form-control select2" name="reciever" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px;">
+            <select class="form-control select2" name="reciever" required style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 15px;">
                 <option value=""><?php echo get_phrase('select_a_user'); ?></option>
                 
                 <optgroup label="<?php echo get_phrase('active_student'); ?>">
@@ -22,9 +22,10 @@
                     $students = $this->db->get_where('enroll', array('year' => $running_year, 'mute' => '0', 'term' => $running_term))->result_array();
                     foreach ($students as $row):
                         $student = $this->db->get_where('student', array('student_id' => $row['student_id']))->row();
+                        if (!$student) continue;
                         ?>
                         <option value="student-<?php echo $student->student_id; ?>">
-                            <?php echo $student->name; ?>
+                            <?php echo html_escape($student->name); ?>
                         </option>
                     <?php endforeach; ?>
                 </optgroup>
@@ -34,7 +35,7 @@
                     $teachers = $this->db->get_where('teacher', array('block_limit' => '0'))->result_array();
                     foreach ($teachers as $row): ?>
                         <option value="teacher-<?php echo $row['teacher_id']; ?>">
-                            <?php echo $row['name']; ?>
+                            <?php echo html_escape($row['name']); ?>
                         </option>
                     <?php endforeach; ?>
                 </optgroup>
@@ -61,7 +62,7 @@
                             $parents = $this->db->get('parent')->result_array();
                             foreach ($parents as $row): ?>
                                 <option value="parent-<?php echo $row['parent_id']; ?>">
-                                    <?php echo $row['name']; ?>
+                                    <?php echo html_escape($row['name']); ?>
                                 </option>
                             <?php endforeach;
                         }
@@ -76,7 +77,7 @@
                 <i class="fa fa-message"></i> <?php echo get_phrase('message'); ?>:
             </label>
             <textarea name="message" required 
-                      style="width: 100%; min-height: 200px; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; resize: vertical;"
+                      style="width: 100%; min-height: 200px; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 15px; resize: vertical;"
                       placeholder="<?php echo get_phrase('write_your_message'); ?>..."></textarea>
         </div>
 
@@ -114,12 +115,19 @@ $('#msgComposeForm').submit(function(e) {
         data: new FormData(this),
         cache: false,
         contentType: false,
-        processData: false
+        processData: false,
+        dataType: 'json'
     }).done(function(response) {
-        showAjaxModal_alert('<?php echo get_phrase("message_sent_successfully"); ?>', 'success');
-        setTimeout(() => navigation('<?php echo site_url('admin/message'); ?>'), 2000);
-    }).fail(function() {
-        showAjaxModal_alert('<?php echo get_phrase("error_occurred"); ?>', 'error');
+        if(response.status === 'success') {
+            showAjaxModal_alert(response.message || '<?php echo get_phrase("message_sent_successfully"); ?>', 'success', false);
+            const target = response.thread_code ? '<?php echo site_url('admin/message/message_read/'); ?>' + response.thread_code : '<?php echo site_url('admin/message'); ?>';
+            setTimeout(() => navigation(target), 900);
+        } else {
+            showAjaxModal_alert(response.message || '<?php echo get_phrase("error_occurred"); ?>', 'error');
+        }
+    }).fail(function(xhr) {
+        const response = xhr.responseJSON || {};
+        showAjaxModal_alert(response.message || '<?php echo get_phrase("error_occurred"); ?>', 'error');
     });
 });
 </script>

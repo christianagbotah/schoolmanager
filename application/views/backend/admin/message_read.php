@@ -10,19 +10,22 @@ if($thread->sender == $current_user) {
 } else {
     $partner = explode('-', $thread->sender);
 }
+$allowed_message_types = ['admin','accountant','librarian','parent','student','teacher'];
+if (count($partner) !== 2 || !in_array($partner[0], $allowed_message_types, true) || !ctype_digit((string)$partner[1])) { echo '<div class="msg-empty">Conversation participant not found.</div>'; return; }
 $partner_type = $partner[0];
-$partner_id = $partner[1];
+$partner_id = (int)$partner[1];
 $partner_data = $this->db->get_where($partner_type, array($partner_type . '_id' => $partner_id))->row();
+if (!$partner_data) { echo '<div class="msg-empty">Conversation participant not found.</div>'; return; }
 ?>
 
 <div class="msg-body-header" style="background: <?php echo $theme_color; ?>;">
     <div style="display: flex; align-items: center; gap: 12px;">
-        <img src="<?php echo $this->crud_model->get_image_url($partner_type, $partner_id); ?>" 
+        <img src="<?php echo $this->crud_model->get_image_url($partner_type, $partner_id); ?>"
              style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid white;">
         <div>
-            <h3 style="margin: 0;"><?php echo $partner_data->name; ?></h3>
-            <p style="margin: 0; font-size: 13px; opacity: 0.9;">
-                <i class="fa fa-circle" style="font-size: 8px;"></i> <?php echo ucfirst($partner_type); ?>
+            <h3 style="margin: 0;"><?php echo html_escape($partner_data->name); ?></h3>
+            <p style="margin: 0; font-size: 14px; opacity: 0.9;">
+                <i class="fa fa-circle" style="font-size: 8px;"></i> <?php echo html_escape(ucfirst($partner_type)); ?>
             </p>
         </div>
     </div>
@@ -31,33 +34,35 @@ $partner_data = $this->db->get_where($partner_type, array($partner_type . '_id' 
 <div class="msg-content" id="msgContent">
     <?php foreach ($messages as $row):
         $sender = explode('-', $row['sender']);
+        if (count($sender) !== 2 || !in_array($sender[0], $allowed_message_types, true) || !ctype_digit((string)$sender[1])) continue;
         $sender_account_type = $sender[0];
-        $sender_id = $sender[1];
+        $sender_id = (int)$sender[1];
         $sender_data = $this->db->get_where($sender_account_type, array($sender_account_type . '_id' => $sender_id))->row();
-        $is_sent = ($this->session->userdata($sender_account_type.'_id') == $sender_id);
+        if (!$sender_data) continue;
+        $is_sent = ($current_user === $row['sender']);
         ?>
         
         <div class="msg-bubble <?php echo $is_sent ? 'sent' : ''; ?>">
-            <img src="<?php echo $this->crud_model->get_image_url($sender_account_type, $sender_id); ?>" 
-                 class="msg-avatar" alt="<?php echo $sender_data->name; ?>">
+            <img src="<?php echo $this->crud_model->get_image_url($sender_account_type, $sender_id); ?>"
+                 class="msg-avatar" alt="<?php echo html_escape($sender_data->name); ?>">
             
             <div class="msg-bubble-content">
                 <div class="msg-bubble-header">
-                    <span class="msg-sender-name"><?php echo $sender_data->name; ?></span>
+                    <span class="msg-sender-name"><?php echo html_escape($sender_data->name); ?></span>
                     <span class="msg-timestamp">
                         <i class="fa fa-clock"></i> <?php echo date("d M, Y - H:i", $row['timestamp']); ?>
                     </span>
                 </div>
                 
                 <div class="msg-text">
-                    <?php echo nl2br($row['message']); ?>
+                    <?php echo nl2br(html_escape($row['message'])); ?>
                 </div>
                 
-                <?php if ($row['attached_file_name'] != ''): ?>
-                    <a href="<?php echo base_url('uploads/private_messaging_attached_file/'.$row['attached_file_name']); ?>" 
+                <?php if (!empty($row['attached_file_name'])): $attachment_name = basename($row['attached_file_name']); ?>
+                    <a href="<?php echo base_url('uploads/private_messaging_attached_file/'.rawurlencode($attachment_name)); ?>"
                        target="_blank" download class="msg-attachment">
                         <i class="fa fa-paperclip"></i>
-                        <span><?php echo $row['attached_file_name']; ?></span>
+                        <span><?php echo html_escape($attachment_name); ?></span>
                         <i class="fa fa-download"></i>
                     </a>
                 <?php endif; ?>
@@ -104,12 +109,18 @@ $('#msgReplyForm').submit(function(e) {
         data: new FormData(this),
         cache: false,
         contentType: false,
-        processData: false
+        processData: false,
+        dataType: 'json'
     }).done(function(response) {
-        showAjaxModal_alert('<?php echo get_phrase("message_sent_successfully"); ?>', 'success', false);
-        setTimeout(() => location.reload(), 1500);
-    }).fail(function() {
-        showAjaxModal_alert('<?php echo get_phrase("error_occurred"); ?>', 'error');
+        if(response.status === 'success') {
+            showAjaxModal_alert(response.message || '<?php echo get_phrase("message_sent_successfully"); ?>', 'success', false);
+            setTimeout(() => location.reload(), 700);
+        } else {
+            showAjaxModal_alert(response.message || '<?php echo get_phrase("error_occurred"); ?>', 'error');
+        }
+    }).fail(function(xhr) {
+        const response = xhr.responseJSON || {};
+        showAjaxModal_alert(response.message || '<?php echo get_phrase("error_occurred"); ?>', 'error');
     });
 });
 </script>

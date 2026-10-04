@@ -4220,7 +4220,7 @@ CREATE TABLE `message` (
   `read_status` int DEFAULT NULL,
   `attached_file_name` longtext COLLATE utf8mb4_unicode_520_ci,
   `sync` enum('yes','no') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'no'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 -- --------------------------------------------------------
 
@@ -8356,13 +8356,20 @@ ALTER TABLE `mark`
 -- Indexes for table `message`
 --
 ALTER TABLE `message`
-  ADD PRIMARY KEY (`message_id`);
+  ADD PRIMARY KEY (`message_id`),
+  ADD KEY `idx_message_thread_code` (`message_thread_code`(64)),
+  ADD KEY `idx_message_sender` (`sender`(64)),
+  ADD KEY `idx_message_read_status` (`read_status`);
 
 --
 -- Indexes for table `message_thread`
 --
 ALTER TABLE `message_thread`
-  ADD PRIMARY KEY (`message_thread_id`);
+  ADD PRIMARY KEY (`message_thread_id`),
+  ADD UNIQUE KEY `uq_message_thread_code` (`message_thread_code`(64)),
+  ADD KEY `idx_message_thread_sender` (`sender`(64)),
+  ADD KEY `idx_message_thread_receiver` (`reciever`(64)),
+  ADD KEY `idx_message_thread_last_timestamp` (`last_message_timestamp`(32));
 
 --
 -- Indexes for table `mobile_money_payment`
