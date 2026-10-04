@@ -1,76 +1,157 @@
-<?php 
-$edit_data		=	$this->db->get_where('grade_creche' , array('grade_id' => $param2) )->result_array();
-foreach ( $edit_data as $row):
+<?php
+$row = $this->db->get_where('grade_creche', array('grade_id' => $param2))->row_array();
+if (!$row) {
+    echo '<div class="alert alert-danger" style="margin:18px">Grade not found.</div>';
+    return;
+}
 ?>
+<style>
+.creche-grade-edit-modal {
+    padding: 18px;
+    color: #334155;
+    background: #fff;
+}
+.creche-grade-edit-head {
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.creche-grade-edit-eyebrow {
+    margin: 0 0 4px;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.creche-grade-edit-head h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 20px !important;
+    line-height: 1.3;
+    font-weight: 800;
+}
+.creche-grade-edit-head p {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.creche-grade-edit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+.creche-grade-edit-field label {
+    display: block;
+    margin: 0 0 6px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 800;
+}
+.creche-grade-edit-field input {
+    width: 100%;
+    min-height: 44px;
+    height: 44px;
+    padding: 9px 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #fff;
+    color: #0f172a;
+    font-size: 15px !important;
+    box-sizing: border-box;
+}
+.creche-grade-edit-field input:focus {
+    border-color: #2563eb;
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+.creche-grade-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+}
+.creche-grade-edit-actions .btn {
+    min-height: 42px;
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+}
+.creche-grade-edit-actions .btn-primary {
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+}
+@media (max-width: 640px) {
+    .creche-grade-edit-modal { padding: 14px; }
+    .creche-grade-edit-grid { grid-template-columns: 1fr; }
+    .creche-grade-edit-field input { font-size: 16px !important; }
+    .creche-grade-edit-actions { display: grid; grid-template-columns: 1fr; }
+}
+</style>
 
-<div class="row">
-	<div class="col-md-12">
-		<div class="panel" data-collapsed="0" style="background: white; border-radius: 20px; padding: 0; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
-        	<div class="panel-heading" style="background: #764ba2; color: white; padding: 2rem; border-radius: 20px 20px 0 0; border: none; margin: 0;">
-            	<div class="panel-title" style="font-size: 1.5rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 1rem;">
-            		<i class="fa fa-edit" style="font-size: 1.8rem;"></i>
-					Edit Grade
-            	</div>
-            </div>
-			<div class="panel-body" style="padding: 3rem; background: white; border-radius: 0 0 20px 20px;">
-				
-                <?php echo form_open(site_url('admin/grade_creche/do_update/'.$row['grade_id']) , array('id' => 'editGradeCrecheForm', 'target'=>'_top'));?>
-            
-                <div style="margin-bottom: 2rem; display: flex; flex-direction: column;">
-                    <label style="font-weight: 700; color: #374151; margin-bottom: 0.75rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fa fa-tag" style="color: #667eea; font-size: 1.1rem; width: 20px;"></i>
-                        Full Name
-                    </label>
-                    <input type="text" name="name" value="<?php echo $row['full_name'];?>" placeholder="e.g., EXCELLENT, VERY GOOD" required style="width: 100%; padding: 1rem 1.25rem; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem; transition: all 0.3s ease; background: #fafbfc; font-weight: 500; box-sizing: border-box;" onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 4px rgba(102, 126, 234, 0.1)'; this.style.background='white'; this.style.transform='translateY(-2px)';" onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'; this.style.background='#fafbfc'; this.style.transform='translateY(0)';" />
-                </div>
-                
-                <div style="margin-bottom: 2rem; display: flex; flex-direction: column;">
-                    <label style="font-weight: 700; color: #374151; margin-bottom: 0.75rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fa fa-certificate" style="color: #667eea; font-size: 1.1rem; width: 20px;"></i>
-                        Abbreviation
-                    </label>
-                    <input type="text" name="grade_point" value="<?php echo $row['abbrev'];?>" placeholder="e.g., EX, VG, G" required style="width: 100%; padding: 1rem 1.25rem; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem; transition: all 0.3s ease; background: #fafbfc; font-weight: 500; box-sizing: border-box;" onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 4px rgba(102, 126, 234, 0.1)'; this.style.background='white'; this.style.transform='translateY(-2px)';" onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'; this.style.background='#fafbfc'; this.style.transform='translateY(0)';" />
-                </div>
-                
-                <div style="display: flex; gap: 1rem; justify-content: center; padding-top: 2rem; border-top: 2px solid #f3f4f6; margin-top: 2rem;">
-                    <button type="submit" style="background: #059669; color: white; border: none; padding: 1rem 2.5rem; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.75rem; min-width: 160px; justify-content: center;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 35px rgba(16, 185, 129, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                        <i class="fa fa-save"></i>
-                        Update Grade
-                    </button>
-                </div>
-                
-                </form>
-                
-                <script>
-                $('#editGradeCrecheForm').submit(function(e) {
-                    e.preventDefault();
-                    $('.close')[0].click();
-                    showAjaxModal_alert('Updating grade...', 'loading');
-                    
-                    $.ajax({
-                        url: $(this).attr('action'),
-                        type: 'POST',
-                        data: new FormData(this),
-                        cache: false,
-                        contentType: false,
-                        processData: false,
-                        dataType: 'json'
-                    }).done(function(response) {
-                        if(response.status === 'success') {
-                            showAjaxModal_alert(response.message, 'success');
-                            setTimeout(() => location.reload(), 2000);
-                        } else {
-                            showAjaxModal_alert(response.message, 'error');
-                        }
-                    }).fail(function() {
-                        showAjaxModal_alert('An error occurred', 'error');
-                    });
-                });
-                </script>
-        </div>
+<div class="creche-grade-edit-modal">
+    <div class="creche-grade-edit-head">
+        <p class="creche-grade-edit-eyebrow">Examination</p>
+        <h3>Edit Creche/Nursery Grade</h3>
+        <p>Update the descriptive grade name and abbreviation used in early-years assessment.</p>
     </div>
+
+    <?php echo form_open(site_url('admin/grade_creche/do_update/'.(int)$row['grade_id']), array('id' => 'editGradeCrecheForm', 'target' => '_top')); ?>
+        <div class="creche-grade-edit-grid">
+            <div class="creche-grade-edit-field">
+                <label for="edit_creche_grade_name">Full Name *</label>
+                <input id="edit_creche_grade_name" type="text" name="name" maxlength="100"
+                       value="<?php echo html_escape($row['full_name']); ?>" placeholder="e.g. EXCELLENT, VERY GOOD" required>
+            </div>
+            <div class="creche-grade-edit-field">
+                <label for="edit_creche_grade_abbrev">Abbreviation *</label>
+                <input id="edit_creche_grade_abbrev" type="text" name="grade_point" maxlength="20"
+                       value="<?php echo html_escape($row['abbrev']); ?>" placeholder="e.g. EX, VG, G" required>
+            </div>
+        </div>
+
+        <div class="creche-grade-edit-actions">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="update_creche_grade_button"><i class="fa fa-save"></i> Update Grade</button>
+        </div>
+    <?php echo form_close(); ?>
 </div>
 
-<?php
-endforeach;
-?>
+<script>
+$('#editGradeCrecheForm').on('submit', function(e) {
+    e.preventDefault();
+    var form = this;
+    var button = $('#update_creche_grade_button');
+    button.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating…');
+    showAjaxModal_alert('Updating grade...', 'loading');
+
+    $.ajax({
+        url: $(form).attr('action'),
+        type: 'POST',
+        data: new FormData(form),
+        cache: false,
+        contentType: false,
+        processData: false,
+        dataType: 'json'
+    }).done(function(response) {
+        if (response.status === 'success') {
+            $('.modal:visible .close').first().click();
+            showAjaxModal_alert(response.message || 'Grade updated successfully.', 'success');
+            setTimeout(function() { location.reload(); }, 1200);
+        } else {
+            showAjaxModal_alert(response.message || 'Failed to update grade.', 'error');
+            button.prop('disabled', false).html('<i class="fa fa-save"></i> Update Grade');
+        }
+    }).fail(function(xhr) {
+        var message = 'An error occurred while updating the grade.';
+        if (xhr.responseJSON && xhr.responseJSON.message) message = xhr.responseJSON.message;
+        showAjaxModal_alert(message, 'error');
+        button.prop('disabled', false).html('<i class="fa fa-save"></i> Update Grade');
+    });
+});
+</script>
