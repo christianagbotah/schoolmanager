@@ -1,128 +1,342 @@
 <style>
-.profile-container { max-width: 1200px; margin: 0 auto; }
-.profile-card { background: white; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 24px; }
-.profile-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 32px; text-align: center; color: white; position: relative; }
-.profile-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="3" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/></svg>'); opacity: 0.3; }
-.profile-avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid white; margin: 0 auto 16px; position: relative; z-index: 1; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-.profile-name { font-size: 24px; font-weight: 700; margin-bottom: 4px; position: relative; z-index: 1; }
-.profile-role { font-size: 14px; opacity: 0.9; position: relative; z-index: 1; }
-.profile-body { padding: 32px; }
-.section-title { font-size: 18px; font-weight: 700; color: #1a202c; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
-.section-title i { color: #667eea; font-size: 20px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
-.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-bottom: 24px; }
-.form-field { display: flex; flex-direction: column; }
-.field-label { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; }
-.field-input { padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px; transition: all 0.3s; background: #f9fafb; }
-.field-input:focus { outline: none; border-color: #667eea; background: white; box-shadow: 0 0 0 4px rgba(102,126,234,0.1); }
-.password-field .field-input { padding-right: 45px; }
-.photo-upload { display: flex; align-items: center; gap: 20px; padding: 20px; background: #f9fafb; border-radius: 10px; border: 2px dashed #e5e7eb; }
-.photo-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #e5e7eb; }
-.upload-controls { flex: 1; }
-.upload-label { display: inline-block; padding: 10px 20px; background: #667eea; color: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; }
-.upload-label:hover { background: #5568d3; transform: translateY(-1px); }
-.upload-label input { display: none; }
-.btn-update { padding: 12px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-.btn-update:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.3); }
-.password-field { position: relative; }
-.password-toggle { position: absolute; right: 16px; top: 12px; cursor: pointer; color: #9ca3af; font-size: 16px; }
-.password-toggle:hover { color: #667eea; }
-@media (max-width: 768px) {
-.form-row, .form-row-3 { grid-template-columns: 1fr; gap: 16px; }
-.profile-body { padding: 20px; }
-.photo-upload { flex-direction: column; text-align: center; }
+/* Direct UI/UX rebuild — Librarian Profile */
+.librarian-profile-workspace {
+    margin: 0 !important;
+    padding: 24px 28px 40px;
+    background: #f8fafc;
+    min-height: 100%;
+}
+.librarian-profile-wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+}
+.librarian-profile-head {
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.librarian-profile-eyebrow {
+    margin: 0 0 4px;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.librarian-profile-head h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 30px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+.librarian-profile-head p:last-child {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.5;
+}
+.librarian-profile-card {
+    overflow: hidden;
+    margin-bottom: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+}
+.librarian-profile-identity {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 22px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+.librarian-profile-avatar {
+    width: 86px;
+    height: 86px;
+    flex: 0 0 86px;
+    border: 4px solid #fff;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px #cbd5e1;
+}
+.librarian-profile-name {
+    margin: 0 0 3px;
+    color: #0f172a;
+    font-size: 22px;
+    line-height: 1.25;
+    font-weight: 800;
+}
+.librarian-profile-role {
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 700;
+}
+.librarian-profile-body {
+    padding: 22px;
+}
+.librarian-profile-section-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 18px;
+    color: #0f172a;
+    font-size: 18px;
+    line-height: 1.3;
+    font-weight: 800;
+}
+.librarian-profile-section-title i {
+    color: #2563eb;
+}
+.librarian-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 18px;
+}
+.librarian-profile-grid.password-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.librarian-profile-field {
+    min-width: 0;
+}
+.librarian-profile-field label {
+    display: block;
+    margin-bottom: 7px;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 800;
+}
+.librarian-profile-field input[type="text"],
+.librarian-profile-field input[type="email"],
+.librarian-profile-field input[type="password"] {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #fff;
+    color: #0f172a;
+    font-size: 15px;
+    line-height: 1.4;
+}
+.librarian-profile-field input:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+.librarian-profile-photo {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 18px;
+    padding: 16px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 11px;
+    background: #f8fafc;
+}
+.librarian-profile-photo-preview {
+    width: 82px;
+    height: 82px;
+    flex: 0 0 82px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px #cbd5e1;
+}
+.librarian-profile-upload-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 42px;
+    padding: 9px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+}
+.librarian-profile-upload-label:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+}
+.librarian-profile-upload-label input {
+    display: none;
+}
+.librarian-profile-help {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.4;
+}
+.librarian-profile-btn {
+    min-height: 46px;
+    padding: 10px 18px !important;
+    border: 1px solid #2563eb !important;
+    border-radius: 9px !important;
+    background: #2563eb !important;
+    color: #fff !important;
+    font-size: 15px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+}
+.librarian-profile-btn:hover {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+}
+.librarian-password-field {
+    position: relative;
+}
+.librarian-password-field input {
+    padding-right: 44px !important;
+}
+.librarian-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    color: #64748b;
+    cursor: pointer;
+    font-size: 16px;
+}
+@media (max-width: 920px) {
+    .librarian-profile-grid.password-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 767px) {
+    .librarian-profile-workspace { padding: 18px 14px 32px; }
+    .librarian-profile-head h1 { font-size: 26px; }
+    .librarian-profile-identity {
+        align-items: flex-start;
+        padding: 18px;
+    }
+    .librarian-profile-avatar {
+        width: 72px;
+        height: 72px;
+        flex-basis: 72px;
+    }
+    .librarian-profile-body { padding: 18px; }
+    .librarian-profile-grid { grid-template-columns: 1fr; gap: 14px; }
+    .librarian-profile-photo {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .librarian-profile-field input[type="text"],
+    .librarian-profile-field input[type="email"],
+    .librarian-profile-field input[type="password"] {
+        font-size: 16px;
+    }
+    .librarian-profile-btn { width: 100%; }
 }
 </style>
 
-<div class="profile-container">
-    <?php foreach($edit_data as $row): ?>
-    
-    <div class="profile-card">
-        <div class="profile-header">
-            <img src="<?php echo $this->crud_model->get_image_url('librarian', $row['librarian_id']);?>" alt="Profile" class="profile-avatar">
-            <div class="profile-name"><?php echo $row['name'];?></div>
-            <div class="profile-role">Librarian</div>
+<div class="librarian-profile-workspace">
+    <div class="librarian-profile-wrap">
+        <div class="librarian-profile-head">
+            <p class="librarian-profile-eyebrow">Account</p>
+            <h1><?php echo get_phrase('manage_profile'); ?></h1>
+            <p>Keep your librarian profile details, photo and account password up to date.</p>
         </div>
-        
-        <div class="profile-body">
-            <div class="section-title">
-                <i class="fas fa-user-circle"></i>
-                <?php echo get_phrase('personal_information');?>
+
+        <?php foreach($edit_data as $row): ?>
+            <div class="librarian-profile-card">
+                <div class="librarian-profile-identity">
+                    <img src="<?php echo $this->crud_model->get_image_url('librarian', $row['librarian_id']);?>"
+                         alt="Profile"
+                         class="librarian-profile-avatar">
+                    <div>
+                        <h2 class="librarian-profile-name"><?php echo $row['name'];?></h2>
+                        <div class="librarian-profile-role">Librarian</div>
+                    </div>
+                </div>
+
+                <div class="librarian-profile-body">
+                    <div class="librarian-profile-section-title">
+                        <i class="fas fa-user-circle"></i>
+                        <?php echo get_phrase('personal_information');?>
+                    </div>
+
+                    <?php echo form_open_multipart(site_url('librarian/manage_profile/update_profile_info'), array('id' => 'profile_form'));?>
+                        <div class="librarian-profile-grid">
+                            <div class="librarian-profile-field">
+                                <label><?php echo get_phrase('name');?></label>
+                                <input type="text" name="name" value="<?php echo $row['name'];?>" required>
+                            </div>
+                            <div class="librarian-profile-field">
+                                <label><?php echo get_phrase('email');?></label>
+                                <input type="email" name="email" value="<?php echo $row['email'];?>" required>
+                            </div>
+                        </div>
+
+                        <div class="librarian-profile-field">
+                            <label><?php echo get_phrase('photo');?></label>
+                            <div class="librarian-profile-photo">
+                                <img src="<?php echo $this->crud_model->get_image_url('librarian', $row['librarian_id']);?>"
+                                     alt="Preview"
+                                     class="librarian-profile-photo-preview"
+                                     id="photo_preview">
+                                <div>
+                                    <label class="librarian-profile-upload-label">
+                                        <i class="fas fa-camera"></i> <?php echo get_phrase('choose_photo');?>
+                                        <input type="file" name="userfile" accept="image/*" onchange="previewPhoto(this)">
+                                    </label>
+                                    <p class="librarian-profile-help">JPG, PNG or GIF (Max 2MB)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn librarian-profile-btn">
+                            <i class="fas fa-save"></i> <?php echo get_phrase('update_profile');?>
+                        </button>
+                    </form>
+                </div>
             </div>
-            
-            <?php echo form_open_multipart(site_url('librarian/manage_profile/update_profile_info'), array('id' => 'profile_form'));?>
-                <div class="form-row">
-                    <div class="form-field">
-                        <label class="field-label"><?php echo get_phrase('name');?></label>
-                        <input type="text" class="field-input" name="name" value="<?php echo $row['name'];?>" required>
+
+            <div class="librarian-profile-card">
+                <div class="librarian-profile-body">
+                    <div class="librarian-profile-section-title">
+                        <i class="fas fa-lock"></i>
+                        <?php echo get_phrase('change_password');?>
                     </div>
-                    <div class="form-field">
-                        <label class="field-label"><?php echo get_phrase('email');?></label>
-                        <input type="email" class="field-input" name="email" value="<?php echo $row['email'];?>" required>
-                    </div>
-                </div>
-                
-                <div class="form-field" style="margin-bottom: 24px;">
-                    <label class="field-label"><?php echo get_phrase('photo');?></label>
-                    <div class="photo-upload">
-                        <img src="<?php echo $this->crud_model->get_image_url('librarian', $row['librarian_id']);?>" alt="Preview" class="photo-preview" id="photo_preview">
-                        <div class="upload-controls">
-                            <label class="upload-label">
-                                <i class="fas fa-camera"></i> <?php echo get_phrase('choose_photo');?>
-                                <input type="file" name="userfile" accept="image/*" onchange="previewPhoto(this)">
-                            </label>
-                            <p style="margin: 8px 0 0 0; font-size: 13px; color: #6b7280;">JPG, PNG or GIF (Max 2MB)</p>
+
+                    <?php echo form_open(site_url('librarian/manage_profile/change_password'), array('id' => 'password_form'));?>
+                        <div class="librarian-profile-grid password-grid">
+                            <div class="librarian-profile-field">
+                                <label><?php echo get_phrase('current_password');?></label>
+                                <div class="librarian-password-field">
+                                    <input type="password" name="password" id="current_password" required>
+                                    <i class="fas fa-eye librarian-password-toggle" onclick="togglePassword('current_password')"></i>
+                                </div>
+                            </div>
+                            <div class="librarian-profile-field">
+                                <label><?php echo get_phrase('new_password');?></label>
+                                <div class="librarian-password-field">
+                                    <input type="password" name="new_password" id="new_password" required>
+                                    <i class="fas fa-eye librarian-password-toggle" onclick="togglePassword('new_password')"></i>
+                                </div>
+                            </div>
+                            <div class="librarian-profile-field">
+                                <label><?php echo get_phrase('confirm_new_password');?></label>
+                                <div class="librarian-password-field">
+                                    <input type="password" name="confirm_new_password" id="confirm_password" required>
+                                    <i class="fas fa-eye librarian-password-toggle" onclick="togglePassword('confirm_password')"></i>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+
+                        <button type="submit" class="btn librarian-profile-btn">
+                            <i class="fas fa-key"></i> <?php echo get_phrase('update_password');?>
+                        </button>
+                    </form>
                 </div>
-                
-                <button type="submit" class="btn-update">
-                    <i class="fas fa-save"></i> <?php echo get_phrase('update_profile');?>
-                </button>
-            </form>
-        </div>
-    </div>
-    
-    <div class="profile-card">
-        <div class="profile-body">
-            <div class="section-title">
-                <i class="fas fa-lock"></i>
-                <?php echo get_phrase('change_password');?>
             </div>
-            
-            <?php echo form_open(site_url('librarian/manage_profile/change_password'), array('id' => 'password_form'));?>
-                <div class="form-row-3">
-                    <div class="form-field">
-                        <label class="field-label"><?php echo get_phrase('current_password');?></label>
-                        <div class="password-field">
-                            <input type="password" class="field-input" name="password" id="current_password" required>
-                            <i class="fas fa-eye password-toggle" onclick="togglePassword('current_password')"></i>
-                        </div>
-                    </div>
-                    <div class="form-field">
-                        <label class="field-label"><?php echo get_phrase('new_password');?></label>
-                        <div class="password-field">
-                            <input type="password" class="field-input" name="new_password" id="new_password" required>
-                            <i class="fas fa-eye password-toggle" onclick="togglePassword('new_password')"></i>
-                        </div>
-                    </div>
-                    <div class="form-field">
-                        <label class="field-label"><?php echo get_phrase('confirm_new_password');?></label>
-                        <div class="password-field">
-                            <input type="password" class="field-input" name="confirm_new_password" id="confirm_password" required>
-                            <i class="fas fa-eye password-toggle" onclick="togglePassword('confirm_password')"></i>
-                        </div>
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn-update">
-                    <i class="fas fa-key"></i> <?php echo get_phrase('update_password');?>
-                </button>
-            </form>
-        </div>
+        <?php endforeach; ?>
     </div>
-    
-    <?php endforeach; ?>
 </div>
 
 <script>
@@ -131,7 +345,7 @@ function previewPhoto(input) {
         var reader = new FileReader();
         reader.onload = function(e) {
             document.getElementById('photo_preview').src = e.target.result;
-        }
+        };
         reader.readAsDataURL(input.files[0]);
     }
 }
