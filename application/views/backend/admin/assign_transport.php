@@ -1,92 +1,152 @@
 <style>
+/* Direct UI/UX rebuild — Transport Assignment */
 .assign-transport-page {
-    background: #f5f7fa;
-    min-height: 100vh;
-    padding: 20px;
+    margin: 0 !important;
+    padding: 24px 28px 40px;
+    background: #f8fafc;
+    min-height: 100%;
 }
-.sticky-wrapper {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background: white;
-    padding: 20px 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    margin: 0 0 20px 0;
-}
-.sticky-wrapper.scrolled {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+.assign-transport-page > div:first-of-type {
+    margin: 0 0 18px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
 }
 .assign-header {
-    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-    border-radius: 12px 12px 0 0;
-    padding: 24px 32px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 0 0 18px !important;
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
 }
 .assign-header h2 {
-    color: white;
-    font-size: 24px;
-    font-weight: 700;
     margin: 0;
+    color: #0f172a !important;
+    font-size: 30px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -.02em;
 }
+.assign-header h2 i { margin-right: 7px; color: #2563eb; }
+.sticky-wrapper {
+    position: sticky;
+    top: 72px;
+    z-index: 50;
+    margin: 0 0 16px;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: rgba(255,255,255,.97);
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+    backdrop-filter: blur(8px);
+}
+.sticky-wrapper.scrolled { box-shadow: 0 8px 22px rgba(15,23,42,.1); }
 .assign-controls {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: minmax(220px,.8fr) minmax(280px,1.35fr) auto;
+    gap: 10px;
+    align-items: end;
 }
-.assign-controls select {
-    font-size: 15px;
-    padding: 12px 16px;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    min-width: 250px;
-    transition: all 0.3s;
+.assign-controls select,
+#student_search {
+    width: 100%;
+    min-width: 0 !important;
+    height: 44px;
+    padding: 9px 11px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 9px !important;
+    background: #fff;
+    color: #0f172a;
+    font-size: 15px !important;
+    line-height: 1.35;
+    transition: border-color .2s ease, box-shadow .2s ease;
 }
-.assign-controls select:focus {
-    border-color: #3b82f6;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+.assign-controls select:focus,
+#student_search:focus {
+    border-color: #2563eb !important;
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
 }
 .action-button {
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
+    min-height: 44px;
+    padding: 9px 15px !important;
+    border: 1px solid #2563eb !important;
+    border-radius: 9px;
+    background: #2563eb !important;
+    color: #fff !important;
+    box-shadow: none !important;
     font-size: 14px;
-    transition: all 0.3s;
-    border: none;
+    line-height: 1.35;
+    font-weight: 800;
+    white-space: nowrap;
     cursor: pointer;
 }
-.action-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.action-button:hover { background: #1d4ed8 !important; transform: none; box-shadow: none !important; }
+.action-button:disabled { opacity: .5; cursor: not-allowed; }
+.assign-transport-page > div[style*="background: white"][style*="padding: 20px"] {
+    overflow-x: auto;
+    margin-top: 0 !important;
+    padding: 0 !important;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px !important;
+    background: #fff !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+}
+#assign_transport_table {
+    width: 100% !important;
+    min-width: 900px;
+    margin: 0 !important;
+    border: 0 !important;
 }
 #assign_transport_table thead th {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    color: #1e293b;
-    font-weight: 700;
-    font-size: 13px;
+    padding: 12px 13px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-size: 13px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+    letter-spacing: .035em;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 12px 16px;
-    border: none;
 }
 #assign_transport_table tbody td {
-    padding: 10px 16px;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 14px;
-    color: #374151;
+    padding: 12px 13px !important;
+    border-bottom: 1px solid #eef2f7 !important;
+    color: #334155 !important;
+    font-size: 14px !important;
+    line-height: 1.45;
     vertical-align: middle;
 }
-#assign_transport_table tbody tr {
-    background: white;
-    transition: all 0.2s ease;
-    cursor: pointer;
+#assign_transport_table tbody tr { background: #fff; cursor: pointer; }
+#assign_transport_table tbody tr:hover { background: #f8fbff !important; box-shadow: none; }
+#assign_transport_table tbody tr.selected { background: #eff6ff !important; }
+#assign_transport_table input[type="checkbox"] { accent-color: #2563eb; }
+.assign-transport-page .dataTables_wrapper { min-width: 900px; padding: 14px; }
+.assign-transport-page .dataTables_filter { display: none; }
+.assign-transport-page .dataTables_length,
+.assign-transport-page .dataTables_info,
+.assign-transport-page .dataTables_paginate { color: #475569; font-size: 14px; }
+.assign-transport-page .dataTables_length select {
+    min-height: 40px;
+    padding: 7px 9px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
 }
-#assign_transport_table tbody tr:hover {
-    background: #f8fafc !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+@media (max-width: 900px) {
+    .assign-controls { grid-template-columns: 1fr 1fr; }
+    .assign-controls .action-button { grid-column: 1 / -1; }
 }
-#assign_transport_table tbody tr.selected {
-    background: #dbeafe !important;
+@media (max-width: 767px) {
+    .assign-transport-page { padding: 18px 14px 32px; }
+    .assign-header h2 { font-size: 26px; }
+    .sticky-wrapper { position: static; padding: 12px; }
+    .assign-controls { grid-template-columns: 1fr; }
+    .assign-controls .action-button { grid-column: auto; width: 100%; }
+    #student_search, .assign-controls select { font-size: 16px !important; }
 }
 </style>
 
