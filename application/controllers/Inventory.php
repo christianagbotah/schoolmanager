@@ -550,11 +550,18 @@ class Inventory extends CI_Controller {
         // Get product count
         $product_count = $this->db->where('supplier_id', $id)->count_all_results('inventory_products');
         
-        $html = '<div class="p-4">';
+        $html = '<style>
+        .inventory-supplier-detail { color:#334155; font-size:14px; }
+        .inventory-supplier-detail > .mb-4.pb-3 { margin-bottom:14px !important; padding-bottom:14px !important; border-bottom:1px solid #e2e8f0 !important; }
+        .inventory-supplier-detail .grid { gap:14px !important; }
+        .inventory-supplier-detail label { color:#64748b !important; font-size:13px !important; font-weight:800 !important; }
+        .inventory-supplier-detail p { color:#0f172a; font-size:14px !important; line-height:1.5; }
+        .inventory-supplier-detail button { min-height:40px; padding:8px 13px !important; border-radius:8px !important; font-size:13px !important; font-weight:800 !important; }
+        </style><div class="inventory-supplier-detail p-4">';
         
         // Supplier Name
         $html .= '<div class="mb-4 pb-3 border-b border-gray-200">';
-        $html .= '<h3 style="font-size: 1.5rem !important;" class="font-bold text-gray-900">' . $supplier['name'] . '</h3>';
+        $html .= '<h3 style="font-size: 20px !important;" class="font-bold text-gray-900">' . $supplier['name'] . '</h3>';
         $html .= '<span class="inline-flex px-3 py-1 mt-2 text-sm font-semibold rounded-full ' . ($supplier['status'] == 1 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800') . '">' . ($supplier['status'] == 1 ? 'Active' : 'Inactive') . '</span>';
         $html .= '</div>';
         
@@ -563,26 +570,26 @@ class Inventory extends CI_Controller {
         
         // Contact Person
         $html .= '<div>';
-        $html .= '<label style="font-size: 1rem !important;" class="block font-semibold text-gray-600 mb-1">Contact Person</label>';
-        $html .= '<p style="font-size: 1.125rem !important;" class="text-gray-900">' . ($supplier['contact_person'] ?: '-') . '</p>';
+        $html .= '<label style="font-size: 13px !important;" class="block font-semibold text-gray-600 mb-1">Contact Person</label>';
+        $html .= '<p style="font-size: 14px !important;" class="text-gray-900">' . ($supplier['contact_person'] ?: '-') . '</p>';
         $html .= '</div>';
         
         // Phone
         $html .= '<div>';
-        $html .= '<label style="font-size: 1rem !important;" class="block font-semibold text-gray-600 mb-1">Phone</label>';
-        $html .= '<p style="font-size: 1.125rem !important;" class="text-gray-900">' . ($supplier['phone'] ?: '-') . '</p>';
+        $html .= '<label style="font-size: 13px !important;" class="block font-semibold text-gray-600 mb-1">Phone</label>';
+        $html .= '<p style="font-size: 14px !important;" class="text-gray-900">' . ($supplier['phone'] ?: '-') . '</p>';
         $html .= '</div>';
         
         // Email
         $html .= '<div>';
-        $html .= '<label style="font-size: 1rem !important;" class="block font-semibold text-gray-600 mb-1">Email</label>';
-        $html .= '<p style="font-size: 1.125rem !important;" class="text-gray-900">' . ($supplier['email'] ?: '-') . '</p>';
+        $html .= '<label style="font-size: 13px !important;" class="block font-semibold text-gray-600 mb-1">Email</label>';
+        $html .= '<p style="font-size: 14px !important;" class="text-gray-900">' . ($supplier['email'] ?: '-') . '</p>';
         $html .= '</div>';
         
         // Products
         $html .= '<div>';
-        $html .= '<label style="font-size: 1rem !important;" class="block font-semibold text-gray-600 mb-1">Products</label>';
-        $html .= '<p style="font-size: 1.125rem !important;" class="text-gray-900 font-semibold">' . $product_count . '</p>';
+        $html .= '<label style="font-size: 13px !important;" class="block font-semibold text-gray-600 mb-1">Products</label>';
+        $html .= '<p style="font-size: 14px !important;" class="text-gray-900 font-semibold">' . $product_count . '</p>';
         $html .= '</div>';
         
         $html .= '</div>';
@@ -590,15 +597,15 @@ class Inventory extends CI_Controller {
         // Address
         if($supplier['address']) {
             $html .= '<div class="mb-4">';
-            $html .= '<label style="font-size: 1rem !important;" class="block font-semibold text-gray-600 mb-1">Address</label>';
-            $html .= '<p style="font-size: 1.125rem !important;" class="text-gray-900">' . nl2br($supplier['address']) . '</p>';
+            $html .= '<label style="font-size: 13px !important;" class="block font-semibold text-gray-600 mb-1">Address</label>';
+            $html .= '<p style="font-size: 14px !important;" class="text-gray-900">' . nl2br($supplier['address']) . '</p>';
             $html .= '</div>';
         }
         
         // Action Buttons
         $html .= '<div class="flex justify-end gap-3 mt-4 pt-3 border-t border-gray-200">';
-        $html .= '<button type="button" onclick="$(\'#detailsModal\').modal(\'hide\')" class="px-5 py-2 font-semibold rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition-colors" style="font-size: 1rem !important;">Close</button>';
-        $html .= '<button type="button" onclick="$(\'#detailsModal\').modal(\'hide\'); editSupplier(' . $id . ');" class="px-5 py-2 font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors" style="font-size: 1rem !important;"><i class="fa fa-edit mr-2"></i>Edit</button>';
+        $html .= '<button type="button" onclick="$(\'#detailsModal\').modal(\'hide\')" class="px-5 py-2 font-semibold rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition-colors" style="font-size: 13px !important;">Close</button>';
+        $html .= '<button type="button" onclick="$(\'#detailsModal\').modal(\'hide\'); editSupplier(' . $id . ');" class="px-5 py-2 font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors" style="font-size: 13px !important;"><i class="fa fa-edit mr-2"></i>Edit</button>';
         $html .= '</div>';
         
         $html .= '</div>';
@@ -1952,21 +1959,21 @@ class Inventory extends CI_Controller {
         /* Select2 uniform height for purchase orders */
         .select2-container { width: 100% !important; }
         .select2-container--default .select2-selection--single { 
-            height: 56px !important; 
-            min-height: 56px !important;
-            padding: 0.75rem 1rem !important; 
+            height: 44px !important;
+            min-height: 44px !important;
+            padding: 9px 11px !important;
             border: 1px solid #d1d5db !important; 
             border-radius: 0.5rem !important;
             display: flex !important;
             align-items: center !important;
         }
         .select2-container--default .select2-selection--single .select2-selection__rendered { 
-            line-height: 40px !important; 
-            font-size: 1.125rem !important;
+            line-height: 42px !important;
+            font-size: 15px !important;
             padding-left: 0 !important;
         }
         .select2-container--default .select2-selection--single .select2-selection__arrow { 
-            height: 54px !important;
+            height: 42px !important;
             top: 1px !important;
         }
         .select2-container--default.select2-container--focus .select2-selection--single,
@@ -1974,12 +1981,23 @@ class Inventory extends CI_Controller {
             border-color: #3b82f6 !important; 
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
         }
-        .select2-results__option { font-size: 1.125rem !important; padding: 0.75rem 1rem !important; }
+        .select2-results__option { font-size: 15px !important; padding: 9px 11px !important;}
         .select2-dropdown { border: 2px solid #3b82f6 !important; border-radius: 0.5rem !important; }
-        .select2-search__field { font-size: 1.125rem !important; padding: 0.5rem !important; }
+        .select2-search__field { font-size: 15px !important; padding: 8px 10px !important; }
+        .inventory-po-form { padding:18px !important; color:#334155; }
+        .inventory-po-form label { color:#334155 !important; font-size:14px !important; font-weight:800 !important; margin-bottom:6px !important; }
+        .inventory-po-form input:not([type="checkbox"]):not([type="hidden"]),
+        .inventory-po-form select,
+        .inventory-po-form textarea { min-height:44px !important; border:1px solid #cbd5e1 !important; border-radius:9px !important; font-size:15px !important; }
+        .inventory-po-form textarea { min-height:92px !important; }
+        .inventory-po-form button { min-height:40px; border-radius:8px !important; font-size:14px !important; font-weight:800 !important; }
+        .inventory-po-form #purchase_items_table { min-width:820px; }
+        .inventory-po-form #purchase_items_table th { padding:11px 12px !important; color:#475569 !important; font-size:13px !important; }
+        .inventory-po-form #purchase_items_table td { padding:11px 12px !important; color:#334155; font-size:14px !important; }
+        @media (max-width:767px){ .inventory-po-form { padding:14px !important; } .inventory-po-form > .grid.md\:grid-cols-3 { grid-template-columns:1fr !important; } }
         </style>
         
-        <div class="p-6">';
+        <div class="p-6 inventory-po-form">';
         $html .= $payment_debug; // Add debug comment
         $html .= form_open('inventory/create_purchase_order', ['id' => 'purchase_order_form']);
         
@@ -1992,12 +2010,12 @@ class Inventory extends CI_Controller {
         
         // Supplier selection with search
         $html .= '<div>';
-        $html .= '<label style="font-size: 1.375rem !important;" class="block font-semibold text-gray-700 mb-3">Supplier <span class="text-red-500">*</span></label>';
+        $html .= '<label style="font-size: 14px !important;" class="block font-semibold text-gray-700 mb-3">Supplier <span class="text-red-500">*</span></label>';
         $html .= '<div class="relative">';
         $html .= '<div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">';
         $html .= '<i class="fas fa-search text-gray-400 text-lg"></i>';
         $html .= '</div>';
-        $html .= '<input type="text" id="supplier_search_input" class="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 1.125rem !important; min-height: 3.5rem !important; height: 3.5rem !important;" placeholder="Type supplier name to search..." autocomplete="off">';
+        $html .= '<input type="text" id="supplier_search_input" class="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 15px !important; min-height: 44px !important;height: 44px !important;" placeholder="Type supplier name to search..." autocomplete="off">';
         $html .= '<input type="hidden" name="supplier_id" id="selected_supplier_id" value="' . ($purchase ? $purchase['supplier_id'] : '') . '" required>';
         $html .= '</div>';
         $html .= '<div id="supplier_search_results" class="absolute bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-80 overflow-y-auto z-50" style="display: none; width: calc(33.333% - 1rem);"></div>';
@@ -2005,10 +2023,10 @@ class Inventory extends CI_Controller {
         
         // Created date
         $html .= '<div>';
-        $html .= '<label style="font-size: 1.375rem !important;" class="block font-semibold text-gray-700 mb-3">Created Date <span class="text-red-500">*</span></label>';
+        $html .= '<label style="font-size: 14px !important;" class="block font-semibold text-gray-700 mb-3">Created Date <span class="text-red-500">*</span></label>';
         $created_date = $purchase ? date('d/m/Y', strtotime($purchase['created_at'])) : date('d/m/Y');
         $html .= '<div class="relative">';
-        $html .= '<input type="text" name="created_date" id="po_created_date" value="' . $created_date . '" required class="block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 1.125rem !important; min-height: 3.5rem !important; height: 3.5rem !important;" placeholder="dd/mm/yyyy" autocomplete="off">';
+        $html .= '<input type="text" name="created_date" id="po_created_date" value="' . $created_date . '" required class="block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 15px !important; min-height: 44px !important;height: 44px !important;" placeholder="dd/mm/yyyy" autocomplete="off">';
         $html .= '<div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">';
         $html .= '<i class="far fa-calendar-alt text-gray-400 text-lg"></i>';
         $html .= '</div>';
@@ -2017,10 +2035,10 @@ class Inventory extends CI_Controller {
         
         // Expected delivery date
         $html .= '<div>';
-        $html .= '<label style="font-size: 1.375rem !important;" class="block font-semibold text-gray-700 mb-3">Expected Delivery Date</label>';
+        $html .= '<label style="font-size: 14px !important;" class="block font-semibold text-gray-700 mb-3">Expected Delivery Date</label>';
         $expected_date = $purchase ? date('d/m/Y', strtotime($purchase['expected_delivery_date'])) : date('d/m/Y');
         $html .= '<div class="relative">';
-        $html .= '<input type="text" name="expected_delivery_date" id="po_expected_date" value="' . $expected_date . '" class="block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 1.125rem !important; min-height: 3.5rem !important; height: 3.5rem !important;" placeholder="dd/mm/yyyy" autocomplete="off">';
+        $html .= '<input type="text" name="expected_delivery_date" id="po_expected_date" value="' . $expected_date . '" class="block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 15px !important; min-height: 44px !important;height: 44px !important;" placeholder="dd/mm/yyyy" autocomplete="off">';
         $html .= '<div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">';
         $html .= '<i class="far fa-calendar-alt text-gray-400 text-lg"></i>';
         $html .= '</div>';
@@ -2031,22 +2049,22 @@ class Inventory extends CI_Controller {
         
         // Items section
         $html .= '<div class="mb-6">';
-        $html .= '<label style="font-size: 1.375rem !important;" class="block font-semibold text-gray-700 mb-3">Items <span class="text-red-500">*</span></label>';
+        $html .= '<label style="font-size: 14px !important;" class="block font-semibold text-gray-700 mb-3">Items <span class="text-red-500">*</span></label>';
         $html .= '<div class="border border-gray-300 rounded-xl p-6 bg-gradient-to-r from-gray-50 to-gray-100">';
         
         // Add item button - Start enabled if no items exist
-        $html .= '<button type="button" id="add_item_btn" onclick="addPurchaseItem()" class="px-6 py-3 font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors mb-4" style="font-size: 1.125rem !important; min-height: 3.5rem !important;"><i class="fa fa-plus mr-2"></i> Add Item</button>';
+        $html .= '<button type="button" id="add_item_btn" onclick="addPurchaseItem()" class="px-6 py-3 font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors mb-4" style="font-size: 15px !important; min-height: 44px !important;"><i class="fa fa-plus mr-2"></i> Add Item</button>';
         
         // Items table
         $html .= '<div class="overflow-x-auto">';
         $html .= '<table class="min-w-full divide-y divide-gray-200 bg-white rounded-lg shadow-sm" id="purchase_items_table">';
         $html .= '<thead class="bg-gradient-to-r from-gray-50 to-gray-100">';
         $html .= '<tr>';
-        $html .= '<th style="font-size: 1.125rem !important; width: 40%;" class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Product</th>';
-        $html .= '<th style="font-size: 1.125rem !important; width: 15%;" class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Quantity</th>';
-        $html .= '<th style="font-size: 1.125rem !important; width: 20%;" class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Cost Price</th>';
-        $html .= '<th style="font-size: 1.125rem !important; width: 20%;" class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Total</th>';
-        $html .= '<th style="font-size: 1.125rem !important; width: 5%;" class="px-6 py-4 text-center font-bold text-gray-700 uppercase tracking-wider"></th>';
+        $html .= '<th style="font-size: 15px !important; width: 40%;" class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Product</th>';
+        $html .= '<th style="font-size: 15px !important; width: 15%;" class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Quantity</th>';
+        $html .= '<th style="font-size: 15px !important; width: 20%;" class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Cost Price</th>';
+        $html .= '<th style="font-size: 15px !important; width: 20%;" class="px-6 py-4 text-left font-bold text-gray-700 uppercase tracking-wider">Total</th>';
+        $html .= '<th style="font-size: 15px !important; width: 5%;" class="px-6 py-4 text-center font-bold text-gray-700 uppercase tracking-wider"></th>';
         $html .= '</tr>';
         $html .= '</thead>';
         $html .= '<tbody class="bg-white divide-y divide-gray-200" id="purchase_items_tbody">';
@@ -2056,7 +2074,7 @@ class Inventory extends CI_Controller {
                 $html .= $this->generate_purchase_item_row($products, $item, $currency);
             }
         } else {
-            $html .= '<tr><td colspan="5" style="font-size: 1.125rem !important;" class="px-6 py-10 text-center text-gray-500">No items added yet</td></tr>';
+            $html .= '<tr><td colspan="5" style="font-size: 15px !important;" class="px-6 py-10 text-center text-gray-500">No items added yet</td></tr>';
         }
         
         $html .= '</tbody>';
@@ -2064,8 +2082,8 @@ class Inventory extends CI_Controller {
         
         // Subtotal row
         $html .= '<tr>';
-        $html .= '<td colspan="3" style="font-size: 1.125rem !important;" class="px-6 py-3 text-right font-semibold text-gray-700">Subtotal:</td>';
-        $html .= '<td style="font-size: 1.125rem !important;" class="px-6 py-3 font-semibold text-gray-900" id="subtotal_display"><sup style="font-size: 0.6em; vertical-align: super;">' . $currency . '</sup> 0.00</td>';
+        $html .= '<td colspan="3" style="font-size: 15px !important;" class="px-6 py-3 text-right font-semibold text-gray-700">Subtotal:</td>';
+        $html .= '<td style="font-size: 15px !important;" class="px-6 py-3 font-semibold text-gray-900" id="subtotal_display"><sup style="font-size: 0.6em; vertical-align: super;">' . $currency . '</sup> 0.00</td>';
         $html .= '<td></td>';
         $html .= '</tr>';
         
@@ -2073,25 +2091,25 @@ class Inventory extends CI_Controller {
         $html .= '<tr>';
         $html .= '<td colspan="3" class="px-6 py-3">';
         $html .= '<div class="flex items-center justify-end gap-4">';
-        $html .= '<span style="font-size: 1.125rem !important;" class="font-semibold text-gray-700">Discount:</span>';
+        $html .= '<span style="font-size: 15px !important;" class="font-semibold text-gray-700">Discount:</span>';
         $discount_type = $purchase['discount_type'] ?? '';
         $discount_value = $purchase['discount_value'] ?? 0;
-        $html .= '<select name="discount_type" id="discount_type" onchange="calculateDiscount()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 1.125rem !important; min-height: 3rem !important;">';
+        $html .= '<select name="discount_type" id="discount_type" onchange="calculateDiscount()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 15px !important; min-height: 44px !important;">';
         $html .= '<option value="">No Discount</option>';
         $html .= '<option value="percentage"' . ($discount_type === 'percentage' ? ' selected' : '') . '>Percentage (%)</option>';
         $html .= '<option value="fixed"' . ($discount_type === 'fixed' ? ' selected' : '') . '>Fixed Amount</option>';
         $html .= '</select>';
-        $html .= '<input type="number" name="discount_value" id="discount_value" min="0" step="0.01" value="' . $discount_value . '" placeholder="0" onchange="calculateDiscount()" class="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 1.125rem !important; min-height: 3rem !important;">';
+        $html .= '<input type="number" name="discount_value" id="discount_value" min="0" step="0.01" value="' . $discount_value . '" placeholder="0" onchange="calculateDiscount()" class="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 15px !important; min-height: 44px !important;">';
         $html .= '</div>';
         $html .= '</td>';
-        $html .= '<td style="font-size: 1.125rem !important;" class="px-6 py-3 font-semibold text-red-600" id="discount_amount_display">- <sup style="font-size: 0.6em; vertical-align: super;">' . $currency . '</sup> 0.00</td>';
+        $html .= '<td style="font-size: 15px !important;" class="px-6 py-3 font-semibold text-red-600" id="discount_amount_display">- <sup style="font-size: 0.6em; vertical-align: super;">' . $currency . '</sup> 0.00</td>';
         $html .= '<td></td>';
         $html .= '</tr>';
         
         // Final Total row
         $html .= '<tr class="border-t-2 border-gray-300">';
-        $html .= '<td colspan="3" style="font-size: 1.375rem !important;" class="px-6 py-4 text-right font-bold text-gray-900">Total Amount:</td>';
-        $html .= '<td style="font-size: 1.375rem !important;" class="px-6 py-4 font-bold text-green-600" id="total_amount_display"><sup style="font-size: 0.6em; vertical-align: super;">' . $currency . '</sup> 0.00</td>';
+        $html .= '<td colspan="3" style="font-size: 14px !important;" class="px-6 py-4 text-right font-bold text-gray-900">Total Amount:</td>';
+        $html .= '<td style="font-size: 14px !important;" class="px-6 py-4 font-bold text-green-600" id="total_amount_display"><sup style="font-size: 0.6em; vertical-align: super;">' . $currency . '</sup> 0.00</td>';
         $html .= '<td></td>';
         $html .= '</tr>';
         $html .= '</tfoot>';
@@ -2111,7 +2129,7 @@ class Inventory extends CI_Controller {
             $html .= '<label class="relative inline-flex items-center cursor-pointer">';
             $html .= '<input type="checkbox" id="record_payment_now" name="record_payment_now" value="1" class="sr-only peer"' . ($has_payments ? ' checked' : '') . '>';
             $html .= '<div class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[\'\'] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>';
-            $html .= '<span style="font-size: 1.375rem !important;" class="ml-4 font-semibold text-gray-700">Record Payment Now</span>';
+            $html .= '<span style="font-size: 14px !important;" class="ml-4 font-semibold text-gray-700">Record Payment Now</span>';
             $html .= '</label>';
             
             $html .= '</div>';
@@ -2122,7 +2140,7 @@ class Inventory extends CI_Controller {
             // Show existing payments if editing
             if($has_payments) {
                 $html .= '<div class="mb-6 pb-4 border-b border-blue-300">';
-                $html .= '<h4 style="font-size: 1.375rem !important;" class="font-bold text-gray-800 mb-4">Existing Payment Records</h4>';
+                $html .= '<h4 style="font-size: 14px !important;" class="font-bold text-gray-800 mb-4">Existing Payment Records</h4>';
                 
                 // Calculate total paid
                 $total_paid = 0;
@@ -2151,12 +2169,12 @@ class Inventory extends CI_Controller {
                 $html .= '<div class="flex items-center">';
                 $html .= '<i class="fas fa-' . $status_icon . ' text-2xl mr-3" id="payment_status_icon"></i>';
                 $html .= '<div>';
-                $html .= '<p style="font-size: 1.125rem !important;" class="font-semibold" id="payment_status_text">' . $status_text . '</p>';
-                $html .= '<p style="font-size: 1rem !important;" id="payment_summary_text">Total Paid: <strong><sup class="text-xs">' . $currency . '</sup> <span id="total_paid_display">' . number_format($total_paid, 2) . '</span></strong> of <strong><sup class="text-xs">' . $currency . '</sup> <span id="current_total_display">' . number_format($current_total, 2) . '</span></strong></p>';
+                $html .= '<p style="font-size: 15px !important;" class="font-semibold" id="payment_status_text">' . $status_text . '</p>';
+                $html .= '<p style="font-size: 13px !important;" id="payment_summary_text">Total Paid: <strong><sup class="text-xs">' . $currency . '</sup> <span id="total_paid_display">' . number_format($total_paid, 2) . '</span></strong> of <strong><sup class="text-xs">' . $currency . '</sup> <span id="current_total_display">' . number_format($current_total, 2) . '</span></strong></p>';
                 if($balance > 0) {
-                    $html .= '<p style="font-size: 1rem !important;" id="balance_text">Outstanding Balance: <strong><sup class="text-xs">' . $currency . '</sup> <span id="balance_display">' . number_format($balance, 2) . '</span></strong></p>';
+                    $html .= '<p style="font-size: 13px !important;" id="balance_text">Outstanding Balance: <strong><sup class="text-xs">' . $currency . '</sup> <span id="balance_display">' . number_format($balance, 2) . '</span></strong></p>';
                 } else {
-                    $html .= '<p style="font-size: 1rem !important; display: none;" id="balance_text">Outstanding Balance: <strong><sup class="text-xs">' . $currency . '</sup> <span id="balance_display">0.00</span></strong></p>';
+                    $html .= '<p style="font-size: 13px !important; display: none;" id="balance_text">Outstanding Balance: <strong><sup class="text-xs">' . $currency . '</sup> <span id="balance_display">0.00</span></strong></p>';
                 }
                 $html .= '</div>';
                 $html .= '</div>';
@@ -2175,20 +2193,20 @@ class Inventory extends CI_Controller {
                 
                 $html .= '<table class="w-full" id="existing_payments_table">';
                 $html .= '<thead><tr class="border-b border-gray-200">';
-                $html .= '<th style="font-size: 1.125rem !important;" class="text-left py-2 font-semibold">Date</th>';
-                $html .= '<th style="font-size: 1.125rem !important;" class="text-left py-2 font-semibold">Method</th>';
-                $html .= '<th style="font-size: 1.125rem !important;" class="text-right py-2 font-semibold">Amount</th>';
-                $html .= '<th style="font-size: 1.125rem !important;" class="text-right py-2 font-semibold">Reference</th>';
-                $html .= '<th style="font-size: 1.125rem !important;" class="text-center py-2 font-semibold">Action</th>';
+                $html .= '<th style="font-size: 15px !important;" class="text-left py-2 font-semibold">Date</th>';
+                $html .= '<th style="font-size: 15px !important;" class="text-left py-2 font-semibold">Method</th>';
+                $html .= '<th style="font-size: 15px !important;" class="text-right py-2 font-semibold">Amount</th>';
+                $html .= '<th style="font-size: 15px !important;" class="text-right py-2 font-semibold">Reference</th>';
+                $html .= '<th style="font-size: 15px !important;" class="text-center py-2 font-semibold">Action</th>';
                 $html .= '</tr></thead>';
                 $html .= '<tbody>';
                 
                 foreach($existing_payments as $pmt) {
                     $html .= '<tr class="border-b border-gray-100 payment-row" data-payment-id="' . $pmt['id'] . '" data-payment-amount="' . $pmt['amount'] . '">';
-                    $html .= '<td style="font-size: 1.125rem !important;" class="py-2">' . date('d/m/Y', strtotime($pmt['payment_date'])) . '</td>';
-                    $html .= '<td style="font-size: 1.125rem !important;" class="py-2">' . ($pmt['method_name'] ?: 'N/A') . '</td>';
-                    $html .= '<td style="font-size: 1.125rem !important;" class="py-2 text-right font-semibold"><sup class="text-xs">' . $currency . '</sup> ' . number_format($pmt['amount'], 2) . '</td>';
-                    $html .= '<td style="font-size: 1.125rem !important;" class="py-2 text-right">' . ($pmt['reference_number'] ?: '-') . '</td>';
+                    $html .= '<td style="font-size: 15px !important;" class="py-2">' . date('d/m/Y', strtotime($pmt['payment_date'])) . '</td>';
+                    $html .= '<td style="font-size: 15px !important;" class="py-2">' . ($pmt['method_name'] ?: 'N/A') . '</td>';
+                    $html .= '<td style="font-size: 15px !important;" class="py-2 text-right font-semibold"><sup class="text-xs">' . $currency . '</sup> ' . number_format($pmt['amount'], 2) . '</td>';
+                    $html .= '<td style="font-size: 15px !important;" class="py-2 text-right">' . ($pmt['reference_number'] ?: '-') . '</td>';
                     $html .= '<td class="py-2 text-center">';
                     $html .= '<button type="button" class="px-2 py-1 rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none transition-colors delete-payment-btn" data-payment-id="' . $pmt['id'] . '" data-payment-amount="' . $pmt['amount'] . '" title="Delete payment"><i class="fa fa-times"></i></button>';
                     $html .= '</td>';
@@ -2197,7 +2215,7 @@ class Inventory extends CI_Controller {
                 
                 $html .= '</tbody></table>';
                 $html .= '</div>';
-                $html .= '<p style="font-size: 1rem !important;" class="text-gray-600 mt-3"><i class="fas fa-info-circle mr-1"></i><strong>Tip:</strong> You can delete existing payments and add a new payment record below if the amount has changed.</p>';
+                $html .= '<p style="font-size: 13px !important;" class="text-gray-600 mt-3"><i class="fas fa-info-circle mr-1"></i><strong>Tip:</strong> You can delete existing payments and add a new payment record below if the amount has changed.</p>';
                 $html .= '</div>';
                 
                 // Hidden field to track deleted payments
@@ -2206,7 +2224,7 @@ class Inventory extends CI_Controller {
             
             // Show payment form fields (for new orders or adding payments)
             if(!$has_payments) {
-                $html .= '<h4 style="font-size: 1.375rem !important;" class="font-bold text-gray-800 mb-4">Payment Details</h4>';
+                $html .= '<h4 style="font-size: 14px !important;" class="font-bold text-gray-800 mb-4">Payment Details</h4>';
             }
             
             // Payment fields in a grid
@@ -2214,21 +2232,21 @@ class Inventory extends CI_Controller {
             
             // Payment Date
             $html .= '<div>';
-            $html .= '<label style="font-size: 1.25rem !important;" class="block font-semibold text-gray-700 mb-2">Payment Date</label>';
-            $html .= '<input type="text" name="payment_date" id="payment_date" value="' . date('d/m/Y') . '" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 datepicker-dd-mm-yyyy" style="font-size: 1.125rem !important; min-height: 3.5rem !important;" placeholder="dd/mm/yyyy" readonly>';
+            $html .= '<label style="font-size: 14px !important;" class="block font-semibold text-gray-700 mb-2">Payment Date</label>';
+            $html .= '<input type="text" name="payment_date" id="payment_date" value="' . date('d/m/Y') . '" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 datepicker-dd-mm-yyyy" style="font-size: 15px !important; min-height: 44px !important;" placeholder="dd/mm/yyyy" readonly>';
             $html .= '</div>';
             
             // Amount Paid
             $html .= '<div>';
-            $html .= '<label style="font-size: 1.25rem !important;" class="block font-semibold text-gray-700 mb-2">Amount Paid</label>';
-            $html .= '<input type="number" name="payment_amount" id="payment_amount" min="0" step="0.01" placeholder="Enter amount" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 1.125rem !important; min-height: 3.5rem !important;">';
-            $html .= '<p style="font-size: 1rem !important;" class="text-gray-600 mt-1">Leave blank or enter 0 for full amount</p>';
+            $html .= '<label style="font-size: 14px !important;" class="block font-semibold text-gray-700 mb-2">Amount Paid</label>';
+            $html .= '<input type="number" name="payment_amount" id="payment_amount" min="0" step="0.01" placeholder="Enter amount" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 15px !important; min-height: 44px !important;">';
+            $html .= '<p style="font-size: 13px !important;" class="text-gray-600 mt-1">Leave blank or enter 0 for full amount</p>';
             $html .= '</div>';
             
             // Payment Method
             $html .= '<div>';
-            $html .= '<label style="font-size: 1.25rem !important;" class="block font-semibold text-gray-700 mb-2">Payment Method</label>';
-            $html .= '<select name="payment_method_id" id="payment_method_id" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 1.125rem !important; min-height: 3.5rem !important;">';
+            $html .= '<label style="font-size: 14px !important;" class="block font-semibold text-gray-700 mb-2">Payment Method</label>';
+            $html .= '<select name="payment_method_id" id="payment_method_id" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 15px !important; min-height: 44px !important;">';
             $html .= '<option value="">Select Payment Method</option>';
             foreach($payment_methods as $method) {
                 $html .= '<option value="' . $method['id'] . '">' . htmlspecialchars($method['name']) . '</option>';
@@ -2238,18 +2256,18 @@ class Inventory extends CI_Controller {
             
             // Reference Number
             $html .= '<div>';
-            $html .= '<label style="font-size: 1.25rem !important;" class="block font-semibold text-gray-700 mb-2">Reference Number</label>';
+            $html .= '<label style="font-size: 14px !important;" class="block font-semibold text-gray-700 mb-2">Reference Number</label>';
             $payment_reference = $latest_payment ? htmlspecialchars($latest_payment['reference_number'] ?? '') : '';
-            $html .= '<input type="text" name="payment_reference" id="payment_reference" value="' . $payment_reference . '" placeholder="Optional" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 1.125rem !important; min-height: 3.5rem !important;">';
+            $html .= '<input type="text" name="payment_reference" id="payment_reference" value="' . $payment_reference . '" placeholder="Optional" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 15px !important; min-height: 44px !important;">';
             $html .= '</div>';
             
             $html .= '</div>'; // End grid
             
             // Payment Notes (full width)
             $html .= '<div class="mt-4">';
-            $html .= '<label style="font-size: 1.25rem !important;" class="block font-semibold text-gray-700 mb-2">Payment Notes</label>';
+            $html .= '<label style="font-size: 14px !important;" class="block font-semibold text-gray-700 mb-2">Payment Notes</label>';
             $payment_notes = $latest_payment ? htmlspecialchars($latest_payment['notes'] ?? '') : '';
-            $html .= '<textarea name="payment_notes" id="payment_notes" rows="2" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 1.125rem !important;" placeholder="Optional payment notes">' . $payment_notes . '</textarea>';
+            $html .= '<textarea name="payment_notes" id="payment_notes" rows="2" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 15px !important;" placeholder="Optional payment notes">' . $payment_notes . '</textarea>';
             $html .= '</div>';
             
             $html .= '</div>'; // End payment_fields
@@ -2258,14 +2276,14 @@ class Inventory extends CI_Controller {
         
         // Notes
         $html .= '<div class="mb-6">';
-        $html .= '<label style="font-size: 1.375rem !important;" class="block font-semibold text-gray-700 mb-3">Notes</label>';
-        $html .= '<textarea name="notes" rows="4" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 1.125rem !important;" placeholder="Add any additional notes or instructions...">' . ($purchase['notes'] ?? '') . '</textarea>';
+        $html .= '<label style="font-size: 14px !important;" class="block font-semibold text-gray-700 mb-3">Notes</label>';
+        $html .= '<textarea name="notes" rows="4" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" style="font-size: 15px !important;" placeholder="Add any additional notes or instructions...">' . ($purchase['notes'] ?? '') . '</textarea>';
         $html .= '</div>';
         
         // Buttons
         $html .= '<div class="flex justify-end gap-4 mt-6">';
-        $html .= '<button type="button" onclick="closeModal()" class="px-6 py-3 font-semibold rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors" style="font-size: 1.125rem !important; min-height: 3.5rem !important;">Cancel</button>';
-        $html .= '<button type="submit" class="px-6 py-3 font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors" style="font-size: 1.125rem !important; min-height: 3.5rem !important;"><i class="fa fa-save mr-2"></i> ' . ($id ? 'Update' : 'Create') . ' Purchase Order</button>';
+        $html .= '<button type="button" onclick="closeModal()" class="px-6 py-3 font-semibold rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors" style="font-size: 15px !important; min-height: 44px !important;">Cancel</button>';
+        $html .= '<button type="submit" class="px-6 py-3 font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors" style="font-size: 15px !important; min-height: 44px !important;"><i class="fa fa-save mr-2"></i> ' . ($id ? 'Update' : 'Create') . ' Purchase Order</button>';
         $html .= '</div>';
         
         $html .= form_close();
@@ -2582,13 +2600,13 @@ class Inventory extends CI_Controller {
             var row = `
                 <tr class="purchase-item-row hover:bg-blue-50 transition-colors">
                     <td class="px-6 py-4">
-                        <select name="items[product_id][]" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 product-select" required style="font-size: 1.125rem !important; min-height: 3.5rem !important;">
+                        <select name="items[product_id][]" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 product-select" required style="font-size: 15px !important; min-height: 44px !important;">
                             ${optionsHtml}
                         </select>
                     </td>
-                    <td class="px-6 py-4"><input type="number" name="items[quantity][]" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 quantity-input" min="1" value="1" required onchange="calculateRowTotal(this)" style="font-size: 1.125rem !important; min-height: 3.5rem !important;"></td>
-                    <td class="px-6 py-4"><input type="number" name="items[cost_price][]" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 cost-input" min="0" step="0.01" required onchange="calculateRowTotal(this)" style="font-size: 1.125rem !important; min-height: 3.5rem !important;"></td>
-                    <td class="px-6 py-4 row-total font-semibold text-gray-900" style="font-size: 1.125rem !important;"><sup style="font-size: 0.6em; vertical-align: super;">${currency}</sup> 0.00</td>
+                    <td class="px-6 py-4"><input type="number" name="items[quantity][]" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 quantity-input" min="1" value="1" required onchange="calculateRowTotal(this)" style="font-size: 15px !important; min-height: 44px !important;"></td>
+                    <td class="px-6 py-4"><input type="number" name="items[cost_price][]" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 cost-input" min="0" step="0.01" required onchange="calculateRowTotal(this)" style="font-size: 15px !important; min-height: 44px !important;"></td>
+                    <td class="px-6 py-4 row-total font-semibold text-gray-900" style="font-size: 15px !important;"><sup style="font-size: 0.6em; vertical-align: super;">${currency}</sup> 0.00</td>
                     <td class="px-6 py-4 text-center"><button type="button" class="px-3 py-2 font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors" onclick="removeRow(this)"><i class="fa fa-trash"></i></button></td>
                 </tr>
             `;
@@ -2723,7 +2741,7 @@ class Inventory extends CI_Controller {
         function removeRow(btn) {
             $(btn).closest("tr").remove();
             if($("#purchase_items_tbody tr").length === 0) {
-                $("#purchase_items_tbody").html("<tr><td colspan=\"5\" style=\"font-size: 1.125rem !important;\" class=\"px-6 py-10 text-center text-gray-500\">No items added yet</td></tr>");
+                $("#purchase_items_tbody").html("<tr><td colspan=\"5\" style=\"font-size: 15px !important;\" class=\"px-6 py-10 text-center text-gray-500\">No items added yet</td></tr>");
                 $("#add_item_btn").prop("disabled", false).removeClass("opacity-50 cursor-not-allowed");
             } else {
                 updateProductDropdowns();
@@ -3000,16 +3018,16 @@ class Inventory extends CI_Controller {
     private function generate_purchase_item_row($products, $item, $currency) {
         $html = '<tr class="purchase-item-row hover:bg-blue-50 transition-colors">';
         $html .= '<td class="px-6 py-4">';
-        $html .= '<select name="items[product_id][]" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 product-select" required onchange="updateProductInfo(this)" style="font-size: 1.125rem !important; min-height: 3.5rem !important;">';
+        $html .= '<select name="items[product_id][]" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 product-select" required onchange="updateProductInfo(this)" style="font-size: 15px !important; min-height: 44px !important;">';
         foreach($products as $product) {
             $selected = ($item['product_id'] == $product['id']) ? 'selected' : '';
             $html .= '<option value="' . $product['id'] . '" data-cost="' . $product['cost_price'] . '" data-stock="' . $product['quantity'] . '" ' . $selected . '>' . htmlspecialchars($product['name']) . ' (' . $product['sku'] . ')</option>';
         }
         $html .= '</select>';
         $html .= '</td>';
-        $html .= '<td class="px-6 py-4"><input type="number" name="items[quantity][]" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 quantity-input" min="1" value="' . $item['quantity'] . '" required onchange="calculateRowTotal(this)" style="font-size: 1.125rem !important; min-height: 3.5rem !important;"></td>';
-        $html .= '<td class="px-6 py-4"><input type="number" name="items[cost_price][]" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 cost-input" min="0" step="0.01" value="' . $item['cost_price'] . '" required onchange="calculateRowTotal(this)" style="font-size: 1.125rem !important; min-height: 3.5rem !important;"></td>';
-        $html .= '<td class="px-6 py-4 row-total font-semibold text-gray-900" style="font-size: 1.125rem !important;"><sup style="font-size: 0.6em; vertical-align: super;">' . $currency . '</sup> ' . number_format($item['quantity'] * $item['cost_price'], 2) . '</td>';
+        $html .= '<td class="px-6 py-4"><input type="number" name="items[quantity][]" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 quantity-input" min="1" value="' . $item['quantity'] . '" required onchange="calculateRowTotal(this)" style="font-size: 15px !important; min-height: 44px !important;"></td>';
+        $html .= '<td class="px-6 py-4"><input type="number" name="items[cost_price][]" class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 cost-input" min="0" step="0.01" value="' . $item['cost_price'] . '" required onchange="calculateRowTotal(this)" style="font-size: 15px !important; min-height: 44px !important;"></td>';
+        $html .= '<td class="px-6 py-4 row-total font-semibold text-gray-900" style="font-size: 15px !important;"><sup style="font-size: 0.6em; vertical-align: super;">' . $currency . '</sup> ' . number_format($item['quantity'] * $item['cost_price'], 2) . '</td>';
         $html .= '<td class="px-6 py-4 text-center"><button type="button" class="px-3 py-2 font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors" onclick="removeRow(this)"><i class="fa fa-trash"></i></button></td>';
         $html .= '</tr>';
         return $html;
@@ -3099,7 +3117,7 @@ class Inventory extends CI_Controller {
             overflow-y: auto !important; 
         }
         .return-form-modern { 
-            font-size: 1.25rem !important; 
+            font-size: 14px !important;
             padding-bottom: 20px; 
         }
         .search-card { 
@@ -3111,10 +3129,10 @@ class Inventory extends CI_Controller {
         }
         .search-field { 
             height: 60px !important; 
-            font-size: 1.25rem !important; 
+            font-size: 14px !important;
             border: 2px solid #d1d5db !important; 
             border-radius: 8px !important;
-            padding: 0.75rem 1rem !important;
+            padding: 9px 11px !important;
         }
         .search-field:focus { 
             border-color: #3b82f6 !important; 
@@ -3122,7 +3140,7 @@ class Inventory extends CI_Controller {
         }
         .search-btn { 
             height: 60px !important; 
-            font-size: 1.25rem !important; 
+            font-size: 14px !important;
             font-weight: 600 !important;
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
             border: none !important;
@@ -3170,14 +3188,14 @@ class Inventory extends CI_Controller {
             gap: 4px;
         }
         .info-label {
-            font-size: 1rem !important;
+            font-size: 13px !important;
             font-weight: 600;
             color: #1e40af;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .info-value {
-            font-size: 1.375rem !important;
+            font-size: 14px !important;
             font-weight: 700;
             color: #1e293b;
         }
@@ -3191,7 +3209,7 @@ class Inventory extends CI_Controller {
             color: white !important;
         }
         .return-table thead th {
-            font-size: 1.25rem !important;
+            font-size: 14px !important;
             font-weight: 700;
             padding: 1.25rem;
             text-transform: uppercase;
@@ -3200,20 +3218,20 @@ class Inventory extends CI_Controller {
         }
         .return-table tbody td {
             padding: 1.25rem;
-            font-size: 1.25rem !important;
+            font-size: 14px !important;
             vertical-align: middle;
         }
         .return-table tfoot {
             background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
             font-weight: 700;
-            font-size: 1.375rem !important;
+            font-size: 14px !important;
         }
         .return-table tfoot td {
             padding: 1.25rem;
-            font-size: 1.375rem !important;
+            font-size: 14px !important;
         }
         .form-group-modern label {
-            font-size: 1.125rem !important;
+            font-size: 15px !important;
             font-weight: 600;
             color: #374151;
             margin-bottom: 8px;
@@ -3221,7 +3239,7 @@ class Inventory extends CI_Controller {
         }
         .form-control-modern {
             height: 60px;
-            font-size: 1.25rem !important;
+            font-size: 14px !important;
             border: 2px solid #d1d5db;
             border-radius: 8px;
             padding: 0.75rem 1rem;
@@ -3232,7 +3250,7 @@ class Inventory extends CI_Controller {
         }
         .btn-modern {
             height: 60px;
-            font-size: 1.25rem !important;
+            font-size: 14px !important;
             font-weight: 600;
             border-radius: 8px;
             padding: 0 2rem;
