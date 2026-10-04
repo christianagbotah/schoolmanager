@@ -47,36 +47,268 @@
     color: white;
 }
 </style>
+<style>
+/* Direct UI/UX normalization — Inventory Products */
+.inventory-products-workspace {
+    margin: 0 !important;
+    padding: 24px 28px 40px !important;
+    background: #f8fafc;
+    min-height: 100%;
+}
+.inventory-products-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.inventory-products-eyebrow {
+    margin: 0 0 4px;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.inventory-products-head h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 30px !important;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+.inventory-products-head p:last-child {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 15px !important;
+    line-height: 1.5;
+}
+.inventory-products-primary-action,
+.inventory-products-filter-actions .btn {
+    min-height: 44px;
+    padding: 10px 15px !important;
+    border-radius: 9px !important;
+    font-size: 14px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+}
+.inventory-products-primary-action {
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #fff !important;
+}
+.inventory-products-filter-card {
+    margin-bottom: 16px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+}
+.inventory-products-filter-row {
+    display: grid;
+    grid-template-columns: minmax(260px, 1.65fr) minmax(180px, .8fr) minmax(160px, .7fr) auto;
+    gap: 12px;
+    align-items: end;
+}
+.inventory-products-filter-field label {
+    display: block;
+    margin: 0 0 6px;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 800;
+}
+.inventory-products-filter-field input,
+.inventory-products-filter-field select {
+    width: 100%;
+    height: 44px;
+    padding: 9px 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #fff;
+    color: #0f172a;
+    font-size: 15px !important;
+    line-height: 1.35;
+}
+.inventory-products-search-wrap { position: relative; }
+.inventory-products-search-wrap > i {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+.inventory-products-search-wrap input { padding-left: 34px; }
+.inventory-products-filter-field input:focus,
+.inventory-products-filter-field select:focus {
+    border-color: #2563eb;
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+.inventory-products-filter-actions {
+    display: flex;
+    gap: 8px;
+}
+.inventory-products-filter-actions .btn-default {
+    border: 1px solid #cbd5e1 !important;
+    background: #fff !important;
+    color: #334155 !important;
+}
+.inventory-products-workspace > .bg-white.rounded-xl.shadow-lg.overflow-hidden {
+    overflow-x: auto !important;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+}
+#products_data_table { min-width: 980px; }
+#products_data_table thead { background: #f8fafc !important; }
+#products_data_table thead th {
+    padding: 12px 13px !important;
+    color: #475569 !important;
+    font-size: 13px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+    letter-spacing: .035em;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+#products_data_table tbody td {
+    padding: 12px 13px !important;
+    color: #334155;
+    font-size: 14px !important;
+    line-height: 1.45;
+    vertical-align: middle;
+    border-bottom: 1px solid #eef2f7 !important;
+}
+#products_data_table tbody td * { font-size: inherit; }
+#products_data_table tbody button {
+    min-width: 38px;
+    min-height: 36px;
+    padding: 7px 10px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+}
+.inventory-products-workspace .dataTables_wrapper { padding: 14px; }
+.inventory-products-workspace .dataTables_length,
+.inventory-products-workspace .dataTables_filter,
+.inventory-products-workspace .dataTables_info,
+.inventory-products-workspace .dataTables_paginate {
+    color: #475569;
+    font-size: 14px;
+}
+.inventory-products-workspace .dataTables_length select,
+.inventory-products-workspace .dataTables_filter input {
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+}
+.inventory-products-workspace .dt-buttons .btn {
+    min-height: 38px;
+    padding: 8px 11px !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    transform: none !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+}
+#modal_ajax .modal-dialog { width: min(760px, calc(100vw - 30px)); }
+#modal_ajax .modal-content { border-radius: 14px; overflow: hidden; }
+#modal_ajax .modal-header { padding: 16px 18px; border-bottom: 1px solid #e2e8f0; }
+#modal_ajax .modal-body { padding: 18px; }
+#modal_ajax .modal-body label {
+    color: #334155 !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+}
+#modal_ajax .modal-body input,
+#modal_ajax .modal-body select,
+#modal_ajax .modal-body textarea {
+    min-height: 44px;
+    padding: 9px 11px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 9px !important;
+    color: #0f172a;
+    font-size: 15px !important;
+}
+#modal_ajax .modal-body textarea { min-height: 94px; }
+#modal_ajax .modal-body button {
+    min-height: 44px;
+    padding: 9px 15px !important;
+    border-radius: 9px !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+}
+@media (max-width: 980px) {
+    .inventory-products-filter-row { grid-template-columns: 1fr 1fr; }
+    .inventory-products-search-field { grid-column: 1 / -1; }
+}
+@media (max-width: 767px) {
+    .inventory-products-workspace { padding: 18px 14px 32px !important; }
+    .inventory-products-head { display: block; }
+    .inventory-products-head h1 { font-size: 26px !important; }
+    .inventory-products-primary-action { width: 100%; margin-top: 14px; }
+    .inventory-products-filter-row { grid-template-columns: 1fr; }
+    .inventory-products-search-field { grid-column: auto; }
+    .inventory-products-filter-actions { display: grid; grid-template-columns: 1fr 1fr; }
+    .inventory-products-filter-field input,
+    .inventory-products-filter-field select { font-size: 16px !important; }
+    #modal_ajax .modal-body .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
+    #modal_ajax .modal-body .col-span-2 { grid-column: auto !important; }
+}
+</style>
 
-<div class="inventory-content p-8" style="margin-top: 70px;">
-    <div class="mb-8 flex justify-between items-center">
+<div class="inventory-content inventory-products-workspace">
+    <div class="inventory-products-head">
         <div>
-            <h1 style="font-size: 3.5rem !important;" class="font-bold text-gray-900">Products</h1>
-            <p style="font-size: 1.5rem !important;" class="mt-2 text-gray-600">Manage inventory products</p>
+            <p class="inventory-products-eyebrow">Inventory</p>
+            <h1>Products</h1>
+            <p>Manage catalogue items, pricing, stock thresholds and product availability from one workspace.</p>
         </div>
-        <button onclick="showAddModal()" class="btn btn-primary px-6 py-3 text-white rounded-lg shadow-lg" style="font-size: 1.5rem !important;">
-            <i class="fa fa-plus mr-2"></i>Add Product
+        <button onclick="showAddModal()" class="btn btn-primary inventory-products-primary-action">
+            <i class="fa fa-plus"></i> Add Product
         </button>
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 justify-self-end">
-            
-            <select id="category_filter" class="px-4 py-3 border rounded-lg" style="font-size: 1.375rem !important;">
-                <option value="">All Categories</option>
-                <?php foreach($categories as $cat): ?>
-                <option value="<?php echo $cat->id; ?>"><?php echo $cat->name; ?></option>
-                <?php endforeach; ?>
-            </select>
-            <select id="status_filter" class="px-4 py-3 border rounded-lg" style="font-size: 1.375rem !important;">
-                <option value="">All Status</option>
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
-            </select>
-            <button onclick="loadProducts()" class="btn btn-primary px-6 py-3 text-white rounded-lg" style="font-size: 1.375rem !important;">
-                <i class="fa fa-search mr-2"></i>Search
-            </button>
+    <div class="inventory-products-filter-card">
+        <div class="inventory-products-filter-row">
+            <div class="inventory-products-filter-field inventory-products-search-field">
+                <label for="search">Search products</label>
+                <div class="inventory-products-search-wrap">
+                    <i class="fa fa-search"></i>
+                    <input id="search" type="search" placeholder="Name, SKU or product keyword">
+                </div>
+            </div>
+            <div class="inventory-products-filter-field">
+                <label for="category_filter">Category</label>
+                <select id="category_filter">
+                    <option value="">All Categories</option>
+                    <?php foreach($categories as $cat): ?>
+                    <option value="<?php echo $cat->id; ?>"><?php echo $cat->name; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="inventory-products-filter-field">
+                <label for="status_filter">Status</label>
+                <select id="status_filter">
+                    <option value="">All Status</option>
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
+            </div>
+            <div class="inventory-products-filter-actions">
+                <button type="button" onclick="loadProducts()" class="btn btn-primary">
+                    <i class="fa fa-search"></i> Apply
+                </button>
+                <button type="button" onclick="$('#search').val(''); $('#category_filter, #status_filter').val(''); loadProducts();" class="btn btn-default">
+                    Reset
+                </button>
+            </div>
         </div>
     </div>
 
@@ -108,7 +340,7 @@ let totalPages = 1;
 
 $(document).ready(function() {
     loadProducts();
-    
+
     // Trigger search as you type (with debounce to avoid too many requests)
     let searchTimeout;
     $('#search').on('keyup', function(e) {
@@ -117,7 +349,7 @@ $(document).ready(function() {
             loadProducts();
         }, 500); // Wait 500ms after user stops typing
     });
-    
+
     // Also trigger on filter changes
     $('#category_filter, #status_filter').on('change', function() {
         loadProducts();
@@ -129,29 +361,29 @@ function loadProducts() {
     if ($.fn.DataTable.isDataTable('#products_data_table')) {
         $('#products_data_table').DataTable().destroy();
     }
-    
+
     const search = $('#search').val();
     const category = $('#category_filter').val();
     const status = $('#status_filter').val();
-    
+
     $.get('<?php echo site_url('inventory/get_products_ajax'); ?>', {search, category, status, page: 1, limit: 10000}, function(response) {
         const data = JSON.parse(response);
-        
+
         let html = '';
-        
+
         // Don't add "no data" row - let DataTable handle it
         data.data.forEach(p => {
-            const statusBadge = p.status == 1 
+            const statusBadge = p.status == 1
                 ? '<span class="px-3 py-1 bg-green-100 text-green-800 rounded-full font-semibold" style="font-size: 1rem !important;">Active</span>'
                 : '<span class="px-3 py-1 bg-red-100 text-red-800 rounded-full font-semibold" style="font-size: 1rem !important;">Inactive</span>';
-            
+
             const stockClass = p.quantity <= p.reorder_level ? 'text-red-600 font-bold' : 'text-gray-900';
-            
+
             // Status toggle button
             const toggleBtn = p.status == 1
                 ? `<button onclick="toggleProductStatus(${p.id})" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 mr-2" style="font-size: 1.125rem !important;" title="Deactivate"><i class="fa fa-toggle-on"></i></button>`
                 : `<button onclick="toggleProductStatus(${p.id})" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 mr-2" style="font-size: 1.125rem !important;" title="Activate"><i class="fa fa-toggle-off"></i></button>`;
-            
+
             html += `<tr class="hover:bg-gray-50">
                 <td class="px-6 py-4" style="font-size: 1.25rem !important;">${p.name}</td>
                 <td class="px-6 py-4 text-gray-600" style="font-size: 1.25rem !important;">${p.sku || '-'}</td>
@@ -166,9 +398,9 @@ function loadProducts() {
                 </td>
             </tr>`;
         });
-        
+
         $('#products_table').html(html);
-        
+
         // Initialize DataTable
         $('#products_data_table').DataTable({
             "pageLength": 25,
@@ -328,14 +560,14 @@ function showAddModal() {
             </div>
         <?php echo form_close(); ?>
     `;
-    
+
     showModalWithContent('modal_ajax', '<i class="fa fa-plus"></i> Add Product', form);
-    
+
     $('#product_form').submit(function(e) {
         e.preventDefault();
         $('.close')[0].click();
         showAjaxModal_alert('Saving...', 'loading');
-        
+
         $.ajax({
             url: $(this).attr('action'),
             type: 'POST',
@@ -368,18 +600,18 @@ function showEditModal(id) {
         dataType: 'json'
     }).done(function(data) {
         const product = data.data.find(p => p.id == id);
-        
+
         if(!product) {
             showAjaxModal_alert('Product not found', 'error');
             return;
         }
-        
+
         const categoryOptions = <?php echo json_encode(array_map(function($c) { return ['id' => $c->id, 'name' => $c->name]; }, $categories)); ?>;
         let categorySelect = '<option value="">Select Category</option>';
         categoryOptions.forEach(cat => {
             categorySelect += `<option value="${cat.id}" ${product.category_id == cat.id ? 'selected' : ''}>${cat.name}</option>`;
         });
-        
+
         const form = `
             <?php echo form_open('inventory/update_product', ['id' => 'product_form']); ?>
                 <input type="hidden" name="id" value="${product.id}">
@@ -425,14 +657,14 @@ function showEditModal(id) {
                 </div>
             <?php echo form_close(); ?>
         `;
-        
+
         showModalWithContent('modal_ajax', '<i class="fa fa-edit"></i> Edit Product', form);
-        
+
         $('#product_form').submit(function(e) {
             e.preventDefault();
             $('.close')[0].click();
             showAjaxModal_alert('Updating...', 'loading');
-            
+
             $.ajax({
                 url: $(this).attr('action'),
                 type: 'POST',
@@ -444,7 +676,7 @@ function showEditModal(id) {
             }).done(function(response) {
                 if(response.status === 'success') {
                     showAjaxModal_alert(response.message, 'success', false);
-                
+
                     setTimeout(() => {
                         loadProducts();
                         $('.close').click();
