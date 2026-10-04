@@ -1,3 +1,188 @@
+<style>
+/* Direct UI/UX rebuild — Account Dashboard */
+body { background: #f8fafc; }
+.account-dashboard-head {
+    margin: 0 0 18px;
+    padding: 24px 28px 18px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+.account-dashboard-eyebrow {
+    margin: 0 0 4px;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.account-dashboard-head h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 30px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+.account-dashboard-head p:last-child {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.5;
+}
+.account-dashboard-head + .row,
+.account-dashboard-head ~ .row {
+    margin-left: 14px !important;
+    margin-right: 14px !important;
+}
+.account-dashboard-head ~ hr {
+    margin: 18px 28px !important;
+    border-color: #e2e8f0 !important;
+}
+
+.tile-stats {
+    min-height: 158px !important;
+    margin-bottom: 14px !important;
+    padding: 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-left-width: 4px !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    color: #334155 !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+    overflow: hidden;
+    transition: border-color .15s ease, box-shadow .15s ease !important;
+}
+.tile-stats:hover {
+    box-shadow: 0 4px 12px rgba(15,23,42,.06) !important;
+    transform: none !important;
+}
+.tile-stats.tile-red { border-left-color: #dc2626 !important; }
+.tile-stats.tile-green { border-left-color: #059669 !important; }
+.tile-stats.tile-aqua { border-left-color: #0284c7 !important; }
+.tile-stats.tile-blue { border-left-color: #2563eb !important; }
+.tile-stats.tile-black { border-left-color: #475569 !important; }
+
+.tile-stats .icon {
+    position: static !important;
+    float: none !important;
+    width: 38px;
+    height: 38px;
+    margin: 0 0 10px !important;
+    padding: 0 !important;
+    border-radius: 9px;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    color: #475569 !important;
+    opacity: 1 !important;
+}
+.tile-stats .icon i {
+    padding: 0 !important;
+    color: inherit !important;
+    font-size: 16px !important;
+}
+.tile-stats.tile-red .icon { background: #fef2f2; color: #dc2626 !important; }
+.tile-stats.tile-green .icon { background: #f0fdf4; color: #059669 !important; }
+.tile-stats.tile-aqua .icon { background: #f0f9ff; color: #0284c7 !important; }
+.tile-stats.tile-blue .icon { background: #eff6ff; color: #2563eb !important; }
+.tile-stats.tile-black .icon { background: #f1f5f9; color: #475569 !important; }
+
+.tile-stats sub,
+.tile-stats sub[style] {
+    position: static !important;
+    float: none !important;
+    display: inline-block;
+    margin: 0 0 4px !important;
+    color: #64748b !important;
+    font-size: 12.5px !important;
+    line-height: 1.35;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+.tile-stats sub.pull-right {
+    float: right !important;
+    margin: 2px 0 0 !important;
+}
+.tile-stats .label {
+    margin-left: 4px;
+    padding: 4px 7px !important;
+    border-radius: 999px;
+    font-size: 11.5px !important;
+    line-height: 1.2;
+    font-weight: 800;
+}
+.tile-stats .num {
+    margin: 0 0 8px !important;
+    color: #0f172a !important;
+    font-size: 24px !important;
+    line-height: 1.2 !important;
+    font-weight: 800 !important;
+    letter-spacing: -.015em;
+}
+.tile-stats h3 {
+    margin: 8px 0 0 !important;
+    color: #334155 !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+    font-weight: 700 !important;
+    text-transform: none !important;
+}
+.tile-stats h3 small,
+.tile-stats h3 small[style] {
+    color: #64748b !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+}
+.tile-stats p {
+    margin: 6px 0 0 !important;
+    color: #64748b !important;
+    font-size: 12.5px !important;
+    line-height: 1.4;
+}
+
+/* Unpaid balances tile contains three inline legacy amount rows. */
+.tile-stats > div[style*="font-size: 23px"] {
+    margin: 4px 0 !important;
+    color: #0f172a !important;
+    font-size: 17px !important;
+    line-height: 1.35 !important;
+    font-weight: 800 !important;
+}
+.tile-stats > div[style*="font-size: 23px"] small {
+    color: #64748b !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+}
+.tile-stats.cursor-pointer { cursor: pointer; }
+
+.account-dashboard-head ~ .row a,
+.account-dashboard-head ~ .row a:hover,
+.account-dashboard-head ~ .row a:focus {
+    color: inherit !important;
+    text-decoration: none !important;
+}
+
+@media (max-width: 991px) {
+    .account-dashboard-head + .row > [class*="col-md-"],
+    .account-dashboard-head ~ .row > [class*="col-md-"] {
+        margin-bottom: 0;
+    }
+}
+@media (max-width: 767px) {
+    .account-dashboard-head { padding: 18px 14px; }
+    .account-dashboard-head h1 { font-size: 26px; }
+    .account-dashboard-head + .row,
+    .account-dashboard-head ~ .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    .account-dashboard-head ~ hr { margin: 14px !important; }
+    .tile-stats { min-height: 0 !important; }
+}
+</style>
+
 <?php
 //currency
     $currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
@@ -337,6 +522,12 @@ foreach($payments as $row)
 
 ?>
 
+
+<div class="account-dashboard-head">
+    <p class="account-dashboard-eyebrow">Fees & Finance</p>
+    <h1>Finance Dashboard</h1>
+    <p>Monitor invoices, income, expenses, daily fee collections, transport collections, and outstanding balances.</p>
+</div>
 
 <div class="row">
     
