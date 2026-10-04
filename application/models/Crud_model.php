@@ -2664,7 +2664,7 @@ class Crud_model extends MY_Model {
                         }
                     }
                     
-                   if(count($found_ids_array > 0)) {
+                   if(count($found_ids_array) > 0) {
                          echo $notice_query->num_rows() - count($found_ids_array);
                    }else {
                          echo $notice_query->num_rows();
@@ -2716,7 +2716,7 @@ class Crud_model extends MY_Model {
                         }
                     }
                     
-                    if(count($found_ids_array > 0)) {
+                    if(count($found_ids_array) > 0) {
                          echo $notice_query->num_rows() - count($found_ids_array);
                    }else {
                          echo $notice_query->num_rows();

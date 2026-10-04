@@ -19424,8 +19424,8 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 	/***MANAGE EVENT / NOTICEBOARD, WILL BE SEEN BY ALL ACCOUNTS DASHBOARD**/
 	function noticeboard($param1 = '', $param2 = '', $param3 = '') {
-		//if ($this->session->userdata('admin_login') != 1)
-		//redirect(site_url('login'));
+		if ($this->session->userdata('admin_login') != 1)
+			redirect(site_url('login'));
 
 		if ($param1 == 'create') {
 			$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
@@ -19434,11 +19434,20 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$data['show_on_website'] = $this->input->post('show_on_website');
 			$data['create_timestamp'] = strtotime($this->input->post('create_timestamp'));
 			$data['created_on'] = strtotime($this->input->post('notice_timestamp'));
-			if ($_FILES['image']['name'] != '') {
-				$data['image'] = $_FILES['image']['name'];
-				move_uploaded_file($_FILES['image']['tmp_name'], 'uploads/frontend/noticeboard/' . $_FILES['image']['name']);
-			} else {
-				$data['image'] = 'notice_placeholder.jpg';
+			$data['image'] = null;
+			if (!empty($_FILES['image']['name']) && is_uploaded_file($_FILES['image']['tmp_name']) && @getimagesize($_FILES['image']['tmp_name']) !== false) {
+				$upload_dir = FCPATH . 'uploads/frontend/noticeboard/';
+				if (!is_dir($upload_dir)) {
+					@mkdir($upload_dir, 0755, true);
+				}
+				$extension = strtolower(pathinfo(basename($_FILES['image']['name']), PATHINFO_EXTENSION));
+				$allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+				if (in_array($extension, $allowed_extensions, true) && is_dir($upload_dir)) {
+					$file_name = 'notice_' . date('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
+					if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_dir . $file_name)) {
+						$data['image'] = $file_name;
+					}
+				}
 			}
 			$this->db->insert('noticeboard', $data);
 
@@ -19613,11 +19622,24 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			$data['show_on_website'] = $this->input->post('show_on_website');
 			$data['create_timestamp'] = strtotime($this->input->post('create_timestamp'));
 			$data['created_on'] = strtotime($this->input->post('notice_timestamp'));
-			if ($_FILES['image']['name'] != '') {
-				$data['image'] = $_FILES['image']['name'];
-				move_uploaded_file($_FILES['image']['tmp_name'], 'uploads/frontend/noticeboard/' . $_FILES['image']['name']);
-			} else {
-				$data['image'] = $image;
+			$data['image'] = $image;
+			if (!empty($_FILES['image']['name']) && is_uploaded_file($_FILES['image']['tmp_name']) && @getimagesize($_FILES['image']['tmp_name']) !== false) {
+				$upload_dir = FCPATH . 'uploads/frontend/noticeboard/';
+				if (!is_dir($upload_dir)) {
+					@mkdir($upload_dir, 0755, true);
+				}
+				$extension = strtolower(pathinfo(basename($_FILES['image']['name']), PATHINFO_EXTENSION));
+				$allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+				if (in_array($extension, $allowed_extensions, true) && is_dir($upload_dir)) {
+					$file_name = 'notice_' . date('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
+					if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_dir . $file_name)) {
+						if (!empty($image)) {
+							$old_image = $upload_dir . basename($image);
+							if (is_file($old_image)) @unlink($old_image);
+						}
+						$data['image'] = $file_name;
+					}
+				}
 			}
 
 			$this->db->where('notice_id', $param2);
@@ -19789,20 +19811,18 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 			))->result_array();
 		}
 
-		//delete the image in the uploads/frontend/noticeboard folder
-		$notice_image_name = $this->db->get_where('noticeboard', array('notice_id' => $param2))->row()->image;
-		$notice_image_url = 'uploads/frontend/noticeboard/' . $notice_image_name;
-		if (file_exists($notice_image_url)) {
-			unlink($notice_image_url);
-		}
-
 		if ($param1 == 'delete') {
+			$notice_row = $this->db->get_where('noticeboard', array('notice_id' => $param2))->row_array();
 			$this->db->where('notice_id', $param2);
 			$queryExecuted = $this->db->delete('noticeboard');
 
-			
-
 			if($queryExecuted) {
+				if (!empty($notice_row['image'])) {
+					$notice_image_url = FCPATH . 'uploads/frontend/noticeboard/' . basename($notice_row['image']);
+					if (is_file($notice_image_url)) {
+						@unlink($notice_image_url);
+					}
+				}
 
 				//delete this id from the list of ids in the read_notice_ids column
 			//get all those ids there
@@ -19896,6 +19916,8 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 	}
 
 	function reload_noticeboard() {
+		if ($this->session->userdata('admin_login') != 1)
+			redirect(site_url('login'));
 		$this->load->view('backend/admin/noticeboard');
 	}
 	/* private messaging */
