@@ -1,4 +1,20860 @@
-->update('user_permission');
+<?php
+if (!defined('BASEPATH')) {
+	exit('No direct script access allowed');
+}
+
+// *************************************************************************
+// *                                                                       *
+// * Lisofts School Manager                                                 *
+// * Copyright (c) Lightworld Technologies Limited. All Rights Reserved    *
+// *                                                                       *
+// *************************************************************************
+// * @author : Lightworldtech                                              *
+// * date        : August 11, 2019                                         *
+// * description : For managing different levels of schools                *
+// * Email   : softmail@lisoft.com                                         *
+// * Website : https://www.lisoft.com                                      *
+// * Support : https://www.support.lisoft.com                              *
+// *                                                                       *
+// *************************************************************************
+// *                                                                       *
+// * This software is furnished under a license and may be used and copied *
+// * only  in  accordance  with  the  terms  of such  license and with the *
+// * inclusion of the above copyright notice.                              *
+// *                                                                       *
+// *************************************************************************
+
+/**
+ * @property CI_Session $session
+ * @property CI_Input $input
+ * @property CI_Output $output
+ * @property CI_DB_query_builder $db
+ * @property CI_Loader $load
+ * @property Crud_model $crud_model
+ * @property Ajaxdataload_model $ajaxload
+ * @property Sms_model $sms_model
+ * @property Barcode_model $Barcode_model
+ * @property Setting_model $Setting_model
+ */
+class Admin extends MY_Controller {
+	function __construct() {
+		parent::__construct();
+		$this->load->database();
+		$this->load->library('session');
+
+		$this->load->model(array('Ajaxdataload_model' => 'ajaxload'));
+		$this->load->model('Conduct_items_model');
+	
+
+		/*cache control*/
+		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+		$this->output->set_header('Pragma: no-cache');
+
+		//email control
+		$this->load->helper('email');
+		// $this->load->config('email');
+		$this->load->library('email');
+
+		//load form validation library and helper
+		$this->load->library('form_validation');
+
+		//load encryption library
+		$this->load->library('encryption');
+
+		//load invoice lock helper
+
+		if($this->session->userdata('login_type') == '') {
+	        redirect(site_url('login'), 'refresh');
+	    }
+    }
+
+	/***default function, redirects to login page if no admin logged in yet***/
+	public function index() {
+		if ($this->session->userdata('admin_login') != 1)
+		redirect(site_url('login'));
+		// if ($this->session->userdata('admin_login') == 1) {
+		// 	redirect(site_url('admin/dashboard'));
+		// }
+
+	}
+
+	
+
+	public function ajaxTest() {
+		$curl = curl_init();
+
+		$payload = array();
+
+
+		curl_setopt_array($curl, [
+		CURLOPT_HTTPHEADER => [
+			"Content-Type: application/json",
+			//"Authorization: Basic " . getToken($apiUsername, $apiPassword)
+		],
+		CURLOPT_POSTFIELDS => json_encode($payload),
+		CURLOPT_URL => "https://webhook.site/e9305fdd-730d-483f-8c65-aadcfa42cc55",
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_CUSTOMREQUEST => "POST",
+		]);
+
+		$response = curl_exec($curl);
+		$error = curl_error($curl);
+
+		curl_close($curl);
+
+		if ($error) {
+		$response = $error;
+		} else {
+		$response;
+		}
+  
+    	echo json_encode($response);
+		/*set_time_limit(0);
+		$data = [];
+		ob_implicit_flush(true);
+		ob_end_flush();
+
+		$data['message'] = 'Setup starting';
+		echo json_encode($data);
+		sleep(3);
+
+		$data['message'] = 'Setup almost done';
+		echo json_encode($data);
+		sleep(3); 
+
+		$data['message'] = 'Setup completed';
+		echo json_encode($data);
+		sleep(1); 
+
+		$data['message'] = 'Thank you';
+		$data['message2'] = 'You can login now';
+		echo json_encode($data); */
+	}
+
+	/***ADMIN DASHBOARD***/
+	function dashboard($param = '') {
+		if ($param == 'search') {
+			$page_data['term'] = $this->input->post('term');
+			$page_data['sem'] = $this->input->post('sem');
+			$page_data['year'] = $this->input->post('year');
+			$page_data['date'] = strtotime($this->input->post('date_sel'));
+			$page_data['page_name'] = 'dashboard';
+			$page_data['page_title'] = get_phrase('admin_dashboard');
+			$page_data['search'] = $param;
+			$page_data['account_type'] = $this->session->userdata('login_type');
+		} else {
+			$page_data['page_name'] = 'dashboard';
+			$page_data['page_title'] = get_phrase('admin_dashboard');
+		}
+		
+		// Load location data for multi-location sync widget (Task 5.4)
+		if ($this->db->table_exists('location_registry')) {
+			// Get location statistics
+			$page_data['location_stats'] = [
+				'total' => $this->db->count_all_results('location_registry'),
+				'active' => $this->db->where('status', 'active')->count_all_results('location_registry'),
+				'online' => 0,
+				'offline' => 0
+			];
+			
+			// Get recent locations with sync status
+			$this->db->select('id, location_name, device_id, status, last_sync_at, last_sync_status');
+			$this->db->where('status', 'active');
+			$this->db->order_by('priority', 'DESC');
+			$this->db->order_by('last_sync_at', 'DESC');
+			$this->db->limit(5);
+			$locations = $this->db->get('location_registry')->result_array();
+			
+			// Calculate online/offline status
+			$cutoff_time = date('Y-m-d H:i:s', strtotime('-1 hour'));
+			foreach ($locations as &$loc) {
+				$loc['is_online'] = ($loc['last_sync_at'] && $loc['last_sync_at'] > $cutoff_time);
+				if ($loc['is_online']) {
+					$page_data['location_stats']['online']++;
+				} else {
+					$page_data['location_stats']['offline']++;
+				}
+			}
+			
+			$page_data['locations'] = $locations;
+		} else {
+			$page_data['location_stats'] = null;
+			$page_data['locations'] = [];
+		}
+		
+		$this->load->view('backend/main', $page_data);
+	}
+
+	/**
+	 * ENTERPRISE: Admin view of cashier dashboards with filtering
+	 */
+	public function cashier_dashboard_admin() {
+		$page_data['page_name'] = 'cashier_dashboard_admin';
+		$page_data['page_title'] = get_phrase('cashier_dashboard');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	/**
+	 * ENTERPRISE: Get single cashier dashboard data
+	 */
+	public function get_cashier_dashboard_data() {
+		$cashier_id = $this->input->post('cashier_id');
+		$date_from = $this->input->post('date_from');
+		$date_to = $this->input->post('date_to');
+		
+		// DEBUG: Log what we received
+		log_message('debug', 'Cashier Dashboard Data Request:');
+		log_message('debug', 'Cashier ID: ' . $cashier_id);
+		log_message('debug', 'Date From: ' . $date_from);
+		log_message('debug', 'Date To: ' . $date_to);
+		
+		$data['cashier_id'] = $cashier_id;
+		$data['date_from'] = $date_from;
+		$data['date_to'] = $date_to;
+		
+		$html = $this->load->view('backend/admin/cashier_dashboard_single', $data, true);
+		
+		// DEBUG: Add debug info to response
+		$debug_info = [
+			'received_cashier_id' => $cashier_id,
+			'received_date_from' => $date_from,
+			'received_date_to' => $date_to,
+			'date_from_empty' => empty($date_from),
+			'date_to_empty' => empty($date_to)
+		];
+		
+		echo json_encode([
+			'status' => 'success', 
+			'html' => $html,
+			'debug' => $debug_info
+		]);
+	}
+
+	/**
+	 * ENTERPRISE: Get all cashiers combined dashboard
+	 */
+	public function get_all_cashiers_dashboard() {
+		$date_from = $this->input->post('date_from');
+		$date_to = $this->input->post('date_to');
+		
+		$data['date_from'] = $date_from;
+		$data['date_to'] = $date_to;
+		
+		$html = $this->load->view('backend/admin/cashier_dashboard_all', $data, true);
+		echo json_encode(['status' => 'success', 'html' => $html]);
+	}
+
+	// Cashier Daily Summary Page
+	public function cashier_daily_summary()
+	{
+		if($this->session->userdata('admin_login') != 1)
+			redirect(site_url('login'), 'refresh');
+		
+		$page_data['page_name']  = 'cashier_daily_summary';
+		$page_data['page_title'] = get_phrase('cashier_daily_summary');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	// Cashier Handover Report Page
+	public function cashier_handover_report()
+	{
+		if($this->session->userdata('admin_login') != 1)
+			redirect(site_url('login'), 'refresh');
+		
+		$page_data['page_name']  = 'cashier_handover_report';
+		$page_data['page_title'] = get_phrase('cashier_handover_report');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	// Get Cashier Daily Summary Data (AJAX)
+	public function get_cashier_daily_summary()
+	{
+		$date = $this->input->post('date');
+		$cashier_id = $this->input->post('cashier_id');
+		
+		$date_obj = DateTime::createFromFormat('d M, Y', $date);
+		$db_date = $date_obj ? $date_obj->format('Y-m-d') : date('Y-m-d');
+		$timestamp = strtotime($db_date);
+		
+		$this->db->select('
+			SUM(feeding_amount) as feeding,
+			SUM(breakfast_amount) as breakfast,
+			SUM(classes_amount) as classes,
+			SUM(water_amount) as water,
+			SUM(transport_amount) as transport,
+			SUM(total_amount) as total,
+			SUM(CASE WHEN payment_method = 1 THEN total_amount ELSE 0 END) as cash,
+			SUM(CASE WHEN payment_method = 2 THEN total_amount ELSE 0 END) as bank,
+			SUM(CASE WHEN payment_method = 3 THEN total_amount ELSE 0 END) as momo,
+			SUM(CASE WHEN payment_method = 4 THEN total_amount ELSE 0 END) as cheque,
+			COUNT(*) as transaction_count,
+			COUNT(DISTINCT student_id) as students_count
+		');
+		$this->db->from('daily_fee_transactions');
+		$this->db->where('payment_date >=', $timestamp);
+		$this->db->where('payment_date <', $timestamp + 86400);
+		
+		if(!empty($cashier_id)) {
+			$this->db->where('collected_by', $cashier_id);
+		}
+		
+		$result = $this->db->get()->row_array();
+		
+		if(empty($result['total'])) {
+			$result = [
+				'feeding' => 0, 'breakfast' => 0, 'classes' => 0, 'water' => 0, 'transport' => 0,
+				'total' => 0, 'cash' => 0, 'bank' => 0, 'momo' => 0, 'cheque' => 0,
+				'transaction_count' => 0, 'students_count' => 0
+			];
+		}
+		
+		echo json_encode(['status' => 'success', 'data' => $result]);
+	}
+
+	// Export Cashier Summary to Excel
+	public function export_cashier_summary()
+	{
+		$date = $this->input->get('date');
+		$cashier_id = $this->input->get('cashier_id');
+		
+		$date_obj = DateTime::createFromFormat('d M, Y', $date);
+		$db_date = $date_obj ? $date_obj->format('Y-m-d') : date('Y-m-d');
+		$timestamp = strtotime($db_date);
+		
+		$this->db->select('t.*, s.name as student_name');
+		$this->db->from('daily_fee_transactions t');
+		$this->db->join('student s', 's.student_id = t.student_id', 'left');
+		$this->db->where('t.payment_date >=', $timestamp);
+		$this->db->where('t.payment_date <', $timestamp + 86400);
+		
+		if(!empty($cashier_id)) {
+			$this->db->where('t.collected_by', $cashier_id);
+		}
+		
+		$transactions = $this->db->get()->result_array();
+		
+		header('Content-Type: text/csv');
+		header('Content-Disposition: attachment; filename="cashier_summary_' . $db_date . '.csv"');
+		
+		$output = fopen('php://output', 'w');
+		fputcsv($output, ['Date', 'Student', 'Feeding', 'Breakfast', 'Classes', 'Water', 'Transport', 'Total', 'Payment Method']);
+		
+		foreach($transactions as $t) {
+			fputcsv($output, [
+				date('Y-m-d', $t['payment_date']),
+				$t['student_name'],
+				$t['feeding_amount'],
+				$t['breakfast_amount'],
+				$t['classes_amount'],
+				$t['water_amount'],
+				$t['transport_amount'],
+				$t['total_amount'],
+				get_payment_method_name($t['payment_method'])
+			]);
+		}
+		
+		fclose($output);
+		exit;
+	}
+
+	// Save Handover Report
+	public function save_handover_report()
+	{
+		$data = [
+			'handover_date' => $this->input->post('date'),
+			'cashier_id' => $this->input->post('cashier_id'),
+			'receiver_id' => $this->input->post('receiver_id'),
+			'total_amount' => $this->input->post('total_amount'),
+			'cash_amount' => $this->input->post('cash_amount'),
+			'created_at' => date('Y-m-d H:i:s')
+		];
+		
+		$this->db->query("CREATE TABLE IF NOT EXISTS handover_reports (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			handover_date VARCHAR(50),
+			cashier_id INT,
+			receiver_id INT,
+			total_amount DECIMAL(10,2),
+			cash_amount DECIMAL(10,2),
+			created_at DATETIME
+		)");
+		
+		$this->db->insert('handover_reports', $data);
+		
+		echo json_encode([
+			'status' => 'success',
+			'message' => get_phrase('handover_report_saved_successfully')
+		]);
+	}
+
+	// Daily Fee Rates Content (AJAX refresh)
+	public function daily_fee_rates_content()
+	{
+		// Check which fee modules are enabled
+		$feeding_enabled = is_fee_module_enabled('feeding');
+		$breakfast_enabled = is_fee_module_enabled('breakfast');
+		$classes_enabled = is_fee_module_enabled('classes');
+		$water_enabled = is_fee_module_enabled('water');
+		
+		// Calculate grid columns based on enabled modules
+		$enabled_count = count(array_filter([$feeding_enabled, $breakfast_enabled, $classes_enabled, $water_enabled]));
+		$grid_columns = max($enabled_count, 1); // At least 1 column
+		
+		$running_year = get_settings('running_year');
+		$running_term = get_settings('running_term');
+		$classes = $this->db->get('class')->result_array();
+		
+		foreach ($classes as $class):
+			$sections = $this->db->get_where('section', ['class_id' => $class['class_id']])->result_array();
+			if (empty($sections)) {
+				$rate = $this->db->get_where('daily_fee_rates', [
+					'class_id' => $class['class_id'],
+					'year' => $running_year,
+					'term' => $running_term
+				])->row();
+	?>
+	<style>
+	.rate-grid {
+		display: grid;
+		grid-template-columns: repeat(<?php echo $grid_columns; ?>, 1fr);
+		gap: 15px;
+		margin-bottom: 15px;
+	}
+	</style>
+	<div class="rate-card">
+		<div class="rate-card-header">
+			<div class="rate-card-title">
+				<i class="fa fa-graduation-cap" style="color: #667eea;"></i> <?php echo $class['name'] . ' ' . $class['name_numeric']; ?>
+			</div>
+			<button class="btn btn-primary" onclick="showRateModal(<?php echo $class['class_id']; ?>, <?php echo $rate ? $rate->id : 0; ?>)">
+				<i class="fa fa-edit"></i> <?php echo $rate ? get_phrase('edit') : get_phrase('set_rates'); ?>
+			</button>
+		</div>
+		<div class="rate-grid">
+			<?php if($feeding_enabled): ?>
+			<div class="rate-item">
+				<div class="rate-label"><i class="fa fa-utensils"></i> <?php echo get_phrase('feeding'); ?></div>
+				<div class="rate-value">GHS <?php echo $rate ? number_format($rate->feeding_rate, 2) : '0.00'; ?></div>
+			</div>
+			<?php endif; ?>
+			<?php if($breakfast_enabled): ?>
+			<div class="rate-item">
+				<div class="rate-label"><i class="fa fa-coffee"></i> <?php echo get_phrase('breakfast'); ?></div>
+				<div class="rate-value">GHS <?php echo $rate ? number_format($rate->breakfast_rate, 2) : '0.00'; ?></div>
+			</div>
+			<?php endif; ?>
+			<?php if($classes_enabled): ?>
+			<div class="rate-item">
+				<div class="rate-label"><i class="fa fa-book"></i> <?php echo get_phrase('classes'); ?></div>
+				<div class="rate-value">GHS <?php echo $rate ? number_format($rate->classes_rate, 2) : '0.00'; ?></div>
+			</div>
+			<?php endif; ?>
+			<?php if($water_enabled): ?>
+			<div class="rate-item">
+				<div class="rate-label"><i class="fa fa-tint"></i> <?php echo get_phrase('water'); ?></div>
+				<div class="rate-value">GHS <?php echo $rate ? number_format($rate->water_rate, 2) : '0.00'; ?></div>
+			</div>
+			<?php endif; ?>
+		</div>
+	</div>
+	<?php
+			} else {
+				foreach ($sections as $section):
+					$rate = $this->db->get_where('daily_fee_rates', [
+						'class_id' => $class['class_id'],
+						'year' => $running_year,
+						'term' => $running_term
+					])->row();
+	?>
+	<div class="rate-card section-card">
+		<div class="rate-card-header">
+			<div class="rate-card-title">
+				<i class="fa fa-graduation-cap" style="color: #f59e0b;"></i> <?php echo $class['name'] . ' ' . $class['name_numeric']; ?> <span style="color: #f59e0b; font-weight: 600;">- <?php echo $section['name']; ?></span>
+			</div>
+			<button class="btn btn-primary" onclick="showRateModal(<?php echo $class['class_id']; ?>, <?php echo $rate ? $rate->id : 0; ?>)">
+				<i class="fa fa-edit"></i> <?php echo $rate ? get_phrase('edit') : get_phrase('set_rates'); ?>
+			</button>
+		</div>
+		<div class="rate-grid">
+			<?php if($feeding_enabled): ?>
+			<div class="rate-item">
+				<div class="rate-label"><i class="fa fa-utensils"></i> <?php echo get_phrase('feeding'); ?></div>
+				<div class="rate-value">GHS <?php echo $rate ? number_format($rate->feeding_rate, 2) : '0.00'; ?></div>
+			</div>
+			<?php endif; ?>
+			<?php if($breakfast_enabled): ?>
+			<div class="rate-item">
+				<div class="rate-label"><i class="fa fa-coffee"></i> <?php echo get_phrase('breakfast'); ?></div>
+				<div class="rate-value">GHS <?php echo $rate ? number_format($rate->breakfast_rate, 2) : '0.00'; ?></div>
+			</div>
+			<?php endif; ?>
+			<?php if($classes_enabled): ?>
+			<div class="rate-item">
+				<div class="rate-label"><i class="fa fa-book"></i> <?php echo get_phrase('classes'); ?></div>
+				<div class="rate-value">GHS <?php echo $rate ? number_format($rate->classes_rate, 2) : '0.00'; ?></div>
+			</div>
+			<?php endif; ?>
+			<?php if($water_enabled): ?>
+			<div class="rate-item">
+				<div class="rate-label"><i class="fa fa-tint"></i> <?php echo get_phrase('water'); ?></div>
+				<div class="rate-value">GHS <?php echo $rate ? number_format($rate->water_rate, 2) : '0.00'; ?></div>
+			</div>
+			<?php endif; ?>
+		</div>
+	</div>
+	<?php
+				endforeach;
+			}
+		endforeach;
+	}
+
+	// Get current rates as JSON for bulk modal refresh
+	public function get_current_rates_json()
+	{
+		$running_year = get_settings('running_year');
+		$running_term = get_settings('running_term');
+		
+		$rates = $this->db->select('class_id, feeding_rate, breakfast_rate, classes_rate, water_rate')
+			->where('year', $running_year)
+			->where('term', $running_term)
+			->get('daily_fee_rates')
+			->result_array();
+		
+		$rates_by_class = [];
+		foreach($rates as $rate) {
+			$rates_by_class[$rate['class_id']] = $rate;
+		}
+		
+		echo json_encode($rates_by_class);
+	}
+
+	/**
+	 * ENTERPRISE-GRADE: Get fee details for cashier dashboard
+	 * Returns detailed breakdown of collected fees or outstanding arrears
+	 */
+	public function get_fee_details() {
+		$fee_type = $this->input->post('fee_type');
+		$category = $this->input->post('category');
+		$cashier_id = $this->input->post('cashier_id');
+		$date_from = $this->input->post('date_from');
+		$date_to = $this->input->post('date_to');
+		$class_id = $this->input->post('class_id');
+		$student_name = $this->input->post('student_name');
+		
+		if (!$fee_type || !$category) {
+			echo json_encode(['status' => 'error', 'message' => 'Invalid parameters']);
+			return;
+		}
+		
+		$currency = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
+		
+		if ($category === 'collected') {
+			$column = $fee_type . '_amount';
+			
+			$sql = "SELECT t.*, s.name, s.student_code, e.class_id, c.name as class_name, c.name_numeric
+					FROM daily_fee_transactions t
+					JOIN student s ON t.student_id = s.student_id
+					LEFT JOIN enroll e ON s.student_id = e.student_id AND e.year = (SELECT description FROM settings WHERE type = 'running_year') AND e.term = (SELECT description FROM settings WHERE type = 'running_term') AND e.mute = '0'
+					LEFT JOIN class c ON e.class_id = c.class_id
+					WHERE t.{$column} > 0";
+			
+			$params = [];
+			
+			if ($cashier_id && $cashier_id !== 'all') {
+				$sql .= " AND t.collected_by = ?";
+				$params[] = $cashier_id;
+			}
+			
+			if ($date_from) {
+				$sql .= " AND t.payment_date >= ?";
+				$params[] = strtotime($date_from);
+			}
+			if ($date_to) {
+				$sql .= " AND t.payment_date < ?";
+				$params[] = strtotime($date_to) + 86400;
+			}
+			if ($class_id) {
+				$sql .= " AND e.class_id = ?";
+				$params[] = $class_id;
+			}
+			if ($student_name) {
+				$sql .= " AND s.name LIKE ?";
+				$params[] = "%{$student_name}%";
+			}
+			
+			$sql .= " ORDER BY t.created_at DESC";
+			$data = $this->db->query($sql, $params)->result_array();
+			
+			$html = $this->_render_collected_details($data, $fee_type, $currency, $cashier_id);
+		} else {
+			$column = $fee_type . '_arrears';
+			
+			$sql = "SELECT w.*, s.name, s.student_code, e.class_id
+					FROM daily_fee_wallet w
+					JOIN student s ON w.student_id = s.student_id
+					INNER JOIN enroll e ON s.student_id = e.student_id 
+						AND e.year = w.year 
+						AND e.term = w.term
+						AND e.mute = '0'
+					WHERE w.{$column} > 0";
+			
+			$params = [];
+			
+			if ($class_id) {
+				$sql .= " AND e.class_id = ?";
+				$params[] = $class_id;
+			}
+			if ($student_name) {
+				$sql .= " AND s.name LIKE ?";
+				$params[] = "%{$student_name}%";
+			}
+			
+			$sql .= " ORDER BY w.{$column} DESC";
+			
+			$data = $this->db->query($sql, $params)->result_array();
+			
+			$html = $this->_render_arrears_details($data, $fee_type, $currency);
+		}
+		
+		echo json_encode(['status' => 'success', 'html' => $html]);
+	}
+	
+	private function _render_collected_details($data, $fee_type, $currency, $cashier_id) {
+		foreach ($data as &$row) {
+			$row['class_display'] = $this->_get_class_display($row['student_id'], $row['class_id']);
+		}
+		
+		$fee_names = [
+			'feeding' => 'Feeding',
+			'breakfast' => 'Breakfast',
+			'classes' => 'Classes',
+			'water' => 'Water',
+			'transport' => 'Transport'
+		];
+		
+		$view_data = [
+			'data' => $data,
+			'fee_type' => $fee_type,
+			'fee_name' => $fee_names[$fee_type] ?? ucfirst($fee_type),
+			'currency' => $currency,
+			'cashier_id' => $cashier_id
+		];
+		
+		return $this->load->view('backend/admin/fee_details/daily_fees_collected', $view_data, TRUE);
+	}
+	
+
+	
+	private function _get_class_display($student_id, $class_id) {
+		if (!$class_id) return 'N/A';
+		
+		$class_info = $this->db->select('c.name, c.name_numeric, s.name as section_name')
+			->from('class c')
+			->join('enroll e', 'e.class_id = c.class_id')
+			->join('section s', 's.section_id = e.section_id', 'left')
+			->where('c.class_id', $class_id)
+			->where('e.student_id', $student_id)
+			->get()->row();
+		
+		if (!$class_info) return 'N/A';
+		
+		return $class_info->name . 
+			   ($class_info->name_numeric ? ' ' . $class_info->name_numeric : '') . 
+			   ($class_info->section_name ? ' - ' . $class_info->section_name : '');
+	}
+	
+	private function _order_classes($classes) {
+		$order = ['CRECHE' => 1, 'NURSERY' => 2, 'KG' => 3, 'BASIC' => 4, 'JHS' => 5];
+		
+		usort($classes, function($a, $b) use ($order) {
+			$order_a = isset($order[$a['name']]) ? $order[$a['name']] : 999;
+			$order_b = isset($order[$b['name']]) ? $order[$b['name']] : 999;
+			
+			if ($order_a != $order_b) return (floatval($order_a) - floatval($order_b));
+			return (int)$a['name_numeric'] - (int)$b['name_numeric'];
+		});
+		
+		return $classes;
+	}
+	
+	private function _render_arrears_details($data, $fee_type, $currency) {
+		foreach ($data as &$row) {
+			$row['class_display'] = $this->_get_class_display($row['student_id'], $row['class_id']);
+		}
+		
+		$fee_names = [
+			'feeding' => 'Feeding',
+			'breakfast' => 'Breakfast',
+			'classes' => 'Classes',
+			'water' => 'Water',
+			'transport' => 'Transport'
+		];
+		
+		$view_data = [
+			'data' => $data,
+			'fee_type' => $fee_type,
+			'fee_name' => $fee_names[$fee_type] ?? ucfirst($fee_type),
+			'currency' => $currency
+		];
+		
+		return $this->load->view('backend/admin/fee_details/daily_fees_arrears', $view_data, TRUE);
+	}
+
+
+
+
+	function multiples($param = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		if ($param == 'solve') {
+			$n1 = $this->input->post('num1');
+
+			$n_counter = 1;
+
+			if ($this->input->post('num2') != '') {
+				$n2 = $this->input->post('num2');
+
+				$n_counter++;
+			}
+
+			if ($this->input->post('num3') != '') {
+				$n3 = $this->input->post('num3');
+
+				$n_counter++;
+			}
+
+			if ($this->input->post('num4') != '') {
+				$n4 = $this->input->post('num4');
+
+				$n_counter++;
+			}
+
+			$cm_array = array();
+
+			//multiples of n1 ---first 200
+
+			for ($i = 1; $i <= 200; $i++) {
+
+				array_push($cm_array, $n1 * $i); //add each answer to the array
+
+				if ($i == 1) {
+					echo '<u><em>Mulitples of ' . $n1 . '</em></u> <strong>{ ' . $n1 * $i . ', </strong> '; //states the number
+				} else if ($i == 200) {
+					echo '<strong>' . $n1 * $i . ' }</strong>.<hr>'; //ends without ,
+				} else {
+					echo '<strong>' . $n1 * $i . '</strong>, '; //still counting
+				}
+			}
+
+			//multiples of n2 ---first 200
+			if ($n2 != '') {
+				for ($i = 1; $i <= 200; $i++) {
+
+					array_push($cm_array, $n2 * $i); //add each answer to the array
+
+					if ($i == 1) {
+						echo '<u><em>Mulitples of ' . $n2 . '</em></u> <strong>{ ' . $n2 * $i . ', </strong> '; //states the number
+					} else if ($i == 200) {
+						echo '<strong>' . $n2 * $i . ' }</strong>.<hr>'; //ends without ,
+					} else {
+						echo '<strong>' . $n2 * $i . '</strong>, '; //still counting
+					}
+				}
+			}
+
+			//multiples of n3 ---first 200
+			if ($n3 != '') {
+				for ($i = 1; $i <= 200; $i++) {
+
+					array_push($cm_array, $n3 * $i); //add each answer to the array
+
+					if ($i == 1) {
+						echo '<u><em>Mulitples of ' . $n3 . '</em></u> <strong>{ ' . $n3 * $i . ', </strong> '; //states the number
+					} else if ($i == 200) {
+						echo '<strong>' . $n3 * $i . ' }</strong>.<hr>'; //ends without ,
+					} else {
+						echo '<strong>' . $n3 * $i . '</strong>, '; //still counting
+					}
+				}
+			}
+
+			//multiples of n4 ---first 200
+
+			if ($n4 != '') {
+				for ($i = 1; $i <= 200; $i++) {
+
+					array_push($cm_array, $n4 * $i); //add each answer to the array
+
+					if ($i == 1) {
+						echo '<u><em>Mulitples of ' . $n4 . '</em></u> <strong>{ ' . $n4 * $i . ', </strong> '; //states the number
+					} else if ($i == 200) {
+						echo '<strong>' . $n4 * $i . ' }</strong>.<hr>'; //ends without ,
+					} else {
+						echo '<strong>' . $n4 * $i . '</strong>, '; //still counting
+					}
+				}
+			}
+
+			//finding CM
+			$cm_array2 = array();
+			$unique_cm = array();
+			$unique_cm = array_unique($cm_array);
+
+			for ($c = 0; $c < count($unique_cm); $c++) {
+
+				$counter = 0;
+
+				for ($m = 0; $m < count($cm_array); $m++) {
+
+					if ($unique_cm[$c] == $cm_array[$m]) {
+
+						$counter++;
+					}
+
+				}
+
+				if ($counter == $n_counter) {
+
+					array_push($cm_array2, $unique_cm[$c]);
+
+				}
+			}
+
+			for ($i = 0; $i < count($cm_array2); $i++) {
+
+				if ($i == 0) {
+					echo '<u><em>Common Multiples of ' . $n1 . ', ' . $n2 . ', ' . $n3 . ', ' . $n4 . '</em></u> <strong>{ ' . $cm_array2[$i] . ', </strong> '; //states the numbers
+				} else if ($i == count($cm_array2) - 1) {
+					echo '<strong>' . $cm_array2[$i] . ' }</strong>.<hr>'; //ends without ,
+				} else {
+					echo '<strong>' . $cm_array2[$i] . '</strong>, '; //still counting
+				}
+			}
+
+			//LCM
+			sort($cm_array2);
+			echo '<strong> L.C.M = { ' . $cm_array2[0] . ' }</strong>';
+
+		} else {
+			$page_data['page_name'] = 'multiples';
+			$page_data['page_title'] = get_phrase('finding_L.C.M');
+			$page_data['account_type'] = $this->session->userdata('login_type');
+			$this->load->view('backend/main', $page_data);
+		}
+
+	}
+
+	/**FEEDING AND CLASSES FEE AND TRANSPORT FEES**/
+	function get_fct($param = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		if ($param == 'search') {
+			$page_data['term'] = $this->input->post('term');
+			$page_data['sem'] = $this->input->post('sem');
+			$page_data['year'] = $this->input->post('year');
+
+			$page_data['date'] = strtotime($this->input->post('date_sel'));
+
+			$page_data['page_name'] = 'classes_feeding_trs_fees';
+			$page_data['page_title'] = 'Print Classes, Feeding Fees And Transport Fare Receipts';
+			$page_data['search'] = $param;
+			$page_data['account_type'] = $this->session->userdata('login_type');
+			$this->load->view('backend/main', $page_data);
+		} else {
+			$page_data['page_name'] = 'classes_feeding_trs_fees';
+			$page_data['page_title'] = 'Print Classes, Feeding Fees And Transport Fare Receipts';
+			$page_data['account_type'] = $this->session->userdata('login_type');
+			$this->load->view('backend/main', $page_data);
+		}
+	}
+
+	/****MANAGE STUDENTS CLASSWISE*****/
+	function student_add() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$page_data['page_name'] = 'student_add';
+		$page_data['page_title'] = get_phrase('admit_student');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function student_bulk_add($param = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		$page_data['page_name'] = 'student_bulk_add';
+		$page_data['page_title'] = get_phrase('admit_bulk_student');
+
+		if ($param == '') {
+			
+			$page_data['account_type'] = $this->session->userdata('login_type');
+			$this->load->view('backend/main', $page_data);
+			//$this->load->view('backend/main', $page_data);
+		} else {
+			$page_data['account_type'] = $this->session->userdata('login_type');
+			$this->load->view('backend/main', $page_data);
+		}
+
+	}
+
+	function student_profile($student_id) {
+		/*if ($this->session->userdata('admin_login') != 1) {
+			      redirect(site_url('login'));
+		*/
+
+		//enable database cache
+		////$this->db->cache_on();
+
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		// Get latest enrollment for student in running year/term
+		$this->db->select('*');
+		$this->db->from('enroll');
+		$this->db->where('student_id', $student_id);
+		$this->db->where('year', $running_year);
+		$this->db->where('term', $running_term);
+		$this->db->where('mute', '0');
+		$this->db->order_by('enroll_id', 'DESC');
+		$this->db->limit(1);
+		$enroll_query = $this->db->get()->row();
+
+		$class_id = $enroll_query->class_id;
+
+		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+
+		if ($class_name == 'JHSS') {
+
+			$section_id = $this->db->get_where('enroll', array('class_id' => $class_id,
+				'student_id' => $student_id, 'year' => $this->db->get_where('settings', array('type' => 'running_year'))->row()->description, 'sem' => $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description,
+			))->row()->section_id;
+			$exam_id = $this->db->get_where('mark', array('class_id' => $class_id, 'section_id' => $section_id, 'student_id' => $student_id, 'year' => $this->db->get_where('settings', array('type' => 'running_year'))->row()->description, 'sem' => $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description,
+			))->row()->exam_id;
+
+			$other_students = $this->db->get_where('enroll', array('year' => get_settings('running_year'),  'mute' => '0', 'sem' => get_settings('running_sem'), 'class_id' => $class_id))->result_array();
+
+		} else {
+
+			$section_id = $this->db->get_where('enroll', array('class_id' => $class_id,
+				'student_id' => $student_id, 'year' => $this->db->get_where('settings', array('type' => 'running_year'))->row()->description, 'term' => $this->db->get_where('settings', array('type' => 'running_term'))->row()->description,
+			))->row()->section_id;
+			$exam_query = $this->db->get_where('mark', array('class_id' => $class_id, 'section_id' => $section_id, 'student_id' => $student_id, 'year' => $this->db->get_where('settings', array('type' => 'running_year'))->row()->description, 'term' => $this->db->get_where('settings', array('type' => 'running_term'))->row()->description));
+			$exam_id = $exam_query->num_rows() > 0 ? $exam_query->row()->exam_id : 0;
+
+			$other_students = $this->db->get_where('enroll', array('year' => get_settings('running_year'),  'mute' => '0', 'term' => get_settings('running_term'), 'class_id' => $class_id))->result_array();
+		}
+
+		$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+
+		if ($raw_score == 'Yes') {
+			if ($class_name == 'JHSS') {
+				$page_data['page_name'] = 'student_profile_raw_score';
+			} else {
+				$page_data['page_name'] = 'student_profile';};
+		} elseif ($raw_score == 'No') {
+			$page_data['page_name'] = 'student_profile';
+		}
+
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['exam_id'] = $exam_id;
+		$page_data['page_title'] = get_phrase('student_profile');
+		$page_data['student_id'] = $student_id;
+		$page_data['other_students'] = $other_students;
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$page_data['is_teacher_view'] = false; // Admin has full access
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function get_sections($class_id) {
+		$page_data['class_id'] = $class_id;
+		$this->load->view('backend/admin/student_bulk_add_sections', $page_data);
+	}
+
+	function student_information($class_id = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//enable database cache
+		//$this->db->cache_on();
+		//set this class_id in session so we can use it for loading all students in this class on the exam results page
+		//This will help us not to have a change in the class list if a different class is selected for a particular student
+
+		$this->session->set_userdata('class_id_for_result_archives', $class_id);
+
+		$page_data['page_name'] = 'student_information';
+		$page_data['page_title'] = 'Student Information - ' .
+		$this->crud_model->get_class_name($class_id) . ' ' . $this->crud_model->get_class_name_numeric($class_id) . $this->db->get_where('section', array('class_id' => $class_id))->row()->name;
+		$page_data['class_id'] = $class_id;
+		$page_data['class_name'] = $this->crud_model->get_class_name($class_id);
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function student_on_special_diet() {
+
+		$page_data['page_name'] = 'student_on_special_diet';
+		$page_data['page_title'] = get_phrase('students_on_special_diet');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function muted_students() {
+
+		$page_data['page_name'] = 'muted_students';
+		$page_data['page_title'] = get_phrase('muted_or_inactive_students');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function alumni() {
+
+		$page_data['page_name'] = 'alumni';
+		$page_data['page_title'] = get_phrase('old_students');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	//load muted student
+	function load_muted_students() {
+
+		$columns = array(
+			0 => 'student_id',
+			1 => 'photo',
+			2 => 'name',
+			3 => 'address',
+			4 => 'email',
+			5 => 'auth',
+			6 => 'account_status',
+			7 => 'options',
+			8 => 'code',
+			9 => 'student_id',
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->ajaxload->all_muted_students_count();
+		$totalFiltered = $totalData;
+
+		if (empty($this->input->post('search')['value'])) {
+			$students = $this->ajaxload->all_muted_students($limit, $start, $order, $dir);
+		} else {
+			$search = $this->input->post('search')['value'];
+			$students = $this->ajaxload->muted_student_search($limit, $start, $search, $order, $dir);
+			$totalFiltered = $this->ajaxload->muted_student_search_count($search);
+		}
+
+		$data = array();
+
+		if (!empty($students)) {
+			foreach ($students as $row) {
+
+				$students_acc_st = $row->block_limit;
+
+				$students_mute = $row->mute;
+
+				// Get latest enrollment for this student
+				$this->db->select('class_id');
+				$this->db->from('enroll');
+				$this->db->where('student_id', $row->student_id);
+				$this->db->where('mute', '0');
+				$this->db->order_by('enroll_id', 'DESC');
+				$this->db->limit(1);
+				$enroll_result = $this->db->get()->row();
+				$class_id = $enroll_result ? $enroll_result->class_id : null;
+
+				if ($students_acc_st == 3) {
+					$as_btn = 'Blocked';
+					$btn_style = 'danger';
+
+					if ($students_mute == 1) {
+						$as_btn = 'Blocked & Muted';
+
+						$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu">
+                        <li><a href="#" onclick="account_unblock(' . $row->student_id . ')" style="color: green;"><i class="fa fa-unlock"></i>&nbsp; unblock</a></li>
+
+                        <li><a href="#" onclick="account_unmute(' . $row->student_id . ')" style="color: green;"><i class="glyphicon glyphicon-ok"></i>&nbsp; unmute</a></li>
+
+                        </ul>';
+
+					} else {
+						$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu">
+                        <li><a href="#" onclick="account_unblock(' . $row->student_id . ')" style="color: green;"><i class="fa fa-unlock"></i>&nbsp; unblock</a></li>
+
+                        <li><a href="#" onclick="account_mute(' . $row->student_id . ')" style="color: red;"><i class="glyphicon glyphicon-remove"></i>&nbsp; mute</a></li>
+
+                        </ul>';
+					}
+				} else {
+					$as_btn = 'Active';
+					$btn_style = 'success';
+
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu">
+                    <li><a href="#" onclick="account_block(' . $row->student_id . ')" style="color: red;"><i class="glyphicon glyphicon-lock"></i>&nbsp; block</a></li>
+
+
+                    <li><a href="#" onclick="account_mute(' . $row->student_id . ')" style="color: red;"><i class="glyphicon glyphicon-remove"></i>&nbsp; mute</a></li>
+
+                    </ul>';
+
+					if ($students_mute == 1) {
+						$as_btn = 'Muted';
+						$btn_style = 'danger';
+
+						$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu">
+                            <li><a href="#" onclick="account_block(' . $row->student_id . ')" style="color: red;"><i class="glyphicon glyphicon-lock"></i>&nbsp; block</a></li>
+
+
+                            <li><a href="#" onclick="account_unmute(' . $row->student_id . ')" style="color: green;"><i class="glyphicon glyphicon-ok"></i>&nbsp; unmute</a></li>
+
+                            </ul>';
+					}
+				}
+
+				$account_status = '<div class="btn-group"><button type="button" class="btn btn-' . $btn_style . ' btn-sm dropdown-toggle" data-toggle="dropdown">
+                               ' . $as_btn . ' ' . $btn_cont . '</div>';
+
+				$gender = $row->sex;
+
+				$nestedData['code'] = $row->student_code;
+				$nestedData['photo'] = '<img src="' . $this->crud_model->get_image_url('student', $row->student_id, $gender) . '" class="img-circle" width="30" />';
+				$nestedData['name'] = $row->name;
+				$nestedData['address'] = $row->address;
+				$nestedData['email'] = '<a href="mailto:' . $row->email . '" target="_blank">' . $row->email . '</a>';
+				$nestedData['auth'] = $row->authentication_key;
+				$nestedData['account_status'] = $account_status;
+
+				//choosing between creche and the general classes
+				$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+				$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+				$options = $class_name == 'CRECHE' ? '
+                            <div class="btn-group">
+                                    '.get_action_button().'
+                                    <ul class="dropdown-menu dropdown-default pull-right" role="menu">
+
+                                        <!-- STUDENT MARKSHEET LINK  -->
+                            <li>
+                            <a href="#" style="color: #040f10;" onclick="student_marksheet_creche(' . $row->student_id . ')">
+                                <i class="entypo-chart-bar"></i>
+                                    mark_sheet
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+
+                            <!-- SMS LINK -->
+                    <li>
+                        <a href="#" class="pt_link" onclick="check_sms_status(); student_sms(' . $row->student_id . ')" style="color: green;"><i class="glyphicon glyphicon-envelope"></i>send_sMS
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+
+                    <!-- STUDENT PROFILE LINK -->
+                    <li>
+                        <a href="#" onclick="student_profile(' . $row->student_id . ')" style="color: #0029ff;">
+                            <i class="entypo-user"></i>profile
+                            </a>
+                    </li>
+                    <li class="divider"></li>
+
+                    <!-- STUDENT EDITING LINK
+                    <li>
+                        <a href="#" onclick="student_edit(' . $row->student_id . ')" style="color: green;">
+                            <i class="entypo-pencil"></i>edit
+                            </a>
+                    </li>
+                    <li class="divider"></li>
+                    -->
+
+                    <li>
+                        <a href="#" onclick="student_id_card(' . $row->student_id . ')" style="color: #fd09ff;"">
+                            <i class="entypo-vcard"></i>generate_id
+                        </a>
+                    </li>
+
+                    <li class="divider"></li>
+                    <li>
+                      <a href="#" onclick="student_delete(' . $row->student_id . ')" style="color: red;">
+                        <i class="entypo-trash"></i>delete
+                      </a>
+                    </li>'
+
+				:
+				'
+                                <div class="btn-group">
+                                    '.get_action_button().'
+                                    <ul class="dropdown-menu dropdown-default pull-right" role="menu">
+
+                                        <!-- STUDENT MARKSHEET LINK  -->
+                                <li>
+                                    <a href="#" style="color: #040f10;" onclick="student_marksheet(' . $row->student_id . ')">
+                                        <i class="entypo-chart-bar"></i>mark_sheet
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+
+
+                    <!-- SMS LINK -->
+                    <li>
+                        <a href="#" class="pt_link" onclick="check_sms_status(); student_sms(' . $row->student_id . ')" style="color: green;"><i class="glyphicon glyphicon-envelope"></i>send_sMS
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+
+                    <!-- STUDENT PROFILE LINK -->
+                    <li>
+                        <a href="#" onclick="student_profile(' . $row->student_id . ')" style="color: #0029ff;">
+                            <i class="entypo-user"></i>profile
+                            </a>
+                    </li>
+                    <li class="divider"></li>
+
+                    <!-- STUDENT EDITING LINK
+                    <li>
+                        <a href="#" onclick="student_edit(' . $row->student_id . ')" style="color: green;">
+                            <i class="entypo-pencil"></i>edit
+                            </a>
+                    </li>
+                    <li class="divider"></li>
+                    -->
+
+                    <li>
+                        <a href="#" onclick="student_id_card(' . $row->student_id . ')" style="color: #fd09ff;"">
+                            <i class="entypo-vcard"></i>generate_id
+                        </a>
+                    </li>
+
+                    <li class="divider"></li>
+                    <li>
+                      <a href="#" onclick="student_delete(' . $row->student_id . ')" style="color: red;">
+                        <i class="entypo-trash"></i>delete
+                      </a>
+                    </li>
+                </ul>
+            </div>';
+
+				$nestedData['options'] = $options;
+
+				$data[] = $nestedData;
+			}
+		}
+
+		$json_data = array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"data" => $data,
+		);
+
+		echo json_encode($json_data);
+
+	}
+
+	//load old student
+	function load_alumni() {
+
+		$columns = array(
+			0 => 'student_id',
+			1 => 'photo',
+			2 => 'name',
+			3 => 'year_batch',
+			4 => 'address',
+			6 => 'email',
+			7 => 'auth',
+			8 => 'account_status',
+			9 => 'options',
+			10 => 'code',
+			11 => 'student_id',
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->ajaxload->all_old_students_count();
+		$totalFiltered = $totalData;
+
+		if (empty($this->input->post('search')['value'])) {
+			$students = $this->ajaxload->all_old_students($limit, $start, $order, $dir);
+		} else {
+			$search = $this->input->post('search')['value'];
+			$students = $this->ajaxload->old_student_search($limit, $start, $search, $order, $dir);
+			$totalFiltered = $this->ajaxload->old_student_search_count($search);
+		}
+
+		$data = array();
+
+		if (!empty($students)) {
+			foreach ($students as $row) {
+
+				$student_info = $this->crud_model->getStudentInfoById($row->student_id);
+
+				$students_acc_st = $student_info->block_limit;
+
+				$students_mute = $student_info->mute;
+
+				$class_id = $this->db->get_where('enroll', array('student_id' => $row->student_id))->last_row()->class_id;
+
+				if ($students_acc_st == 3) {
+					$as_btn = 'Blocked';
+					$btn_style = 'danger';
+
+					if ($students_mute == 1) {
+						$as_btn = 'Blocked & Muted';
+
+						$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu">
+                        <li><a href="#" onclick="account_unblock(' . $row->student_id . ')" style="color: green;"><i class="fa fa-unlock"></i>&nbsp; unblock</a></li>
+
+                        <li><a href="#" onclick="account_unmute(' . $row->student_id . ')" style="color: green;"><i class="glyphicon glyphicon-ok"></i>&nbsp; unmute</a></li>
+
+                        </ul>';
+
+					} else {
+						$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu">
+                        <li><a href="#" onclick="account_unblock(' . $row->student_id . ')" style="color: green;"><i class="fa fa-unlock"></i>&nbsp; unblock</a></li>
+
+                        <li><a href="#" onclick="account_mute(' . $row->student_id . ')" style="color: red;"><i class="glyphicon glyphicon-remove"></i>&nbsp; mute</a></li>
+
+                        </ul>';
+					}
+				} else {
+					$as_btn = 'Active';
+					$btn_style = 'success';
+
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu">
+                    <li><a href="#" onclick="account_block(' . $row->student_id . ')" style="color: red;"><i class="glyphicon glyphicon-lock"></i>&nbsp; block</a></li>
+
+
+                    <li><a href="#" onclick="account_mute(' . $row->student_id . ')" style="color: red;"><i class="glyphicon glyphicon-remove"></i>&nbsp; mute</a></li>
+
+                    </ul>';
+
+					if ($students_mute == 1) {
+						$as_btn = 'Muted';
+						$btn_style = 'danger';
+
+						$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu">
+                            <li><a href="#" onclick="account_block(' . $row->student_id . ')" style="color: red;"><i class="glyphicon glyphicon-lock"></i>&nbsp; block</a></li>
+
+
+                            <li><a href="#" onclick="account_unmute(' . $row->student_id . ')" style="color: green;"><i class="glyphicon glyphicon-ok"></i>&nbsp; unmute</a></li>
+
+                            </ul>';
+					}
+				}
+
+				$account_status = '<div class="btn-group"><button type="button" class="btn btn-' . $btn_style . ' btn-sm dropdown-toggle" data-toggle="dropdown">
+                               ' . $as_btn . ' ' . $btn_cont . '</div>';
+
+				$gender = $student_info->sex;
+
+				$nestedData['code'] = $student_info->student_code;
+				$nestedData['photo'] = '<img src="' . $this->crud_model->get_image_url('student', $row->student_id, $gender) . '" class="img-circle" width="30" />';
+				$nestedData['name'] = $student_info->name;
+				$nestedData['year_batch'] = $row->year_batch;
+				$nestedData['address'] = $student_info->address;
+				$nestedData['email'] = '<a href="mailto:' . $student_info->email . '" target="_blank">' . $student_info->email . '</a>';
+				$nestedData['auth'] = $student_info->authentication_key;
+				$nestedData['account_status'] = $account_status;
+
+				//choosing between creche and the general classes
+				$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+				$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+				$options = $class_name == 'CRECHE' ? '
+                            <div class="btn-group">
+                                    '.get_action_button().'
+                                    <ul class="dropdown-menu dropdown-default pull-right" role="menu">
+
+                                        <!-- STUDENT MARKSHEET LINK  -->
+                            <li>
+                            <a href="#" style="color: #040f10;" onclick="student_marksheet_creche(' . $row->student_id . ')">
+                                <i class="entypo-chart-bar"></i>
+                                    mark_sheet
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+
+                            <!-- SMS LINK -->
+                    <li>
+                        <a href="#" class="pt_link" onclick="check_sms_status(); student_sms(' . $row->student_id . ')" style="color: green;"><i class="glyphicon glyphicon-envelope"></i>send_sMS
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+
+                    <!-- STUDENT PROFILE LINK -->
+                    <li>
+                        <a href="#" onclick="student_profile(' . $row->student_id . ')" style="color: #0029ff;">
+                            <i class="entypo-user"></i>profile
+                            </a>
+                    </li>
+                    <li class="divider"></li>
+
+                    <!-- STUDENT EDITING LINK
+                    <li>
+                        <a href="#" onclick="student_edit(' . $row->student_id . ')" style="color: green;">
+                            <i class="entypo-pencil"></i>edit
+                            </a>
+                    </li>
+                    <li class="divider"></li>
+                    -->
+
+                    <li>
+                        <a href="#" onclick="student_id_card(' . $row->student_id . ')" style="color: #fd09ff;"">
+                            <i class="entypo-vcard"></i>generate_id
+                        </a>
+                    </li>
+
+                    <li class="divider"></li>
+                    <li>
+                      <a href="#" onclick="student_delete(' . $row->student_id . ')" style="color: red;">
+                        <i class="entypo-trash"></i>delete
+                      </a>
+                    </li>'
+
+				:
+				'
+                                <div class="btn-group">
+                                    '.get_action_button().'
+                                    <ul class="dropdown-menu dropdown-default pull-right" role="menu">
+
+                                        <!-- STUDENT MARKSHEET LINK  -->
+                                <li>
+                                    <a href="#" style="color: #040f10;" onclick="student_marksheet(' . $row->student_id . ')">
+                                        <i class="entypo-chart-bar"></i>mark_sheet
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+
+
+                    <!-- SMS LINK -->
+                    <li>
+                        <a href="#" class="pt_link" onclick="check_sms_status(); student_sms(' . $row->student_id . ')" style="color: green;"><i class="glyphicon glyphicon-envelope"></i>send_sMS
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+
+                    <!-- STUDENT PROFILE LINK -->
+                    <li>
+                        <a href="#" onclick="student_profile(' . $row->student_id . ')" style="color: #0029ff;">
+                            <i class="entypo-user"></i>profile
+                            </a>
+                    </li>
+                    <li class="divider"></li>
+
+                    <!-- STUDENT EDITING LINK
+                    <li>
+                        <a href="#" onclick="student_edit(' . $row->student_id . ')" style="color: green;">
+                            <i class="entypo-pencil"></i>edit
+                            </a>
+                    </li>
+                    <li class="divider"></li>
+                    -->
+
+                    <li>
+                        <a href="#" onclick="student_id_card(' . $row->student_id . ')" style="color: #fd09ff;"">
+                            <i class="entypo-vcard"></i>generate_id
+                        </a>
+                    </li>
+
+                    <li class="divider"></li>
+                    <li>
+                      <a href="#" onclick="student_delete(' . $row->student_id . ')" style="color: red;">
+                        <i class="entypo-trash"></i>delete
+                      </a>
+                    </li>
+                </ul>
+            </div>';
+
+				$nestedData['options'] = $options;
+
+				$data[] = $nestedData;
+			}
+		}
+
+		$json_data = array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"data" => $data,
+		);
+
+		echo json_encode($json_data);
+
+	}
+
+	function get_students($class_id) {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$columns = array(
+			0 => 'id',
+			1 => 'photo',
+			2 => 'name',
+			3 => 'address',
+			4 => 'email',
+			5 => 'options',
+			6 => 'id',
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->ajaxload->all_students_count();
+		$totalFiltered = $totalData;
+
+		if (empty($this->input->post('search')['value'])) {
+			$students = $this->ajaxload->all_students($limit, $start, $order, $dir);
+		} else {
+			$search = $this->input->post('search')['value'];
+			$students = $this->ajaxload->student_search($limit, $start, $search, $order, $dir);
+			$totalFiltered = $this->ajaxload->student_search_count($search);
+		}
+
+		$data = array();
+		if (!empty($students)) {
+			foreach ($students as $row) {
+				$nestedData['id'] = $row->enroll_code;
+				$nestedData['photo'] = '1';
+				$nestedData['name'] = '2';
+				$nestedData['address'] = '3';
+				$nestedData['email'] = '4';
+				$nestedData['options'] = '5';
+
+				$data[] = $nestedData;
+			}
+		}
+
+		$json_data = array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"data" => $data,
+		);
+
+		echo json_encode($json_data);
+	}
+
+	// Alias method for direct access to student marksheet list
+	function student_marksheet_list() {
+		// Simply call student_marksheet without parameters to show selection page
+		$this->student_marksheet();
+	}
+
+	// Exam Reports Archives Page
+	function exam_reports() {
+		$page_data['page_name'] = 'exam_reports';
+		$page_data['page_title'] = get_phrase('exam_reports_archives');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function student_marksheet($student_id = '', $ajax = 'no') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		// If no student_id, show selection page
+		if(empty($student_id)) {
+			$page_data['page_name'] = 'student_marksheet_list';
+			$page_data['page_title'] = get_phrase('student_marksheet');
+			$page_data['account_type'] = $this->session->userdata('login_type');
+			$this->load->view('backend/main', $page_data);
+			return;
+		}
+
+		//enable database cache
+		//$this->db->cache_on();
+
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		// Get student's enrollment - try current year/term first, then any active enrollment
+		$enroll_query = $this->db->get_where('enroll', array(
+			'student_id' => $student_id,'mute' => '0', 'term' => $running_term, 'year' => $running_year))->first_row();
+		
+		// If no enrollment found for current year/term, get the most recent enrollment
+		if(!$enroll_query) {
+			$enroll_query = $this->db->where('student_id', $student_id)
+				->where('mute', '0')
+				->order_by('year', 'DESC')
+				->order_by('term', 'DESC')
+				->limit(1)
+				->get('enroll')->first_row();
+		}
+		
+		$class_id = $enroll_query->class_id;
+		$section_id = $enroll_query->section_id;
+		// Use the student's actual enrollment year/term, not the system settings
+		$student_year = $enroll_query->year;
+		$student_term = isset($enroll_query->term) ? $enroll_query->term : null;
+		$student_sem = isset($enroll_query->sem) ? $enroll_query->sem : null;
+
+		$student_name = $this->db->get_where('student', array('student_id' => $student_id, 'mute' => '0'))->row()->name;
+		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+		if ($class_name == 'JHSS') {
+
+			$exam_id = $this->db->get_where('mark', array('class_id' => $class_id, 'section_id' => $section_id, 'student_id' => $student_id, 'year' => $student_year, 'sem' => $student_sem))->row()->exam_id;
+
+			// Use student's actual year/sem to get other students in the same class
+			$other_students = $this->db->get_where('enroll', array('year' => $student_year,  'mute' => '0', 'sem' => $student_sem, 'class_id' => $class_id))->result_array();
+		} else {
+
+			$exam_id = $this->db->get_where('mark', array('class_id' => $class_id, 'section_id' => $section_id, 'student_id' => $student_id, 'year' => $student_year, 'term' => $student_term))->row()->exam_id;
+
+			// Use student's actual year/term to get other students in the same class
+			$other_students = $this->db->get_where('enroll', array('year' => $student_year,  'mute' => '0', 'term' => $student_term, 'class_id' => $class_id))->result_array();
+		}
+
+		$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+
+		//selecting the marksheet based
+		$terminal_report_style = $this->db->get_where('settings' , array('type'=>'terminal_report_style'))->row()->description;
+
+		if ($raw_score == 'Yes') {
+			if ($class_name == 'JHSS') {
+				$page_data['page_name'] = 'student_raw_score_marksheet';
+			} else {
+				if($terminal_report_style == 'style_1' || $terminal_report_style == 'style_3') {
+					$page_data['page_name'] = 'student_marksheet';
+				} else {
+					$page_data['page_name'] = 'student_marksheet_2';
+				}
+				
+			}
+		} elseif ($raw_score == 'No') {
+			if($terminal_report_style == 'style_1' || $terminal_report_style == 'style_3') {
+				$page_data['page_name'] = 'student_marksheet';
+			} else {
+				$page_data['page_name'] = 'student_marksheet_2';
+			}
+		}
+
+		//add section A or B if the class has more than one section
+		$section_name = $this->db->get_where('section', array('section_id' => $section_id, 'class_id' => $class_id))->row()->name;
+		$class_has_more_sections = $this->db->get_where('class', array('name' => $class_name, 'name_numeric' => $class_name_numeric))->num_rows();
+		$sec_name = '';
+		if ($class_has_more_sections > 1) {
+			$sec_name = $section_name;
+		}
+
+		$page_data['page_title'] = strtoupper(get_phrase('result_sheet_for')) . ' ' . $student_name . ' (' . ' ' . $class_name . ' ' . $class_name_numeric . $sec_name . ')';
+		$page_data['student_id'] = $student_id;
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['exam_id'] = $exam_id;
+		$page_data['other_students'] = $other_students;
+
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$page_data['ajax'] = $ajax;
+		
+		// Load models for database-driven items
+		$this->load->model('Conduct_items_model');
+		$this->load->model('Interest_items_model');
+		$this->load->model('Teacher_remarks_templates_model');
+		$this->load->model('Head_teacher_remarks_model');
+		
+		// Load active items for dropdown menus
+		$page_data['conduct_items'] = $this->Conduct_items_model->get_active();
+		$page_data['interest_items'] = $this->Interest_items_model->get_active();
+		$page_data['teacher_remark_templates'] = $this->Teacher_remarks_templates_model->get_active();
+
+		// Fetch year and term from exam record instead of system settings
+		if(!empty($exam_id)) {
+			$exam_record = $this->db->get_where('exam', array('exam_id' => $exam_id))->row();
+			$page_data['running_year'] = $exam_record->year;
+			$page_data['running_term'] = isset($exam_record->term) ? $exam_record->term : '';
+			$page_data['running_sem'] = isset($exam_record->sem) ? $exam_record->sem : '';
+		} else {
+			// Fallback to system settings if no exam_id
+			$page_data['running_year'] = get_settings('running_year');
+			$page_data['running_term'] = get_settings('running_term');
+			$page_data['running_sem'] = '';
+		}
+
+		if($ajax == 'yes') {
+			$this->load->view('backend/admin/'. $page_data['page_name'], $page_data);
+		} else {
+
+			$this->load->view('backend/main', $page_data);
+		}
+		
+	}
+
+	function student_results_sheet($student_id = '', $exam_id = '', $class_id = '', $term = '', $year = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//enable database cache
+		//$this->db->cache_on();
+
+		if ($student_id != '') {
+			$class_name = $this->crud_model->get_class_name($class_id);
+
+			if ($class_name == 'CRECHE') {
+				//LOADING CRECHE
+
+				$this->student_results_sheet_creche($student_id, $exam_id, $class_id, $term, $year);
+
+			} else if ($class_name == 'JHSS') {
+				//sending up
+
+				$data['class_id'] = $class_id;
+				$data['exam_id'] = $exam_id;
+				// $exam_id             = $this->db->get_where('exam' , array('exam_id' => $data['exam_id']))->row()->exam_id;
+				$data['year'] = $year;
+				$data['sem'] = $term;
+				$data['student_id'] = $student_id;
+
+				$student_name = $this->db->get_where('student', array('student_id' => $data['student_id'], 'mute' => '0'))->row()->name;
+				$class_name = $this->db->get_where('class', array('class_id' => $data['class_id']))->row()->name;
+				$class_name_numeric = $this->db->get_where('class', array('class_id' => $data['class_id']))->row()->name_numeric;
+
+				$section_id = $this->db->get_where('enroll', array('class_id' => $data['class_id'],
+					'student_id' => $data['student_id'], 'year' => $data['year'], 'term' => $data['term']))->row()->section_id;
+				$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+
+				$other_students = $this->db->get_where('enroll', array('year' => get_settings('running_year'),  'mute' => '0', 'sem' => get_settings('running_sem'), 'class_id' => $this->session->userdata('class_id_for_result_archives')))->result_array();
+				$page_data['other_students'] = $other_students;
+
+				//selecting the marksheet based
+				$terminal_report_style = $this->db->get_where('settings' , array('type'=>'terminal_report_style'))->row()->description;
+
+
+				if ($raw_score == 'Yes') {
+					if ($class_name == 'JHSS') {
+						$page_data['page_name'] = 'student_raw_score_results_sheet';
+					} else {
+						if($terminal_report_style == 'style_1' || $terminal_report_style == 'style_3') {
+							$page_data['page_name'] = 'student_marksheet';
+						} else {
+							$page_data['page_name'] = 'student_marksheet_2';
+						}
+						
+					}
+				} elseif ($raw_score == 'No') {
+					if($terminal_report_style == 'style_1' || $terminal_report_style == 'style_3') {
+						$page_data['page_name'] = 'student_results_sheet';
+					} else {
+						$page_data['page_name'] = 'student_results_sheet_2';
+					}
+				}
+
+
+				//add section A or B if the class has more than one section
+				$section_name = $this->db->get_where('section', array('section_id' => $section_id, 'class_id' => $data['class_id']))->row()->name;
+				$class_has_more_sections = $this->db->get_where('class', array('name' => $class_name, 'name_numeric' => $class_name_numeric))->num_rows();
+				$sec_name = '';
+				if ($class_has_more_sections > 1) {
+					$sec_name = $section_name;
+				}
+
+				$page_data['page_title'] = strtoupper(get_phrase('result_sheet_for')) . ' ' . $student_name . ' (' . ' ' . $class_name . ' ' . $class_name_numeric . $sec_name . ')';
+				$page_data['student_id'] = $data['student_id'];
+				$page_data['class_id'] = $data['class_id'];
+				$page_data['exam_id'] = $data['exam_id'];
+				$page_data['section_id'] = $section_id;
+				$page_data['year'] = $data['year'];
+				$page_data['sem'] = $data['sem'];
+				$page_data['running_year'] = $data['year'];
+				$page_data['running_term'] = isset($data['term']) ? $data['term'] : '';
+				$page_data['running_sem'] = $data['sem'];
+				$page_data['exam_rows'] = $this->db->get_where('mark', array('class_id' => $class_id, 'exam_id' => $exam_id, 'year' => $year, 'sem' => $term, 'student_id' => $student_id))->num_rows();
+
+			} else {
+
+				$data['class_id'] = $class_id;
+				$data['exam_id'] = $exam_id;
+				// $exam_id             = $this->db->get_where('exam' , array('exam_id' => $data['exam_id']))->row()->exam_id;
+				$data['year'] = $year;
+				$data['term'] = $term;
+				$data['student_id'] = $student_id;
+
+				$student_name = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->name;
+				$class_name = $this->db->get_where('class', array('class_id' => $data['class_id']))->row()->name;
+				$class_name_numeric = $this->db->get_where('class', array('class_id' => $data['class_id']))->row()->name_numeric;
+
+				$section_id = $this->db->get_where('enroll', array('class_id' => $data['class_id'],
+					'student_id' => $data['student_id'], 'year' => $data['year'], 'term' => $data['term']))->row()->section_id;
+				$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+
+				$other_students = $this->db->get_where('enroll', array('year' => get_settings('running_year'), 'mute' => '0', 'term' => get_settings('running_term'), 'class_id' => $this->session->userdata('class_id_for_result_archives')))->result_array();
+				$page_data['other_students'] = $other_students;
+
+				if ($raw_score == 'Yes') {
+					if ($class_name == 'JHSS') {
+						$page_data['page_name'] = 'student_raw_score_results_sheet';
+					} else {
+						$page_data['page_name'] = 'student_results_sheet';};
+				} elseif ($raw_score == 'No') {
+					$page_data['page_name'] = 'student_results_sheet';
+				}
+
+				//add section A or B if the class has more than one section
+				$section_name = $this->db->get_where('section', array('section_id' => $section_id, 'class_id' => $data['class_id']))->row()->name;
+				$class_has_more_sections = $this->db->get_where('class', array('name' => $class_name, 'name_numeric' => $class_name_numeric))->num_rows();
+				$sec_name = '';
+				if ($class_has_more_sections > 1) {
+					$sec_name = $section_name;
+				}
+
+				$page_data['page_title'] = strtoupper(get_phrase('result_sheet_for')) . ' ' . $student_name . ' (' . ' ' . $class_name . ' ' . $class_name_numeric . $sec_name . ')';
+				$page_data['student_id'] = $data['student_id'];
+				$page_data['class_id'] = $data['class_id'];
+				$page_data['exam_id'] = $data['exam_id'];
+				$page_data['section_id'] = $section_id;
+				$page_data['year'] = $data['year'];
+				$page_data['term'] = $data['term'];
+				$page_data['running_year'] = $data['year'];
+				$page_data['running_term'] = $data['term'];
+				$page_data['running_sem'] = isset($data['sem']) ? $data['sem'] : '';
+				$page_data['sem'] = isset($data['sem']) ? $data['sem'] : '';
+				$page_data['exam_rows'] = $this->db->get_where('mark', array('class_id' => $class_id, 'exam_id' => $exam_id, 'year' => $year, 'term' => $term, 'student_id' => $student_id))->num_rows();
+
+			} //
+		} else {
+
+			$class_name = $this->crud_model->get_class_name($this->input->post('class_id'));
+
+			if ($class_name == 'CRECHE') {
+				//LOADING CRECHE
+
+				$class_id = $this->input->post('class_id');
+				$exam_id = $this->input->post('exam_id');
+				// $exam_id             = $this->db->get_where('exam' , array('exam_id' => $data['exam_id']))->row()->exam_id;
+				$year = $this->input->post('year');
+				$term = $this->input->post('term');
+				$student_id = $this->input->post('student_id');
+
+				$this->student_results_sheet_creche($student_id, $exam_id, $class_id, $term, $year);
+
+			} else if ($class_name == 'JHSS') {
+
+				$data['class_id'] = $this->input->post('class_id');
+				$data['exam_id'] = $this->input->post('exam_id');
+				// $exam_id             = $this->db->get_where('exam' , array('exam_id' => $data['exam_id']))->row()->exam_id;
+				$data['year'] = $this->input->post('year');
+				$data['sem'] = $this->input->post('sem');
+				$data['student_id'] = $this->input->post('student_id');
+				$student_name = $this->db->get_where('student', array('student_id' => $data['student_id'], 'mute' => '0'))->row()->name;
+				$class_name = $this->db->get_where('class', array('class_id' => $data['class_id']))->row()->name;
+				$class_name_numeric = $this->db->get_where('class', array('class_id' => $data['class_id']))->row()->name_numeric;
+
+				$section_id = $this->db->get_where('enroll', array('class_id' => $data['class_id'],
+					'student_id' => $data['student_id'], 'year' => $data['year'], 'term' => $data['term']))->row()->section_id;
+				$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+
+				$other_students = $this->db->get_where('enroll', array('year' => get_settings('running_year'),  'mute' => '0', 'term' => get_settings('running_term'), 'class_id' => $this->session->userdata('class_id_for_result_archives')))->result_array();
+				$page_data['other_students'] = $other_students;
+
+				if ($raw_score == 'Yes') {
+					if ($class_name == 'JHSS') {
+						$page_data['page_name'] = 'student_raw_score_results_sheet';
+					} else {
+						$page_data['page_name'] = 'student_results_sheet';};
+				} elseif ($raw_score == 'No') {
+					$page_data['page_name'] = 'student_results_sheet';
+				}
+
+				//add section A or B if the class has more than one section
+				$section_name = $this->db->get_where('section', array('section_id' => $section_id, 'class_id' => $data['class_id']))->row()->name;
+				$class_has_more_sections = $this->db->get_where('class', array('name' => $class_name, 'name_numeric' => $class_name_numeric))->num_rows();
+				$sec_name = '';
+				if ($class_has_more_sections > 1) {
+					$sec_name = $section_name;
+				}
+
+				$page_data['page_title'] = strtoupper(get_phrase('result_sheet_for')) . ' ' . $student_name . ' (' . ' ' . $class_name . ' ' . $class_name_numeric . $sec_name . ')';
+				$page_data['student_id'] = $data['student_id'];
+				$page_data['class_id'] = $data['class_id'];
+				$page_data['exam_id'] = $data['exam_id'];
+				$page_data['section_id'] = $section_id;
+				$page_data['year'] = $data['year'];
+				$page_data['sem'] = $data['sem'];
+				$page_data['running_year'] = $data['year'];
+				$page_data['running_term'] = isset($data['term']) ? $data['term'] : '';
+				$page_data['running_sem'] = $data['sem'];
+
+				$page_data['exam_rows'] = $this->db->get_where('mark', array('class_id' => $data['class_id'], 'exam_id' => $data['exam_id'], 'year' => $data['year'], 'sem' => $data['sem'], 'student_id' => $data['student_id']))->num_rows();
+
+			} else {
+
+				$data['class_id'] = $this->input->post('class_id');
+				$data['exam_id'] = $this->input->post('exam_id');
+
+				// $exam_id             = $this->db->get_where('exam' , array('exam_id' => $data['exam_id']))->row()->exam_id;
+				$data['year'] = $this->input->post('year');
+				$data['term'] = $this->input->post('term');
+				$data['student_id'] = $this->input->post('student_id');
+				$student_name = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->name;
+				$class_name = $this->db->get_where('class', array('class_id' => $data['class_id']))->row()->name;
+				$class_name_numeric = $this->db->get_where('class', array('class_id' => $data['class_id']))->row()->name_numeric;
+
+				$section_id = $this->db->get_where('enroll', array('class_id' => $data['class_id'],
+					'student_id' => $data['student_id'], 'year' => $data['year'], 'term' => $data['term']))->row()->section_id;
+				$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+
+				$other_students = $this->db->get_where('enroll', array('year' => get_settings('running_year'), 'term' => get_settings('running_term'), 'mute' => '0', 'class_id' => $this->session->userdata('class_id_for_result_archives')))->result_array();
+				$page_data['other_students'] = $other_students;
+
+				if ($raw_score == 'Yes') {
+					if ($class_name == 'JHSS') {
+						$page_data['page_name'] = 'student_raw_score_results_sheet';
+					} else {
+						$page_data['page_name'] = 'student_results_sheet';};
+				} elseif ($raw_score == 'No') {
+					$page_data['page_name'] = 'student_results_sheet';
+				}
+
+				//add section A or B if the class has more than one section
+				$section_name = $this->db->get_where('section', array('section_id' => $section_id, 'class_id' => $data['class_id']))->row()->name;
+				$class_has_more_sections = $this->db->get_where('class', array('name' => $class_name, 'name_numeric' => $class_name_numeric))->num_rows();
+				$sec_name = '';
+				if ($class_has_more_sections > 1) {
+					$sec_name = $section_name;
+				}
+
+				$page_data['page_title'] = strtoupper(get_phrase('result_sheet_for')) . ' ' . $student_name . ' (' . ' ' . $class_name . ' ' . $class_name_numeric . $sec_name . ')';
+				$page_data['student_id'] = $data['student_id'];
+				$page_data['class_id'] = $data['class_id'];
+				$page_data['exam_id'] = $data['exam_id'];
+				$page_data['section_id'] = $section_id;
+				$page_data['year'] = $data['year'];
+				$page_data['term'] = $data['term'];
+				$page_data['running_year'] = $data['year'];
+				$page_data['running_term'] = $data['term'];
+				$page_data['running_sem'] = isset($data['sem']) ? $data['sem'] : '';
+				$page_data['sem'] = isset($data['sem']) ? $data['sem'] : '';
+
+				$page_data['exam_rows'] = $this->db->get_where('mark', array('class_id' => $data['class_id'], 'exam_id' => $data['exam_id'], 'year' => $data['year'], 'term' => $data['term'], 'student_id' => $data['student_id']))->num_rows();
+			}
+		}
+
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/admin/'.$page_data['page_name'], $page_data);
+
+	}
+
+	function student_marksheet_print_view($student_id, $exam_id) {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//enable database cache
+		//$this->db->cache_on();
+
+		// Fetch year and term from exam record instead of system settings
+		$exam_record = $this->db->get_where('exam', array('exam_id' => $exam_id))->row();
+		$running_year = $exam_record->year;
+		$running_term = isset($exam_record->term) ? $exam_record->term : '';
+		$running_sem = isset($exam_record->sem) ? $exam_record->sem : '';
+
+		$enroll_query = $this->db->get_where('enroll', array(
+			'student_id' => $student_id,'mute' => '0', 'term' => $running_term, 'year' => $running_year))->first_row();
+
+		$class_id = $enroll_query->class_id;
+		$section_id = $enroll_query->section_id;
+
+		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+		if ($class_name == 'JHSS') {
+			$page_data['jhs'] = 'jhs';
+		} else {
+			$page_data['non_jhs'] = 'non_jhs';
+		}
+
+		$page_data['student_id'] = $student_id;
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['exam_id'] = $exam_id;
+		$page_data['running_year'] = $running_year;
+		$page_data['running_term'] = $running_term;
+		$page_data['running_sem'] = $running_sem;
+
+		if ($exam_id != '' || $exam_id != '' && $class_id != "" || $class_id != "" && $section_id != '' || $section_id != '') {
+			$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+
+			$terminal_report_style = $this->db->get_where('settings' , array('type'=>'terminal_report_style'))->row()->description;
+
+			if ($raw_score == 'Yes') {
+				if ($class_name == 'JHSS') {
+					$this->load->view('backend/admin/student_raw_score_marksheet_print_view', $page_data);
+				} else {
+					//load the chosen exam report style
+
+					if($terminal_report_style == 'style_1') {
+						$this->load->view('backend/admin/student_marksheet_print_view', $page_data);
+					} elseif($terminal_report_style == 'style_2') {
+						$this->load->view('backend/admin/student_marksheet_print_view_2', $page_data);
+					} elseif($terminal_report_style == 'style_3') {
+						$this->load->view('backend/admin/student_marksheet_print_view_3', $page_data);
+					} else {
+						$this->load->view('backend/admin/student_marksheet_print_view_2', $page_data);
+					}
+				}
+			} elseif ($raw_score == 'No') {
+
+				//load the chosen exam report style
+
+				if($terminal_report_style == 'style_1') {
+					$this->load->view('backend/admin/student_marksheet_print_view', $page_data);
+				} elseif($terminal_report_style == 'style_2') {
+					$this->load->view('backend/admin/student_marksheet_print_view_2', $page_data);
+				} elseif($terminal_report_style == 'style_3') {
+					$this->load->view('backend/admin/student_marksheet_print_view_3', $page_data);
+				} else {
+					$this->load->view('backend/admin/student_marksheet_print_view_2', $page_data);
+				}
+				
+			}
+		} else {
+			$this->session->set_flashdata('error_message', get_phrase('data_not_found!'));
+			redirect(site_url('admin/student_marksheet'), 'refreh');
+		}
+	}
+
+	//bulk marksheet printing
+	function student_marksheet_bulk_print_view($class_id, $section_id, $exam_id = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//enable database cache
+		//$this->db->cache_on();
+
+		// $exam_id = $this->input->post('exam_id');
+
+		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['exam_id'] = $exam_id;
+		$page_data['year'] = $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->year;
+
+		if ($class_name == 'JHSS') {
+			$page_data['sem'] = $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->sem;
+		} else {
+			$page_data['term'] = $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->term;
+		}
+
+		if ($exam_id != '' || $exam_id != '' && $class_id != "" || $class_id != "" && $section_id != '' || $section_id != '') {
+			$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+
+			$terminal_report_style = $this->db->get_where('settings' , array('type'=>'terminal_report_style'))->row()->description;
+
+			if ($raw_score == 'Yes') {
+				if ($class_name == 'JHSS') {
+					$this->load->view('backend/admin/student_raw_score_marksheet_bulk_print_view', $page_data);
+				} else {
+					//load the chosen exam report style
+				
+					if($terminal_report_style == 'style_1') {
+						$this->load->view('backend/admin/student_marksheet_bulk_print_view', $page_data);
+					} elseif($terminal_report_style == 'style_2') {
+						$this->load->view('backend/admin/student_marksheet_bulk_print_view_2', $page_data);
+					} elseif($terminal_report_style == 'style_3') {
+						$this->load->view('backend/admin/student_marksheet_bulk_print_view_3', $page_data);
+					} else {
+						$this->load->view('backend/admin/student_marksheet_bulk_print_view_2', $page_data);
+					}
+
+				}
+			} elseif ($raw_score == 'No') {
+
+				//load the chosen exam report style
+				
+				if($terminal_report_style == 'style_1') {
+					$this->load->view('backend/admin/student_marksheet_bulk_print_view', $page_data);
+				} elseif($terminal_report_style == 'style_2') {
+					$this->load->view('backend/admin/student_marksheet_bulk_print_view_2', $page_data);
+				} elseif($terminal_report_style == 'style_3') {
+					$this->load->view('backend/admin/student_marksheet_bulk_print_view_3', $page_data);
+				} else {
+					$this->load->view('backend/admin/student_marksheet_bulk_print_view_2', $page_data);
+				}
+				
+			}
+		} else {
+			$this->session->set_flashdata('error_message', get_phrase('data_not_found!'));
+			redirect(site_url('admin/student_information'), 'refreh');
+		}
+	} //bulk marksheet printing ends
+
+	function student_results_sheet_print_view($student_id, $exam_id, $class_id, $term, $year) {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//enable database cache
+		//$this->db->cache_on();
+
+		$section_id = $this->db->get_where('enroll', array(
+			'student_id' => $student_id, 'mute' => '0', 'year' => $year, 'class_id' => $class_id,
+		))->row()->section_id;
+
+		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+		$page_data['student_id'] = $student_id;
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['exam_id'] = $exam_id;
+
+		if ($class_name == 'JHSS') {
+			$page_data['sem'] = $term;
+
+			$page_data['exam_rows'] = $this->db->get_where('mark', array('class_id' => $data_page['class_id'], 'exam_id' => $data_page['exam_id'], 'year' => $data_page['year'], 'sem' => $data_page['sem'], 'student_id' => $data_page['student_id']))->num_rows();
+
+		} else {
+			$page_data['term'] = $term;
+
+			$page_data['exam_rows'] = $this->db->get_where('mark', array('class_id' => $data_page['class_id'], 'exam_id' => $data_page['exam_id'], 'year' => $data_page['year'], 'term' => $data_page['term'], 'student_id' => $data_page['student_id']))->num_rows();
+		}
+
+		$page_data['year'] = $year;
+
+		if ($exam_id != '' || $exam_id != '' && $class_id != "" || $class_id != "" && $section_id != '' || $section_id != '') {
+			$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+
+			$terminal_report_style = $this->db->get_where('settings' , array('type'=>'terminal_report_style'))->row()->description;
+
+			if ($raw_score == 'Yes') {
+				if ($class_name == 'JHSS') {
+					$this->load->view('backend/admin/student_raw_score_results_sheet_print_view', $page_data);
+				} else {
+					//load the chosen exam report style
+				
+					if($terminal_report_style == 'style_1') {
+						$this->load->view('backend/admin/student_results_sheet_print_view', $page_data);
+					} else {
+						$this->load->view('backend/admin/student_results_sheet_print_view_2', $page_data);
+					}
+				}
+			} elseif ($raw_score == 'No') {
+				//load the chosen exam report style
+				
+				if($terminal_report_style == 'style_1') {
+					$this->load->view('backend/admin/student_results_sheet_print_view', $page_data);
+				} else {
+					$this->load->view('backend/admin/student_results_sheet_print_view_2', $page_data);
+				}
+			}
+		} else {
+			$this->session->set_flashdata('error_message', get_phrase('data_not_found!'));
+			redirect(site_url('admin/student_results_sheet'), 'refreh');
+		}
+	}
+
+	//for creche
+	function student_marksheet_creche($student_id = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//enable database cache
+		//$this->db->cache_on();
+
+		$class_id = $this->db->get_where('enroll', array(
+			'student_id' => $student_id, 'mute' => '0', 'year' => $this->db->get_where('settings', array('type' => 'running_year'))->row()->description, 'term' => $this->db->get_where('settings', array('type' => 'running_term'))->row()->description,
+		))->row()->class_id;
+		$section_id = $this->db->get_where('enroll', array('class_id' => $class_id,
+			'student_id' => $student_id, 'mute' => '0', 'year' => $this->db->get_where('settings', array('type' => 'running_year'))->row()->description, 'term' => $this->db->get_where('settings', array('type' => 'running_term'))->row()->description,
+		))->row()->section_id;
+		$exam_id = $this->db->get_where('mark', array('class_id' => $class_id, 'section_id' => $section_id, 'student_id' => $student_id, 'year' => $this->db->get_where('settings', array('type' => 'running_year'))->row()->description, 'term' => $this->db->get_where('settings', array('type' => 'running_term'))->row()->description,
+		))->row()->exam_id;
+
+		$other_students = $this->db->get_where('enroll', array('year' => get_settings('running_year'),  'mute' => '0', 'term' => get_settings('running_term'), 'class_id' => $class_id))->result_array();
+
+		$student_name = $this->db->get_where('student', array('student_id' => $student_id))->row()->name;
+		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+		//selecting the marksheet based
+		$terminal_report_style = $this->db->get_where('settings' , array('type'=>'terminal_report_style'))->row()->description;
+
+		if($terminal_report_style == 'style_1') {
+			$page_data['page_name'] = 'student_marksheet_creche';
+		} else {
+			$page_data['page_name'] = 'student_marksheet_creche_2';
+		}
+
+		
+
+		//add section A or B if the class has more than one section
+		$section_name = $this->db->get_where('section', array('section_id' => $section_id, 'class_id' => $class_id))->row()->name;
+		$class_has_more_sections = $this->db->get_where('class', array('name' => $class_name, 'name_numeric' => $class_name_numeric))->num_rows();
+		$sec_name = '';
+		if ($class_has_more_sections > 1) {
+			$sec_name = $section_name;
+		}
+
+		$page_data['page_title'] = strtoupper(get_phrase('result_sheet_for')) . ' ' . $student_name . ' (' . ' ' . $class_name . ' ' . $class_name_numeric . $sec_name . ')';
+		$page_data['student_id'] = $student_id;
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['exam_id'] = $exam_id;
+		$page_data['other_students'] = $other_students;
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		
+		// Load active conduct and interest items for teacher interface
+		$page_data['conduct_items'] = $this->Conduct_items_model->get_active();
+		
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function student_results_sheet_creche($student_id = '', $exam_id = '', $class_id = '', $term = '', $year = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//enable database cache
+		//$this->db->cache_on();
+
+		if ($student_id != '') {
+
+			$data['class_id'] = $class_id;
+			$data['exam_id'] = $exam_id;
+			// $exam_id             = $this->db->get_where('exam' , array('exam_id' => $data['exam_id']))->row()->exam_id;
+			$data['year'] = $year;
+			$data['term'] = $term;
+			$data['student_id'] = $student_id;
+
+		} else {
+
+			$data['class_id'] = $this->input->post('class_id');
+			$data['exam_id'] = $this->input->post('exam_id');
+			// $exam_id             = $this->db->get_where('exam' , array('exam_id' => $data['exam_id']))->row()->exam_id;
+			$data['year'] = $this->input->post('year');
+			$data['term'] = $this->input->post('term');
+			$data['student_id'] = $this->input->post('student_id');
+		}
+
+		$student_name = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->name;
+		$class_name = $this->db->get_where('class', array('class_id' => $data['class_id']))->row()->name;
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $data['class_id']))->row()->name_numeric;
+
+		$section_id = $this->db->get_where('enroll', array('class_id' => $data['class_id'],
+			'student_id' => $data['student_id'], 'mute' => '0', 'year' => $data['year']))->row()->section_id;
+
+		//selecting the marksheet based
+		$terminal_report_style = $this->db->get_where('settings' , array('type'=>'terminal_report_style'))->row()->description;
+
+		if($terminal_report_style == 'style_1') {
+			$page_data['page_name'] = 'student_results_sheet_creche';
+		} else {
+			$page_data['page_name'] = 'student_results_sheet_creche_2';
+		}
+
+		
+
+		//add section A or B if the class has more than one section
+		$section_name = $this->db->get_where('section', array('section_id' => $section_id, 'class_id' => $data['class_id']))->row()->name;
+		$class_has_more_sections = $this->db->get_where('class', array('name' => $class_name, 'name_numeric' => $class_name_numeric))->num_rows();
+		$sec_name = '';
+		if ($class_has_more_sections > 1) {
+			$sec_name = $section_name;
+		}
+
+		$page_data['page_title'] = strtoupper(get_phrase('result_sheet_for')) . ' ' . $student_name . ' (' . ' ' . $class_name . ' ' . $class_name_numeric . $sec_name . ')';
+
+		$other_students = $this->db->get_where('enroll', array('year' => get_settings('running_year'),  'mute' => '0', 'term' => get_settings('running_term'), 'class_id' => $this->session->userdata('class_id_for_result_archives')))->result_array();
+
+		$page_data['other_students'] = $other_students;
+		$page_data['student_id'] = $data['student_id'];
+		$page_data['class_id'] = $data['class_id'];
+		$page_data['exam_id'] = $data['exam_id'];
+		$page_data['section_id'] = $section_id;
+		$page_data['year'] = $data['year'];
+		$page_data['term'] = $data['term'];
+		$page_data['exam_rows'] = $this->db->get_where('mark', array('class_id' => $data['class_id'], 'exam_id' => $data['exam_id'], 'year' => $data['year'], 'term' => $data['term'], 'student_id' => $data['student_id']))->num_rows();
+
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/include_main', $page_data);
+
+	}
+
+	function student_marksheet_print_view_creche($student_id, $exam_id) {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//enable database cache
+		//$this->db->cache_on();
+
+		$class_id = $this->db->get_where('enroll', array(
+			'student_id' => $student_id, 'mute' => '0', 'year' => $this->db->get_where('settings', array('type' => 'running_year'))->row()->description, 'term' => $this->db->get_where('settings', array('type' => 'running_term'))->row()->description,
+		))->row()->class_id;
+
+		$section_id = $this->db->get_where('enroll', array(
+			'student_id' => $student_id, 'mute' => '0', 'year' => $this->db->get_where('settings', array('type' => 'running_year'))->row()->description, 'term' => $this->db->get_where('settings', array('type' => 'running_term'))->row()->description,
+		))->row()->section_id;
+
+		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+		$page_data['student_id'] = $student_id;
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['exam_id'] = $exam_id;
+
+		if ($exam_id != '' || $exam_id != '' && $class_id != "" || $class_id != "" && $section_id != '' || $section_id != '') {
+			$this->load->view('backend/admin/student_marksheet_print_view_creche', $page_data);
+		} else {
+			$this->session->set_flashdata('error_message', get_phrase('data_not_found!'));
+			redirect(site_url('admin/student_marksheet'), 'refreh');
+		}
+	}
+
+	//bulk marksheet printing
+	function student_marksheet_bulk_print_view_creche($class_id, $section_id) {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//enable database cache
+		//$this->db->cache_on();
+
+		$exam_id = $this->input->post('exam_id');
+
+		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['exam_id'] = $exam_id;
+		$page_data['year'] = $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->year;
+		$page_data['term'] = $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->term;
+
+		if ($exam_id != '' || $exam_id != '' && $class_id != "" || $class_id != "" && $section_id != '' || $section_id != '') {
+			$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+
+			// Dynamic template selection for creche exam reports
+			$template_setting = $this->db->get_where('settings', array('type' => 'creche_exam_template'))->row();
+			$template = 'template1'; // Default fallback
+			
+			// Validate template setting value
+			if ($template_setting && in_array($template_setting->description, array('template1', 'template2'))) {
+				$template = $template_setting->description;
+			}
+			
+			// Load appropriate view based on template selection
+			if ($template === 'template2') {
+				$this->load->view('backend/admin/student_marksheet_bulk_print_view_creche_template2', $page_data);
+			} else {
+				$this->load->view('backend/admin/student_marksheet_bulk_print_view_creche', $page_data);
+			}
+
+		} else {
+			$this->session->set_flashdata('error_message', get_phrase('data_not_found!'));
+			redirect(site_url('admin/student_information'), 'refreh');
+		}
+	} //bulk marksheet printing ends
+
+
+	//terminal bills printing
+	function print_terminal_bills($class_id, $section_id) {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//enable database cache
+		//$this->db->cache_on();
+
+		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+
+
+		$this->load->view('backend/admin/terminal_bill_print', $page_data);
+
+	} //terminal bill printing ends
+
+
+	function student_results_sheet_print_view_creche($student_id, $exam_id, $class_id, $term, $year) {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//enable database cache
+		//$this->db->cache_on();
+
+		$section_id = $this->db->get_where('enroll', array(
+			'student_id' => $student_id, 'mute' => '0', 'year' => $year, 'class_id' => $class_id,
+		))->row()->section_id;
+
+		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+		$page_data['student_id'] = $student_id;
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['exam_id'] = $exam_id;
+		$page_data['term'] = $term;
+		$page_data['year'] = $year;
+
+		if ($exam_id != '' || $exam_id != '' && $class_id != "" || $class_id != "" && $section_id != '' || $section_id != '') {
+			$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+			$this->load->view('backend/admin/student_results_sheet_print_view_creche', $page_data);
+		} else {
+			$this->session->set_flashdata('error_message', get_phrase('data_not_found!'));
+			redirect(site_url('admin/student_results_sheet'), 'refreh');
+		}
+	} //eend of creche
+
+	function student($param1 = '', $param2 = '', $param3 = '', $param4 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		//enable database cache
+		//$this->db->cache_on();
+		// Check if user is super admin
+		$user_level = $this->session->userdata('user_type');
+		$is_super_admin = ($user_level == 1);
+
+		$ajax_data = array();
+		$errors = array();
+
+		$this->load->library('form_validation');
+
+		$running_year = $this->db->get_where('settings', array(
+			'type' => 'running_year',
+		))->row()->description;
+
+		$running_term = $this->db->get_where('settings', array(
+			'type' => 'running_term',
+		))->row()->description;
+
+		$running_sem = $this->db->get_where('settings', array(
+			'type' => 'running_sem',
+		))->row()->description;
+
+		$bill_data['residence_type'] = $this->input->post('residence_type');
+
+		if ($param1 == 'create') {
+
+			$batchDataInsert = array();
+
+			//process student info
+			$student_code_pref = $this->db->get_where('settings', array('type' => 'student_code_prefix'))->row()->description;
+
+			$student_code_f = $this->db->get_where('settings', array('type' => 'student_code_format'))->row()->description;
+			$id_length = strlen(trim($student_code_pref . $student_code_f));
+
+			// Concatenate first, middle, last names
+			$first_name = trim(strtoupper(strtolower($this->input->post('first_name') ?: $this->input->post('name'))));
+			$middle_name = strtoupper(trim(ucwords(strtolower($this->input->post('middle_name')))));
+			$last_name = strtoupper(trim(ucwords(strtolower($this->input->post('last_name')))));
+			$data['name'] = $last_name ? trim($first_name . ' ' . ($middle_name ? $middle_name . ' ' : '') . $last_name) : strtoupper($this->input->post('name'));
+			$data['first_name'] = $first_name;
+			$data['middle_name'] = $middle_name;
+			$data['last_name'] = $last_name;
+			$data['blood_group'] = $this->input->post('blood_group');
+			$data['nationality'] = $this->input->post('nationality');
+			$data['ghana_card_id'] = $this->input->post('ghana_card_id');
+			$data['student_phone'] = $this->input->post('student_phone');
+			$data['former_school'] = $this->input->post('former_school');
+			$data['admission_date'] = date('Y-m-d', strtotime($this->input->post('admission_date')));
+			$data['allergies'] = $this->input->post('allergies');
+			$data['medical_conditions'] = $this->input->post('medical_conditions');
+			$data['emergency_contact'] = $this->input->post('emergency_contact');
+			$data['parent_email'] = $this->input->post('parent_email');
+			$data['special_diet'] = $this->input->post('special_diet');
+
+			//additions
+			$data['tribe'] = trim(strtoupper($this->input->post('tribe')));
+			$data['former_school'] = trim(strtoupper($this->input->post('former_school')));
+			$data['student_health'] = trim($this->input->post('student_health'));
+			$data['student_special_diet_details'] = trim($this->input->post('student_special_diet_details'));
+			$data['class_reached'] = trim(strtoupper($this->input->post('class_reached')));
+			$data['place_of_birth'] = trim($this->input->post('place_of_birth'));
+			$data['hometown'] = trim($this->input->post('hometown'));
+			$data['nhis_number'] = trim($this->input->post('nhis_number'));
+			$data['nhis_status'] = $this->input->post('nhis_status');
+			$data['disability_status'] = $this->input->post('disability_status');
+			$data['special_needs'] = trim($this->input->post('special_needs'));
+			$data['learning_support'] = trim($this->input->post('learning_support'));
+			$data['digital_literacy'] = $this->input->post('digital_literacy');
+			$data['home_technology_access'] = $this->input->post('home_technology_access');
+
+			$bill_data['class_id'] = $this->input->post('class_id');
+			
+
+			//parent data
+			$parent_data = array();
+			if($this->input->post('father_name')) $parent_data['father_name'] = trim(strtoupper(strtolower($this->input->post('father_name'))));
+			if($this->input->post('mother_name')) $parent_data['mother_name'] = trim(strtoupper(strtolower($this->input->post('mother_name'))));
+			if($this->input->post('father_phone')) $parent_data['father_phone'] = $this->input->post('father_phone');
+			if($this->input->post('mother_phone')) $parent_data['mother_phone'] = $this->input->post('mother_phone');
+			if($this->input->post('father_occupation')) $parent_data['father_occupation'] = trim($this->input->post('father_occupation'));
+			if($this->input->post('mother_occupation')) $parent_data['mother_occupation'] = trim($this->input->post('mother_occupation'));
+
+
+			$data2['residence_type'] = $this->input->post('residence_type');
+
+			if($data2['residence_type'] == 'Boarding') {
+
+				/*Student is a boarder so let's allocate the residence details*/
+				/*residence - house, domitory and bed*/
+
+				$data2['house_id'] = $this->input->post('house_id');
+				$data2['dormitory_id'] = $this->input->post('dormitory_id');
+				$data2['bed_id'] = $this->input->post('bed_id');
+
+			}
+
+			/*guardian phone update*/
+			$guardian_phone= $this->input->post('phone');
+			if($guardian_phone != '' && !empty($guardian_phone)) {
+				$parent_data['phone']  = $guardian_phone;
+			}
+
+
+			if ($this->input->post('birthday') != null) {
+				$data['birthday'] = date_format_converter($this->input->post('birthday'));
+			}
+			if ($this->input->post('sex') != null) {
+				$data['sex'] = ucwords($this->input->post('sex'));
+			}
+			if ($this->input->post('religion') != null) {
+				if ($this->input->post('religion') == 'Others') {
+					$data['religion'] = ucwords(strtolower($this->input->post('others')));
+				} else {
+					$data['religion'] = ucwords(strtolower($this->input->post('religion')));
+				}
+			}
+			if ($this->input->post('blood_group') != null) {
+				$data['blood_group'] = strtoupper($this->input->post('blood_group'));
+			}
+			if ($this->input->post('address') != null) {
+				$data['address'] = ucwords(strtolower($this->input->post('address')));
+			}
+			if ($this->input->post('phone') != null) {
+				$data['phone'] = trim($this->input->post('phone'));
+			}
+			if ($this->input->post('student_code') != null) {
+				$data['student_code'] = $this->input->post('student_code');
+				$code_validation = code_validation_insert($data['student_code']);
+				if (!$code_validation) {
+
+					$errors['invalid_id'] = get_phrase('this_id_number_is_not_available');
+				}
+			}
+
+			$data['email'] = trim(strtolower($this->input->post('email')));
+			if ($this->input->post('student_code') != null) {
+				$data['username'] = $this->input->post('student_code');
+			}
+			$data['password'] = password_hash($this->input->post('password'), PASSWORD_BCRYPT);
+
+			if ($this->input->post('parent_id') != null) {
+				$data['parent_id'] = $this->input->post('parent_id');
+			} else {
+
+				$errors['invalid_parent_id'] = get_phrase('No guardian was assigned to this student. Please select a guardian before proceeding!');
+			}
+			if ($this->input->post('dormitory_id') != null) {
+				$data['dormitory_id'] = $this->input->post('dormitory_id');
+			}
+
+			$data['authentication_key'] = substr(sha1(md5(mt_rand(1034200000, 1039999999))), 0, 5);
+
+			$this->form_validation->set_rules('first_name', 'Student First Name', 'trim|required');
+			$this->form_validation->set_rules('last_name', 'Student Last Name', 'trim|required');
+			$this->form_validation->set_rules('student_code', 'Student Code', 'trim|required|min_length[' . $id_length . ']|max_length[' . $id_length . ']');
+			$this->form_validation->set_rules('sex', 'Gender', 'trim|required');
+			$this->form_validation->set_rules('section_id', 'Section', 'trim|required');
+			$this->form_validation->set_rules('religion', 'Religion', 'trim');
+			$this->form_validation->set_rules('blood_group', 'Blood Group', 'trim');
+			$this->form_validation->set_rules('email', 'Email', 'trim');
+			$this->form_validation->set_rules('password', 'Password', 'trim');
+			$this->form_validation->set_rules('phone', 'Phone', 'trim|min_length[10]');
+			$this->form_validation->set_rules('address', 'Address', 'trim');
+			$this->form_validation->set_rules('birthday', 'Birthday', 'trim');
+
+			if ($this->form_validation->run() === FALSE) {
+				$errors['invalid_inputs'] =   '<h2>' . validation_errors() . '</h2>';
+			}
+
+
+			/*=================================================================*/
+			/*CREATION OF INVOICE ITEMS*/
+			/*===================================================================*/
+
+			/*student's automated billing on admission*/
+				$invoice_code_f = $this->db->get_where('settings', array('type' => 'invoice_number_format'))->row()->description;
+
+				$this->db->select('invoice_code');
+				$this->db->order_by('invoice_code', 'desc');
+				$this->db->limit(1);
+				$inv_query = $this->db->get('invoice');
+
+				if ($inv_query->num_rows() > 0) {
+					$inv_id = $inv_query->row()->invoice_code;
+					$bill_data['invoice_code'] = $inv_id + 1;
+
+					if (substr($inv_id, 0, 1) == 0) {
+						$old_len = strlen($inv_id);
+						$new_len = strlen($bill_data['invoice_code']);
+						$act_len = ($old_len - $new_len);
+						$bill_data['invoice_code'] = substr($inv_id, 0, $act_len) . $bill_data['invoice_code'];
+
+					} else {
+						$bill_data['invoice_code'] = $bill_data['invoice_code'];
+					}
+				} else {
+					$inv_id = $invoice_code_f;
+
+					$bill_data['invoice_code'] = $inv_id;
+
+					if (substr($inv_id, 0, 1) == 0) {
+						$old_len = strlen($inv_id);
+						$new_len = strlen($bill_data['invoice_code']);
+						$act_len = ($old_len - $new_len);
+						$bill_data['invoice_code'] = substr($inv_id, 0, $act_len) . $bill_data['invoice_code'];
+
+					} else {
+						$bill_data['invoice_code'] = $bill_data['invoice_code'];
+					}
+				}
+								
+
+				
+				$bill_data['year'] = $running_year;
+				$bill_data['term'] = $running_term;
+
+				/*get the bill items*/
+				$bills_array = $this->financial_report_model->getBillsForNewAdmission($bill_data['class_id'], $running_year, $running_term, $data2['residence_type']);
+				
+				// Get edited bill amounts from form
+				$bill_amounts = $this->input->post('bill_amounts');
+				
+
+
+			$this->load->helper('email');
+
+			if ($data['email'] != '' || $data['email'] != null) {
+				//if email is not empty, verify it first
+				if (!valid_email($data['email'])) {
+
+					$errors['invalid_email'] = 'Invalid Email Found!';
+				}
+
+				$validation = email_validation($data['email']);
+				if ($validation != 1) {
+					$errors['email_not_available'] = get_phrase('this_email_is_not_available');
+
+				}
+				//====================================================================
+				//===========MAIN DECIDING POINT WITH EMAIL=========
+				//===================================================================//
+				if (!empty($errors)) {
+					//errors
+					echo json_encode($errors);
+				} else {
+					//main insertion
+					$this->db->insert('student', $data);
+					$student_id = $this->db->insert_id();
+
+					$data2['student_id'] = $student_id;
+					$data2['enroll_code'] = substr(md5(rand(0, 1000000)), 0, 7);
+					if ($this->input->post('class_id') != null) {
+						$data2['class_id'] = $this->input->post('class_id');
+					} else {
+
+						$errors['no_class_selected'] = 'No class was selected!';
+					}
+
+
+					if ($this->input->post('section_id') != '' || !empty($this->input->post('section_id'))) {
+						$data2['section_id'] = $this->input->post('section_id');
+					} else {
+
+						$errors['no_section_selected'] = 'No section was selected!';
+					}
+					if ($this->input->post('roll') != '' || !empty($this->input->post('roll'))) {
+						$data2['roll'] = $this->input->post('roll');
+					}
+
+
+					//check if we have error
+					if(!empty($errors)) {
+						echo json_encode($errors);
+						return false;
+					}
+
+					$class_name = $this->db->get_where('class', array('class_id' => $data2['class_id']))->row()->name;
+
+					
+
+					if ($class_name == 'JHSS') {
+						$data2['date_added'] = strtotime(date("Y-m-d H:i:s"));
+						$data2['year'] = $running_year;
+						$data2['sem'] = $running_sem;
+						$this->db->insert('enroll', $data2);
+
+					} else {
+						$data2['date_added'] = strtotime(date("Y-m-d H:i:s"));
+						$data2['year'] = $running_year;
+						$data2['term'] = $running_term;
+						$this->db->insert('enroll', $data2);
+					}
+
+
+					//parent data update
+					$this->db->where('parent_id', $data['parent_id']);
+					$this->db->update('parent', $parent_data);
+
+					move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/student_image/' . $student_id . '.jpg');
+
+					//generate student id barcode and store it in uploads/barcodes/students
+					$this->barcode_model->save_barcode($data['student_code']);
+
+					$bill_data['student_id'] = $student_id;
+					
+					// Use ONLY the bill items that are displayed on the form (not removed)
+					// Using parallel arrays: bill_amounts[] and bill_titles[]
+					$bill_amounts = $this->input->post('bill_amounts');
+					$bill_titles = $this->input->post('bill_titles');
+					
+					if(!empty($bill_amounts) && is_array($bill_amounts) && !empty($bill_titles) && is_array($bill_titles)) {
+						// Iterate through parallel arrays
+						$count = min(count($bill_amounts), count($bill_titles));
+						
+						for($i = 0; $i < $count; $i++) {
+							$item_title = $bill_titles[$i];
+							$item_amount = $bill_amounts[$i];
+							
+							// Skip if amount is empty or zero
+							if(empty($item_amount) || floatval($item_amount) <= 0) {
+								continue;
+							}
+							
+							// Round to 2 decimal places and format as decimal string
+							$rounded_amount = number_format(floatval($item_amount), 2, '.', '');
+							
+							$bill_data['title'] = strtoupper($item_title);
+							$bill_data['description'] = ''; // Description not critical
+							$bill_data['amount'] = $rounded_amount;
+							$bill_data['amount_paid'] = 0;
+							$bill_data['due'] = $rounded_amount;
+							$bill_data['status'] = 'unpaid';
+							$bill_data['creation_timestamp'] = strtotime('today');
+
+							$batchDataInsert[] = $bill_data;
+						}
+					}
+
+					//$bill_data = []; /*we empty it before loading another data inside*/
+					/*add the admission fee item and amount here*/
+					$admission_fee_amount = $this->input->post('my_admission_fee');
+					
+					if(!empty($admission_fee_amount) && floatval($admission_fee_amount) > 0) {
+						// Round to 2 decimal places and format as decimal string
+						$rounded_admission_fee = number_format(floatval($admission_fee_amount), 2, '.', '');
+						
+						$bill_data['title'] = 'ADMISSION FEE';
+						$bill_data['description'] = 'Admission Fee (' . $data2['residence_type'] . ')';
+						$bill_data['amount'] = $rounded_admission_fee;
+						$bill_data['amount_paid'] = 0;
+						$bill_data['due'] = $rounded_admission_fee;
+						$bill_data['status'] = 'unpaid';
+						$bill_data['creation_timestamp'] = strtotime('today');
+
+						$batchDataInsert[] = $bill_data;
+					}
+					
+					$this->db->insert_batch('invoice', $batchDataInsert);
+
+					// Apply discount profiles - auto-approve for all admins during admission
+					$discount_status = 'approved';
+					$approved_by = $this->session->userdata('login_user_id');
+					$approved_at = date('Y-m-d H:i:s');
+					
+					$invoice_profile_id = $this->input->post('invoice_discount_profile');
+					$daily_fees_profile_id = $this->input->post('daily_fees_discount_profile');
+					
+					// Invoice discount profile
+					if(!empty($invoice_profile_id)) {
+						$profile = $this->db->where('profile_id', $invoice_profile_id)
+							->where('is_active', 1)
+							->where('discount_category', 'invoice')
+							->get('discount_profiles')->row();
+						
+						if($profile) {
+							$this->db->insert('student_discount_assignments', array(
+								'student_id' => $student_id,
+								'profile_id' => $invoice_profile_id,
+								'discount_category' => $profile->discount_category,
+								'discount_method' => $profile->discount_method,
+								'discount_value' => $profile->discount_value,
+								'discount_type' => $profile->discount_type,
+								'bill_item_ids' => $profile->bill_item_ids,
+								'year' => $running_year,
+								'term' => $running_term,
+								'assigned_by' => $this->session->userdata('login_user_id'),
+								'created_by' => $this->session->userdata('login_user_id'),
+								'is_active' => 1,
+								'status' => $discount_status,
+								'approved_by' => $approved_by,
+								'approved_at' => $approved_at,
+								'notes' => 'Invoice discount assigned during admission'
+							));
+							
+							// Get applicable bill items from profile
+							$applicable_total = 0;
+							$applicable_items = array();
+							
+							if($profile->bill_item_ids === '*') {
+								// Wildcard: apply to ALL bill items
+								foreach($batchDataInsert as $idx => $item) {
+									$applicable_total += $item['amount'];
+									$applicable_items[] = $idx;
+								}
+							} else {
+								// For specific items during admission, we skip detailed matching
+								// since we don't have bill_item_id in the new parallel arrays approach
+								// The discount will still be assigned to the student for future invoices
+								// For now, just apply wildcard logic if profile has specific items
+								foreach($batchDataInsert as $idx => $item) {
+									$applicable_total += $item['amount'];
+									$applicable_items[] = $idx;
+								}
+							}
+							
+							$discount_amount = $profile->discount_method == 'percentage' 
+								? ($applicable_total * $profile->discount_value) / 100 
+								: min($profile->discount_value, $applicable_total);
+							
+							$this->db->insert('invoice_discounts', array(
+								'invoice_code' => $bill_data['invoice_code'],
+								'student_id' => $student_id,
+								'profile_id' => $invoice_profile_id,
+								'discount_category' => 'invoice',
+								'discount_method' => $profile->discount_method,
+								'discount_value' => $profile->discount_value,
+								'discount_amount' => $discount_amount,
+								'reason' => 'Profile: ' . $profile->profile_name,
+								'status' => $discount_status,
+								'applied_by' => $this->session->userdata('login_user_id'),
+								'approved_by' => $approved_by,
+								'approved_at' => $approved_at,
+								'year' => $running_year,
+								'term' => $running_term
+							));
+							
+							$discount_id = $this->db->insert_id();
+							
+							if(count($applicable_items) > 0) {
+								
+								foreach($applicable_items as $idx) {
+									$item = $batchDataInsert[$idx];
+									
+									// Ensure item amount is properly formatted as decimal string
+									$item_amount = number_format(floatval($item['amount']), 2, '.', '');
+									
+									if($profile->discount_method == 'percentage') {
+										$item_discount = number_format(($item_amount * $profile->discount_value / 100), 2, '.', '');
+									} else {
+										$item_discount = number_format((($item_amount / $applicable_total) * $discount_amount), 2, '.', '');
+									}
+									
+									$invoice_record = $this->db->where('invoice_code', $item['invoice_code'])
+										->where('student_id', $student_id)
+										->where('title', $item['title'])
+										->where('year', $running_year)
+										->where('term', $running_term)
+										->get('invoice')->row();
+									
+									if($invoice_record) {
+										$discounted_amount = number_format(($item_amount - $item_discount), 2, '.', '');
+										
+										$this->db->insert('invoice_discount_items', [
+											'discount_id' => $discount_id,
+											'invoice_id' => $invoice_record->invoice_id,
+											'invoice_code' => $item['invoice_code'],
+											'student_id' => $student_id,
+											'item_title' => $item['title'],
+											'original_amount' => $item_amount,
+											'discount_amount' => $item_discount,
+											'discounted_amount' => $discounted_amount
+										]);
+										
+										$this->db->where('invoice_code', $item['invoice_code'])
+											->where('student_id', $student_id)
+											->where('title', $item['title'])
+											->where('year', $running_year)
+											->where('term', $running_term)
+											->update('invoice', array(
+												'amount' => $discounted_amount,
+												'due' => $discounted_amount
+											));
+									}
+								}
+							}
+						}
+					} else {
+						// No invoice discount profile selected
+					}
+					
+					// Daily fees discount profile
+					if(!empty($daily_fees_profile_id)) {
+						$profile = $this->db->where('profile_id', $daily_fees_profile_id)
+							->where('is_active', 1)
+							->where('discount_category', 'daily_fees')
+							->get('discount_profiles')->row();
+						
+						if($profile) {
+							$this->db->insert('student_discount_assignments', array(
+								'student_id' => $student_id,
+								'profile_id' => $daily_fees_profile_id,
+								'discount_category' => $profile->discount_category,
+								'discount_method' => $profile->discount_method,
+								'discount_value' => $profile->discount_value,
+								'discount_type' => $profile->discount_type,
+								'bill_item_ids' => $profile->bill_item_ids,
+								'year' => $running_year,
+								'term' => $running_term,
+								'assigned_by' => $this->session->userdata('login_user_id'),
+								'created_by' => $this->session->userdata('login_user_id'),
+								'is_active' => 1,
+								'status' => $discount_status,
+								'approved_by' => $approved_by,
+								'approved_at' => $approved_at,
+								'notes' => 'Daily fees discount assigned during admission'
+							));
+						}
+					}
+					
+					// Notify super admins if not super admin
+					if(!$is_super_admin && (!empty($invoice_profile_id) || !empty($daily_fees_profile_id))) {
+						$requester = $this->db->where('admin_id', $this->session->userdata('login_user_id'))->get('admin')->row();
+						$school_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
+						$super_admins = $this->db->where('level', 1)->get('admin')->result();
+						
+						foreach($super_admins as $admin) {
+							$this->db->insert('notifications', [
+								'user_id' => $admin->admin_id,
+								'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
+								'title' => 'Discount Approval Required',
+								'message' => $requester->name . ' assigned discount profile to ' . $data['name'] . ' during admission',
+								'type' => 'discount_approval',
+								'created_at' => date('Y-m-d H:i:s')
+							]);
+							
+							$active_sms = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row();
+							if($active_sms && $active_sms->description != 'disabled' && !empty($admin->phone)) {
+								$sms_message = "[$school_name] Discount approval needed: {$requester->name} assigned discount to {$data['name']}. Review at: " . site_url('admin/discount_approvals');
+								$this->sms_model->send_sms($sms_message, [$admin->phone]);
+							}
+							
+							if(!empty($admin->email)) {
+								$subject = 'Discount Approval Required';
+								$message = "<div style='font-family: Arial, sans-serif;'><h3>Discount Approval Required</h3><p>Dear {$admin->name},</p><p>{$requester->name} has assigned a discount profile to student {$data['name']} during admission.</p><p><a href='" . site_url('admin/discount_approvals') . "' style='background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Review & Approve</a></p></div>";
+								$this->email_model->do_email($message, $subject, $admin->email, $school_name);
+							}
+						}
+					}
+
+					// Log admission and notify admins
+					$class_name_full = $this->db->get_where('class', array('class_id' => $data2['class_id']))->row()->name;
+					$admitted_by_name = $this->session->userdata('name');
+					log_admission($student_id, $this->session->userdata('login_user_id'), $data2['class_id'], $data2['section_id'], $data2['residence_type'], $batchDataInsert, array_sum(array_column($batchDataInsert, 'amount')), strtotime($this->input->post('admission_date')));
+					notify_admins_new_admission($data['name'], $class_name_full, $admitted_by_name, $student_id);
+					
+					// Financial Hook: Sync invoice to ledger
+					sync_invoice_to_ledger($bill_data['invoice_code'], $student_id);
+
+					//$this->session->set_flashdata('flash_message' , get_phrase('student_enrolled_successfully'));
+					/*$this->email_model->account_opening_email('student', $data['email'], $this->input->post('password'), $data['authentication_key'], $data['student_code'], $data['username']); //SEND EMAIL ACCOUNT OPENING EMAIL
+
+					//send sms
+					$system_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
+					$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+					if ($active_sms_service != 'disabled') {
+						$account_opening_sms = 'Welcome to ' . $system_name . '. Your account type is Student. Here are your login credentials; Your Username: ' . $data['username'] . ', Password: ' . $this->input->post('password') . ', Authentication Key: ' . $data['authentication_key'] . ' and Student ID: ' . $data['student_code'] . '. Thank you.';
+
+						$this->sms_model->send_sms($account_opening_sms, $dataNumbers);
+					}*/ //SEND SMS ENDED
+
+					$ajax_data['done'] = 'success';
+					echo json_encode($ajax_data);
+				} //===========END======
+
+			} else {
+				//if email is empty
+
+				//====================================================================
+				//===========MAIN DECIDING POINT WITHOUT EMAIL=========
+				//===================================================================//
+				if (!empty($errors)) {
+					echo json_encode($errors);
+				} else {
+
+					$this->db->insert('student', $data);
+					$student_id = $this->db->insert_id();
+
+					$data2['student_id'] = $student_id;
+					$data2['enroll_code'] = substr(md5(rand(0, 1000000)), 0, 7);
+					if ($this->input->post('class_id') != null) {
+						$data2['class_id'] = $this->input->post('class_id');
+					} else {
+
+						$errors['no_class_selected'] = 'No class was selected!';
+					}
+					
+					if ($this->input->post('section_id') != '' || !empty($this->input->post('section_id'))) {
+						$data2['section_id'] = $this->input->post('section_id');
+					} else {
+
+						$errors['no_section_selected'] = 'No section was selected!';
+					}
+					if ($this->input->post('roll') != '' || !empty($this->input->post('roll'))) {
+						$data2['roll'] = $this->input->post('roll');
+					}
+
+					//check if we have error
+					if(!empty($errors)) {
+						echo json_encode($errors);
+						return false;
+					}
+
+					$class_name = $this->db->get_where('class', array('class_id' => $data2['class_id']))->row()->name;
+
+					$data2['residence_type'] = $this->input->post('residence_type');
+
+					if ($class_name == 'JHSS') {
+						$data2['date_added'] = strtotime(date("Y-m-d H:i:s"));
+						$data2['year'] = $running_year;
+						$data2['sem'] = $running_sem;
+						$this->db->insert('enroll', $data2);
+
+					} else {
+						$data2['date_added'] = strtotime(date("Y-m-d H:i:s"));
+						$data2['year'] = $running_year;
+						$data2['term'] = $running_term;
+						$this->db->insert('enroll', $data2);
+					}
+
+					//parent data update
+					$this->db->where('parent_id', $data['parent_id']);
+					$this->db->update('parent', $parent_data);
+
+					move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/student_image/' . $student_id . '.jpg');
+
+					//generate student id barcode and store it in uploads/barcodes/students
+					$this->barcode_model->save_barcode($data['student_code']);
+
+					$bill_data['student_id'] = $student_id;
+					
+					// Use ONLY the bill items that are displayed on the form (not removed)
+					// Using parallel arrays: bill_amounts[] and bill_titles[]
+					$bill_amounts = $this->input->post('bill_amounts');
+					$bill_titles = $this->input->post('bill_titles');
+					
+					if(!empty($bill_amounts) && is_array($bill_amounts) && !empty($bill_titles) && is_array($bill_titles)) {
+						// Iterate through parallel arrays
+						$count = min(count($bill_amounts), count($bill_titles));
+						
+						for($i = 0; $i < $count; $i++) {
+							$item_title = $bill_titles[$i];
+							$item_amount = $bill_amounts[$i];
+							
+							// Skip if amount is empty or zero
+							if(empty($item_amount) || floatval($item_amount) <= 0) {
+								continue;
+							}
+							
+							// Round to 2 decimal places and format as decimal string
+							$rounded_amount = number_format(floatval($item_amount), 2, '.', '');
+							
+							$bill_data['title'] = strtoupper($item_title);
+							$bill_data['description'] = ''; // Description not critical
+							$bill_data['amount'] = $rounded_amount;
+							$bill_data['amount_paid'] = 0;
+							$bill_data['due'] = $rounded_amount;
+							$bill_data['status'] = 'unpaid';
+							$bill_data['creation_timestamp'] = strtotime('today');
+
+							$batchDataInsert[] = $bill_data;
+						}
+					}
+
+					//$bill_data = []; /*we empty it before loading another data inside*/
+					/*add the admission fee item and amount here*/
+					$admission_fee_amount = $this->input->post('my_admission_fee');
+					if(!empty($admission_fee_amount) && floatval($admission_fee_amount) > 0) {
+						// Round to 2 decimal places
+						$rounded_admission_fee = round(floatval($admission_fee_amount), 2);
+						
+						$bill_data['title'] = 'ADMISSION FEE';
+						$bill_data['description'] = 'Admission Fee (' . $data2['residence_type'] . ')';
+						$bill_data['amount'] = $rounded_admission_fee;
+						$bill_data['amount_paid'] = 0;
+						$bill_data['due'] = $rounded_admission_fee;
+						$bill_data['status'] = 'unpaid';
+						$bill_data['creation_timestamp'] = strtotime('today');
+
+						$batchDataInsert[] = $bill_data;
+					}
+					
+					$this->db->insert_batch('invoice', $batchDataInsert);/*Bulk insert FOR INVOICE*/
+
+					$discount_status = 'approved';
+					$approved_by = $this->session->userdata('login_user_id');
+					$approved_at = date('Y-m-d H:i:s');
+					$invoice_profile_id = $this->input->post('invoice_discount_profile');
+					$daily_fees_profile_id = $this->input->post('daily_fees_discount_profile');
+					
+					if(!empty($invoice_profile_id)) {
+						$profile = $this->db->where('profile_id', $invoice_profile_id)
+											->where('is_active', 1)
+											->where('discount_category', 'invoice')
+											->get('discount_profiles')->row();
+						if($profile) {
+							$this->db->insert('student_discount_assignments', array(
+								'student_id' => $student_id,
+								'profile_id' => $invoice_profile_id,
+								'discount_category' => $profile->discount_category,
+								'discount_method' => $profile->discount_method,
+								'discount_value' => $profile->discount_value,
+								'discount_type' => $profile->discount_type,
+								'bill_item_ids' => $profile->bill_item_ids,
+								'year' => $running_year,
+								'term' => $running_term,
+								'assigned_by' => $this->session->userdata('login_user_id'),
+								'created_by' => $this->session->userdata('login_user_id'),
+								'is_active' => 1,
+								'status' => $discount_status,
+								'approved_by' => $approved_by,
+								'approved_at' => $approved_at,
+								'notes' => 'Invoice discount assigned during admission'
+							));
+							
+							// Get applicable bill items from profile
+							$applicable_total = 0;
+							$applicable_items = array();
+							
+							if($profile->bill_item_ids === '*') {
+								// Wildcard: apply to ALL bill items
+								foreach($batchDataInsert as $idx => $item) {
+									$applicable_total += $item['amount'];
+									$applicable_items[] = $idx;
+								}
+							} else {
+								// For specific items during admission, we skip detailed matching
+								// since we don't have bill_item_id in the new parallel arrays approach
+								// The discount will still be assigned to the student for future invoices
+								// For now, just apply wildcard logic if profile has specific items
+								foreach($batchDataInsert as $idx => $item) {
+									$applicable_total += $item['amount'];
+									$applicable_items[] = $idx;
+								}
+							}
+							
+							$discount_amount = $profile->discount_method == 'percentage' 
+								? ($applicable_total * $profile->discount_value) / 100 
+								: min($profile->discount_value, $applicable_total);
+							
+							$this->db->insert('invoice_discounts', array(
+								'invoice_code' => $bill_data['invoice_code'],
+								'student_id' => $student_id,
+								'profile_id' => $invoice_profile_id,
+								'discount_category' => 'invoice',
+								'discount_method' => $profile->discount_method,
+								'discount_value' => $profile->discount_value,
+								'discount_amount' => $discount_amount,
+								'reason' => 'Profile: ' . $profile->profile_name,
+								'status' => $discount_status,
+								'applied_by' => $this->session->userdata('login_user_id'),
+								'approved_by' => $approved_by,
+								'approved_at' => $approved_at,
+								'year' => $running_year,
+								'term' => $running_term
+							));
+							
+							$discount_id = $this->db->insert_id();
+							
+							if(count($applicable_items) > 0) {
+								foreach($applicable_items as $idx) {
+									$item = $batchDataInsert[$idx];
+									$item_discount = ($profile->discount_method == 'percentage')
+										? ($item['amount'] * $profile->discount_value / 100)
+										: (($item['amount'] / $applicable_total) * $discount_amount);
+									
+									$invoice_record = $this->db->where('invoice_code', $item['invoice_code'])
+											->where('student_id', $student_id)
+											->where('title', $item['title'])
+											->where('year', $running_year)
+											->where('term', $running_term)
+											->get('invoice')->row();
+									
+									if($invoice_record) {
+										$this->db->insert('invoice_discount_items', [
+											'discount_id' => $discount_id,
+											'invoice_id' => $invoice_record->invoice_id,
+											'invoice_code' => $item['invoice_code'],
+											'student_id' => $student_id,
+											'item_title' => $item['title'],
+											'original_amount' => $item['amount'],
+											'discount_amount' => $item_discount,
+											'discounted_amount' => $item['amount'] - $item_discount
+										]);
+										
+										$this->db->where('invoice_code', $item['invoice_code'])
+												->where('student_id', $student_id)
+												->where('title', $item['title'])
+												->where('year', $running_year)
+												->where('term', $running_term)
+												->update('invoice', array(
+													'amount' => $item['amount'] - $item_discount,
+													'due' => $item['due'] - $item_discount
+												));
+									}
+								}
+							}
+						}
+					}
+					if(!empty($daily_fees_profile_id)) {
+						$profile = $this->db->where('profile_id', $daily_fees_profile_id)
+											->where('is_active', 1)
+											->where('discount_category', 'daily_fees')
+											->get('discount_profiles')->row();
+						if($profile) {
+							$this->db->insert('student_discount_assignments', array(
+								'student_id' => $student_id,
+								'profile_id' => $daily_fees_profile_id,
+								'discount_category' => $profile->discount_category,
+								'discount_method' => $profile->discount_method,
+								'discount_value' => $profile->discount_value,
+								'discount_type' => $profile->discount_type,
+								'bill_item_ids' => $profile->bill_item_ids,
+								'year' => $running_year,
+								'term' => $running_term,
+								'assigned_by' => $this->session->userdata('login_user_id'),
+								'created_by' => $this->session->userdata('login_user_id'),
+								'is_active' => 1,
+								'status' => $discount_status,
+								'approved_by' => $approved_by,
+								'approved_at' => $approved_at,
+								'notes' => 'Daily fees discount assigned during admission'
+							));
+						}
+					}
+					
+					// Notify super admins if not super admin
+					if(!$is_super_admin && (!empty($invoice_profile_id) || !empty($daily_fees_profile_id))) {
+						$requester = $this->db->where('admin_id', $this->session->userdata('login_user_id'))->get('admin')->row();
+						$school_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
+						$super_admins = $this->db->where('level', 1)->get('admin')->result();
+						
+						foreach($super_admins as $admin) {
+							$this->db->insert('notifications', [
+								'user_id' => $admin->admin_id,
+								'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
+								'title' => 'Discount Approval Required',
+								'message' => $requester->name . ' assigned discount profile to ' . $data['name'] . ' during admission',
+								'type' => 'discount_approval',
+								'created_at' => date('Y-m-d H:i:s')
+							]);
+							
+							$active_sms = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row();
+							if($active_sms && $active_sms->description != 'disabled' && !empty($admin->phone)) {
+								$sms_message = "[$school_name] Discount approval needed: {$requester->name} assigned discount to {$data['name']}. Review at: " . site_url('admin/discount_approvals');
+								$this->sms_model->send_sms($sms_message, [$admin->phone]);
+							}
+							
+							if(!empty($admin->email)) {
+								$subject = 'Discount Approval Required';
+								$message = "<div style='font-family: Arial, sans-serif;'><h3>Discount Approval Required</h3><p>Dear {$admin->name},</p><p>{$requester->name} has assigned a discount profile to student {$data['name']} during admission.</p><p><a href='" . site_url('admin/discount_approvals') . "' style='background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Review & Approve</a></p></div>";
+								$this->email_model->do_email($message, $subject, $admin->email, $school_name);
+							}
+						}
+					}
+
+					// Log admission and notify admins
+					$class_name_full = $this->db->get_where('class', array('class_id' => $data2['class_id']))->row()->name;
+					$admitted_by_name = $this->session->userdata('name');
+					log_admission($student_id, $this->session->userdata('login_user_id'), $data2['class_id'], $data2['section_id'], $data2['residence_type'], $batchDataInsert, array_sum(array_column($batchDataInsert, 'amount')), strtotime($this->input->post('admission_date')));
+					notify_admins_new_admission($data['name'], $class_name_full, $admitted_by_name, $student_id);
+					
+					// Financial Hook: Sync invoice to ledger
+					sync_invoice_to_ledger($bill_data['invoice_code'], $student_id);
+
+					/*$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+					if ($active_sms_service != 'disabled') {
+						$account_opening_sms = 'Welcome to ' . $system_name . '. Your account type is Student. Here are your login credentials; Your Username: ' . $data['username'] . ', Password: ' . $this->input->post('password') . ', Authentication Key: ' . $data['authentication_key'] . ' and Student ID: ' . $data['student_code'] . '. Thank you.';
+
+						$this->sms_model->send_sms($account_opening_sms, $dataNumbers);
+					}*/ //SEND SMS ENDED
+					$ajax_data['done'] = 'success';					
+					echo json_encode($ajax_data);
+				} //============END==================
+			}
+
+			//redirect(site_url('admin/student_add'));
+		}  
+
+		if ($param1 == 'block') {
+			$this->db->where('student_id', $param2);
+			$this->db->set('block_limit', 3);
+			$this->db->update('student');
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'student_information');
+			$this->db->cache_delete('admin', 'student_profile');
+			$this->db->cache_delete('admin', 'student_profile_raw_score');
+
+			$this->session->set_flashdata('flash_message', get_phrase('student_account_blocked_successfully'));
+
+			echo json_encode(['status' => 'success', 'message' => get_phrase('student_account_blocked_successfully')]);
+			return false;
+
+		} else if ($param1 == 'unblock') {
+			$this->db->where('student_id', $param2);
+			$this->db->set('block_limit', 0);
+			$this->db->update('student');
+
+			//send authentication code via sms and email
+			$owner_email = $this->db->get_where('settings', array('type' => 'system_email'))->row()->description;
+			$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+
+			$user_rows = $this->db->get_where('student', array('student_id' => $param2))->row();
+			$user_name = $user_rows->name;
+			$user_mail = $user_rows->email;
+			$user_phone = $user_rows->phone;
+			$user_auth_key = $user_rows->authentication_key;
+
+			$phone_num = array();
+			$phone_num[] = $user_phone;
+
+			//prepare the message
+			$message_sms = 'Hello ' . $user_name . ', thank you for your request to unblock your account. Your account has been unblocked successfully. Use this authentication key to login: ' . $user_auth_key . '.';
+
+			$message_email = 'Hello ' . $user_name . ', thank you for your request to unblock your account. Your account has been unblocked successfully. Use this authentication key to login: <strong>' . $user_auth_key . '.</strong>';
+
+			//sms first
+			if ($active_sms_service != 'disabled') {
+				// send sms
+				$result = $this->sms_model->send_sms($message_sms, $phone_num);
+			}
+
+			//send email
+			$this->email_model->do_email($message_email, 'Account Status', $user_mail, $owner_email);
+
+			echo json_encode(['status' => 'success', 'message' => get_phrase('student_account_unblocked_successfully')]);
+			return false;
+
+		}
+
+		//mute and unmute student
+		if ($param1 == 'mute') {
+
+			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+			$running_sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+			$this->db->where('student_id', $param2);
+			$this->db->set('mute', '1');
+			$this->db->update('student');
+
+			$tables = array('enroll', 'attendance', 'invoice', 'mark');
+
+			for ($i = 0; $i < sizeof($tables); $i++) {
+				$this->db->where('student_id', $param2);
+				$this->db->set('mute', '1');
+				$this->db->update($tables[$i]);
+			}
+
+			$this->session->set_flashdata('flash_message', get_phrase('student_muted_successfully'));
+
+			echo json_encode(['status' => 'success', 'message' => get_phrase('student_muted_successfully')]);
+			return false;
+
+		} else if ($param1 == 'unmute') {
+
+			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+			$running_sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+			$this->db->where('student_id', $param2);
+			$this->db->set('mute', '0');
+			$this->db->update('student');
+
+			$class_name = $this->crud_model->get_class_name($param3);
+			$section_id = $this->db->get_where('section', array('class_id' => $param3))->row()->section_id;
+
+			if ($class_name == 'JHSS') {
+
+				$student_enrollment = $this->db->get_where('enroll', array('student_id' => $param2, 'sem' => $running_sem, 'year' => $running_year))->row();
+
+				if (!$student_enrollment) {
+					//not enrolled for this session
+					//enroll the child for this sem of the year with the SELECTED class
+					$enroll_data['enroll_code'] = substr(md5(rand(0, 1000000)), 0, 7);
+					$enroll_data['class_id'] = $param3;
+					$enroll_data['year'] = $running_year;
+					$enroll_data['sem'] = $running_sem;
+					$enroll_data['section_id'] = $section_id;
+					$enroll_data['student_id'] = $param2;
+					$enroll_data['date_added'] = strtotime(date("Y-m-d H:i:s"));
+
+					$this->db->insert('enroll', $enroll_data);
+
+					$this->db->where('student_id', $param2);
+					$this->db->update('enroll', array('status_attendance' => 'close'));
+				} else {
+					// Already enrolled - UPDATE to the newly selected class
+					$this->db->where('student_id', $param2);
+					$this->db->where('sem', $running_sem);
+					$this->db->where('year', $running_year);
+					$this->db->update('enroll', array(
+						'class_id' => $param3,
+						'section_id' => $section_id
+					));
+				}
+
+				//unmute now
+				$tables = array(
+					'enroll', 'attendance', 'invoice', 'mark',
+				);
+
+				for ($i = 0; $i < sizeof($tables); $i++) {
+					$this->db->where('student_id', $param2);
+					$this->db->set('mute', '0');
+					$this->db->update($tables[$i]);
+				}
+
+			} else {
+
+				$student_enrollment = $this->db->get_where('enroll', array('student_id' => $param2, 'term' => $running_term, 'year' => $running_year))->row();
+				
+				if (!$student_enrollment) {
+					//not enrolled for this session
+					//enroll the child for this term of the year with the SELECTED class
+					$enroll_data['enroll_code'] = substr(md5(rand(0, 1000000)), 0, 7);
+					$enroll_data['class_id'] = $param3;
+					$enroll_data['year'] = $running_year;
+					$enroll_data['term'] = $running_term;
+					$enroll_data['section_id'] = $section_id;
+					$enroll_data['student_id'] = $param2;
+					$enroll_data['date_added'] = strtotime(date("Y-m-d H:i:s"));
+
+					$this->db->insert('enroll', $enroll_data);
+
+					$this->db->where('student_id', $param2);
+					$this->db->update('enroll', array('status_attendance' => 'close'));
+				} else {
+					// Already enrolled - UPDATE to the newly selected class
+					$this->db->where('student_id', $param2);
+					$this->db->where('term', $running_term);
+					$this->db->where('year', $running_year);
+					$this->db->update('enroll', array(
+						'class_id' => $param3,
+						'section_id' => $section_id
+					));
+				}
+
+				//unmute now
+				$tables = array(
+					'enroll', 'attendance', 'invoice', 'mark',
+				);
+
+				for ($i = 0; $i < sizeof($tables); $i++) {
+					$this->db->where('student_id', $param2);
+					$this->db->set('mute', '0');
+					$this->db->update($tables[$i]);
+				}
+			}
+
+			echo json_encode(['status' => 'success', 'message' => get_phrase('student_unmuted_successfully')]);
+			return false;
+
+		} else if ($param1 == 'write_off_debt') {
+			// Write off all unpaid invoices for a student in a specific year/term
+			// This is an enterprise-grade debt management feature with full audit trail
+			
+			$student_id = $param2;
+			$year = $this->input->post('year');
+			$term = $this->input->post('term');
+			
+			// Validate inputs
+			if (empty($student_id) || empty($year) || empty($term)) {
+				echo json_encode([
+					'status' => 'error', 
+					'message' => 'Invalid parameters. Student ID, year, and term are required.'
+				]);
+				return false;
+			}
+			
+			// Get admin details for audit trail
+			$admin_id = $this->session->userdata('admin_id');
+			$admin_name = $this->db->get_where('admin', array('admin_id' => $admin_id))->row()->name;
+			$write_off_date = date('Y-m-d H:i:s');
+			$write_off_timestamp = strtotime($write_off_date);
+			
+			// Get student name for logging
+			$student_name = $this->db->get_where('student', array('student_id' => $student_id))->row()->name;
+			
+			// Get all unpaid invoices for this student in the specified year/term
+			$this->db->select('invoice_id, invoice_code, amount, amount_paid, due, title');
+			$this->db->where('student_id', $student_id);
+			$this->db->where('year', $year);
+			$this->db->where('term', $term);
+			$this->db->where('status', 'unpaid');
+			$unpaid_invoices = $this->db->get('invoice')->result();
+			
+			if (empty($unpaid_invoices)) {
+				echo json_encode([
+					'status' => 'error', 
+					'message' => 'No unpaid invoices found for this student in the specified term.'
+				]);
+				return false;
+			}
+			
+			// Calculate total amount being written off
+			$total_written_off = 0;
+			$invoices_written_off = 0;
+			
+			// Start transaction for data integrity
+			$this->db->trans_start();
+			
+			// Process each unpaid invoice
+			foreach ($unpaid_invoices as $invoice) {
+				$invoice_id = $invoice->invoice_id;
+				$due_amount = $invoice->due;
+				
+				// Update invoice to mark as paid (write-off)
+				$update_data = array(
+					'status' => 'paid',
+					'amount_paid' => $invoice->amount,
+					'due' => 0,
+					'payment_timestamp' => $write_off_timestamp,
+					'payment_method' => 'Write-Off',
+					'payment_details' => "WRITE-OFF: Debt written off on {$write_off_date} by {$admin_name}. Original due: " . number_format($due_amount, 2)
+				);
+				
+				$this->db->where('invoice_id', $invoice_id);
+				$this->db->update('invoice', $update_data);
+				
+				$total_written_off += $due_amount;
+				$invoices_written_off++;
+			}
+			
+			// Log the write-off action in a system log table (if exists) or create audit entry
+			// Check if we have an audit log table
+			if ($this->db->table_exists('audit_log')) {
+				$audit_data = array(
+					'action' => 'debt_write_off',
+					'user_id' => $admin_id,
+					'user_type' => 'admin',
+					'user_name' => $admin_name,
+					'target_type' => 'student',
+					'target_id' => $student_id,
+					'target_name' => $student_name,
+					'description' => "Wrote off debt for student {$student_name} (ID: {$student_id}). Total: " . number_format($total_written_off, 2) . ". Invoices: {$invoices_written_off}. Year: {$year}, Term: {$term}",
+					'metadata' => json_encode(array(
+						'student_id' => $student_id,
+						'student_name' => $student_name,
+						'year' => $year,
+						'term' => $term,
+						'total_amount' => $total_written_off,
+						'invoice_count' => $invoices_written_off,
+						'admin_id' => $admin_id,
+						'admin_name' => $admin_name
+					)),
+					'timestamp' => $write_off_timestamp,
+					'ip_address' => $this->input->ip_address()
+				);
+				$this->db->insert('audit_log', $audit_data);
+			}
+			
+			// Complete transaction
+			$this->db->trans_complete();
+			
+			// Check transaction status
+			if ($this->db->trans_status() === FALSE) {
+				echo json_encode([
+					'status' => 'error', 
+					'message' => 'Database error occurred while writing off debt. Please try again.'
+				]);
+				return false;
+			}
+			
+			// Success response
+			$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+			$fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
+			$formatted_amount = numfmt_format_currency($fmt, $total_written_off, $currency);
+			
+			echo json_encode([
+				'status' => 'success', 
+				'message' => "Successfully wrote off {$formatted_amount} across {$invoices_written_off} invoice(s) for {$student_name}.",
+				'data' => array(
+					'total_written_off' => $total_written_off,
+					'invoices_count' => $invoices_written_off,
+					'student_name' => $student_name
+				)
+			]);
+			return false;
+
+		}
+
+		if ($param1 == 'do_update') {
+			// Concatenate first, middle, last names
+			$first_name = trim(strtoupper(strtolower($this->input->post('first_name') ?: $this->input->post('name'))));
+			$middle_name = trim(strtoupper(strtolower($this->input->post('middle_name'))));
+			$last_name = trim(strtoupper(strtolower($this->input->post('last_name'))));
+			$data['name'] = $last_name ? trim($first_name . ' ' . ($middle_name ? $middle_name . ' ' : '') . $last_name) : strtoupper($this->input->post('name'));
+			$data['first_name'] = $first_name;
+			$data['middle_name'] = $middle_name;
+			$data['last_name'] = $last_name;
+			$data['blood_group'] = $this->input->post('blood_group');
+			$data['nationality'] = $this->input->post('nationality');
+			$data['ghana_card_id'] = $this->input->post('ghana_card_id');
+			$data['student_phone'] = $this->input->post('student_phone');
+			$data['former_school'] = trim(strtoupper($this->input->post('former_school')));
+			$data['admission_date'] = date('Y-m-d', strtotime($this->input->post('admission_date')));
+			$data['allergies'] = $this->input->post('allergies');
+			$data['medical_conditions'] = $this->input->post('medical_conditions');
+			$data['emergency_contact'] = $this->input->post('emergency_contact');
+			$data['parent_email'] = $this->input->post('parent_email');
+			$data['special_diet'] = $this->input->post('special_diet');
+			$data['tribe'] = trim(strtoupper($this->input->post('tribe')));
+			$data['student_health'] = trim($this->input->post('student_health'));
+			$data['student_special_diet_details'] = trim($this->input->post('student_special_diet_details'));
+			$data['class_reached'] = trim(strtoupper($this->input->post('class_reached')));
+			$data['email'] = trim(strtolower($this->input->post('email')));
+			$data['parent_id'] = $this->input->post('parent_id');
+			$data['place_of_birth'] = trim($this->input->post('place_of_birth'));
+			$data['hometown'] = trim($this->input->post('hometown'));
+			$data['nhis_number'] = trim($this->input->post('nhis_number'));
+			$data['nhis_status'] = $this->input->post('nhis_status');
+			$data['disability_status'] = $this->input->post('disability_status');
+			$data['special_needs'] = trim($this->input->post('special_needs'));
+			$data['learning_support'] = trim($this->input->post('learning_support'));
+			$data['digital_literacy'] = $this->input->post('digital_literacy');
+			$data['home_technology_access'] = $this->input->post('home_technology_access');
+			
+			//parent data
+			$parent_data = array();
+			if($this->input->post('father_name')) $parent_data['father_name'] = trim(strtoupper(strtolower($this->input->post('father_name'))));
+			if($this->input->post('mother_name')) $parent_data['mother_name'] = trim(strtoupper(strtolower($this->input->post('mother_name'))));
+			if($this->input->post('father_phone')) $parent_data['father_phone'] = $this->input->post('father_phone');
+			if($this->input->post('mother_phone')) $parent_data['mother_phone'] = $this->input->post('mother_phone');
+			if($this->input->post('father_occupation')) $parent_data['father_occupation'] = trim($this->input->post('father_occupation'));
+			if($this->input->post('mother_occupation')) $parent_data['mother_occupation'] = trim($this->input->post('mother_occupation'));
+			if($this->input->post('phone')) $parent_data['phone'] = trim($this->input->post('phone'));
+			if($this->input->post('parent_email')) $parent_data['email'] = trim(strtolower($this->input->post('parent_email')));
+			if ($this->input->post('address') != null) {
+				$parent_data['address'] = ucwords(strtolower($this->input->post('address')));
+			}
+
+			if ($this->input->post('birthday') != null) {
+				$data['birthday'] = date_format_converter($this->input->post('birthday'));
+			}
+
+			if ($this->input->post('sex') != null) {
+				$data['sex'] = ucwords($this->input->post('sex'));
+			}
+
+			if ($this->input->post('religion') != null) {
+				if ($this->input->post('religion') == 'Others') {
+					$data['religion'] = ucwords(strtolower($this->input->post('others')));
+				} else {
+					$data['religion'] = ucwords(strtolower($this->input->post('religion')));
+				}
+			}
+			if ($this->input->post('blood_group') != null) {
+				$data['blood_group'] = strtoupper($this->input->post('blood_group'));
+			}
+			if ($this->input->post('address') != null) {
+				$data['address'] = ucwords(strtolower($this->input->post('address')));
+			}
+			$phone_input = $this->input->post('phone');
+			if (is_array($phone_input) && isset($phone_input[0]) && $phone_input[0] != null) {
+				$data['phone'] = trim($phone_input[0]);
+			}
+			if ($this->input->post('dormitory_id') != null) {
+				$data['dormitory_id'] = $this->input->post('dormitory_id');
+			}
+
+			//student id
+			if ($this->input->post('student_code') != null) {
+				$data['student_code'] = $this->input->post('student_code');
+				$code_validation = code_validation_update($data['student_code'], $param2);
+				if (!$code_validation) {
+					$this->session->set_flashdata('error_message', 'Did You Change This Student\'s ID No? Duplicate Found. Please Maintain The Old ID No!');
+					redirect(site_url('admin/student_information/' . $param3 . '?msg=1'));
+				}
+			}
+
+			$data['username'] = $data['student_code'];
+
+			$this->form_validation->set_rules('first_name', 'Student First Name', 'trim|required');
+			$this->form_validation->set_rules('last_name', 'Student Last Name', 'trim|required');
+			$this->form_validation->set_rules('sex', 'Gender', 'trim|required');
+			$this->form_validation->set_rules('religion', 'Religion', 'trim');
+			$this->form_validation->set_rules('blood_group', 'Blood Group', 'trim');
+			$this->form_validation->set_rules('email', 'Email', 'trim');
+			$this->form_validation->set_rules('password', 'Password', 'trim');
+			$this->form_validation->set_rules('phone[]', 'Phone', 'trim');
+			$this->form_validation->set_rules('address', 'Address', 'trim');
+			$this->form_validation->set_rules('birthday', 'Birthday', 'trim');
+
+			if ($this->form_validation->run() === FALSE) {
+				$errors['invalid_inputs'] = get_phrase('<h2>' . validation_errors() . '</h2>');
+			}
+
+			$this->load->helper('email');
+
+			if ($data['email'] != '' || $data['email'] != null) {
+				if (!valid_email($data['email'])) {
+
+					$errors['invalid_email'] = 'Could Not Update. Invalid Email Found!';
+				}
+
+				$validation = email_validation_for_edit($data['email'], $param2, 'student');
+
+				if ($validation != 1) {
+
+					$errors['duplicate'] = 'Did You Change This Student\'s Email? Duplicate Found. Please Maintain The Old Email Address!';
+				}
+
+				//====================================================================
+				//===========MAIN DECIDING POINT WITH EMAIL=========
+				//===================================================================//
+				if (!empty($errors)) {
+					echo json_encode($errors);
+				} else {
+
+					$this->db->where('student_id', $param2);
+					$this->db->update('student', $data);
+					
+					//parent data update
+					$this->db->where('parent_id', $data['parent_id']);
+					$this->db->update('parent', $parent_data);
+
+					if ($this->input->post('class_id') != null) {
+						$data2['class_id'] = $this->input->post('class_id');
+					} else {
+
+						$errors['no_class_selected'] = 'No class was selected!';
+					}
+					if ($this->input->post('section_id') != '') {
+						$data2['section_id'] = $this->input->post('section_id');
+					} else {
+
+						$errors['no_section_selected'] = 'No section was selected!';
+
+					}
+					if ($this->input->post('roll') != null) {
+						$data2['roll'] = $this->input->post('roll');
+					} else {
+						$data2['roll'] = null;
+					}
+
+					$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+					$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+					$running_sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+					$class_name = $this->db->get_where('class', array('class_id' => $data2['class_id']))->row()->name;
+					if ($class_name == 'JHSS') {
+						$this->db->where('student_id', $param2);
+						$this->db->where('year', $running_year);
+						$this->db->where('sem', $running_sem);
+						$this->db->update('enroll', array(
+							'section_id' => $data2['section_id'], 'roll' => $data2['roll'],
+						));
+
+					} else {
+						$this->db->where('student_id', $param2);
+						$this->db->where('year', $running_year);
+						$this->db->where('term', $running_term);
+						$this->db->update('enroll', array(
+							'section_id' => $data2['section_id'], 'roll' => $data2['roll'],
+						));
+					}
+
+					$this->db->where('student_id', $param2);
+					$this->db->where('year', $running_year);
+					$this->db->where('term', $running_term);
+					$this->db->update('enroll', array(
+						'section_id' => $data2['section_id'], 'roll' => $data2['roll'],
+					));
+
+					move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/student_image/' . $param2 . '.jpg');
+
+					$ajax_data['done'] = 'success';
+					echo json_encode($ajax_data);
+				} //==========END==========
+
+			} else {
+
+				//====================================================================
+				//===========MAIN DECIDING POINT WITHOUT EMAIL=========
+				//===================================================================//
+				if (!empty($errors)) {
+					echo json_encode($errors);
+				} else {
+					$this->db->where('student_id', $param2);
+					$this->db->update('student', $data);
+					
+					//parent data update
+					$this->db->where('parent_id', $data['parent_id']);
+					$this->db->update('parent', $parent_data);
+
+					$data2['section_id'] = $this->input->post('section_id');
+					if ($this->input->post('roll') != null) {
+						$data2['roll'] = $this->input->post('roll');
+					} else {
+						$data2['roll'] = null;
+					}
+					$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+					$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+					$this->db->where('student_id', $param2);
+					$this->db->where('year', $running_year);
+					$this->db->where('term', $running_term);
+					$this->db->update('enroll', array(
+						'section_id' => $data2['section_id'], 'roll' => $data2['roll'],
+					));
+
+					move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/student_image/' . $param2 . '.jpg');
+					$ajax_data['done'] = 'success';
+					echo json_encode($ajax_data);
+				} //==========END==========
+			}
+
+			//redirect(site_url('admin/student_information/' . $param3));
+		}
+
+		//adding and editing and deleting beneficiary
+		if ($param1 == 'create_beneficiary') {
+			$student_ids = $this->input->post('st_name');
+			$category_ids = $this->input->post('category_id');
+			$class_id = $this->input->post('class_id');
+			
+			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+			$added = 0;
+			$updated = 0;
+
+			foreach($student_ids as $student_id) {
+				if($this->db->table_exists('beneficiary_list')) {
+					// Build categories JSON with amounts
+					$categories_data = array();
+					foreach($category_ids as $cat_id) {
+						$category = $this->db->get_where('benefit_category', array('category_id' => $cat_id))->row();
+						$details = json_decode($category->details, true);
+						
+						$cat_data = array('category_id' => $cat_id);
+						
+						// Extract charges for this specific class from JSON structure
+						if($details && isset($details['classes'])) {
+							// Try specific class first, then fall back to All Classes (0)
+							$class_charges = null;
+							if(isset($details['classes'][$class_id])) {
+								$class_charges = $details['classes'][$class_id];
+							} elseif(isset($details['classes']['a'])) {
+								$class_charges = $details['classes']['a'];
+							}
+							
+							if($class_charges) {
+								if(isset($class_charges['feeding_charged'])) {
+									$cat_data['feeding_amount'] = $class_charges['feeding_charged'];
+								}
+								
+								if(isset($class_charges['classes_charged'])) {
+									$cat_data['classes_amount'] = $class_charges['classes_charged'];
+								}
+								
+								if(isset($class_charges['tuition_charged'])) {
+									$cat_data['tuition_amount'] = $class_charges['tuition_charged'];
+								}
+							}
+						}
+						
+						$categories_data[] = $cat_data;
+					}
+
+					// Check if beneficiary already exists for this term
+					$existing = $this->db->get_where('beneficiary_list', array(
+						'student_id' => $student_id,
+						'year' => $running_year,
+						'term' => $running_term
+					))->row();
+
+					if($existing) {
+						// Update existing record
+						$this->db->where('id', $existing->id);
+						$this->db->update('beneficiary_list', array(
+							'categories' => json_encode($categories_data),
+							'updated_at' => time()
+						));
+						$updated++;
+					} else {
+						// Insert new record
+						$this->db->insert('beneficiary_list', array(
+							'student_id' => $student_id,
+							'class_id' => $class_id,
+							'year' => $running_year,
+							'term' => $running_term,
+							'categories' => json_encode($categories_data),
+							'created_at' => time()
+						));
+						$added++;
+					}
+				}
+
+				// Update student table with benefit category
+				$this->db->where('student_id', $student_id);
+				$this->db->update('student', array(
+					'benefit_status' => '1',
+					'benefit_category_id' => $category_ids[0] // Use first category
+				));
+			}
+
+			$this->session->set_flashdata('flash_message', "{$added} beneficiaries added, {$updated} updated");
+			echo 'done';
+			return;
+		}
+
+
+		//adding and editing and deleting beneficiary
+		if ($param1 == 'remove_beneficiary') {
+
+			$student_id = $param2;
+			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+			$queryExecuted = true;
+			// Remove from beneficiary_list for current term (if table exists)
+			if($this->db->table_exists('beneficiary_list')) {
+				$this->db->where('student_id', $student_id);
+				$this->db->where('year', $running_year);
+				$this->db->where('term', $running_term);
+				$queryExecuted = $this->db->delete('beneficiary_list');
+			}
+
+			// Update student table for backward compatibility
+			$this->db->where('student_id', $student_id);
+			$this->db->update('student', array('benefit_status' => 0));
+
+			if($queryExecuted) {
+				$ajaxData['message'] = 'done';
+			} else {
+				$ajaxData['message'] = 'failed';
+			}
+
+			$ajaxData['route'] = 'beneficiary';
+			
+			echo json_encode($ajaxData);
+			return;
+		}
+	}
+
+	function delete_student($student_id = '', $class_id = '') {
+		$result = $this->crud_model->delete_student($student_id);
+		echo json_encode($result);
+	}
+
+	// STUDENT PROMOTION
+	function student_promotion($param1 = '', $param2 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//  redirect(site_url('login'));
+
+		if ($param1 == 'promote') {
+			$running_year = $this->input->post('running_year');
+			$running_term = $this->input->post('running_term');
+			$running_sem = $this->input->post('running_sem');
+			$from_class_id = $this->input->post('promotion_from_class_id');
+
+			$class_name = $this->db->get_where('class', array('class_id' => $from_class_id))->row()->name;
+
+			if ($class_name == 'JHSS') {
+				$students_of_promotion_class = $this->db->get_where('enroll', array(
+					'class_id' => $from_class_id, 'year' => $running_year, 'mute' => '0', 'sem' => $running_sem,
+				))->result_array();
+
+				foreach ($students_of_promotion_class as $row) {
+					$target_class_id = $this->input->post('promotion_status_' . $row['student_id']);
+					$sections = $this->db->get_where('section', array('class_id' => $target_class_id))->row_array();
+					$promotion_year = $this->input->post('promotion_year');
+					$next_sem = $this->input->post('next_sem');
+					
+					// Check if student is already enrolled in the promotion year AND semester
+					$existing_enrollment = $this->db->get_where('enroll', array(
+						'student_id' => $row['student_id'],
+						'year' => $promotion_year,
+						'sem' => $next_sem
+					));
+					
+					if($existing_enrollment->num_rows() > 0) {
+						// UPDATE existing enrollment (only if promotion year matches running year + 1)
+						// This prevents editing old promotions after session changes
+						$running_year_parts = explode('-', $running_year);
+						$promotion_year_parts = explode('-', $promotion_year);
+						$can_edit = ($promotion_year_parts[0] == $running_year_parts[1]); // Next year
+						
+						if($can_edit) {
+							$update_data = array(
+								'class_id' => $target_class_id,
+								'section_id' => $sections['section_id'],
+								'transport_id' => $row['transport_id'],
+								'residence_type' => $row['residence_type'],
+								'house_id' => $row['house_id'],
+								'dormitory_id' => $row['dormitory_id'],
+								'bed_id' => $row['bed_id']
+							);
+							
+							$this->db->where('student_id', $row['student_id']);
+							$this->db->where('year', $promotion_year);
+							$this->db->where('sem', $next_sem);
+							$this->db->update('enroll', $update_data);
+						}
+					} else {
+						// INSERT new enrollment
+						$enroll_data['enroll_code'] = substr(md5(rand(0, 1000000)), 0, 7);
+						$enroll_data['student_id'] = $row['student_id'];
+						$enroll_data['class_id'] = $target_class_id;
+						$enroll_data['section_id'] = $sections['section_id'];
+						$enroll_data['year'] = $promotion_year;
+						$enroll_data['sem'] = $next_sem;
+						$enroll_data['date_added'] = strtotime(date("Y-m-d H:i:s"));
+
+						$enroll_data['transport_id'] = $row['transport_id'];
+						$enroll_data['residence_type'] = $row['residence_type'];
+						$enroll_data['house_id'] = $row['house_id'];
+						$enroll_data['dormitory_id'] = $row['dormitory_id'];
+						$enroll_data['bed_id'] = $row['bed_id'];
+
+						$this->db->insert('enroll', $enroll_data);
+					}
+				}
+
+			} else {
+				$students_of_promotion_class = $this->db->get_where('enroll', array(
+					'class_id' => $from_class_id, 'year' => $running_year, 'mute' => '0', 'term' => $running_term,
+				))->result_array();
+
+				foreach ($students_of_promotion_class as $row) {
+					$target_class_id = $this->input->post('promotion_status_' . $row['student_id']);
+					$sections = $this->db->get_where('section', array('class_id' => $target_class_id))->row_array();
+					$promotion_year = $this->input->post('promotion_year');
+					$next_term = $this->input->post('next_term');
+					
+					// Check if student is already enrolled in the promotion year AND term
+					$existing_enrollment = $this->db->get_where('enroll', array(
+						'student_id' => $row['student_id'],
+						'year' => $promotion_year,
+						'term' => $next_term
+					));
+					
+					if($existing_enrollment->num_rows() > 0) {
+						// UPDATE existing enrollment (only if promotion year matches running year + 1)
+						// This prevents editing old promotions after session changes
+						$running_year_parts = explode('-', $running_year);
+						$promotion_year_parts = explode('-', $promotion_year);
+						$can_edit = ($promotion_year_parts[0] == $running_year_parts[1]); // Next year
+						
+						if($can_edit) {
+							$update_data = array(
+								'class_id' => $target_class_id,
+								'section_id' => $sections['section_id'],
+								'transport_id' => $row['transport_id'],
+								'residence_type' => $row['residence_type'],
+								'house_id' => $row['house_id'],
+								'dormitory_id' => $row['dormitory_id'],
+								'bed_id' => $row['bed_id']
+							);
+							
+							$this->db->where('student_id', $row['student_id']);
+							$this->db->where('year', $promotion_year);
+							$this->db->where('term', $next_term);
+							$this->db->update('enroll', $update_data);
+						}
+					} else {
+						// INSERT new enrollment
+						$enroll_data['enroll_code'] = substr(md5(rand(0, 1000000)), 0, 7);
+						$enroll_data['student_id'] = $row['student_id'];
+						$enroll_data['class_id'] = $target_class_id;
+						$enroll_data['section_id'] = $sections['section_id'];
+						$enroll_data['year'] = $promotion_year;
+						$enroll_data['term'] = $next_term;
+						$enroll_data['date_added'] = strtotime(date("Y-m-d H:i:s"));
+						
+						$enroll_data['transport_id'] = $row['transport_id'];
+						$enroll_data['residence_type'] = $row['residence_type'];
+						$enroll_data['house_id'] = $row['house_id'];
+						$enroll_data['dormitory_id'] = $row['dormitory_id'];
+						$enroll_data['bed_id'] = $row['bed_id'];
+
+						$this->db->insert('enroll', $enroll_data);
+					}
+				}
+			}
+
+			//clear the cached database
+			/*$this->db->cache_delete('admin', 'student_promotion');
+
+	            $this->session->set_flashdata('flash_message' , get_phrase('selected_students_were_promoted_successfully'));
+
+	            if($this->session->userdata('login_type') == 'teacher') {
+	                redirect(site_url('teacher/student_promotion'));
+
+	            } else {
+	                redirect(site_url('admin/student_promotion'));
+			*/
+
+		}
+
+		$page_data['page_title'] = get_phrase('student_promotion');
+		$page_data['page_name'] = 'student_promotion';
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function get_students_to_promote($class_id_from, $class_id_to, $running_year, $promotion_year, $running_term, $class_name) {
+		if ($class_name == 'JHSS') {
+			$page_data['running_sem'] = $running_term;
+			$page_data['class_name'] = $class_name;
+			$page_data['class_id_from'] = $class_id_from;
+			$page_data['class_id_to'] = $class_id_to;
+			$page_data['running_year'] = $running_year;
+			$page_data['promotion_year'] = $promotion_year;
+			$this->load->view('backend/admin/student_promotion_selector', $page_data);
+
+		} else {
+			$page_data['running_term'] = $running_term;
+			$page_data['class_name'] = $class_name;
+			$page_data['class_id_from'] = $class_id_from;
+			$page_data['class_id_to'] = $class_id_to;
+			$page_data['running_year'] = $running_year;
+			$page_data['promotion_year'] = $promotion_year;
+			$this->load->view('backend/admin/student_promotion_selector', $page_data);
+		}
+
+	}
+
+	/****MANAGE PARENTS CLASSWISE*****/
+	function parent($param1 = '', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$this->load->library('form_validation');
+
+		if ($param1 == 'create') {
+			$data['name'] = trim(ucwords(strtolower($this->input->post('name'))));
+			$data['guardian_gender'] = trim(ucwords(strtolower($this->input->post('guardian_gender'))));
+
+			if (!empty($this->input->post('email')) || $this->input->post('email') != '') {
+				$data['email'] = trim(strtolower($this->input->post('email')));
+			} else {
+				$data['email'] = trim($this->input->post('phone')[0]);
+			}
+
+			// Fix: Check POST password, not $data['password']
+			if (!empty($this->input->post('password')) && $this->input->post('password') != '') {
+				$data['password'] = password_hash($this->input->post('password'), PASSWORD_BCRYPT);
+			} else {
+				$data['password'] = password_hash('123456', PASSWORD_BCRYPT);
+			}
+
+			if ($this->input->post('phone')[0] != null) {
+				$data['phone'] = $this->input->post('phone')[0];
+			}
+			if ($this->input->post('address') != null) {
+				$data['address'] = ucwords(strtolower($this->input->post('address')));
+			}
+			if ($this->input->post('profession') != null) {
+				$data['profession'] = ucwords(strtolower($this->input->post('profession')));
+			}
+
+			if ($this->input->post('designation') != null) {
+				$data['designation'] = ucwords(strtolower($this->input->post('designation')));
+			}
+
+			$this->form_validation->set_rules('name', 'Parent Name', 'trim|required');
+			// $this->form_validation->set_rules('email', 'Email', 'trim');
+			//$this->form_validation->set_rules('password', 'Password', 'trim');
+			//$this->form_validation->set_rules('phone', 'Phone', 'trim|required');
+			//$this->form_validation->set_rules('address', 'Address', 'trim|required');
+
+			if ($this->form_validation->run() === FALSE) {
+				echo json_encode(array('status' => 'error', 'message' => 'form-error'));
+				return false;
+			}
+
+			$data['authentication_key'] = substr(sha1(md5(mt_rand(1024200000, 1029999999))), 0, 5);
+
+			if ($this->input->post('email') != '' || !empty($this->input->post('email'))) {
+				$this->load->helper('email');
+				if (!valid_email($this->input->post('email'))) {
+
+					echo json_encode(array('status' => 'error', 'message' => 'email-invalid'));
+					return false;
+				}
+			}
+
+			if ($this->input->post('email') != '' || !empty($this->input->post('email'))) {
+				$validation = email_validation($this->input->post('email'));
+			} else {
+				$validation = 1;
+				$data['email'] = trim($this->input->post('phone')[0]);
+			}
+
+			if ($validation == 1) {
+				$this->db->insert('parent', $data);
+				$parent_id = $this->db->insert_id();
+				$this->session->set_flashdata('flash_message', get_phrase('parent_added_successfully'));
+
+				if ($this->input->post('email') != '' || !empty($this->input->post('email'))) {
+
+					$this->email_model->account_opening_email('parent', $this->input->post('email'), $this->input->post('password'), $data['authentication_key']); //SEND EMAIL ACCOUNT OPENING EMAIL
+				}
+
+				//send sms
+				$system_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
+				$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+				if ($active_sms_service != 'disabled') {
+					$account_opening_sms = 'Welcome to ' . $system_name . '. Your account type is Parent. Here are your login credentials; Your Username: ' . $data['email'] . ', Password: ' . $this->input->post('password') . ' and Authentication Key: ' . $data['authentication_key'] . '. Thank you.';
+					$p_phone = array();
+					array_push($p_phone, $this->input->post('phone')[0]);
+
+					$result = $this->sms_model->send_sms($account_opening_sms, $p_phone);
+				} //SEND SMS ENDED
+
+				echo json_encode(array(
+					'status' => 'success',
+					'parent_id' => $parent_id,
+					'guardian_type' => $this->input->post('guardian_is_the'),
+					'guardian_data' => array(
+						'name' => $data['name'],
+						'phone' => isset($data['phone']) ? $data['phone'] : '',
+						'profession' => isset($data['profession']) ? $data['profession'] : ''
+					)
+				));
+				return false;
+			} else {
+				echo json_encode(array('status' => 'error', 'message' => 'email-not-available'));
+				return false;
+			}
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'parent');
+		}
+		if ($param1 == 'edit') {
+			$data['name'] = trim(strtoupper($this->input->post('name')));
+			$data['guardian_gender'] = trim(ucwords(strtolower($this->input->post('guardian_gender'))));
+			$data['guardian_is_the'] = $this->input->post('guardian_is_the');
+
+			if (!empty($this->input->post('email')) || $this->input->post('email') != '') {
+
+				$data['email'] = trim(strtolower($this->input->post('email')));
+			} else {
+				$data['email'] = trim($this->input->post('phone')[0]);
+			}
+
+			if ($this->input->post('phone')[0] != null) {
+				$data['phone'] = $this->input->post('phone')[0];
+			} else {
+				$data['phone'] = null;
+			}
+			if ($this->input->post('address') != null) {
+				$data['address'] = ucwords(strtolower($this->input->post('address')));
+			} else {
+				$data['address'] = null;
+			}
+			if ($this->input->post('profession') != null) {
+				$data['profession'] = ucwords(strtolower($this->input->post('profession')));
+			} else {
+				$data['profession'] = null;
+			}
+			if ($this->input->post('designation') != null) {
+				$data['designation'] = ucwords(strtolower($this->input->post('designation')));
+			} else {
+				$data['designation'] = null;
+			}
+
+			$this->form_validation->set_rules('name', 'Parent Name', 'trim|required');
+			// $this->form_validation->set_rules('email', 'Email', 'trim');
+			// $this->form_validation->set_rules('password', 'Password', 'trim');
+			//$this->form_validation->set_rules('phone', 'Phone', 'trim|required');
+			//$this->form_validation->set_rules('address', 'Address', 'trim|required');
+
+			if ($this->form_validation->run() === FALSE) {
+				echo json_encode(array('status' => 'error', 'message' => 'form-error'));
+				return false;
+			}
+
+			if ($this->input->post('email') != '' || !empty($this->input->post('email'))) {
+				$this->load->helper('email');
+
+				if ($this->input->post('email') != $data['phone']) {
+					if (!valid_email($this->input->post('email'))) {
+						echo json_encode(array('status' => 'error', 'message' => 'email-invalid'));
+						return false;
+					}
+				}
+			}
+
+			if ($this->input->post('email') != '' || !empty($this->input->post('email'))) {
+				if ($this->input->post('email') != $data['phone']) {
+					$validation = email_validation_for_edit($this->input->post('email'), $param2, 'parent');
+				} else {
+					$validation = 1;
+				}
+			} else {
+				$validation = 1;
+			}
+
+			if ($validation == 1) {
+				$this->db->where('parent_id', $param2);
+				$this->db->update('parent', $data);
+
+				echo json_encode(array('status' => 'success', 'parent_id' => $param2));
+				return false;
+			} else {
+				echo json_encode(array('status' => 'error', 'message' => 'email-not-available'));
+				return false;
+			}
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'parent');
+
+		}
+		if ($param1 == 'delete') {
+
+			$this->db->where('parent_id', $param2);
+			$this->db->delete('parent');
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'parent');
+
+			$ajax_data['message'] = 'done';
+			$ajax_data['route'] = 'parent';
+
+			echo json_encode($ajax_data);
+			return false;
+
+		} else if ($param1 == 'block') {
+			$this->db->where('parent_id', $param2);
+			$this->db->set('block_limit', 3);
+			$this->db->update('parent');
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'parent');
+
+			echo 'done';
+			return false;
+
+		} else if ($param1 == 'unblock') {
+			$this->db->where('parent_id', $param2);
+			$this->db->set('block_limit', 0);
+			$this->db->update('parent');
+
+			//send authentication code via sms and email
+			$owner_email = $this->db->get_where('settings', array('type' => 'system_email'))->row()->description;
+			$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+
+			$user_rows = $this->db->get_where('parent', array('parent_id' => $param2))->row();
+			$user_name = $user_rows->name;
+			$user_mail = $user_rows->email;
+			$user_phone = $user_rows->phone;
+			$user_auth_key = $user_rows->authentication_key;
+
+			$phone_num = array();
+			$phone_num[] = $user_phone;
+
+			//prepare the message
+			$message_sms = 'Hello ' . $user_name . ', thank you for your request to unblock your account. Your account has been unblocked successfully. Use this authentication key to login: ' . $user_auth_key . '.';
+
+			$message_email = 'Hello ' . $user_name . ', thank you for your request to unblock your account. Your account has been unblocked successfully. Use this authentication key to login: <strong>' . $user_auth_key . '.</strong>';
+
+			//sms first
+			if ($active_sms_service != 'disabled') {
+				// send sms
+				$result = $this->sms_model->send_sms($message_sms, $phone_num);
+			}
+
+			//send email
+			$this->email_model->do_email($message_email, 'Account Status', $user_mail, $owner_email);
+
+			echo 'done';
+			return false;
+		}
+		$page_data['page_title'] = get_phrase('all_parents');
+		$page_data['page_name'] = 'parent';
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function get_parents() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$columns = array(
+			0 => 'parent_id',
+			1 => 'name',
+			2 => 'gender',
+			3 => 'email',
+			4 => 'auth_key',
+			5 => 'phone',
+			6 => 'profession',
+			7 => 'designation',
+			8 => 'account_status',
+			9 => 'options',
+			10 => 'parent_id',
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->ajaxload->all_parents_count();
+		$totalFiltered = $totalData;
+
+		if (empty($this->input->post('search')['value'])) {
+			$parents = $this->ajaxload->all_parents($limit, $start, $order, $dir);
+		} else {
+			$search = $this->input->post('search')['value'];
+			$parents = $this->ajaxload->parent_search($limit, $start, $search, $order, $dir);
+			$totalFiltered = $this->ajaxload->parent_search_count($search);
+		}
+
+		$data = array();
+		if (!empty($parents)) {
+			$totalMale = 0;
+			$totalFemale = 0;
+			$grandTotalGender = 0;
+
+			foreach ($parents as $row) {
+
+				$options = '<div class="btn-group">'.get_action_button().'<ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" class="pt_link" onclick="check_sms_status(); parent_sms(' . $row->parent_id . ')" style="color: green;"><i class="glyphicon glyphicon-envelope"></i>&nbsp; ' . get_phrase('send_sMS') . '</a></li><li class="divider"></li><li><a href="#" onclick="parent_edit_modal(' . $row->parent_id . ')" style="color: green;"><i class="entypo-pencil"></i>&nbsp;' . get_phrase('edit') . '</a></li><li class="divider"></li><li><a href="#" onclick="parent_delete_confirm(' . $row->parent_id . ')" style="color: red;"><i class="entypo-trash"></i>&nbsp;' . get_phrase('delete') . '</a></li></ul></div>';
+
+				if ($row->block_limit == 3) {
+					$as_btn = 'Blocked';
+					$btn_style = 'danger';
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" onclick="account_unblock(' . $row->parent_id . ')" style="color: green;"><i class="fa fa-unlock"></i>&nbsp;' . get_phrase('unblock') . '</a></li></li></ul>';
+				} else {
+					$as_btn = 'Active';
+					$btn_style = 'success';
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" onclick="account_block(' . $row->parent_id . ')" style="color: red;"><i class="glyphicon glyphicon-lock"></i>&nbsp;' . get_phrase('block') . '</a></li></li></ul>';
+				}
+
+				$account_status = '<div class="btn-group"><button type="button" class="btn btn-' . $btn_style . ' btn-sm dropdown-toggle" data-toggle="dropdown">
+                                    ' . $as_btn . ' ' . $btn_cont . '</div>';
+
+				$parent_email = '<a href="mailto:' . $row->email . '" >' . $row->email . '</a>';
+
+				$nestedData['parent_id'] = $row->parent_id;
+				$nestedData['name'] = $row->name;
+				$nestedData['gender'] = $row->guardian_gender;
+				$nestedData['email'] = $parent_email;
+				$nestedData['auth_key'] = '<strong style="letter-spacing: 3px;">' . $row->authentication_key . '</strong>';
+				$nestedData['phone'] = $row->phone;
+				$nestedData['profession'] = $row->profession;
+				$nestedData['designation'] = $row->designation;
+				$nestedData['account_status'] = $account_status;
+				$nestedData['options'] = $options;
+
+				$data[] = $nestedData;
+
+				if($nestedData['gender'] == 'Male') $totalMale++;
+				if($nestedData['gender'] == 'Female') $totalFemale++;
+			}
+		}
+
+		$grandTotalGender = (floatval($totalMale) + floatval($totalFemale));
+
+		$json_data = array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"data" => $data,
+			"totalMale" => $totalMale,
+			"totalFemale" => $totalFemale,
+			"grandTotalGender" => $grandTotalGender,
+		);
+
+		echo json_encode($json_data);
+	}
+
+	function get_active_parents() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$columns = array(
+			0 => 'parent_id',
+			1 => 'name',
+			2 => 'gender',
+			3 => 'email',
+			4 => 'auth_key',
+			5 => 'phone',
+			6 => 'profession',
+			7 => 'designation',
+			8 => 'account_status',
+			9 => 'options',
+			10 => 'parent_id',
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->ajaxload->all_active_parents_count();
+		$totalFiltered = $totalData;
+
+		if (empty($this->input->post('search')['value'])) {
+			$parents = $this->ajaxload->all_active_parents($limit, $start, $order, $dir);
+		} else {
+			$search = $this->input->post('search')['value'];
+			$parents = $this->ajaxload->active_parent_search($limit, $start, $search, $order, $dir);
+			$totalFiltered = $this->ajaxload->active_parent_search_count($search);
+		}
+
+		$data = array();
+		if (!empty($parents)) {
+
+			$totalMale = 0;
+			$totalFemale = 0;
+			$grandTotalGender = 0;
+
+			foreach ($parents as $row) {
+
+				$options = '<div class="btn-group">'.get_action_button().'<ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" class="pt_link" onclick="check_sms_status(); parent_sms(' . $row->parent_id . ')"" style="color: green;"><i class="glyphicon glyphicon-envelope"></i>&nbsp; ' . get_phrase('send_sms') . '</a></li><li class="divider"></li><li><a href="#" onclick="parent_edit_modal(' . $row->parent_id . ')" style="color: green;"><i class="entypo-pencil"></i>&nbsp;' . get_phrase('edit') . '</a></li><li class="divider"></li><li><a href="#" onclick="parent_delete_confirm(' . $row->parent_id . ')" style="color: red;"><i class="entypo-trash"></i>&nbsp;' . get_phrase('delete') . '</a></li></ul></div>';
+
+				if ($row->block_limit == 3) {
+					$as_btn = 'Blocked';
+					$btn_style = 'danger';
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" onclick="account_unblock(' . $row->parent_id . ')" style="color: green;"><i class="fa fa-unlock"></i>&nbsp;' . get_phrase('unblock') . '</a></li></li></ul>';
+				} else {
+					$as_btn = 'Active';
+					$btn_style = 'success';
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" onclick="account_block(' . $row->parent_id . ')" style="color: red;"><i class="glyphicon glyphicon-lock"></i>&nbsp;' . get_phrase('block') . '</a></li></li></ul>';
+				}
+
+				$account_status = '<div class="btn-group"><button type="button" class="btn btn-' . $btn_style . ' btn-sm dropdown-toggle" data-toggle="dropdown">
+                                    ' . $as_btn . ' ' . $btn_cont . '</div>';
+
+				$parent_email = '<a href="mailto:' . $row->email . '" >' . $row->email . '</a>';
+
+				$nestedData['parent_id'] = $row->parent_id;
+				$nestedData['name'] = $row->name;
+				$nestedData['gender'] = $row->guardian_gender;
+				$nestedData['email'] = $parent_email;
+				$nestedData['auth_key'] = '<strong style="letter-spacing: 3px;">' . $row->authentication_key . '</strong>';
+				$nestedData['phone'] = $row->phone;
+				$nestedData['profession'] = $row->profession;
+				$nestedData['designation'] = $row->designation;
+				$nestedData['account_status'] = $account_status;
+				$nestedData['options'] = $options;
+
+				$data[] = $nestedData;
+
+				if($nestedData['gender'] == 'Male') $totalMale++;
+					if($nestedData['gender'] == 'Female') $totalFemale++;
+				}
+			}
+
+		$grandTotalGender = (floatval($totalMale) + floatval($totalFemale));
+
+		$json_data = array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"data" => $data,
+			"totalMale" => $totalMale,
+			"totalFemale" => $totalFemale,
+			"grandTotalGender" => $grandTotalGender,
+		);
+
+		echo json_encode($json_data);
+	}
+
+	function get_inactive_parents() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$columns = array(
+			0 => 'parent_id',
+			1 => 'name',
+			2 => 'gender',
+			3 => 'email',
+			4 => 'auth_key',
+			5 => 'phone',
+			6 => 'profession',
+			7 => 'designation',
+			8 => 'account_status',
+			9 => 'options',
+			10 => 'parent_id',
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->ajaxload->all_inactive_parents_count();
+		$totalFiltered = $totalData;
+
+		if (empty($this->input->post('search')['value'])) {
+			$parents = $this->ajaxload->all_inactive_parents($limit, $start, $order, $dir);
+		} else {
+			$search = $this->input->post('search')['value'];
+			$parents = $this->ajaxload->inactive_parent_search($limit, $start, $search, $order, $dir);
+			$totalFiltered = $this->ajaxload->inactive_parent_search_count($search);
+		}
+
+		$data = array();
+		if (!empty($parents)) {
+
+			$totalMale = 0;
+			$totalFemale = 0;
+			$grandTotalGender = 0;
+
+			foreach ($parents as $row) {
+
+				$options = '<div class="btn-group">'.get_action_button().'<ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" class="pt_link" onclick="check_sms_status(); parent_sms(' . $row->parent_id . ')"" style="color: green;"><i class="glyphicon glyphicon-envelope"></i>&nbsp; ' . get_phrase('send_sms') . '</a></li><li class="divider"></li><li><a href="#" onclick="parent_edit_modal(' . $row->parent_id . ')" style="color: green;"><i class="entypo-pencil"></i>&nbsp;' . get_phrase('edit') . '</a></li><li class="divider"></li><li><a href="#" onclick="parent_delete_confirm(' . $row->parent_id . ')" style="color: red;"><i class="entypo-trash"></i>&nbsp;' . get_phrase('delete') . '</a></li></ul></div>';
+
+				if ($row->block_limit == 3) {
+					$as_btn = 'Blocked';
+					$btn_style = 'danger';
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" onclick="account_unblock(' . $row->parent_id . ')" style="color: green;"><i class="fa fa-unlock"></i>&nbsp;' . get_phrase('unblock') . '</a></li></li></ul>';
+				} else {
+					$as_btn = 'Active';
+					$btn_style = 'success';
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" onclick="account_block(' . $row->parent_id . ')" style="color: red;"><i class="glyphicon glyphicon-lock"></i>&nbsp;' . get_phrase('block') . '</a></li></li></ul>';
+				}
+
+				$account_status = '<div class="btn-group"><button type="button" class="btn btn-' . $btn_style . ' btn-sm dropdown-toggle" data-toggle="dropdown">
+                                    ' . $as_btn . ' ' . $btn_cont . '</div>';
+
+				$parent_email = '<a href="mailto:' . $row->email . '" >' . $row->email . '</a>';
+
+				$nestedData['parent_id'] = $row->parent_id;
+				$nestedData['name'] = $row->name;
+				$nestedData['gender'] = $row->guardian_gender;
+				$nestedData['email'] = $parent_email;
+				$nestedData['auth_key'] = '<strong style="letter-spacing: 3px;">' . $row->authentication_key . '</strong>';
+				$nestedData['phone'] = $row->phone;
+				$nestedData['profession'] = $row->profession;
+				$nestedData['designation'] = $row->designation;
+				$nestedData['account_status'] = $account_status;
+				$nestedData['options'] = $options;
+
+				$data[] = $nestedData;
+
+				if($nestedData['gender'] == 'Male') $totalMale++;
+					if($nestedData['gender'] == 'Female') $totalFemale++;
+				}
+			}
+
+		$grandTotalGender = (floatval($totalMale) + floatval($totalFemale));
+
+		$json_data = array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"data" => $data,
+			"totalMale" => $totalMale,
+			"totalFemale" => $totalFemale,
+			"grandTotalGender" => $grandTotalGender,
+		);
+
+		echo json_encode($json_data);
+	}
+
+
+	function get_parent_dropdown() {
+		$parents = $this->db->order_by('name', 'ASC')->get('parent')->result_array();
+		$last_added = $this->db->order_by('parent_id', 'DESC')->limit(1)->get('parent')->row();
+		
+		// Add guardian type to last added parent for auto-population
+		$guardian_type = null;
+		if($last_added) {
+			$guardian_type = $this->input->post('guardian_is_the');
+		}
+		
+		echo json_encode(array(
+			'status' => 'success',
+			'parents' => $parents,
+			'last_added' => $last_added ? $last_added->parent_id : null,
+			'guardian_type' => $guardian_type,
+			'guardian_data' => $last_added ? array(
+				'name' => $last_added->name,
+				'phone' => $last_added->phone,
+				'profession' => $last_added->profession
+			) : null
+		));
+	}
+
+	/****MANAGE TEACHERS*****/
+	// bulk teacher_add using CSV
+	function generate_bulk_teacher_csv() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$file = fopen("uploads/bulk_teacher.csv", "w");
+		$line = array('Full Name', 'Staff ID', 'Qualification', 'Birthday', 'Gender', 'Address', 'Phone', 'Email', 'Password', 'SSNIT ID', 'Ghana Card ID', 'Petra ID');
+		fputcsv($file, $line, ',');
+		echo $file_path = base_url() . 'uploads/bulk_teacher.csv';
+	}
+
+	//csv staff info validation
+	function uploaded_csvfile_teacher_validate() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		if (isset($_FILES['userfile']['name'])) {
+
+			move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/tmp/bulk_teacher.csv');
+			$csv = array_map('str_getcsv', file('uploads/tmp/bulk_teacher.csv'));
+			$count = 1;
+			$array_size = sizeof($csv);
+
+			$i = 0;
+			$data = array();
+			foreach ($csv as $row) {
+				if ($count == 1) {
+					$count++;
+					continue;
+				}
+
+				//staff's name and phone numbers
+				$data['name'] = ucwords(strtolower(trim($row[0])));
+
+				if (strlen(trim($row[6])) == 9) {
+					$data['phone'] = '0' . trim($row[6]);
+				} else {
+					$data['phone'] = trim($row[6]);
+				}
+
+				$teacher_validation = teacher_name_validation_insert($data['name'], $data['phone']);
+
+				if (!$teacher_validation) {
+					//if name and phone altoghether validation fails
+
+					$data[$i] = $data['name'] . ' ' . $data['phone'] . ' ';
+					$i++;
+				}
+			}
+
+			for ($ij = 0; $ij < count($data); $ij++) {
+				echo $data[$ij];
+			}
+		}
+
+	}
+
+	// CSV IMPORT TEACHER
+	function bulk_teacher_add_using_csv($param1 = '') {
+
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$this->load->library('form_validation');
+
+		$teacher_code_prefix = $this->db->get_where('settings', array('type' => 'teacher_code_prefix'))->row()->description;
+		$teacher_code = $this->db->get_where('settings', array('type' => 'teacher_code_format'))->row()->description;
+
+		if ($param1 == 'import') {
+
+			move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/bulk_teacher.csv');
+			$csv = array_map('str_getcsv', file('uploads/bulk_teacher.csv'));
+			$count = 1;
+			$array_size = sizeof($csv);
+			$loopCounter = 0;
+
+			$teacher_counter = 0;
+			$sms_data_array = array();
+
+			foreach ($csv as $row) {
+				if ($count == 1) {
+					$count++;
+					continue;
+				}
+				$password = trim($row[8]);
+				if($password == '' || strlen($password) < 6) $password = '123456';
+
+				//teacher(code) validation
+				if (!empty(trim($row[1]))) {
+					$code_validation = teacher_code_validation_insert(trim($row[1]));
+					if (!$code_validation) {
+						$this->session->set_flashdata('error_message', 'Teacher ID(s) ' . $row[1] . ', Already Exist(s)');
+						redirect(site_url('admin/teacher'));
+					}
+				} else {
+					//generate teacher id
+					$this->db->select('teacher_code');
+					$this->db->order_by('teacher_code', 'desc');
+					$this->db->limit(1);
+					$t_query = $this->db->get('teacher');
+					$t_id = $t_query->row()->teacher_code;
+
+					if ($t_query->num_rows() > 0) {
+						//extract the numeric out and increase it by 1
+						$first_num = ''; //the first occurence of a number after the string STAFF-....
+						$position_of_first_num = ''; //the position of the first number
+
+						$i = 0;
+						for ($i = 0; $i < strlen($t_id); $i++) {
+							if (is_numeric($t_id[$i])) {
+								$first_num = $t_id[$i];
+								break;
+							}
+						}
+
+						//find the position
+						$position_of_first_num = strpos($t_id, $first_num);
+
+						//now let's do the extraction
+						$n_tid = substr($t_id, $position_of_first_num, strlen($t_id) - $i);
+
+						$row[1] = $n_tid + 1;
+
+						if ($first_num == 0) {
+							$old_len = strlen($t_id);
+							$new_len = strlen($row[1]);
+							$act_len = ($old_len - $new_len);
+							$row[1] = substr($t_id, 0, $act_len) . $row[1];
+						} else {
+							$row[1] = $row[1];
+						}
+					} else {
+						$row[1] = $teacher_code_prefix . $teacher_code;
+					}
+				}
+
+				//prefix 0 to those numbers that donnot have it
+				//for teacher
+				if (strlen(trim($row[6])) == 9) {
+					$data['phone'] = '0' . trim($row[6]);
+				} else {
+					$data['phone'] = trim($row[6]);
+				}
+
+				//students  data
+				$data['name'] = strtoupper(trim($row[0]));
+				$data['teacher_code'] = trim($row[1]);
+				$data['designation'] = strtoupper(trim($row[2]));
+				$data['sex'] = ucwords(strtolower(trim($row[4])));
+
+				if (trim($row[3]) != '' || trim($row[3]) != null) {
+					$data['birthday'] = date_format_converter(trim($row[3]));
+				} else {
+					$data['birthday'] = '';
+				}
+				//$data['religion']      = ucwords(strtolower($row[3]));
+				//$data['blood_group']   = ucwords(strtolower($row[4]));
+				$data['email'] = strtolower(trim($row[7]));
+				$data['password'] = password_hash($password, PASSWORD_BCRYPT);
+				$data['address'] = ucwords(strtolower(trim($row[5])));
+				$data['authentication_key'] = substr(sha1(md5(mt_rand(1044200000, 1044299999))), 0, 5);
+
+				$data['ssnit_id'] = trim($row[9]);
+				$data['ghana_card_id'] = trim($row[10]);
+				$data['tier2_provider_id'] = trim($row[11]);
+
+				if($data['ghana_card_id'] == '') {
+						$this->session->set_flashdata('error_message', 'Ghana Card is required');
+						redirect(site_url('admin/teacher'));
+
+						return;
+				}
+
+				if($data['birthday'] == '') {
+						$this->session->set_flashdata('error_message', 'Date of birth is required');
+						redirect(site_url('admin/teacher'));
+
+						return;
+				}
+
+				if($data['email'] == '') {
+						$this->session->set_flashdata('error_message', 'Email is required');
+						redirect(site_url('admin/teacher'));
+
+						return;
+				}
+
+
+				if($data['email'] == '') {
+						$this->session->set_flashdata('error_message', 'Email is required');
+						redirect(site_url('admin/teacher'));
+
+						return;
+				}
+
+				//teacher auth (key) validation
+				$auth_validation = t_auth_validation_insert($data['authentication_key']);
+				while (!$auth_validation) {
+					$data['authentication_key'] = substr(sha1(md5(mt_rand(1044200000, 1044299999))), 0, 5);
+					$auth_validation = t_auth_validation_insert($data['authentication_key']);
+				}
+
+				$this->load->helper('email');
+
+				//teacher id (code) validation
+				$code_validation = teacher_code_validation_insert($data['teacher_code']);
+				while (!$code_validation) {
+					//$this->session->set_flashdata('error_message' , 'This ID No Is Not Available');
+					$this->db->select('teacher_code');
+					$this->db->order_by('teacher_code', 'desc');
+					$this->db->limit(1);
+					$t_query = $this->db->get('teacher');
+					$t_id = $t_query->row()->teacher_code;
+
+					if ($t_query->num_rows() > 0) {
+						//extract the numeric out and increase it by 1
+						$first_num = ''; //the first occurence of a number after the string STAFF-....
+						$position_of_first_num = ''; //the position of the first number
+
+						$i = 0;
+						for ($i = 0; $i < strlen($t_id); $i++) {
+							if (is_numeric($t_id[$i])) {
+								$first_num = $t_id[$i];
+								break;
+							}
+						}
+
+						//find the position
+						$position_of_first_num = strpos($t_id, $first_num);
+
+						//now let's do the extraction
+						$n_tid = substr($t_id, $position_of_first_num, strlen($t_id) - $i);
+
+						$data['teacher_code'] = $n_tid + 1;
+
+						if ($first_num == 0) {
+							$old_len = strlen($t_id);
+							$new_len = strlen($data['teacher_code']);
+							$act_len = ($old_len - $new_len);
+							$data['teacher_code'] = substr($t_id, 0, $act_len) . $data['teacher_code'];
+						} else {
+							$data['teacher_code'] = $data['teacher_code'];
+						}
+					}
+					$code_validation = teacher_code_validation_insert($data['teacher_code']);
+				}
+
+				if ($first_num == 0) {
+					$data['teacher_code'] = $data['teacher_code'];
+				} else {
+					$data['teacher_code'] = $teacher_code_prefix . $data['teacher_code'];
+				}
+				//teacher code validation ends
+
+				$validation = email_validation($data['email']);
+
+				if ($data['email'] == '' || $data['email'] == null || empty($data['email'])) {
+					$this->db->insert('teacher', $data);
+
+					//$this->email_model->account_opening_email('teacher', $data['email'], $row[8], $data['authentication_key'], $data['teacher_code']); //SEND EMAIL ACCOUNT OPENING EMAIL TO TEACHER
+
+				} elseif ($data['email'] != '' && $validation == 1) {
+
+					if (valid_email($data['email'])) {
+					//email format validation
+						$this->db->insert('teacher', $data);
+
+						$this->email_model->account_opening_email('teacher', $data['email'], $row[8], $data['authentication_key'], $data['teacher_code']); //SEND EMAIL ACCOUNT OPENING EMAIL TO TEACHER
+
+						//send sms
+						$system_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
+						$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+						if ($active_sms_service != 'disabled') {
+							$account_opening_sms = 'Welcome to ' . $system_name . '. Your account type is Teacher. Here are your login credentials; Your Username: ' . $data['email'] . ', Password: ' . $row[8] . ', Authentication Key: ' . $data['authentication_key'] . ' and Staff ID: ' . $data['teacher_code'] . '. Thank you.';
+
+
+							/*We build up the array here*/
+							if(count($data_phone) > 0) {
+
+								for($t = 0; $t < count($data_phone); $t++) {
+
+									$sms_data_array[$teacher_counter]['To'] = $data['phone'];
+									$sms_data_array[$teacher_counter]['Content'] = $account_opening_sms;
+								}
+							}	
+
+							$teacher_counter++;
+
+							
+						} //SEND SMS ENDED
+
+						//clear the cached database
+						$this->db->cache_delete();
+
+					} else {
+						$this->session->set_flashdata('error_message', 'Invalid Email Found! '.$data['email']);
+						redirect(site_url('admin/teacher'));
+					}
+
+				} else {
+					if ($array_size == 2) {
+						$this->session->set_flashdata('error_message', get_phrase('this_email_id_"') . $data['email'] . get_phrase('"_is_not_available'));
+
+						redirect(site_url('admin/teacher'));
+					} elseif ($array_size > 2) {
+						$this->session->set_flashdata('error_message', get_phrase('some_of_the_emails_already_exist! '.$data['email']));
+						redirect(site_url('admin/teacher'));
+					}
+				}
+
+			} /*End of each enrollment for teachers*/
+
+			/*Sending sms in batch here*/
+			if($active_sms_service != 'disabled' && count($sms_data_array) > 0) {
+
+				$response = $this->sms_model->send_sms_batch_personalized($sms_data_array);
+			}
+		}
+		$page_data['page_name'] = 'teacher';
+		$page_data['page_title'] = get_phrase('manage_teachers');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function teacher($param1 = '', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		if ($param1 == 'create') {
+
+			$errors = array();
+
+			$data['first_name'] = trim(strtoupper($this->input->post('first_name')));
+			$data['other_name'] = trim(strtoupper($this->input->post('other_name')));
+			$data['last_name'] = trim(strtoupper($this->input->post('last_name')));
+			// Build full name from parts, avoiding double spaces when other_name is empty
+			$data['name'] = trim(preg_replace('/\s+/', ' ', $data['first_name'] . ' ' . ($data['other_name'] ?? '') . ' ' . $data['last_name']));
+			$data['email'] = trim(strtolower($this->input->post('email')));
+			$data['teacher_code'] = trim($this->input->post('teacher_code'));
+
+			$data['ghana_card_id'] = trim($this->input->post('ghana_card_id'));
+			$data['ssnit_id'] = trim($this->input->post('ssnit_id'));
+			$data['tier2_provider_id'] = trim($this->input->post('tier2_provider_id'));
+			$data['tier2_member_id'] = trim($this->input->post('tier2_member_id'));
+			$data['account_number'] = trim($this->input->post('account_number'));
+			$data['account_details'] = trim($this->input->post('account_details'));
+
+			$data['password'] = password_hash($this->input->post('password'), PASSWORD_BCRYPT);
+			if ($this->input->post('birthday') != null) {
+				$data['birthday'] = date_format_converter($this->input->post('birthday'));
+			}
+			if ($this->input->post('sex') != null) {
+				$data['sex'] = ucwords(strtolower($this->input->post('sex')));
+			}
+			if ($this->input->post('address') != null) {
+				$data['address'] = ucwords(strtolower($this->input->post('address')));
+			}
+
+			if ($this->input->post('phone')[0] != null) {
+				$data['phone'] = $this->input->post('phone')[0];
+			}
+			if ($this->input->post('designation') != null) {
+				$data['designation'] = strtoupper($this->input->post('designation'));
+			}
+			if ($this->input->post('show_on_website') != null) {
+				$data['show_on_website'] = $this->input->post('show_on_website');
+			}
+
+			/*validation*/
+			if ($data['ghana_card_id'] == null || empty($data['ghana_card_id'])) {
+				$errors['ghana_card_id'] = 'Ghana Card is required';
+			}
+
+			if ($data['account_number'] == null || empty($data['account_number'])) {
+				$errors['account_number'] = 'Account number is required';
+			}
+
+			if ($data['account_details'] == null || empty($data['account_details'])) {
+				$errors['account_details'] = 'Account details is required';
+			}
+
+			if ($data['first_name'] == null || empty($data['first_name'])) {
+				$errors['first_name'] = 'First Name is required';
+			}
+
+			if ($data['last_name'] == null || empty($data['last_name'])) {
+				$errors['last_name'] = 'Last Name is required';
+			}
+
+			if ($data['email'] == null || empty($data['email'])) {
+				$errors['email'] = 'Email is required';
+			}
+			if ($data['sex'] == null || empty($data['sex'])) {
+				$errors['sex'] = 'Gender is required';
+			}
+			if ($data['phone'] == null || empty($data['phone'])) {
+				$errors['phone'] = 'Phone Number is required';
+			}
+			if ($data['birthday'] == null || empty($data['birthday'])) {
+				$errors['birthday'] = 'Date of birth is required';
+			}
+
+			
+			if(!empty($errors)) {
+				echo '<ul>';
+				foreach($errors as $key => $val) {
+
+					echo '<li>'.$val.'</li>';
+				}
+				echo '</ul>';
+
+				return;
+			}
+
+			$data['authentication_key'] = substr(sha1(md5(mt_rand(1044200000, 1049999999))), 0, 5);
+
+			$links = array();
+			$social['facebook'] = $this->input->post('facebook');
+			$social['twitter'] = $this->input->post('twitter');
+			$social['linkedin'] = $this->input->post('linkedin');
+			array_push($links, $social);
+			$data['social_links'] = json_encode($links);
+
+			$this->load->helper('email');
+			if (!valid_email($data['email'])) {
+				echo 1;
+				return false;
+			}
+
+			$validation = email_validation($data['email']);
+			if ($validation == 1) {
+				$this->db->insert('teacher', $data);
+
+				$teacher_id = $this->db->insert_id();
+				move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/teacher_image/' . $teacher_id . '.jpg');
+
+				$this->session->set_flashdata('flash_message', get_phrase('data_added_successfully'));
+				$this->email_model->account_opening_email('teacher', $data['email'], $this->input->post('password'), $data['authentication_key'], $data['teacher_code']); //SEND EMAIL ACCOUNT OPENING EMAIL
+
+				//send sms
+				$system_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
+				$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+				if ($active_sms_service != 'disabled') {
+					$account_opening_sms = 'Welcome to ' . $system_name . '. Your account type is Teacher. Here are your login credentials; Your Username: ' . $data['email'] . ', Password: ' . $this->input->post('password') . ', Authentication Key: ' . $data['authentication_key'] . ' and Staff ID: ' . $data['teacher_code'] . '. Thank you.';
+
+					$p_phone = array();
+					array_push($p_phone, $this->input->post('phone')[0]);
+
+					$result = $this->sms_model->send_sms($account_opening_sms, $p_phone);
+				} //SEND SMS ENDED
+
+				if ($result == 1 || $result == '') {
+					echo 2;
+					return false;
+				} else {
+					echo 4;
+					return false;
+				}
+
+			} else {
+				echo 3;
+				return false;
+			}
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'teacher');
+
+		}
+		if ($param1 == 'do_update') {
+
+			$errors = array();
+
+			$data['first_name'] = trim(strtoupper($this->input->post('first_name')));
+			$data['other_name'] = trim(strtoupper($this->input->post('other_name')));
+			$data['last_name'] = trim(strtoupper($this->input->post('last_name')));
+			// Build full name from parts, avoiding double spaces when other_name is empty
+			$data['name'] = trim(preg_replace('/\s+/', ' ', $data['first_name'] . ' ' . ($data['other_name'] ?? '') . ' ' . $data['last_name']));
+			$data['email'] = strtolower($this->input->post('email'));
+
+			$data['ghana_card_id'] = trim($this->input->post('ghana_card_id'));
+			$data['ssnit_id'] = trim($this->input->post('ssnit_id'));
+			$data['tier2_provider_id'] = trim($this->input->post('tier2_provider_id'));
+			$data['tier2_member_id'] = trim($this->input->post('tier2_member_id'));
+			$data['account_number'] = trim($this->input->post('account_number'));
+			$data['account_details'] = trim($this->input->post('account_details'));
+
+			if ($this->input->post('birthday') != null) {
+				$data['birthday'] = date_format_converter($this->input->post('birthday'));
+			} else {
+				$data['birthday'] = null;
+			}
+			if ($this->input->post('sex') != null) {
+				$data['sex'] = ucwords(strtolower($this->input->post('sex')));
+			}
+			if ($this->input->post('address') != null) {
+				$data['address'] = ucwords(strtolower($this->input->post('address')));
+			} else {
+				$data['address'] = null;
+			}
+			if ($this->input->post('phone')[0] != null) {
+				$data['phone'] = $this->input->post('phone')[0];
+			} else {
+				$data['phone'] = null;
+			}
+			if ($this->input->post('designation') != null) {
+				$data['designation'] = strtoupper($this->input->post('designation'));
+			} else {
+				$data['designation'] = null;
+			}
+			if ($this->input->post('show_on_website') != null) {
+				$data['show_on_website'] = $this->input->post('show_on_website');
+			} else {
+				$data['show_on_website'] = null;
+			}
+
+			/*validation*/
+			if ($data['ghana_card_id'] == null || empty($data['ghana_card_id'])) {
+				$errors['ghana_card_id'] = 'Ghana Card is required';
+			}
+
+			if ($data['account_number'] == null || empty($data['account_number'])) {
+				$errors['account_number'] = 'Account number is required';
+			}
+
+			if ($data['account_details'] == null || empty($data['account_details'])) {
+				$errors['account_details'] = 'Account details is required';
+			}
+
+			if ($data['first_name'] == null || empty($data['first_name'])) {
+				$errors['first_name'] = 'First Name is required';
+			}
+
+			if ($data['last_name'] == null || empty($data['last_name'])) {
+				$errors['last_name'] = 'Last Name is required';
+			}
+
+			if ($data['email'] == null || empty($data['email'])) {
+				$errors['email'] = 'Email is required';
+			}
+			if ($data['sex'] == null || empty($data['sex'])) {
+				$errors['sex'] = 'Gender is required';
+			}
+			if ($data['phone'] == null || empty($data['phone'])) {
+				$errors['phone'] = 'Phone Number is required';
+			}
+			if ($data['birthday'] == null || empty($data['birthday'])) {
+				$errors['birthday'] = 'Date of birth is required';
+			}
+
+			
+			if(!empty($errors)) {
+				echo '<ul>';
+				foreach($errors as $key => $val) {
+
+					echo '<li>'.$val.'</li>';
+				}
+				echo '</ul>';
+
+				return;
+			}
+
+			$links = array();
+			$social['facebook'] = $this->input->post('facebook');
+			$social['twitter'] = $this->input->post('twitter');
+			$social['linkedin'] = $this->input->post('linkedin');
+			array_push($links, $social);
+			$data['social_links'] = json_encode($links);
+
+			$this->load->helper('email');
+			if (!valid_email($data['email'])) {
+
+				echo 5;
+				return false;
+			}
+
+			$validation = email_validation_for_edit($data['email'], $param2, 'teacher');
+			if ($validation == 1) {
+				$this->db->where('teacher_id', $param2);
+				$this->db->update('teacher', $data);
+
+				$image_size = $_FILES['userfile']['size'];
+				if ($image_size > 1024) {
+					echo 'image size';
+					return false;
+
+				} else {
+					move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/teacher_image/' . $param2 . '.jpg');
+					echo 4;
+					return false;
+				}
+
+			} else {
+				echo 4;
+				return false;
+			}
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'teacher');
+
+		} else if ($param1 == 'personal_profile') {
+			$page_data['personal_profile'] = true;
+			$page_data['current_teacher_id'] = $param2;
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'teacher');
+		} else if ($param1 == 'edit') {
+			$page_data['edit_data'] = $this->db->get_where('teacher', array(
+				'teacher_id' => $param2,
+			))->result_array();
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'teacher');
+		}
+		if ($param1 == 'delete') {
+			$this->db->where('teacher_id', $param2);
+			$queryExecuted = $this->db->delete('teacher');
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'teacher');
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+
+
+			if($queryExecuted) {
+				$ajaxData['message'] = 'done';
+			} else {
+				$ajaxData['message'] = 'failed';
+			}
+
+			$ajaxData['route'] = 'teacher?msg=6';
+			
+			echo json_encode($ajaxData);
+			return;
+
+		} else if ($param1 == 'block') {
+			$this->db->where('teacher_id', $param2);
+			$this->db->set('block_limit', 3);
+			$this->db->update('teacher');
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'teacher');
+
+			echo 'done';
+			return false;
+
+		} else if ($param1 == 'unblock') {
+			$this->db->where('teacher_id', $param2);
+			$this->db->set('block_limit', 0);
+			$this->db->update('teacher');
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'teacher');
+
+			//send authentication code via sms and email
+			$owner_email = $this->db->get_where('settings', array('type' => 'system_email'))->row()->description;
+			$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+
+			$user_rows = $this->db->get_where('teacher', array('teacher_id' => $param2))->row();
+			$user_name = $user_rows->name;
+			$user_mail = $user_rows->email;
+			$user_phone = $user_rows->phone;
+			$user_auth_key = $user_rows->authentication_key;
+
+			$phone_num = array();
+			$phone_num[] = $user_phone;
+
+			//prepare the message
+			$message_sms = 'Hello ' . $user_name . ', thank you for your request to unblock your account. Your account has been unblocked successfully. Use this authentication key to login: ' . $user_auth_key . '.';
+
+			$message_email = 'Hello ' . $user_name . ', thank you for your request to unblock your account. Your account has been unblocked successfully. Use this authentication key to login: <strong>' . $user_auth_key . '.</strong>';
+
+			//sms first
+			if ($active_sms_service != 'disabled') {
+				// send sms
+				$result = $this->sms_model->send_sms($message_sms, $phone_num);
+			}
+
+			//send email
+			$this->email_model->do_email($message_email, 'Account Status', $user_mail, $owner_email);
+
+			echo 'done';
+			return false;
+		}
+
+		$page_data['teachers'] = $this->db->get('teacher')->result_array();
+		$page_data['page_name'] = 'teacher';
+		$page_data['page_title'] = get_phrase('manage_teacher');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function get_teachers() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$columns = array(
+			0 => 'teacher_id',
+			1 => 'photo',
+			2 => 'staff_id',
+			3 => 'name',
+			4 => 'gender',
+			5 => 'designation',
+			6 => 'form_master',
+			7 => 'email',
+			8 => 'auth_key',
+			9 => 'phone',
+			10 => 'account_status',
+			11 => 'options',
+			12 => 'teacher_id',
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->ajaxload->all_teachers_count();
+		$totalFiltered = $totalData;
+
+		if (empty($this->input->post('search')['value'])) {
+			$teachers = $this->ajaxload->all_teachers($limit, $start, $order, $dir);
+		} else {
+			$search = $this->input->post('search')['value'];
+			$teachers = $this->ajaxload->teacher_search($limit, $start, $search, $order, $dir);
+			$totalFiltered = $this->ajaxload->teacher_search_count($search);
+		}
+
+		$data = array();
+		if (!empty($teachers)) {
+
+			$totalMale = 0;
+			$totalFemale = 0;
+			$grandTotalGender = 0;
+
+			foreach ($teachers as $row) {
+
+				$photo = '<img src="' . $this->crud_model->get_image_url('teacher', $row->teacher_id, $row->sex) . '" class="img-circle" width="30" />';
+
+				$options = '<div class="btn-group">'.get_action_button().'<ul class="dropdown-menu dropdown-default pull-right" role="menu">
+				<li><a href="' . site_url('admin/teacher_details/' . $row->teacher_id) . '" class="pt_link" style="color: green;"><i class="fas fa-user"></i>&nbsp; ' . get_phrase('profile') . '</a></li><li class="divider"></li>
+
+				<li><a href="' . site_url('admin/message/sms_send?ti=' . $row->teacher_id) . '" class="pt_link" onclick="check_sms_status()" style="color: green;"><i class="glyphicon glyphicon-envelope"></i>&nbsp; ' . get_phrase('send_sMS') . '</a></li><li class="divider"></li><li><a href="#" onclick="teacher_edit_modal(' . $row->teacher_id . ')" style="color: green;"><i class="entypo-pencil"></i>&nbsp;' . get_phrase('edit') . '</a></li><li class="divider"></li><li><a href="#" onclick="teacher_delete_confirm(' . $row->teacher_id . ')" style="color: red;"><i class="entypo-trash"></i>&nbsp;' . get_phrase('delete') . '</a></li></ul></div>';
+
+				if ($row->block_limit == 3) {
+					$as_btn = 'Blocked';
+					$btn_style = 'danger';
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" onclick="account_unblock(' . $row->teacher_id . ')" style="color: green;"><i class="fa fa-unlock"></i>&nbsp;' . get_phrase('unblock') . '</a></li></li></ul>';
+				} else {
+					$as_btn = 'Active';
+					$btn_style = 'success';
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" onclick="account_block(' . $row->teacher_id . ')" style="color: red;"><i class="glyphicon glyphicon-lock"></i>&nbsp;' . get_phrase('block') . '</a></li></li></ul>';
+				}
+
+				$account_status = '<div class="btn-group"><button type="button" class="btn btn-' . $btn_style . ' btn-sm dropdown-toggle" data-toggle="dropdown">
+                                    ' . $as_btn . ' ' . $btn_cont . '</div>';
+
+				$form_master_query = $this->db->get_where('class', array('teacher_id' => $row->teacher_id));
+				$form_master_rows = $form_master_query->num_rows();
+				$form_master_array = $form_master_query->result_array();
+
+				$form_master = array();
+				$fj = 0;
+				foreach ($form_master_array as $fm_row) {
+
+					//add section A or B if the class has more than one section
+					$section_name = $this->db->get_where('section', array('class_id' => $fm_row['class_id']))->row()->name;
+					$class_has_more_sections = $this->db->get_where('class', array('name' => $fm_row['name'], 'name_numeric' => $fm_row['name_numeric']))->num_rows();
+					$sec_name = '';
+					if ($class_has_more_sections > 1) {
+						$sec_name = $section_name;
+					}
+
+					$form_master[$fj] = ' ' . $fm_row['name'] . ' ' . $fm_row['name_numeric'] . $sec_name;
+					$fj++;
+
+				}
+
+				if ($form_master_rows > 0) {
+					$form_master = $form_master;
+				} else {
+					$form_master = 'N/A';
+				}
+
+				$nestedData['teacher_id'] = $row->teacher_id;
+				$nestedData['photo'] = $photo;
+				$nestedData['staff_id'] = $row->teacher_code;
+				$nestedData['name'] = $row->name;
+				$nestedData['gender'] = $row->sex;
+				$nestedData['designation'] = $row->designation;
+				$nestedData['form_master'] = $form_master;
+				$nestedData['email'] = '<a href="mailto:' . $row->email . '">' . $row->email . '</a>';
+				$nestedData['auth_key'] = '<strong style="letter-spacing: 3px;">' . $row->authentication_key . '</strong>';
+				$nestedData['phone'] = $row->phone;
+				$nestedData['account_status'] = $account_status;
+				$nestedData['options'] = $options;
+
+				$data[] = $nestedData;
+
+				if($nestedData['gender'] == 'Male') $totalMale++;
+					if($nestedData['gender'] == 'Female') $totalFemale++;
+				}
+			}
+
+		$grandTotalGender = (floatval($totalMale) + floatval($totalFemale));
+
+		$json_data = array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"data" => $data,
+			"totalMale" => $totalMale,
+			"totalFemale" => $totalFemale,
+			"grandTotalGender" => $grandTotalGender,
+		);
+		echo json_encode($json_data);
+	}
+
+	/****MANAGE ADMINS*****/
+	function admin_list() {
+		redirect(site_url('admin/admins'));
+	}
+
+	function admins($param1 = '', $param2 = '', $param3 = '', $from_mobile = 'no') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$this->load->library('form_validation');
+
+		if ($param1 == 'create') {
+
+			$data['first_name'] = trim(strtoupper($this->input->post('first_name')));
+			$data['other_name'] = trim(strtoupper($this->input->post('other_name')));
+			$data['last_name'] = trim(strtoupper($this->input->post('last_name')));
+			// Concatenate full name without extra spaces when other_name is empty
+			$data['name'] = trim(preg_replace('/\s+/', ' ', $data['first_name'] . ' ' . ($data['other_name'] ?? '') . ' ' . $data['last_name']));
+			$data['phone'] = trim($this->input->post('phone')[0]);
+			$data['email'] = trim(strtolower($this->input->post('email')));
+			$data['gender'] = trim($this->input->post('gender'));
+			$data['password'] = password_hash($this->input->post('password'), PASSWORD_BCRYPT);
+			$data['account_number'] = trim($this->input->post('account_number'));
+			$data['account_details'] = trim($this->input->post('account_details'));
+			$data['ssnit_id'] = trim($this->input->post('ssnit_id'));
+			$data['ghana_card_id'] = trim($this->input->post('ghana_card_id'));
+			$data['tier2_provider_id'] = trim($this->input->post('tier2_provider_id'));
+			$data['tier2_member_id'] = trim($this->input->post('tier2_member_id'));
+
+			if ($this->input->post('designation') != null) {
+				$data['level'] = $this->input->post('designation');
+			}
+
+			$data_phone = array($data['phone']);
+
+			$data['authentication_key'] = substr(sha1(md5(mt_rand(1054200000, 1059999999))), 0, 5);
+
+			$this->form_validation->set_rules('first_name', 'First Name', 'trim|required|min_length[2]');
+			$this->form_validation->set_rules('last_name', 'Last Name', 'trim|required|min_length[2]');
+			$this->form_validation->set_rules('email', 'Email Address', 'trim|required|min_length[5]');
+			$this->form_validation->set_rules('password', 'Password Address', 'trim|required|min_length[6]');
+			$this->form_validation->set_rules('phone[]', 'Phone', 'trim|required|min_length[10]');
+
+			if ($this->form_validation->run() == FALSE) {
+				if ($from_mobile == 'yes') {
+					echo json_encode('Error');
+				} else {
+					$this->session->set_flashdata('error_message', 'Some required fields are empty.');
+					redirect(site_url('admin/admins'));
+				}
+			}
+
+			$this->load->helper('email');
+			if (!valid_email($data['email'])) {
+				if ($from_mobile == 'yes') {
+					echo json_encode('Error');
+				} else {
+
+					$this->session->set_flashdata('error_message', 'Invalid Email Found!');
+					redirect(site_url('admin/admins'));
+				}
+			}
+
+			// Set daily fee collection privileges based on level
+			if ($data['level'] == 1) {
+				$admin = 'Super Administrator';
+				$data['can_collect_daily_fees'] = 1;
+				$data['collection_point'] = 'office';
+			} else if ($data['level'] == 2) {
+				$admin = 'Administrator';
+				$data['can_collect_daily_fees'] = 1;
+				$data['collection_point'] = 'office';
+			} else if ($data['level'] == 3) {
+				$admin = 'Accountant';
+				$data['can_collect_daily_fees'] = 1;
+				$data['collection_point'] = 'office';
+			} else if ($data['level'] == 4) {
+				$admin = 'Cashier';
+				$data['can_collect_daily_fees'] = 1;
+				$data['collection_point'] = 'office';
+			} else if ($data['level'] == 5) {
+				$admin = 'Conductor';
+				$data['can_collect_daily_fees'] = 1;
+				$data['collection_point'] = 'bus';
+				$data['transport_only'] = 1;
+			}
+
+			$data2['password'] = $this->input->post('password');
+
+			$validation = email_validation($data['email']);
+			if ($validation == 1) {
+				$this->db->insert('admin', $data);
+				$admin_id = $this->db->insert_id();
+
+				/*update the automated admin code*/
+				$admin_code = 'ADM-'.$admin_id;
+				$this->db->where('admin_id', $admin_id);
+				$this->db->set('admin_code', $admin_code);
+				$this->db->update('admin');
+
+				$this->email_model->account_opening_email($admin, $data['email'], $data2['password'], $data['authentication_key']); //SEND EMAIL ACCOUNT OPENING EMAIL
+
+				//send sms
+				$system_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
+				$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+				if ($active_sms_service != 'disabled') {
+					$account_opening_sms = 'Welcome to ' . $system_name . '. Your account type is ' . $admin . '. Here are your login credentials; Your Username: ' . $data['email'] . ', Password: ' . $data2['password'] . ' and Authentication Key: ' . $data['authentication_key'] . '. Thank you.';
+
+					$this->sms_model->send_sms($account_opening_sms, $data_phone);
+				} //SEND SMS ENDED
+				
+				//clear the cached database
+				$this->db->cache_delete();
+				
+				if ($from_mobile == 'yes') {
+					echo json_encode(['status' => 'success', 'message' => get_phrase('admin_added_successfully')]);
+				} else {
+					echo json_encode(['status' => 'success', 'message' => get_phrase('admin_added_successfully')]);
+				}
+				return;
+			} else {
+				echo json_encode(['status' => 'error', 'message' => get_phrase('this_email_id_is_not_available')]);
+				return;
+			}
+		}
+		if ($param1 == 'do_update') {
+			$data['first_name'] = trim(strtoupper($this->input->post('first_name')));
+			$data['other_name'] = trim(strtoupper($this->input->post('other_name')));
+			$data['last_name'] = trim(strtoupper($this->input->post('last_name')));
+			// Concatenate full name without extra spaces when other_name is empty
+			$data['name'] = trim(preg_replace('/\s+/', ' ', $data['first_name'] . ' ' . ($data['other_name'] ?? '') . ' ' . $data['last_name']));
+			$data['phone'] = trim($this->input->post('phone')[0]);
+			$data['email'] = trim(strtolower($this->input->post('email')));
+			$data['gender'] = trim($this->input->post('gender'));
+			
+			// Update password only if provided
+			if (!empty($this->input->post('password'))) {
+				$data['password'] = password_hash($this->input->post('password'), PASSWORD_BCRYPT);
+			}
+			
+			$data['account_number'] = trim($this->input->post('account_number'));
+			$data['account_details'] = trim($this->input->post('account_details'));
+			$data['ssnit_id'] = trim($this->input->post('ssnit_id'));
+			$data['ghana_card_id'] = trim($this->input->post('ghana_card_id'));
+			$data['tier2_provider_id'] = trim($this->input->post('tier2_provider_id'));
+			$data['tier2_member_id'] = trim($this->input->post('tier2_member_id'));
+
+			if ($this->input->post('designation') != null) {
+				$data['level'] = $this->input->post('designation');
+			}
+
+			$this->form_validation->set_rules('first_name', 'First Name', 'trim|required|min_length[2]');
+			$this->form_validation->set_rules('last_name', 'Last Name', 'trim|required|min_length[2]');
+			$this->form_validation->set_rules('email', 'Email Address', 'trim|required|min_length[5]');
+			$this->form_validation->set_rules('phone[]', 'Phone', 'trim|required|min_length[10]');
+
+			if ($this->form_validation->run() == FALSE) {
+				$this->session->set_flashdata('error_message', 'Some required fields are empty.');
+			}
+
+			$this->load->helper('email');
+			if (!valid_email($data['email'])) {
+				$this->session->set_flashdata('error_message', 'Could Not Update Your Data. Invalid Email Found!');
+				redirect(site_url('admin/admins'));
+			}
+
+			$validation = email_validation_for_edit($data['email'], $param2, 'admin');
+			if ($validation == 1) {
+				$this->db->where('admin_id', $param2);
+				$this->db->update('admin', $data);
+				
+				//clear the cached database
+				$this->db->cache_delete();
+				
+				echo json_encode(['status' => 'success', 'message' => get_phrase('admin_updated')]);
+				return;
+			} else {
+				echo json_encode(['status' => 'error', 'message' => get_phrase('this_email_id_is_not_available')]);
+				return;
+			}
+		} else if ($param1 == 'personal_profile') {
+			$page_data['personal_profile'] = true;
+			$page_data['current_admin_id'] = $param2;
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+		} else if ($param1 == 'edit') {
+			$page_data['edit_data'] = $this->db->get_where('admin', array(
+				'admin_id' => $param2,
+			))->result_array();
+
+			//clear the cached database
+			$this->db->cache_delete();
+		}
+		if ($param1 == 'delete') {
+			$this->db->where('admin_id', $param2);
+			$this->db->delete('admin');
+
+			$ajax_data['message'] = 'done';
+      $ajax_data['route'] = 'admins';
+
+      echo json_encode($ajax_data);
+      
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+
+			return;
+
+		} else if ($param1 == 'block') {
+			$this->db->where('admin_id', $param2);
+			$this->db->set('block_limit', 3);
+			$this->db->update('admin');
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			echo 'done';
+			return false;
+
+		} else if ($param1 == 'unblock') {
+			$this->db->where('admin_id', $param2);
+			$this->db->set('block_limit', 0);
+			$this->db->update('admin');
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			//send authentication code via sms and email
+			$owner_email = $this->db->get_where('settings', array('type' => 'system_email'))->row()->description;
+			$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+
+			$user_rows = $this->db->get_where('admin', array('admin_id' => $param2))->row();
+			$user_name = $user_rows->name;
+			$user_mail = $user_rows->email;
+			$user_phone = $user_rows->phone;
+			$user_auth_key = $user_rows->authentication_key;
+
+			$phone_num = array();
+			$phone_num[] = $user_phone;
+
+			//prepare the message
+			$message_sms = 'Hello ' . $user_name . ', thank you for your request to unblock your account. Your account has been unblocked successfully. Use this authentication key to login: ' . $user_auth_key . '.';
+
+			$message_email = 'Hello ' . $user_name . ', thank you for your request to unblock your account. Your account has been unblocked successfully. Use this authentication key to login: <strong>' . $user_auth_key . '.</strong>';
+
+			//sms first
+			if ($active_sms_service != 'disabled') {
+				// send sms
+				$result = $this->sms_model->send_sms($message_sms, $phone_num);
+			}
+
+			//send email
+			$this->email_model->do_email($message_email, 'Account Status', $user_mail, $owner_email);
+
+			echo 'done';
+			return false;
+		}
+
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$page_data['admin'] = $this->db->get('admin')->result_array();
+		$page_data['page_name'] = 'admin_list';
+		$page_data['page_title'] = get_phrase('manage_admin');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function get_admin() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$columns = array(
+			0 => 'admin_id',
+			1 => 'name',
+			2 => 'email',
+			3 => 'auth_key',
+			4 => 'phone',
+			5 => 'designation',
+			6 => 'account_status',
+			7 => 'options',
+			8 => 'admin_id',
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->ajaxload->all_admin_count();
+		$totalFiltered = $totalData;
+
+		if (empty($this->input->post('search')['value'])) {
+			$admin = $this->ajaxload->all_admin($limit, $start, $order, $dir);
+		} else {
+			$search = $this->input->post('search')['value'];
+			$admin = $this->ajaxload->admin_search($limit, $start, $search, $order, $dir);
+			$totalFiltered = $this->ajaxload->admin_search_count($search);
+		}
+
+		$data = array();
+		if (!empty($admin)) {
+			foreach ($admin as $row) {
+
+				$options = '<div class="btn-group">'.get_action_button().'<ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" onclick="navigation(\'' . site_url('admin/admin_details/' . $row->admin_id) . '\')" style="color: blue;"><i class="entypo-user"></i>&nbsp;' . get_phrase('view_profile') . '</a></li><li class="divider"></li><li><a href="#" onclick="admin_edit_modal(' . $row->admin_id . ')" style="color: green;"><i class="entypo-pencil"></i>&nbsp;' . get_phrase('edit') . '</a></li><li class="divider"></li><li><a href="#" onclick="admin_delete_confirm(' . $row->admin_id . ')" style="color: red;"><i class="entypo-trash"></i>&nbsp;' . get_phrase('delete') . '</a></li></ul></div>';
+
+				if ($row->block_limit == 3) {
+					$as_btn = 'Blocked';
+					$btn_style = 'danger';
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" onclick="account_unblock(' . $row->admin_id . ')" style="color: green;"><i class="fa fa-unlock"></i>&nbsp;' . get_phrase('unblock') . '</a></li></li></ul>';
+				} else {
+					$as_btn = 'Active';
+					$btn_style = 'success';
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" onclick="account_block(' . $row->admin_id . ')" style="color: red;"><i class="glyphicon glyphicon-lock"></i>&nbsp;' . get_phrase('block') . '</a></li></li></ul>';
+				}
+
+				$account_status = '<div class="btn-group"><button type="button" class="btn btn-' . $btn_style . ' btn-sm dropdown-toggle" data-toggle="dropdown">
+                                    ' . $as_btn . ' ' . $btn_cont . '</div>';
+
+				$nestedData['admin_id'] = $row->admin_id;
+				$nestedData['name'] = $row->name;
+				$nestedData['email'] = '<a href="mailto:' . $row->email . '">' . $row->email . '</a>';
+				$nestedData['auth_key'] = '<strong style="letter-spacing: 3px">' . $row->authentication_key . '</strong>';
+				$nestedData['phone'] = $row->phone;
+
+				if ($row->level == 1) {
+					$nestedData['designation'] = 'Super Administrator';
+				} else if ($row->level == 2) {
+					$nestedData['designation'] = 'Administrator';
+				} else if ($row->level == 3) {
+					$nestedData['designation'] = 'Accountant';
+				} else if ($row->level == 4) {
+					$nestedData['designation'] = 'Cashier';
+				} else if ($row->level == 5) {
+					$nestedData['designation'] = 'Conductor';
+				}
+
+				$nestedData['account_status'] = $account_status;
+				$nestedData['options'] = $options;
+
+				$data[] = $nestedData;
+			}
+		}
+
+		$json_data = array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"data" => $data,
+		);
+
+		echo json_encode($json_data);
+	}
+
+	/****MANAGE NON-TEACHING STAFF*****/
+	function non_teaching_staff($param1 = '', $param2 = '', $param3 = '') {
+		if ($param1 == 'create') {
+			$errors = array();
+
+			$data['first_name'] = trim(strtoupper($this->input->post('first_name')));
+			$data['other_name'] = trim(strtoupper($this->input->post('other_name')));
+			$data['last_name'] = trim(strtoupper($this->input->post('last_name')));
+			// Build full name from parts, avoiding double spaces when other_name is empty
+			$data['name'] = trim(preg_replace('/\s+/', ' ', $data['first_name'] . ' ' . ($data['other_name'] ?? '') . ' ' . $data['last_name']));
+			$data['email'] = trim(strtolower($this->input->post('email')));
+			$data['staff_code'] = trim($this->input->post('staff_code'));
+
+			$data['ghana_card_id'] = trim($this->input->post('ghana_card_id'));
+			$data['ssnit_id'] = trim($this->input->post('ssnit_id'));
+			$data['tier2_provider_id'] = trim($this->input->post('tier2_provider_id'));
+			$data['tier2_member_id'] = trim($this->input->post('tier2_member_id'));
+			$data['account_number'] = trim($this->input->post('account_number'));
+			$data['account_details'] = trim($this->input->post('account_details'));
+			$data['position'] = trim(strtoupper($this->input->post('position')));
+			$data['designation'] = trim(strtoupper($this->input->post('position'))); // Also store position as designation for details page
+			$data['qualification'] = trim(strtoupper($this->input->post('qualification')));
+
+			$data['password'] = password_hash($this->input->post('password'), PASSWORD_BCRYPT);
+			if ($this->input->post('birthday') != null) {
+				$data['birthday'] = date_format_converter($this->input->post('birthday'));
+			}
+			if ($this->input->post('sex') != null) {
+				$data['sex'] = ucwords(strtolower($this->input->post('sex')));
+			}
+			if ($this->input->post('address') != null) {
+				$data['address'] = ucwords(strtolower($this->input->post('address')));
+			}
+
+			if ($this->input->post('phone')[0] != null) {
+				$data['phone'] = $this->input->post('phone')[0];
+			}
+
+			/*validation*/
+			if ($data['ghana_card_id'] == null || empty($data['ghana_card_id'])) {
+				$errors['ghana_card_id'] = 'Ghana Card is required';
+			}
+
+			if ($data['account_number'] == null || empty($data['account_number'])) {
+				$errors['account_number'] = 'Account number is required';
+			}
+
+			if ($data['account_details'] == null || empty($data['account_details'])) {
+				$errors['account_details'] = 'Account details is required';
+			}
+
+			if ($data['first_name'] == null || empty($data['first_name'])) {
+				$errors['first_name'] = 'First Name is required';
+			}
+
+			if ($data['last_name'] == null || empty($data['last_name'])) {
+				$errors['last_name'] = 'Last Name is required';
+			}
+
+			if ($data['email'] == null || empty($data['email'])) {
+				$errors['email'] = 'Email is required';
+			}
+			if ($data['sex'] == null || empty($data['sex'])) {
+				$errors['sex'] = 'Gender is required';
+			}
+			if ($data['phone'] == null || empty($data['phone'])) {
+				$errors['phone'] = 'Phone Number is required';
+			}
+			if ($data['birthday'] == null || empty($data['birthday'])) {
+				$errors['birthday'] = 'Date of birth is required';
+			}
+			if ($data['position'] == null || empty($data['position'])) {
+				$errors['position'] = 'Position is required';
+			}
+
+			if(!empty($errors)) {
+				echo '<ul>';
+				foreach($errors as $key => $val) {
+					echo '<li>'.$val.'</li>';
+				}
+				echo '</ul>';
+				return;
+			}
+
+			$data['authentication_key'] = substr(sha1(md5(mt_rand(1044200000, 1049999999))), 0, 5);
+
+			$this->load->helper('email');
+			if (!valid_email($data['email'])) {
+				echo 1;
+				return false;
+			}
+
+			$validation = email_validation($data['email']);
+			if ($validation == 1) {
+				$this->db->insert('non_teaching_staff', $data);
+
+				$staff_id = $this->db->insert_id();
+				move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/non_teaching_staff_image/' . $staff_id . '.jpg');
+
+				// Handle vehicle assignment for drivers
+				$assigned_vehicle_number = $this->input->post('assigned_vehicle_id'); // Contains vehicle number now
+				if (!empty($assigned_vehicle_number)) {
+					// Update the transport records with this vehicle number to assign the driver
+					$this->db->where('number_of_vehicle', $assigned_vehicle_number);
+					$this->db->update('transport', array(
+						'driver_id' => $staff_id
+					));
+				}
+
+				$this->session->set_flashdata('flash_message', get_phrase('data_added_successfully'));
+				$this->email_model->account_opening_email('non_teaching_staff', $data['email'], $this->input->post('password'), $data['authentication_key'], $data['staff_code']); //SEND EMAIL ACCOUNT OPENING EMAIL
+
+				//send sms
+				$system_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
+				$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+				if ($active_sms_service != 'disabled') {
+					$account_opening_sms = 'Welcome to ' . $system_name . '. Your account type is Non-Teaching Staff. Here are your login credentials; Your Username: ' . $data['email'] . ', Password: ' . $this->input->post('password') . ', Authentication Key: ' . $data['authentication_key'] . ' and Staff ID: ' . $data['staff_code'] . '. Thank you.';
+
+					$p_phone = array();
+					array_push($p_phone, $this->input->post('phone')[0]);
+
+					$result = $this->sms_model->send_sms($account_opening_sms, $p_phone);
+				} //SEND SMS ENDED
+
+				if ($result == 1 || $result == '') {
+					echo 2;
+					return false;
+				} else {
+					echo 4;
+					return false;
+				}
+
+			} else {
+				echo 3;
+				return false;
+			}
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'non_teaching_staff');
+		}
+
+		if ($param1 == 'do_update') {
+			$errors = array();
+
+			$data['first_name'] = trim(strtoupper($this->input->post('first_name')));
+			$data['other_name'] = trim(strtoupper($this->input->post('other_name')));
+			$data['last_name'] = trim(strtoupper($this->input->post('last_name')));
+			// Build full name from parts, avoiding double spaces when other_name is empty
+			$data['name'] = trim(preg_replace('/\s+/', ' ', $data['first_name'] . ' ' . ($data['other_name'] ?? '') . ' ' . $data['last_name']));
+			$data['email'] = trim(strtolower($this->input->post('email')));
+			
+			$data['ghana_card_id'] = trim($this->input->post('ghana_card_id'));
+			$data['ssnit_id'] = trim($this->input->post('ssnit_id'));
+			$data['tier2_provider_id'] = trim($this->input->post('tier2_provider_id'));
+			$data['tier2_member_id'] = trim($this->input->post('tier2_member_id'));
+			$data['account_number'] = trim($this->input->post('account_number'));
+			$data['account_details'] = trim($this->input->post('account_details'));
+			$data['position'] = trim(strtoupper($this->input->post('position')));
+			$data['designation'] = trim(strtoupper($this->input->post('position'))); // Also store position as designation
+			$data['qualification'] = trim(strtoupper($this->input->post('qualification')));
+
+			if ($this->input->post('birthday') != null) {
+				$data['birthday'] = date_format_converter($this->input->post('birthday'));
+			}
+			if ($this->input->post('sex') != null) {
+				$data['sex'] = ucwords(strtolower($this->input->post('sex')));
+			}
+			if ($this->input->post('address') != null) {
+				$data['address'] = ucwords(strtolower($this->input->post('address')));
+			}
+			if ($this->input->post('phone')[0] != null) {
+				$data['phone'] = $this->input->post('phone')[0];
+			}
+
+			// Validation
+			if (empty($data['first_name'])) {
+				$errors['first_name'] = 'First Name is required';
+			}
+			if (empty($data['last_name'])) {
+				$errors['last_name'] = 'Last Name is required';
+			}
+			if (empty($data['email'])) {
+				$errors['email'] = 'Email is required';
+			}
+			if (empty($data['sex'])) {
+				$errors['sex'] = 'Gender is required';
+			}
+			if (empty($data['phone'])) {
+				$errors['phone'] = 'Phone Number is required';
+			}
+			if (empty($data['birthday'])) {
+				$errors['birthday'] = 'Date of birth is required';
+			}
+			if (empty($data['position'])) {
+				$errors['position'] = 'Position is required';
+			}
+			if (empty($data['ghana_card_id'])) {
+				$errors['ghana_card_id'] = 'Ghana Card is required';
+			}
+			if (empty($data['account_number'])) {
+				$errors['account_number'] = 'Account number is required';
+			}
+			if (empty($data['account_details'])) {
+				$errors['account_details'] = 'Account details is required';
+			}
+
+			if (!empty($errors)) {
+				echo '<ul>';
+				foreach ($errors as $key => $val) {
+					echo '<li>' . $val . '</li>';
+				}
+				echo '</ul>';
+				return;
+			}
+
+			// Validate email format
+			$this->load->helper('email');
+			if (!valid_email($data['email'])) {
+				echo 5;
+				return;
+			}
+
+			// Check if email is available for this staff (excluding their own record)
+			$validation = email_validation_for_edit($data['email'], $param2, 'non_teaching_staff');
+			if ($validation == 1) {
+				// Update the database
+				$this->db->where('staff_id', $param2);
+				$this->db->update('non_teaching_staff', $data);
+
+				// Handle image upload if provided
+				if (isset($_FILES['userfile']) && $_FILES['userfile']['size'] > 0) {
+					if ($_FILES['userfile']['size'] > 1048576) { // 1MB limit
+						echo 'image size';
+						return;
+					}
+					move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/non_teaching_staff_image/' . $param2 . '.jpg');
+				}
+
+				// Handle vehicle assignment for drivers
+				$assigned_vehicle_number = $this->input->post('assigned_vehicle_id');
+				if (!empty($assigned_vehicle_number)) {
+					// First, clear any previous assignment for this staff member
+					$this->db->where('driver_id', $param2);
+					$this->db->update('transport', array('driver_id' => NULL));
+					
+					// Assign to new vehicle
+					$this->db->where('number_of_vehicle', $assigned_vehicle_number);
+					$this->db->update('transport', array('driver_id' => $param2));
+				} else {
+					// If no vehicle selected, clear any assignment
+					$this->db->where('driver_id', $param2);
+					$this->db->update('transport', array('driver_id' => NULL));
+				}
+
+				// Clear cache
+				$this->db->cache_delete('admin', 'non_teaching_staff');
+
+				echo 4; // Success code
+				return;
+			} else {
+				echo 3; // Email not available
+				return;
+			}
+		}
+
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$page_data['staff'] = $this->db->get('non_teaching_staff')->result_array();
+		$page_data['page_name'] = 'non_teaching_staff_list';
+		$page_data['page_title'] = get_phrase('manage_non_teaching_staff');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	// Helper methods for non-teaching staff ID generation
+	function get_generated_sid() {
+		$staff_code_pref = $this->db->get_where('settings', array('type'=>'non_teaching_staff_code_prefix'))->row();
+		$staff_code_f = $this->db->get_where('settings', array('type'=>'non_teaching_staff_code_format'))->row();
+		
+		// Default prefix and format if not set
+		if (!$staff_code_pref) {
+			$staff_code_prefix = 'NTS-';
+		} else {
+			$staff_code_prefix = $staff_code_pref->description;
+		}
+		
+		if (!$staff_code_f) {
+			$staff_code_format = '00001';
+		} else {
+			$staff_code_format = $staff_code_f->description;
+		}
+
+		$this->db->select('staff_code');
+		$this->db->order_by('staff_code', 'desc');
+		$this->db->limit(1);
+		$s_query = $this->db->get('non_teaching_staff');
+		
+		if($s_query->num_rows() > 0) {
+			$s_id = $s_query->row()->staff_code;
+			$first_num = '';
+			for($i=0; $i<strlen($s_id); $i++) {
+				if(is_numeric($s_id[$i])) {
+					$first_num = $s_id[$i];
+					break; 
+				}
+			}
+			$position_of_first_num = strpos($s_id, $first_num);
+			$n_sid = substr($s_id, $position_of_first_num, strlen($s_id) - $i);
+			$staff_code = $n_sid + 1;
+			
+			if($first_num == 0) {
+				$old_len = strlen($s_id);
+				$new_len = strlen($staff_code);
+				$act_len = ($old_len - $new_len);
+				$staff_code = substr($s_id, 0, $act_len).$staff_code;
+			}
+		} else {
+			$staff_code = $staff_code_prefix . $staff_code_format;
+		}
+		
+		echo $staff_code;
+	}
+
+	function get_generated_sid_verification($id) {
+		$validation = $this->db->get_where('non_teaching_staff', array('staff_code' => $id))->num_rows();
+		if($validation == 0) {
+			echo 'Staff ID <span style="color: green">Available <i class="fa fa-check"></i></span>';
+		} else {
+			echo 'Staff ID <span style="color: red">Not Available <i class="fa fa-times"></i></span>';
+		}
+	}
+
+	// Get non-teaching staff for DataTables server-side processing
+	function get_non_teaching_staff() {
+		$columns = array(
+			0 => 'staff_code',
+			1 => 'name',
+			2 => 'email',
+			3 => 'phone',
+			4 => 'sex',
+			5 => 'position',
+			6 => 'account_status',
+			7 => 'options',
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->ajaxload->all_non_teaching_staff_count();
+		$totalFiltered = $totalData;
+
+		if (empty($this->input->post('search')['value'])) {
+			$staff = $this->ajaxload->all_non_teaching_staff($limit, $start, $order, $dir);
+		} else {
+			$search = $this->input->post('search')['value'];
+			$staff = $this->ajaxload->non_teaching_staff_search($limit, $start, $search, $order, $dir);
+			$totalFiltered = $this->ajaxload->non_teaching_staff_search_count($search);
+		}
+
+		// Count gender statistics
+		$totalMale = $this->db->where('sex', 'Male')->count_all_results('non_teaching_staff');
+		$totalFemale = $this->db->where('sex', 'Female')->count_all_results('non_teaching_staff');
+		$grandTotalGender = $totalMale + $totalFemale;
+
+		$data = array();
+		if (!empty($staff)) {
+			foreach ($staff as $row) {
+				// Photo
+				$photo_path = 'uploads/non_teaching_staff_image/' . $row->staff_code . '.jpg';
+				if (file_exists($photo_path)) {
+					$photo = '<img src="' . base_url() . $photo_path . '" class="img-circle" width="50" height="50" />';
+				} else {
+					$photo = '<img src="' . base_url() . 'uploads/non_teaching_staff_image/staff.jpg" class="img-circle" width="50" height="50" />';
+				}
+
+				// Options dropdown
+				$options = '<div class="btn-group">' . get_action_button() . '<ul class="dropdown-menu dropdown-default pull-right" role="menu">
+					<li><a href="' . site_url('admin/non_teaching_staff_details/' . $row->staff_id) . '" class="pt_link" style="color: green;"><i class="fas fa-user"></i>&nbsp; ' . get_phrase('profile') . '</a></li>
+					<li class="divider"></li>
+					<li><a href="#" onclick="non_teaching_staff_edit_modal(\'' . $row->staff_id . '\')" style="color: green;"><i class="entypo-pencil"></i>&nbsp;' . get_phrase('edit') . '</a></li>
+					<li class="divider"></li>
+					<li><a href="#" onclick="non_teaching_staff_delete_confirm(\'' . $row->staff_id . '\')" style="color: red;"><i class="entypo-trash"></i>&nbsp;' . get_phrase('delete') . '</a></li>
+				</ul></div>';
+
+				// Account status
+				if ($row->block_limit == 3) {
+					$as_btn = 'Blocked';
+					$btn_style = 'danger';
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu">
+						<li><a href="#" onclick="account_unblock(\'' . $row->staff_id . '\')" style="color: green;"><i class="fa fa-unlock"></i>&nbsp;' . get_phrase('unblock') . '</a></li>
+					</ul>';
+				} else {
+					$as_btn = 'Active';
+					$btn_style = 'success';
+					$btn_cont = '<span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu">
+						<li><a href="#" onclick="account_block(\'' . $row->staff_id . '\')" style="color: red;"><i class="glyphicon glyphicon-lock"></i>&nbsp;' . get_phrase('block') . '</a></li>
+					</ul>';
+				}
+
+				$account_status = '<div class="btn-group"><button type="button" class="btn btn-' . $btn_style . ' btn-sm dropdown-toggle" data-toggle="dropdown">
+					' . $as_btn . ' ' . $btn_cont . '</div>';
+
+				$nestedData['photo'] = $photo;
+				$nestedData['staff_id'] = $row->staff_code;
+				$nestedData['name'] = $row->name;
+				$nestedData['gender'] = $row->sex;
+				$nestedData['position'] = $row->position ?? 'N/A';
+				$nestedData['email'] = '<a href="mailto:' . $row->email . '">' . $row->email . '</a>';
+				$nestedData['phone'] = $row->phone;
+				$nestedData['account_status'] = $account_status;
+				$nestedData['options'] = $options;
+
+				$data[] = $nestedData;
+			}
+		}
+
+		$json_data = array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"totalMale" => $totalMale,
+			"totalFemale" => $totalFemale,
+			"grandTotalGender" => $grandTotalGender,
+			"data" => $data,
+		);
+
+		echo json_encode($json_data);
+	}
+
+	/****MANAGE SUBJECTS*****/
+	/****MANAGE SUBJECTS CATEGORIES FOR CRECHE*****/
+	function subject_category($param1 = '', $param2 = '', $param3 = '') {
+		if ($param1 == 'create') {
+			$data['name'] = urldecode(strtoupper($param2));
+			$result = $this->db->insert('subject_category_creche', $data);
+			echo json_encode(['status' => $result ? 'success' : 'error', 'message' => $result ? get_phrase('category_created_successfully') : get_phrase('operation_failed')]);
+			return;
+		}
+		if ($param1 == 'do_update') {
+			$data['name'] = urldecode(strtoupper($param2));
+			$this->db->where('category_id', $param3);
+			$result = $this->db->update('subject_category_creche', $data);
+			echo json_encode(['status' => $result ? 'success' : 'error', 'message' => $result ? get_phrase('category_updated_successfully') : get_phrase('operation_failed')]);
+			return;
+		}
+		if ($param1 == 'delete') {
+			$this->db->where('category_id', $param2);
+			$result = $this->db->delete('subject_category_creche');
+			echo json_encode(['status' => $result ? 'success' : 'error', 'message' => $result ? get_phrase('category_deleted_successfully') : get_phrase('operation_failed')]);
+			return;
+		}
+	}
+
+	//subjects add, update and delete for creche
+	function subject_creche($param1 = '', $param2 = '', $param3 = '') {
+		if ($param1 == 'create') {
+			$num_terms = 0;
+			$term_create = 0;
+			$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+			if ($data['term'] == 1) {
+				$num_terms = 3;
+				$term_create = 1;
+			} else if ($data['term'] == 2) {
+				$num_terms = 2;
+				$term_create = 2;
+			} else if ($data['term'] == 3) {
+				$num_terms = 1;
+				$term_create = 3;
+			}
+
+			for ($i = 1; $i <= $num_terms; $i++) {
+				$status = $this->input->post('status');
+				$data['status'] = ($status == 1) ? 1 : 0;
+				$data['class_id'] = $this->input->post('class_id');
+				$data['category_id'] = $this->input->post('category_id');
+				$data['name'] = ($data['category_id'] == 0) ? ucwords(strtolower($this->input->post('name'))) : ucfirst(strtolower($this->input->post('name')));
+				$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+				$data['term'] = $term_create;
+				if ($this->input->post('teacher_id') != null) {
+					$data['teacher_id'] = $this->input->post('teacher_id');
+				}
+				$this->db->insert('subject_creche', $data);
+				$term_create++;
+			}
+
+			echo json_encode(['status' => 'success', 'message' => get_phrase('subject_added_successfully')]);
+			return;
+		}
+		if ($param1 == 'do_update') {
+			$status = $this->input->post('status');
+			$data['status'] = ($status == 1) ? 1 : 0;
+			$data['class_id'] = $this->input->post('class_id');
+			$data['category_id'] = $this->input->post('category_id');
+			$data['name'] = ($data['category_id'] == 0) ? ucwords(strtolower($this->input->post('name'))) : ucfirst(strtolower($this->input->post('name')));
+			$data['teacher_id'] = $this->input->post('teacher_id');
+			$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+			$this->db->where('subject_id', $param2);
+			$result = $this->db->update('subject_creche', $data);
+
+			echo json_encode(['status' => $result ? 'success' : 'error', 'message' => $result ? get_phrase('subject_updated_successfully') : get_phrase('operation_failed')]);
+			return;
+		} else if ($param1 == 'edit') {
+			$page_data['edit_data'] = $this->db->get_where('subject_creche', array('subject_id' => $param2))->result_array();
+		}
+		if ($param1 == 'delete') {
+			$this->db->where('subject_id', $param2);
+			$result = $this->db->delete('subject_creche');
+			echo json_encode(['status' => $result ? 'success' : 'error', 'message' => $result ? get_phrase('selected_subject_was_deleted_successfully') : get_phrase('operation_failed')]);
+			return;
+		}
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		$page_data['class_id'] = $param1;
+		$class_name = $this->crud_model->get_class_name($page_data['class_id']);
+		$class_name_numeric = $this->crud_model->get_class_name_numeric($page_data['class_id']);
+
+		//adding sections to class names
+		//add section A or B if the class has more than one section
+		$section_name = $this->db->get_where('section', array('class_id' => $page_data['class_id']))->row()->name;
+		$class_has_more_sections = $this->db->get_where('class', array('name' => $class_name, 'name_numeric' => $class_name_numeric))->num_rows();
+		$sec_name = '';
+		if ($class_has_more_sections > 1) {
+			$sec_name = $section_name;
+		}
+
+		//run query for creche
+		$page_data['subjects'] = $this->db->get_where('subject_creche', array('class_id' => $param1, 'year' => $running_year, 'term' => $running_term))->result_array();
+		$page_data['subjects_rows'] = $this->db->get_where('subject_creche', array('class_id' => $param1, 'year' => $running_year, 'term' => $running_term))->num_rows();
+
+		$page_data['page_name'] = 'subject_creche';
+
+		$page_data['year'] = $running_year;
+		$page_data['term'] = $running_term;
+		$page_data['class_name'] = $class_name;
+		$page_data['page_title'] = get_phrase('manage_subject_for') . ' ' . $class_name . ' ' . $class_name_numeric . $sec_name;
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	} //END OF SUBJECT ADD, UPDATE AND DELETE FOR CRECHE
+
+	function subject($param1 = '', $param2 = '', $param3 = '') {
+		if ($param1 == 'create') {
+			$num_terms = 0;
+			$term_create = 0;
+			$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+			if ($data['term'] == 1) {
+				$num_terms = 3;
+				$term_create = 1;
+			} else if ($data['term'] == 2) {
+				$num_terms = 2;
+				$term_create = 2;
+			} else if ($data['term'] == 3) {
+				$num_terms = 1;
+				$term_create = 3;
+			}
+
+			$num_sems = 0;
+			$sem_create = 0;
+			$data2['sem'] = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+			if ($data2['sem'] == 1) {
+				$num_sems = 2;
+				$sem_create = 1;
+			} else if ($data2['sem'] == 2) {
+				$num_sems = 1;
+				$sem_create = 2;
+			}
+
+			$class_name = $this->db->get_where('class', array('class_id' => $this->input->post('class_id')))->row()->name;
+
+			if ($class_name == 'JHSS') {
+				for ($i = 1; $i <= $num_sems; $i++) {
+					$data2['name'] = ucwords(strtolower($this->input->post('name')));
+					$status = $this->input->post('status');
+					if ($status == 1) {
+						$data2['status'] = 1;
+					} else {
+						$data2['status'] = 0;
+					}
+					$data2['class_id'] = $this->input->post('class_id');
+					$data2['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+					$data2['sem'] = $sem_create;
+
+					if ($this->input->post('teacher_id') != null) {
+						$data2['teacher_id'] = $this->input->post('teacher_id');
+					}
+
+					$this->db->insert('subject', $data2);
+					$sem_create++;
+				}
+				$data['class_id'] = $data2['class_id'];
+			} else {
+				for ($i = 1; $i <= $num_terms; $i++) {
+					$data['name'] = ucwords(strtolower($this->input->post('name')));
+					$status = $this->input->post('status');
+					if ($status == 1) {
+						$data['status'] = 1;
+					} else {
+						$data['status'] = 0;
+					}
+					$data['class_id'] = $this->input->post('class_id');
+					$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+					$data['term'] = $term_create;
+
+					if ($this->input->post('teacher_id') != null) {
+						$data['teacher_id'] = $this->input->post('teacher_id');
+					}
+
+					$this->db->insert('subject', $data);
+					$term_create++;
+				}
+			}
+
+			echo json_encode(['status' => 'success', 'message' => get_phrase('subject_added_successfully')]);
+			return;
+		}
+		
+		if ($param1 == 'create_bulk') {
+			$subjects = $this->input->post('subjects');
+			$class_id = $this->input->post('class_id');
+			$year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+			$sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+			$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+			
+			$this->db->trans_start();
+			
+			$success_count = 0;
+			$errors = [];
+			
+			foreach($subjects as $subject) {
+				if(!empty($subject['name'])) {
+					$data = array(
+						'name' => ucwords(strtolower($subject['name'])),
+						'class_id' => $class_id,
+						'year' => $year,
+						'teacher_id' => !empty($subject['teacher_id']) ? $subject['teacher_id'] : null,
+						'status' => isset($subject['status']) ? 1 : 0
+					);
+					
+					if($class_name == 'JHSS') {
+						$data['sem'] = $sem;
+					} else {
+						$data['term'] = $term;
+					}
+					
+					$existing = $this->db->where('name', $data['name'])
+									   ->where('class_id', $class_id)
+									   ->where('year', $year)
+									   ->where($class_name == 'JHSS' ? 'sem' : 'term', $class_name == 'JHSS' ? $sem : $term)
+									   ->get('subject');
+					
+					if($existing->num_rows() == 0) {
+						$this->db->insert('subject', $data);
+						$success_count++;
+					} else {
+						$errors[] = $subject['name'] . ' already exists';
+					}
+				}
+			}
+			
+			$this->db->trans_complete();
+			
+			if($this->db->trans_status() && $success_count > 0) {
+				$message = $success_count . ' subjects created successfully';
+				if(!empty($errors)) {
+					$message .= '. Skipped: ' . implode(', ', $errors);
+				}
+				echo json_encode(['status' => 'success', 'message' => $message]);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => 'No subjects were created']);
+			}
+			return;
+		}
+		if ($param1 == 'do_update') {
+			$data['name'] = ucwords(strtolower($this->input->post('name')));
+			$status = $this->input->post('status');
+			if ($status == 1) {
+				$data['status'] = 1;
+			} else {
+				$data['status'] = 0;
+			}
+
+			$class_name = $this->db->get_where('class', array('class_id' => $this->input->post('class_id')))->row()->name;
+
+			$data['class_id'] = $this->input->post('class_id');
+			$data['teacher_id'] = $this->input->post('teacher_id');
+			$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			if ($class_name == 'JHSS') {
+				$data['sem'] = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+				$this->db->where('subject_id', $param2);
+				$this->db->update('subject', $data);
+
+				//update subject status in the mark table
+				$subject_status = $this->db->get_where('subject', array('name' => $data['name'], 'subject_id' => $param2, 'class_id' => $data['class_id'], 'year' => $data['year'], 'sem' => $data['sem']))->row()->status;
+				$section_id = $this->db->get_where('section', array('class_id' => $data['class_id']))->row()->section_id;
+
+				$this->db->where('subject_id', $param2);
+				$this->db->where('class_id', $data['class_id']);
+				$this->db->where('year', $data['year']);
+				$this->db->where('section_id', $section_id);
+				$this->db->where('sem', $data['sem']);
+				$this->db->update('mark', array('status' => $subject_status));
+
+			} else {
+				$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+				$this->db->where('subject_id', $param2);
+				$this->db->update('subject', $data);
+
+				//update subject status in the mark table
+				$subject_status = $this->db->get_where('subject', array('name' => $data['name'], 'subject_id' => $param2, 'class_id' => $data['class_id'], 'year' => $data['year'], 'term' => $data['term']))->row()->status;
+				$section_id = $this->db->get_where('section', array('class_id' => $data['class_id']))->row()->section_id;
+
+				$this->db->where('subject_id', $param2);
+				$this->db->where('class_id', $data['class_id']);
+				$this->db->where('year', $data['year']);
+				$this->db->where('section_id', $section_id);
+				$this->db->where('term', $data['term']);
+				$this->db->update('mark', array('status' => $subject_status));
+			}
+
+			echo json_encode(['status' => 'success', 'message' => get_phrase('subject_updated_successfully')]);
+			return;
+		} else if ($param1 == 'edit') {
+			$page_data['edit_data'] = $this->db->get_where('subject', array(
+				'subject_id' => $param2,
+			))->result_array();
+
+			//clear the cached database
+			$this->db->cache_delete();
+		}
+		if ($param1 == 'delete') {
+			$this->db->where('subject_id', $param2);
+			$queryExecuted = $this->db->delete('subject');
+
+			//$this->db->where('subject_id', $param2);
+			//$this->db->delete('mark', $param2);
+
+			$this->session->set_flashdata('flash_message', get_phrase('selected_subject_was_deleted_successfully'));
+
+			if($queryExecuted) {
+				$ajaxData['message'] = 'done';
+			} else {
+				$ajaxData['message'] = 'failed';
+			}
+
+			$ajaxData['route'] = 'subject/' . $param3;
+			
+			echo json_encode($ajaxData);
+			return;
+			//redirect(site_url('admin/subject/' . $param3));
+
+
+		}
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		$running_sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+		$page_data['class_id'] = $param1;
+		$class_name = $this->crud_model->get_class_name($page_data['class_id']);
+		$class_name_numeric = $this->crud_model->get_class_name_numeric($page_data['class_id']);
+
+		//adding sections to class names
+		//add section A or B if the class has more than one section
+		$section_name = $this->db->get_where('section', array('class_id' => $page_data['class_id']))->row()->name;
+		$class_has_more_sections = $this->db->get_where('class', array('name' => $class_name, 'name_numeric' => $class_name_numeric))->num_rows();
+		$sec_name = '';
+		if ($class_has_more_sections > 1) {
+			$sec_name = $section_name;
+		}
+
+		//run query for creche 1
+		if ($param2 == 'creche') {
+			$page_data['subjects'] = $this->db->get_where('subject_creche', array('class_id' => $param1, 'year' => $running_year, 'term' => $running_term))->result_array();
+			$page_data['subjects_rows'] = $this->db->get_where('subject_creche', array('class_id' => $param1, 'year' => $running_year, 'term' => $running_term))->num_rows();
+		} else {
+			if ($class_name == 'JHSS') {
+				$page_data['subjects'] = $this->db->get_where('subject', array('class_id' => $param1, 'year' => $running_year, 'sem' => $running_sem))->result_array();
+				$page_data['subjects_rows'] = $this->db->get_where('subject', array('class_id' => $param1, 'year' => $running_year, 'sem' => $running_sem))->num_rows();
+
+			} else {
+				$page_data['subjects'] = $this->db->get_where('subject', array('class_id' => $param1, 'year' => $running_year, 'term' => $running_term))->result_array();
+				$page_data['subjects_rows'] = $this->db->get_where('subject', array('class_id' => $param1, 'year' => $running_year, 'term' => $running_term))->num_rows();
+			}
+
+		}
+
+		//load subjects for creche 1
+		if ($param2 == 'creche') {
+			$page_data['page_name'] = 'subject_creche';
+		} else {
+			$page_data['page_name'] = 'subject';
+		}
+
+		$page_data['year'] = $running_year;
+		$page_data['term'] = $running_term;
+		$page_data['sem'] = $running_sem;
+		$page_data['class_name'] = $class_name;
+		$page_data['page_title'] = get_phrase('manage_subject_for') . ' ' . $class_name . ' ' . $class_name_numeric . $sec_name;
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	// Generate Excel template for bulk subject import
+	public function generate_subject_template()
+	{
+		if($this->session->userdata('admin_login') != 1)
+			redirect(site_url('login'), 'refresh');
+
+		require_once FCPATH.'vendor/autoload.php';
+		
+		$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+		
+		// Get all classes
+		$classes = $this->db->get('class')->result_array();
+		
+		$sheetIndex = 0;
+		foreach($classes as $class) {
+			// Get section name
+			$section = $this->db->get_where('section', array('section_id' => $class['section_id']))->row();
+			$section_name = $section ? $section->name : '';
+			
+			// Create sheet name: "Basic 1 A"
+			$sheet_name = $class['name'] . ' ' . $class['name_numeric'] . ' ' . $section_name;
+			$sheet_name = substr($sheet_name, 0, 31); // Excel limit
+			
+			if($sheetIndex == 0) {
+				$sheet = $spreadsheet->getActiveSheet();
+				$sheet->setTitle($sheet_name);
+			} else {
+				$sheet = $spreadsheet->createSheet();
+				$sheet->setTitle($sheet_name);
+			}
+			
+			// Set headers
+			$sheet->setCellValue('A1', 'Subject Name');
+			$sheet->setCellValue('B1', 'Teacher ID');
+			$sheet->setCellValue('C1', 'Is Core Subject (1=Yes, 0=No)');
+			
+			// Style headers
+			$sheet->getStyle('A1:C1')->applyFromArray([
+				'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']],
+				'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '4F46E5']]
+			]);
+			
+			// Add class info
+			$sheet->setCellValue('E1', 'Class ID:');
+			$sheet->setCellValue('F1', $class['class_id']);
+			$sheet->getStyle('E1')->getFont()->setBold(true);
+			
+			// Set column widths
+			$sheet->getColumnDimension('A')->setWidth(30);
+			$sheet->getColumnDimension('B')->setWidth(15);
+			$sheet->getColumnDimension('C')->setWidth(25);
+			
+			$sheetIndex++;
+		}
+		
+		// Add instructions sheet
+		$instructionSheet = $spreadsheet->createSheet();
+		$instructionSheet->setTitle('Instructions');
+		
+		$instructionSheet->setCellValue('A1', 'INSTRUCTIONS FOR BULK SUBJECT IMPORT');
+		$instructionSheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+		$instructionSheet->setCellValue('A3', '1. Each sheet represents a class');
+		$instructionSheet->setCellValue('A4', '2. Subject Name: Enter the name of the subject');
+		$instructionSheet->setCellValue('A5', '3. Teacher ID: Enter the numeric ID of the teacher (optional)');
+		$instructionSheet->setCellValue('A6', '4. Is Core Subject: Enter 1 for Yes, 0 for No (optional)');
+		$instructionSheet->setCellValue('A8', 'Note:');
+		$instructionSheet->setCellValue('A9', '- The Class ID is automatically filled in column F');
+		$instructionSheet->setCellValue('A10', '- You only need to fill Subject Name, Teacher ID, and Core Subject status');
+		$instructionSheet->setCellValue('A11', '- Leave Teacher ID empty if not assigned yet');
+		
+		$spreadsheet->setActiveSheetIndex(0);
+		
+		// Save file
+		$filename = 'bulk_subjects_template_'.date('Y-m-d').'.xlsx';
+		$filepath = 'uploads/csv/'.$filename;
+		
+		if(!is_dir('uploads/csv')) {
+			mkdir('uploads/csv', 0777, true);
+		}
+		
+		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+		$writer->save($filepath);
+		
+		echo base_url().$filepath;
+	}
+
+	// Bulk import subjects from Excel
+	public function bulk_subject_import_excel()
+	{
+		if($this->session->userdata('admin_login') != 1)
+			redirect(site_url('login'), 'refresh');
+
+		if(!isset($_FILES['excel_file']) || $_FILES['excel_file']['error'] != 0) {
+			echo json_encode(['status' => 'error', 'message' => 'No file uploaded or upload error']);
+			return;
+		}
+
+		require_once FCPATH.'vendor/autoload.php';
+		
+		$file = $_FILES['excel_file']['tmp_name'];
+		
+		try {
+			$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
+			
+			$success_count = 0;
+			$error_count = 0;
+			$errors = array();
+			
+			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+			$running_sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+			
+			// Loop through all sheets except Instructions
+			foreach($spreadsheet->getAllSheets() as $sheet) {
+				$sheetName = $sheet->getTitle();
+				
+				// Skip Instructions sheet
+				if($sheetName == 'Instructions') continue;
+				
+				// Get class_id from column F1
+				$class_id = trim($sheet->getCell('F1')->getValue());
+				
+				if(empty($class_id)) {
+					$errors[] = "Sheet '$sheetName': Class ID not found";
+					$error_count++;
+					continue;
+				}
+				
+				// Verify class exists
+				$class_exists = $this->db->get_where('class', array('class_id' => $class_id))->num_rows();
+				if($class_exists == 0) {
+					$errors[] = "Sheet '$sheetName': Class ID $class_id does not exist";
+					$error_count++;
+					continue;
+				}
+				
+				$highestRow = $sheet->getHighestRow();
+				
+				// Start from row 2 (skip header)
+				for($row = 2; $row <= $highestRow; $row++) {
+					$subject_name = trim($sheet->getCell('A'.$row)->getValue());
+					$teacher_id = trim($sheet->getCell('B'.$row)->getValue());
+					$is_core = trim($sheet->getCell('C'.$row)->getValue());
+					
+					// Skip empty rows
+					if(empty($subject_name)) continue;
+					
+					// Validate teacher if provided
+					if(!empty($teacher_id)) {
+						$teacher_exists = $this->db->get_where('teacher', array('teacher_id' => $teacher_id))->num_rows();
+						if($teacher_exists == 0) {
+							$errors[] = "Sheet '$sheetName' Row $row: Teacher ID $teacher_id does not exist";
+							$error_count++;
+							continue;
+						}
+					}
+					
+					// Check for duplicates
+					$duplicate = $this->db->get_where('subject', array(
+						'name' => $subject_name,
+						'class_id' => $class_id,
+						'year' => $running_year,
+						'term' => $running_term
+					))->num_rows();
+					
+					if($duplicate > 0) {
+						$errors[] = "Sheet '$sheetName' Row $row: Subject '$subject_name' already exists";
+						$error_count++;
+						continue;
+					}
+					
+					// Insert subject
+					$data = array(
+						'name' => $subject_name,
+						'class_id' => $class_id,
+						'teacher_id' => !empty($teacher_id) ? $teacher_id : '',
+						'year' => $running_year,
+						'term' => $running_term,
+						'sem' => $running_sem,
+						'status' => !empty($is_core) && $is_core == 1 ? 1 : 0
+					);
+					
+					$this->db->insert('subject', $data);
+					$success_count++;
+				}
+			}
+			
+			$message = "$success_count subject(s) imported successfully";
+			if($error_count > 0) {
+				$message .= ". $error_count error(s) occurred";
+				if(count($errors) > 0) {
+					$message .= ": " . implode(", ", array_slice($errors, 0, 3));
+					if(count($errors) > 3) {
+						$message .= " and " . (count($errors) - 3) . " more...";
+					}
+				}
+			}
+			
+			echo json_encode([
+				'status' => $success_count > 0 ? 'success' : 'error',
+				'message' => $message,
+				'success_count' => $success_count,
+				'error_count' => $error_count,
+				'errors' => $errors
+			]);
+			
+		} catch(Exception $e) {
+			echo json_encode([
+				'status' => 'error',
+				'message' => 'Error processing file: ' . $e->getMessage()
+			]);
+		}
+	}
+
+	/****MANAGE CLASSES*****/
+	function classes($param1 = '', $param2 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		if ($param1 == 'create') {
+			$data['name'] = trim(strtoupper($this->input->post('name')));
+			$data['category'] = $this->input->post('category');
+			$data['teacher_id'] = $this->input->post('teacher_id');
+			if ($this->input->post('name_numeric') != null) {
+				$data['name_numeric'] = trim($this->input->post('name_numeric'));
+			}
+
+			$this->db->insert('class', $data);
+			$class_id = $this->db->insert_id();
+			
+			//get section
+			$data2['class_id'] = $class_id;
+			$section_name = $this->input->post('section_id');
+			$data2['name'] = (!empty($section_name)) ? trim(strtoupper($section_name)) : 'A';
+			$data2['teacher_id'] = $data['teacher_id'];
+			$this->db->insert('section', $data2);
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'classes');
+			$this->db->cache_delete('teacher', 'classes');
+			$this->db->cache_delete('student', 'classes');
+
+			echo json_encode(['status' => 'success', 'message' => get_phrase('class_created_successfully')]);
+			return;
+		}
+		if ($param1 == 'do_update') {
+			$data['name'] = trim(strtoupper($this->input->post('name')));
+			$data['category'] = $this->input->post('category');
+			$data['teacher_id'] = $this->input->post('teacher_id');
+
+			if ($this->input->post('name_numeric') != null) {
+				$data['name_numeric'] = trim($this->input->post('name_numeric'));
+			} else {
+				$data['name_numeric'] = null;
+			}
+			$this->db->where('class_id', $param2);
+			$this->db->update('class', $data);
+			
+
+			//get section
+			$data2['class_id'] = $param2;
+			$data2['name'] = trim(strtoupper($this->input->post('section_id')));
+			$data2['teacher_id'] = $data['teacher_id'];
+			$this->db->where('class_id', $param2);
+			$this->db->update('section', $data2);
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'classes');
+			$this->db->cache_delete('teacher', 'classes');
+			$this->db->cache_delete('student', 'classes');
+
+			echo json_encode(['status' => 'success', 'message' => get_phrase('class_updated_successfully')]);
+			return;
+		} else if ($param1 == 'edit') {
+			$page_data['edit_data'] = $this->db->get_where('class', array(
+				'class_id' => $param2,
+			))->result_array();
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'classes');
+		}
+		if ($param1 == 'delete') {
+			// Delete associated fee rates
+			$this->db->delete('daily_fee_rates', array('class_id' => $param2));
+			
+			$this->db->where('class_id', $param2);
+			$queryExecuted = $this->db->delete('class');
+
+			//clear the cached database
+			$this->db->cache_delete('admin', 'classes');
+			$this->db->cache_delete('teacher', 'classes');
+			$this->db->cache_delete('student', 'classes');
+
+			if($queryExecuted) {
+				echo json_encode(['status' => 'success', 'message' => get_phrase('class_deleted_successfully'), 'route' => 'classes']);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => get_phrase('operation_failed')]);
+			}
+			return;
+		}
+
+		$page_data['classes'] = $this->db->get('class')->result_array();
+		$page_data['page_name'] = 'class';
+		$page_data['page_title'] = get_phrase('manage_class');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function bulk_upload_classes() {
+		$this->load->library('upload');
+		$config['upload_path'] = './uploads/csv/';
+		$config['allowed_types'] = 'csv';
+		$this->upload->initialize($config);
+		
+		if ($this->upload->do_upload('file')) {
+			$feeding_enabled = $this->db->get_where('settings', array('type' => 'feeding_fee_collection'))->row()->description;
+			$breakfast_enabled = $this->db->get_where('settings', array('type' => 'breakfast_fee_collection'))->row()->description;
+			$water_enabled = $this->db->get_where('settings', array('type' => 'water_fee_collection'))->row()->description;
+			
+			$file_data = $this->upload->data();
+			$file_path = $file_data['full_path'];
+			$handle = fopen($file_path, 'r');
+			fgetcsv($handle);
+			$count = 0;
+			
+			while (($data = fgetcsv($handle)) !== FALSE) {
+				$class_data = array(
+					'name' => trim(strtoupper($data[0])),
+					'category' => isset($data[1]) && $data[1] ? trim($data[1]) : 'Pre-School',
+					'name_numeric' => trim($data[2]),
+					'teacher_id' => $data[3]
+				);
+				$this->db->insert('class', $class_data);
+				$class_id = $this->db->insert_id();
+				
+				// Insert fee rates into daily_fee_rates
+				$year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+				$term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+				
+				$col_index = 4;
+				$fee_data = array(
+					'class_id' => $class_id,
+					'year' => $year,
+					'term' => $term
+				);
+				
+				if($feeding_enabled == 'enabled') {
+					$fee_data['feeding_fee'] = isset($data[$col_index]) ? $data[$col_index] : 0;
+					$col_index++;
+				} else {
+					$fee_data['feeding_fee'] = 0;
+				}
+				
+				$fee_data['classes_fee'] = isset($data[$col_index]) ? $data[$col_index] : 0;
+				$col_index++;
+				
+				$section_col = $col_index;
+				$col_index++;
+				
+				if($breakfast_enabled == 'enabled') {
+					$fee_data['breakfast_fee'] = isset($data[$col_index]) ? $data[$col_index] : 0;
+					$col_index++;
+				} else {
+					$fee_data['breakfast_fee'] = 0;
+				}
+				
+				if($water_enabled == 'enabled') {
+					$fee_data['water_fee'] = isset($data[$col_index]) ? $data[$col_index] : 0;
+				} else {
+					$fee_data['water_fee'] = 0;
+				}
+				
+				$this->db->insert('daily_fee_rates', $fee_data);
+				
+				$section_data = array(
+					'class_id' => $class_id,
+					'name' => isset($data[$section_col]) && $data[$section_col] ? trim(strtoupper($data[$section_col])) : 'A',
+					'teacher_id' => $data[3]
+				);
+				$this->db->insert('section', $section_data);
+				$count++;
+			}
+			fclose($handle);
+			unlink($file_path);
+			echo json_encode(['status' => 'success', 'message' => $count . ' ' . get_phrase('classes_uploaded_successfully')]);
+		} else {
+			echo json_encode(['status' => 'error', 'message' => strip_tags($this->upload->display_errors())]);
+		}
+	}
+
+	function download_class_template() {
+		$feeding_enabled = $this->db->get_where('settings', array('type' => 'feeding_fee_collection'))->row()->description;
+		$breakfast_enabled = $this->db->get_where('settings', array('type' => 'breakfast_fee_collection'))->row()->description;
+		$water_enabled = $this->db->get_where('settings', array('type' => 'water_fee_collection'))->row()->description;
+		
+		header('Content-Type: text/csv');
+		header('Content-Disposition: attachment; filename="class_template.csv"');
+		$output = fopen('php://output', 'w');
+		
+		$headers = array('Name', 'Category', 'Name Numeric', 'Teacher ID');
+		$sample = array('JSS', 'JHS', '1', '1');
+		
+		if($feeding_enabled == 'enabled') {
+			$headers[] = 'Feeding Fee';
+			$sample[] = '5000';
+		}
+		$headers[] = 'Classes Fee';
+		$sample[] = '10000';
+		$headers[] = 'Section';
+		$sample[] = 'A';
+		if($breakfast_enabled == 'enabled') {
+			$headers[] = 'Breakfast Fee';
+			$sample[] = '2000';
+		}
+		if($water_enabled == 'enabled') {
+			$headers[] = 'Water Fee';
+			$sample[] = '1000';
+		}
+		
+		fputcsv($output, $headers);
+		fputcsv($output, $sample);
+		fclose($output);
+	}
+
+	// Get all classes for AJAX requests
+	function get_classes() {
+		// Use getAllClassList helper to get all class IDs in proper order
+		$class_ids = getAllClassList('');
+		$classes_ordered = [];
+
+		foreach($class_ids as $class_id) {
+			$class_name = $this->crud_model->get_class_name($class_id);
+			$class_name_numeric = $this->crud_model->get_class_name_numeric($class_id);
+			$class_section = $this->crud_model->get_class_section($class_id);
+
+			// Format class display name the same way getFullClassList does
+			$class_display = trim($class_name . ' ' . $class_name_numeric . ' ' . $class_section);
+			
+			$classes_ordered[] = [
+				'class_id' => $class_id,
+				'name' => $class_display, // Display name
+				'category' => $class_name
+			];
+		}
+		
+		header('Content-Type: application/json');
+		echo json_encode($classes_ordered);
+	}
+
+	function get_subject($class_id) {
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		$subject = $this->db->get_where('subject', array(
+			'class_id' => $class_id, 'year' => $running_year, 'term' => $running_term,
+		))->result_array();
+		foreach ($subject as $row) {
+			echo '<option value="' . $row['subject_id'] . '">' . $row['name'] . '</option>';
+		}
+	}
+	// ACADEMIC SYLLABUS
+	function academic_syllabus($class_id = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		// detect the first class
+		if ($class_id == '') {
+			$class_id = $this->db->get('class')->first_row()->class_id;
+		}
+
+		$page_data['page_name'] = 'academic_syllabus';
+		$page_data['page_title'] = get_phrase('academic_syllabus');
+		$page_data['class_id'] = $class_id;
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function upload_academic_syllabus() {
+		$data['academic_syllabus_code'] = substr(md5(rand(0, 1000000)), 0, 7);
+		if ($this->input->post('description') != null) {
+			$data['description'] = $this->input->post('description');
+		}
+		$data['title'] = ucwords(strtolower($this->input->post('title')));
+		$data['class_id'] = $this->input->post('class_id');
+		$data['subject_id'] = $this->input->post('subject_id');
+		$data['uploader_type'] = $this->session->userdata('login_type');
+		$data['uploader_id'] = $this->session->userdata('login_user_id');
+		$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$data['timestamp'] = strtotime(date("Y-m-d H:i:s"));
+		//uploading file using codeigniter upload library
+		$files = $_FILES['file_name'];
+		$this->load->library('upload');
+		$config['upload_path'] = './uploads/syllabus/';
+		$config['allowed_types'] = '*';
+		$_FILES['file_name']['name'] = $files['name'];
+		$_FILES['file_name']['type'] = $files['type'];
+		$_FILES['file_name']['tmp_name'] = $files['tmp_name'];
+		$_FILES['file_name']['size'] = $files['size'];
+		$this->upload->initialize($config);
+		$this->upload->do_upload('file_name');
+
+		$data['file_name'] = $_FILES['file_name']['name'];
+
+		$this->db->insert('academic_syllabus', $data);
+
+		//clear the cached database
+		$this->db->cache_delete();
+
+		$this->session->set_flashdata('flash_message', get_phrase('syllabus_uploaded'));
+		redirect(site_url('admin/academic_syllabus/' . $data['class_id']));
+
+	}
+
+	function download_academic_syllabus($academic_syllabus_code) {
+		$file_name = $this->db->get_where('academic_syllabus', array(
+			'academic_syllabus_code' => $academic_syllabus_code,
+		))->row()->file_name;
+		$data = file_get_contents("uploads/syllabus/" . $file_name);
+		$name = $file_name;
+
+		force_download($name, $data);
+	}
+
+	function delete_academic_syllabus($academic_syllabus_code) {
+		$file_name = $this->db->get_where('academic_syllabus', array(
+			'academic_syllabus_code' => $academic_syllabus_code,
+		))->row()->file_name;
+		if (file_exists('uploads/syllabus/' . $file_name)) {
+			// unlink('uploads/syllabus/'.$file_name);
+		}
+		$this->db->where('academic_syllabus_code', $academic_syllabus_code);
+		$queryExecuted = $this->db->delete('academic_syllabus');
+
+		//clear the cached database
+		$this->db->cache_delete();
+
+		$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+
+
+		if($queryExecuted) {
+			$ajaxData['message'] = 'done';
+		} else {
+			$ajaxData['message'] = 'failed';
+		}
+
+		$ajaxData['route'] = 'academic_syllabus';
+		
+		echo json_encode($ajaxData);
+		return;
+
+	}
+
+	/****MANAGE SECTIONS*****/
+	function section($class_id = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		// detect the first class
+		if ($class_id == '') {
+			$class_id = $this->db->get('class')->first_row()->class_id;
+		}
+
+		$page_data['page_name'] = 'section';
+		$page_data['page_title'] = get_phrase('manage_sections');
+		$page_data['class_id'] = $class_id;
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function sections($param1 = '', $param2 = '') {
+		if ($param1 == 'create') {
+			$data['name'] = strtoupper($this->input->post('name'));
+			$data['class_id'] = $this->input->post('class_id');
+			$data['teacher_id'] = $this->input->post('teacher_id');
+			if ($this->input->post('nick_name') != null) {
+				$data['nick_name'] = $this->input->post('nick_name');
+			}
+			$validation = duplication_of_section_on_create($data['class_id'], $data['name']);
+			if ($validation == 1) {
+				$this->db->insert('section', $data);
+				$this->db->cache_delete();
+				echo json_encode(['status' => 'success', 'message' => get_phrase('data_added_successfully')]);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => get_phrase('duplicate_name_of_section_is_not_allowed')]);
+			}
+			return;
+		}
+
+		if ($param1 == 'edit') {
+			$data['name'] = strtoupper($this->input->post('name'));
+			$data['class_id'] = $this->input->post('class_id');
+			$data['teacher_id'] = $this->input->post('teacher_id');
+			if ($this->input->post('nick_name') != null) {
+				$data['nick_name'] = $this->input->post('nick_name');
+			} else {
+				$data['nick_name'] = null;
+			}
+			$validation = duplication_of_section_on_edit($param2, $data['class_id'], $data['name']);
+			if ($validation == 1) {
+				$this->db->where('section_id', $param2);
+				$this->db->update('section', $data);
+				$this->db->cache_delete();
+				echo json_encode(['status' => 'success', 'message' => get_phrase('data_updated')]);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => get_phrase('duplicate_name_of_section_is_not_allowed')]);
+			}
+			return;
+		}
+
+		if ($param1 == 'delete') {
+			$this->db->where('section_id', $param2);
+			$queryExecuted = $this->db->delete('section');
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+
+
+			if($queryExecuted) {
+				$ajaxData['message'] = 'done';
+			} else {
+				$ajaxData['message'] = 'failed';
+			}
+
+			$ajaxData['route'] = 'section';
+			
+			echo json_encode($ajaxData);
+			return;
+		}
+	}
+
+	function get_sections_ajax($class_id) {
+		$sections = $this->db->get_where('section', array('class_id' => $class_id))->result_array();
+		$html = '';
+		$count = 1;
+		foreach ($sections as $row) {
+			$teacher_name = '';
+			if ($row['teacher_id'] != '' && $row['teacher_id'] != 0) {
+				$teacher = $this->db->get_where('teacher', array('teacher_id' => $row['teacher_id']))->row();
+				if($teacher) $teacher_name = $teacher->name;
+			}
+			$html .= '<tr class="bg-white border-b hover:bg-gray-50">';
+			$html .= '<td class="px-4 py-3">'.$count++.'</td>';
+			$html .= '<td class="px-4 py-3 font-medium text-gray-900">'.$row['name'].'</td>';
+			$html .= '<td class="px-4 py-3">'.$row['nick_name'].'</td>';
+			$html .= '<td class="px-4 py-3">'.$teacher_name.'</td>';
+			$html .= '<td class="px-4 py-3"><div class="dropdown"><button class="inline-flex items-center p-2 text-base font-medium text-gray-900 bg-white rounded-lg hover:bg-gray-100" type="button" data-toggle="dropdown"><i class="entypo-dot-3"></i></button><ul class="dropdown-menu dropdown-menu-right" style="font-size: 15px; min-width: 120px;"><li><a href="javascript:void(0)" onclick="showAjaxModal(\''.site_url('modal/popup/section_edit/'.$row['section_id']).'\')" style="color: #3c763d;"><i class="entypo-pencil"></i> '.get_phrase('edit').'</a></li><li><a href="javascript:void(0)" onclick="confirmDelete('.$row['section_id'].')" style="color: #d9534f;"><i class="entypo-trash"></i> '.get_phrase('delete').'</a></li></ul></div></td>';
+			$html .= '</tr>';
+		}
+		echo json_encode(['status' => 'success', 'html' => $html]);
+	}
+
+	function get_class_section($class_id) {
+		$sections = $this->db->get_where('section', array(
+			'class_id' => $class_id,
+		))->result_array();
+		foreach ($sections as $row) {
+			echo '<option value="' . $row['section_id'] . '">' . $row['name'] . '</option>';
+		}
+	}
+
+	// Get section_id for a given class_id (used by marks management)
+	function get_section_id_by_class($class_id) {
+		$this->db->limit(1);
+		$section = $this->db->get_where('section', array('class_id' => $class_id))->row();
+		if ($section) {
+			echo $section->section_id;
+		} else {
+			echo '';
+		}
+	}
+
+	function get_class_section_selector($class_id) {
+		$page_data['class_id'] = $class_id;
+		$this->load->view('backend/admin/get_class_section_selector', $page_data);
+	}
+
+	function get_class_subject_selector($class_id) {
+		$page_data['class_id'] = $class_id;
+		$this->load->view('backend/admin/get_class_subject_selector', $page_data);
+	}
+
+	function get_class_subject($class_id) {
+		$year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		$sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+		$class_name = $this->crud_model->get_class_name($class_id);
+
+		if ($class_name == 'JHSS') {
+			$subjects = $this->db->get_where('subject', array(
+				'class_id' => $class_id, 'year' => $year, 'sem' => $sem,
+			))->result_array();
+		} else {
+			$subjects = $this->db->get_where('subject', array(
+				'class_id' => $class_id, 'year' => $year, 'term' => $term,
+			))->result_array();
+		}
+
+		foreach ($subjects as $row) {
+			echo '<option value="' . $row['subject_id'] . '">' . $row['name'] . '</option>';
+		}
+	}
+
+	function get_class_students($class_id) {
+
+		$running_year = $this->input->post('year_selected'); /*selected year not the running year*/
+		$running_term = $this->input->post('term_selected'); /*selected term not the running term*/
+
+
+		$students = $this->db->get_where('enroll', array(
+			'class_id' => $class_id, 'mute' => '0', 'year' => $running_year, 'term' => $running_term))->result_array();
+		
+
+		foreach ($students as $row) {
+			$name = $this->db->get_where('student', array('student_id' => $row['student_id']))->row()->name;
+			echo '<option value="' . $row['student_id'] . '">' . $name . '</option>';
+
+		}
+	}
+
+	//display the titles chosen already
+	function display_titles($class_id, $type) {
+		echo $this->invoice_model->display_titles($class_id, $type);
+	}
+
+	function get_class_name($class_id) {
+		echo $this->crud_model->get_class_name($class_id);
+	}
+
+	function get_invoices_by_term($term) {
+		$this->db->where('can_delete !=', 'trash');
+		$invoices = $this->db->get_where('invoice', array(
+			'term' => $term, 'year' => $this->db->get_where('settings', array('type' => 'running_year'))->row()->description,
+		))->result_array();
+		$i = 1;
+		foreach ($invoices as $row) {
+			$name = $this->db->get_where('student', array('student_id' => $row['student_id']))->row()->name;
+			$date = date('d M,Y', $row['creation_timestamp']);
+			echo "<tr>
+                    <td>" . $i . "</td>
+                    <td>" . $row['title'] . "</td>
+                    <td>" . $name . "</td>
+                    <td>" . $row['amount'] . "</td>
+                    <td>" . $row['amount_paid'] . "</td>
+                    <td>" . $row['status'] . "</td>
+                    <td>" . $date . "</td>
+
+                </tr>";
+
+			$i++;
+		}
+	}
+
+	function get_invoice_term($invoice_code) {
+		$this->db->where('can_delete !=', 'trash');
+		$invoice = $this->db->get_where('invoice', array('invoice_code' => $invoice_code))->row();
+
+		echo $invoice->year . '/' . $invoice->term . '/' . $invoice->sem;
+	}
+
+	function get_class_students_mass($cat = '') {
+
+		$current_term = get_settings('running_term');
+		$current_year = get_settings('running_year');
+
+		$running_year = $this->input->get('year_selected'); /*selected year not the running year*/
+		$running_term = $this->input->get('term_selected'); /*selected term not the running term*/
+
+		// Check if this is a DIFFERENT academic year (not just Term 1)
+		// Different year = students need to be promoted/enrolled for that year
+		$is_different_academic_year = ($running_year != $current_year);
+
+		// Always use the user's selected term and year
+		// No need to override with current term - respect user's selection
+
+		$class_ids_array = $this->input->get('class_data');
+
+		// For same academic year, query by year only (student stays in same class)
+		// For different academic year, query by year AND term (student must be promoted)
+		if ($is_different_academic_year) {
+			// Different year - must have specific enrollment for that year/term
+			$enroll_where = array('e.mute' => '0', 'e.year' => $running_year, 'e.term' => $running_term);
+		} else {
+			// Same year - just need enrollment for that year (any term)
+			$enroll_where = array('e.mute' => '0', 'e.year' => $running_year);
+		}
+
+		// OPTIMIZED QUERY: Use JOIN to get student names and class info in ONE query
+		// This eliminates N+1 query problem
+		// Use GROUP BY to get only one enrollment per student (most recent based on enroll_id)
+		
+		if($cat == 'class') {
+			// Build the WHERE conditions for the subquery
+			$where_conditions = "e.mute = '0' AND e.year = " . $this->db->escape($running_year);
+			if ($is_different_academic_year) {
+				$where_conditions .= " AND e.term = " . $this->db->escape($running_term);
+			}
+			if (!empty($class_ids_array) && is_array($class_ids_array)) {
+				$where_conditions .= " AND e.class_id IN (" . implode(',', array_map('intval', $class_ids_array)) . ")";
+			}
+			
+			// Use raw query with proper subquery
+			$sql = "SELECT e.student_id, e.class_id, e.section_id, 
+					       s.name as student_name, 
+					       c.name as class_name, 
+					       c.name_numeric as class_name_numeric, 
+					       sec.name as section_name
+					FROM (
+						SELECT e1.student_id, e1.class_id, e1.section_id
+						FROM enroll e1
+						INNER JOIN (
+							SELECT student_id, MAX(enroll_id) as max_enroll_id
+							FROM enroll e
+							WHERE {$where_conditions}
+							GROUP BY student_id
+						) e2 ON e1.student_id = e2.student_id AND e1.enroll_id = e2.max_enroll_id
+					) e
+					INNER JOIN student s ON s.student_id = e.student_id
+					LEFT JOIN class c ON c.class_id = e.class_id
+					LEFT JOIN section sec ON sec.section_id = e.section_id";
+			
+			$students = $this->db->query($sql);
+
+		} else if($cat == 'all') {
+			/*All students selected*/
+			$where_conditions = "e.mute = '0' AND e.year = " . $this->db->escape($running_year);
+			if ($is_different_academic_year) {
+				$where_conditions .= " AND e.term = " . $this->db->escape($running_term);
+			}
+			$where_conditions .= " AND e.class_id IS NOT NULL";
+			
+			$sql = "SELECT e.student_id, e.class_id, e.section_id, 
+					       s.name as student_name, 
+					       c.name as class_name, 
+					       c.name_numeric as class_name_numeric, 
+					       sec.name as section_name
+					FROM (
+						SELECT e1.student_id, e1.class_id, e1.section_id
+						FROM enroll e1
+						INNER JOIN (
+							SELECT student_id, MAX(enroll_id) as max_enroll_id
+							FROM enroll e
+							WHERE {$where_conditions}
+							GROUP BY student_id
+						) e2 ON e1.student_id = e2.student_id AND e1.enroll_id = e2.max_enroll_id
+					) e
+					INNER JOIN student s ON s.student_id = e.student_id
+					LEFT JOIN class c ON c.class_id = e.class_id
+					LEFT JOIN section sec ON sec.section_id = e.section_id";
+			
+			$students = $this->db->query($sql);
+
+		} else if($cat == 'boarding') {
+			/*All Boarding students selected*/
+			$where_conditions = "e.mute = '0' AND e.year = " . $this->db->escape($running_year);
+			if ($is_different_academic_year) {
+				$where_conditions .= " AND e.term = " . $this->db->escape($running_term);
+			}
+			$where_conditions .= " AND e.class_id IS NOT NULL AND e.residence_type = 'Boarding'";
+			
+			if(is_array($class_ids_array) && count($class_ids_array) > 0) {
+				$where_conditions .= " AND e.class_id IN (" . implode(',', array_map('intval', $class_ids_array)) . ")";
+			}
+			
+			$sql = "SELECT e.student_id, e.class_id, e.section_id, 
+					       s.name as student_name, 
+					       c.name as class_name, 
+					       c.name_numeric as class_name_numeric, 
+					       sec.name as section_name
+					FROM (
+						SELECT e1.student_id, e1.class_id, e1.section_id
+						FROM enroll e1
+						INNER JOIN (
+							SELECT student_id, MAX(enroll_id) as max_enroll_id
+							FROM enroll e
+							WHERE {$where_conditions}
+							GROUP BY student_id
+						) e2 ON e1.student_id = e2.student_id AND e1.enroll_id = e2.max_enroll_id
+					) e
+					INNER JOIN student s ON s.student_id = e.student_id
+					LEFT JOIN class c ON c.class_id = e.class_id
+					LEFT JOIN section sec ON sec.section_id = e.section_id";
+			
+			$students = $this->db->query($sql);
+
+		} else if($cat == 'day') {
+			/*All Day students selected*/
+			$where_conditions = "e.mute = '0' AND e.year = " . $this->db->escape($running_year);
+			if ($is_different_academic_year) {
+				$where_conditions .= " AND e.term = " . $this->db->escape($running_term);
+			}
+			$where_conditions .= " AND e.class_id IS NOT NULL AND e.residence_type = 'Day'";
+			
+			if(is_array($class_ids_array) && count($class_ids_array) > 0) {
+				$where_conditions .= " AND e.class_id IN (" . implode(',', array_map('intval', $class_ids_array)) . ")";
+			}
+			
+			$sql = "SELECT e.student_id, e.class_id, e.section_id, 
+					       s.name as student_name, 
+					       c.name as class_name, 
+					       c.name_numeric as class_name_numeric, 
+					       sec.name as section_name
+					FROM (
+						SELECT e1.student_id, e1.class_id, e1.section_id
+						FROM enroll e1
+						INNER JOIN (
+							SELECT student_id, MAX(enroll_id) as max_enroll_id
+							FROM enroll e
+							WHERE {$where_conditions}
+							GROUP BY student_id
+						) e2 ON e1.student_id = e2.student_id AND e1.enroll_id = e2.max_enroll_id
+					) e
+					INNER JOIN student s ON s.student_id = e.student_id
+					LEFT JOIN class c ON c.class_id = e.class_id
+					LEFT JOIN section sec ON sec.section_id = e.section_id";
+			
+			$students = $this->db->query($sql);
+			
+		}
+				
+
+
+		if ($students->num_rows() < 1) {
+			// Check if this is a different academic year
+			
+			if ($is_different_academic_year) {
+				// Different year - students MUST be promoted/enrolled
+				// This is a hard requirement - show error and disable billing
+				
+				// Add hidden indicator for JavaScript to detect no students
+				echo '<div class="no-students-indicator" data-has-students="false" style="display:none;"></div>';
+				
+				// Different year - students need to be promoted/enrolled
+				echo '<div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4" role="alert">';
+				echo '<div class="flex">';
+				echo '<div class="flex-shrink-0">';
+				echo '<svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">';
+				echo '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />';
+				echo '</svg>';
+				echo '</div>';
+				echo '<div class="ml-3">';
+				echo '<h3 class="text-sm font-medium text-red-800">No Students Found for Academic Year ' . $running_year . '</h3>';
+				echo '<div class="mt-2 text-sm text-red-700">';
+				echo '<p><strong>Reason:</strong> Students have not been promoted/enrolled for academic year ' . $running_year . ' yet.</p>';
+				echo '<p class="mt-2"><strong>Action Required:</strong> Please promote students to their classes for academic year ' . $running_year . ' before creating invoices.</p>';
+				echo '<p class="mt-2">Go to: <strong>Student Management → Promote Students</strong></p>';
+				echo '</div>';
+				echo '</div>';
+				echo '</div>';
+				echo '</div>';
+			} else {
+				// Same year - show generic error
+				echo '<div class="no-students-indicator" data-has-students="false" style="display:none;"></div>';
+				
+				echo '<div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4" role="alert">';
+				echo '<div class="flex">';
+				echo '<div class="flex-shrink-0">';
+				echo '<svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">';
+				echo '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />';
+				echo '</svg>';
+				echo '</div>';
+				echo '<div class="ml-3">';
+				echo '<h3 class="text-sm font-medium text-red-800">No Student Records Found</h3>';
+				echo '<div class="mt-2 text-sm text-red-700">';
+				echo '<p>No students were found for the selected class(es).</p>';
+				echo '<p class="mt-2"><strong>Possible reasons:</strong></p>';
+				echo '<ul class="list-disc list-inside mt-1">';
+				echo '<li>No students are enrolled in the selected class(es)</li>';
+				echo '<li>All students in the selected class(es) are muted</li>';
+				echo '</ul>';
+				echo '</div>';
+				echo '</div>';
+				echo '</div>';
+				echo '</div>';
+			}
+
+		} else {
+			$student_array = $students->result_array();
+			
+			// OPTIMIZATION: Batch load all discount information in ONE query
+			$student_ids = array_column($student_array, 'student_id');
+			$full_scholarship_students = array();
+			
+			if (!empty($student_ids)) {
+				$discount_results = $this->db
+					->select('student_id')
+					->where_in('student_id', $student_ids)
+					->where('year', $running_year)
+					->where('term', $running_term)
+					->where('discount_category', 'invoice')
+					->where('discount_method', 'percentage')
+					->where('discount_value', 100)
+					->where('status', 'approved')
+					->get('invoice_discounts')
+					->result_array();
+				
+				// Create a lookup array for O(1) access
+				foreach ($discount_results as $discount) {
+					$full_scholarship_students[$discount['student_id']] = true;
+				}
+			}
+			
+			// Display valid students
+			// Add hidden indicator for JavaScript - has valid students
+			echo '<div class="no-students-indicator" data-has-students="true" style="display:none;"></div>';
+			
+			echo '<ul class="text-xl font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white" id="studentUrl">';
+			
+			foreach ($student_array as $row) {
+				// Check if student has full scholarship using pre-loaded data
+				if (isset($full_scholarship_students[$row['student_id']])) {
+					continue; // Skip this student
+				}
+				
+				// Use pre-loaded student name from JOIN
+				$name = $row['student_name'];
+				
+				// Build class name from pre-loaded data (no function call needed)
+				$student_class = trim($row['class_name'] . ' ' . $row['class_name_numeric'] . ' ' . $row['section_name']);
+
+				echo '<li class="border-b border-gray-200 rounded-t-lg dark:border-gray-600 hover:bg-gray-200 cursor-pointer">
+						        <div class="flex items-center content-center ps-3 gap-3">
+						            <input id="checkbox_' . $row['student_id'] . '" type="checkbox" name="student_id[]" value="' . $row['student_id'] . '" style="width: 1.5rem !important" class="w-6 h-6 max-w-6 max-h-6 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 check">
+						            <label for="checkbox_' . $row['student_id'] . '" class="py-3 ms-2 text-xl font-medium text-gray-900 dark:text-gray-300 cursor-pointer w-full max-w-full">' . $name . ' - <span class="text-sm font-semibold text-gray-600">'.$student_class.'</span></label>
+						        </div>
+						    </li>';
+			}
+			echo '</ul>';
+			
+		}
+
+	}
+
+
+	/*getting billed students for a period on the create invoice page*/
+	function getBilledStudents() {
+
+		$data = $this->input->post();
+		echo $this->financial_report_model->getBilledStudents($data);
+	}
+
+	/*getStudentInvoiceCodesByTermYear*/
+	function getStudentInvoiceCodesByTermYear() {
+		$page_data['data'] = $this->input->post();
+
+		$this->load->view('backend/admin/get_billed_student_invoices_codes', $page_data);
+		
+	}
+
+	function getStudentBillByInvoiceCode() {
+		$page_data['invoice_code'] = $this->input->post('invoice_code');
+
+		$this->db->select('title');
+		$this->db->distinct();
+		$this->db->from('invoice');
+		$this->db->where('invoice_code', $page_data['invoice_code']);
+		$itemsArray = $this->db->get()->result_array();
+
+		$ajaxData['items'] = array_column($itemsArray, 'title');
+		$ajaxData['list'] = $this->load->view('backend/admin/get_billed_student_bill', $page_data, true);
+		
+		// Get discount details for this invoice
+		$discount_query = $this->db->where('invoice_code', $page_data['invoice_code'])
+			->where('status', 'approved')
+			->get('invoice_discounts');
+		
+		// Check for pending discounts
+		$pending_query = $this->db->where('invoice_code', $page_data['invoice_code'])
+			->where('status', 'pending')
+			->get('invoice_discounts');
+		
+		if($discount_query->num_rows() > 0 || $pending_query->num_rows() > 0) {
+			$ajaxData['has_discount'] = true;
+			$ajaxData['discount_html'] = $this->load->view('backend/admin/invoice_discount_display', 
+				['invoice_code' => $page_data['invoice_code'], 'has_pending' => $pending_query->num_rows() > 0], true);
+		} else {
+			$ajaxData['has_discount'] = false;
+			$ajaxData['discount_html'] = '';
+		}
+
+		echo json_encode($ajaxData);
+		
+	}
+
+	function get_bulk_invoices() {
+		$term = $this->input->post('term');
+		$year = $this->input->post('year');
+		$status = $this->input->post('status');
+		$filter = $this->input->post('filter');
+		$class_id = $this->input->post('class_id');
+
+		// OPTIMIZED: Build query without correlated subquery
+		// Step 1: Get invoice aggregates with class info directly from invoice table
+		$sql = "
+			SELECT 
+				i.invoice_code,
+				MIN(i.invoice_id) as invoice_id,
+				MIN(i.student_id) as student_id,
+				MIN(i.class_id) as class_id,
+				MIN(s.name) as student_name,
+				MIN(s.student_code) as student_code,
+				SUM(i.amount) as total_amount,
+				SUM(i.amount_paid) as amount_paid,
+				SUM(i.due) as due,
+				MIN(i.creation_timestamp) as creation_timestamp,
+				MIN(i.term) as term,
+				MIN(i.year) as year
+			FROM invoice i
+			INNER JOIN student s ON s.student_id = i.student_id
+			WHERE i.mute = '0' 
+			AND i.can_delete != 'trash'
+			AND i.due >= 0
+		";
+		
+		$params = [];
+		
+		// Only filter by term if provided
+		if(!empty($term)) {
+			$sql .= " AND i.term = ?";
+			$params[] = $term;
+		}
+		
+		// Only filter by year if provided
+		if(!empty($year)) {
+			$sql .= " AND i.year = ?";
+			$params[] = $year;
+		}
+		
+		// Handle filter types
+		if($filter === 'class' && $class_id) {
+			// Filter directly by invoice's class_id
+			$sql .= " AND i.class_id = ?";
+			$params[] = $class_id;
+		} elseif($filter === 'boarding') {
+			// Filter by boarding students using invoice's residence_type
+			$sql .= " AND i.residence_type = 'Boarding'";
+		} elseif($filter === 'day') {
+			// Filter by day students using invoice's residence_type
+			$sql .= " AND i.residence_type = 'Day'";
+		}
+		
+		$sql .= " GROUP BY i.invoice_code";
+		
+		// Apply status filter using HAVING clause (after grouping)
+		if(!empty($status)) {
+			if($status === 'paid') {
+				$sql .= " HAVING SUM(i.due) = 0";
+			} elseif($status === 'unpaid') {
+				$sql .= " HAVING SUM(i.due) > 0 AND SUM(i.amount_paid) = 0";
+			} elseif($status === 'partial') {
+				$sql .= " HAVING SUM(i.due) > 0 AND SUM(i.amount_paid) > 0";
+			}
+		}
+		
+		$sql .= " ORDER BY i.invoice_code DESC";
+		
+		// Execute query
+		$query = $this->db->query($sql, $params);
+		$invoices = $query->result_array();
+
+		// Batch load all class names to avoid N+1 query problem
+		$class_ids = array_unique(array_filter(array_column($invoices, 'class_id')));
+		$class_names_map = [];
+		if(!empty($class_ids)) {
+			$placeholders = implode(',', array_fill(0, count($class_ids), '?'));
+			$class_sql = "
+				SELECT c.class_id, c.name, c.name_numeric, s.name as section_name
+				FROM class c
+				LEFT JOIN section s ON s.class_id = c.class_id
+				WHERE c.class_id IN ($placeholders)
+			";
+			$class_query = $this->db->query($class_sql, $class_ids);
+			$classes = $class_query->result_array();
+			
+			foreach($classes as $class) {
+				// Build full class name: NAME + NUMERIC + SECTION
+				$full_class_name = strtoupper($class['name']);
+				if (!empty($class['name_numeric'])) {
+					$full_class_name .= ' ' . $class['name_numeric'];
+				}
+				if (!empty($class['section_name'])) {
+					$full_class_name .= ' ' . $class['section_name'];
+				}
+				$class_names_map[$class['class_id']] = $full_class_name;
+			}
+		}
+
+		$data = [];
+		$unique_students = [];
+		$stats = [
+			'invoice_count' => 0,
+			'total_amount' => 0,
+			'total_paid' => 0,
+			'total_due' => 0,
+			'total_receivables' => 0
+		];
+
+		foreach($invoices as $invoice) {
+			$status = 'paid';
+			if($invoice['due'] > 0) {
+				$status = ($invoice['amount_paid'] > 0) ? 'partial' : 'unpaid';
+			}
+			
+			// Use pre-loaded class name
+			$class_name = 'N/A';
+			if(!empty($invoice['class_id']) && isset($class_names_map[$invoice['class_id']])) {
+				$class_name = $class_names_map[$invoice['class_id']];
+			}
+			
+			$data[] = [
+				'invoice_id' => $invoice['invoice_id'],
+				'invoice_code' => $invoice['invoice_code'],
+				'student_id' => $invoice['student_id'],
+				'student_name' => $invoice['student_name'],
+				'student_code' => $invoice['student_code'],
+				'class_name' => $class_name,
+				'section_name' => '',
+				'total_amount' => $invoice['total_amount'],
+				'amount_paid' => $invoice['amount_paid'],
+				'due' => $invoice['due'],
+				'status' => $status,
+				'creation_timestamp' => $invoice['creation_timestamp']
+			];
+			
+			$stats['total_amount'] += $invoice['total_amount'];
+			$stats['total_paid'] += $invoice['amount_paid'];
+			$stats['total_due'] += $invoice['due'];
+			$stats['total_receivables'] += $invoice['due'];
+			
+			if(!in_array($invoice['student_id'], $unique_students)) {
+				$unique_students[] = $invoice['student_id'];
+			}
+		}
+
+		$stats['invoice_count'] = count($invoices);
+		$stats['unique_students'] = count($unique_students);
+		
+		echo json_encode([
+			'status' => 'success',
+			'message' => count($data) . ' invoices loaded',
+			'data' => $data,
+			'stats' => $stats
+		]);
+	}
+
+
+	function get_recent_receipts() {
+		$class_id = $this->input->post('class_id');
+		$boarding = $this->input->post('boarding');
+		$date_from = $this->input->post('date_from') ? $this->input->post('date_from') : date('d-m-Y');
+		$date_to = $this->input->post('date_to') ? $this->input->post('date_to') : date('d-m-Y');
+
+		// First get receipt totals to avoid duplication
+		$this->db->select('receipt_code, student_id, SUM(amount) as amount_paid, MAX(timestamp) as timestamp, MAX(payment_id) as payment_id, MAX(payment_method) as payment_method');
+		$this->db->from('payment');
+		$this->db->where('can_delete !=', 'trash');
+		$this->db->where('(invoice_id IS NOT NULL OR invoice_code IS NOT NULL OR invoice_code != "")');
+		if($date_from) {
+			$this->db->where('day_timestamp >=', strtotime($date_from));
+		}
+
+		if($date_to) {
+			$this->db->where('day_timestamp <=', strtotime($date_to));
+		}
+		
+		$this->db->group_by('receipt_code, student_id');
+		$this->db->order_by('timestamp', 'DESC');
+		$this->db->limit(500);
+		
+		$receipt_totals = $this->db->get()->result_array();
+
+		$data = [];
+		foreach($receipt_totals as $receipt) {
+			// Get student info with class_id for full class details
+			$student_info = $this->db->select('s.name as student_name, e.class_id, e.residence_type as boarding_status')
+				->from('student s')
+				->join('enroll e', 'e.student_id = s.student_id AND e.enroll_id = (SELECT MAX(enroll_id) FROM enroll WHERE student_id = s.student_id)', 'left')
+				->where('s.student_id', $receipt['student_id'])
+				->get()->row_array();
+			
+			// Apply filters
+			if($class_id && isset($student_info) && $student_info) {
+				$student_class_id = $this->db->select('class_id')->from('enroll')->where('student_id', $receipt['student_id'])->get()->row()->class_id ?? null;
+				if($student_class_id != $class_id) continue;
+			}
+			
+			if($boarding && isset($student_info['boarding_status']) && $student_info['boarding_status'] != $boarding) {
+				continue;
+			}
+			
+			// Get full class details using getFullClassName method
+			$class_name = 'N/A';
+			if(!empty($student_info['class_id'])) {
+				$class_name = $this->crud_model->getFullClassName($student_info['class_id']);
+			}
+			
+			// Get invoice codes for this receipt
+			$invoice_codes = $this->db->select('invoice_code')->distinct()->from('payment')->where('receipt_code', $receipt['receipt_code'])->get()->result_array();
+			$invoice_codes_list = array_column($invoice_codes, 'invoice_code');
+			$invoice_display = count($invoice_codes_list) > 1 ? implode(', ', array_slice($invoice_codes_list, 0, 2)) . (count($invoice_codes_list) > 2 ? '...' : '') : $invoice_codes_list[0];
+			
+			// Map payment method ID to name
+			$payment_method_map = [
+				'1' => 'cash',
+				'2' => 'cheque',
+				'3' => 'mobile_money',
+				'4' => 'card'
+			];
+			$payment_method = isset($payment_method_map[$receipt['payment_method']]) ? $payment_method_map[$receipt['payment_method']] : 'cash';
+			
+			$data[] = [
+				'payment_id' => $receipt['payment_id'],
+				'receipt_code' => $receipt['receipt_code'],
+				'invoice_code' => $invoice_display,
+				'student_id' => $receipt['student_id'],
+				'student_name' => $student_info['student_name'] ?? 'N/A',
+				'class_name' => $class_name,
+				'boarding_status' => $student_info['boarding_status'] ?? 'day',
+				'payment_method' => $payment_method,
+				'amount_paid' => (float)($receipt['amount_paid'] ?? 0),
+				'date' => $receipt['timestamp']
+			];
+		}
+
+		echo json_encode([
+			'status' => 'success',
+			'message' => count($data) . ' receipts loaded',
+			'data' => $data
+		]);
+	}
+
+	function global_invoice_search() {
+		$search = trim($this->input->post('search'));
+
+		if(empty($search)) {
+			echo json_encode(['status' => 'error', 'message' => 'Search term is required']);
+			return;
+		}
+
+		$this->db->distinct();
+		$this->db->select('i.invoice_code, MIN(i.student_id) as student_id, MIN(i.year) as year, MIN(i.term) as term, MIN(s.name) as student_name, MIN(s.student_code) as student_code, MIN(i.class_id) as class_id');
+		$this->db->from('invoice i');
+		$this->db->join('student s', 's.student_id = i.student_id', 'left');
+		$this->db->group_start();
+		$this->db->like('s.name', $search);
+		$this->db->or_like('s.student_code', $search);
+		$this->db->or_like('i.invoice_code', $search);
+		$this->db->group_end();
+		$this->db->group_by('i.invoice_code');
+		$this->db->order_by('i.invoice_code', 'DESC');
+
+		$invoices = $this->db->get()->result_array();
+
+		$data = [];
+		$stats = ['total_invoices' => 0, 'total_amount' => 0, 'total_paid' => 0, 'total_due' => 0];
+		$student_data = null;
+
+		foreach($invoices as $invoice) {
+			$invoice_code = $invoice['invoice_code'];
+			$student_id = $invoice['student_id'];
+			
+			$this->db->select_sum('amount');
+			$this->db->select_sum('amount_paid');
+			$this->db->select_sum('due');
+			$this->db->where('invoice_code', $invoice_code);
+			$totals = $this->db->get('invoice')->row();
+
+			// Get full class details using getFullClassName method
+			$class_name = 'N/A';
+			if(!empty($invoice['class_id'])) {
+				$class_name = $this->crud_model->getFullClassName($invoice['class_id']);
+			}
+
+			$data[] = [
+				'invoice_code' => $invoice_code,
+				'student_id' => $student_id,
+				'student_name' => $invoice['student_name'] ?? 'N/A',
+				'student_code' => $invoice['student_code'] ?? 'N/A',
+				'class_name' => $class_name,
+				'total_amount' => (float)($totals->amount ?? 0),
+				'amount_paid' => (float)($totals->amount_paid ?? 0),
+				'due' => (float)($totals->due ?? 0),
+				'status' => ($totals->due ?? 0) > 0 ? 'unpaid' : 'paid',
+				'creation_timestamp' => time()
+			];
+
+			if(!$student_data) {
+				$student_data = ['student_id' => $student_id, 'student_name' => $invoice['student_name']];
+			}
+
+			$stats['total_invoices']++;
+			$stats['total_amount'] += (float)($totals->amount ?? 0);
+			$stats['total_paid'] += (float)($totals->amount_paid ?? 0);
+			$stats['total_due'] += (float)($totals->due ?? 0);
+		}
+
+		echo json_encode([
+			'status' => 'success',
+			'message' => count($data) . ' invoice(s) found',
+			'data' => $data,
+			'stats' => $stats,
+			'student_data' => $student_data
+		]);
+	}
+
+	function search_suggestions() {
+		$search = trim($this->input->post('search'));
+		
+		if(strlen($search) < 2) {
+			echo json_encode(['status' => 'error', 'data' => []]);
+			return;
+		}
+		
+		$running_year = get_settings('running_year');
+		
+		$this->db->distinct();
+		$this->db->select('s.student_id, s.name as student_name, s.student_code, e.class_id');
+		$this->db->from('student s');
+		$this->db->join('enroll e', 'e.student_id = s.student_id AND e.year = "' . $running_year . '" AND e.enroll_id = (SELECT MAX(enroll_id) FROM enroll WHERE student_id = s.student_id AND year = "' . $running_year . '")', 'left');
+		$this->db->group_start();
+		$this->db->like('s.name', $search);
+		$this->db->or_like('s.student_code', $search);
+		$this->db->group_end();
+		$this->db->limit(8);
+		$this->db->order_by('s.name', 'ASC');
+		
+		$students = $this->db->get()->result_array();
+		
+		$data = [];
+		foreach($students as $student) {
+			// Count unique invoice codes (not invoice IDs) with outstanding dues
+			$this->db->select('COUNT(DISTINCT invoice_code) as invoice_count');
+			$this->db->where('student_id', $student['student_id']);
+			$this->db->where('due >', 0);
+			$result = $this->db->get('invoice')->row();
+			$invoice_count = $result ? $result->invoice_count : 0;
+			
+			// Get full class details using getFullClassName method
+			$class_name = 'N/A';
+			if(!empty($student['class_id'])) {
+				$class_name = $this->crud_model->getFullClassName($student['class_id']);
+			}
+			
+			$data[] = [
+				'student_id' => $student['student_id'],
+				'student_name' => $student['student_name'],
+				'student_code' => $student['student_code'],
+				'class_name' => $class_name,
+				'invoice_count' => $invoice_count,
+				'type' => 'student'
+			];
+		}
+		
+		echo json_encode(['status' => 'success', 'data' => $data]);
+	}
+
+	function view_student_receipts($student_id = '') {
+		$page_data['student_id'] = $student_id;
+		$page_data['student_info'] = null;
+		
+		if($student_id) {
+			$page_data['student_info'] = $this->db->get_where('student', array('student_id' => $student_id))->row();
+		}
+		
+		$this->load->view('backend/admin/view_student_receipts', $page_data);
+	}
+
+	function get_student_receipts() {
+		$student_id = $this->input->post('student_id');
+		$year = $this->input->post('year');
+		$term = $this->input->post('term');
+
+		if(!$student_id) {
+			echo json_encode(['status' => 'error', 'message' => 'Student ID is required']);
+			return;
+		}
+
+		$this->db->select('p.*, s.name as student_name, s.student_code');
+		$this->db->from('payment p');
+		$this->db->join('student s', 's.student_id = p.student_id');
+		$this->db->where('p.student_id', $student_id);
+		
+		if($year) $this->db->where('p.year', $year);
+		if($term) $this->db->where('p.term', $term);
+		
+		$this->db->order_by('p.timestamp', 'DESC');
+		$receipts = $this->db->get()->result_array();
+
+		$currency = $this->db->get_where('settings', array('type' => 'system_currency'))->row()->description;
+
+		$html = '<div class="table-responsive max-h-96 overflow-y-auto">';
+		$html .= '<table class="table table-striped table-bordered">';
+		$html .= '<thead class="bg-blue-700 text-white"><tr><th>Receipt #</th><th>Date</th><th>Method</th><th class="text-right">Amount</th><th class="text-center">Action</th></tr></thead>';
+		$html .= '<tbody>';
+
+		if(empty($receipts)) {
+			$html .= '<tr><td colspan="5" class="text-center text-gray-500">No receipts found</td></tr>';
+		} else {
+			foreach($receipts as $receipt) {
+				$html .= '<tr>';
+				$html .= '<td class="font-bold">#' . $receipt['payment_code'] . '</td>';
+				$html .= '<td>' . date('d M Y', $receipt['timestamp']) . '</td>';
+				$html .= '<td>' . ucfirst($receipt['payment_method']) . '</td>';
+				$html .= '<td class="text-right font-bold text-green-600">' . $currency . number_format($receipt['amount'], 2) . '</td>';
+				$html .= '<td class="text-center"><button onclick="printReceipt(' . $receipt['payment_id'] . ')" class="btn btn-primary btn-sm"><i class="fa fa-print"></i> Print</button></td>';
+				$html .= '</tr>';
+			}
+		}
+
+		$html .= '</tbody></table></div>';
+
+		echo json_encode(['status' => 'success', 'html' => $html, 'count' => count($receipts)]);
+	}
+
+	function get_students_with_dues() {
+		$term = $this->input->post('term');
+		$year = $this->input->post('year');
+		$filter = $this->input->post('filter');
+		$class_id = $this->input->post('class_id');
+
+		if(!$term || !$year) {
+			echo json_encode(['status' => 'error', 'message' => 'Term and year are required']);
+			return;
+		}
+
+		$this->db->select('i.student_id, MIN(s.name) as name, MIN(s.student_code) as student_code, SUM(i.due) as total_due');
+		$this->db->from('invoice i');
+		$this->db->join('student s', 's.student_id = i.student_id');
+		$this->db->join('enroll e', 'e.student_id = i.student_id AND e.year = i.year AND e.term = i.term', 'left');
+		$this->db->where('i.year', $year);
+		$this->db->where('i.term', $term);
+		$this->db->where('i.due >', 0);
+
+		if($filter === 'class' && $class_id) {
+			$this->db->where('e.class_id', $class_id);
+		}
+
+		$this->db->group_by('i.student_id');
+		$this->db->order_by('s.name', 'ASC');
+
+		$students = $this->db->get()->result_array();
+
+		$currency = $this->db->get_where('settings', array('type' => 'system_currency'))->row()->description;
+
+		$html = '<div class="max-h-96 overflow-y-auto">';
+		$html .= '<table class="table table-striped table-bordered">';
+		$html .= '<thead class="bg-gray-700 text-white"><tr><th>Student</th><th>Code</th><th class="text-right">Amount Due</th><th class="text-center">Action</th></tr></thead>';
+		$html .= '<tbody>';
+
+		if(empty($students)) {
+			$html .= '<tr><td colspan="4" class="text-center text-gray-500">No students with outstanding balances found</td></tr>';
+		} else {
+			foreach($students as $student) {
+				$html .= '<tr>';
+				$html .= '<td class="font-semibold">' . $student['name'] . '</td>';
+				$html .= '<td>' . $student['student_code'] . '</td>';
+				$html .= '<td class="text-right font-bold text-red-600">' . $currency . number_format($student['total_due'], 2) . '</td>';
+				$html .= '<td class="text-center"><button onclick="takePayment(' . $student['student_id'] . ')" class="btn btn-success btn-sm"><i class="fa fa-money-bill"></i> Pay</button></td>';
+				$html .= '</tr>';
+			}
+		}
+
+		$html .= '</tbody></table></div>';
+
+		echo json_encode(['status' => 'success', 'html' => $html, 'count' => count($students)]);
+	}
+
+	function edit_invoice($invoice_code = '') {
+		if(empty($invoice_code)) {
+			$this->session->set_flashdata('error_message', get_phrase('invalid_invoice_code'));
+			redirect(site_url('admin/student_invoice'));
+			return;
+		}
+
+		$invoice_items = $this->db->get_where('invoice', array('invoice_code' => $invoice_code))->result_array();
+		
+		if(empty($invoice_items)) {
+			$this->session->set_flashdata('error_message', get_phrase('invoice_not_found'));
+			redirect(site_url('admin/student_invoice'));
+			return;
+		}
+
+		$student_id = $invoice_items[0]['student_id'];
+		$year = $invoice_items[0]['year'];
+		$term = $invoice_items[0]['term'];
+		$student_info = $this->db->get_where('student', array('student_id' => $student_id))->row();
+		
+		$page_data['invoice_code'] = $invoice_code;
+		$page_data['invoice_items'] = $invoice_items;
+		$page_data['student_info'] = $student_info;
+		$page_data['student_id'] = $student_id;
+		$page_data['year'] = $year;
+		$page_data['term'] = $term;
+		$page_data['page_name'] = 'edit_invoice';
+		$page_data['page_title'] = get_phrase('edit_invoice') . ' #' . $invoice_code;
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	/****MANAGE EXAMS*****/
+	function exam($param1 = '', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//  redirect(site_url('login'));
+		if ($param1 == 'create') {
+			$data['name'] = strtoupper($this->input->post('name'));
+			$data['date'] = $this->input->post('date');
+			$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+			$data['sem'] = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+			$data['category_id'] = $this->input->post('category_id');
+			
+			$this->db->insert('exam', $data);
+			
+			if($this->db->affected_rows() > 0) {
+				echo json_encode(['status' => 'success', 'message' => get_phrase('exam_added_successfully')]);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => get_phrase('exam_creation_failed')]);
+			}
+			return;
+		}
+		if ($param1 == 'edit' && $param2 == 'do_update') {
+			$data['name'] = strtoupper($this->input->post('name'));
+			$data['date'] = $this->input->post('date');
+			$data['category_id'] = $this->input->post('category_id');
+
+			$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+			$data['sem'] = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+			$this->db->where('exam_id', $param3);
+			$this->db->update('exam', $data);
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('exam_updated_successfully'));
+			redirect(site_url('admin/exam'));
+		} else if ($param1 == 'edit') {
+			$page_data['edit_data'] = $this->db->get_where('exam', array(
+				'exam_id' => $param2,
+			))->result_array();
+
+			//clear the cached database
+			$this->db->cache_delete();
+		}
+		if ($param1 == 'delete') {
+			$this->db->trans_start();
+			
+			$this->db->where('exam_id', $param2);
+			$this->db->delete('exam'); //deleted from exam table
+
+			$this->db->where('exam_id', $param2);
+			$this->db->delete('mark'); //deleted from mark table
+
+			$this->db->where('exam_id', $param2);
+			$this->db->delete('aggregation'); //deleted from aggregation table
+
+			$this->db->trans_complete();
+			
+			//clear the cached database
+			$this->db->cache_delete();
+
+			if($this->db->trans_status() === FALSE) {
+				echo json_encode([
+					'status' => 'error',
+					'message' => 'failed'
+				]);
+			} else {
+				echo json_encode([
+					'status' => 'success',
+					'message' => 'done'
+				]);
+			}
+			return;
+		}
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		$running_sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+		$this->db->where('year', $running_year);
+		$this->db->where('term', $running_term);
+		$this->db->or_where('sem', $running_sem);
+		$page_data['exams'] = $this->db->get('exam')->result_array();
+		$page_data['page_name'] = 'exam';
+		$page_data['page_title'] = get_phrase('manage_exam');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	/****** SEND EXAM MARKS VIA SMS ********/
+	function exam_marks_sms($param1 = '', $param2 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		if ($param1 == 'send_sms') {
+			$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+
+			if ($active_sms_service != 'disabled') {
+
+				$exam_id = $this->input->post('exam_id');
+				$class_id = $this->input->post('class_id');
+				$receiver = $this->input->post('receiver');
+				$single_parent_st_id = $this->input->post('student_id');
+
+				$class_name = $this->crud_model->get_class_name($class_id);
+
+				if ($exam_id != '' && $class_id != '' && $receiver != '') {
+					// get all the students of the selected class
+
+					if ($class_name == 'JHSS') {
+						$students_array = array(
+							'class_id' => $class_id,
+							'year' => $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->year,
+							'sem' => $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->sem,
+						);
+
+					} else {
+
+						$students_array = array(
+							'class_id' => $class_id,
+							'year' => $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->year,
+							'mute' => '0',
+							'term' => $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->term,
+						);
+					}
+
+					$students = $this->db
+						->where($students_array)
+						->get('enroll')->result_array();
+
+					//One parent at a time
+					if ($receiver == 'single_parent') {
+						$parent_id = $this->db->get_where('student', array('student_id' => $single_parent_st_id))->row()->parent_id;
+						if ($parent_id != '' || $parent_id != null) {
+							$receiver_phone = $this->db->get_where('parent', array('parent_id' => $parent_id))->row()->phone;
+							$receiver_email = $this->db->get_where('parent', array('parent_id' => $parent_id))->row()->email;
+							if ($receiver_phone == null || $receiver_phone == '') {
+								$this->session->set_flashdata('error_message', get_phrase('message_not_sent:_parent\'s_phone_number_not_found'));
+								redirect(site_url('admin/exam_marks_sms?msg=1'));
+							} else {
+								$running_year = $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->year;
+
+								if ($class_name == 'JHSS') {
+									$running_sem = $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->sem;
+								} else {
+									$running_term = $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->term;
+								}
+
+								$owner_email = $this->db->get_where('settings', array('type' => 'system_email'))->row()->description;
+
+								//get exam scores
+								$this->db->where('exam_id', $exam_id);
+								$this->db->where('student_id', $single_parent_st_id);
+
+								if ($class_name == 'JHSS') {
+									$this->db->where('sem', $running_sem);
+								} else {
+									$this->db->where('term', $running_term);
+								}
+								$this->db->where('year', $running_year);
+
+								$marks = $this->db->get('mark')->result_array();
+
+								$student_name = $this->db->get_where('student', array('student_id' => $single_parent_st_id))->row()->name;
+
+								if ($class_name == 'JHSS') {
+									$message = 'Year|Semester: ' . $running_year . '|' . $running_sem . ' Exam Scores of ' . $student_name . ":\r\n";
+								} else {
+									$message = 'Year|Term: ' . $running_year . '|' . $running_term . ' Exam Scores of ' . $student_name . ":\r\n";
+								}
+
+								///$message .= 'Subject            Grade    Remark'."\r\n";
+								foreach ($marks as $row1) {
+
+									if ($class_name == 'JHSS') {
+										$subject = $this->db->get_where('subject', array('subject_id' => $row1['subject_id'], 'year' => $running_year, 'sem' => $running_sem))->row()->name;
+									} else {
+										$subject = $this->db->get_where('subject', array('subject_id' => $row1['subject_id'], 'year' => $running_year, 'term' => $running_term))->row()->name;
+									}
+
+									//abbreviate those subjects with long words
+									$subject_name = $subject;
+									if (str_word_count($row3['name'], 1)[0] == 'Religious' || str_word_count($row3['name'], 1)[0] == 'RELIGIOUS') {
+										$subject_name = 'R.M.E';
+									} else if (str_word_count($row3['name'], 1)[0] == 'English' || str_word_count($row3['name'], 1)[0] == 'ENGLISH') {
+										$subject_name = 'English';
+									} else if (str_word_count($row3['name'], 1)[0] == 'Information' || str_word_count($row3['name'], 1)[0] == 'INFORMATION') {
+										$subject_name = 'ICT';
+									} else if (str_word_count($row3['name'], 1)[0] == 'Health' || str_word_count($row3['name'], 1)[0] == 'HEALTH') {
+										$subject_name = 'H&Safety';
+									} else if (str_word_count($row3['name'], 1)[0] == 'Citizenship' || str_word_count($row3['name'], 1)[0] == 'CITIZENSHIP') {
+										$subject_name = 'C.E';
+									} else if (str_word_count($row3['name'], 1)[0] == 'Mathematics' || str_word_count($row3['name'], 1)[0] == 'MATHEMATICS') {
+										$subject_name = 'Maths';
+									} else if (str_word_count($row3['name'], 1)[0] == 'Creative' || str_word_count($row3['name'], 1)[0] == 'CREATIVE') {
+										$subject_name = 'C.A';
+									} else if (str_word_count($row3['name'], 1)[0] == 'Numeracy' || str_word_count($row3['name'], 1)[0] == 'NUMERACY') {
+										$subject_name = 'Numeracy';
+									} else if (str_word_count($row3['name'], 1)[0] == 'Natural' || str_word_count($row3['name'], 1)[0] == 'NATURAL') {
+										$subject_name = 'Science';
+									} else if (str_word_count($row3['name'], 1)[0] == 'Integrated' || str_word_count($row3['name'], 1)[0] == 'INTEGRATED') {
+										$subject_name = 'Science';
+									} else if (str_word_count($row3['name'], 1)[0] == 'Our' || str_word_count($row3['name'], 1)[0] == 'OUR') {
+										$subject_name = 'O.W.O.P';
+									} else if (str_word_count($row3['name'], 1)[0] == 'Physical' || str_word_count($row3['name'], 1)[0] == 'PHYSICAL') {
+										$subject_name = 'P.E'; //If they want the short form, use subject_name instead of subject
+									}
+
+									$mark_obtained = $row1['mark_obtained'].'%';
+									if($mark_obtained == '' || $mark_obtained == NULL) {
+										$mark_obtained = 'N/A';
+									}
+
+									$grade = $this->crud_model->get_grade($mark_obtained);
+									$grade_obtained = $grade['grade_point']; //grades
+									$remarks_obtained = $grade['name']; //remarks
+
+									//$message      .= $subject .': ' .$mark_obtained. ', ';
+									$message .= ucwords(strtolower($subject)) . ' ' .$mark_obtained. ' '  . $grade_obtained . ' ' . ucwords(strtolower($remarks_obtained)) . ",  ";
+
+								}
+
+								// send sms
+								$receiver_phone_array = array();
+								$receiver_phone_array[] = $receiver_phone;
+
+								$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+
+								if ($receiver_email != null || $receiver_email != '') {
+									//for email
+									$message_e = '
+                                            <!doctype html>
+                                            <html>
+                                                <head>
+                                                    <meta charset="utf-8" />
+                                                    <title>Student Exam Report</title>
+                                                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                                                </head>
+                                                <body>
+                                                <center>' . $class_name == 'JHSS' ? '<h3>Year|Semester: ' . explode('-', $running_year)[1] . '|' . $running_sem . ' Exam Scores of ' . $student_name . '</h3>' : '<h3>Year|Term: ' . explode('-', $running_year)[1] . '|' . $running_term . ' Exam Scores of ' . $student_name . '</h3>
+
+                                                    <table style="width:50%; border-collapse:collapse;border: 1px solid #ccc; margin-top: 10px;" border="1">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="background-color: grey; border: 2px solid #e2dddd; padding: 5px; color: white; border-bottom: 2px solid red;">Subject</th>
+                                                                <th style="background-color: grey; border: 2px solid #e2dddd; padding: 5px; color: white; border-bottom: 2px solid red;">Class Score</th>
+                                                                <th style="background-color: grey; border: 2px solid #e2dddd; padding: 5px; color: white; border-bottom: 2px solid red;">Exam Score</th>
+                                                                <th style="background-color: grey; border: 2px solid #e2dddd; padding: 5px; color: white; border-bottom: 2px solid red;">Total Score</th>
+                                                                <th style="background-color: grey; border: 2px solid #e2dddd; padding: 5px; color: white; border-bottom: 2px solid red;">Grade</th>
+                                                                <th style="background-color: grey; border: 2px solid #e2dddd; padding: 5px; color: white; border-bottom: 2px solid red;">Remark</th>
+
+                                                            </tr>
+                                                        <thead>
+                                                        <tbody>';
+									foreach ($marks as $row2) {
+
+										if ($class_name == 'JHSS') {
+											$subject = $this->db->get_where('subject', array('subject_id' => $row2['subject_id'], 'year' => $running_year, 'sem' => $running_sem))->row()->name;
+										} else {
+											$subject = $this->db->get_where('subject', array('subject_id' => $row2['subject_id'], 'year' => $running_year, 'term' => $running_term))->row()->name;
+										}
+
+										$mark_obtained = $row2['mark_obtained'];
+										$grade = $this->crud_model->get_grade($mark_obtained);
+										$grade_obtained = $grade['grade_point']; //grades
+										$remarks_obtained = $grade['name']; //remarks
+
+										$message_e .= '
+                                                    <tr>
+                                                        <td>' . $subject . '</td>
+                                                        <td align="center"><strong>' . $row2['class_score'] . '</strong></td>
+                                                        <td align="center"><strong>' . $row2['exam_score'] . '</strong></td>
+                                                        <td align="center"><strong>' . $row2['mark_obtained'] . '</strong></td>
+                                                        <td align="center"><strong>' . $grade_obtained . '</strong></td>
+                                                        <td align="center"><strong>' . $remarks_obtained . '</strong></td>
+
+                                                    </tr>
+                                                ';
+
+									}
+
+									$message_e .= '</tbody></table></body></html>';
+
+									//send email
+									// send_email($receiver_email, 'End of Term '.$running_term.' Results', $message, $owner_email);
+									$this->email_model->do_email($message_e, 'End of Term Report Sheet', $receiver_email, $owner_email);
+								}
+							} //one parent at a time ends...
+
+						}
+					} else {
+						// get the marks of the student for selected exam
+						foreach ($students as $row) {
+							if ($receiver == 'student') {
+								$receiver_phone = $this->db->get_where('student', array('student_id' => $row['student_id']))->row()->phone;
+								$receiver_email = $this->db->get_where('student', array('student_id' => $row['student_id']))->row()->email;
+								if ($receiver_phone == null || $receiver_phone == '') {
+									/**$this->session->set_flashdata('error_message' , get_phrase('message_not_sent:_student\'s_phone_number_not_found'));
+                                redirect(site_url('admin/exam_marks_sms?msg=1')); **/
+								}
+							}
+
+							if ($receiver == 'parent') {
+								$parent_id = $this->db->get_where('student', array('student_id' => $row['student_id']))->row()->parent_id;
+								if ($parent_id != '' || $parent_id != null) {
+									$receiver_phone = $this->db->get_where('parent', array('parent_id' => $parent_id))->row()->phone;
+									$receiver_email = $this->db->get_where('parent', array('parent_id' => $parent_id))->row()->email;
+									if ($receiver_phone == null || $receiver_email == null) {
+										/**$this->session->set_flashdata('error_message' , get_phrase('parent\'s_phone_number/_email_is_not_found')); **/
+									}
+								}
+							}
+
+							$running_year = $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->year;
+							$running_term = $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->term;
+							$running_sem = $this->db->get_where('exam', array('exam_id' => $exam_id))->row()->sem;
+							$owner_email = $this->db->get_where('settings', array('type' => 'system_email'))->row()->description;
+
+							//get exam scores
+							$this->db->where('exam_id', $exam_id);
+							$this->db->where('student_id', $row['student_id']);
+							$this->db->where('year', $running_year);
+
+							if ($class_name == 'JHSS') {
+
+								$this->db->where('sem', $running_sem);
+							} else {
+								$this->db->where('term', $running_term);
+							}
+
+							$marks = $this->db->get('mark')->result_array();
+
+							$student_name = $this->db->get_where('student', array('student_id' => $row['student_id']))->row()->name;
+
+							$message = 'Year|Term: ' . $running_year . '|' . $running_term . ' Exam Scores of ' . $student_name . ":\r\n";
+							///$message .= 'Subject            Grade    Remark'."\r\n";
+							foreach ($marks as $row1) {
+
+								if ($class_name == 'JHSS') {
+									$subject = $this->db->get_where('subject', array('subject_id' => $row1['subject_id'], 'year' => $running_year, 'sem' => $running_sem))->row()->name;
+								} else {
+									$subject = $this->db->get_where('subject', array('subject_id' => $row1['subject_id'], 'year' => $running_year, 'term' => $running_term))->row()->name;
+
+								}
+
+								//abbreviate those subjects with long words
+								$subject_name = $subject;
+								if (str_word_count($row3['name'], 1)[0] == 'Religious' || str_word_count($row3['name'], 1)[0] == 'RELIGIOUS') {
+									$subject_name = 'R.M.E';
+								} else if (str_word_count($row3['name'], 1)[0] == 'English' || str_word_count($row3['name'], 1)[0] == 'ENGLISH') {
+									$subject_name = 'English';
+								} else if (str_word_count($row3['name'], 1)[0] == 'Information' || str_word_count($row3['name'], 1)[0] == 'INFORMATION') {
+									$subject_name = 'ICT';
+								} else if (str_word_count($row3['name'], 1)[0] == 'Health' || str_word_count($row3['name'], 1)[0] == 'HEALTH') {
+									$subject_name = 'H&Safety';
+								} else if (str_word_count($row3['name'], 1)[0] == 'Citizenship' || str_word_count($row3['name'], 1)[0] == 'CITIZENSHIP') {
+									$subject_name = 'C.E';
+								} else if (str_word_count($row3['name'], 1)[0] == 'Mathematics' || str_word_count($row3['name'], 1)[0] == 'MATHEMATICS') {
+									$subject_name = 'Maths';
+								} else if (str_word_count($row3['name'], 1)[0] == 'Creative' || str_word_count($row3['name'], 1)[0] == 'CREATIVE') {
+									$subject_name = 'C.A';
+								} else if (str_word_count($row3['name'], 1)[0] == 'Numeracy' || str_word_count($row3['name'], 1)[0] == 'NUMERACY') {
+									$subject_name = 'Numeracy';
+								} else if (str_word_count($row3['name'], 1)[0] == 'Natural' || str_word_count($row3['name'], 1)[0] == 'NATURAL') {
+									$subject_name = 'Science';
+								} else if (str_word_count($row3['name'], 1)[0] == 'Integrated' || str_word_count($row3['name'], 1)[0] == 'INTEGRATED') {
+									$subject_name = 'Science';
+								} else if (str_word_count($row3['name'], 1)[0] == 'Our' || str_word_count($row3['name'], 1)[0] == 'OUR') {
+									$subject_name = 'O.W.O.P';
+								} else if (str_word_count($row3['name'], 1)[0] == 'Physical' || str_word_count($row3['name'], 1)[0] == 'PHYSICAL') {
+									$subject_name = 'P.E'; //If they want the short form, use subject_name instead of subject
+								}
+
+								$mark_obtained = $row1['mark_obtained'].'%';
+								if($mark_obtained == '' || $mark_obtained == NULL) {
+									$mark_obtained = 'N/A';
+								}
+
+								$grade = $this->crud_model->get_grade($mark_obtained);
+								$grade_obtained = $grade['grade_point']; //grades
+								$remarks_obtained = $grade['name']; //remarks
+
+								//$message      .= $subject .': ' .$mark_obtained. ', ';
+								$message .= ucwords(strtolower($subject)) . ' ' .$mark_obtained.' '  . $grade_obtained . ' ' . ucwords(strtolower($remarks_obtained)) . ",  ";
+
+							}
+
+							// send sms
+							$receiver_phone_array = array();
+							$receiver_phone_array[] = $receiver_phone;
+
+							$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+
+							if ($receiver_email != null || $receiver_email != '') {
+								//for email
+								$message_e = '
+                                            <!doctype html>
+                                            <html>
+                                                <head>
+                                                    <meta charset="utf-8" />
+                                                    <title>Student Exam Report</title>
+                                                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                                                </head>
+                                                <body>
+                                                <center>' . $class_name == 'JHSS' ? '<h3>Year|Semester: ' . explode('-', $running_year)[1] . '|' . $running_sem . ' Exam Scores of ' . $student_name . '</h3>' : '<h3>Year|Term: ' . explode('-', $running_year)[1] . '|' . $running_term . ' Exam Scores of ' . $student_name . '</h3>
+                                                    <table style="width:50%; border-collapse:collapse;border: 1px solid #ccc; margin-top: 10px;" border="1">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="background-color: grey; border: 2px solid #e2dddd; padding: 5px; color: white; border-bottom: 2px solid red;">Subject</th>
+                                                                <th style="background-color: grey; border: 2px solid #e2dddd; padding: 5px; color: white; border-bottom: 2px solid red;">Class Score</th>
+                                                                <th style="background-color: grey; border: 2px solid #e2dddd; padding: 5px; color: white; border-bottom: 2px solid red;">Exam Score</th>
+                                                                <th style="background-color: grey; border: 2px solid #e2dddd; padding: 5px; color: white; border-bottom: 2px solid red;">Total Score</th>
+                                                                <th style="background-color: grey; border: 2px solid #e2dddd; padding: 5px; color: white; border-bottom: 2px solid red;">Grade</th>
+                                                                <th style="background-color: grey; border: 2px solid #e2dddd; padding: 5px; color: white; border-bottom: 2px solid red;">Remark</th>
+
+                                                            </tr>
+                                                        <thead>
+                                                        <tbody>';
+								foreach ($marks as $row2) {
+
+									if ($class_name == 'JHSS') {
+										$subject = $this->db->get_where('subject', array('subject_id' => $row2['subject_id'], 'year' => $running_year, 'sem' => $running_sem))->row()->name;
+									} else {
+										$subject = $this->db->get_where('subject', array('subject_id' => $row2['subject_id'], 'year' => $running_year, 'term' => $running_term))->row()->name;
+
+									}
+
+									$mark_obtained = $row2['mark_obtained'];
+									$grade = $this->crud_model->get_grade($mark_obtained);
+									$grade_obtained = $grade['grade_point']; //grades
+									$remarks_obtained = $grade['name']; //remarks
+
+									$message_e .= '
+                                                    <tr>
+                                                        <td>' . $subject . '</td>
+                                                        <td align="center"><strong>' . $row2['class_score'] . '</strong></td>
+                                                        <td align="center"><strong>' . $row2['exam_score'] . '</strong></td>
+                                                        <td align="center"><strong>' . $row2['mark_obtained'] . '</strong></td>
+                                                        <td align="center"><strong>' . $grade_obtained . '</strong></td>
+                                                        <td align="center"><strong>' . $remarks_obtained . '</strong></td>
+
+                                                    </tr>
+                                                ';
+
+								}
+
+								$message_e .= '</tbody></table></body></html>';
+
+								//send email
+								// send_email($receiver_email, 'End of Term '.$running_term.' Results', $message, $owner_email);
+								$this->email_model->do_email($message_e, 'End of Term Report Sheet', $receiver_email, $owner_email);
+							}
+						}
+					}
+
+					$this->session->set_flashdata('flash_message', get_phrase('message_sent'));
+					redirect(site_url('admin/exam_marks_sms?msg=2'));
+				} else {
+					$this->session->set_flashdata('error_message', get_phrase('select_all_the_fields'));
+				}
+
+			} else {
+				//SMS not active
+
+				$this->session->set_flashdata('error_message', get_phrase('your_sMS_menu_has_been_disabled._please_enable_it_on_the_sYSTEM_sETTINGS_menu_and_try_again!'));
+				redirect(site_url('admin/exam_marks_sms?msg=3'));
+			}
+			redirect(site_url('admin/exam_marks_sms'));
+		}
+
+		$page_data['page_name'] = 'exam_marks_sms';
+		$page_data['page_title'] = get_phrase('send_marks_by_sms');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function marks_manage() {
+		// if ($this->session->userdata('admin_login') != 1)
+		// redirect(site_url('login'));
+		$page_data['page_name'] = 'marks_manage';
+		$page_data['page_title'] = get_phrase('manage_exam_marks');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function portfolio_assessment_manage() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//  redirect(site_url('login'), 'refresh');
+		$page_data['page_name'] = 'portfolio_assessment_manage';
+		$page_data['page_title'] = get_phrase('manage_portfolio_assessment');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function portfolio_assessment_manage_view($exam_id = '', $class_id = '', $section_id = '', $subject_id = '', $week = '') {
+
+		echo '<script type="text/javascript">showAjaxModal_alert("Loading Data. Please wait...", "Loading");</script>';
+
+		// if ($this->session->userdata('admin_login') != 1)
+		//     redirect(site_url('login'), 'refresh');
+		$page_data['exam_id'] = $exam_id;
+		$page_data['class_id'] = $class_id;
+		$page_data['subject_id'] = $subject_id;
+		$page_data['week'] = $week;
+		$page_data['section_id'] = $section_id;
+		$page_data['page_name'] = 'portfolio_assessment_manage_view';
+		$page_data['page_title'] = get_phrase('portfolio_assessment_marks');
+		$this->load->view('backend/main', $page_data);
+	}
+	
+//creche
+	function marks_manage_view_creche($exam_id = '', $class_id = '', $section_id = '', $subject_id = '', $category_id = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		$page_data['exam_id'] = $exam_id;
+		$page_data['class_id'] = $class_id;
+		$page_data['subject_id'] = $subject_id;
+		$page_data['category_id'] = $category_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['page_name'] = 'marks_manage_view_creche';
+		$page_data['page_title'] = get_phrase('manage_exam_marks');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function marks_manage_view_creche2($exam_id = '', $class_id = '', $section_id = '', $subject_id = '', $category_id = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		$page_data['exam_id'] = $exam_id;
+		$page_data['class_id'] = $class_id;
+		$page_data['subject_id'] = $subject_id;
+		$page_data['category_id'] = $category_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['page_name'] = 'marks_manage_view_creche2';
+		$page_data['page_title'] = get_phrase('manage_exam_marks');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+//general
+	function marks_manage_view($exam_id = '', $class_id = '', $section_id = '', $subject_id = '') {
+		// if ($this->session->userdata('admin_login') != 1)
+		//    redirect(site_url('login'));
+		$page_data['exam_id'] = $exam_id;
+		$page_data['class_id'] = $class_id;
+		$page_data['subject_id'] = $subject_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['page_name'] = 'marks_manage_view';
+		$page_data['page_title'] = get_phrase('manage_exam_marks');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+
+	function conducts_update() {
+		//if($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$exam_id = $this->input->post('exam_id');
+		$class_id = $this->input->post('class_id');
+		$student_id = $this->input->post('student_id');
+
+		$class_name = $this->crud_model->get_class_name($class_id);
+
+		if ($exam_id == '' || $exam_id == null) {
+			if ($class_name == 'CRECHE') {
+				echo 'no mark';
+			} else {
+				echo 'no mark';
+			}
+		}
+
+		$this->db->limit(1);
+		$section_id = $this->db->get_where('section', array('class_id' => $class_id))->row()->section_id;
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		$running_sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+		// Check if style_3 is being used (conducts not required)
+		$terminal_report_style = $this->db->get_where('settings', array('type' => 'terminal_report_style'))->row()->description ?? 'style_1';
+		$skip_conduct_validation = ($terminal_report_style === 'style_3');
+
+		// Get conduct IDs from new system (conduct_ids[]) or fallback to old system (conducts[])
+		$conduct_ids = $this->input->post('conduct_ids');
+		if (empty($conduct_ids)) {
+			$conduct_ids = $this->input->post('conducts'); // Backward compatibility
+		}
+		
+		// Get interest ID from new system (single selection) or text (backward compatibility)
+		$interest_id = $this->input->post('interest_id'); // Single interest ID
+		$interest_text = strtoupper($this->input->post('interest')); // Backward compatibility text
+		
+		$remarks = $this->input->post('teacher_remarks');
+
+		//attendance
+		$days_opened = $this->input->post('days_opened');
+		$days_present = $this->input->post('days_present');
+
+		//jhs
+		if ($class_name == 'JHSS') {
+
+			//non jhs
+			//first check if this student's data is already in the table. If is it not, then insert new data for this student
+			$row_check = $this->db->get_where('aggregation', array('student_id' => $student_id, 'sem' => $running_sem, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id))->num_rows();
+			if ($row_check < 1) {
+
+				echo 'no mark';
+
+			} else {
+				$this->db->set('remarks', $remarks);
+				$this->db->where(array('student_id' => $student_id, 'sem' => $running_sem, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
+				$this->db->update('aggregation');
+
+				//Attendance + Interest (single ID or text)
+				$att_data = array(
+					'days_opened' => $days_opened,
+					'days_present' => $days_present,
+					'interest' => !empty($interest_id) ? $interest_id : $interest_text, // Single ID or text
+				);
+				
+				// Add head teacher remarks if admin is logged in
+				if ($this->session->userdata('admin_login') == 1) {
+					$head_teacher_remarks = strtoupper($this->input->post('head_teacher_remarks'));
+					if (!empty($head_teacher_remarks)) {
+						$att_data['head_teacher_remarks'] = $head_teacher_remarks;
+					}
+				}
+
+				$this->db->set($att_data);
+				$this->db->where(array('student_id' => $student_id, 'sem' => $running_sem, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
+				$this->db->update('aggregation');
+			}
+
+			// Save conduct IDs to existing c1-c15 columns (production columns)
+			$conduct_data = array();
+			for ($i = 1; $i <= 15; $i++) {
+				$conduct_data['c' . $i] = isset($conduct_ids[$i - 1]) && !empty($conduct_ids[$i - 1]) ? $conduct_ids[$i - 1] : null;
+			}
+			
+			// Save interest as single ID in existing interest column
+			if (!empty($interest_id)) {
+				$conduct_data['interest'] = $interest_id; // Single ID
+			} else {
+				$conduct_data['interest'] = $interest_text; // Fallback to old text value
+			}
+
+			if (empty($conduct_ids) || (isset($conduct_ids[0]) && $conduct_ids[0] == '')) {
+
+				// For style_3, allow saving without conducts (clear existing conducts)
+				if ($skip_conduct_validation) {
+					// Clear all conduct IDs in c1-c15
+					for ($i = 1; $i <= 15; $i++) {
+						$conduct_data['c' . $i] = null;
+					}
+					$conduct_data['interest'] = null;
+					
+					$this->db->set($conduct_data);
+					$this->db->where(array('student_id' => $student_id, 'sem' => $running_sem, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
+					$this->db->update('aggregation');
+
+					echo 'success';
+					return;
+				}
+
+				// Clear all conduct IDs in c1-c15
+				for ($i = 1; $i <= 15; $i++) {
+					$conduct_data['c' . $i] = null;
+				}
+				$conduct_data['interest'] = null;
+				
+				$this->db->set($conduct_data);
+				$this->db->where(array('student_id' => $student_id, 'sem' => $running_sem, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
+				$this->db->update('aggregation');
+
+				echo 'no conduct';
+
+			} else {
+
+				$this->db->set($conduct_data);
+				$this->db->where(array('student_id' => $student_id, 'sem' => $running_sem, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
+				$this->db->update('aggregation');
+
+				echo 'success';
+
+			}
+			//end of JHS
+		} else {
+			//non jhs
+			//first check if this student's data is already in the table. If is it not, then insert new data for this student
+			$row_check = $this->db->get_where('aggregation', array('student_id' => $student_id, 'term' => $running_term, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id))->num_rows();
+			if ($row_check < 1) {
+
+				if ($class_name == 'CRECHE') {
+					$new['exam_id'] = $exam_id;
+					$new['class_id'] = $class_id;
+					$new['student_id'] = $student_id;
+					$new['section_id'] = $section_id;
+					$new['year'] = $running_year;
+					$new['term'] = $running_term;
+					$new['remarks'] = $remarks;
+					$new['days_opened'] = $days_opened;
+					$new['days_present'] = $days_present;
+					$new['interest'] = !empty($interest_id) ? $interest_id : $interest_text; // Single ID or text
+
+					$this->db->insert('aggregation', $new);
+				} else {
+					echo 'no mark';
+				}
+
+			} else {
+				$this->db->set('remarks', $remarks);
+				$this->db->where(array('student_id' => $student_id, 'term' => $running_term, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
+				$this->db->update('aggregation');
+
+				//Attendance + Interest (single ID or text)
+				$att_data = array(
+					'days_opened' => $days_opened,
+					'days_present' => $days_present,
+					'interest' => !empty($interest_id) ? $interest_id : $interest_text, // Single ID or text
+				);
+				
+				// Add head teacher remarks if admin is logged in
+				if ($this->session->userdata('admin_login') == 1) {
+					$head_teacher_remarks = strtoupper($this->input->post('head_teacher_remarks'));
+					if (!empty($head_teacher_remarks)) {
+						$att_data['head_teacher_remarks'] = $head_teacher_remarks;
+					}
+				}
+
+				$this->db->set($att_data);
+				$this->db->where(array('student_id' => $student_id, 'term' => $running_term, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
+				$this->db->update('aggregation');
+			}
+
+			// Save conduct IDs to existing c1-c15 columns (production columns)
+			$conduct_data = array();
+			for ($i = 1; $i <= 15; $i++) {
+				$conduct_data['c' . $i] = isset($conduct_ids[$i - 1]) && !empty($conduct_ids[$i - 1]) ? $conduct_ids[$i - 1] : null;
+			}
+			
+			// Save interest as single ID in existing interest column
+			if (!empty($interest_id)) {
+				$conduct_data['interest'] = $interest_id; // Single ID
+			} else {
+				$conduct_data['interest'] = $interest_text; // Fallback to old text value
+			}
+
+			if (empty($conduct_ids) || (isset($conduct_ids[0]) && $conduct_ids[0] == '')) {
+
+				// For style_3, allow saving without conducts (clear existing conducts)
+				if ($skip_conduct_validation) {
+					// Clear all conduct IDs in c1-c15
+					for ($i = 1; $i <= 15; $i++) {
+						$conduct_data['c' . $i] = null;
+					}
+					$conduct_data['interest'] = null;
+					
+					$this->db->set($conduct_data);
+					$this->db->where(array('student_id' => $student_id, 'term' => $running_term, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
+					$this->db->update('aggregation');
+
+					echo 'success';
+					return;
+				}
+
+				// Clear all conduct IDs in c1-c15
+				for ($i = 1; $i <= 15; $i++) {
+					$conduct_data['c' . $i] = null;
+				}
+				$conduct_data['interest'] = null;
+				
+				$this->db->set($conduct_data);
+				$this->db->where(array('student_id' => $student_id, 'term' => $running_term, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
+				$this->db->update('aggregation');
+
+				echo 'no conduct';
+
+			} else {
+
+				$this->db->set($conduct_data);
+				$this->db->where(array('student_id' => $student_id, 'term' => $running_term, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
+				$this->db->update('aggregation');
+
+				echo 'success';
+			}
+		}
+
+	}
+
+	//conduct form 2
+	function conducts_update_2() {
+		//if($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$exam_id = $this->input->post('exam_id');
+		$class_id = $this->input->post('class_id');
+		$student_id = $this->input->post('student_id');
+
+		$class_name = $this->crud_model->get_class_name($class_id);
+
+		if ($exam_id == '' || $exam_id == null) {
+			echo 'no exam';
+		}
+
+		$this->db->limit(1);
+		$section_id = $this->db->get_where('section', array('class_id' => $class_id))->row()->section_id;
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		$running_sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+		$data['conduct'] = strtoupper($this->input->post('conduct'));
+		$data['attitude'] = strtoupper($this->input->post('attitude'));
+		
+		// Get interest ID from new system (single selection) or text (backward compatibility)
+		$interest_id = $this->input->post('interest_id'); // Single interest ID
+		$interest_text = strtoupper($this->input->post('interest')); // Backward compatibility text
+		
+		//$data['head_teacher_remarks'] = strtoupper($this->input->post('head_teacher_remarks'));
+		$data['class_teacher_remarks'] = strtoupper($this->input->post('class_teacher_remarks'));
+
+		
+
+
+		//attendance
+		$days_opened = $this->input->post('days_opened');
+		$days_present = $this->input->post('days_present');
+
+
+
+
+		//jhs
+		/*if ($class_name == 'JHSS') {
+
+			//non jhs
+			//first check if this student's data is already in the table. If is it not, then insert new data for this student
+			$row_check = $this->db->get_where('aggregation', array('student_id' => $student_id, 'sem' => $running_sem, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id))->num_rows();
+
+			if ($row_check < 1) {
+
+
+
+			} else {
+
+				$new2['days_opened'] = $days_opened;
+				$new2['days_present'] = $days_present;
+				$new2['conduct'] = $data['conduct'];
+				$new2['attitude'] = $data['attitude'];
+				$new2['interest'] = $data['interest'];
+				//$new2['head_teacher_remarks'] = $data['head_teacher_remarks'];
+				$new2['class_teacher_remarks'] = $data['class_teacher_remarks'];
+
+				$this->db->where(array('student_id' => $student_id, 'sem' => $running_sem, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
+				$this->db->update('aggregation', $new2);
+
+				echo 'Records successfully updated.';
+				return false;
+			}
+
+			//end of JHS
+		} else {*/
+			//non jhs
+			//first check if this student's data is already in the table. If is it not, then insert new data for this student
+			$row_check = $this->db->get_where('aggregation', array('student_id' => $student_id, 'term' => $running_term, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id))->num_rows();
+
+			if ($row_check < 1) {
+
+					if ($class_name == 'CRECHE') {
+					
+						$new['exam_id'] = $exam_id;
+						$new['class_id'] = $class_id;
+						$new['student_id'] = $student_id;
+						$new['section_id'] = $section_id;
+						$new['year'] = $running_year;
+						$new['term'] = $running_term;
+
+						$new['days_opened'] = $days_opened;
+						$new['days_present'] = $days_present;
+						$new['conduct'] = $data['conduct'];
+						$new['attitude'] = $data['attitude'];
+						$new['interest'] = !empty($interest_id) ? $interest_id : $interest_text; // Single ID or text
+
+						if ($this->session->userdata('admin_login') == 1): //only admin can update this
+							$new['head_teacher_remarks'] = strtoupper($this->input->post('head_teacher_remarks'));
+						endif;
+
+						$new['class_teacher_remarks'] = $data['class_teacher_remarks'];
+
+						$this->db->insert('aggregation', $new);
+
+						echo 'Records successfully recorded.';
+						return false;
+
+					} else {
+						echo 'no mark';
+						return false;
+					}
+
+			} else {
+
+				$new2['days_opened'] = $days_opened;
+				$new2['days_present'] = $days_present;
+				$new2['conduct'] = $data['conduct'];
+				$new2['attitude'] = $data['attitude'];
+				
+				// Save interest as single ID in existing interest column
+				if (!empty($interest_id)) {
+					$new2['interest'] = $interest_id; // Single ID
+				} else {
+					$new2['interest'] = $interest_text; // Fallback to old text value
+				}
+
+				if ($this->session->userdata('admin_login') == 1): //only admin can update this
+					if ($class_name == 'CRECHE') { //only for creche
+						$new2['head_teacher_remarks'] = strtoupper($this->input->post('head_teacher_remarks'));
+					}
+				endif;
+				
+				$new2['class_teacher_remarks'] = $data['class_teacher_remarks'];
+
+				$this->db->where(array('student_id' => $student_id, 'term' => $running_term, 'class_id' => $class_id, 'year' => $running_year, 'exam_id' => $exam_id, 'section_id' => $section_id));
+				$this->db->update('aggregation', $new2);
+
+
+				//get head master's remarks here for all students in the school
+				//and update the aggregate table using database-driven remark ranges
+				if($class_name != 'CRECHE'): //excluding creche
+					// Load the head teacher remarks model
+					$this->load->model('head_teacher_remarks_model');
+					
+					$allStudentsIds = $this->crud_model->getAllStudentsIdsExCreche();
+					foreach($allStudentsIds as $stid) {
+							$this->db->where('student_id', $stid['student_id']);
+							$this->db->where('class_id', $stid['class_id']);
+							$this->db->where('exam_id', $exam_id);
+							$this->db->where('year', $running_year);
+							$this->db->where('term', $running_term);
+							$aggregation_row = $this->db->get('aggregation')->row();
+							
+							if (!$aggregation_row) {
+								continue; // Skip if no aggregation record found
+							}
+							
+							$student_score = $aggregation_row->aggregate_mark;
+
+							if($student_score == '' || $student_score == null) {
+								$student_score = 0;
+							}
+
+							// Calculate percentage score
+							// Get total number of subjects for this student's class
+							$this->db->select('subject_id');
+							$this->db->distinct();
+							$this->db->where(array(
+								'class_id' => $stid['class_id'],
+								'year' => $running_year,
+								'exam_id' => $exam_id,
+								'term' => $running_term
+							));
+							$this->db->where('class_id IS NOT NULL');
+							$this->db->where('section_id IS NOT NULL');
+							$this->db->from('mark');
+							$total_subjects = $this->db->get()->num_rows();
+							
+							$percentage_score = 0;
+							if ($total_subjects > 0) {
+								$grandScore = $total_subjects * 100;
+								if ($student_score > 0) {
+									$student_score_normalized = $student_score * 100;
+									$percentage_score = $student_score_normalized / $grandScore;
+								}
+							}
+
+							// Find appropriate remark from database using percentage
+							$remark_result = $this->head_teacher_remarks_model->find_by_percentage($percentage_score);
+							
+							// Prepare update data
+							$htrm = array();
+							if ($remark_result) {
+								$htrm['head_teacher_remarks'] = $remark_result->remark_text;
+								// Removed head_teacher_remark_id - using existing head_teacher_remarks column only
+							} else {
+								// No matching range found - clear field
+								$htrm['head_teacher_remarks'] = '';
+							}
+
+							$this->db->where(array('student_id' => $stid['student_id'], 'term' => $running_term, 'class_id' => $stid['class_id'], 'year' => $running_year, 'exam_id' => $exam_id));
+							$this->db->update('aggregation', $htrm);
+					} //end of head master's remarks
+				endif;
+				
+
+				echo 'Records successfully updated.';
+				return false;
+			}
+
+		//}
+
+	}
+
+	//for creche
+	function marks_selector_creche() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$data['exam_id'] = $this->input->post('exam_id');
+		$data['class_id'] = $this->input->post('class_id');
+		$data['section_id'] = $this->input->post('section_id');
+		$data['subject_id'] = $this->input->post('subject_id');
+		$data2['category_id'] = $this->input->post('category_id');
+		$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		if ($data['subject_id'] == '') {
+			/*$this->session->set_flashdata('error_message' , get_phrase('no_subject_was_found_for_class:_'.$this->crud_model->get_class_name($data['class_id']).' '.$this->crud_model->get_class_name_numeric($data['class_id']).'_please_create_subjects_for_this_class'));
+        redirect(site_url('admin/marks_manage?subjr=1'));*/
+
+			echo 'no subject';
+			return false;
+		}
+
+		if ($data['class_id'] != '' && $data['exam_id'] != '') {
+			$query = $this->db->get_where('mark', array(
+				'exam_id' => $data['exam_id'],
+				'class_id' => $data['class_id'],
+				'section_id' => $data['section_id'],
+				'subject_id' => $data['subject_id'],
+				'year' => $data['year'],
+				'term' => $data['term'],
+			));
+
+			$students = $this->db->get_where('enroll', array(
+					'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term'],
+				));
+
+
+			if ($query->num_rows() < 1) {
+				
+				//check if students' attendance has been managed to enroll students for this term
+				if ($students->num_rows() < 1) {
+					// echo '<script>alert("Ok");</script>';
+					//means attendance list has not been managed yet
+					/*$this->session->set_flashdata('error_message' , get_phrase('seems_students_attendance_for_term_'.$data['term'].'_has_not_been_marked_yet._please_mark_students_attendance_first_to_enroll_students_for_this_term_before_you_proceed.'));
+                    redirect(site_url('admin/marks_manage?term='.$data['term'].'&error=1'));*/
+
+					echo 'no enrollment';
+					return false;
+
+				} else {
+					$array_students = $students->result_array();
+					foreach ($array_students as $row) {
+						$data['student_id'] = $row['student_id'];
+						$this->db->insert('mark', $data);
+
+						$this->db->where('student_id', $row['student_id']);
+						$this->db->update('enroll', array('status' => 'close'));
+
+						$subject_status = $this->db->get_where('subject_creche', array('subject_id' => $data['subject_id'], 'class_id' => $data['class_id'], 'year' => $data['year'], 'term' => $data['term']))->row()->status;
+
+						$this->db->where('subject_id', $data['subject_id']);
+						$this->db->where('class_id', $data['class_id']);
+						$this->db->where('year', $data['year']);
+						$this->db->where('term', $data['term']);
+						$this->db->where('section_id', $data['section_id']);
+						$this->db->update('mark', array('status' => $subject_status));
+					}
+				}
+
+			} elseif ($query->num_rows() > 0) {
+
+				//select only those students who have not been admitted before the first entry into the mark table
+					$sIds = [];
+					foreach($query->result_array() as $st) {
+						array_push($sIds, $st['student_id']);
+					}
+
+					$this->db->where_not_in('student_id', $sIds);
+					$students = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term']
+					))->result_array();
+
+				foreach ($students as $row) {
+
+					$data['student_id'] = $row['student_id'];
+					$this->db->insert('mark', $data);
+
+					$this->db->where('student_id', $row['student_id']);
+					$this->db->update('enroll', array('status' => 'close'));
+
+					$subject_status = $this->db->get_where('subject', array('subject_id' => $data['subject_id'], 'class_id' => $data['class_id'], 'year' => $data['year'], 'term' => $data['term']))->row()->status;
+
+					$this->db->where('subject_id', $data['subject_id']);
+					$this->db->where('class_id', $data['class_id']);
+					$this->db->where('year', $data['year']);
+					$this->db->where('term', $data['term']);
+					$this->db->where('section_id', $data['section_id']);
+					$this->db->update('mark', array('status' => $subject_status));
+				}
+
+				/**check if the subject id with the student id exists in the mark table, if not, then insert these info into
+					                    *mark table
+				*/
+				/*$students_after = $this->db->get_where('enroll', array(
+					'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term'],
+				))->result_array();
+				foreach ($students_after as $after) {
+					$data['student_id'] = $after['student_id'];
+
+					$query2 = $this->db->get_where('mark', array(
+						'exam_id' => $data['exam_id'],
+						'class_id' => $data['class_id'],
+						'section_id' => $data['section_id'],
+						'subject_id' => $data['subject_id'],
+						'year' => $data['year'],
+						'term' => $data['term'],
+						'student_id' => $after['student_id'],
+					));
+					if ($query2->num_rows() < 1) {
+						//No such record, thus insert it into the mark table
+						$this->db->insert('mark', $data);
+
+						//update subject status
+						$subject_status = $this->db->get_where('subject_creche', array('subject_id' => $data['subject_id'], 'class_id' => $data['class_id'], 'year' => $data['year'], 'term' => $data['term']))->row()->status;
+
+						$this->db->where('subject_id', $data['subject_id']);
+						$this->db->where('class_id', $data['class_id']);
+						$this->db->where('year', $data['year']);
+						$this->db->where('term', $data['term']);
+						$this->db->where('section_id', $data['section_id']);
+						$this->db->update('mark', array('status' => $subject_status));
+					}
+				}*/
+
+			}
+
+			if ($data2['category_id'] == '0') {
+				echo site_url('admin/marks_manage_view_creche2/' . $data['exam_id'] . '/' . $data['class_id'] . '/' . $data['section_id'] . '/' . $data['subject_id'] . '/' . $data2['category_id']);
+			} else {
+				echo site_url('admin/marks_manage_view_creche/' . $data['exam_id'] . '/' . $data['class_id'] . '/' . $data['section_id'] . '/' . $data['subject_id'] . '/' . $data2['category_id']);
+			}
+		} else {
+			$this->session->set_flashdata('error_message', get_phrase('select_all_the_fields'));
+			$page_data['page_name'] = 'marks_manage';
+			$page_data['page_title'] = get_phrase('manage_exam_marks');
+			$page_data['account_type'] = $this->session->userdata('login_type');
+			$this->load->view('backend/main', $page_data);
+		}
+	}
+
+	//general
+	function marks_selector() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$data['exam_id'] = $this->input->post('exam_id');
+		$data['class_id'] = $this->input->post('class_id');
+		$data['section_id'] = $this->input->post('section_id');
+		$data['subject_id'] = $this->input->post('subject_id');
+		$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		$data['sem'] = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+		$class_name = $this->crud_model->get_class_name($data['class_id']);
+
+		if ($data['subject_id'] == '') {
+			/*$this->session->set_flashdata('error_message' , get_phrase('no_subject_was_found_for_class:_'.$this->crud_model->get_class_name($data['class_id']).' '.$this->crud_model->get_class_name_numeric($data['class_id']).'_please_create_subjects_for_this_class'));
+            redirect(site_url('admin/marks_manage?subjr=1'));*/
+
+			echo 'no subject';
+			return false;
+		}
+
+		if ($data['class_id'] != '' && $data['exam_id'] != '') {
+
+			//whether it is JHS or otherwise
+			if ($class_name == 'JHSS') {
+				$query = $this->db->get_where('mark', array(
+					'exam_id' => $data['exam_id'],
+					'class_id' => $data['class_id'],
+					'section_id' => $data['section_id'],
+					'subject_id' => $data['subject_id'],
+					'year' => $data['year'],
+					'sem' => $data['sem'],
+				));
+
+				if ($query->num_rows() < 1) {
+					$students = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'sem' => $data['sem'],
+					));
+
+					//check if students' attendance has been managed to enroll students for this sem
+					if ($students->num_rows() < 1) {
+						// echo '<script>alert("Ok");</script>';
+						//means attendance list has not been managed yet
+						/*$this->session->set_flashdata('error_message' , get_phrase('seems_students_attendance_for_semester_'.$data['sem'].'_has_not_been_marked_yet._please_mark_students_attendance_first_to_enroll_students_for_this_semester_before_you_proceed.'));
+                        redirect(site_url('admin/marks_manage?sem='.$data['sem'].'&error=1'));*/
+
+						echo 'no enrollment';
+						return false;
+
+					} else {
+						$array_students = $students->result_array();
+						foreach ($array_students as $row) {
+							$data['student_id'] = $row['student_id'];
+							$this->db->insert('mark', $data);
+
+							$this->db->where('student_id', $row['student_id']);
+							$this->db->update('enroll', array('status' => 'close'));
+
+							$subject_status = $this->db->get_where('subject', array('subject_id' => $data['subject_id'], 'class_id' => $data['class_id'], 'year' => $data['year'], 'sem' => $data['sem']))->row()->status;
+
+							$this->db->where('subject_id', $data['subject_id']);
+							$this->db->where('class_id', $data['class_id']);
+							$this->db->where('year', $data['year']);
+							$this->db->where('sem', $data['sem']);
+							$this->db->where('section_id', $data['section_id']);
+							$this->db->update('mark', array('status' => $subject_status));
+						}
+					}
+
+				} elseif ($query->num_rows() > 0) {
+
+					$students = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'sem' => $data['sem'], 'status' => 'open',
+					))->result_array();
+
+					foreach ($students as $row) {
+
+						$data['student_id'] = $row['student_id'];
+						$this->db->insert('mark', $data);
+
+						$this->db->where('student_id', $row['student_id']);
+						$this->db->update('enroll', array('status' => 'close'));
+
+						$subject_status = $this->db->get_where('subject', array('subject_id' => $data['subject_id'], 'class_id' => $data['class_id'], 'year' => $data['year'], 'sem' => $data['sem']))->row()->status;
+
+						$this->db->where('subject_id', $data['subject_id']);
+						$this->db->where('class_id', $data['class_id']);
+						$this->db->where('year', $data['year']);
+						$this->db->where('sem', $data['sem']);
+						$this->db->where('section_id', $data['section_id']);
+						$this->db->update('mark', array('status' => $subject_status));
+					}
+
+					/**check if the subject id with the student id exists in the mark table, if not, then insert these info into
+						                        *mark table
+					*/
+					$students_after = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'sem' => $data['sem'],
+					))->result_array();
+					foreach ($students_after as $after) {
+						$data['student_id'] = $after['student_id'];
+
+						$query2 = $this->db->get_where('mark', array(
+							'exam_id' => $data['exam_id'],
+							'class_id' => $data['class_id'],
+							'section_id' => $data['section_id'],
+							'subject_id' => $data['subject_id'],
+							'year' => $data['year'],
+							'sem' => $data['sem'],
+							'student_id' => $after['student_id'],
+						));
+						if ($query2->num_rows() < 1) {
+							//No such record, thus insert it into the mark table
+							$this->db->insert('mark', $data);
+
+							//update subject status
+							$subject_status = $this->db->get_where('subject', array('subject_id' => $data['subject_id'], 'class_id' => $data['class_id'], 'year' => $data['year'], 'sem' => $data['sem']))->row()->status;
+
+							$this->db->where('subject_id', $data['subject_id']);
+							$this->db->where('class_id', $data['class_id']);
+							$this->db->where('year', $data['year']);
+							$this->db->where('sem', $data['sem']);
+							$this->db->where('section_id', $data['section_id']);
+							$this->db->update('mark', array('status' => $subject_status));
+						}
+					}
+
+				}
+
+				//trying to find the average mark from the portfolio assessment table and then put it in mark table
+				/**$this->db->select('student_id');
+	                $this->db->distinct();
+	                $this->db->where('class_id', $data['class_id']);
+	                $this->db->where('exam_id', $data['exam_id']);
+	                $this->db->where('year', $data['year']);
+	                $this->db->where('sem', $data['sem']);
+	                $students_ids = $this->db->get('mark')->result_array();
+
+	                //find the total number of entries made so far
+	                $this->db->select('timestamp');
+	                $this->db->distinct();
+	                $this->db->where('strand_score >', '0');
+	                $this->db->where('class_id', $data['class_id']);
+	                $this->db->where('subject_id', $data['subject_id']);
+	                //$this->db->where('exam_id', $data['exam_id']);
+	                $this->db->where('year', $data['year']);
+	                $this->db->where('sem', $data['sem']);
+	                $num_rows = $this->db->get('portfolio_assessment')->num_rows();
+
+	                foreach($students_ids as $id) {
+	                    //now let's find the average score
+	                    $this->db->select_sum('strand_score');
+	                    $this->db->where('strand_score >', '0');
+	                    $this->db->where('class_id', $data['class_id']);
+	                    $this->db->where('subject_id', $data['subject_id']);
+	                    //$this->db->where('exam_id', $data['exam_id']);
+	                    $this->db->where('student_id', $id['student_id']);
+	                    $this->db->where('year', $data['year']);
+	                    $this->db->where('sem', $data['sem']);
+	                    $total_score = $this->db->get('portfolio_assessment')->row()->strand_score;
+
+	                    if($total_score != NULL) {
+	                        $total_score = $total_score * 10; //multiply by 10
+
+	                        $average_score = (floatval($total_score) / floatval($num_rows)); //divide total score by the number times the test was conducted
+	                        $percentage_average = $average_score * 0.2; //finding 20% of the average score
+
+	                        $percentage_average = round($percentage_average, 2); //round it up
+	                    } else {
+	                        $percentage_average = $total_score;
+	                    }
+
+	                    //update now
+	                    $this->db->where('class_id', $data['class_id']);
+	                    $this->db->where('subject_id', $data['subject_id']);
+	                    $this->db->where('student_id', $id['student_id']);
+	                    $this->db->where('exam_id', $data['exam_id']);
+	                    $this->db->where('year', $data['year']);
+	                    $this->db->where('sem', $data['sem']);
+	                    $this->db->set('test1', $percentage_average);
+
+	                    $this->db->update('mark');
+
+*///DISABLE FOR THOSE SCHOOLS THAT DON'T WANT TO USE PORTFOLIO ASSESSMENT
+
+				echo site_url('admin/marks_manage_view/' . $data['exam_id'] . '/' . $data['class_id'] . '/' . $data['section_id'] . '/' . $data['subject_id']);
+
+			} else {
+				//not JHS
+
+				$query = $this->db->get_where('mark', array(
+					'exam_id' => $data['exam_id'],
+					'class_id' => $data['class_id'],
+					'section_id' => $data['section_id'],
+					'subject_id' => $data['subject_id'],
+					'year' => $data['year'],
+					'term' => $data['term'],
+				));
+
+				$students = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term'],
+					));
+
+				if ($query->num_rows() < 1) {
+					
+
+					//check if students' attendance has been managed to enroll students for this term
+					if ($students->num_rows() < 1) {
+						// echo '<script>alert("Ok");</script>';
+						//means attendance list has not been managed yet
+						/*$this->session->set_flashdata('error_message' , get_phrase('seems_students_attendance_for_term_'.$data['term'].'_has_not_been_marked_yet._please_mark_students_attendance_first_to_enroll_students_for_this_term_before_you_proceed.'));
+                        redirect(site_url('admin/marks_manage?term='.$data['term'].'&error=1'));*/
+
+						echo 'no enrollment';
+						return false;
+
+					} else {
+						$array_students = $students->result_array();
+						foreach ($array_students as $row) {
+							$data['student_id'] = $row['student_id'];
+							$this->db->insert('mark', $data);
+
+							$this->db->where('student_id', $row['student_id']);
+							$this->db->update('enroll', array('status' => 'close'));
+
+							$subject_status = $this->db->get_where('subject', array('subject_id' => $data['subject_id'], 'class_id' => $data['class_id'], 'year' => $data['year'], 'term' => $data['term']))->row()->status;
+
+							$this->db->where('subject_id', $data['subject_id']);
+							$this->db->where('class_id', $data['class_id']);
+							$this->db->where('year', $data['year']);
+							$this->db->where('term', $data['term']);
+							$this->db->where('section_id', $data['section_id']);
+							$this->db->update('mark', array('status' => $subject_status));
+						}
+					}
+
+				} elseif ($query->num_rows() > 0) {
+
+					//select only those students who have not been admitted before the first entry into the mark table
+					$sIds = [];
+					foreach($query->result_array() as $st) {
+						array_push($sIds, $st['student_id']);
+					}
+
+					$this->db->where_not_in('student_id', $sIds);
+					$students = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term']
+					))->result_array();
+
+					foreach ($students as $row) {
+
+						$data['student_id'] = $row['student_id'];
+						$this->db->insert('mark', $data);
+
+						$this->db->where('student_id', $row['student_id']);
+						$this->db->update('enroll', array('status' => 'close'));
+
+						$subject_status = $this->db->get_where('subject', array('subject_id' => $data['subject_id'], 'class_id' => $data['class_id'], 'year' => $data['year'], 'term' => $data['term']))->row()->status;
+
+						$this->db->where('subject_id', $data['subject_id']);
+						$this->db->where('class_id', $data['class_id']);
+						$this->db->where('year', $data['year']);
+						$this->db->where('term', $data['term']);
+						$this->db->where('section_id', $data['section_id']);
+						$this->db->update('mark', array('status' => $subject_status));
+					}
+
+					/**check if the subject id with the student id exists in the mark table, if not, then insert these info into
+						                        *mark table
+					*/
+					/*$students_after = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term'],
+					))->result_array();
+					foreach ($students_after as $after) {
+						$data['student_id'] = $after['student_id'];
+
+						$query2 = $this->db->get_where('mark', array(
+							'exam_id' => $data['exam_id'],
+							'class_id' => $data['class_id'],
+							'section_id' => $data['section_id'],
+							'subject_id' => $data['subject_id'],
+							'year' => $data['year'],
+							'term' => $data['term'],
+							'student_id' => $after['student_id'],
+						));
+						if ($query2->num_rows() < 1) {
+							//No such record, thus insert it into the mark table
+							$this->db->insert('mark', $data);
+
+							//update subject status
+							$subject_status = $this->db->get_where('subject', array('subject_id' => $data['subject_id'], 'class_id' => $data['class_id'], 'year' => $data['year'], 'term' => $data['term']))->row()->status;
+
+							$this->db->where('subject_id', $data['subject_id']);
+							$this->db->where('class_id', $data['class_id']);
+							$this->db->where('year', $data['year']);
+							$this->db->where('term', $data['term']);
+							$this->db->where('section_id', $data['section_id']);
+							$this->db->update('mark', array('status' => $subject_status));
+						}
+					}*/
+
+				}
+
+				//trying to find the average mark from the portfolio assessment table and then put it in mark table
+				/**$this->db->select('student_id');
+	                $this->db->distinct();
+	                $this->db->where('class_id', $data['class_id']);
+	                $this->db->where('exam_id', $data['exam_id']);
+	                $this->db->where('year', $data['year']);
+	                $this->db->where('term', $data['term']);
+	                $students_ids = $this->db->get('mark')->result_array();
+
+	                //find the total number of entries made so far
+	                $this->db->select('timestamp');
+	                $this->db->distinct();
+	                $this->db->where('strand_score >', '0');
+	                $this->db->where('class_id', $data['class_id']);
+	                $this->db->where('subject_id', $data['subject_id']);
+	                //$this->db->where('exam_id', $data['exam_id']);
+	                $this->db->where('year', $data['year']);
+	                $this->db->where('term', $data['term']);
+	                $num_rows = $this->db->get('portfolio_assessment')->num_rows();
+
+	                foreach($students_ids as $id) {
+	                    //now let's find the average score
+	                    $this->db->select_sum('strand_score');
+	                    $this->db->where('strand_score >', '0');
+	                    $this->db->where('class_id', $data['class_id']);
+	                    $this->db->where('subject_id', $data['subject_id']);
+	                    //$this->db->where('exam_id', $data['exam_id']);
+	                    $this->db->where('student_id', $id['student_id']);
+	                    $this->db->where('year', $data['year']);
+	                    $this->db->where('term', $data['term']);
+	                    $total_score = $this->db->get('portfolio_assessment')->row()->strand_score;
+
+	                    if($total_score != NULL) {
+	                        $total_score = $total_score * 10; //multiply by 10
+
+	                        $average_score = (floatval($total_score) / floatval($num_rows)); //divide total score by the number times the test was conducted
+	                        $percentage_average = $average_score * 0.2; //finding 20% of the average score
+
+	                        $percentage_average = round($percentage_average, 2); //round it up
+	                    } else {
+	                        $percentage_average = $total_score;
+	                    }
+
+	                    //update now
+	                    $this->db->where('class_id', $data['class_id']);
+	                    $this->db->where('subject_id', $data['subject_id']);
+	                    $this->db->where('student_id', $id['student_id']);
+	                    $this->db->where('exam_id', $data['exam_id']);
+	                    $this->db->where('year', $data['year']);
+	                    $this->db->where('term', $data['term']);
+	                    $this->db->set('test1', $percentage_average);
+
+	                    $this->db->update('mark');
+
+*///DISABLE FOR THOSE SCHOOLS THAT DON'T WANT TO USE PORTFOLIO ASSESSMENT
+
+				echo site_url('admin/marks_manage_view/' . $data['exam_id'] . '/' . $data['class_id'] . '/' . $data['section_id'] . '/' . $data['subject_id']);
+
+			}
+
+		} else {
+			$this->session->set_flashdata('error_message', get_phrase('select_all_the_fields'));
+			$page_data['page_name'] = 'marks_manage';
+			$page_data['page_title'] = get_phrase('manage_exam_marks');
+			$page_data['account_type'] = $this->session->userdata('login_type');
+			$this->load->view('backend/main', $page_data);
+		}
+	}
+
+	//portfolio assessment selector
+	function portfolio_assessment_selector() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//   redirect(site_url('login'), 'refresh');
+
+		$data['exam_id'] = $this->input->post('exam_id');
+		$data['class_id'] = $this->input->post('class_id');
+		$data['section_id'] = $this->input->post('section_id');
+		$data['subject_id'] = $this->input->post('subject_id');
+		$data['week'] = $this->input->post('week');
+		$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		$data['sem'] = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+		$class_name = $this->crud_model->get_class_name($data['class_id']);
+
+		if ($data['subject_id'] == '') {
+			$this->session->set_flashdata('error_message', get_phrase('no_subject_was_found_for_class:_' . $this->crud_model->get_class_name($data['class_id']) . ' ' . $this->crud_model->get_class_name_numeric($data['class_id']) . '_please_create_subjects_for_this_class'));
+			redirect(site_url('admin/portfolio_assessment_manage?subjr=1'), 'refresh');
+		}
+
+		if ($data['class_id'] != '' && $data['exam_id'] != '') {
+
+			//$data['timestamp'] = strtotime(date('d-m-Y'));
+
+			$explode_week = explode('-', $data['week'])[0] . explode('-', $data['week'])[1];
+
+			$days_of_week_array = array(
+				strtotime($explode_week),
+				strtotime($explode_week . ' + 1 day'),
+				strtotime($explode_week . ' + 2 days'),
+				strtotime($explode_week . ' + 3 days'),
+				strtotime($explode_week . ' + 4 days'),
+			);
+
+			//whether it is JHS or otherwise
+			if ($class_name == 'JHSS') {
+				$data_array = array(
+					'exam_id' => $data['exam_id'],
+					'class_id' => $data['class_id'],
+					'subject_id' => $data['subject_id'],
+					'week' => $data['week'],
+					'year' => $data['year'],
+					'sem' => $data['sem'],
+				);
+				$query = $this->db->get_where('portfolio_assessment', $data_array);
+
+				if ($query->num_rows() < 1) {
+					$students = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'sem' => $data['sem'],
+					));
+
+					//check if students' attendance has been managed to enroll students for this sem
+					if ($students->num_rows() < 1) {
+						// echo '<script>alert("Ok");</script>';
+						//means attendance list has not been managed yet
+						$this->session->set_flashdata('error_message', get_phrase('seems_students_attendance_for_semester_' . $data['sem'] . '_has_not_been_marked_yet._please_mark_students_attendance_first_to_enroll_students_for_this_semester_before_you_proceed.'));
+						redirect(site_url('admin/portfolio_assessment_manage?sem=' . $data['sem'] . '&error=1'), 'refresh');
+
+					} else {
+
+						$array_students = $students->result_array();
+						foreach ($array_students as $row) {
+							$data['student_id'] = $row['student_id'];
+
+							//insert for each date Monday to Friday
+							for ($d = 0; $d < count($days_of_week_array); $d++) {
+								$data['timestamp'] = $days_of_week_array[$d];
+
+								//insert
+								$this->db->insert('portfolio_assessment', $data);
+							}
+						}
+					}
+
+				} elseif ($query->num_rows() > 0) {
+
+					$students = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'sem' => $data['sem']))->result_array();
+
+					foreach ($students as $row) {
+
+						//check if this student has been admitted recently
+						$data_array_s = array(
+							'exam_id' => $data['exam_id'],
+							'class_id' => $data['class_id'],
+							'subject_id' => $data['subject_id'],
+							'week' => $data['week'],
+							'year' => $data['year'],
+							'sem' => $data['sem'],
+							'student_id' => $row['student_id'],
+						);
+
+						$st_rows = $this->db->get_where('portfolio_assessment', $data_array_s)->num_rows();
+
+						if ($st_rows < 1) {
+							$data['student_id'] = $row['student_id'];
+
+							//insert for each date
+							for ($d = 0; $d < count($days_of_week_array); $d++) {
+								$data['timestamp'] = $days_of_week_array[$d];
+
+								//insert
+								$this->db->insert('portfolio_assessment', $data);
+							}
+						}
+					}
+				}
+
+				redirect(site_url('admin/portfolio_assessment_manage_view/' . $data['exam_id'] . '/' . $data['class_id'] . '/' . $data['section_id'] . '/' . $data['subject_id'] . '/' . $data['week']), 'refresh');
+
+			} else {
+
+				//not JHS
+
+				$data_array = array(
+					'exam_id' => $data['exam_id'],
+					'class_id' => $data['class_id'],
+					'subject_id' => $data['subject_id'],
+					'week' => $data['week'],
+					'year' => $data['year'],
+					'term' => $data['term'],
+				);
+				$query = $this->db->get_where('portfolio_assessment', $data_array);
+
+				$students = $this->db->get_where('enroll', array(
+					'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term'],
+				));
+
+				if ($query->num_rows() < 1) {
+
+					//check if students' attendance has been managed to enroll students for this term
+
+					if ($students->num_rows() < 1) {
+						// echo '<script>alert("Ok");</script>';
+						//means attendance list has not been managed yet
+						$this->session->set_flashdata('error_message', get_phrase('seems_students_attendance_for_term_' . $data['term'] . '_has_not_been_marked_yet._please_mark_students_attendance_first_to_enroll_students_for_this_term_before_you_proceed.'));
+						redirect(site_url('admin/portfolio_assessment_manage?term=' . $data['term'] . '&error=1'), 'refresh');
+
+					} else {
+						$array_students = $students->result_array();
+						foreach ($array_students as $row) {
+							$data['student_id'] = $row['student_id'];
+
+							//insert for each date
+							for ($d = 0; $d < count($days_of_week_array); $d++) {
+								$data['timestamp'] = $days_of_week_array[$d];
+
+								//insert
+								$this->db->insert('portfolio_assessment', $data);
+							}
+						}
+					}
+
+				} elseif ($query->num_rows() > 0) {
+
+					//select only those students who have not been admitted before the first entry into the mark table
+					$sIds = [];
+					foreach ($query->result_array() as $st) {
+						array_push($sIds, $st['student_id']);
+					}
+
+					$this->db->where_not_in('student_id', $sIds);
+					$students = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term'],
+					))->result_array();
+
+					foreach ($students as $row) {
+
+						//check if this student has been admitted recently
+						$data_array_s = array(
+							'exam_id' => $data['exam_id'],
+							'class_id' => $data['class_id'],
+							'subject_id' => $data['subject_id'],
+							'week' => $data['week'],
+							'year' => $data['year'],
+							'term' => $data['term'],
+							'student_id' => $row['student_id'],
+						);
+
+						$st_rows = $this->db->get_where('portfolio_assessment', $data_array_s)->num_rows();
+
+						if ($st_rows == 0) {
+
+							$data['student_id'] = $row['student_id'];
+
+							//insert for each date
+							for ($d = 0; $d < count($days_of_week_array); $d++) {
+								$data['timestamp'] = $days_of_week_array[$d];
+
+								//insert
+								$this->db->insert('portfolio_assessment', $data);
+							}
+
+						}
+					}
+
+				}
+
+				redirect(site_url('admin/portfolio_assessment_manage_view/' . $data['exam_id'] . '/' . $data['class_id'] . '/' . $data['section_id'] . '/' . $data['subject_id'] . '/' . $data['week']), 'refresh');
+
+			}
+
+		} else {
+			$this->session->set_flashdata('error_message', get_phrase('select_all_the_fields'));
+			$page_data['page_name'] = 'portfolio_assessment_manage';
+			$page_data['page_title'] = get_phrase('manage_portfolio_assessment');
+			$this->load->view('backend/main', $page_data);
+		}
+	}
+
+
+	//creche marks update 1
+	function marks_update_creche($exam_id = '', $class_id = '', $section_id = '', $subject_id = '', $category_id = '') {
+		if ($class_id != '' && $exam_id != '') {
+			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+			$marks_of_students = $this->db->get_where('mark', array(
+				'exam_id' => $exam_id,
+				'class_id' => $class_id,
+				'section_id' => $section_id,
+				'year' => $running_year,
+				'term' => $running_term,
+				'subject_id' => $subject_id,
+			))->result_array();
+
+			foreach ($marks_of_students as $row) {
+				$assess = trim($this->input->post('assess_' . $row['mark_id']));
+
+				$data_array = array(
+					'test1' => $assess,
+				);
+				//$comment = $this->input->post('comment_'.$row['mark_id']);
+				$this->db->where('mark_id', $row['mark_id']);
+				$this->db->update('mark', $data_array);
+
+			}
+
+			$this->session->set_flashdata('flash_message', get_phrase('assessment_updated'));
+			redirect(site_url('admin/marks_manage_view_creche/' . $exam_id . '/' . $class_id . '/' . $section_id . '/' . $subject_id . '/' . $category_id));
+		} else {
+			$this->session->set_flashdata('error_message', get_phrase('select_all_the_fields'));
+			$page_data['page_name'] = 'marks_manage';
+			$page_data['page_title'] = get_phrase('manage_exam_marks');
+			$page_data['account_type'] = $this->session->userdata('login_type');
+			$this->load->view('backend/main', $page_data);
+		}
+	}
+
+	function marks_update($exam_id = '', $class_id = '', $section_id = '', $subject_id = '', $category_id = '') {
+		if ($class_id != '' && $exam_id != '') {
+
+			$account_type = $this->session->userdata('login_type');
+			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+			$running_sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+			$class_name = $this->crud_model->get_class_name($class_id);
+
+				// Initialize batch arrays
+				$batchMarksUpdate = array();
+				$batchAggregatesInsert = array();
+				$batchAggregatesUpdate = array();
+				$students_ids = array();
+				$comment = '';
+
+				//Not JHS
+				$marks_of_students = $this->db->get_where('mark', array(
+					'exam_id' => $exam_id,
+					'class_id' => $class_id,
+					'section_id' => $section_id,
+					'year' => $running_year,
+					'term' => $running_term,
+					'subject_id' => $subject_id,
+				))->result_array();
+
+				foreach ($marks_of_students as $row) {
+					$test1 = trim($this->input->post('test1_' . $row['mark_id']));
+					$group_work = trim($this->input->post('group_work_' . $row['mark_id']));
+					$test2 = trim($this->input->post('test2_' . $row['mark_id']));
+					$project = trim($this->input->post('project_' . $row['mark_id']));
+					$sub_total = trim($this->input->post('sub_total_' . $row['mark_id']));
+					$term_exam = trim($this->input->post('term_exam_' . $row['mark_id']));
+					$class_score = trim($this->input->post('class_score_' . $row['mark_id']));
+					$exam_score = trim($this->input->post('exam_score_' . $row['mark_id']));
+					$obtained_marks = floatval($class_score) + floatval($exam_score);
+
+					$data_array = array(
+						'mark_id' => $row['mark_id'],
+						'class_score' => round(floatval($class_score), 2),
+						'exam_score' => round(floatval($exam_score), 2),
+						'mark_obtained' => round($obtained_marks, 2),
+						'comment' => $comment,
+						'test1' => round(floatval($test1), 2),
+						'group_work' => round(floatval($group_work), 2),
+						'test2' => round(floatval($test2), 2),
+						'project' => round(floatval($project), 2),
+						'sub_total' => round(floatval($sub_total), 2),
+						'term_exam' => round(floatval($term_exam), 2),
+					);
+					
+					//load the $batchMarksUpdate array
+					$batchMarksUpdate[] = $data_array;//////////<<<<
+
+					//insert or update aggregation table
+					$aggregation_marks_query = $this->db->get_where('aggregation', array(
+						'exam_id' => $exam_id,
+						'class_id' => $class_id,
+						'section_id' => $section_id,
+						'year' => $running_year,
+						'term' => $running_term,
+						'student_id' => $row['student_id'],
+					));
+
+					$aggregation_marks = $aggregation_marks_query->num_rows();
+
+					if ($aggregation_marks < 1) {
+
+						$data['student_id'] = $row['student_id'];
+						$data['exam_id'] = $row['exam_id'];
+						$data['class_id'] = $row['class_id'];
+						$data['year'] = $row['year'];
+						$data['section_id'] = $row['section_id'];
+						$data['term'] = $running_term;
+
+						$this->db->select_sum('mark_obtained');
+						$this->db->from('mark');
+						$this->db->where('student_id', $row['student_id']);
+						$this->db->where('class_id', $class_id);
+						$this->db->where('section_id', $section_id);
+						$this->db->where('exam_id', $exam_id);
+						$this->db->where('year', $running_year);
+						$this->db->where('term', $running_term);
+						$aggregate_mark = $this->db->get()->row()->mark_obtained;
+
+	
+						$data['aggregate_mark'] = round($aggregate_mark, 2);
+						
+						//load $batchAggregatesInsert array
+						$batchAggregatesInsert[] = $data;//////////<<<<
+						
+
+					} else {
+						$this->db->select_sum('mark_obtained');
+						$this->db->from('mark');
+						$this->db->where('student_id', $row['student_id']);
+						$this->db->where('class_id', $class_id);
+						$this->db->where('section_id', $section_id);
+						$this->db->where('exam_id', $exam_id);
+						$this->db->where('year', $running_year);
+						$this->db->where('term', $running_term);
+						$aggregate_mark = $this->db->get()->row()->mark_obtained;
+
+
+						$data2['aggregate_mark'] = round($aggregate_mark, 2);
+						$data2['aggregate_id'] = $aggregation_marks_query->row()->aggregate_id;
+
+						//load $batchAggregatesUpdate array
+						$batchAggregatesUpdate[] = $data2;//////////<<<<
+						
+					}
+
+					$students_ids[] = $row['student_id'];
+
+				}
+
+				////////////Batch inserts and updates /////////////<<<
+
+				$this->db->update_batch('mark', $batchMarksUpdate, 'mark_id');
+
+				
+				if(is_array($batchAggregatesInsert) && count($batchAggregatesInsert) > 0) {
+					$this->db->insert_batch('aggregation', $batchAggregatesInsert);
+				}
+
+				if(is_array($batchAggregatesUpdate) && count($batchAggregatesUpdate) > 0) {
+					$this->db->update_batch('aggregation', $batchAggregatesUpdate, 'aggregate_id');
+				}
+
+				///////////////////////////////////////\\\\\\\\\\\\\\
+
+				/*===========================================
+						==============================================\
+						to be deleted
+						=====================================*/
+						//do some quick corrections here
+					for($i = 0; $i < sizeof($students_ids); $i++):
+						$this->db->select('exam_id');
+						$this->db->distinct();
+						$this->db->from('mark');
+						$this->db->where('student_id', $students_ids[$i]);
+						$ids = $this->db->get()->result_array();
+
+						foreach($ids as $exam) {
+							$this->db->select_sum('mark_obtained');
+							$this->db->from('mark');
+							$this->db->where('student_id', $students_ids[$i]);
+							$this->db->where('exam_id', $exam['exam_id']);
+							$total = $this->db->get()->row()->mark_obtained;
+
+						//update
+							$this->db->where('student_id', $students_ids[$i]);
+							$this->db->where('exam_id', $exam['exam_id']);
+							$this->db->set('aggregate_mark', $total);
+							$this->db->update('aggregation');
+						}
+					endfor;
+
+						/*===========================================
+						==============================================\
+						to be deleted
+						=====================================*/
+
+			$this->session->set_flashdata('flash_message', get_phrase('marks_updated'));
+			if ($category_id == '0') {
+				redirect(site_url($account_type . '/marks_manage_view_creche2/' . $exam_id . '/' . $class_id . '/' . $section_id . '/' . $subject_id . '/' . $category_id));
+			} else {
+				redirect(site_url($account_type . '/marks_manage_view/' . $exam_id . '/' . $class_id . '/' . $section_id . '/' . $subject_id));
+			}
+		} else {
+			$this->session->set_flashdata('error_message', get_phrase('select_all_the_fields'));
+			$page_data['page_name'] = 'marks_manage';
+			$page_data['page_title'] = get_phrase('manage_exam_marks');
+			$page_data['account_type'] = $this->session->userdata('login_type');
+			$this->load->view('backend/main', $page_data);
+		}
+	}
+
+	function portfolio_assessment_update($timestamps, $st_ids, $ass_ids) {
+
+		$class_id = $this->input->post('class_id');
+		$exam_id = $this->input->post('exam_id');
+		$section_id = $this->input->post('section_id');
+		$subject_id = $this->input->post('subject_id');
+		$week = $this->input->post('week');
+
+		if ($class_id != '' && $exam_id != '') {
+
+			$list_of_students = explode('-', $st_ids); //each student's id
+			$assessment_ids = explode('-', $ass_ids); //assessment ids
+			$dates_array = explode('-', $timestamps); //timestamps
+
+			/*$code_error_counter = 0;
+				//checking if code is empty
+				for ($ts = 0; $ts < sizeof($dates_array); $ts++) {
+					//Each timestamp or date
+					$data['code'] = strtoupper(strtolower(trim($this->input->post('code_' . $dates_array[$ts]))));
+
+					if($data['code'] == '' || empty($data['code'])) {
+						$code_error_counter++;
+					}
+				}
+
+				if($code_error_counter > 0) {
+					$errors['codes'] = 'Sorry some strand codes are empty';
+					echo json_encode($errors);
+					return false;
+			*/
+			//error checks ends here
+
+			$batchData = array();
+			$assessment_counter = 0;
+
+			for ($st = 0; $st < sizeof($list_of_students); $st++) {
+				//each student
+
+				//updating code for each strand, student and strand score
+				for ($ts = 0; $ts < sizeof($dates_array); $ts++) {
+					//Each timestamp or date
+					$data['code'] = strtoupper(strtolower(trim($this->input->post('code_' . $dates_array[$ts]))));
+
+					/*$this->db->where('timestamp', $dates_array[$ts]);
+						$this->db->where('student_id', $list_of_students[$st]);
+						$this->db->where('class_id', $class_id);
+						$this->db->where('subject_id', $subject_id);
+						$this->db->where('week', $week);
+						$this->db->set('code', $data['code']);
+					*/
+
+					$data['strand_score'] = trim($this->input->post('strand_' . $assessment_ids[$assessment_counter]));
+
+					if ($data['strand_score'] == '' || empty($data['strand_score'])) {
+						$data['strand_score'] = 0;
+					}
+
+					$batchData[] = array(
+						'assessment_id' => $assessment_ids[$assessment_counter],
+						'student_id' => $list_of_students[$st],
+						'timestamp' => $dates_array[$ts],
+						'subject_id' => $subject_id,
+						'class_id' => $class_id,
+						'code' => $data['code'],
+						'strand_score' => round($data['strand_score'], 2),
+					);
+
+					$assessment_counter++;
+
+				}
+
+				//updating strand score for each student
+				/*for ($as = 0; $as < sizeof($assessment_ids); $as++) {
+					//Assement ID
+					for ($ts = 0; $ts < sizeof($dates_array); $ts++) {
+						//Each timestamp or date
+						$data['strand_score'] = trim($this->input->post('strand_' . $assessment_ids[$as]));
+
+						if ($data['strand_score'] == '' || empty($data['strand_score'])) {
+							$data['strand_score'] = 0;
+						}
+
+						$this->db->where('assessment_id', $assessment_ids[$as]);
+						$this->db->where('subject_id', $subject_id);
+						$this->db->where('student_id', $list_of_students[$st]);
+						$this->db->where('timestamp', $dates_array[$ts]);
+						$this->db->set('strand_score', round($data['strand_score'], 2));
+						$this->db->update('portfolio_assessment');
+					}
+				}*/
+			}
+
+				//////////////////////////////////////\\\\
+			//do batch update here
+			$this->db->update_batch('portfolio_assessment', $batchData, 'assessment_id');
+			//////////////////////////////////////\\\\
+
+			//trying to find the average mark from the portfolio assessment table and then put it in mark table
+			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+			$running_sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+			$exam_id2 = $this->db->get_where('mark', array('class_id' => $class_id, 'year' => $running_year, 'term' => $running_term))->row()->exam_id;
+			//non jhs
+			$this->db->select('student_id');
+			$this->db->distinct();
+			$this->db->where('class_id', $class_id);
+			$this->db->where('exam_id', $exam_id2);
+			$this->db->where('year', $running_year);
+			$this->db->where('term', $running_term);
+			$students_ids = $this->db->get('mark')->result_array();
+
+			//find the total number of entries made so far
+			$this->db->select('timestamp');
+			$this->db->distinct();
+			$this->db->where('strand_score >', '0');
+			$this->db->where('class_id', $class_id);
+			$this->db->where('subject_id', $subject_id);
+			//$this->db->where('exam_id', $data['exam_id']);
+			$this->db->where('year', $running_year);
+			$this->db->where('term', $running_term);
+			$num_rows = $this->db->get('portfolio_assessment')->num_rows();
+
+			foreach ($students_ids as $id) {
+				//now let's find the average score
+				$this->db->select_sum('strand_score');
+				$this->db->where('strand_score >', '0');
+				$this->db->where('class_id', $class_id);
+				$this->db->where('subject_id', $subject_id);
+				//$this->db->where('exam_id', $data['exam_id']);
+				$this->db->where('student_id', $id['student_id']);
+				$this->db->where('year', $running_year);
+				$this->db->where('term', $running_term);
+				$total_score = $this->db->get('portfolio_assessment')->row()->strand_score;
+
+				if ($total_score != NULL) {
+					$total_score = $total_score * 10; //multiply by 10
+
+					$average_score = (floatval($total_score) / floatval($num_rows)); //divide total score by the number times the test was conducted
+					$percentage_average = $average_score * 0.2; //finding 20% of the average score
+
+					$percentage_average = round($percentage_average, 2); //round it up
+				} else {
+					$percentage_average = $total_score;
+				}
+
+				//update now
+				$this->db->where('class_id', $class_id);
+				$this->db->where('subject_id', $subject_id);
+				$this->db->where('student_id', $id['student_id']);
+				$this->db->where('exam_id', $exam_id2);
+				$this->db->where('year', $running_year);
+				$this->db->where('term', $running_term);
+				$this->db->set('test1', $percentage_average);
+
+				$this->db->update('mark');
+			}
+
+			$ajax['success'] = 1;
+
+		} else {
+			$ajax['success'] = 0;
+		}
+
+		echo json_encode($ajax);
+	}
+
+	function marks_get_subject($class_id, $param2 = '', $start_week = "") {
+		$page_data['class_id'] = $class_id;
+
+		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+		$ajaxData = array();
+
+		if ($param2 == 'portfolio') {
+			$this->load->view('backend/admin/portfolio_get_subjects', $page_data);
+		} else {
+			if ($class_name == 'CRECHE') {
+				//select from creche subject table
+				$ajaxData['subject'] = $this->load->view('backend/admin/marks_get_subject_creche', $page_data, true);
+
+				$ajaxData['section'] = 'creche';
+				echo json_encode($ajaxData);
+
+			} else {
+				
+
+				if ($param2 == 'graph') {
+					$page_data['start_week'] = $start_week;
+					$this->load->view('backend/admin/assessment_graph/get_subjects_graph', $page_data);
+				} else {
+
+					$ajaxData['section'] = $this->load->view('backend/admin/marks_get_section', $page_data, true);
+					$ajaxData['subject'] = $this->load->view('backend/admin/marks_get_subject', $page_data, true);
+
+					echo json_encode($ajaxData);
+				}
+
+				
+			}
+		}
+
+	}
+
+	// TABULATION SHEET
+	function tabulation_sheet($class_id = '', $exam_id = '', $term = '', $year = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		if ($this->input->post('operation') == 'selection') {
+			$page_data['exam_id'] = $this->input->post('exam_id');
+			$page_data['class_id'] = $this->input->post('class_id');
+			$page_data['term'] = $this->input->post('term');
+			$page_data['sem'] = $this->input->post('sem');
+			$page_data['year'] = $this->input->post('year');
+
+			$section_id = $this->db->get_where('enroll', array('class_id' => $page_data['class_id'], 'mute' => '0', 'year' => $page_data['year']))->row()->section_id;
+
+			$class_name = $this->crud_model->get_class_name($page_data['class_id']);
+
+			if ($page_data['exam_id'] > 0 && $page_data['class_id'] > 0) {
+
+				if ($class_name == 'JHSS') {
+
+					redirect(site_url('admin/tabulation_sheet/' . $page_data['class_id'] . '/' . $page_data['exam_id'] . '/' . $page_data['sem'] . '/' . $page_data['year'] . '/' . $section_id));
+				} else {
+					redirect(site_url('admin/tabulation_sheet/' . $page_data['class_id'] . '/' . $page_data['exam_id'] . '/' . $page_data['term'] . '/' . $page_data['year'] . '/' . $section_id));
+				}
+
+			} else {
+				$this->session->set_flashdata('mark_message', 'Choose class and exam');
+				redirect(site_url('admin/tabulation_sheet'));
+			}
+		}
+
+		$class_name = $this->crud_model->get_class_name($class_id);
+
+		$page_data['exam_id'] = $exam_id;
+		$page_data['class_id'] = $class_id;
+
+		if ($class_name == 'JHSS') {
+			$page_data['sem'] = $term;
+		} else {
+			$page_data['term'] = $term;
+		}
+
+		$page_data['year'] = $year;
+		$section_id = $this->db->get_where('enroll', array('class_id' => $page_data['class_id'], 'mute' => '0', 'year' => $page_data['year']))->row()->section_id;
+		$page_data['section_id'] = $section_id;
+
+		$page_data['page_info'] = 'Exam marks';
+
+		$class_name = $this->db->get_where('class', array('class_id' => $page_data['class_id']))->row()->name;
+		$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+		if ($raw_score == 'Yes') {
+			if ($class_name == 'JHSS') {
+				$page_data['page_name'] = 'tabulation_sheet_raw_score';
+			} else {
+				$page_data['page_name'] = 'tabulation_sheet';
+			}
+		} elseif ($raw_score == 'No') {
+			$page_data['page_name'] = 'tabulation_sheet';
+		}
+
+		$page_data['page_title'] = get_phrase('tabulation_sheet');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+
+	}
+
+	function tabulation_sheet_print_view($class_id, $exam_id, $year, $term, $section_id = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		$page_data['class_id'] = $class_id;
+		$page_data['exam_id'] = $exam_id;
+		$page_data['year'] = $year;
+
+		if ($class_name == 'JHSS') {
+			$page_data['sem'] = $term;
+		} else {
+			$page_data['term'] = $term;
+		}
+
+		$page_data['section_id'] = $section_id;
+
+		$class_name = $this->db->get_where('class', array('class_id' => $page_data['class_id']))->row()->name;
+		$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+		if ($raw_score == 'Yes') {
+			if ($class_name == 'JHSS') {
+				$this->load->view('backend/admin/tabulation_sheet_raw_score_print_view', $page_data);
+			} else {
+				$this->load->view('backend/admin/tabulation_sheet_print_view', $page_data);
+			}
+		} elseif ($raw_score == 'No') {
+			$this->load->view('backend/admin/tabulation_sheet_print_view', $page_data);
+		}
+
+	}
+
+	/****MANAGE GRADES*****/
+
+	/****MANAGE GRADES FOR CRECHE LEVEL*****/
+	function grade_creche($param1 = '', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$class_name = strtoupper($param1);
+
+		if ($param1 == 'create') {
+			$data['full_name'] = trim(ucwords(strtolower($this->input->post('name'))));
+			$data['abbrev'] = trim(strtoupper($this->input->post('grade_point')));
+
+			$queryExecuted = $this->db->insert('grade_creche', $data);
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			if($queryExecuted) {
+				echo json_encode(['status' => 'success', 'message' => 'Grade created successfully']);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => 'Failed to create grade']);
+			}
+			return;
+		}
+
+		if ($param1 == 'do_update') {
+			$data['full_name'] = trim(ucwords(strtolower($this->input->post('name'))));
+			$data['abbrev'] = trim(strtoupper($this->input->post('grade_point')));
+
+			$this->db->where('grade_id', $param2);
+			$queryExecuted = $this->db->update('grade_creche', $data);
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			if($queryExecuted) {
+				echo json_encode(['status' => 'success', 'message' => 'Grade updated successfully']);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => 'Failed to update grade']);
+			}
+			return;
+
+		} else if ($param1 == 'edit') {
+			$page_data['edit_data'] = $this->db->get_where('grade_creche', array('grade_id' => $param2))->result_array();
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+		}
+
+		if ($param1 == 'delete') {
+			$this->db->where('grade_id', $param2);
+			$queryExecuted = $this->db->delete('grade_creche');
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('grade_deleted'));
+
+			if($queryExecuted) {
+				$ajaxData['message'] = 'done';
+			} else {
+				$ajaxData['message'] = 'failed';
+			}
+
+			$ajaxData['route'] = 'grade_creche';
+			
+			echo json_encode($ajaxData);
+			return;
+
+		}
+		$page_data['grades'] = $this->db->get('grade_creche')->result_array();
+		$page_data['page_name'] = 'grade_creche';
+		$page_data['page_title'] = get_phrase('manage_grading_system');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	//for general grading system
+	function grade($param1 = '', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$class_name = strtoupper($param1);
+
+		//selecting the marksheet based
+		$terminal_report_style = $this->db->get_where('settings' , array('type'=>'terminal_report_style'))->row()->description;
+
+		if ($param1 == 'create') {
+			$data['name'] = trim(strtoupper($this->input->post('name')));
+			$data['grade_point'] = trim(strtoupper($this->input->post('grade_point')));
+			$data['mark_from'] = trim($this->input->post('mark_from'));
+			$data['mark_upto'] = trim($this->input->post('mark_upto'));
+			$data['grade_point_numeric'] = trim($this->input->post('gpa'));
+
+			if ($this->input->post('comment') != null) {
+				$data['comment'] = $this->input->post('comment');
+			}
+
+			if($terminal_report_style == 'style_1') {
+				$queryExecuted = $this->db->insert('grade', $data);
+			} else {
+				$queryExecuted = $this->db->insert('grade_2', $data);
+			}
+			
+			//clear the cached database
+			$this->db->cache_delete();
+
+			if($queryExecuted) {
+				echo json_encode(['status' => 'success', 'message' => 'Grade created successfully']);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => 'Failed to create grade']);
+			}
+			return;
+		}
+
+		if ($param1 == 'create_raw') {
+			$data['name'] = trim(strtoupper($this->input->post('name')));
+			$data['grade_point'] = trim(strtoupper($this->input->post('grade_point')));
+			$data['mark_from'] = trim($this->input->post('mark_from'));
+			$data['mark_upto'] = trim($this->input->post('mark_upto'));
+			$data['grade_point_numeric'] = trim($this->input->post('gpa'));
+
+			if ($this->input->post('comment') != null) {
+				$data['comment'] = $this->input->post('comment');
+			}
+
+			$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+			if ($raw_score == 'Yes') {
+				$queryExecuted = $this->db->insert('raw_score_grade', $data);
+
+				//clear the cached database
+				$this->db->cache_delete();
+
+				if($queryExecuted) {
+					echo json_encode(['status' => 'success', 'message' => 'Grade created successfully']);
+				} else {
+					echo json_encode(['status' => 'error', 'message' => 'Failed to create grade']);
+				}
+				return;
+			}
+		}
+
+		if ($param1 == 'do_update') {
+			$data['name'] = trim(strtoupper($this->input->post('name')));
+			$data['grade_point'] = trim(strtoupper($this->input->post('grade_point')));
+			$data['mark_from'] = trim($this->input->post('mark_from'));
+			$data['mark_upto'] = trim($this->input->post('mark_upto'));
+			$data['grade_point_numeric'] = trim($this->input->post('gpa'));
+			
+			if ($this->input->post('comment') != null) {
+				$data['comment'] = $this->input->post('comment');
+			} else {
+				$data['comment'] = null;
+			}
+
+			if($terminal_report_style == 'style_1') {
+				$this->db->where('grade_id', $param2);
+				$queryExecuted = $this->db->update('grade', $data);
+			} else {
+				$this->db->where('grade_id', $param2);
+				$queryExecuted = $this->db->update('grade_2', $data);
+			}
+			
+			//clear the cached database
+			$this->db->cache_delete();
+
+			if($queryExecuted) {
+				echo json_encode(['status' => 'success', 'message' => 'Grade updated successfully']);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => 'Failed to update grade']);
+			}
+			return;
+
+		} else if ($param1 == 'edit') {
+
+			if($terminal_report_style == 'style_1') {
+				$page_data['edit_data'] = $this->db->get_where('grade', array('grade_id' => $param2))->result_array();
+			} else {
+				$page_data['edit_data'] = $this->db->get_where('grade_2', array('grade_id' => $param2))->result_array();
+			}
+			
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+		}
+
+		if ($param1 == 'do_update_raw') {
+			$data['name'] = trim(strtoupper($this->input->post('name')));
+			$data['grade_point'] = trim(strtoupper($this->input->post('grade_point')));
+			$data['mark_from'] = trim($this->input->post('mark_from'));
+			$data['mark_upto'] = trim($this->input->post('mark_upto'));
+			$data['grade_point_numeric'] = trim($this->input->post('gpa'));
+			
+			if ($this->input->post('comment') != null) {
+				$data['comment'] = $this->input->post('comment');
+			} else {
+				$data['comment'] = null;
+			}
+
+			$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+			if ($raw_score == 'Yes') {
+				$this->db->where('grade_id', $param2);
+				$queryExecuted = $this->db->update('raw_score_grade', $data);
+
+				//clear the cached database
+				$this->db->cache_delete();
+
+				if($queryExecuted) {
+					echo json_encode(['status' => 'success', 'message' => 'Grade updated successfully']);
+				} else {
+					echo json_encode(['status' => 'error', 'message' => 'Failed to update grade']);
+				}
+				return;
+			}
+
+		} else if ($param1 == 'edit_raw') {
+
+			$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+			if ($raw_score == 'Yes') {
+				$page_data['edit_data'] = $this->db->get_where('raw_score_grade', array('grade_id' => $param2))->result_array();
+			}
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+		}
+
+		if ($param1 == 'delete') {
+
+			if($terminal_report_style == 'style_1') {
+				$this->db->where('grade_id', $param2);
+				$queryExecuted = $this->db->delete('grade');
+			} else {
+				$this->db->where('grade_id', $param2);
+				$queryExecuted = $this->db->delete('grade_2');
+			}
+			
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+
+
+			if($queryExecuted) {
+				$ajaxData['message'] = 'done';
+			} else {
+				$ajaxData['message'] = 'failed';
+			}
+
+			$ajaxData['route'] = 'grade';
+			
+			echo json_encode($ajaxData);
+			return;
+		}
+
+		if ($param1 == 'delete_raw') {
+			$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+			if ($raw_score == 'Yes') {
+				$this->db->where('grade_id', $param2);
+				$queryExecuted = $this->db->delete('raw_score_grade');
+
+				//clear the cached database
+				$this->db->cache_delete();
+
+				$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+
+				if($queryExecuted) {
+					$ajaxData['message'] = 'done';
+				} else {
+					$ajaxData['message'] = 'failed';
+				}
+
+				$ajaxData['route'] = 'raw_score_grade';
+				
+				echo json_encode($ajaxData);
+				return;
+
+			}
+
+		}
+
+		$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
+
+		if ($raw_score == 'Yes') {
+			if ($class_name == 'RAW_SCORE_GRADE') {
+				$page_data['grades'] = $this->db->get('raw_score_grade')->result_array();
+				$page_data['page_name'] = 'raw_score_grade';
+				$page_data['page_title'] = get_phrase('**Manage_grades**');
+				$page_data['account_type'] = $this->session->userdata('login_type');
+				$this->load->view('backend/main', $page_data);
+			} else {
+
+				if($terminal_report_style == 'style_1') {
+					$page_data['grades'] = $this->db->get('grade')->result_array();
+				} else {
+					$page_data['grades'] = $this->db->get('grade_2')->result_array();
+				}
+				
+				$page_data['page_name'] = 'grade';
+				$page_data['page_title'] = get_phrase('manage_grades');
+				$page_data['account_type'] = $this->session->userdata('login_type');
+				$this->load->view('backend/main', $page_data);
+			}
+		} elseif ($raw_score == 'No') {
+
+			if($terminal_report_style == 'style_1') {
+				$page_data['grades'] = $this->db->get('grade')->result_array();
+			} else {
+				$page_data['grades'] = $this->db->get('grade_2')->result_array();
+			}
+
+			$page_data['page_name'] = 'grade';
+			$page_data['page_title'] = get_phrase('manage_grades');
+			$page_data['account_type'] = $this->session->userdata('login_type');
+			$this->load->view('backend/main', $page_data);
+		}
+	}
+
+	/**********MANAGING CLASS ROUTINE******************/
+	function class_routine($param1 = '', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		if ($param1 == 'create') {
+
+			if ($this->input->post('class_id') != null) {
+				$data['class_id'] = $this->input->post('class_id');
+			}
+
+			$data['section_id'] = $this->input->post('section_id');
+			$data['subject_id'] = $this->input->post('subject_id');
+
+			// 12 AM for starting time
+			if ($this->input->post('time_start') == 12 && $this->input->post('starting_ampm') == 1) {
+				$data['time_start'] = 24;
+			}
+			// 12 PM for starting time
+			else if ($this->input->post('time_start') == 12 && $this->input->post('starting_ampm') == 2) {
+				$data['time_start'] = 12;
+			}
+			// otherwise for starting time
+			else {
+					$data['time_start'] = $this->input->post('time_start') + (12 * ($this->input->post('starting_ampm') - 1));
+				}
+				// 12 AM for ending time
+				if ($this->input->post('time_end') == 12 && $this->input->post('ending_ampm') == 1) {
+					$data['time_end'] = 24;
+				}
+				// 12 PM for ending time
+			else if ($this->input->post('time_end') == 12 && $this->input->post('ending_ampm') == 2) {
+				$data['time_end'] = 12;
+			}
+			// otherwise for ending time
+			else {
+					$data['time_end'] = $this->input->post('time_end') + (12 * ($this->input->post('ending_ampm') - 1));
+				}
+
+				$class_name = $this->crud_model->get_class_name($data['class_id']);
+
+				if ($class_name == 'JHSS') {
+					$data['time_start_min'] = $this->input->post('time_start_min');
+					$data['time_end_min'] = $this->input->post('time_end_min');
+					$data['day'] = $this->input->post('day');
+					$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+					$data['sem'] = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+					// checking duplication
+					$array = array(
+						'section_id' => $data['section_id'],
+						'class_id' => $data['class_id'],
+						'time_start' => $data['time_start'],
+						'time_end' => $data['time_end'],
+						'time_start_min' => $data['time_start_min'],
+						'time_end_min' => $data['time_end_min'],
+						'day' => $data['day'],
+						'year' => $data['year'],
+						'sem' => $data['sem'],
+					);
+
+				} else {
+					$data['time_start_min'] = $this->input->post('time_start_min');
+					$data['time_end_min'] = $this->input->post('time_end_min');
+					$data['day'] = $this->input->post('day');
+					$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+					$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+					// checking duplication
+					$array = array(
+						'section_id' => $data['section_id'],
+						'class_id' => $data['class_id'],
+						'time_start' => $data['time_start'],
+						'time_end' => $data['time_end'],
+						'time_start_min' => $data['time_start_min'],
+						'time_end_min' => $data['time_end_min'],
+						'day' => $data['day'],
+						'year' => $data['year'],
+						'term' => $data['term'],
+					);
+
+				}
+
+				$validation = duplication_of_class_routine_on_create($array);
+				if ($validation == 1) {
+					$this->db->insert('class_routine', $data);
+					$this->session->set_flashdata('flash_message', get_phrase('data_added_successfully'));
+				} else {
+					$this->session->set_flashdata('error_message', get_phrase('time_conflicts'));
+				}
+
+				//clear the cached database
+				$this->db->cache_delete();
+
+				redirect(site_url('admin/class_routine_add/' . $data['class_id']));
+			}
+			if ($param1 == 'do_update') {
+				$data['class_id'] = $this->input->post('class_id');
+				if ($this->input->post('section_id') != '') {
+					$data['section_id'] = $this->input->post('section_id');
+				}
+				$data['subject_id'] = $this->input->post('subject_id');
+
+				// 12 AM for starting time
+				if ($this->input->post('time_start') == 12 && $this->input->post('starting_ampm') == 1) {
+					$data['time_start'] = 24;
+				}
+				// 12 PM for starting time
+			else if ($this->input->post('time_start') == 12 && $this->input->post('starting_ampm') == 2) {
+				$data['time_start'] = 12;
+			}
+			// otherwise for starting time
+			else {
+					$data['time_start'] = $this->input->post('time_start') + (12 * ($this->input->post('starting_ampm') - 1));
+				}
+				// 12 AM for ending time
+				if ($this->input->post('time_end') == 12 && $this->input->post('ending_ampm') == 1) {
+					$data['time_end'] = 24;
+				}
+				// 12 PM for ending time
+			else if ($this->input->post('time_end') == 12 && $this->input->post('ending_ampm') == 2) {
+				$data['time_end'] = 12;
+			}
+			// otherwise for ending time
+			else {
+					$data['time_end'] = $this->input->post('time_end') + (12 * ($this->input->post('ending_ampm') - 1));
+				}
+
+				$class_name = $this->crud_model->get_class_name($data['class_id']);
+
+				if ($class_name == 'JHSS') {
+					$data['sem'] = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+
+				} else {
+
+					$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+				}
+
+				$data['time_start_min'] = $this->input->post('time_start_min');
+				$data['time_end_min'] = $this->input->post('time_end_min');
+				$data['day'] = $this->input->post('day');
+				$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+
+				if ($data['subject_id'] != '') {
+					// checking duplication
+					if ($class_name == 'JHSS') {
+						$array = array(
+							'section_id' => $data['section_id'],
+							'class_id' => $data['class_id'],
+							'time_start' => $data['time_start'],
+							'time_end' => $data['time_end'],
+							'time_start_min' => $data['time_start_min'],
+							'time_end_min' => $data['time_end_min'],
+							'day' => $data['day'],
+							'year' => $data['year'],
+							'sem' => $data['sem'],
+						);
+					} else {
+						$array = array(
+							'section_id' => $data['section_id'],
+							'class_id' => $data['class_id'],
+							'time_start' => $data['time_start'],
+							'time_end' => $data['time_end'],
+							'time_start_min' => $data['time_start_min'],
+							'time_end_min' => $data['time_end_min'],
+							'day' => $data['day'],
+							'year' => $data['year'],
+							'term' => $data['term'],
+						);
+					}
+
+					$validation = duplication_of_class_routine_on_edit($array, $param2);
+
+					if ($validation == 1) {
+						$this->db->where('class_routine_id', $param2);
+						$this->db->update('class_routine', $data);
+						$this->session->set_flashdata('flash_message', get_phrase('data_updated'));
+					} else {
+						$this->session->set_flashdata('error_message', get_phrase('time_conflicts'));
+					}
+				} else {
+					$this->session->set_flashdata('error_message', get_phrase('subject_is_not_found'));
+				}
+
+				//clear the cached database
+				$this->db->cache_delete();
+
+				redirect(site_url('admin/class_routine_view/' . $data['class_id']));
+			} else if ($param1 == 'edit') {
+			$page_data['edit_data'] = $this->db->get_where('class_routine', array(
+				'class_routine_id' => $param2,
+			))->result_array();
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+		}
+		if ($param1 == 'delete') {
+			$class_id = $this->db->get_where('class_routine', array('class_routine_id' => $param2))->row()->class_id;
+			$this->db->where('class_routine_id', $param2);
+			$queryExecuted = $this->db->delete('class_routine');
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+
+
+			if($queryExecuted) {
+					$ajaxData['message'] = 'done';
+				} else {
+					$ajaxData['message'] = 'failed';
+				}
+
+				$ajaxData['route'] = 'class_routine_view/' . $class_id;
+				
+				echo json_encode($ajaxData);
+				return;
+		}
+
+	}
+
+	function class_routine_add($class_id) {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		$page_data['page_name'] = 'class_routine_add';
+		$page_data['class_id'] = $class_id;
+		$page_data['page_title'] = get_phrase('add_class_time_table');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+	function class_routine_view($class_id) {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		$page_data['page_name'] = 'class_routine_view';
+		$page_data['class_id'] = $class_id;
+		$page_data['page_title'] = get_phrase('class_time_table');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function class_routine_print_view($class_id, $section_id, $student_id = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect('login');
+		$account_type = $this->session->userdata('login_type');
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['student_id'] = $student_id;
+		$this->load->view('backend/' . $account_type . '/class_routine_print_view', $page_data);
+	}
+
+	function get_class_section_subject($class_id) {
+		$page_data['class_id'] = $class_id;
+		$this->load->view('backend/admin/class_routine_section_subject_selector', $page_data);
+	}
+
+	function section_subject_edit($class_id, $class_routine_id) {
+		$page_data['class_id'] = $class_id;
+		$page_data['class_routine_id'] = $class_routine_id;
+		$this->load->view('backend/admin/class_routine_section_subject_edit', $page_data);
+	}
+
+	function manage_attendance() {
+		////if($this->session->userdata('admin_login')!=1)
+		//redirect(site_url('login'));
+
+		$page_data['page_name'] = 'manage_attendance';
+		$page_data['page_title'] = get_phrase('manage_attendance_of');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function manage_attendance_view($class_id = '', $section_id = '', $timestamp = '', $student_id = '') {
+		////if($this->session->userdata('admin_login')!=1)
+		//redirect(site_url('login'));
+
+		$class_name = $this->db->get_where('class', array(
+			'class_id' => $class_id,
+		))->row()->name;
+		$class_name_numeric = $this->db->get_where('class', array(
+			'class_id' => $class_id,
+		))->row()->name_numeric;
+		$page_data['class_id'] = $class_id;
+		$page_data['student_id'] = $student_id;
+		$page_data['timestamp'] = $timestamp;
+		$page_data['page_name'] = 'manage_attendance_view';
+		$section_name = $this->db->get_where('section', array(
+			'section_id' => $section_id,
+		))->row()->name;
+		$page_data['section_id'] = $section_id;
+		$page_data['page_title'] = get_phrase('manage_attendance_of') . ' ' . $class_name . ' ' . $class_name_numeric . ' | ' . get_phrase('section') . ' ' . $section_name;
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+
+	}
+	function get_section($class_id) {
+		$page_data['class_id'] = $class_id;
+		$this->load->view('backend/admin/manage_attendance_section_holder', $page_data);
+	}
+
+	function get_multi_select_students($class_id, $students_ids = '') {
+
+		$year = get_settings('running_year');
+		$term = get_settings('running_term');
+		$sem = get_settings('running_sem');
+		$section_id = $this->db->get_where('section', array('class_id' => $class_id))->row()->section_id;
+
+		//$this->enrollment_updator($from_scanner = 'no', $class_id, $section_id, $year, $term, $sem); //end of callback function
+
+		$page_data['class_id'] = $class_id;
+		$page_data['students_ids'] = $students_ids;
+		$this->load->view('backend/admin/select_multi_students', $page_data);
+	}
+
+	/**
+	 * Helper method to safely insert attendance record (handles duplicates)
+	 * Uses INSERT IGNORE to skip duplicate entries gracefully
+	 * @param array $attn_data - Attendance data to insert
+	 * @return bool - True if inserted, false if duplicate or error
+	 */
+	private function _safe_insert_attendance($attn_data) {
+		// Check if record already exists
+		$this->db->where('student_id', $attn_data['student_id']);
+		$this->db->where('class_id', $attn_data['class_id']);
+		$this->db->where('section_id', $attn_data['section_id']);
+		$this->db->where('timestamp', $attn_data['timestamp']);
+		
+		if (isset($attn_data['year'])) {
+			$this->db->where('year', $attn_data['year']);
+		}
+		if (isset($attn_data['term'])) {
+			$this->db->where('term', $attn_data['term']);
+		}
+		if (isset($attn_data['sem'])) {
+			$this->db->where('sem', $attn_data['sem']);
+		}
+		
+		$existing = $this->db->get('attendance');
+		
+		if ($existing->num_rows() > 0) {
+			// Record already exists, skip insertion
+			return false;
+		}
+		
+		// Safe to insert
+		return $this->db->insert('attendance', $attn_data);
+	}
+
+	//WE WILL CALL THIS FUNCTION DURING ATTENDANCE MANAGEMENT TIME TO UPDATE CURRENT ENROLLMENT IF TERM OR SEM OR YEAR CHANGES
+	//select all students in a particular class for this date and enter them into the attendance table in the database
+	function enrollment_updator($from_scanner = 'no', $class_id = '', $section_id = '', $year = '', $term = '', $sem = '') {
+
+		$class_name = $this->crud_model->get_class_name($class_id);
+
+		if ($class_name == 'JHSS') {
+			//for JHS
+			$data['class_id'] = $class_id;
+			$data['year'] = $year;
+			$data['sem'] = $sem;
+			$data['timestamp'] = strtotime(date('d-m-Y')); //we won't send this from the scanner page.
+			$data['section_id'] = $section_id;
+
+			//check the attendance table and see if these records match any
+			$query = $this->db->get_where('attendance', array(
+				'class_id' => $data['class_id'],
+				'section_id' => $data['section_id'],
+				'year' => $data['year'],
+				'sem' => $data['sem'],
+				'timestamp' => $data['timestamp'],
+			));
+
+			if ($query->num_rows() < 1) {
+//no record match found
+
+				/**Run a query from the enroll table with current year and current sem
+					                *if no match record is found, it means no student has been enrolled for this sem
+					                *thus, we need to do new enrollment for this sem, else, we continue with normal daily attendance mgt
+				*/
+				$students_old = $this->db->get_where('enroll', array(
+					'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'sem' => $data['sem'],
+				));
+				$students_old_array = $students_old->result_array();
+
+				if ($students_old->num_rows() < 1) {
+					//no record match found
+					//Let's do new enrollment into a new sem with same year
+
+					/**if sem is 1 and the running year is the same as the year retrieved from the enroll table, it means user is **trying to enroll students to sem 1 instead of doing promotion in the previous sem. inform the user to contact *the system administrator for help**/
+					$running_sem = $data['sem'];
+					$running_year = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'sem' => $running_sem))->row()->year;
+
+					if ($running_sem == 1 && $running_year == $data['year']) {
+						/*$this->session->set_flashdata('error_message', get_phrase('make_sure_you_promote_students_during_semester_2._please_contact_the_administrator_for_assistance'));
+                            redirect(site_url($this->session->userdata('login_type').'/manage_attendance'));*/
+						echo 'promotion error sem';
+					}
+
+					/**if not, let's now enroll them into new sem by creating new enrollment for them from the
+						                        *previous sem and insert them into the enroll table
+						                        *and subsequently entering their details into the attendance table
+					*/
+
+					$students_new = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'sem' => $data['sem'] - 1,
+					))->result_array();
+
+					foreach ($students_new as $row) {
+						$enroll_data['enroll_code'] = substr(md5(rand(0, 1000000)), 0, 7);
+						$enroll_data['class_id'] = $data['class_id'];
+						$enroll_data['year'] = $data['year'];
+						$enroll_data['sem'] = $data['sem'];
+						$enroll_data['section_id'] = $data['section_id'];
+						$enroll_data['student_id'] = $row['student_id'];
+						$enroll_data['date_added'] = strtotime(date("Y-m-d H:i:s"));
+
+						$this->db->insert('enroll', $enroll_data);
+
+						$attn_data['class_id'] = $data['class_id'];
+						$attn_data['year'] = $data['year'];
+						$attn_data['sem'] = $data['sem'];
+						$attn_data['timestamp'] = $data['timestamp'];
+						$attn_data['section_id'] = $data['section_id'];
+						$attn_data['student_id'] = $row['student_id'];
+
+						// Use safe insert to handle duplicates
+						$this->_safe_insert_attendance($attn_data);
+
+						$this->db->where('student_id', $row['student_id']);
+						$this->db->update('enroll', array('status_attendance' => 'close'));
+
+					}
+				} elseif ($students_old->num_rows() > 0) {
+					//it is a normal daily attendance management. pull data from enroll table and insert them to att. tb
+					foreach ($students_old_array as $row) {
+
+						$attn_data['class_id'] = $data['class_id'];
+						$attn_data['year'] = $data['year'];
+						$attn_data['sem'] = $data['sem'];
+						$attn_data['timestamp'] = $data['timestamp'];
+						$attn_data['section_id'] = $data['section_id'];
+						$attn_data['student_id'] = $row['student_id'];
+
+						// Use safe insert to handle duplicates
+						$this->_safe_insert_attendance($attn_data);
+
+						$this->db->where('student_id', $row['student_id']);
+						$this->db->update('enroll', array('status_attendance' => 'close'));
+
+					}
+				}
+
+			} elseif ($query->num_rows() > 0) {
+				/**if we find some rows, it means these rows are the recent attendance marked and want to be updated. But let's find out if there are additional students that were enrolled within the sem and needs
+					                *to be added to the attendance register for further management processes
+				*/
+				$students_lagged = $this->db->get_where('enroll', array(
+					'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'sem' => $data['sem'], 'status_attendance' => 'open',
+				))->result_array();
+				foreach ($students_lagged as $row) {
+					$attn_data['class_id'] = $data['class_id'];
+					$attn_data['year'] = $data['year'];
+					$attn_data['sem'] = $data['sem'];
+					$attn_data['timestamp'] = $data['timestamp'];
+					$attn_data['section_id'] = $data['section_id'];
+					$attn_data['student_id'] = $row['student_id'];
+					// Use safe insert to handle duplicates
+						$this->_safe_insert_attendance($attn_data);
+
+					$this->db->where('student_id', $row['student_id']);
+					$this->db->update('enroll', array('status_attendance' => 'close'));
+				}
+
+			}
+
+		} else {
+			//for others
+			$data['class_id'] = $class_id;
+			$data['year'] = $year;
+			$data['term'] = $term;
+			$data['timestamp'] = strtotime(date('d-m-Y')); //we won't send this from the scanner page.
+			$data['section_id'] = $section_id;
+
+			//check the attendance table and see if these records match any
+			$query = $this->db->get_where('attendance', array(
+				'class_id' => $data['class_id'],
+				'section_id' => $data['section_id'],
+				'year' => $data['year'],
+				'term' => $data['term'],
+				'timestamp' => $data['timestamp'],
+			));
+
+			if ($query->num_rows() < 1) {
+//no record match found
+
+				/**Run a query from the enroll table with current year and current term
+					                *if no match record is found, it means no student has been enrolled for this term
+					                *thus, we need to do new enrollment for this term, else, we continue with normal daily attendance mgt
+				*/
+				$students_old = $this->db->get_where('enroll', array(
+					'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term'],
+				));
+				$students_old_array = $students_old->result_array();
+
+				if ($students_old->num_rows() < 1) {
+					//no record match found
+					//Let's do new enrollment into a new term with same year
+
+					/**if term is 1 and the running year is the same as the year retrieved from the enroll table, it means user is **trying to enroll students to term 1 instead of doing promotion in the previous term. inform the user to contact *the system administrator for help**/
+					$running_term = $data['term'];
+					$running_year = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'term' => $running_term))->row()->year;
+
+					if ($running_term == 1 && $running_year == $data['year']) {
+						/*$this->session->set_flashdata('error_message', get_phrase('make_sure_you_promote_students_during_term_3._please_contact_the_administrator_for_assistance'));
+                            redirect(site_url($this->session->userdata('login_type').'/manage_attendance'));*/
+
+						echo 'promotion error term';
+					}
+
+					/**if not, let's now enroll them into new term by creating new enrollment for them from the
+						                        *previous term and insert them into the enroll table
+						                        *and subsequently entering their details into the attendance table
+					*/
+
+					$students_new = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term'] - 1,
+					))->result_array();
+
+					foreach ($students_new as $row) {
+						$enroll_data['enroll_code'] = substr(md5(rand(0, 1000000)), 0, 7);
+						$enroll_data['class_id'] = $data['class_id'];
+						$enroll_data['year'] = $data['year'];
+						$enroll_data['term'] = $data['term'];
+						$enroll_data['section_id'] = $data['section_id'];
+						$enroll_data['student_id'] = $row['student_id'];
+						$enroll_data['date_added'] = strtotime(date("Y-m-d H:i:s"));
+
+						$this->db->insert('enroll', $enroll_data);
+
+						$attn_data['class_id'] = $data['class_id'];
+						$attn_data['year'] = $data['year'];
+						$attn_data['term'] = $data['term'];
+						$attn_data['timestamp'] = $data['timestamp'];
+						$attn_data['section_id'] = $data['section_id'];
+						$attn_data['student_id'] = $row['student_id'];
+
+						// Use safe insert to handle duplicates
+						$this->_safe_insert_attendance($attn_data);
+
+						$this->db->where('student_id', $row['student_id']);
+						$this->db->update('enroll', array('status_attendance' => 'close'));
+
+					}
+				} elseif ($students_old->num_rows() > 0) {
+					//it is a normal daily attendance management. pull data from enroll table and insert them to att. tb
+					foreach ($students_old_array as $row) {
+
+						$attn_data['class_id'] = $data['class_id'];
+						$attn_data['year'] = $data['year'];
+						$attn_data['term'] = $data['term'];
+						$attn_data['timestamp'] = $data['timestamp'];
+						$attn_data['section_id'] = $data['section_id'];
+						$attn_data['student_id'] = $row['student_id'];
+
+						// Use safe insert to handle duplicates
+						$this->_safe_insert_attendance($attn_data);
+
+						$this->db->where('student_id', $row['student_id']);
+						$this->db->update('enroll', array('status_attendance' => 'close'));
+
+					}
+				}
+
+			} elseif ($query->num_rows() > 0) {
+				/**if we find some rows, it means these rows are the recent attendance marked and want to be updated. But let's find out if there are additional students that were enrolled within the term and needs
+					                *to be added to the attendance register for further management processes
+				*/
+				$students_lagged = $this->db->get_where('enroll', array(
+					'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term'], 'status_attendance' => 'open',
+				))->result_array();
+				foreach ($students_lagged as $row) {
+					$attn_data['class_id'] = $data['class_id'];
+					$attn_data['year'] = $data['year'];
+					$attn_data['term'] = $data['term'];
+					$attn_data['timestamp'] = $data['timestamp'];
+					$attn_data['section_id'] = $data['section_id'];
+					$attn_data['student_id'] = $row['student_id'];
+					// Use safe insert to handle duplicates
+						$this->_safe_insert_attendance($attn_data);
+
+					$this->db->where('student_id', $row['student_id']);
+					$this->db->update('enroll', array('status_attendance' => 'close'));
+				}
+
+			}
+		}
+	} //END OF FUNCTION TO UPDATE ATTENDANCE
+
+	function get_generated_id() {
+		$this->load->view('backend/admin/generate_id');
+	}
+
+	function get_generated_id_verification($id) {
+		$data['id'] = $id;
+		$this->crud_model->verify_id($data['id']);
+	}
+
+	function get_generated_tid_verification($id) {
+		$data['id'] = $id;
+		$this->crud_model->verify_tid($data['id']);
+	}
+
+	//select all students in a particular class for this date and enter them into the attendance table in the database
+	function attendance_selector($from_scanner = 'no', $class_id = '', $section_id = '', $year = '', $term = '', $sem = '') {
+
+		if ($class_id == '') {
+			$class_name = $this->crud_model->get_class_name($this->input->post('class_id'));
+
+		} else {
+			$class_name = $this->crud_model->get_class_name($class_id);
+		}
+
+		if ($class_name == 'JHSS') {
+			//for JHS
+			if ($from_scanner == 'yes') {
+				//request coming from barcode scanner page
+
+				$data['class_id'] = $class_id;
+				$data['year'] = $year;
+				$data['sem'] = $sem;
+				$data['timestamp'] = strtotime(date('d-m-Y')); //we won't send this from the scanner page.
+				$data['section_id'] = $section_id;
+
+			} else {
+				//teacher taking normal attendance
+
+				$data['class_id'] = $this->input->post('class_id');
+				$data['year'] = $this->input->post('year');
+				$data['sem'] = $this->input->post('sem');
+				$data['timestamp'] = strtotime($this->input->post('timestamp'));
+				$data['section_id'] = $this->input->post('section_id');
+				$data['students_ids'] = implode('-', $this->input->post('students_ids'));
+
+			}
+
+			//check the attendance table and see if these records match any
+			$query = $this->db->get_where('attendance', array(
+				'class_id' => $data['class_id'],
+				'section_id' => $data['section_id'],
+				'year' => $data['year'],
+				'sem' => $data['sem'],
+				'timestamp' => $data['timestamp'],
+			));
+
+			if ($query->num_rows() < 1) {
+			//no record match found
+
+				/**Run a query from the enroll table with current year and current sem
+					                *if no match record is found, it means no student has been enrolled for this sem
+					                *thus, we need to do new enrollment for this sem, else, we continue with normal daily attendance mgt
+				*/
+				$students_old = $this->db->get_where('enroll', array(
+					'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'sem' => $data['sem'],
+				));
+				$students_old_array = $students_old->result_array();
+
+				if ($students_old->num_rows() < 1) {
+					//no record match found
+					//Let's do new enrollment into a new sem with same year
+
+					/**if sem is 1 and the running year is the same as the year retrieved from the enroll table, it means user is **trying to enroll students to sem 1 instead of doing promotion in the previous sem. inform the user to contact *the system administrator for help**/
+					$running_sem = $data['sem'];
+					$running_year = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'sem' => $running_sem))->row()->year;
+
+					if ($running_sem == 1 && $running_year == $data['year']) {
+						/*$this->session->set_flashdata('error_message', get_phrase('make_sure_you_promote_students_during_semester_2._please_contact_the_administrator_for_assistance'));
+                            redirect(site_url($this->session->userdata('login_type').'/manage_attendance'));*/
+
+						echo 'promotion error sem';
+						return false;
+					}
+
+					/**if not, let's now enroll them into new sem by creating new enrollment for them from the
+						                        *previous sem and insert them into the enroll table
+						                        *and subsequently entering their details into the attendance table
+					*/
+
+					$students_new = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'sem' => $data['sem'] - 1,
+					))->result_array();
+
+					foreach ($students_new as $row) {
+						$enroll_data['enroll_code'] = substr(md5(rand(0, 1000000)), 0, 7);
+						$enroll_data['class_id'] = $data['class_id'];
+						$enroll_data['year'] = $data['year'];
+						$enroll_data['sem'] = $data['sem'];
+						$enroll_data['section_id'] = $data['section_id'];
+						$enroll_data['student_id'] = $row['student_id'];
+						$enroll_data['date_added'] = strtotime(date("Y-m-d H:i:s"));
+
+						$this->db->insert('enroll', $enroll_data);
+
+						$attn_data['class_id'] = $data['class_id'];
+						$attn_data['year'] = $data['year'];
+						$attn_data['sem'] = $data['sem'];
+						$attn_data['timestamp'] = $data['timestamp'];
+						$attn_data['section_id'] = $data['section_id'];
+						$attn_data['student_id'] = $row['student_id'];
+
+						// Use safe insert to handle duplicates
+						$this->_safe_insert_attendance($attn_data);
+
+						$this->db->where('student_id', $row['student_id']);
+						$this->db->update('enroll', array('status_attendance' => 'close'));
+
+					}
+				} elseif ($students_old->num_rows() > 0) {
+					//it is a normal daily attendance management. pull data from enroll table and insert them to att. tb
+					foreach ($students_old_array as $row) {
+
+						$attn_data['class_id'] = $data['class_id'];
+						$attn_data['year'] = $data['year'];
+						$attn_data['sem'] = $data['sem'];
+						$attn_data['timestamp'] = $data['timestamp'];
+						$attn_data['section_id'] = $data['section_id'];
+						$attn_data['student_id'] = $row['student_id'];
+
+						// Use safe insert to handle duplicates
+						$this->_safe_insert_attendance($attn_data);
+
+						$this->db->where('student_id', $row['student_id']);
+						$this->db->update('enroll', array('status_attendance' => 'close'));
+
+					}
+				}
+
+			} elseif ($query->num_rows() > 0) {
+				/**if we find some rows, it means these rows are the recent attendance marked and want to be updated. But let's find out if there are additional students that were enrolled within the sem and needs
+					                *to be added to the attendance register for further management processes
+				*/
+				$students_lagged = $this->db->get_where('enroll', array(
+					'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'sem' => $data['sem'], 'status_attendance' => 'open',
+				))->result_array();
+				foreach ($students_lagged as $row) {
+					$attn_data['class_id'] = $data['class_id'];
+					$attn_data['year'] = $data['year'];
+					$attn_data['sem'] = $data['sem'];
+					$attn_data['timestamp'] = $data['timestamp'];
+					$attn_data['section_id'] = $data['section_id'];
+					$attn_data['student_id'] = $row['student_id'];
+					// Use safe insert to handle duplicates
+						$this->_safe_insert_attendance($attn_data);
+
+					$this->db->where('student_id', $row['student_id']);
+					$this->db->update('enroll', array('status_attendance' => 'close'));
+				}
+
+			}
+
+		} else {
+
+			//for others
+			$studentsIds_array = [];
+
+			if ($from_scanner == 'yes') {
+				//requesting coming from barcode scanner page
+
+				$data['class_id'] = $class_id;
+				$data['year'] = $year;
+				$data['term'] = $term;
+				$data['timestamp'] = strtotime(date('d-m-Y')); //we won't send this from the scanner page.
+				$data['section_id'] = $section_id;
+
+			} else {
+				//teacher taking normal attendance
+
+				$data['class_id'] = $this->input->post('class_id');
+				$data['year'] = $this->input->post('year');
+				$data['term'] = $this->input->post('term');
+				$data['timestamp'] = strtotime($this->input->post('timestamp'));
+				$data['section_id'] = $this->input->post('section_id');
+
+				$studentsIds_array = $this->input->post('students_ids');
+				$data['students_ids'] = is_array($studentsIds_array) ? implode('-', $studentsIds_array) : $studentsIds_array;
+
+			}
+
+		if(!is_array($studentsIds_array)) $studentsIds_array = [];
+		for($i = 0; $i < sizeof($studentsIds_array); $i++):
+			//check the attendance table and see if these records match any
+			$query = $this->db->get_where('attendance', array(
+				'class_id' => $data['class_id'],
+				'section_id' => $data['section_id'],
+				'year' => $data['year'],
+				'term' => $data['term'],
+				'student_id' => $studentsIds_array[$i],
+				'timestamp' => $data['timestamp'],
+			));
+
+			if ($query->num_rows() < 1) {
+				//no record match found
+
+				/**Run a query from the enroll table with current year and current term
+          *if no match record is found, it means no student has been enrolled for this term
+          *thus, we need to do new enrollment for this term, else, we continue with normal daily attendance mgt
+				*/
+				$students_old = $this->db->get_where('enroll', array(
+					'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term'], 'student_id' => $studentsIds_array[$i]
+				));
+				$students_old_array = $students_old->result_array();
+
+				if ($students_old->num_rows() < 1) {
+					//no record match found
+					//Let's do new enrollment into a new term with same year
+
+					/**if term is 1 and the running year is the same as the year retrieved from the enroll table, it means user is **trying to enroll students to term 1 instead of doing promotion in the previous term. inform the user to contact *the system administrator for help**/
+					$running_term = $data['term'];
+					$running_year = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'section_id' => $data['section_id'], 'term' => $running_term))->row()->year;
+
+					if ($running_term == 3 && $running_year == $data['year']) {
+						/*$this->session->set_flashdata('error_message', get_phrase('make_sure_you_promote_students_during_term_3._please_contact_the_administrator_for_assistance'));
+                            redirect(site_url($this->session->userdata('login_type').'/manage_attendance'));*/
+
+						echo 'promotion error term';
+						return false;
+					}
+
+					/**if not, let's now enroll them into new term by creating new enrollment for them from the
+						                        *previous term and insert them into the enroll table
+						                        *and subsequently entering their details into the attendance table
+					*/
+
+					$students_new = $this->db->get_where('enroll', array(
+						'class_id' => $data['class_id'], 'mute' => '0', 'student_id' => $studentsIds_array[$i], 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term'] - 1,
+					))->result_array();
+
+					foreach ($students_new as $row) {
+						$enroll_data['enroll_code'] = substr(md5(rand(0, 1000000)), 0, 7);
+						$enroll_data['class_id'] = $data['class_id'];
+						$enroll_data['year'] = $data['year'];
+						$enroll_data['term'] = $data['term'];
+						$enroll_data['section_id'] = $data['section_id'];
+						$enroll_data['student_id'] = $row['student_id'];
+						$enroll_data['date_added'] = strtotime(date("Y-m-d H:i:s"));
+
+						$this->db->insert('enroll', $enroll_data);
+
+						$attn_data['class_id'] = $data['class_id'];
+						$attn_data['year'] = $data['year'];
+						$attn_data['term'] = $data['term'];
+						$attn_data['timestamp'] = $data['timestamp'];
+						$attn_data['section_id'] = $data['section_id'];
+						$attn_data['student_id'] = $row['student_id'];
+
+						// Use safe insert to handle duplicates
+						$this->_safe_insert_attendance($attn_data);
+
+						$this->db->where('student_id', $row['student_id']);
+						$this->db->update('enroll', array('status_attendance' => 'close'));
+
+					}
+				} elseif ($students_old->num_rows() > 0) {
+					//it is a normal daily attendance management. pull data from enroll table and insert them to att. tb
+					foreach ($students_old_array as $row) {
+
+						$attn_data['class_id'] = $data['class_id'];
+						$attn_data['year'] = $data['year'];
+						$attn_data['term'] = $data['term'];
+						$attn_data['timestamp'] = $data['timestamp'];
+						$attn_data['section_id'] = $data['section_id'];
+						$attn_data['student_id'] = $row['student_id'];
+
+						// Use safe insert to handle duplicates
+						$this->_safe_insert_attendance($attn_data);
+
+						$this->db->where('student_id', $row['student_id']);
+						$this->db->update('enroll', array('status_attendance' => 'close'));
+
+					}
+				}
+
+			} elseif ($query->num_rows() > 0) {
+				/**if we find some rows, it means these rows are the recent attendance marked and want to be updated. But let's find out if there are additional students that were enrolled within the term and needs
+					                *to be added to the attendance register for further management processes
+				*/
+				$students_lagged = $this->db->get_where('enroll', array(
+					'class_id' => $data['class_id'], 'mute' => '0', 'student_id' => $studentsIds_array[$i], 'section_id' => $data['section_id'], 'year' => $data['year'], 'term' => $data['term'], 'status_attendance' => 'open',
+				))->result_array();
+				foreach ($students_lagged as $row) {
+					$attn_data['class_id'] = $data['class_id'];
+					$attn_data['year'] = $data['year'];
+					$attn_data['term'] = $data['term'];
+					$attn_data['timestamp'] = $data['timestamp'];
+					$attn_data['section_id'] = $data['section_id'];
+					$attn_data['student_id'] = $row['student_id'];
+					// Use safe insert to handle duplicates
+						$this->_safe_insert_attendance($attn_data);
+
+					$this->db->where('student_id', $row['student_id']);
+					$this->db->update('enroll', array('status_attendance' => 'close'));
+				}
+
+			}
+			endfor;
+		}
+
+
+		echo site_url('admin/manage_attendance_view/' . $data['class_id'] . '/' . $data['section_id'] . '/' . $data['timestamp'] . '/' . $data['students_ids']);
+	}
+
+
+
+// Recalculate all subsequent days' owings after updating a past date
+private function recalculate_subsequent_owings($student_id, $table_name, $updated_timestamp, $class_id, $old_amount, $new_amount) {
+
+	$amount_diff = (floatval($old_amount) - floatval($new_amount));
+	
+	$this->db->where('student_id', $student_id);
+	$this->db->where('day_timestamp >', $updated_timestamp);
+	$this->db->set('due', 'due + '. $amount_diff, false);
+	$this->db->update($table_name);
+}
+
+
+	/****** DAILY ATTENDANCE *****************/
+	function manage_attendance2($date = '', $month = '', $year = '', $class_id = '', $section_id = '', $session = '') {
+		//if($this->session->userdata('admin_login')!=1)
+		redirect(site_url('login'));
+
+		$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		if ($_POST) {
+			// Loop all the students of $class_id
+			$this->db->where('class_id', $class_id);
+			if ($section_id != '') {
+				$this->db->where('section_id', $section_id);
+			}
+			//$session = base64_decode( urldecode( $session ) );
+			$this->db->where('year', $session);
+			$this->db->where('mute', '0');
+			$students = $this->db->get('enroll')->result_array();
+			foreach ($students as $row) {
+				$attendance_status = $this->input->post('status_' . $row['student_id']);
+
+				$this->db->where('student_id', $row['student_id']);
+				$this->db->where('date', $date);
+				$this->db->where('year', $year);
+				$this->db->where('class_id', $row['class_id']);
+				if ($row['section_id'] != '' && $row['section_id'] != 0) {
+					$this->db->where('section_id', $row['section_id']);
+				}
+				$this->db->where('session', $session);
+
+				$this->db->update('attendance', array('status' => $attendance_status));
+
+				if ($attendance_status == 2) {
+
+					if ($active_sms_service != 'disabled') {
+						$student_name = $this->db->get_where('student', array('student_id' => $row['student_id']))->row()->name;
+						$parent_id = $this->db->get_where('student', array('student_id' => $row['student_id']))->row()->parent_id;
+						$receiver_phone = $this->db->get_where('parent', array('parent_id' => $parent_id))->row()->phone;
+						$message = 'Your child' . ' ' . $student_name . 'is absent today.';
+
+						$receiver_phone_array = array();
+						$receiver_phone_array[] = $receiver_phone;
+
+						$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+					}
+				}
+
+			}
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_updated'));
+			redirect(site_url('admin/manage_attendance/' . $date . '/' . $month . '/' . $year . '/' . $class_id . '/' . $section_id . '/' . $session));
+		}
+		$page_data['date'] = $date;
+		$page_data['month'] = $month;
+		$page_data['year'] = $year;
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['session'] = $session;
+
+		$page_data['page_name'] = 'manage_attendance';
+		$page_data['page_title'] = get_phrase('manage_daily_attendance');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+	function attendance_selector2() {
+		//$session = $this->input->post('session');
+		//$encoded_session = urlencode( base64_encode( $session ) );
+		redirect(site_url('admin/manage_attendance/' . $this->input->post('date') . '/' .
+			$this->input->post('month') . '/' .
+			$this->input->post('year') . '/' .
+			$this->input->post('class_id') . '/' .
+			$this->input->post('section_id') . '/' .
+			$this->input->post('session')));
+	}
+	///////ATTENDANCE REPORT /////
+	function attendance_report() {
+		$page_data['month'] = date('m');
+		$page_data['page_name'] = 'attendance_report';
+		$page_data['page_title'] = get_phrase('attendance_report');
+		$this->load->view('backend/main', $page_data);
+	}
+	function attendance_report_view($class_id = '', $section_id = '', $month = '', $sessional_year = '', $term = '') {
+		// PERFORMANCE OPTIMIZATION: Check for per-student filtering mode
+		$student_ids_input = $this->input->get('student_ids') ?: $this->input->post('student_ids');
+		$student_ids = null;
+		$filter_mode = 'class_section'; // Default mode
+		
+		if ($student_ids_input && is_array($student_ids_input) && count($student_ids_input) > 0) {
+			// Per-student filtering mode
+			$student_ids = array_map('intval', $student_ids_input); // Sanitize IDs
+			$filter_mode = 'per_student';
+		}
+
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['month'] = $month;
+		$page_data['sessional_year'] = $sessional_year;
+		$page_data['filter_mode'] = $filter_mode;
+		$page_data['student_ids'] = $student_ids;
+
+		$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+		$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+		$section_name = $this->db->get_where('section', array('section_id' => $section_id))->row()->name;
+		
+		$page_data['class_name'] = strtoupper($class_name);
+
+		if ($page_data['class_name'] == 'JHS') {
+			$page_data['sem'] = $term;
+		} else {
+			$page_data['term'] = $term;
+		}
+
+		// PERFORMANCE OPTIMIZATION: Batch fetch students with details
+		$this->load->model('Attendance_enterprise_model');
+		$students_data = $this->Attendance_enterprise_model->get_students_with_details(
+			$class_id, 
+			$section_id, 
+			$sessional_year, 
+			$term, 
+			$student_ids
+		);
+
+		// Build associative array indexed by student_id for O(1) lookup
+		$students_lookup = array();
+		foreach ($students_data as $student) {
+			$students_lookup[$student['student_id']] = $student;
+		}
+		$page_data['students_lookup'] = $students_lookup;
+
+		// PERFORMANCE OPTIMIZATION: Batch fetch attendance records
+		$attendance_data = $this->Attendance_enterprise_model->get_attendance_batch(
+			$class_id, 
+			$section_id, 
+			$month, 
+			$sessional_year, 
+			$term, 
+			$student_ids
+		);
+
+		// Build in-memory lookup structure: student_id_date => attendance record
+		$attendance_lookup = array();
+		foreach ($attendance_data as $record) {
+			$key = $record['student_id'] . '_' . date('Y-m-d', $record['timestamp']);
+			$attendance_lookup[$key] = $record;
+		}
+		$page_data['attendance_lookup'] = $attendance_lookup;
+		
+		$page_data['page_name'] = 'attendance_report_view';
+		$page_data['page_title'] = get_phrase('attendance_report_of') . ' ' . $class_name . ' ' . $class_name_numeric . ' : ' . get_phrase('section') . ' ' . $section_name;
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+	function attendance_report_print_view($class_id = '', $section_id = '', $month = '', $sessional_year = '', $term = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(base_url());
+		$class_name = $this->crud_model->get_class_name($class_id);
+
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['month'] = $month;
+		$page_data['sessional_year'] = $sessional_year;
+
+		if ($class_name == 'JHSS') {
+			$page_data['sem'] = $term;
+
+		} else {
+			$page_data['term'] = $term;
+		}
+		$this->load->view('backend/admin/attendance_report_print_view', $page_data);
+	}
+
+	function attendance_report_selector() {
+		if ($this->input->post('class_id') == '' || $this->input->post('sessional_year') == '') {
+			$this->session->set_flashdata('error_message', get_phrase('please_make_sure_class_and_sessional_year_are_selected'));
+			redirect(site_url('admin/attendance_report'));
+		}
+		$data['class_id'] = $this->input->post('class_id');
+		$data['section_id'] = $this->input->post('section_id');
+		$data['month'] = $this->input->post('month');
+		$data['sessional_year'] = $this->input->post('sessional_year');
+		$data['term'] = $this->input->post('term');
+		$data['sem'] = $this->input->post('sem');
+
+		$class_name = $this->crud_model->get_class_name($data['class_id']);
+		if ($class_name == 'JHSS') {
+			redirect(site_url('admin/attendance_report_view/' . $data['class_id'] . '/' . $data['section_id'] . '/' . $data['month'] . '/' . $data['sessional_year']) . '/' . $data['sem']);
+		} else {
+			redirect(site_url('admin/attendance_report_view/' . $data['class_id'] . '/' . $data['section_id'] . '/' . $data['month'] . '/' . $data['sessional_year']) . '/' . $data['term']);
+		}
+
+	}
+
+	/**
+	 * PERFORMANCE OPTIMIZATION: AJAX endpoint for student autocomplete (Select2)
+	 * Supports per-student filtering in attendance reports
+	 */
+	public function ajax_search_students() {
+		// Security: Check user authentication
+		if ($this->session->userdata('admin_login') != 1) {
+			$this->output
+				->set_content_type('application/json')
+				->set_status_header(403)
+				->set_output(json_encode(['error' => 'Unauthorized']));
+			return;
+		}
+
+		// Get search term from query parameter
+		$search_term = $this->input->get('q', TRUE);
+		$page = $this->input->get('page', TRUE) ?: 1;
+
+		// Validate search term
+		if (empty($search_term) || strlen($search_term) < 2) {
+			$this->output
+				->set_content_type('application/json')
+				->set_output(json_encode(['results' => []]));
+			return;
+		}
+
+		// Load model and search
+		$this->load->model('Attendance_enterprise_model');
+		$results = $this->Attendance_enterprise_model->search_students($search_term, 50);
+
+		// Return Select2-formatted results
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode([
+				'results' => $results,
+				'pagination' => ['more' => false]
+			]));
+	}
+
+	/**
+	 * Get student's class and section info for attendance reports
+	 * Used when generating reports in per-student mode
+	 */
+	public function get_student_class_info() {
+		// Security: Check user authentication
+		if ($this->session->userdata('admin_login') != 1) {
+			$this->output
+				->set_content_type('application/json')
+				->set_status_header(403)
+				->set_output(json_encode(['status' => 'error', 'message' => 'Unauthorized']));
+			return;
+		}
+
+		// Get student ID
+		$student_id = $this->input->get('student_id', TRUE);
+
+		if (empty($student_id)) {
+			$this->output
+				->set_content_type('application/json')
+				->set_output(json_encode(['status' => 'error', 'message' => 'Student ID required']));
+			return;
+		}
+
+		// Get current year and term
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		// Get student's class and section from enroll table
+		$enroll = $this->db->select('class_id, section_id')
+			->from('enroll')
+			->where('student_id', $student_id)
+			->where('year', $running_year)
+			->where('term', $running_term)
+			->get()
+			->row();
+
+		if ($enroll) {
+			$this->output
+				->set_content_type('application/json')
+				->set_output(json_encode([
+					'status' => 'success',
+					'class_id' => $enroll->class_id,
+					'section_id' => $enroll->section_id
+				]));
+		} else {
+			$this->output
+				->set_content_type('application/json')
+				->set_output(json_encode([
+					'status' => 'error',
+					'message' => 'Student enrollment not found'
+				]));
+		}
+	}
+
+	/**
+	 * AJAX endpoint to get attendance analytics data
+	 * Returns JSON data for analytics summary report
+	 */
+	public function get_attendance_analytics() {
+		// Security: Check user authentication
+		if ($this->session->userdata('admin_login') != 1) {
+			$this->output
+				->set_content_type('application/json')
+				->set_status_header(403)
+				->set_output(json_encode(['error' => 'Unauthorized']));
+			return;
+		}
+
+		// Get parameters
+		$class_id = $this->input->get('class_id', TRUE);
+		$section_id = $this->input->get('section_id', TRUE);
+		$start_date = $this->input->get('start_date', TRUE);
+		$end_date = $this->input->get('end_date', TRUE);
+		$status_filter = $this->input->get('status', TRUE);
+		$student_ids_input = $this->input->get('student_ids', TRUE);
+
+		// Parse student IDs if provided
+		$student_ids = null;
+		if ($student_ids_input) {
+			if (is_string($student_ids_input)) {
+				$student_ids = array_map('intval', explode(',', $student_ids_input));
+			} elseif (is_array($student_ids_input)) {
+				$student_ids = array_map('intval', $student_ids_input);
+			}
+		}
+
+		// Validate required parameters
+		if (empty($class_id) || empty($section_id) || empty($start_date) || empty($end_date)) {
+			$this->output
+				->set_content_type('application/json')
+				->set_output(json_encode(['error' => 'Missing required parameters']));
+			return;
+		}
+
+		// Get running year and term
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		// Load model
+		$this->load->model('Attendance_enterprise_model');
+
+		// Get students
+		$students_data = $this->Attendance_enterprise_model->get_students_with_details(
+			$class_id,
+			$section_id,
+			$running_year,
+			$running_term,
+			$student_ids
+		);
+
+		// Get attendance records for date range
+		$start_timestamp = strtotime($start_date);
+		$end_timestamp = strtotime($end_date . ' 23:59:59');
+
+		$this->db->select('*');
+		$this->db->from('attendance');
+		$this->db->where('class_id', $class_id);
+		$this->db->where('section_id', $section_id);
+		$this->db->where('timestamp >=', $start_timestamp);
+		$this->db->where('timestamp <=', $end_timestamp);
+		
+		if ($student_ids && count($student_ids) > 0) {
+			$this->db->where_in('student_id', $student_ids);
+		}
+		
+		if ($status_filter) {
+			$this->db->where('status', $status_filter);
+		}
+
+		$attendance_records = $this->db->get()->result_array();
+
+		// Build analytics data structure
+		$stats = [
+			'total_days' => 0,
+			'total_present' => 0,
+			'total_absent' => 0,
+			'total_late' => 0,
+			'total_sick_home' => 0,
+			'total_sick_clinic' => 0
+		];
+
+		$student_stats = [];
+		$daily_stats = [];
+
+		// Initialize student stats
+		foreach ($students_data as $student) {
+			$student_id = $student['student_id'];
+			$student_stats[$student_id] = [
+				'student_id' => $student_id,
+				'student_name' => $student['name'],
+				'class_name' => $this->db->get_where('class', ['class_id' => $class_id])->row()->name,
+				'class_numeric' => $this->db->get_where('class', ['class_id' => $class_id])->row()->name_numeric,
+				'present' => 0,
+				'absent' => 0,
+				'late' => 0,
+				'sick_home' => 0,
+				'sick_clinic' => 0,
+				'rate' => 0
+			];
+		}
+
+		// Count unique dates where attendance was actually marked
+		$unique_dates = [];
+		foreach ($attendance_records as $record) {
+			$date = date('Y-m-d', $record['timestamp']);
+			$unique_dates[$date] = true;
+			
+			// Aggregate by date for charts
+			if (!isset($daily_stats[$date])) {
+				$daily_stats[$date] = [
+					'date' => $date,
+					'present' => 0,
+					'absent' => 0,
+					'late' => 0,
+					'sick_home' => 0,
+					'sick_clinic' => 0
+				];
+			}
+
+			// Count by status
+			$status = $record['status'];
+			$student_id = $record['student_id'];
+
+			if (isset($student_stats[$student_id])) {
+				switch ($status) {
+					case 1:
+						$stats['total_present']++;
+						$student_stats[$student_id]['present']++;
+						$daily_stats[$date]['present']++;
+						break;
+					case 2:
+						$stats['total_absent']++;
+						$student_stats[$student_id]['absent']++;
+						$daily_stats[$date]['absent']++;
+						break;
+					case 3:
+						$stats['total_late']++;
+						$student_stats[$student_id]['late']++;
+						$daily_stats[$date]['late']++;
+						break;
+					case 4:
+						$stats['total_sick_home']++;
+						$student_stats[$student_id]['sick_home']++;
+						$daily_stats[$date]['sick_home']++;
+						break;
+					case 5:
+						$stats['total_sick_clinic']++;
+						$student_stats[$student_id]['sick_clinic']++;
+						$daily_stats[$date]['sick_clinic']++;
+						break;
+				}
+			}
+		}
+
+		// Total Days = count of unique dates where attendance was marked (actual school days with records)
+		$stats['total_days'] = count($unique_dates);
+
+		// Calculate attendance rates for each student
+		foreach ($student_stats as $student_id => &$student) {
+			$total = $student['present'] + $student['absent'] + $student['late'] + $student['sick_home'] + $student['sick_clinic'];
+			if ($total > 0) {
+				$student['rate'] = round(($student['present'] / $total) * 100, 1);
+			}
+			
+			// Add section name
+			$section_info = $this->db->select('s.name as section_name')
+				->from('enroll e')
+				->join('section s', 's.section_id = e.section_id', 'left')
+				->where('e.student_id', $student_id)
+				->where('e.class_id', $class_id)
+				->where('e.year', $running_year)
+				->where('e.term', $running_term)
+				->get()
+				->row();
+			
+			$student['section_name'] = $section_info ? $section_info->section_name : '';
+		}
+
+		// Sort daily stats by date
+		ksort($daily_stats);
+
+		// Return JSON response
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode([
+				'stats' => $stats,
+				'students' => array_values($student_stats),
+				'daily' => array_values($daily_stats)
+			]));
+	}
+
+	/******MANAGE BILLING / INVOICES WITH STATUS*****/
+	function all_invoices($year='', $fromAjax='no') {
+		if($year == '') {
+			$year = get_settings('running_year');
+		}
+
+		$page_data['page_name'] = 'all_invoices';
+		$page_data['page_title'] = 'ALL INVOICES';
+		$page_data['year'] = $year;
+		$page_data['page_data'] = $this->invoice_model->get_all_invoices_by_year($year);
+
+		if($fromAjax == 'no') {
+			$this->load->view('backend/main', $page_data);
+		} else {
+			$this->load->view('backend/admin/get_all_invoices', $page_data);
+		}
+		
+
+	}
+
+
+	//Mass invoice creation using ajax
+	function mass_invoice_create($param1 = '', $param2 = '', $param3 = '', $param4='', $param5='', $param6='') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//currency
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		$fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
+		$invoice_code_f = $this->db->get_where('settings', array('type' => 'invoice_number_format'))->row()->description;
+
+		if ($param1 == 'create') {
+
+			$batchInsertArray = array(); //batch insert array
+			$historyBatchInsertArray = array();
+
+			$batchUpdateArray = array(); //batch update array
+			$historyBatchUpdateArray = array();
+
+			$billItemBatchUpdate = array();
+
+			$class_ids_array = $this->input->post('class_id') ?: $this->input->get('class_id');
+
+
+			if(!is_array($class_ids_array)) {
+				/*no class selected*/
+				$this->db->select('class_id');
+				$this->db->distinct();
+				$this->db->from('class');
+				$ids = $this->db->get()->result_array();
+
+				$class_ids_array = array_column($ids, 'class_id');
+			}
+
+			$selected_year = $this->input->post('year') ?: $this->input->get('year');
+			$selected_term = $this->input->post('term') ?: $this->input->get('term');
+			$students_category = $this->input->post('students_category') ?: $_REQUEST['students_category'];
+
+			/*Here, we want to know which category of students were selected so we can effect the correct entries in the bill_item_history table*/
+
+			if($students_category == 'boarding') {
+
+				$bill_item_history_residence_type = 'Boarding';
+
+			} else if($students_category == 'day') {
+
+				$bill_item_history_residence_type = 'Day';
+
+			} else {
+
+				$bill_item_history_residence_type = 'Both';
+				
+			}
+
+			$add_to_bill_history = $this->input->post('add_to_class_bill') ?: $this->input->get('add_to_class_bill');
+
+			$itemHistoryCanBeUpdated = false;
+
+			if($add_to_bill_history == 1) {
+
+				$itemHistoryCanBeUpdated = true;
+
+			}
+
+
+			$historyRecordCounter = 0;
+			$invoice_adder = 1;
+			
+			$isUpdateCounter = 0;
+			$isInsertCounter = 0;
+
+			$historyBatchUpdateCounter = 0;
+			$historyBatchInsertCounter = 0;
+
+			$student_ids_array = array();
+
+			$student_ids_array = $this->input->post('student_id') ?: (isset($_REQUEST['student_id']) ? $_REQUEST['student_id'] : array());
+			
+			if(empty($student_ids_array) || !is_array($student_ids_array)) {
+				echo json_encode(['status' => 'error', 'message' => 'No students selected']);
+				return;
+			}
+			
+			// Track discounts per student (student_id => [profile_id => discount_data])
+			$all_student_discounts = array();
+
+
+			if(count($student_ids_array) > 0) {
+				
+				
+				foreach ($student_ids_array as $student_id) {
+					$discount_records = array(); // Store discount records per profile
+					$isUpdate = false;
+					$isInsert = false;
+
+					//generate sequential invoice number;
+					$this->db->select('invoice_code');
+					$this->db->order_by('invoice_code', 'desc');
+					$this->db->limit(1);
+					$inv_query = $this->db->get('invoice');
+					
+
+					if ($inv_query->num_rows() > 0) {
+						$inv_id = $inv_query->row()->invoice_code;
+						$data['invoice_code'] = (floatval($inv_id) + floatval($invoice_adder));
+
+						if (substr($inv_id, 0, 1) == 0) {
+
+							$old_len = strlen($inv_id);
+							$new_len = strlen($data['invoice_code']);
+							$act_len = ($old_len - $new_len);
+							$data['invoice_code'] = substr($inv_id, 0, $act_len) . $data['invoice_code'];
+
+						} else {
+							$data['invoice_code'] = $data['invoice_code'];
+						}
+					} else {
+						$inv_id = $invoice_code_f;
+
+						$data['invoice_code'] = (floatval($inv_id) + floatval($invoice_adder));
+
+						if (substr($inv_id, 0, 1) == 0) {
+							$old_len = strlen($inv_id);
+							$new_len = strlen($data['invoice_code']);
+							$act_len = ($old_len - $new_len);
+							$data['invoice_code'] = substr($inv_id, 0, $act_len) . $data['invoice_code'];
+
+						} else {
+							$data['invoice_code'] = $data['invoice_code'];
+						}
+					}
+
+					//invoice (code) validation for duplicate
+					$code_validation = invoice_code_validation_insert($data['invoice_code']);
+					while (!$code_validation) {
+						//while invoice code validation fails, keep generating different ones
+						$this->db->select('invoice_code');
+						$this->db->order_by('invoice_code', 'desc');
+						$this->db->limit(1);
+						$inv_query = $this->db->get('invoice');
+						
+						if ($inv_query->num_rows() > 0) {
+							$inv_id = $inv_query->row()->invoice_code;
+							$data['invoice_code'] = $inv_id + 1;
+
+							if (substr($inv_id, 0, 1) == 0) {
+								$old_len = strlen($inv_id);
+								$new_len = strlen($data['invoice_code']);
+								$act_len = ($old_len - $new_len);
+								$data['invoice_code'] = substr($inv_id, 0, $act_len) . $data['invoice_code'];
+
+							} else {
+								$data['invoice_code'] = $data['invoice_code'];
+							}
+						} else {
+							// No invoices exist, break the loop
+							break;
+						}
+
+						$code_validation = invoice_code_validation_insert($data['invoice_code']);
+					}
+					//invoice validation ends
+
+					$data['invoice_code'] = $data['invoice_code'];
+					$data['student_id'] = $student_id;
+					
+					$data['year'] = $selected_year;
+
+
+					$data['class_id'] = $this->crud_model->getStudentClassId($student_id, $selected_year, $selected_term);
+
+
+					/*$class_name = $this->db->get_where('class', array('class_id' => $data['class_id']))->row()->name;
+
+					if ($class_name == 'JHSS') {
+						$data['sem'] = $_REQUEST['sem'];
+
+					} else {*/
+						$data['term'] = $selected_term;
+					//}
+
+
+						/*let's check if this student has already been billed within the selected period*/
+						$this->db->where('student_id', $student_id);
+						$this->db->where('year', $data['year']);
+						$this->db->where('term', $data['term']);
+						$this->db->where('class_id', $data['class_id']);
+						$invoiceCheckExistQuery = $this->db->get('invoice');
+
+						if($invoiceCheckExistQuery->num_rows() > 0) {
+
+							$data['invoice_code'] = $invoiceCheckExistQuery->last_row()->invoice_code;
+							$data['creation_timestamp'] = $invoiceCheckExistQuery->last_row()->creation_timestamp;
+
+						}
+
+					//get the serialized values from the ajax request and process them
+					//if $param2 is empty, use the default id prefix...
+					if ($param2 == '' || $param2 == null) {
+						$ids_array = array('177_1565053816');
+					} else {
+						$ids_array = explode('-', $param2);
+					}
+
+					$history_timestamp = strtotime('now');
+
+					/*get the current residential status of the student*/
+					$residence_type = $this->boarding_model->get_residence_type($data['student_id']);
+					
+					// Get invoice discounts for this student
+					$this->db->select('sda.*, dp.profile_name, dp.discount_method, dp.discount_value, dp.bill_item_ids');
+					$this->db->from('student_discount_assignments sda');
+					$this->db->join('discount_profiles dp', 'sda.profile_id = dp.profile_id');
+					$this->db->where('sda.student_id', $student_id);
+					$this->db->where('dp.discount_category', 'invoice');
+					$this->db->where('dp.is_active', 1);
+					$this->db->where('sda.is_active', 1);
+					$this->db->where('sda.status', 'approved');
+					$student_discounts = $this->db->get()->result_array();
+
+					// Pre-calculate totals for fixed amount discounts
+					$discount_totals = array();
+					foreach($student_discounts as $disc) {
+						if($disc['discount_method'] == 'fixed') {
+							$bill_items = trim($disc['bill_item_ids']);
+							$total = 0;
+							foreach($ids_array as $id) {
+								$title = $_REQUEST[$id . '_title'];
+								$amt = $_REQUEST[$id . '_amount'];
+								$iid = $this->db->get_where('bill_item', ['title' => $title])->row()->id;
+								$applies = ($bill_items == '*' || in_array($iid, array_map('trim', explode(',', $bill_items))));
+								if($applies) $total += $amt;
+							}
+							$discount_totals[$disc['profile_id']] = $total;
+						}
+					}
+
+					for ($j = 0; $j < count($ids_array); $j++) {
+						$data['residence_type'] = $residence_type;
+						$item_title = $_REQUEST[$ids_array[$j] . '_title'];
+						$data['title'] = strtoupper($item_title);
+						$original_amount = number_format(floatval($_REQUEST[$ids_array[$j] . '_amount']), 2, '.', '');
+						$data['amount'] = $original_amount;
+						$current_item_id = explode('_', $ids_array[$j])[0];
+						$item_id = $this->db->get_where('bill_item', ['title' => $item_title])->row()->id;
+						
+						// Get the bill item data
+						$bill_item_data = $this->db->get_where('bill_item', ['title' => $item_title])->row();
+						$bill_item_specific_class_ids = isset($bill_item_data->specific_class_ids) ? $bill_item_data->specific_class_ids : null;
+						$bill_item_class_category = isset($bill_item_data->class_category) ? $bill_item_data->class_category : null;
+						
+						// Filtering Priority: specific_class_ids > class_category > all
+						$skip_item = false;
+						
+						if(!empty($bill_item_specific_class_ids)) {
+							// Priority 1: Check specific class IDs (most granular)
+							$specific_classes = array_map('trim', explode(',', $bill_item_specific_class_ids));
+							if(!in_array($data['class_id'], $specific_classes)) {
+								$skip_item = true; // Student's class not in specific list
+							}
+						} elseif(!empty($bill_item_class_category)) {
+							// Priority 2: Check class category
+							$student_class = $this->db->get_where('class', ['class_id' => $data['class_id']])->row();
+							$student_class_category = isset($student_class->category) ? $student_class->category : null;
+							
+							if($bill_item_class_category != $student_class_category) {
+								$skip_item = true; // Student's category doesn't match
+							}
+						}
+						// Priority 3: If both are NULL/empty, item applies to all classes (no skip)
+						
+						if($skip_item) {
+							continue; // Skip this item for this student
+						}
+						
+						// Apply discounts
+						foreach($student_discounts as $disc) {
+							$bill_items = trim($disc['bill_item_ids']);
+							$bill_items_array = array_map('trim', explode(',', $bill_items));
+							$applies = ($bill_items == '*' || in_array($item_id, $bill_items_array));
+							
+							if($applies) {
+								if($disc['discount_method'] == 'percentage') {
+									$disc_amt = number_format($original_amount * $disc['discount_value'] / 100, 2, '.', '');
+								} else {
+									$total_amt = $discount_totals[$disc['profile_id']];
+									$disc_amt = ($total_amt > 0) ? number_format(($original_amount / $total_amt) * $disc['discount_value'], 2, '.', '') : 0;
+								}
+								$data['amount'] = number_format($data['amount'] - $disc_amt, 2, '.', '');
+								
+								if(!isset($discount_records[$disc['profile_id']])) {
+									$discount_records[$disc['profile_id']] = array(
+										'profile_id' => $disc['profile_id'],
+										'profile_name' => $disc['profile_name'],
+										'discount_method' => $disc['discount_method'],
+										'discount_value' => $disc['discount_value'],
+										'total' => 0,
+										'items' => array()
+									);
+								}
+								$discount_records[$disc['profile_id']]['total'] += $disc_amt;
+								$discount_records[$disc['profile_id']]['items'][] = array(
+									'title' => $item_title,
+									'original_amount' => $original_amount,
+									'discount_amount' => $disc_amt,
+									'discounted_amount' => number_format($original_amount - $disc_amt, 2, '.', '')
+								);
+							}
+						}
+						
+						$data['amount_paid'] = 0;
+						$data['due'] = number_format($data['amount'] - $data['amount_paid'], 2, '.', '');
+						$data['status'] = 'unpaid';
+						$data['creation_timestamp'] = strtotime($_REQUEST['date']);
+						
+
+						if ($_REQUEST[$ids_array[$j] . '_description'] != null) {
+							$data['description'] = $_REQUEST[$ids_array[$j] . '_description'];
+						}
+
+						/*let's check if the user is doing an update to the already billed items*/
+						$this->db->where('student_id', $student_id);
+						$this->db->where('title', $data['title']);
+						$this->db->where('year', $data['year']);
+						$this->db->where('term', $data['term']);
+						$this->db->where('class_id', $data['class_id']);
+						$this->db->where('can_delete !=', 'trash');
+						$this->db->where('can_edit !=', 'declined');
+						$checkExistQuery = $this->db->get('invoice');
+
+						if($checkExistQuery->num_rows() > 0) {
+
+							$can_delete_status = $checkExistQuery->row()->can_delete;
+							$can_edit_status = $checkExistQuery->row()->can_edit;
+							
+							// Get old values regardless of permission (needed for invoice code continuity)
+							$old_amount = $checkExistQuery->row()->amount;
+							$old_amount_due = $checkExistQuery->row()->due;
+							$old_amount_paid = $checkExistQuery->row()->amount_paid;
+							$old_credit_applied = isset($checkExistQuery->row()->credit_applied) ? $checkExistQuery->row()->credit_applied : 0;
+							$old_invoice_code = $checkExistQuery->row()->invoice_code;
+							$old_creation_timestamp = $checkExistQuery->row()->creation_timestamp;
+							$amount_diff = $data['amount'] - $old_amount;
+
+							//WE WILL INTRODUCE ADMINSTRATOR'S PERMISSION TO PERFORM THIS TASK LATER
+
+							/*do changes only if invoice does not have any pending request*/
+							if(($can_delete_status == 'default' || $can_delete_status == 'approved') && ($can_edit_status == 'default' || $can_edit_status == 'approved')) {
+								/*update here exists*/
+								$isUpdate = true;
+								$isUpdateCounter++;
+
+								$updateData['invoice_id'] = $checkExistQuery->row()->invoice_id;
+								$updateData['amount'] = $data['amount'];
+								// Temporarily calculate due - will be recalculated after credit reapplication
+								// The proper formula accounts for amount_paid and credit_applied
+								$updateData['due'] = max(0, $data['amount'] - $old_amount_paid - $old_credit_applied);
+
+								$batchUpdateArray[] = $updateData;
+								
+								/*in case any payment for this invoice code was made before, we need to update the balance for this code in payment table*/
+								$this->db->order_by('payment_id', 'asc');
+								$payment_query = $this->db->get_where('payment', ['invoice_code' => $old_invoice_code]);
+
+								if($payment_query->num_rows() > 0) {
+									$invoice_last_payment_id = $payment_query->last_row()->payment_id;
+
+									/*effect update*/
+									$this->db->where('payment_id', $invoice_last_payment_id);
+									$this->db->set('due', 'due + '.$amount_diff, false);
+									$this->db->update('payment');
+								}
+							}
+
+							 /*if this student has any bill item that has to be updated before they added any other item, we use the old invoice code for him*/
+							$data['invoice_code'] = $old_invoice_code;
+							$data['creation_timestamp'] = $old_creation_timestamp;
+
+							//continue; //move on to the next bill item
+
+						} else {
+
+							$isInsert = true;
+							$isInsertCounter++;
+							$batchInsertArray[] = $data;
+
+						}
+
+						/*BILL HISTORY*/
+						
+						$item_id = $this->db->get_where('bill_item', ['title' => $item_title])->row()->id; //bill item_id
+
+						/*to update the bill item amount*/
+						$bill_item_update_data['id'] = $item_id;
+						$bill_item_update_data['amount'] = $data['amount'];
+
+						$billItemBatchUpdate[] = $bill_item_update_data;
+
+						$item_category_id = $this->boarding_model->getBillItemCategoryIdByBillItemId($item_id);
+
+						if($historyRecordCounter == 0 && ($item_category_id == 1 || $item_category_id == 4 || $item_category_id == 5)): //don't record arrears, admission items or any other for the fee structure in the history since it is specific to a student.
+							
+							// Get the bill item data for filtering
+							$bill_item_full_data = $this->db->get_where('bill_item', ['id' => $item_id])->row();
+							$bill_item_specific_class_ids = isset($bill_item_full_data->specific_class_ids) ? $bill_item_full_data->specific_class_ids : null;
+							$bill_item_class_category = isset($bill_item_full_data->class_category) ? $bill_item_full_data->class_category : null;
+
+							for($c = 0; $c < count($class_ids_array); $c++):
+								
+								// Get the class data
+								$class_data = $this->db->get_where('class', ['class_id' => $class_ids_array[$c]])->row();
+								$class_category = isset($class_data->category) ? $class_data->category : null;
+								
+								// Filtering Priority: specific_class_ids > class_category > all
+								$skip_class = false;
+								
+								if(!empty($bill_item_specific_class_ids)) {
+									// Priority 1: Check specific class IDs
+									$specific_classes = array_map('trim', explode(',', $bill_item_specific_class_ids));
+									if(!in_array($class_ids_array[$c], $specific_classes)) {
+										$skip_class = true;
+									}
+								} elseif(!empty($bill_item_class_category)) {
+									// Priority 2: Check class category
+									if($bill_item_class_category != $class_category) {
+										$skip_class = true;
+									}
+								}
+								// Priority 3: If both NULL, applies to all (no skip)
+								
+								if($skip_class) {
+									continue; // Skip this class
+								}
+								
+								//update the bill history
+								
+								$this->db->where('bill_item_id', $item_id);
+								$this->db->where('class_id', $class_ids_array[$c]);
+								$this->db->where('term', $data['term']);
+								$this->db->where('year', $data['year']);
+								$this->db->where('residence_type', $bill_item_history_residence_type);
+								$bill_history_query = $this->db->get('bill_item_history');
+								$num_rows = $bill_history_query->num_rows();
+
+
+								if($num_rows > 0) {
+									$bill_history_id = $bill_history_query->row()->id;
+
+									$historyBatchUpdateCounter++;
+									//update
+									$history_update_data['bill_item_id'] = $item_id;
+									$history_update_data['class_id'] = $class_ids_array[$c];
+									$history_update_data['term'] = $data['term'];
+									$history_update_data['year'] = $data['year'];
+									$history_update_data['bill_item_amount'] = $data['amount'];
+									$history_update_data['id'] = $bill_history_id;
+
+									$historyBatchUpdateArray[] = $history_update_data;
+
+								} else {
+									//insert
+
+									$historyBatchInsertCounter++;
+
+									$history_data['bill_item_id'] = $item_id;
+									$history_data['class_id'] = $class_ids_array[$c];
+									$history_data['term'] = $data['term'];
+									$history_data['year'] = $data['year'];
+									$history_data['bill_item_amount'] = $data['amount'];
+									$history_data['residence_type'] = $bill_item_history_residence_type;
+									$history_data['timestamp'] = $history_timestamp;
+
+									$historyBatchInsertArray[] = $history_data;
+								}
+
+							endfor;
+
+						endif;/*END OF BILL HISTORY TABLE UPDATE*/
+
+					} /*end of each bill item*/
+
+			
+
+					// Store discount records for this student
+					if(count($discount_records) > 0) {
+						$all_student_discounts[$student_id] = array(
+							'invoice_code' => $data['invoice_code'],
+							'discounts' => $discount_records
+						);
+
+					} else {
+
+					}
+					
+					$invoice_adder++;
+					$historyRecordCounter++;
+
+				} /*end of each student*/
+
+				// IMPORTANT: Delete old invoice items that are not in the new bill and have no payments
+				// This ensures a true "replacement" of the old bill with the new one
+				
+				// First, build array of NEW bill item titles from the request
+				if ($param2 == '' || $param2 == null) {
+					$ids_array_for_deletion = array('177_1565053816');
+				} else {
+					$ids_array_for_deletion = explode('-', $param2);
+				}
+				
+				$new_bill_titles = array();
+				for ($j = 0; $j < count($ids_array_for_deletion); $j++) {
+					$new_title = $_REQUEST[$ids_array_for_deletion[$j] . '_title'];
+					$new_bill_titles[] = strtoupper($new_title);
+				}
+				
+				// Track deleted bill items for history cleanup
+				$deleted_bill_item_ids = array();
+				
+				// Now check each student's existing invoices
+				foreach ($student_ids_array as $student_id) {
+					// Get student's class for this period
+					$student_class_id = $this->crud_model->getStudentClassId($student_id, $selected_year, $selected_term);
+					
+					// Get all existing invoice items for this student in this term/year
+					$existing_invoices = $this->db->select('invoice_id, title, invoice_code, amount_paid')
+						->where('student_id', $student_id)
+						->where('year', $selected_year)
+						->where('term', $selected_term)
+						->get('invoice')
+						->result();
+					
+					foreach ($existing_invoices as $existing_inv) {
+						// Check if this item title is in the new bill items array
+						$item_in_new_bill = in_array($existing_inv->title, $new_bill_titles);
+						
+						// If item is NOT in new bill AND has no payments, delete it
+						if (!$item_in_new_bill) {
+							$amount_paid = floatval($existing_inv->amount_paid);
+							
+							// Only delete if no payment has been made
+							if ($amount_paid == 0) {
+								// Get bill_item_id for this title
+								$bill_item_row = $this->db->get_where('bill_item', array('title' => $existing_inv->title))->row();
+								
+								if ($bill_item_row) {
+									$bill_item_id = $bill_item_row->id;
+									
+									// Track this for history deletion
+									if (!in_array($bill_item_id, $deleted_bill_item_ids)) {
+										$deleted_bill_item_ids[] = $bill_item_id;
+									}
+								}
+								
+								// Delete from invoice table
+								$this->db->where('invoice_id', $existing_inv->invoice_id);
+								$this->db->delete('invoice');
+								
+								// Delete from discount items if exists
+								$this->db->where('invoice_id', $existing_inv->invoice_id);
+								$this->db->delete('invoice_discount_items');
+							}
+						}
+					}
+				}
+				
+				// Delete from bill_item_history for deleted items (if "add to class bill history" was enabled)
+				if ($add_to_bill_history == 1 && count($deleted_bill_item_ids) > 0) {
+					foreach ($deleted_bill_item_ids as $deleted_item_id) {
+						// Get the category of this bill item
+						$item_category_id = $this->boarding_model->getBillItemCategoryIdByBillItemId($deleted_item_id);
+						
+						// Only delete history for general items (not arrears, admission, or other specific items)
+						if ($item_category_id == 1 || $item_category_id == 4 || $item_category_id == 5) {
+							// Delete from bill_item_history for each class
+							foreach ($class_ids_array as $class_id) {
+								$this->db->where('bill_item_id', $deleted_item_id);
+								$this->db->where('class_id', $class_id);
+								$this->db->where('term', $selected_term);
+								$this->db->where('year', $selected_year);
+								$this->db->where('residence_type', $bill_item_history_residence_type);
+								$this->db->delete('bill_item_history');
+							}
+						}
+					}
+				}
+
+				//Do insertion or Update
+				if($isInsertCounter > 0 && $isUpdateCounter > 0) {
+					/*update and insert*/
+					$this->db->update_batch('invoice', $batchUpdateArray, 'invoice_id');
+					$this->db->insert_batch('invoice', $batchInsertArray);
+					
+					// ============================================
+					// CREDIT SYSTEM: Recalculate credits for updated invoices
+					// ============================================
+					$this->load->model('Credit_model');
+					foreach($batchUpdateArray as $update_data) {
+						$invoice_id = $update_data['invoice_id'];
+						
+						// Step 1: Get current invoice details
+						$invoice = $this->db->get_where('invoice', ['invoice_id' => $invoice_id])->row();
+						if(!$invoice) continue;
+						
+						// Step 2: Remove old credit applications for this invoice
+						$old_credit_apps = $this->db->where('invoice_id', $invoice_id)->get('credit_applications')->result();
+						foreach($old_credit_apps as $app) {
+							// Reverse the credit application by reducing applied_amount in student_credits
+							$credit = $this->db->get_where('student_credits', ['credit_id' => $app->credit_id])->row();
+							if($credit) {
+								$new_applied = max(0, $credit->applied_amount - $app->applied_amount);
+								$new_status = ($new_applied >= $credit->credit_amount) ? 'fully_applied' : (($new_applied > 0) ? 'active' : 'active');
+								$this->db->where('credit_id', $app->credit_id)
+									->update('student_credits', [
+										'applied_amount' => $new_applied,
+										'status' => $new_status
+									]);
+							}
+						}
+						// Delete old credit application records
+						$this->db->where('invoice_id', $invoice_id)->delete('credit_applications');
+						
+						// Step 3: Reset invoice credit_applied field
+						$this->db->where('invoice_id', $invoice_id)->update('invoice', ['credit_applied' => 0]);
+						
+						// Step 4: Reapply credits with new invoice amount
+						$this->Credit_model->apply_credits_to_invoice($invoice_id);
+					}
+					
+					// Apply credits to newly inserted invoices
+					foreach($batchInsertArray as $invoice_data) {
+						$invoice = $this->db->get_where('invoice', array('invoice_code' => $invoice_data['invoice_code']))->row();
+						if($invoice) {
+							$this->Credit_model->apply_credits_to_invoice($invoice->invoice_id);
+						}
+					}
+					// ============================================
+
+					if(count($student_ids_array) > 1) { //this is a bulk invoice
+
+						$message = 'BULK INVOICES UPDATED WITH THE NEW BILL ITEMS ADDED SUCCESSFULLY';
+
+					} else {
+
+						$message = 'INVOICE UPDATED WITH THE NEW BILL ITEMS ADDED SUCCESSFULLY';
+					}
+					
+						
+
+				} else {
+
+					if($isInsertCounter > 0) {
+						/*insert*/
+						$this->db->insert_batch('invoice', $batchInsertArray);
+						
+						// ============================================
+						// CREDIT SYSTEM: Auto-apply available credits to new invoices
+						// ============================================
+						$this->load->model('Credit_model');
+						// Get the newly inserted invoices by their invoice codes
+						foreach($batchInsertArray as $invoice_data) {
+							$invoice = $this->db->get_where('invoice', array('invoice_code' => $invoice_data['invoice_code']))->row();
+							if($invoice) {
+								// Try to apply available credits
+								$this->Credit_model->apply_credits_to_invoice($invoice->invoice_id);
+							}
+						}
+						// ============================================
+						
+						if(count($student_ids_array) > 1) { //this is a bulk invoice
+							
+							$message = 'BULK INVOICES CREATED SUCCESSFULLY';
+
+						} else {
+
+							$message = 'INVOICE CREATED SUCCESSFULLY';
+
+						}
+
+						
+					}
+
+					if($isUpdateCounter > 0) {
+						$this->db->update_batch('invoice', $batchUpdateArray, 'invoice_id');
+						
+						// ============================================
+						// CREDIT SYSTEM: Recalculate credits for updated invoices
+						// ============================================
+						$this->load->model('Credit_model');
+						foreach($batchUpdateArray as $update_data) {
+							$invoice_id = $update_data['invoice_id'];
+							
+							// Step 1: Get current invoice details
+							$invoice = $this->db->get_where('invoice', ['invoice_id' => $invoice_id])->row();
+							if(!$invoice) continue;
+							
+							// Step 2: Remove old credit applications for this invoice
+							$old_credit_apps = $this->db->where('invoice_id', $invoice_id)->get('credit_applications')->result();
+							foreach($old_credit_apps as $app) {
+								// Reverse the credit application by reducing applied_amount in student_credits
+								$credit = $this->db->get_where('student_credits', ['credit_id' => $app->credit_id])->row();
+								if($credit) {
+									$new_applied = max(0, $credit->applied_amount - $app->applied_amount);
+									$new_status = ($new_applied >= $credit->credit_amount) ? 'fully_applied' : (($new_applied > 0) ? 'active' : 'active');
+									$this->db->where('credit_id', $app->credit_id)
+										->update('student_credits', [
+											'applied_amount' => $new_applied,
+											'status' => $new_status
+										]);
+								}
+							}
+							// Delete old credit application records
+							$this->db->where('invoice_id', $invoice_id)->delete('credit_applications');
+							
+							// Step 3: Reset invoice credit_applied field
+							$this->db->where('invoice_id', $invoice_id)->update('invoice', ['credit_applied' => 0]);
+							
+							// Step 4: Reapply credits with new invoice amount
+							$this->Credit_model->apply_credits_to_invoice($invoice_id);
+						}
+						// ============================================
+
+						if(count($student_ids_array) > 1) { //this is a bulk invoice
+							$message = 'BULK INVOICES WERE UPDATED SUCCESSFULLY.<br> BUT NOTE THAT: INVOICES WITH ANY PENDING REQUEST HAVE NOT BEEN UPDATED.';
+
+						} else {
+
+							$message = 'INVOICE WAS UPDATED SUCCESSFULLY.<br> BUT NOTE THAT: IF THIS INVOICE HAS ANY PENDING REQUEST, UPDATE WILL NOT BE EFFECTED.';
+
+						}
+					}
+
+				// Insert discount records for ALL students
+				log_message('debug', 'Processing '.count($all_student_discounts).' students with discounts');
+				if(count($all_student_discounts) > 0) {
+					foreach($all_student_discounts as $stud_id => $data) {
+						log_message('debug', 'Inserting discounts for student '.$stud_id.' - '.count($data['discounts']).' profiles');
+						foreach($data['discounts'] as $disc) {
+							if($disc['total'] > 0) {
+								$this->db->insert('invoice_discounts', array(
+									'invoice_code' => $data['invoice_code'],
+									'student_id' => $stud_id,
+									'profile_id' => $disc['profile_id'],
+									'discount_category' => 'invoice',
+									'discount_method' => $disc['discount_method'],
+									'discount_value' => $disc['discount_value'],
+									'discount_amount' => $disc['total'],
+									'reason' => 'Profile: ' . $disc['profile_name'],
+									'status' => 'approved',
+									'applied_by' => $this->session->userdata('login_user_id'),
+									'approved_by' => $this->session->userdata('login_user_id'),
+									'approved_at' => date('Y-m-d H:i:s'),
+									'year' => $selected_year,
+									'term' => $selected_term
+								));
+								
+								$discount_id = $this->db->insert_id();
+								
+								if(isset($disc['items'])) {
+									foreach($disc['items'] as $item_data) {
+										$invoice_record = $this->db->where('invoice_code', $data['invoice_code'])
+											->where('student_id', $stud_id)
+											->where('title', $item_data['title'])
+											->where('year', $selected_year)
+											->where('term', $selected_term)
+											->get('invoice')->row();
+										
+										if($invoice_record) {
+											$this->db->insert('invoice_discount_items', [
+												'discount_id' => $discount_id,
+												'invoice_id' => $invoice_record->invoice_id,
+												'invoice_code' => $data['invoice_code'],
+												'student_id' => $stud_id,
+												'item_title' => $item_data['title'],
+												'original_amount' => $item_data['original_amount'],
+												'discount_amount' => $item_data['discount_amount'],
+												'discounted_amount' => $item_data['discounted_amount']
+											]);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				}
+
+				if($itemHistoryCanBeUpdated) {
+					
+
+					if($historyBatchInsertCounter > 0) {
+						if(!empty($historyBatchInsertArray)) {
+							$this->db->insert_batch('bill_item_history', $historyBatchInsertArray);
+						}
+					}
+
+					if($historyBatchUpdateCounter > 0) {
+						if(!empty($historyBatchUpdateArray)) {
+
+
+							$this->db->update_batch('bill_item_history', $historyBatchUpdateArray, 'id');
+						}
+					}
+
+				}
+
+				/*update bill item amount*/
+				$this->db->update_batch('bill_item', $billItemBatchUpdate, 'id');
+				
+				// Financial Hook: Sync invoices and discounts to ledger for all students
+				foreach($student_ids_array as $student_id) {
+					$invoice_code = $this->db->select('invoice_code')
+						->where('student_id', $student_id)
+						->where('year', $selected_year)
+						->where('term', $selected_term)
+						->order_by('invoice_id', 'DESC')
+						->limit(1)
+						->get('invoice')->row();
+					
+					if($invoice_code) {
+						sync_invoice_to_ledger($invoice_code->invoice_code, $student_id);
+					}
+				}
+
+			} else {
+
+				/*No student found in the selected class, so we only update the bill items history table*/
+				//get the serialized values from the ajax request and process them
+				//if $param2 is empty, use the default id prefix...
+				if ($param2 == '' || $param2 == null) {
+					$ids_array = array('177_1565053816');
+				} else {
+					$ids_array = explode('-', $param2);
+				}
+
+				$history_timestamp = strtotime('now');
+
+				/*get the current residential status of the student*/
+
+				for ($j = 0; $j < count($ids_array); $j++) {
+
+				
+					/*BILL HISTORY*/
+
+					$item_title = $_REQUEST[$ids_array[$j] . '_title'];
+					$data['amount'] = $_REQUEST[$ids_array[$j] . '_amount'];
+							
+					$item_id = $this->db->get_where('bill_item', ['title' => $item_title])->row()->id; //bill item_id
+
+					$item_category_id = $this->boarding_model->getBillItemCategoryIdByBillItemId($item_id);
+
+					if($historyRecordCounter == 0 && ($item_category_id == 1 || $item_category_id == 4 || $item_category_id == 5)): //don't record arrears, admission items or any other for the fee structure in the history since it is specific to a student.
+
+
+						for($c = 0; $c < count($class_ids_array); $c++):
+							
+							//update the bill history
+							
+							$this->db->where('bill_item_id', $item_id);
+							$this->db->where('class_id', $class_ids_array[$c]);
+							$this->db->where('term', $selected_term);
+							$this->db->where('year', $selected_year);
+							$this->db->where('residence_type', $bill_item_history_residence_type);
+							$bill_history_query = $this->db->get('bill_item_history');
+							$num_rows = $bill_history_query->num_rows();
+
+
+							if($num_rows > 0) {
+								$bill_history_id = $bill_history_query->row()->id;
+
+								//update
+								$history_update_data['bill_item_id'] = $item_id;
+								$history_update_data['class_id'] = $class_ids_array[$c];
+								$history_update_data['term'] = $selected_term;
+								$history_update_data['year'] = $selected_year;
+								$history_update_data['bill_item_amount'] = $data['amount'];
+								$history_update_data['id'] = $bill_history_id;
+
+								$historyBatchUpdateArray[] = $history_update_data;
+
+							} else {
+								//insert
+
+								$history_data['bill_item_id'] = $item_id;
+								$history_data['class_id'] = $class_ids_array[$c];
+								$history_data['term'] = $selected_term;
+								$history_data['year'] = $selected_year;
+								$history_data['bill_item_amount'] = $data['amount'];
+								$history_data['residence_type'] = $bill_item_history_residence_type;
+								$history_data['timestamp'] = $history_timestamp;
+
+								$historyBatchInsertArray[] = $history_data;
+							}
+
+						endfor;
+
+					endif;/*END OF BILL HISTORY TABLE UPDATE*/
+				} /*END OF EACH BILL ITEM*/
+
+
+				if(!empty($historyBatchInsertArray)) {
+					$this->db->insert_batch('bill_item_history', $historyBatchInsertArray);
+
+					$message = 'No student found but class(es) billing records entered successfully!';
+				}
+
+				if(!empty($historyBatchUpdateArray)) {
+					$this->db->update_batch('bill_item_history', $historyBatchUpdateArray, 'id');
+
+					$message = 'No student found but class(es) billing records updated successfully!';
+				}
+
+			} /*END OF CHECKING IF CLASS(ES) IS EMPTY*/
+
+
+			echo json_encode(['status' => 'success', 'message' => $message]);
+			return;
+		}
+
+		/*update starts*/
+		if ($param1 == 'update') {
+
+			$student_id = $param3;
+			$invoice_code = $param4;
+			$year = $param5;
+			$term = $param6;
+
+			// Check if user is super admin
+			$user_level = $this->session->userdata('user_type');
+			$is_super_admin = ($user_level == 1);
+
+			$batchInsertArray = array(); //batch insert array
+			$historyBatchInsertArray = array();
+
+			$batchUpdateArray = array(); //batch update array
+			$historyBatchUpdateArray = array();
+
+			$billItemBatchUpdate = array();
+
+
+			$selected_year = $year;
+			$selected_term = $term;
+
+
+			$historyRecordCounter = 0;
+			$invoice_adder = 1;
+			
+			$isUpdateCounter = 0;
+			$isInsertCounter = 0;
+
+			$historyBatchUpdateCounter = 0;
+			$historyBatchInsertCounter = 0;
+
+
+			$isUpdate = false;
+			$isInsert = false;
+			
+			$data['year'] = $selected_year;
+
+
+			$data['class_id'] = $this->crud_model->getStudentClassId($student_id, $selected_year, $selected_term);
+			$data['student_id'] = $student_id;
+
+
+			$data['term'] = $selected_term;
+			
+
+
+			/*let's check if this student has already been billed within the selected period*/
+			$this->db->where('student_id', $student_id);
+			$this->db->where('year', $data['year']);
+			$this->db->where('term', $data['term']);
+			$this->db->where('class_id', $data['class_id']);
+			$invoiceCheckExistQuery = $this->db->get('invoice');
+
+			if($invoiceCheckExistQuery->num_rows() > 0) {
+
+				$data['invoice_code'] = $invoiceCheckExistQuery->last_row()->invoice_code;
+				$data['creation_timestamp'] = $invoiceCheckExistQuery->last_row()->creation_timestamp;
+
+			}
+
+
+
+			//get the serialized values from the ajax request and process them
+			//if $param2 is empty, use the default id prefix...
+			if ($param2 == '' || $param2 == null) {
+				$ids_array = array('177_1565053816');
+			} else {
+				$ids_array = explode('-', $param2);
+			}
+
+
+
+			/*get the current residential status of the student*/
+			$residence_type = $this->boarding_model->get_residence_type($data['student_id']);
+			$bill_titles_array = array();
+
+			for ($j = 0; $j < count($ids_array); $j++) {
+
+				$data['residence_type'] = $residence_type;
+
+				$item_title = $_REQUEST[$ids_array[$j] . '_title'];
+
+				$bill_titles_array[] = $item_title;
+
+				$data['title'] = strtoupper($item_title);
+				$data['amount'] = $_REQUEST[$ids_array[$j] . '_amount'];
+				$data['amount_paid'] = 0;
+				$data['due'] = $data['amount'] - $data['amount_paid'];
+				$data['status'] = 'unpaid';
+				$data['creation_timestamp'] = $data['creation_timestamp'];
+				
+
+				if ($_REQUEST[$ids_array[$j] . '_description'] != null) {
+					$data['description'] = $_REQUEST[$ids_array[$j] . '_description'];
+				}
+
+				/*let's check if the user is doing an update to the already billed items*/
+				$this->db->where('student_id', $student_id);
+				$this->db->where('title', $data['title']);
+				$this->db->where('year', $data['year']);
+				$this->db->where('term', $data['term']);
+				$this->db->where('class_id', $data['class_id']);
+				$this->db->where('can_delete !=', 'trash');
+				$this->db->where('can_edit !=', 'declined');
+				$checkExistQuery = $this->db->get('invoice');
+
+				if($checkExistQuery->num_rows() > 0) {
+
+					$can_delete_status = $checkExistQuery->row()->can_delete;
+					$can_edit_status = $checkExistQuery->row()->can_edit;
+
+					//WE WILL INTRODUCE ADMINSTRATOR'S PERMISSION TO PERFORM THIS TASK LATER
+
+					/*do changes only if invoice does not have any pending request OR if user is super admin*/
+					if($is_super_admin || ($can_delete_status == 'default' || $can_delete_status == 'approved' && $can_edit_status == 'default' || $can_edit_status == 'approved')) {
+
+						/*update here exists*/
+						$isUpdate = true;
+						$isUpdateCounter++;
+
+						$old_amount = $checkExistQuery->row()->amount;
+						$old_amount_due = $checkExistQuery->row()->due;
+
+						$old_invoice_code = $checkExistQuery->row()->invoice_code; //we pick the old invoice code to use for any additional item that might be added
+						$old_creation_timestamp = $checkExistQuery->row()->creation_timestamp;
+
+						$amount_diff = $data['amount'] - $old_amount;
+
+						$updateData['invoice_id'] = $checkExistQuery->row()->invoice_id;
+						$updateData['amount'] = $data['amount'];
+						$updateData['due'] = (floatval($old_amount_due) + floatval($amount_diff));
+
+						$batchUpdateArray[] = $updateData;
+					}
+
+					 /*if this student has any bill item that has to be updated before they added any other item, we use the old invoice code for him*/
+
+					$data['invoice_code'] = $old_invoice_code;
+					$data['creation_timestamp'] = $old_creation_timestamp;
+
+					/*in case any payment for this invoice code was made before, we need to update the balance for this code in payment table*/
+					$this->db->order_by('payment_id', 'asc');
+					$payment_query = $this->db->get_where('payment', ['invoice_code' => $old_invoice_code]);
+
+					if($payment_query->num_rows() > 0) {
+						$invoice_last_payment_id = $payment_query->last_row()->payment_id;
+
+						/*effect update*/
+						$this->db->where('payment_id', $invoice_last_payment_id);
+						$this->db->set('due', 'due + '.$amount_diff, false);
+						$this->db->update('payment');
+					}
+
+					//continue; //move on to the next bill item
+
+				} else {
+
+					$isInsert = true;
+					$isInsertCounter++;
+					$batchInsertArray[] = $data;
+
+				}
+
+			} /*end of each bill item*/
+
+
+
+			/*let's see if there are some items that were replaced*/
+			$this->db->select('invoice_id');
+			$this->db->distinct();
+			$this->db->from('invoice');
+			$this->db->where('invoice_code', $invoice_code);
+			$this->db->where('student_id', $student_id);
+			$this->db->where_not_in('title', $bill_titles_array);
+			$itemsReplacedQuery = $this->db->get();
+
+
+
+			if($itemsReplacedQuery->num_rows() > 0) {
+				/*they exist*/
+				$replacedInvoiceIds = array_column($itemsReplacedQuery->result_array(), 'invoice_id');
+
+				$this->db->select_sum('amount_paid');
+				$this->db->where_in('invoice_id', $replacedInvoiceIds);
+				$replacedAmountPaid = $this->db->get('invoice')->row()->amount_paid;
+
+				if($replacedAmountPaid > 0) {
+					/*we need to deduct it from the student's debt balance*/
+					$owingsQuery = $this->db->get_where('invoice', ['student_id' => $student_id, 'due >' => 0]);
+
+					if($owingsQuery->num_rows() > 0) {
+						/*we go*/
+						foreach($owingsQuery->result_array() as $ow) {
+
+							if($replacedAmountPaid < 1) break; //if the amount is 0, exit the loop
+
+							if($ow['due'] >= $replacedAmountPaid) {
+
+								$this->db->where('invoice_id', $ow['invoice_id']);
+								$this->db->set('amount_paid', 'amount_paid + '. $ow['due'], false);
+								$this->db->set('due', 'due - '. $ow['due'], false);
+								$this->db->update('invoice');
+
+								$replacedAmountPaid = 0;
+
+							} else {
+
+								$this->db->where('invoice_id', $ow['invoice_id']);
+								$this->db->set('amount_paid', 'amount_paid + '. $ow['due'], false);
+								$this->db->set('due', 'due - '. $ow['due'], false);
+								$this->db->update('invoice');
+
+								$replacedAmountPaid -= $ow['due'];
+
+							}
+						}
+
+					} else {
+						/*overdraft*/
+						$this->db->select_max('invoice_id');
+						$this->db->where('student_id', $student_id);
+						$lastEntryId = $this->db->get('invoice')->row()->invoice_id;
+
+						/*update*/
+						$this->db->where('invoice_id', $lastEntryId);
+						$this->db->set('amount_paid', 'amount_paid + '.$replacedAmountPaid, false);
+						$this->db->set('due', 'due - '.$replacedAmountPaid, false);
+						$this->db->update('invoice');
+
+						/*effect update*/
+						if($invoice_last_payment_id > 0) {
+
+							$this->db->where('payment_id', $invoice_last_payment_id);
+							$this->db->set('due', 'due - '.$replacedAmountPaid, false);
+							$this->db->update('payment');
+
+						}
+						
+
+					}
+				}
+
+				/*we delete them since they are not needed*/
+				$this->db->where_in('invoice_id', $replacedInvoiceIds);
+				$this->db->delete('invoice');
+			}
+
+
+				//Do insertion or Update
+				if($isInsertCounter > 0 && $isUpdateCounter > 0) {
+					/*update and insert*/
+					$this->db->update_batch('invoice', $batchUpdateArray, 'invoice_id');
+					$this->db->insert_batch('invoice', $batchInsertArray);
+
+					$message = 'INVOICE UPDATED WITH THE NEW BILL ITEMS ADDED SUCCESSFULLY';
+
+					
+				} else {
+
+					if($isInsertCounter > 0) {
+						/*insert*/
+						$this->db->insert_batch('invoice', $batchInsertArray);
+						
+						$message = 'INVOICE CREATED SUCCESSFULLY';
+
+						
+					}
+
+					if($isUpdateCounter > 0) {
+						$this->db->update_batch('invoice', $batchUpdateArray, 'invoice_id');
+
+						$message = 'INVOICE WAS UPDATED SUCCESSFULLY.<br> BUT NOTE THAT: IF THIS INVOICE HAS ANY PENDING REQUEST, UPDATE WILL NOT BE EFFECTED.';
+
+					}
+				}
+
+			echo json_encode(['status' => 'success', 'message' => $message]);
+			return;
+		}
+	}
+
+	function clone_previous_bill($param1 = '', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//currency
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		$fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
+		$invoice_code_f = $this->db->get_where('settings', array('type' => 'invoice_number_format'))->row()->description;
+
+		if ($param1 == 'create') {
+
+			$batchInsertArray = array(); //batch insert array
+			$historyBatchInsertArray = array();
+
+			$batchUpdateArray = array(); //batch update array
+			$historyBatchUpdateArray = array();
+
+			$billItemBatchUpdate = array();
+
+			$class_ids_array = $this->input->post('class_id');
+
+			if(count($class_ids_array) < 1) {
+				/*no class selected*/
+				$this->db->select('class_id');
+				$this->db->distinct();
+				$this->db->from('class');
+				$ids = $this->db->get()->result_array();
+
+				$class_ids_array = array_column($ids, 'class_id');
+			}
+
+			$selected_year = $this->input->post('year');
+			$selected_term = $this->input->post('term');
+
+			$add_to_bill_history = $this->input->post('add_to_class_bill');
+
+			$itemHistoryCanBeUpdated = false;
+
+			if($add_to_bill_history == 1) {
+
+				$itemHistoryCanBeUpdated = true;
+
+			}
+
+
+			$historyRecordCounter = 0;
+			$invoice_adder = 1;
+			
+			$isUpdateCounter = 0;
+			$isInsertCounter = 0;
+
+			$historyBatchUpdateCounter = 0;
+			$historyBatchInsertCounter = 0;
+
+			$student_ids_array = array();
+
+			$student_ids_array = $_REQUEST['student_id'];
+
+
+			foreach ($student_ids_array as $student_id) {
+
+				$isUpdate = false;
+				$isInsert = false;
+
+				//generate sequential invoice number;
+				$this->db->select('invoice_code');
+				$this->db->order_by('invoice_code', 'desc');
+				$this->db->limit(1);
+				$inv_query = $this->db->get('invoice');
+
+				if ($inv_query->num_rows() > 0) {
+					$inv_id = $inv_query->row()->invoice_code;
+					$data['invoice_code'] = (floatval($inv_id) + floatval($invoice_adder));
+
+					if (substr($inv_id, 0, 1) == 0) {
+
+						$old_len = strlen($inv_id);
+						$new_len = strlen($data['invoice_code']);
+						$act_len = ($old_len - $new_len);
+						$data['invoice_code'] = substr($inv_id, 0, $act_len) . $data['invoice_code'];
+
+					} else {
+						$data['invoice_code'] = $data['invoice_code'];
+					}
+				} else {
+					$inv_id = $invoice_code_f;
+
+					$data['invoice_code'] = (floatval($inv_id) + floatval($invoice_adder));
+
+					if (substr($inv_id, 0, 1) == 0) {
+						$old_len = strlen($inv_id);
+						$new_len = strlen($data['invoice_code']);
+						$act_len = ($old_len - $new_len);
+						$data['invoice_code'] = substr($inv_id, 0, $act_len) . $data['invoice_code'];
+
+					} else {
+						$data['invoice_code'] = $data['invoice_code'];
+					}
+				}
+
+				//invoice (code) validation for duplicate
+				$code_validation = invoice_code_validation_insert($data['invoice_code']);
+				while (!$code_validation) {
+					//while invoice code validation fails, keep generating different ones
+					$this->db->select('invoice_code');
+					$this->db->order_by('invoice_code', 'desc');
+					$this->db->limit(1);
+					$inv_query = $this->db->get('invoice');
+					
+					if ($inv_query->num_rows() > 0) {
+						$inv_id = $inv_query->row()->invoice_code;
+						$data['invoice_code'] = $inv_id + 1;
+
+						if (substr($inv_id, 0, 1) == 0) {
+							$old_len = strlen($inv_id);
+							$new_len = strlen($data['invoice_code']);
+							$act_len = ($old_len - $new_len);
+							$data['invoice_code'] = substr($inv_id, 0, $act_len) . $data['invoice_code'];
+
+						} else {
+							$data['invoice_code'] = $data['invoice_code'];
+						}
+					} else {
+						// No invoices exist, break the loop
+						break;
+					}
+
+					$code_validation = invoice_code_validation_insert($data['invoice_code']);
+				}
+				//invoice validation ends
+
+				$data['invoice_code'] = $data['invoice_code'];
+				$data['student_id'] = $student_id;
+				
+				$data['year'] = $selected_year;
+
+
+
+				//$students_category = $_REQUEST['students_category'];
+
+				$student_current_class_id = $this->crud_model->getStudentLastEnrollmentRow($student_id)->class_id;
+				$data['class_id'] = $student_current_class_id;
+
+
+				/*$class_name = $this->db->get_where('class', array('class_id' => $data['class_id']))->row()->name;
+
+				if ($class_name == 'JHSS') {
+					$data['sem'] = $_REQUEST['sem'];
+
+				} else {*/
+					$data['term'] = $selected_term;
+				//}
+
+
+					/*let's check if this student has already been billed within the selected period*/
+					$this->db->where('student_id', $student_id);
+					$this->db->where('year', $data['year']);
+					$this->db->where('term', $data['term']);
+					$this->db->where('class_id', $data['class_id']);
+					$invoiceCheckExistQuery = $this->db->get('invoice');
+
+					if($invoiceCheckExistQuery->num_rows() > 0) {
+
+						$data['invoice_code'] = $invoiceCheckExistQuery->last_row()->invoice_code;
+						$data['creation_timestamp'] = $invoiceCheckExistQuery->last_row()->creation_timestamp;
+
+					}
+
+				/*Let's get the previous bills for this student*/
+				$bill_term = $this->input->post('term_clone');
+				$bill_year = $this->input->post('year_clone');
+
+				$student_previous_bill_array = $this->crud_model->getClassPreviousBill($student_current_class_id, $bill_term, $bill_year);
+
+				// Check if no previous bills found for this student
+				if(empty($student_previous_bill_array)) {
+					// Skip this student but continue with others
+					continue;
+				}
+
+				$history_timestamp = strtotime('now');
+
+				foreach ($student_previous_bill_array as $bill) {
+
+					/*get the current residential status of the student*/
+					$residence_type = $this->boarding_model->get_residence_type($data['student_id']);
+					$get_bill_item_category_id = $this->boarding_model->getBillItemCategoryIdByBillItemId($bill['bill_item_id']);
+
+					/*we want to make sure we don't bill exclusive bills to the wrong residence. E.g if residence_type is Day and the bill item has Boarding Only category, we ignore this item*/
+					if($residence_type == 'Day' && $get_bill_item_category_id == 5 && $bill['residence_type'] == 'Boarding') continue; //ignore for day student ====category id 5 is Boarding Only - Sometimes, same item is used for both boarding and day students so we need to check if the item was billed for either a day or boarding student in the bill_item_history table
+
+					if($residence_type == 'Boarding' && $get_bill_item_category_id == 4 && $bill['residence_type'] == 'Day') continue; //ignore for boarding student ====category id 4 is Day Only - Sometimes, same item is used for both boarding and day students so we need to check if the item was billed for either a day or boarding student in the bill_item_history table
+
+					$data['residence_type'] = $residence_type;
+
+					$bill_item_row = $this->crud_model->getBillItemRowById($bill['bill_item_id']);
+
+					$item_title = $bill_item_row->title;
+
+					$data['title'] = strtoupper($item_title);
+					$data['amount'] = $bill['bill_item_amount'];
+					$data['amount_paid'] = 0;
+					$data['due'] = $data['amount'] - $data['amount_paid'];
+					$data['status'] = 'unpaid';
+					$data['creation_timestamp'] = strtotime($_REQUEST['date']);
+
+					$data['description'] = $bill_item_row->description;
+
+					/*let's check if the user is doing an update to the already billed items*/
+					$this->db->where('student_id', $student_id);
+					$this->db->where('title', $data['title']);
+					$this->db->where('year', $data['year']);
+					$this->db->where('term', $data['term']);
+					$this->db->where('class_id', $data['class_id']);
+					$this->db->where('can_delete !=', 'trash');
+					$this->db->where('can_edit !=', 'declined');
+					$checkExistQuery = $this->db->get('invoice');
+
+					if($checkExistQuery->num_rows() > 0) {
+
+						$can_delete_status = $checkExistQuery->row()->can_delete;
+						$can_edit_status = $checkExistQuery->row()->can_edit;
+
+						//WE WILL INTRODUCE ADMINSTRATOR'S PERMISSION TO PERFORM THIS TASK LATER
+
+						/*do changes only if invoice does not have any pending request*/
+						if(($can_delete_status == 'default' || $can_delete_status == 'approved') && ($can_edit_status == 'default' || $can_edit_status == 'approved')) {
+
+							/*update here exists*/
+							$isUpdate = true;
+							$isUpdateCounter++;
+
+							$old_amount = $checkExistQuery->row()->amount;
+							$old_amount_due = $checkExistQuery->row()->due;
+
+							$old_invoice_code = $checkExistQuery->row()->invoice_code; //we pick the old invoice code to use for any additional item that might be added
+							$old_creation_timestamp = $checkExistQuery->row()->creation_timestamp;
+
+							$amount_diff = $data['amount'] - $old_amount;
+
+							$updateData['invoice_id'] = $checkExistQuery->row()->invoice_id;
+							$updateData['amount'] = $data['amount'];
+							$updateData['due'] = (floatval($old_amount_due) + floatval($amount_diff));
+
+							$batchUpdateArray[] = $updateData;
+						}
+
+						 /*if this student has any bill item that has to be updated before they added any other item, we use the old invoice code for him*/
+
+						$data['invoice_code'] = $old_invoice_code;
+						$data['creation_timestamp'] = $old_creation_timestamp;
+
+						/*in case any payment for this invoice code was made before, we need to update the balance for this code in payment table*/
+						$this->db->order_by('payment_id', 'asc');
+						$payment_query = $this->db->get_where('payment', ['invoice_code' => $old_invoice_code]);
+
+						if($payment_query->num_rows() > 0) {
+							$invoice_last_payment_id = $payment_query->last_row()->payment_id;
+
+							/*effect update*/
+							$this->db->where('payment_id', $invoice_last_payment_id);
+							$this->db->set('due', 'due + '.$amount_diff, false);
+							$this->db->update('payment');
+						}
+
+						//continue; //move on to the next bill item
+
+					} else {
+
+						$isInsert = true;
+						$isInsertCounter++;
+						$batchInsertArray[] = $data;
+
+					}
+
+					/*BILL HISTORY*/
+					
+					$item_id = $bill['bill_item_id']; //bill item_id
+
+
+					$item_category_id = $this->boarding_model->getBillItemCategoryIdByBillItemId($item_id);
+
+					if($historyRecordCounter == 0 && ($item_category_id == 1 || $item_category_id == 4 || $item_category_id == 5)): //don't record arrears, admission items or any other for the fee structure in the history since it is specific to a student.
+
+
+						for($c = 0; $c < count($class_ids_array); $c++):
+							
+							//update the bill history
+							
+							$this->db->where('bill_item_id', $item_id);
+							$this->db->where('class_id', $class_ids_array[$c]);
+							$this->db->where('term', $data['term']);
+							$this->db->where('year', $data['year']);
+							$bill_history_query = $this->db->get('bill_item_history');
+							$num_rows = $bill_history_query->num_rows();
+
+
+							if($num_rows > 0) {
+								$bill_history_id = $bill_history_query->row()->id;
+
+								$historyBatchUpdateCounter++;
+								//update
+								$history_update_data['bill_item_id'] = $item_id;
+								$history_update_data['class_id'] = $class_ids_array[$c];
+								$history_update_data['term'] = $data['term'];
+								$history_update_data['year'] = $data['year'];
+								$history_update_data['bill_item_amount'] = $data['amount'];
+								$history_update_data['id'] = $bill_history_id;
+
+								$historyBatchUpdateArray[] = $history_update_data;
+
+							} else {
+								//insert
+
+								$historyBatchInsertCounter++;
+
+								$history_data['bill_item_id'] = $item_id;
+								$history_data['class_id'] = $class_ids_array[$c];
+								$history_data['term'] = $data['term'];
+								$history_data['year'] = $data['year'];
+								$history_data['bill_item_amount'] = $data['amount'];
+								$history_data['timestamp'] = $history_timestamp;
+
+								$historyBatchInsertArray[] = $history_data;
+							}
+
+						endfor;
+
+					endif;/*END OF BILL HISTORY TABLE UPDATE*/
+
+				} /*end of each bill item*/
+
+				$invoice_adder++;
+				$historyRecordCounter++;
+
+			} /*end of each student*/
+
+			//Do insertion or Update
+			if($isInsertCounter > 0 && $isUpdateCounter > 0) {
+				/*update and insert*/
+				$this->db->update_batch('invoice', $batchUpdateArray, 'invoice_id');
+				$this->db->insert_batch('invoice', $batchInsertArray);
+
+				if(count($student_ids_array) > 1) { //this is a bulk invoice
+
+					$message = 'BULK INVOICES CLONED SUCCESSFULLY';
+
+				} else {
+
+					$message = 'INVOICE CLONED SUCCESSFULLY';
+				}
+				
+					
+
+			} else {
+
+				if($isInsertCounter > 0) {
+					/*insert*/
+					$this->db->insert_batch('invoice', $batchInsertArray);
+					
+					if(count($student_ids_array) > 1) { //this is a bulk invoice
+						
+						$message = 'BULK INVOICES CLONED SUCCESSFULLY';
+
+					} else {
+
+						$message = 'INVOICE CLONED SUCCESSFULLY';
+
+					}
+
+					
+				}
+
+				if($isUpdateCounter > 0) {
+					$this->db->update_batch('invoice', $batchUpdateArray, 'invoice_id');
+
+
+					if(count($student_ids_array) > 1) { //this is a bulk invoice
+						$message = 'CLONED BULK INVOICES UPDATED SUCCESSFULLY.';
+
+					} else {
+
+						$message = 'CLONED INVOICE WAS  UPDATED SUCCESSFULLY.';
+
+					}
+				}
+			}
+
+			if($itemHistoryCanBeUpdated) {
+				
+
+				if($historyBatchInsertCounter > 0) {
+					if(!empty($historyBatchInsertArray)) {
+						$this->db->insert_batch('bill_item_history', $historyBatchInsertArray);
+					}
+				}
+
+				if($historyBatchUpdateCounter > 0) {
+					if(!empty($historyBatchUpdateArray)) {
+
+
+						$this->db->update_batch('bill_item_history', $historyBatchUpdateArray, 'id');
+					}
+				}
+
+			}
+
+
+			$message = isset($message) ? $message : 'Operation completed';
+			echo $message;
+		}
+	}
+
+
+	/**
+	 * Preview cloned bills before creating them
+	 * Shows bill items from previous term for user to review/edit
+	 */
+	function preview_clone_bills() {
+		if ($this->session->userdata('admin_login') != 1) {
+			echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+			return;
+		}
+
+		$student_ids_array = $this->input->post('student_id');
+		$bill_term = $this->input->post('term_clone');
+		$bill_year = $this->input->post('year_clone');
+		$selected_term = $this->input->post('term');
+		$selected_year = $this->input->post('year');
+		
+		if (empty($student_ids_array) || empty($bill_term) || empty($bill_year)) {
+			echo json_encode(['success' => false, 'message' => 'Missing required parameters']);
+			return;
+		}
+
+		$preview_data = [];
+		
+		foreach ($student_ids_array as $student_id) {
+			// Get student info
+			$student = $this->db->get_where('student', ['student_id' => $student_id])->row();
+			if (!$student) continue;
+			
+			// Get student's current class
+			$student_current_class_id = $this->crud_model->getStudentLastEnrollmentRow($student_id)->class_id;
+			$class = $this->db->get_where('class', ['class_id' => $student_current_class_id])->row();
+			
+			// Get previous bills for this student's class
+			$student_previous_bill_array = $this->crud_model->getClassPreviousBill($student_current_class_id, $bill_term, $bill_year);
+			
+			if (empty($student_previous_bill_array)) continue;
+			
+			// Get residence type
+			$residence_type = $this->boarding_model->get_residence_type($student_id);
+			
+			$bill_items = [];
+			foreach ($student_previous_bill_array as $bill) {
+				// Check residence type compatibility
+				$get_bill_item_category_id = $this->boarding_model->getBillItemCategoryIdByBillItemId($bill['bill_item_id']);
+				
+				if ($residence_type == 'Day' && $get_bill_item_category_id == 5 && $bill['residence_type'] == 'Boarding') continue;
+				if ($residence_type == 'Boarding' && $get_bill_item_category_id == 4 && $bill['residence_type'] == 'Day') continue;
+				
+				$bill_item_row = $this->crud_model->getBillItemRowById($bill['bill_item_id']);
+				
+				$bill_items[] = [
+					'bill_item_id' => $bill['bill_item_id'],
+					'title' => strtoupper($bill_item_row->title),
+					'description' => $bill_item_row->description,
+					'amount' => $bill['bill_item_amount'],
+					'category_id' => $get_bill_item_category_id
+				];
+			}
+			
+			if (!empty($bill_items)) {
+				$preview_data[] = [
+					'student_id' => $student_id,
+					'student_name' => $student->name,
+					'student_code' => $student->student_code,
+					'class_name' => $class->name,
+					'class_id' => $student_current_class_id,
+					'residence_type' => $residence_type,
+					'bill_items' => $bill_items,
+					'total_amount' => array_sum(array_column($bill_items, 'amount'))
+				];
+			}
+		}
+		
+		echo json_encode([
+			'success' => true,
+			'data' => $preview_data,
+			'selected_term' => $selected_term,
+			'selected_year' => $selected_year,
+			'source_term' => $bill_term,
+			'source_year' => $bill_year
+		]);
+	}
+
+	/**
+	 * Check if bills exist for selected students in the target term/year
+	 * Returns existing bill items to show as read-only warning
+	 */
+	function check_existing_bills_for_clone() {
+		$student_ids_array = $this->input->post('student_id');
+		$selected_term = $this->input->post('term');
+		$selected_year = $this->input->post('year');
+		
+		if (empty($student_ids_array) || empty($selected_term) || empty($selected_year)) {
+			echo json_encode(['exists' => false]);
+			return;
+		}
+		
+		$existing_bills = [];
+		$has_existing = false;
+		
+		foreach ($student_ids_array as $student_id) {
+			// Check if this student has any invoice for this term/year
+			$invoices = $this->db->select('invoice_id, title, amount, amount_paid')
+				->where('student_id', $student_id)
+				->where('year', $selected_year)
+				->where('term', $selected_term)
+				->get('invoice')
+				->result();
+			
+			if (count($invoices) > 0) {
+				$has_existing = true;
+				
+				foreach ($invoices as $inv) {
+					// Check if this item already in array (to avoid duplicates across students)
+					$found = false;
+					foreach ($existing_bills as $existing) {
+						if ($existing['title'] == $inv->title) {
+							$found = true;
+							break;
+						}
+					}
+					
+					if (!$found) {
+						$existing_bills[] = [
+							'title' => $inv->title,
+							'amount' => $inv->amount,
+							'has_payment' => (floatval($inv->amount_paid) > 0)
+						];
+					}
+				}
+			}
+		}
+		
+		echo json_encode([
+			'exists' => $has_existing,
+			'bills' => $existing_bills
+		]);
+	}
+
+	/**
+	 * Get all bill items as JSON for dropdown
+	 * Optionally filter by class IDs with priority: specific_class_ids > class_category > all
+	 */
+	function get_bill_items_json() {
+		$class_ids = $this->input->post('class_ids'); // Array of class IDs
+		
+		$this->db->select('bill_item.id, bill_item.title, bill_item.description, bill_item.amount, bill_item.class_category, bill_item.specific_class_ids');
+		$this->db->from('bill_item');
+		
+		// If class_ids provided, filter using priority logic
+		if(!empty($class_ids) && is_array($class_ids)) {
+			// Get unique categories for the selected classes
+			$this->db->distinct();
+			$this->db->select('category');
+			$this->db->from('class');
+			$this->db->where_in('class_id', $class_ids);
+			$categories_query = $this->db->get();
+			
+			$categories = array();
+			foreach($categories_query->result() as $row) {
+				$categories[] = $row->category;
+			}
+			
+			// Now build the bill_item query with fresh query builder
+			$this->db->select('bill_item.id, bill_item.title, bill_item.description, bill_item.amount, bill_item.class_category, bill_item.specific_class_ids');
+			$this->db->from('bill_item');
+			
+			// Complex filtering: specific_class_ids OR class_category OR global (NULL)
+			$this->db->group_start();
+			
+			// 1. Items with specific_class_ids matching selected classes
+			foreach($class_ids as $class_id) {
+				$this->db->or_where("FIND_IN_SET('$class_id', bill_item.specific_class_ids) >", 0);
+			}
+			
+			// 2. Items with class_category matching (but no specific_class_ids)
+			if(!empty($categories)) {
+				$this->db->or_group_start();
+				$this->db->where_in('bill_item.class_category', $categories);
+				$this->db->group_start();
+				$this->db->where('bill_item.specific_class_ids IS NULL');
+				$this->db->or_where('bill_item.specific_class_ids', '');
+				$this->db->group_end();
+				$this->db->group_end();
+			}
+			
+			// 3. Global items (no specific_class_ids and no class_category)
+			$this->db->or_group_start();
+			$this->db->group_start();
+			$this->db->where('bill_item.specific_class_ids IS NULL');
+			$this->db->or_where('bill_item.specific_class_ids', '');
+			$this->db->group_end();
+			$this->db->group_start();
+			$this->db->where('bill_item.class_category IS NULL');
+			$this->db->or_where('bill_item.class_category', '');
+			$this->db->group_end();
+			$this->db->group_end();
+			
+			$this->db->group_end();
+		}
+		
+		$bill_items = $this->db->order_by('title', 'asc')
+			->get()
+			->result_array();
+		
+		echo json_encode($bill_items);
+	}
+
+
+	// Fee Structure View
+	public function fee_structure() {
+		if ($this->session->userdata('admin_login') != 1)
+			redirect(site_url('login'), 'refresh');
+		
+		$page_data['page_name'] = 'fee_structure';
+		$page_data['page_title'] = get_phrase('fee_structure');
+		$this->load->view('backend/index', $page_data);
+	}
+	
+	// Get Fee Structure Data (AJAX)
+	public function get_fee_structure() {
+		$class_id = $this->input->post('class_id');
+		$term = $this->input->post('term');
+		$year = $this->input->post('year');
+		$currency = $this->db->get_where('settings', ['type' => 'currency'])->row()->description;
+		$running_year = $this->db->get_where('settings', ['type' => 'running_year'])->row()->description;
+		$running_term = $this->db->get_where('settings', ['type' => 'running_term'])->row()->description;
+		
+		// Determine if we're viewing historical data or current structure
+		$is_historical = !empty($term) && !empty($year) && ($year != $running_year || $term != $running_term);
+		
+		// Get classes to display (in proper order)
+		$classes = [];
+		if(!empty($class_id)) {
+			$class_obj = $this->db->where('class_id', $class_id)->get('class')->row_array();
+			if($class_obj) {
+				$classes = [$class_obj];
+			}
+		} else {
+			// All classes - get IDs in proper order using helper
+			$class_ids = getAllClassList('');
+			foreach($class_ids as $cid) {
+				$class_obj = $this->db->where('class_id', $cid)->get('class')->row_array();
+				if($class_obj) {
+					$classes[] = $class_obj;
+				}
+			}
+		}
+		
+		$class_fee_data = [];
+		
+		if($is_historical && !empty($term) && !empty($year)) {
+			// HISTORICAL: Fetch from bill_item_history
+			foreach($classes as $class) {
+				// Get unique residence types for this class/term/year
+				$this->db->distinct();
+				$this->db->select('residence_type');
+				$this->db->from('bill_item_history');
+				$this->db->where('class_id', $class['class_id']);
+				$this->db->where('term', $term);
+				$this->db->where('year', $year);
+				$this->db->where_in('residence_type', ['Day', 'Boarding', 'Both']);
+				$residence_types = $this->db->get()->result_array();
+				
+				// If no history, skip this class
+				if(empty($residence_types)) {
+					continue;
+				}
+				
+				// Group by residence type
+				foreach($residence_types as $res_type_row) {
+					$residence_type = $res_type_row['residence_type'];
+					
+					// Get bill items from history
+					$this->db->select('bih.id, bih.bill_item_id, bih.bill_item_amount as amount, bih.residence_type, bi.title, bi.description, bi.class_category, bi.specific_class_ids, COALESCE(bc.bill_category_name, "Uncategorized") as category_name');
+					$this->db->from('bill_item_history bih');
+					$this->db->join('bill_item bi', 'bi.id = bih.bill_item_id', 'left');
+					$this->db->join('bill_category bc', 'bc.bill_category_id = bi.bill_category_id', 'left');
+					$this->db->where('bih.class_id', $class['class_id']);
+					$this->db->where('bih.term', $term);
+					$this->db->where('bih.year', $year);
+					$this->db->where('bih.residence_type', $residence_type);
+					$this->db->order_by('category_name', 'ASC');
+					$this->db->order_by('bi.title', 'ASC');
+					$items = $this->db->get()->result_array();
+					
+					// Calculate total
+					$total = 0;
+					foreach($items as $item) {
+						$total += $item['amount'];
+					}
+					
+					$class_fee_data[] = [
+						'class' => $class,
+						'residence_type' => $residence_type,
+						'items' => $items,
+						'total' => $total,
+						'is_historical' => true
+					];
+				}
+			}
+		} else {
+			// CURRENT: Fetch from bill_item (master structure)
+			foreach($classes as $class) {
+				$class_category = isset($class['category']) ? $class['category'] : null;
+				
+				// Get boarding system setting
+				$boarding_system = $this->db->get_where('settings', ['type' => 'boarding_system'])->row()->description;
+				
+				// Determine which residence types to show
+				$residence_types_to_show = [];
+				
+				if($boarding_system != 'yes') {
+					// School runs day only
+					$residence_types_to_show = ['Day'];
+				} elseif($class_category == 'boarding') {
+					$residence_types_to_show = ['Boarding'];
+				} elseif($class_category == 'day') {
+					$residence_types_to_show = ['Day'];
+				} else {
+					// Boarding system enabled, check if class has both day and boarding students
+					$has_boarding = $this->db->where('enroll.class_id', $class['class_id'])
+						->where('enroll.residence_type', 'Boarding')
+						->where('enroll.status', 'open')
+						->count_all_results('enroll') > 0;
+					
+					$has_day = $this->db->where('enroll.class_id', $class['class_id'])
+						->where('enroll.residence_type', 'Day')
+						->where('enroll.status', 'open')
+						->count_all_results('enroll') > 0;
+					
+					if($has_boarding && $has_day) {
+						$residence_types_to_show = ['Day', 'Boarding'];
+					} elseif($has_boarding) {
+						$residence_types_to_show = ['Boarding'];
+					} else {
+						$residence_types_to_show = ['Day'];
+					}
+				}
+				
+				foreach($residence_types_to_show as $residence_type) {
+					// Get bill items for this class
+					$this->db->select('bi.id, bi.title, bi.description, bi.amount, bi.class_category, bi.specific_class_ids, COALESCE(bc.bill_category_name, "Uncategorized") as category_name');
+					$this->db->from('bill_item bi');
+					$this->db->join('bill_category bc', 'bc.bill_category_id = bi.bill_category_id', 'left');
+					
+					// Filter by specific class or category or global
+					$this->db->group_start();
+					
+					// 1. Specific class match
+					$this->db->or_where("FIND_IN_SET('{$class['class_id']}', bi.specific_class_ids) >", 0);
+					
+					// 2. Class category match (Pre-School, Lower Primary, etc.) - if class has a category
+					if(!empty($class_category)) {
+						$this->db->or_group_start();
+						$this->db->where('bi.class_category', $class_category);
+						$this->db->group_start();
+						$this->db->where('bi.specific_class_ids IS NULL');
+						$this->db->or_where('bi.specific_class_ids', '');
+						$this->db->group_end();
+						$this->db->group_end();
+					}
+					
+					// 3. Global items (no class_category and no specific_class_ids)
+					$this->db->or_group_start();
+					$this->db->group_start();
+					$this->db->where('bi.class_category IS NULL');
+					$this->db->or_where('bi.class_category', '');
+					$this->db->group_end();
+					$this->db->group_start();
+					$this->db->where('bi.specific_class_ids IS NULL');
+					$this->db->or_where('bi.specific_class_ids', '');
+					$this->db->group_end();
+					$this->db->group_end();
+					
+					$this->db->group_end();
+					
+					// EXCLUDE Arrears category (never show in fee structure)
+					$this->db->where('bc.bill_category_name NOT LIKE', '%Arrears%');
+					
+					// Filter by Day/Boarding based on residence type
+					if($residence_type == 'Day') {
+						// Exclude items with "Boarding" in category name
+						$this->db->where('bc.bill_category_name NOT LIKE', '%Boarding%');
+					} elseif($residence_type == 'Boarding') {
+						// Exclude items with "-Day" at end of category name
+						$this->db->where('bc.bill_category_name NOT LIKE', '%-Day');
+					}
+					
+					$this->db->order_by('category_name', 'ASC');
+					$this->db->order_by('bi.title', 'ASC');
+					$items = $this->db->get()->result_array();
+					
+					// Calculate total
+					$total = 0;
+					foreach($items as $item) {
+						$total += $item['amount'];
+					}
+					
+					$class_fee_data[] = [
+						'class' => $class,
+						'residence_type' => $residence_type,
+						'items' => $items,
+						'total' => $total,
+						'is_historical' => false
+					];
+				}
+			}
+		}
+		
+		// Get all classes for dropdown in edit mode
+		$all_classes = $this->db->select('class_id, name, name_numeric')->order_by('name_numeric')->get('class')->result_array();
+		
+		if(empty($class_fee_data)) {
+			echo '<div class="alert-box alert-warning"><i class="entypo-info"></i> ' . get_phrase('no_classes_found') . '</div>';
+			return;
+		}
+		
+		// Check if boarding system is enabled
+		$boarding_system_enabled = ($boarding_system == 'yes');
+		
+		// Build card-based layout
+		$html = '<div class="fee-cards-container">';
+		
+		foreach($class_fee_data as $data) {
+			$class = $data['class'];
+			$residence_type = $data['residence_type'];
+			$items = $data['items'];
+			$total = $data['total'];
+			$is_historical = $data['is_historical'];
+			
+			// Build full class name: "Basic 1 Daffodels" or "Creche Sunflower"
+			$full_class_name = $class['name'];
+			if(!empty($class['name_numeric'])) {
+				$full_class_name .= ' ' . $class['name_numeric'];
+			}
+			// Get section name using crud_model
+			$section_name = $this->crud_model->get_class_section($class['class_id']);
+			if(!empty($section_name)) {
+				$full_class_name .= ' ' . $section_name;
+			}
+			
+			$html .= '<div class="fee-class-card">';
+			
+			// Card Header
+			$html .= '<div class="card-header">';
+			$html .= '<div class="class-name-section">';
+			$html .= '<h3 class="class-name">' . $full_class_name;
+			
+			// Only show residence badge if boarding system is enabled
+			if($boarding_system_enabled) {
+				$html .= ' <span class="residence-badge">' . $residence_type . '</span>';
+			}
+			
+			$html .= '</h3>';
+			$html .= '<span class="item-count">' . count($items) . ' ' . get_phrase('items') . '</span>';
+			if($is_historical) {
+				$html .= ' <span class="historical-badge">' . get_phrase('historical') . '</span>';
+			}
+			$html .= '</div>';
+			$html .= '<div class="total-amount">' . $currency . ' ' . number_format($total, 2) . '</div>';
+			$html .= '</div>';
+			
+			// Card Body - Items List
+			$html .= '<div class="card-body">';
+			
+			if(empty($items)) {
+				$html .= '<p class="no-items">' . get_phrase('no_fee_items_for_this_class') . '</p>';
+			} else {
+				$html .= '<div class="fee-items-list">';
+				
+				foreach($items as $item) {
+					// Use bill_item_id if historical, otherwise use id
+					$item_id = isset($item['bill_item_id']) ? $item['bill_item_id'] : $item['id'];
+					
+					$html .= '<div class="fee-item" id="fee_item_' . $item_id . '">';
+					
+					// Display Mode
+					$html .= '<div id="display_mode_' . $item_id . '" class="display-mode">';
+					$html .= '<div class="item-info">';
+					$html .= '<div class="item-title">' . $item['title'] . '</div>';
+					if(!empty($item['description'])) {
+						$html .= '<div class="item-desc">' . $item['description'] . '</div>';
+					}
+					$html .= '<div class="item-category"><span class="cat-badge">' . $item['category_name'] . '</span></div>';
+					$html .= '</div>';
+					$html .= '<div class="item-actions">';
+					$html .= '<div class="item-amount">' . $currency . ' ' . number_format($item['amount'], 2) . '</div>';
+					
+					// Only show edit/delete for current structure (not historical)
+					if(!$is_historical) {
+						$html .= '<div class="action-buttons">';
+						$html .= '<button onclick="enableEdit(' . $item_id . ')" class="btn-icon btn-edit" title="' . get_phrase('edit') . '"><i class="entypo-pencil"></i></button>';
+						$html .= '<button onclick="deleteItem(' . $item_id . ', \'' . addslashes($item['title']) . '\')" class="btn-icon btn-delete" title="' . get_phrase('delete') . '"><i class="entypo-trash"></i></button>';
+						$html .= '</div>';
+					}
+					
+					$html .= '</div>';
+					$html .= '</div>';
+					
+					// Edit Mode (only for current structure)
+					if(!$is_historical) {
+						$html .= '<div id="edit_mode_' . $item_id . '" class="edit-mode" style="display:none;">';
+						$html .= '<div class="edit-form">';
+						
+						$html .= '<div class="form-row">';
+						$html .= '<div class="form-group">';
+						$html .= '<label>' . get_phrase('title') . '</label>';
+						$html .= '<input type="text" id="edit_title_' . $item_id . '" class="form-input" value="' . htmlspecialchars($item['title']) . '">';
+						$html .= '</div>';
+						$html .= '<div class="form-group">';
+						$html .= '<label>' . get_phrase('amount') . '</label>';
+						$html .= '<input type="number" id="edit_amount_' . $item_id . '" class="form-input" value="' . $item['amount'] . '" step="0.01">';
+						$html .= '</div>';
+						$html .= '</div>';
+						
+						$html .= '<div class="form-group">';
+						$html .= '<label>' . get_phrase('description') . '</label>';
+						$html .= '<textarea id="edit_desc_' . $item_id . '" class="form-input">' . htmlspecialchars($item['description']) . '</textarea>';
+						$html .= '</div>';
+						
+						$html .= '<div class="form-row">';
+						$html .= '<div class="form-group">';
+						$html .= '<label>' . get_phrase('class_scope') . '</label>';
+						$html .= '<select id="edit_class_category_' . $item_id . '" class="form-input">';
+						$html .= '<option value="">' . get_phrase('all_classes') . '</option>';
+						$html .= '<option value="boarding" ' . ($item['class_category'] == 'boarding' ? 'selected' : '') . '>' . get_phrase('boarding') . '</option>';
+						$html .= '<option value="day" ' . ($item['class_category'] == 'day' ? 'selected' : '') . '>' . get_phrase('day') . '</option>';
+						$html .= '</select>';
+						$html .= '</div>';
+						$html .= '<div class="form-group">';
+						$html .= '<label>' . get_phrase('specific_classes') . '</label>';
+						$html .= '<select id="edit_specific_classes_' . $item_id . '" multiple class="form-input">';
+						$current_ids = !empty($item['specific_class_ids']) ? explode(',', $item['specific_class_ids']) : [];
+						foreach($all_classes as $ac) {
+							$selected = in_array($ac['class_id'], $current_ids) ? 'selected' : '';
+							$html .= '<option value="' . $ac['class_id'] . '" ' . $selected . '>' . $ac['name'] . '</option>';
+						}
+						$html .= '</select>';
+						$html .= '</div>';
+						$html .= '</div>';
+						
+						$html .= '<div class="form-actions">';
+						$html .= '<button onclick="saveItem(' . $item_id . ')" class="btn-save"><i class="entypo-check"></i> ' . get_phrase('save') . '</button>';
+						$html .= '<button onclick="cancelEdit(' . $item_id . ')" class="btn-cancel">' . get_phrase('cancel') . '</button>';
+						$html .= '</div>';
+						
+						// Hidden fields for original values
+						$html .= '<input type="hidden" id="orig_title_' . $item_id . '" value="' . htmlspecialchars($item['title']) . '">';
+						$html .= '<input type="hidden" id="orig_desc_' . $item_id . '" value="' . htmlspecialchars($item['description']) . '">';
+						$html .= '<input type="hidden" id="orig_amount_' . $item_id . '" value="' . $item['amount'] . '">';
+						$html .= '<input type="hidden" id="orig_class_category_' . $item_id . '" value="' . $item['class_category'] . '">';
+						$html .= '<input type="hidden" id="orig_specific_classes_' . $item_id . '" value="' . $item['specific_class_ids'] . '">';
+						
+						$html .= '</div>';
+						$html .= '</div>';
+					}
+					
+					$html .= '</div>'; // fee-item
+				}
+				
+				$html .= '</div>'; // fee-items-list
+			}
+			
+			$html .= '</div>'; // card-body
+			$html .= '</div>'; // fee-class-card
+		}
+		
+		$html .= '</div>'; // fee-cards-container
+		
+		echo $html;
+	}
+
+	function invoice($param1 = '', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//currency
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		$fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
+		$invoice_code_f = $this->db->get_where('settings', array('type' => 'invoice_number_format'))->row()->description;
+
+
+
+		if ($param1 == 'add_bill_item') {
+			$data['title'] = strtoupper($this->input->post('title'));
+			$data['description'] = $this->input->post('desc');
+			$data['bill_category_id'] = $this->input->post('category');
+			$data['class_category'] = $this->input->post('class_category'); // Add class category
+			$data['specific_class_ids'] = $this->input->post('specific_class_ids'); // Add specific class IDs (comma-separated)
+			$data['amount'] = $this->input->post('amount');
+
+			// Debug: log what we're receiving
+			log_message('debug', 'Add Bill Item - Posted class_category: ' . $this->input->post('class_category'));
+			log_message('debug', 'Add Bill Item - Posted specific_class_ids: ' . $this->input->post('specific_class_ids'));
+			log_message('debug', 'Add Bill Item - Data array: ' . json_encode($data));
+
+			$ajax_array = [];
+
+			if($data['title'] != '' && $data['bill_category_id'] != '' && $data['amount'] != '') {
+				
+				// Check for duplicate title
+				$this->db->where('title', $data['title']);
+				$rows = $this->db->get('bill_item')->num_rows();
+
+				if($rows > 0) {
+					$ajax_array['success'] = 2;
+					$ajax_array['message'] = 'A bill item with this TITLE already exists. Please use a different title.';
+				} else {
+					// Check for duplicate description
+					$this->db->where('description', $data['description']);
+					$desc_rows = $this->db->get('bill_item')->num_rows();
+					
+					if($desc_rows > 0) {
+						$ajax_array['success'] = 3;
+						$ajax_array['message'] = 'A bill item with this DESCRIPTION already exists. Please use a different description.';
+					} else {
+						try {
+							$this->db->insert('bill_item', $data);
+							$ajax_array['success'] = 1;
+							$ajax_array['message'] = get_phrase('bill_item_created_successfully');
+						} catch (Exception $e) {
+							// Catch database errors (like duplicate key violations)
+							$error_message = $e->getMessage();
+							
+							if (strpos($error_message, 'Duplicate entry') !== false) {
+								if (strpos($error_message, 'title') !== false) {
+									$ajax_array['success'] = 2;
+									$ajax_array['message'] = 'A bill item with this TITLE already exists. Please use a different title.';
+								} else if (strpos($error_message, 'description') !== false) {
+									$ajax_array['success'] = 3;
+									$ajax_array['message'] = 'A bill item with this DESCRIPTION already exists. Please use a different description.';								} else {
+									$ajax_array['success'] = 0;
+									$ajax_array['message'] = 'This bill item already exists. Please check the title and description.';
+								}
+							} else {
+								$ajax_array['success'] = 0;
+								$ajax_array['message'] = 'Database error: ' . $error_message;
+								log_message('error', 'Bill item creation error: ' . $error_message);
+							}
+						}
+					}
+				}
+
+			} else {
+				$ajax_array['success'] = 0;
+				$ajax_array['message'] = get_phrase('please_fill_all_required_fields');
+			}
+
+			echo json_encode($ajax_array);
+			return false;
+		}
+		//end of adding
+
+
+		//editing started
+		if ($param1 == 'update_bill_item') {
+			$data['title'] = strtoupper($this->input->post('title'));
+			$data['description'] = $this->input->post('desc');
+			$data['bill_category_id'] = strtoupper($this->input->post('category'));
+			$data['class_category'] = $this->input->post('class_category'); // Add class category
+			$data['specific_class_ids'] = $this->input->post('specific_class_ids'); // Add specific class IDs
+			$data['amount'] = $this->input->post('amount');
+			$bill_id = $this->input->post('id');
+
+			$ajax_array = [];
+
+			if($data['title'] != '' && $data['bill_category_id'] != '' && $data['amount'] != '') {
+				
+				$this->db->where('title', $data['title']);
+				$this->db->where('id !=', $bill_id);
+				$rows = $this->db->get('bill_item')->num_rows();
+
+				/*get the old title name*/
+				$this->db->where('id', $bill_id);
+				$old_title = $this->db->get('bill_item')->row()->title;
+
+				if($rows > 0) {
+					$ajax_array['success'] = 2;
+				} else {
+
+					/*update in the bill item table*/
+					$this->db->where('id', $bill_id);
+					$this->db->update('bill_item', $data);
+
+					/*update in the invoice table too*/
+					$this->db->where('title', $old_title);
+					$this->db->set('title', $data['title']);
+					$this->db->set('description', $data['description']);
+					$this->db->update('invoice');
+
+
+					$ajax_array['success'] = 1;
+				}
+
+			} else {
+				$ajax_array['success'] = 0;
+				
+			}
+
+			echo json_encode($ajax_array);
+			return false;
+		}
+		//end of editing
+
+		// Bulk save bill items - saves multiple edited rows at once
+		if ($param1 == 'bulk_save_bill_items') {
+			$updates = $this->input->post('updates'); // Array of bill item objects with changes
+			
+			if(empty($updates) || !is_array($updates)) {
+				echo json_encode(['success' => false, 'message' => 'No items to update']);
+				return;
+			}
+			
+			$updated = 0;
+			$errors = [];
+			
+			foreach($updates as $item) {
+				$id = $item['id'];
+				$data = [
+					'title' => strtoupper($item['title']),
+					'description' => $item['desc'],
+					'bill_category_id' => $item['category'],
+					'class_category' => $item['class_category'],
+					'specific_class_ids' => $item['specific_class_ids'],
+					'amount' => $item['amount']
+				];
+				
+				// Check for duplicate title (excluding current item)
+				$this->db->where('title', $data['title']);
+				$this->db->where('id !=', $id);
+				$duplicate_check = $this->db->get('bill_item')->num_rows();
+				
+				if($duplicate_check > 0) {
+					$errors[] = $data['title'] . ' - duplicate title';
+					continue;
+				}
+				
+				// Update the item
+				$this->db->where('id', $id);
+				$this->db->update('bill_item', $data);
+				
+				if($this->db->affected_rows() > 0) {
+					$updated++;
+				}
+			}
+			
+			if(count($errors) > 0) {
+				echo json_encode([
+					'success' => false, 
+					'message' => 'Some items could not be updated: ' . implode(', ', $errors)
+				]);
+			} else {
+				echo json_encode([
+					'success' => true, 
+					'message' => $updated . ' item(s) updated successfully'
+				]);
+			}
+			return;
+		}
+
+		// Bulk delete bill items
+		if ($param1 == 'bulk_delete_bill_items') {
+			$ids = $this->input->post('ids'); // Array of bill item IDs
+			
+			if(empty($ids) || !is_array($ids)) {
+				echo json_encode(['success' => false, 'message' => 'No items selected']);
+				return;
+			}
+			
+			// Check if any of the items are used in invoices
+			$used_items = [];
+			$can_delete = [];
+			
+			foreach($ids as $id) {
+				$item = $this->db->where('id', $id)->get('bill_item')->row();
+				if($item) {
+					// Check if item title exists in invoice table
+					$invoice_count = $this->db->where('title', $item->title)->get('invoice')->num_rows();
+					if($invoice_count > 0) {
+						$used_items[] = $item->title;
+					} else {
+						$can_delete[] = $id;
+					}
+				}
+			}
+			
+			// If some items are used, show warning
+			if(!empty($used_items)) {
+				$message = 'Cannot delete the following item(s) because they are used in invoices: ' . implode(', ', $used_items);
+				if(!empty($can_delete)) {
+					$message .= '. Other items will be deleted.';
+				}
+				
+				// Delete only items that can be deleted
+				if(!empty($can_delete)) {
+					$this->db->where_in('id', $can_delete);
+					$this->db->delete('bill_item');
+				}
+				
+				echo json_encode([
+					'success' => empty($can_delete) ? false : true, 
+					'message' => $message
+				]);
+			} else {
+				// All items can be deleted
+				$this->db->where_in('id', $ids);
+				$deleted = $this->db->delete('bill_item');
+				
+				if($deleted) {
+					echo json_encode([
+						'success' => true, 
+						'message' => count($ids) . ' item(s) deleted successfully'
+					]);
+				} else {
+					echo json_encode(['success' => false, 'message' => 'Failed to delete items']);
+				}
+			}
+			return;
+		}
+
+		//delete bill item
+		if ($param1 == 'delete_bill_item') { 
+			$bill_id = $param2;
+			
+			// Get item details BEFORE deleting
+			$item = $this->db->where('id', $bill_id)->get('bill_item')->row();
+			
+			if(!$item) {
+				echo json_encode(['status' => 'error', 'message' => 'Bill item not found']);
+				return false;
+			}
+			
+			$item_title = $item->title;
+			
+			// Check if item is used in any invoice
+			$invoice_count = $this->db->where('title', $item_title)->get('invoice')->num_rows();
+			
+			if($invoice_count > 0) {
+				echo json_encode([
+					'status' => 'error', 
+					'message' => 'Cannot delete "' . $item_title . '" because it is used in ' . $invoice_count . ' invoice(s)'
+				]);
+				return false;
+			}
+			
+			// Now delete the item
+			$this->db->where('id', $bill_id);
+			$deleted = $this->db->delete('bill_item');
+			
+			if($deleted) {
+				echo json_encode([
+					'status' => 'success', 
+					'message' => 'Bill item "' . $item_title . '" deleted successfully'
+				]);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => 'Failed to delete bill item']);
+			}
+			
+			return false;
+		}
+		//end of bill item deletion
+
+		//delete bill item
+		if ($param1 == 'get_bill_item_details') { 
+
+			$data['title'] = $this->input->post('title');
+
+			$this->db->where('title', $data['title']);
+			$details_row = $this->db->get('bill_item')->row();
+			
+			// Check if bill item was found
+			if(!$details_row) {
+				$ajax_array['description'] = '';
+				$ajax_array['amount'] = '';
+				$ajax_array['category'] = '';
+				echo json_encode($ajax_array);
+				return false;
+			}
+			
+			$ajax_array['description'] = $details_row->description;
+			$ajax_array['amount'] = $details_row->amount;
+			$category_id = $details_row->bill_category_id;
+			$ajax_array['category'] = $this->crud_model->getBillCategoryNameById($category_id);
+
+			echo json_encode($ajax_array);
+			return false;
+		}
+		//end of bill item deletion
+
+		if ($param1 == 'do_update') {
+			$data['student_id'] = $this->input->post('student_id');
+			$data['title'] = strtoupper($this->input->post('title'));
+			$data['description'] = $this->input->post('description');
+			$data['amount'] = $this->input->post('amount');
+			$data['amount_paid'] = $this->input->post('amount_paid');
+			$data['class_id'] = $this->input->post('class_id');
+			$data['due'] = $data['amount'] - $data['amount_paid'];
+			$data['status'] = strtolower($this->input->post('status'));
+			$data['creation_timestamp'] = strtotime($this->input->post('date'));
+
+			$this->db->where('invoice_id', $param2);
+			$this->db->update('invoice', $data);
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_updated'));
+			redirect(site_url('admin/income'));
+		} else if ($param1 == 'edit') {
+			
+			$page_data['edit_data'] = $this->db->get_where('invoice', array(
+				'invoice_id' => $param2,
+			))->result_array();
+
+		}
+		if ($param1 == 'take_payment') {
+
+			$errors = [];
+
+
+			//who issued this receipt
+			$account_type = $this->db->get_where('admin', array('admin_id' => $this->session->userdata('login_user_id')))->row()->level;
+
+			if ($account_type == 1) {
+				$account_type = 'Super Admin';
+			} else if ($account_type == 2) {
+				$account_type = 'Admin';
+			} else if ($account_type == 3) {
+				$account_type = 'Accountant';
+			}
+
+			$class_name = $this->crud_model->get_class_name($this->input->post('class_id'));
+
+
+			//if user entered receipt number manually
+			$user_receipt_code = $this->input->post('receipt_no');
+
+			if(!empty($user_receipt_code) || $user_receipt_code != '') {
+				$receipt_code = $user_receipt_code;
+
+			} else {
+
+				//system generated receipt No
+				$this->db->select('receipt_code');
+				$this->db->where('invoice_id IS NOT NULL');
+				$this->db->where('invoice_code IS NOT NULL');
+				$this->db->order_by('receipt_code', 'desc');
+				$this->db->limit(1);
+				$rec_query = $this->db->get('payment');
+
+				if ($rec_query->num_rows() > 0) {
+					$rec_id = $rec_query->row()->receipt_code;
+					$receipt_code = $rec_id + 1;
+				} else {
+					$receipt_code = 100001; //default receipt no;
+				}
+			}
+
+			//check for duplicate receipt code
+			if(!receipt_code_validation_insert($receipt_code)) {
+
+				$errors['message'] = 'error';
+				$errors['receipt_code_error'] = 'Duplicate: The same receipt code already exists. Please use a different one';
+
+				echo json_encode($errors);
+				return false; //stop here
+			}
+
+
+			$print_receipt = $this->input->post('print_receipt'); //check if user wants to print receipt or not
+			$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+
+			$data['receipt_code'] = $receipt_code;
+			$data['student_id'] = $this->input->post('student_id');
+			$data['class_id'] = $this->input->post('class_id');
+			$data['payment_method'] = $this->input->post('payment_method');
+			$data['amount'] = $this->input->post('amount');
+			$data['momo_transaction_id'] = $this->input->post('momo_transaction_id');
+			$data['bank_name'] = $this->input->post('bank_name');
+			$data['cheque_number'] = $this->input->post('cheque_number');
+			$total_fees_owe = $this->input->post('total_fees_owe');
+
+			$student_id = $data['student_id'];
+
+			if(empty($data['amount']) || $data['amount'] == 0 || $data['amount'] == '0') {
+				$errors['amount'] = 'Amount paid is invalid!';
+			}
+
+			/*validate momo method details*/
+			if($data['payment_method'] == 3) {
+				
+				if($data['momo_transaction_id'] == 0 || strlen($data['momo_transaction_id']) < 10) {
+					$errors['transaction_id'] = 'Invalid Transaction ID';
+				}
+
+				if(empty($data['momo_transaction_id']) || $data['momo_transaction_id'] == '') {
+					//Auto generate one...
+					// Create a range from 1 to 100
+					$numbers = range(1, 100);
+
+					// Randomly shuffle the array
+					shuffle($numbers);
+
+					// Slice the first 10 unique elements
+					$uniqueNumbers = array_slice($numbers, 0, 10);
+
+					$data['momo_transaction_id'] = $uniqueNumbers;
+				}
+
+			}
+
+			/*Validate cheque method details*/
+			if($data['payment_method'] == 2) {
+				
+				/*for bank name*/
+				if(empty($data['bank_name']) || strlen($data['bank_name']) < 3) {
+					$errors['bank_name'] = 'Invalid Bank Name';
+				}
+
+				/*for cheque number*/
+				if(empty($data['cheque_number']) || $data['cheque_number'] == 0 || strlen($data['cheque_number']) < 10) {
+					$errors['cheque_number'] = 'Invalid Cheque Number';
+				}
+				
+			}
+
+			if(!empty($errors)) {
+				/*Errors occured*/
+				echo json_encode($errors);
+				return false; //stop here
+			}
+
+			/*No errors from here going*/
+
+			$owing_invoice_codes_array = $this->financial_report_model->getAllBillInvoicesOwingByStudentId($data['student_id']);
+			$owing_invoice_ids_array = $this->financial_report_model->getAllBillInvoicesIdsOwingByStudentId($data['student_id']);
+
+			
+			$owing_invoice_ids = array_column($owing_invoice_ids_array, 'invoice_id');
+			$owing_invoice_codes = array_unique(array_column($owing_invoice_codes_array, 'invoice_code'));
+
+			$batchInsertArray = array();
+			$amount_paid = $data['amount']; /*amount received from student*/
+			$credit_amount_created = 0; // Initialize credit tracking variable
+
+			$payment_data['payment_type'] = 'income';
+			$payment_data['payment_method'] = $data['payment_method'];
+			$payment_data['transaction_id'] = $data['momo_transaction_id'];
+			$payment_data['bank_name'] = $data['bank_name'];
+			$payment_data['cheque_number'] = $data['cheque_number'];
+			$payment_data['receipt_code'] = $data['receipt_code'];
+			$payment_data['student_id'] = $data['student_id'];
+			$payment_data['class_id'] = $data['class_id'];
+			$payment_data['timestamp'] = strtotime(date('d-m-Y H:i:s'));
+			$payment_data['day_timestamp'] = strtotime(date('d-m-Y'));
+			$payment_data['year'] = get_settings('running_year');
+			// Set term and sem based on class type
+			if ($class_name == 'JHSS') {
+				$payment_data['sem'] = get_settings('running_sem');
+				$payment_data['term'] = null; // JHSS uses sem, not term
+			} else {
+				$payment_data['term'] = get_settings('running_term');
+				$payment_data['sem'] = null; // Non-JHSS uses term, not sem
+			}
+			$payment_data['issuer_id'] = $this->session->userdata('login_user_id');
+			$payment_data['account_type'] = $account_type;
+
+			for($i = 0; $i < count($owing_invoice_ids); $i++) {
+
+				if($amount_paid < 1) {
+					break;
+				}
+
+				/*data for the payment table*/
+				$invoice_query_row = $this->db->get_where('invoice', array('invoice_id' => $owing_invoice_ids[$i]))->row();
+
+				/*check amount due for this bill item*/
+				$amount_due = $invoice_query_row->due;
+
+				if($amount_due > $amount_paid) {
+
+					$payment_data['amount'] = $amount_paid;
+					$amount_paid -= $amount_paid;
+
+				} else {
+
+					$payment_data['amount'] = $amount_due;
+					$amount_paid -= $amount_due;
+				}
+
+				$payment_data['invoice_code'] = $invoice_query_row->invoice_code;
+				$payment_data['invoice_id'] = $owing_invoice_ids[$i];
+				$payment_data['residence_type'] = $this->crud_model->getStudentCurrentEnrollmentStatusRow($data['student_id'])->residence_type;
+				$payment_data['title'] = $invoice_query_row->title;
+				$payment_data['description'] = $invoice_query_row->description;
+
+				/*update invoice table*/
+				$this->db->where('invoice_id', $owing_invoice_ids[$i]);
+				$this->db->set('amount_paid', 'amount_paid + ' . $payment_data['amount'], FALSE);
+				$this->db->set('due', 'due - ' . $payment_data['amount'], FALSE);
+				$this->db->set('payment_timestamp', $payment_data['timestamp']);
+				$this->db->set('payment_method', $payment_data['payment_method']);
+				$this->db->update('invoice');
+
+
+				$batchInsertArray[] = $payment_data;
+
+			} /*end of each invoice code*/
+
+			//do insert data into payment table now
+			$this->db->insert_batch('payment', $batchInsertArray);
+			
+			// ============================================
+			// CREDIT SYSTEM: Check for overpayment
+			// ============================================
+			// Load Credit model
+			$this->load->model('Credit_model');
+			
+			// Store credit amount for response message
+			$credit_amount_created = 0;
+			
+			// Check if student overpaid (amount_paid is still greater than 0 after all allocations)
+			if($amount_paid > 0) {
+				$credit_amount_created = $amount_paid; // Store for later use
+				
+				// Student has overpaid - create credit
+				$credit_data = [
+					'student_id' => $data['student_id'],
+					'credit_amount' => $amount_paid,
+					'source_receipt_code' => $receipt_code,
+					'created_by' => $this->session->userdata('login_user_id'),
+					'notes' => "Overpayment from receipt #{$receipt_code}. Amount received exceeded total outstanding invoices."
+				];
+				
+				$this->db->insert('student_credits', $credit_data);
+				$credit_id = $this->db->insert_id();
+				
+				// ============================================
+				// IMPORTANT: Record the overpayment amount in payment table
+				// This ensures the FULL amount received is recorded for accounting
+				// ============================================
+				$overpayment_record = [
+					'payment_type' => 'income',
+					'payment_method' => $payment_data['payment_method'],
+					'transaction_id' => $payment_data['transaction_id'],
+					'bank_name' => $payment_data['bank_name'],
+					'cheque_number' => $payment_data['cheque_number'],
+					'receipt_code' => $receipt_code,
+					'student_id' => $data['student_id'],
+					'class_id' => $payment_data['class_id'],
+					'timestamp' => $payment_data['timestamp'],
+					'day_timestamp' => $payment_data['day_timestamp'],
+					'year' => $payment_data['year'],
+					'term' => $payment_data['term'] ?? null,
+					'sem' => $payment_data['sem'] ?? null,
+					'issuer_id' => $payment_data['issuer_id'],
+					'account_type' => $payment_data['account_type'],
+					'amount' => $amount_paid, // The overpayment amount
+					'title' => 'PREPAID CREDIT',
+					'description' => 'Overpayment converted to student credit - Credit ID: ' . $credit_id,
+					'invoice_id' => null, // No specific invoice
+					'invoice_code' => null,
+					'residence_type' => $payment_data['residence_type'] ?? 'Day'
+				];
+				
+				$this->db->insert('payment', $overpayment_record);
+				$overpayment_payment_id = $this->db->insert_id();
+				
+				// Sync overpayment to accounts and ledger
+				if($overpayment_payment_id) {
+					sync_payment_to_accounts($overpayment_payment_id);
+					sync_payment_to_ledger($overpayment_payment_id);
+				}
+			}
+			// ============================================
+			
+			// FINANCE INTEGRATION: Sync payments to accounts and ledger
+			foreach($batchInsertArray as $payment_data) {
+				$payment_id = $this->db->where('receipt_code', $receipt_code)
+					->where('student_id', $payment_data['student_id'])
+					->where('invoice_code', $payment_data['invoice_code'])
+					->get('payment')->row()->payment_id;
+				
+				if($payment_id) {
+					sync_payment_to_accounts($payment_id);
+					sync_payment_to_ledger($payment_id);
+				}
+			}
+			
+			//updating the payment table with the balance due for this receipt
+
+			$this->db->select_sum('due');
+			$this->db->from('invoice');
+			$this->db->where('can_delete !=', 'trash');
+			$this->db->where('due !=', 0);
+			$this->db->where('student_id', $data['student_id']);
+			$bal_due_query = $this->db->get();
+			
+			if($bal_due_query->num_rows() > 0) {
+				$bal_due = $bal_due_query->row()->due;
+			} else {
+				$bal_due = 0;
+			}
+
+			if($bal_due > 0) { /*we do this only if we have a figure more than 0*/
+
+				$this->db->where('receipt_code', $receipt_code);
+				$this->db->set('due', 'due + ' . $bal_due, FALSE);
+				$this->db->limit(1);
+				$this->db->update('payment');
+
+			}
+			
+
+			/*updating the status in invoice table*/
+			$batchInvoiceUpdateArray = array();
+			for($j = 0; $j < count($owing_invoice_codes); $j++) {
+
+				$amount_owe = $this->financial_report_model->getBillOweSumByInvoiceCode($owing_invoice_codes[$j]);
+
+				$invoice_status = 'paid';
+
+				if($amount_owe > 0) {
+					$invoice_status = 'unpaid';
+				}
+
+				$batchData['invoice_code'] = $owing_invoice_codes[$j];
+				$batchData['status'] = $invoice_status;
+
+				$batchInvoiceUpdateArray[] = $batchData;
+			}
+
+			$this->db->update_batch('invoice', $batchInvoiceUpdateArray, 'invoice_code');
+
+			// ============================================
+			// AUTO-LOCK SYSTEM
+			// ============================================
+			if (is_auto_lock_enabled()) {
+				// Lock all payments with this receipt code
+				lock_payments_by_receipt($receipt_code, 'Payment records are locked for security');
+				
+				// Lock invoices that are now fully paid
+				foreach ($batchInvoiceUpdateArray as $invoice_update) {
+					if ($invoice_update['status'] == 'paid') {
+						// Get invoice_id from invoice_code
+						$invoice = $this->db->get_where('invoice', array('invoice_code' => $invoice_update['invoice_code']))->row();
+						if ($invoice) {
+							lock_invoice($invoice->invoice_id, 'Invoice is fully paid');
+						}
+					}
+				}
+			}
+			// ============================================
+
+			/*=================================================================================*/
+			/*ENDED NOW, LET US DO SOME MESSAGING */
+			/*====================================================================================*/
+
+
+			//get total balance for this invoice code
+			$this->db->select_sum('due');
+			$this->db->from('invoice');
+			$this->db->where('can_delete !=', 'trash');
+			$this->db->where('due !=', 0);
+			$this->db->where('student_id', $data['student_id']);
+			$amount_due_query = $this->db->get();
+			
+			if($amount_due_query->num_rows() > 0) {
+				$amount_due = $amount_due_query->row()->due;
+			} else {
+				$amount_due = 0;
+			}
+
+
+			$balance_msg = '';
+			$student_name = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->name;
+
+
+
+			if ($amount_due == 0) {
+				$balance_msg = 'full payment';
+			} elseif ($amount_due > 0) {
+				$balance_msg = 'part payment';
+			} elseif ($amount_due < 0) {
+				$balance_msg = 'over payment';
+			}
+
+			$date = date('d M, Y H:i:s');
+			$time = date('d-m-Y H:i:s');
+			$date_time = strtotime($time);
+
+			$message = 'Payment of ' . $currency . ' ' . number_format($data['amount'], 2, '.', ',') . ' was received on ' . $date . ' as ' . $balance_msg . ' of ' . strtoupper(strtolower($student_name)) . '\'s bill. Total balance due is ' . $currency . ' ' . number_format($amount_due, 2, '.', ',') . '. Thank you.';
+
+			if ($active_sms_service != 'disabled') {
+
+				$parent_id = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->parent_id;
+				$parent_name = $this->db->get_where('parent', array('parent_id' => $parent_id))->row()->name;
+
+				if ($parent_id != null && $parent_id != 0) {
+					$receiver_phone = $this->db->get_where('parent', array('parent_id' => $parent_id))->row()->phone;
+					if ($receiver_phone != '' || $receiver_phone != null) {
+
+						$receiver_phone_array = array();
+						$receiver_phone_array[] = $receiver_phone;
+
+						$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+
+						$this->session->set_flashdata('flash_message', get_phrase('payment_notification_was_sent_to_' . $parent_name . '_successfully.'));
+					} else {
+						$this->session->set_flashdata('error_message', get_phrase('parent\'s_phone_number_is_not_found._it_seems_you_did_not_add_phone_numbers_to_some_parents\'_details'));
+					}
+				} else {
+					$this->session->set_flashdata('error_message', get_phrase('no_parent_was_registered_for_this_student.'));
+				}
+			} //End of SMS
+
+
+
+			$json_data = array();
+
+			if ($print_receipt == 1) {
+				//load receipt or go back to the invoices page
+				//redirect(site_url('admin/receipt/'. $receipt_code. '/'. $student_id .'/'.$total_amount_paid .'/'. $date_time));
+
+				$json_data['message'] = 1;
+				$json_data['print_receipt'] = 1;
+				$json_data['url'] = site_url('admin/receipt/' . $receipt_code . '/' . $student_id . '/' . $data['amount'] . '/' . $date_time . '/' . $total_fees_owe);
+
+				echo json_encode($json_data);
+				return false; //stop here
+
+			} else {
+				//redirect(site_url('admin/income?id='.$data['class_id']));
+
+				$json_data['message'] = 1;
+				$json_data['print_receipt'] = 0;
+				$json_data['success'] = true;
+				
+				// Check if credit was created (overpayment scenario)
+				if($credit_amount_created > 0) {
+					$json_data['credit_created'] = true;
+					$json_data['credit_amount'] = $credit_amount_created;
+					$json_data['credit_message'] = 'Credit of ' . $currency . ' ' . number_format($credit_amount_created, 2) . ' has been added to student account for future use.';
+				}
+
+				echo json_encode($json_data);
+				return false; //stop here
+			}
+
+		}
+			if ($param1 == 'update_payment') {
+			$errors = [];
+			$receipt_code = $this->input->post('receipt_code_original');
+			$student_id = $this->input->post('student_id');
+			
+			// Get payment data
+			$data['payment_method'] = $this->input->post('payment_method');
+			$data['transaction_id'] = $this->input->post('momo_transaction_id');
+			$data['bank_name'] = $this->input->post('bank_name');
+			$data['cheque_number'] = $this->input->post('cheque_number');
+			$new_amount = $this->input->post('amount');
+			
+			// Get current payment records and total
+			$this->db->where('receipt_code', $receipt_code);
+			$this->db->order_by('payment_id', 'ASC');
+			$existing_payments = $this->db->get('payment')->result_array();
+			
+			if(empty($existing_payments)) {
+				echo json_encode(['status' => 'error', 'message' => get_phrase('payment_record_not_found')]);
+				return false;
+			}
+			
+			$current_total = array_sum(array_column($existing_payments, 'amount'));
+			$original_timestamp = $existing_payments[0]['timestamp'];
+			$original_day_timestamp = $existing_payments[0]['day_timestamp'];
+			$original_year = $existing_payments[0]['year'];
+			$original_term = isset($existing_payments[0]['term']) ? $existing_payments[0]['term'] : null;
+			$original_sem = isset($existing_payments[0]['sem']) ? $existing_payments[0]['sem'] : null;
+			$original_class_id = $existing_payments[0]['class_id'];
+			$original_issuer_id = $existing_payments[0]['issuer_id'];
+			$original_account_type = $existing_payments[0]['account_type'];
+			$original_payment_type = $existing_payments[0]['payment_type'];
+			
+			// Validate amount
+			if(empty($new_amount) || $new_amount <= 0) {
+				$errors['amount'] = get_phrase('amount_paid_is_invalid');
+			}
+			
+			// Validate payment method details
+			if($data['payment_method'] == 3) {
+				if(empty($data['transaction_id']) || strlen($data['transaction_id']) < 10) {
+					$errors['transaction_id'] = get_phrase('invalid_transaction_id');
+				}
+			}
+			
+			if($data['payment_method'] == 2) {
+				if(empty($data['bank_name']) || strlen($data['bank_name']) < 3) {
+					$errors['bank_name'] = get_phrase('invalid_bank_name');
+				}
+				if(empty($data['cheque_number']) || strlen($data['cheque_number']) < 6) {
+					$errors['cheque_number'] = get_phrase('invalid_cheque_number');
+				}
+			}
+			
+			if(!empty($errors)) {
+				echo json_encode(['status' => 'error', 'message' => implode('<br>', $errors)]);
+				return false;
+			}
+			
+			// If amount changed, adjust amounts
+			$amount_diff = (floatval($new_amount) - floatval($current_total));
+			if($amount_diff != 0) {
+				// First, reverse all existing payment amounts from invoices
+				foreach($existing_payments as $payment) {
+					$this->db->where('invoice_id', $payment['invoice_id']);
+					$this->db->set('amount_paid', 'amount_paid - ' . $payment['amount'], FALSE);
+					$this->db->set('due', 'due + ' . $payment['amount'], FALSE);
+					$this->db->update('invoice');
+				}
+				
+				// Delete old payment records
+				$this->db->where('receipt_code', $receipt_code);
+				$this->db->delete('payment');
+				
+				// Get owing invoices
+				$owing_invoice_ids_array = $this->financial_report_model->getAllBillInvoicesIdsOwingByStudentId($student_id);
+				$owing_invoice_ids = array_column($owing_invoice_ids_array, 'invoice_id');
+				
+				// Recreate payment records with new amount but original timestamp
+				$amount_paid = $new_amount;
+				$payment_data['payment_type'] = $original_payment_type;
+				$payment_data['payment_method'] = $data['payment_method'];
+				$payment_data['transaction_id'] = $data['transaction_id'];
+				$payment_data['bank_name'] = $data['bank_name'];
+				$payment_data['cheque_number'] = $data['cheque_number'];
+				$payment_data['receipt_code'] = $receipt_code;
+				$payment_data['student_id'] = $student_id;
+				$payment_data['class_id'] = $original_class_id;
+				$payment_data['timestamp'] = $original_timestamp;
+				$payment_data['day_timestamp'] = $original_day_timestamp;
+				$payment_data['year'] = $original_year;
+				$payment_data['issuer_id'] = $original_issuer_id;
+				$payment_data['account_type'] = $original_account_type;
+				
+				if($original_term !== null) {
+					$payment_data['term'] = $original_term;
+				}
+				if($original_sem !== null) {
+					$payment_data['sem'] = $original_sem;
+				}
+				
+				$batchInsertArray = array();
+				foreach($owing_invoice_ids as $invoice_id) {
+					if($amount_paid < 1) break;
+					
+					$invoice_row = $this->db->get_where('invoice', array('invoice_id' => $invoice_id))->row();
+					$amount_due = $invoice_row->due;
+					
+					if($amount_due > $amount_paid) {
+						$payment_data['amount'] = $amount_paid;
+						$amount_paid = 0;
+					} else {
+						$payment_data['amount'] = $amount_due;
+						$amount_paid -= $amount_due;
+					}
+					
+					$payment_data['invoice_id'] = $invoice_id;
+					$payment_data['invoice_code'] = $invoice_row->invoice_code;
+					$payment_data['residence_type'] = $this->crud_model->getStudentCurrentEnrollmentStatusRow($student_id)->residence_type;
+					$payment_data['title'] = $invoice_row->title;
+					$payment_data['description'] = $invoice_row->description;
+					
+					// Update invoice
+					$this->db->where('invoice_id', $invoice_id);
+					$this->db->set('amount_paid', 'amount_paid + ' . $payment_data['amount'], FALSE);
+					$this->db->set('due', 'due - ' . $payment_data['amount'], FALSE);
+					$this->db->set('payment_timestamp', $payment_data['timestamp']);
+					$this->db->set('payment_method', $payment_data['payment_method']);
+					$this->db->update('invoice');
+					
+					$batchInsertArray[] = $payment_data;
+				}
+				
+				// Insert updated payment records with original timestamp
+				if(count($batchInsertArray) > 0) {
+					$this->db->insert_batch('payment', $batchInsertArray);
+				}
+				
+				// Update invoice statuses
+				$owing_invoice_codes_array = $this->financial_report_model->getAllBillInvoicesOwingByStudentId($student_id);
+				$owing_invoice_codes = array_unique(array_column($owing_invoice_codes_array, 'invoice_code'));
+				$batchInvoiceUpdateArray = array();
+				
+				foreach($owing_invoice_codes as $invoice_code) {
+					$amount_owe = $this->financial_report_model->getBillOweSumByInvoiceCode($invoice_code);
+					$invoice_status = ($amount_owe > 0) ? 'unpaid' : 'paid';
+					$batchInvoiceUpdateArray[] = array(
+						'invoice_code' => $invoice_code,
+						'status' => $invoice_status
+					);
+				}
+				
+				if(count($batchInvoiceUpdateArray) > 0) {
+					$this->db->update_batch('invoice', $batchInvoiceUpdateArray, 'invoice_code');
+				}
+			} else {
+				// Only update payment method details
+				$this->db->where('receipt_code', $receipt_code);
+				$this->db->update('payment', $data);
+			}
+			
+			// Update balance due for this receipt
+			$this->db->select_sum('due');
+			$this->db->from('invoice');
+			$this->db->where('can_delete !=', 'trash');
+			$this->db->where('due !=', 0);
+			$this->db->where('student_id', $student_id);
+			$bal_due = $this->db->get()->row()->due;
+			
+			if($bal_due > 0) {
+				$this->db->where('receipt_code', $receipt_code);
+				$this->db->set('due', $bal_due);
+				$this->db->limit(1);
+				$this->db->update('payment');
+			} else {
+				$this->db->where('receipt_code', $receipt_code);
+				$this->db->set('due', 0);
+				$this->db->limit(1);
+				$this->db->update('payment');
+			}
+			
+			echo json_encode(['status' => 'success', 'message' => get_phrase('payment_updated_successfully')]);
+			return false;
+		}
+
+
+
+	if ($param1 == 'take_payment_bulk') {
+
+			$inv_ids_array = array();
+			$students_ids = array();
+			$json_data = array();
+
+			$students_ids = explode('-', $this->input->post('students_ids'));
+
+			$item = array();
+			$amount = array();
+			$total_amount_paid = 0;
+
+			//who issued this receipt
+			$account_type = $this->db->get_where('admin', array('admin_id' => $this->session->userdata('login_user_id')))->row()->level;
+
+			if ($account_type == 1) {
+				$account_type = 'Super Admin';
+			} else if ($account_type == 2) {
+				$account_type = 'Admin';
+			} else if ($account_type == 3) {
+				$account_type = 'Accountant';
+			}
+
+			$class_name = $this->crud_model->get_class_name($this->input->post('class_id'));
+
+			$print_receipt = $this->input->post('print_receipt'); //check if user wants to print receipt or not
+
+			$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+
+			/*Checking receipt code duplicate starts here*/
+			$errors = [];
+
+			for ($sr = 0; $sr < count($students_ids); $sr++) {
+
+				//generate receipt No
+				$this->db->select('receipt_code');
+				$this->db->order_by('receipt_code', 'desc');
+				$this->db->limit(1);
+				$rec_query = $this->db->get('payment');
+				$rec_id = $rec_query->row()->receipt_code;
+
+				if ($rec_query->num_rows() > 0) {
+					$receipt_code = $rec_id + 1;
+				} else {
+					$receipt_code = 100001; //default receipt no;
+				}
+
+				//if user entered receipt number manually
+				$user_receipt_code = $this->input->post('receipt_no_'.$students_ids[$sr]);
+
+				if(!empty($user_receipt_code) || $user_receipt_code != '') {
+					$receipt_code = $user_receipt_code;
+				}
+
+				//check for duplicate receipt code
+				if(!receipt_code_validation_insert($receipt_code)) {
+
+					$errors['receipt_code_error'] = 'Receipt code: '. $receipt_code . ' already exists!';
+				}
+			}
+
+			if(!empty($errors)) {
+				$errors['message'] = 'error';
+				echo json_encode($errors);
+				return;
+			}
+			/*Checking receipt code duplicate ends here*/
+
+				for ($si = 0; $si < count($students_ids); $si++) {
+
+				//generate receipt No
+				$this->db->select('receipt_code');
+				$this->db->order_by('receipt_code', 'desc');
+				$this->db->limit(1);
+				$rec_query = $this->db->get('payment');
+				$rec_id = $rec_query->row()->receipt_code;
+
+				if ($rec_query->num_rows() > 0) {
+					$receipt_code = $rec_id + 1;
+				} else {
+					$receipt_code = 100001; //default receipt no;
+				}
+
+				//if user entered receipt number manually
+				$user_receipt_code = $this->input->post('receipt_no_'.$students_ids[$si]);
+
+				if(!empty($user_receipt_code) || $user_receipt_code != '') {
+					$receipt_code = $user_receipt_code;
+				}
+
+				
+
+				$inv_ids_array = explode('-', $this->input->post($students_ids[$si] . '_invoice_ids_array'));
+
+				for ($vi = 0; $vi < count($inv_ids_array); $vi++) {
+
+					$data['invoice_id'] = $this->input->post('invoice_id_' . $inv_ids_array[$vi]);
+					
+					$invoice_query = $this->db->get_where('invoice', array('invoice_id' => $inv_ids_array[$vi]));
+					if ($invoice_query->num_rows() > 0) {
+						$data['invoice_code'] = $invoice_query->row()->invoice_code;
+					} else {
+						$data['invoice_code'] = null;
+					}
+					
+					$data['receipt_code'] = $receipt_code;
+					$data['student_id'] = $students_ids[$si];
+					$data['class_id'] = $this->input->post('class_id');
+
+					if ($class_name == 'JHSS') {
+						$data['sem'] = get_settings('running_sem');
+					} else {
+						$data['term'] = get_settings('running_term');
+					}
+
+					$data['title'] = strtoupper($this->input->post('title_' . $inv_ids_array[$vi]));
+					$data['description'] = $this->input->post('description_' . $inv_ids_array[$vi]);
+					$data['payment_type'] = 'income';
+					$data['method'] = $this->input->post('method_' . $inv_ids_array[$vi]);
+					$data['amount'] = $this->input->post('amount_' . $inv_ids_array[$vi]);
+					$data['timestamp'] = strtotime(date('d-m-Y H:i:s'));
+					$data['day_timestamp'] = strtotime(date('d-m-Y'));
+					$data['year'] = get_settings('running_year');
+					$data['issuer_id'] = $this->session->userdata('login_user_id');
+					$data['account_type'] = $account_type;
+
+					if ($data['amount'] != '' || $data['amount'] != null) {
+						//do insert or update only if amount is not empty
+						$this->db->insert('payment', $data);
+
+						//update the invoice table
+						$status['status'] = strtolower($this->input->post('status_' . $data['invoice_id']));
+						$this->db->where('invoice_id', $inv_ids_array[$vi]);
+						$this->db->update('invoice', array('status' => $status['status'], 'payment_timestamp' => $data['timestamp'], 'payment_method' => $data['method']));
+
+						$data2['amount_paid'] = $this->input->post('amount_' . $inv_ids_array[$vi]);
+						$data2['status'] = strtolower($this->input->post('status_' . $inv_ids_array[$vi]));
+
+						$this->db->where('invoice_id', $inv_ids_array[$vi]);
+						$this->db->set('amount_paid', 'amount_paid + ' . $data2['amount_paid'], FALSE);
+						$this->db->set('due', 'due - ' . $data2['amount_paid'], FALSE);
+						$this->db->update('invoice');
+
+						//update invoice status
+						$this->db->where('invoice_code', $data['invoice_code']);
+						$this->db->set('status', $data2['status']);
+						$this->db->update('invoice');
+
+						//get items/titles and amount paid for each
+						$item[$vi] = $data['title'];
+						$amount[$vi] = $data['amount'];
+						$total_amount_paid = $total_amount_paid + $amount[$vi];
+					}
+				}
+
+				//updating the payment table with the balance due for this receipt
+				$this->db->select_sum('due');
+				$this->db->from('invoice');
+				$this->db->where('can_delete !=', 'trash');
+				$this->db->where('due !=', 0);
+				$this->db->where('student_id', $students_ids[$si]);
+				$any_bal = $this->db->get()->result_array();
+
+				$bal_counter = 0;
+				foreach ($any_bal as $brow) {
+					$bal_counter += $brow['due'];
+				}
+
+				//let's update the due column in the payment table
+				$bal_due = $bal_counter;
+				$this->db->where('receipt_code', $receipt_code);
+				$this->db->set('due', 'due + ' . $bal_due, FALSE);
+				$this->db->limit(1);
+				$this->db->update('payment');
+
+				//prepare a text message and send to the parent of the child about the payment
+				// sms sending configurations
+				/**$payment_details  = $this->db->get_where('invoice', array('student_id' => $data['student_id'], 'invoice_id' => $data['invoice_id'] , 'due !=' => 0))->row();
+	                $balance   = $payment_details->due;
+	                $balance_msg = '';
+		*/
+				$student_name = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->name;
+
+				//get total for this invoice code
+				$this->db->select_sum('amount');
+				$this->db->from('invoice');
+				$this->db->where('can_delete !=', 'trash');
+				$this->db->where('due !=', 0);
+				$this->db->where('student_id', $data['student_id']);
+				//$this->db->where('term', $data['term']);
+				//$this->db->where('year', $data['year']);
+				$amount_total_array = $this->db->get()->result_array();
+
+				$amount_counter = 0;
+				foreach ($amount_total_array as $arow) {
+					$amount_counter += $arow['amount'];
+				}
+
+				//get total balance for this invoice code
+				$this->db->select_sum('amount_paid');
+				$this->db->from('invoice');
+				$this->db->where('can_delete !=', 'trash');
+				$this->db->where('due !=', 0);
+				$this->db->where('student_id', $data['student_id']);
+				//$this->db->where('term', $data['term']);
+				//$this->db->where('year', $data['year']);
+				$amount_due_array = $this->db->get()->result_array();
+
+				$due_counter = 0;
+				foreach ($amount_due_array as $arow2) {
+					$due_counter += $arow2['amount_paid'];
+				}
+
+				$balance_msg = '';
+				$title = $data['title'];
+				$student_name = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->name;
+
+				$due_balance = (floatval($amount_counter) - floatval($due_counter));
+
+				if ($due_balance == 0) {
+					$balance_msg = 'full payment';
+				} elseif ($due_balance > 0) {
+					$balance_msg = 'part payment';
+				} elseif ($due_balance < 0) {
+					$balance_msg = 'over payment';
+				}
+
+				$date = date('d M, Y H:i:s');
+				$time = date('d-m-Y H:i:s');
+				$date_time = strtotime($time);
+
+				$message = 'Payment of ' . $currency . ' ' . number_format($total_amount_paid, 2, '.', ',') . ' was received on ' . $date . ' as ' . $balance_msg . ' of ' . $student_name . '\'S bill. Total balance due is ' . $currency . ' ' . number_format($amount_counter - $due_counter, 2, '.', ',') . '. Thank you.';
+
+				if ($active_sms_service != 'disabled') {
+
+					$parent_id = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->parent_id;
+					$parent_name = $this->db->get_where('parent', array('parent_id' => $parent_id))->row()->name;
+
+					$receiver_phone_array = array();
+
+					if ($parent_id != null && $parent_id != 0) {
+						$receiver_phone = $this->db->get_where('parent', array('parent_id' => $parent_id))->row()->phone;
+						if ($receiver_phone != '' || $receiver_phone != null) {
+							$receiver_phone_array[] = $receiver_phone;
+
+							//$result = $this->sms_model->send_sms($message,$receiver_phone_array);
+
+						}
+
+					}
+
+				} //End of SMS
+
+				//prepare an email message and send to the parent of the child about the payment
+				// email sending configurations
+				//school's info
+
+				$system_name = $this->db->get_where('settings', array('type' => 'system_name'))->row()->description;
+				$system_phone = $this->db->get_where('settings', array('type' => 'phone'))->row()->description;
+				$system_mail = $this->db->get_where('settings', array('type' => 'system_email'))->row()->description;
+				$system_slogan = $this->db->get_where('settings', array('type' => 'system_title'))->row()->description;
+				$cashier = $this->db->get_where($this->session->userdata('login_type'), array($this->session->userdata('login_type') . '_id' => $this->session->userdata('login_user_id')))->row()->name;
+				$student_name = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->name;
+				$class_id = $this->db->get_where('enroll', array('student_id' => $data['student_id'], 'mute' => '0', 'year' => $data['year']))->row()->class_id;
+				$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+				$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+				//get receipt details
+
+				$receipt_code = $data['receipt_code'];
+				//$invoice_code =    $data['invoice_code'];
+				$student_id = $data['student_id'];
+				//$year         =    $data['year'];
+				//$term         =    $data['term'];
+
+				//add section A or B if the class has more than one section
+				$section_name = $this->db->get_where('section', array('class_id' => $class_id))->row()->name;
+				$class_has_more_sections = $this->db->get_where('class', array('name' => $class_name, 'name_numeric' => $class_name_numeric))->num_rows();
+				$sec_name = '';
+				if ($class_has_more_sections > 1) {
+					$sec_name = $section_name;
+				}
+
+				$class = '';
+				if ($class_name == 'CRECHE') {
+					$class = $class_name;
+				} else {
+					$class = $class_name . ' ' . $class_name_numeric . $sec_name;
+				}
+
+				$msg_email = '
+                <center>
+                <div>
+                    <table style="border: 1px solid #d0cccc; padding: 10px;">
+                    <tr>
+                    <td align="center">
+                    <div><img src="' . base_url('uploads/school_logo.png') . '" style="max-height : 60px;"></div><br>
+                    <div><strong>' . $system_name . '</strong></div>
+                    <div><strong>' . $system_phone . ' | ' . $system_mail . '</strong></div><br>
+
+                    <div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th align="right">Received From:</th>
+                                    <th></th>
+                                    <th align="left">' . $student_name . '</th>
+                                </tr>
+                                <tr>
+                                    <th align="right">Student\'s Class:</th>
+                                    <th></th>
+                                    <th align="left">' . $class . '</th>
+                                </tr>
+                                <tr>
+                                    <th align="right">Receipt Date:</th>
+                                    <th></th>
+                                    <th align="left">' . $date . '</th>
+                                </tr>
+                                <tr>
+                                    <th align="right">Receipt No:</th>
+                                    <th></th>
+                                    <th align="left">' . $data['receipt_code'] . '</th>
+                                </tr>
+
+                            </thead>
+                        </table>
+                    </div><br>
+                    <table>
+                        <thead>
+                            <tr >
+                                <th width="40" align="left">S/No</th>
+                                <th width="180" align="left">ITEM</th>
+                                <th></th>
+                                <th width="120" align="right">AMOUNT</th>
+                            </tr>
+                            <tr><th colspan="4"><hr></th></tr>
+                        </thead>
+                        <tbody>';
+				//$msg_email .= $this->crud_model->load_receipt($receipt_code, $invoice_code, $student_id, $year, $term);
+				$msg_email .= '
+                            <tr></tr>
+                            <tr></tr>
+                            <tr></tr>
+                            <tr><td colspan="4"><hr></td></tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td align="right">Sub-total:</td>
+                                <td align="right">' . $total_amount_paid . '</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td align="right">Tax:</td>
+                                <td align="right">0</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td align="right">Net Amount Payable:</td>
+                                <td align="right" style="font-weight: bolder;">' . numfmt_format_currency($fmt, $total_amount_paid, $currency) . '</td>
+                            </tr>
+
+                            <tr><td><br></td></tr>
+                            <tr><td colspan="4">
+                                <strong>Cashier: </strong>' . ucwords(strtolower($cashier)) . '
+                                <hr>
+                            </td></tr>
+                            <tr><td colspan="4" align="center">
+                                <p>' . $system_slogan . "!!!" . '</p>
+                                <p><strong>Thank You</strong></p>
+                            </td></tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-left: 450px;">
+
+                    </div>
+                </div>
+                </td>
+                </tr>
+                </table>
+                </center>';
+				$owner_email = $this->db->get_where('settings', array('type' => 'system_email'))->row()->description;
+
+				$student_name = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->name;
+				$parent_id = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->parent_id;
+				$parent_name = $this->db->get_where('parent', array('parent_id' => $parent_id))->row()->name;
+
+				if ($parent_id != null && $parent_id != 0) {
+					$receiver_email = $this->db->get_where('parent', array('parent_id' => $parent_id))->row()->email;
+				} //End of Email
+
+			} //end of each student
+
+			//$this->session->set_flashdata('flash_message' , get_phrase('payment_successful'));
+
+			/*if($print_receipt == 1) { //load receipt or go back to the invoices page
+				                redirect(site_url('admin/receipt/'. $receipt_code. '/'. $student_id .'/'.$total_amount_paid .'/'. $date_time), 'refresh');
+				            } else {
+				                 redirect(site_url('admin/income?id='.$data['class_id']), 'refresh');
+			*/
+
+			//redirect(site_url('admin/income?id='.$data['class_id']), 'refresh');
+
+			$json_data['message'] = 1;
+			$json_data['print_receipt'] = 0;
+
+			echo json_encode($json_data);
+			return false; //stop here
+
+		} //end of bulk
+
+		//refund
+		if ($param1 == 'make_refund') {
+			$id = $this->input->post('id');
+			$ids = explode('-', $id);
+			$inv_ids_array = array();
+
+			$item = array();
+			$amount = array();
+			$total_amount_paid = 0;
+
+			for ($inv = 0; $inv < count($ids); $inv++) {
+				$inv_ids_array[$inv] = $ids[$inv];
+			}
+
+			//who issued this refund
+			$account_type = $this->db->get_where('admin', array('admin_id' => $this->session->userdata('login_user_id')))->row()->level;
+
+			if ($account_type == 1) {
+				$account_type = 'Super Admin';
+			} else if ($account_type == 2) {
+				$account_type = 'Admin';
+			} else if ($account_type == 3) {
+				$account_type = 'Accountant';
+			}
+
+			//generate receipt No
+			$this->db->select('receipt_code');
+			$this->db->order_by('receipt_code', 'desc');
+			$this->db->limit(1);
+			$rec_query = $this->db->get('payment');
+			$rec_id = $rec_query->row()->receipt_code;
+
+			if ($rec_query->num_rows() > 0) {
+				$receipt_code = $rec_id + 1;
+			} else {
+				$receipt_code = 100001; //default receipt no;
+			}
+
+			$print_receipt = $this->input->post('print_receipt'); //check if user wants to print receipt or not
+
+			$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+
+			for ($vi = 0; $vi < count($inv_ids_array); $vi++) {
+
+				$data['invoice_id'] = $this->input->post('invoice_id_' . $inv_ids_array[$vi]);
+				
+				$invoice_query = $this->db->get_where('invoice', array('invoice_id' => $inv_ids_array[$vi]));
+				if ($invoice_query->num_rows() > 0) {
+					$data['invoice_code'] = $invoice_query->row()->invoice_code;
+				} else {
+					$data['invoice_code'] = null;
+				}
+				
+				$data['receipt_code'] = $receipt_code;
+				$data['student_id'] = $this->input->post('student_id');
+				$data['class_id'] = $this->input->post('class_id');
+				$data['term'] = get_settings('running_term');
+				$data['title'] = strtoupper($this->input->post('title_' . $inv_ids_array[$vi]));
+				$data['description'] = $this->input->post('description_' . $inv_ids_array[$vi]);
+				$data['payment_type'] = 'refund';
+				$data['method'] = $this->input->post('method_' . $inv_ids_array[$vi]);
+				$data['amount'] = $this->input->post('amount_' . $inv_ids_array[$vi]);
+				$data['timestamp'] = strtotime(date('d-m-Y H:i:s'));
+				$data['day_timestamp'] = strtotime(date('d-m-Y'));
+				$data['year'] = get_settings('running_year');
+				$data['issuer_id'] = $this->session->userdata('login_user_id');
+				$data['account_type'] = $account_type;
+
+				if ($data['amount'] != '' || $data['amount'] != null) {
+					//do insert or update only if amount is not empty
+					$this->db->insert('payment', $data);
+
+					//update the invoice table
+					$status['status'] = strtolower($this->input->post('status_' . $data['invoice_id']));
+					$this->db->where('invoice_id', $inv_ids_array[$vi]);
+					$this->db->update('invoice', array('status' => $status['status'], 'payment_timestamp' => $data['timestamp'], 'payment_method' => $data['method']));
+
+					$data2['amount_paid'] = $this->input->post('amount_' . $inv_ids_array[$vi]);
+					$data2['status'] = strtolower($this->input->post('status_' . $inv_ids_array[$vi]));
+					$this->db->where('invoice_id', $inv_ids_array[$vi]);
+					//$this->db->set('amount_paid', 'amount_paid + ' . $data2['amount_paid'], FALSE);
+					$this->db->set('due', 'due + ' . $data2['amount_paid'], FALSE);
+					$this->db->update('invoice');
+
+					//get items/titles and amount paid for each
+					$item[$vi] = $data['title'];
+					$amount[$vi] = $data['amount'];
+					$total_amount_paid = $total_amount_paid + $amount[$vi];
+				}
+			}
+
+			//updating the payment table with the balance due for this receipt
+			$this->db->select_sum('due');
+			$this->db->from('invoice');
+			$this->db->where('can_delete !=', 'trash');
+			$this->db->where('due <', 0);
+			$this->db->where('student_id', $this->input->post('student_id'));
+			$any_bal = $this->db->get()->result_array();
+
+			$bal_counter = 0;
+			foreach ($any_bal as $brow) {
+				$bal_counter += $brow['due'];
+			}
+
+			//let's update the due column in the payment table
+			$bal_due = $bal_counter;
+			$this->db->where('receipt_code', $receipt_code);
+			$this->db->where('payment_type', 'refund');
+			$this->db->set('due', 'due + ' . $bal_due, FALSE);
+			$this->db->limit(1);
+			$this->db->update('payment');
+
+			//prepare a text message and send to the parent of the child about the payment
+			// sms sending configurations
+			/**$payment_details  = $this->db->get_where('invoice', array('student_id' => $data['student_id'], 'invoice_id' => $data['invoice_id'] , 'due !=' => 0))->row();
+	                $balance   = $payment_details->due;
+	                $balance_msg = '';
+		*/
+			$student_name = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->name;
+
+			//get total for this invoice code
+			$this->db->select_sum('amount');
+			$this->db->from('invoice');
+			$this->db->where('can_delete !=', 'trash');
+			$this->db->where('due <', 0);
+			$this->db->where('student_id', $data['student_id']);
+			//$this->db->where('term', $data['term']);
+			//$this->db->where('year', $data['year']);
+			$amount_total_array = $this->db->get()->result_array();
+
+			$amount_counter = 0;
+			foreach ($amount_total_array as $arow) {
+				$amount_counter += $arow['amount'];
+			}
+
+			//get total balance for this invoice code
+			$this->db->select_sum('amount_paid');
+			$this->db->from('invoice');
+			$this->db->where('can_delete !=', 'trash');
+			$this->db->where('due <', 0);
+			$this->db->where('student_id', $data['student_id']);
+			//$this->db->where('term', $data['term']);
+			//$this->db->where('year', $data['year']);
+			$amount_due_array = $this->db->get()->result_array();
+
+			$due_counter = 0;
+			foreach ($amount_due_array as $arow2) {
+				$due_counter += $arow2['amount_paid'];
+			}
+
+			$balance_msg = '';
+			$title = $data['title'];
+			$student_name = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->name;
+
+			$due_balance = abs($amount_counter) - abs($due_counter);
+
+			if ($due_balance == 0) {
+				$balance_msg = 'full refund';
+			} elseif ($due_balance < 0) {
+				$balance_msg = 'part refund';
+			} elseif ($due_balance > 0) {
+				$balance_msg = 'over refund';
+			}
+
+			$date = date('d M, Y H:i:s');
+			$time = date('d-m-Y H:i:s');
+			$date_time = strtotime($time);
+
+			$message = 'Refund of ' . $currency . ' ' . number_format(abs($total_amount_paid), 2, '.', ',') . ' was sent to you on ' . $date . ' as ' . $balance_msg . ' of ' . $student_name . '\'S overpayment bill. Total balance to be refunded is ' . $currency . ' ' . number_format(abs($amount_counter) - abs($due_counter), 2, '.', ',') . '. Thank you.';
+
+			if ($active_sms_service != 'disabled') {
+
+				$parent_id = $this->db->get_where('student', array('student_id' => $data['student_id']))->row()->parent_id;
+				$parent_name = $this->db->get_where('parent', array('parent_id' => $parent_id))->row()->name;
+
+				if ($parent_id != null && $parent_id != 0) {
+					$receiver_phone = $this->db->get_where('parent', array('parent_id' => $parent_id))->row()->phone;
+					if ($receiver_phone != '' || $receiver_phone != null) {
+
+						$receiver_phone_array = array();
+						$receiver_phone_array[] = $receiver_phone;
+
+						//$result = $this->sms_model->send_sms( $message, $receiver_phone_array );
+
+						$this->session->set_flashdata('flash_message', get_phrase('payment_notification_was_sent_to_' . $parent_name . '_successfully.'));
+					} else {
+						$this->session->set_flashdata('error_message', get_phrase('parent\'s_phone_number_is_not_found._it_seems_you_did_not_add_phone_numbers_to_some_parents\'_details'));
+					}
+				} else {
+					$this->session->set_flashdata('error_message', get_phrase('no_parent_was_registered_for_this_student.'));
+				}
+			} //End of SMS
+
+			
+
+			$this->session->set_flashdata('flash_message', get_phrase('refund_successful'));
+
+			redirect(site_url('admin/income'));
+
+		}
+
+		if ($param1 == 'delete') {
+			$user_level = $this->session->userdata('user_type');
+			$is_super_admin = ($user_level == 1);
+
+			if($is_super_admin) {
+				$this->db->where('invoice_code', $param2);
+				$queryExecuted = $this->db->delete('invoice');
+				$this->db->where('invoice_code', $param2);
+				$queryExecuted = $this->db->delete('payment');
+				$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+				if($queryExecuted) {
+					$ajaxData['message'] = 'done';
+				} else {
+					$ajaxData['message'] = 'failed';
+				}
+				$ajaxData['route'] = 'income';
+			} else {
+				$this->db->select('student_id');
+				$this->db->where('invoice_code', $param2);
+				$invoice_data = $this->db->get('invoice')->row();
+				if($invoice_data) {
+					$student_name = $this->db->get_where('student', ['student_id' => $invoice_data->student_id])->row()->name;
+					$requester = $this->db->where('admin_id', $this->session->userdata('login_user_id'))->get('admin')->row();
+					$requestData['request_description'] = 'To delete invoice: ' . $param2 . ' for student: ' . $student_name;
+					$requestData['request_type'] = 'delete';
+					$requestData['request_table'] = 'invoice';
+					$requestData['request_ids'] = $param2;
+					$requestData['requested_by'] = $this->session->userdata('login_user_id');
+					$requestData['request_timestamp'] = time();
+					$requestData['status'] = 'pending';
+					$this->db->insert('invoice_requests', $requestData);
+					$this->db->where('invoice_code', $param2);
+					$this->db->update('invoice', ['can_delete' => 'pending']);
+					$school_name = $this->db->get_where('settings', ['type' => 'system_name'])->row()->description;
+					$super_admins = $this->db->where('level', 1)->get('admin')->result();
+					foreach($super_admins as $admin) {
+						$this->db->insert('notifications', [
+							'user_id' => $admin->admin_id,
+							'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
+							'title' => 'Invoice Delete Approval Required',
+							'message' => $requester->name . ' requested to delete invoice ' . $param2 . ' for ' . $student_name,
+							'type' => 'invoice_delete_approval',
+							'created_at' => date('Y-m-d H:i:s')
+						]);
+						$active_sms = $this->db->get_where('settings', ['type' => 'active_sms_service'])->row();
+						if($active_sms && $active_sms->description != 'disabled' && !empty($admin->phone)) {
+							$sms_message = "[$school_name] Invoice delete approval needed: {$requester->name} wants to delete invoice {$param2}. Review at: " . site_url('admin/manageRequestApproval');
+							$this->sms_model->send_sms($sms_message, [$admin->phone]);
+						}
+					}
+					$ajaxData['message'] = 'Request sent for approval';
+					$ajaxData['route'] = 'income';
+				} else {
+					$ajaxData['message'] = 'failed';
+					$ajaxData['route'] = 'income';
+				}
+			}
+			echo json_encode($ajaxData);
+			return;
+		}
+
+		if ($param1 == 'delete2') {
+			$user_level = $this->session->userdata('user_type');
+			$is_super_admin = ($user_level == 1);
+
+			if($is_super_admin) {
+				$this->db->where('invoice_code', $param2);
+				$queryExecuted = $this->db->delete('invoice');
+				$this->db->where('invoice_code', $param2);
+				$queryExecuted = $this->db->delete('payment');
+				$this->session->set_flashdata('flash_message', get_phrase('Invoice_deleted'));
+				if($queryExecuted) {
+					$ajaxData['message'] = 'done';
+				} else {
+					$ajaxData['message'] = 'failed';
+				}
+				$ajaxData['route'] = 'all_invoices';
+			} else {
+				$this->db->select('student_id');
+				$this->db->where('invoice_code', $param2);
+				$invoice_data = $this->db->get('invoice')->row();
+				if($invoice_data) {
+					$student_name = $this->db->get_where('student', ['student_id' => $invoice_data->student_id])->row()->name;
+					$requester = $this->db->where('admin_id', $this->session->userdata('login_user_id'))->get('admin')->row();
+					$requestData['request_description'] = 'To delete invoice: ' . $param2 . ' for student: ' . $student_name;
+					$requestData['request_type'] = 'delete';
+					$requestData['request_table'] = 'invoice';
+					$requestData['request_ids'] = $param2;
+					$requestData['requested_by'] = $this->session->userdata('login_user_id');
+					$requestData['request_timestamp'] = time();
+					$requestData['status'] = 'pending';
+					$this->db->insert('invoice_requests', $requestData);
+					$this->db->where('invoice_code', $param2);
+					$this->db->update('invoice', ['can_delete' => 'pending']);
+					$school_name = $this->db->get_where('settings', ['type' => 'system_name'])->row()->description;
+					$super_admins = $this->db->where('level', 1)->get('admin')->result();
+					foreach($super_admins as $admin) {
+						$this->db->insert('notifications', [
+							'user_id' => $admin->admin_id,
+							'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
+							'title' => 'Invoice Delete Approval Required',
+							'message' => $requester->name . ' requested to delete invoice ' . $param2 . ' for ' . $student_name,
+							'type' => 'invoice_delete_approval',
+							'created_at' => date('Y-m-d H:i:s')
+						]);
+						$active_sms = $this->db->get_where('settings', ['type' => 'active_sms_service'])->row();
+						if($active_sms && $active_sms->description != 'disabled' && !empty($admin->phone)) {
+							$sms_message = "[$school_name] Invoice delete approval needed: {$requester->name} wants to delete invoice {$param2}. Review at: " . site_url('admin/manageRequestApproval');
+							$this->sms_model->send_sms($sms_message, [$admin->phone]);
+						}
+					}
+					$ajaxData['message'] = 'Request sent for approval';
+					$ajaxData['route'] = 'all_invoices';
+				} else {
+					$ajaxData['message'] = 'failed';
+					$ajaxData['route'] = 'all_invoices';
+				}
+			}
+			echo json_encode($ajaxData);
+			return;
+
+		}
+
+		$page_data['page_name'] = 'invoice';
+		$page_data['page_title'] = get_phrase('manage_invoice/payment');
+		$this->db->order_by('creation_timestamp', 'desc');
+
+		$this->db->where('can_delete !=', 'trash');
+		$page_data['invoices'] = $this->db->get('invoice')->result_array();
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function income($param1 = 'invoices', $param2 = '', $param3 = '', $param4 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$page_data['page_name'] = $param1; //'income';
+		$page_data['page_title'] = get_phrase('student_payments');
+
+		if ($param2 == 'invoice_search') {
+			$page_data['inner'] = 'invoices_loaded';
+			$year = $param3;
+			$term = $param4;
+			//$page_data['invoices'] = $this->crud_model->load_invoice($year, $term);
+			$page_data['syear'] = $year;
+			$page_data['sterm'] = $term;
+
+			$this->load->view('backend/admin/invoices_loaded', $page_data);
+		} else {
+			//$page_data['inner'] = $param1;
+			//$page_data['invoices'] = $this->crud_model->load_invoice();
+			$page_data['syear'] = get_settings('running_year');
+			$page_data['sterm'] = get_settings('running_term');
+
+			$page_data['account_type'] = $this->session->userdata('login_type');
+			$this->load->view('backend/main', $page_data);
+		}
+
+	}
+	
+
+	function get_invoices() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//currency
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		$fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		$admin_level = $this->db->get_where('admin', array('name' => $name))->row()->level;
+		$current_user = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
+
+		$columns = array(
+			0 => 'invoice_code',
+			1 => 'student',
+			2 => 'term',
+			3 => 'total',
+			4 => 'paid',
+			5 => 'status',
+			6 => 'date',
+			7 => 'options',
+			8 => 'invoice_id',
+			9 => 'checked',
+			10 => 'class',
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->ajaxload->all_invoices_count();
+		$totalFiltered = $totalData;
+
+		if (empty($this->input->post('search')['value'])) {
+			$invoices = $this->ajaxload->all_invoices($limit, $start, $order, $dir);
+		} else {
+			$search = $this->input->post('search')['value'];
+			$invoices = $this->ajaxload->invoice_search($limit, $start, $search, $order, $dir);
+			$totalFiltered = $this->ajaxload->invoice_search_count($search);
+		}
+
+		$data = array();
+		if (!empty($invoices)) {
+			foreach ($invoices as $row) {
+
+				//if ($row->invoice_code[0] == 0) {
+				//	$in_code = '_' . $row->invoice_code;
+				//} else {
+					$in_code = $row->invoice_code;
+				//}
+
+				//amount due
+				$this->db->select_sum('due');
+				$a_due = $this->db->get_where('invoice', array('invoice_code' => $row->invoice_code))->row()->due;
+
+				//total amount
+				$this->db->select_sum('amount');
+				$total_amount = $this->db->get_where('invoice', array('invoice_code' => $row->invoice_code))->row()->amount;
+
+				//total amount paid
+				$this->db->select_sum('amount_paid');
+				$amount_paid = $this->db->get_where('invoice', array('invoice_code' => $row->invoice_code))->row()->amount_paid;
+
+				//year and term
+				$year = $this->db->get_where('invoice', array('invoice_code' => $row->invoice_code))->row()->year;
+				//year and term
+				$term = $this->db->get_where('invoice', array('invoice_code' => $row->invoice_code))->row()->term;
+
+				//creation date
+				$creation_timestamp = $this->db->get_where('invoice', array('invoice_code' => $row->invoice_code))->row()->creation_timestamp;
+
+				//student_id
+				$student_id = $this->db->get_where('invoice', array('invoice_code' => $row->invoice_code))->row()->student_id;
+
+				//current_class id
+				$class_id = $this->db->get_where('enroll', array('student_id' => $student_id, 'mute' => '0', 'year' => $running_year, 'term' => $running_term))->row()->class_id;
+				$class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
+				$class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
+
+				//add section A or B if the class has more than one section
+				$section_name = $this->db->get_where('section', array('class_id' => $class_id))->row()->name;
+				$class_has_more_sections = $this->db->get_where('class', array('name' => $class_name, 'name_numeric' => $class_name_numeric))->num_rows();
+				$sec_name = '';
+				if ($class_has_more_sections > 1) {
+					$sec_name = $section_name;
+				}
+
+				$class = '';
+				if ($class_name == 'CRECHE') {
+					$class = $class_name;
+				} else {
+					$class = $class_name . ' ' . $class_name_numeric . $sec_name;
+				}
+
+				$student_class = $class;
+
+				//invoice_id
+				$invoice_id = $this->db->get_where('invoice', array('invoice_code' => $row->invoice_code))->row()->invoice_id;
+
+				if ($a_due == 0) {
+					$status = '<button class="btn btn-success btn-xs">' . get_phrase('paid') . '</button>';
+					//$payment_text = 'View Receipts';
+				} elseif ($a_due < 0) {
+					$status = '<button class="btn btn-warning btn-xs">' . get_phrase('over_paid') . '</button>';
+					//$payment_text = 'View Receipts';
+				} else {
+					$status = '<button class="btn btn-danger btn-xs">' . get_phrase('unpaid') . '</button>';
+
+					//$payment_text = 'Take Payment';
+				}
+
+				$payment_option = '<li><a href="#" onclick="invoice_pay_modal('.$student_id.')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a></li><li class="divider"></li><li><a href="#" onclick="view_receipts_modal('.$student_id.')" style="color: #d803f8;"><i class="entypo-eye"></i>&nbsp;View Receipts</a></li><li class="divider"></li>';
+
+				$bulk_invoice_sel = '
+                        <input type="checkbox" class="checkbox" onclick="boxChecked()" name="invoices_sel[]" value="' . $row->invoice_code . '">
+
+                        ';
+
+				$options = '<div class="btn-group">'.get_action_button().'<ul class="dropdown-menu dropdown-default pull-right" role="menu">' . $payment_option . '<li><a href="#" onclick="invoice_view_modal(\''.$in_code.'\')" style="color: blue;"><i class="entypo-credit-card"></i>&nbsp;' . get_phrase('view_invoice') . '</a></li><li class="divider"></li>
+
+                                    <li><a href="#" onclick="bulk_invoice_view_modal(' . $student_id . ')" style="color: black;"><i class="entypo-credit-card"></i>&nbsp;' . get_phrase('view_bulk_invoice') . '</a></li><li class="divider"></li>
+
+                                    <li><a href="#" onclick="invoice_edit_modal(\''.$in_code.'\')" style="color: green;"><i class="entypo-pencil"></i>&nbsp;' . get_phrase('edit') . '</a></li><li class="divider"></li><li><a href="#" onclick="invoice_delete_confirm(\''.$in_code.'\')" style="color: red;"><i class="entypo-trash"></i>&nbsp;' . get_phrase('delete') . '</a></li></ul></div>';
+				$nestedData['checked'] = $bulk_invoice_sel;
+				$nestedData['invoice_code'] = $row->invoice_code;
+				$nestedData['student'] = $this->crud_model->get_type_name_by_id('student', $student_id);
+				$nestedData['class'] = $student_class;
+				$nestedData['term'] = '<strong>' . explode('-', $year)[1] . '|' . $term . '</strong>';
+				$nestedData['total'] = '<strong>' . numfmt_format_currency($fmt, $total_amount, $currency) . '</strong>';
+				$nestedData['paid'] = '<strong>' . numfmt_format_currency($fmt, $amount_paid, $currency) . '</strong>';
+				$nestedData['status'] = $status;
+				$nestedData['date'] = date('d M, Y', $creation_timestamp);
+				$nestedData['options'] = $options;
+				$nestedData['invoice_id'] = $row->invoice_id;
+
+				$data[] = $nestedData;
+
+			}
+		}
+
+		$json_data = array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"data" => $data,
+		);
+
+		echo json_encode($json_data);
+	}
+
+	function get_payments() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		//currency
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		$fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
+
+		$columns = array(
+			0 => 'payment_id',
+			1 => 'title',
+			2 => 'description',
+			3 => 'payment_method',
+			4 => 'amount',
+			5 => 'date',
+			6 => 'options',
+			7 => 'payment_id',
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->ajaxload->all_payments_count();
+		$totalFiltered = $totalData;
+
+		if (empty($this->input->post('search')['value'])) {
+			$payments = $this->ajaxload->all_payments($limit, $start, $order, $dir);
+		} else {
+			$search = $this->input->post('search')['value'];
+			$payments = $this->ajaxload->payment_search($limit, $start, $search, $order, $dir);
+			$totalFiltered = $this->ajaxload->payment_search_count($search);
+		}
+
+		$data = array();
+		$empty_inv_code_counter = 0;
+		if (!empty($payments)) {
+			foreach ($payments as $row) {
+
+				if ($row->payment_method == 1) {
+					$method = get_phrase('cash');
+				} else if ($row->payment_method == 2) {
+					$method = get_phrase('cheque');
+				} else if ($row->payment_method == 3) {
+					$method = get_phrase('card');
+				} else {
+					$method = 'Mobile Money';
+				}
+
+				/*if ($row->invoice_code[0] == 0 && $row->invoice_code != null) {
+					$in_code = '_' . $row->invoice_code;
+				} else if ($row->invoice_code == '' || $row->invoice_code != null) {
+					$no_invoice = 1;
+					$empty_inv_code_counter++;
+				} else {*/
+					$in_code = $row->invoice_code;
+				//}
+
+				$options = '<a href="#" class="btn btn-primary btn-sm" onclick="invoice_view_modal(' . $in_code . ')"><i class="entypo-credit-card"></i>&nbsp;' . get_phrase('view_invoice') . '</a>';
+
+				$nestedData['payment_id'] = $row->payment_id;
+				$nestedData['title'] = $row->title;
+				$nestedData['description'] = $row->description;
+				$nestedData['method'] = $method;
+				$nestedData['amount'] = numfmt_format_currency($fmt, $row->amount, $currency);
+				$nestedData['date'] = date('d M, Y', $row->timestamp);
+
+				if ($no_invoice != 1) :
+					$nestedData['options'] = $options;
+				else:
+					$nestedData['options'] = 'No Invoice';
+				endif;
+
+				$data[] = $nestedData;
+
+			}
+		}
+
+		$json_data = array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"data" => $data,
+		);
+
+		echo json_encode($json_data);
+	}
+
+	/**
+	 * Generate Student Bill Report (Single)
+	 * Shows all invoice items (NOT daily fees) with payment status
+	 */
+	function student_bill_report($student_id = '') {
+		if(empty($student_id)) {
+			show_error('Student ID is required');
+			return;
+		}
+		
+		$page_data['student_id'] = $student_id;
+		$this->load->view('backend/admin/student_bill_report', $page_data);
+	}
+
+	/**
+	 * Generate Bulk Student Bill Reports
+	 * Shows all invoice items for multiple students in one document
+	 */
+	function student_bill_report_bulk($class_id = '', $section_id = '') {
+		if(empty($class_id) || empty($section_id)) {
+			$this->session->set_flashdata('error_message', 'Class and Section are required');
+			redirect(site_url('admin/student_invoice'));
+			return;
+		}
+		
+		$class = $this->db->get_where('class', array('class_id' => $class_id))->row();
+		$section = $this->db->get_where('section', array('section_id' => $section_id))->row();
+		
+		$page_data['class_id'] = $class_id;
+		$page_data['section_id'] = $section_id;
+		$page_data['class_name'] = $class->name . ' ' . $class->name_numeric . ' ' . $section->name;
+		
+		$this->load->view('backend/admin/student_bill_report_bulk', $page_data);
+	}
+
+	function student_invoice($param1 = '', $param2 = '', $param3 = '') {
+
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		$page_data['page_name'] = 'student_payment';
+		$page_data['page_title'] = get_phrase('create_student_invoice');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	
+	// Income Dashboard
+	public function income_dashboard() {
+		if($this->session->userdata('admin_login') != 1)
+			redirect(site_url('login'), 'refresh');
+		
+		$page_data['page_name'] = 'income_dashboard';
+		$page_data['page_title'] = get_phrase('income_dashboard');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	// Get revenue sources (AJAX) - Updated to include inventory
+	public function get_revenue_sources() {
+		$year = $this->input->post('year') ?: get_settings('running_year');
+		$start_date = $this->input->post('start_date');
+		$end_date = $this->input->post('end_date');
+		
+		// 1. Billed Invoices
+		$this->db->select_sum('amount');
+		$this->db->where('payment_type', 'income');
+		$this->db->where('year', $year);
+		if($start_date) $this->db->where('day_timestamp >=', strtotime($start_date));
+		if($end_date) $this->db->where('day_timestamp <=', strtotime($end_date . ' 23:59:59'));
+		$invoices = $this->db->get('payment')->row()->amount ?? 0;
+		
+		// 2. Daily Fees
+		$this->db->select_sum('total_amount');
+		$this->db->where('year', $year);
+		if($start_date) $this->db->where('payment_date >=', strtotime($start_date));
+		if($end_date) $this->db->where('payment_date <=', strtotime($end_date . ' 23:59:59'));
+		$daily_fees = $this->db->get('daily_fee_transactions')->row()->total_amount ?? 0;
+		
+		// 3. Inventory Sales
+		$this->load->model('Inventory_model');
+		$inventory_sales = $this->Inventory_model->get_total_sales_revenue($start_date, $end_date);
+		
+		echo json_encode([
+			'status' => 'success',
+			'labels' => ['Billed Invoices', 'Daily Fees', 'Inventory Sales'],
+			'values' => [$invoices, $daily_fees, $inventory_sales]
+		]);
+	}
+
+	// Get income stats (AJAX)
+	public function get_income_stats() {
+		$year = $this->input->post('year') ?: get_settings('running_year');
+		$selected_month = $this->input->post('month') ?: date('n');
+		$selected_year = $this->input->post('academic_year') ?: $year;
+		
+		// Total revenue from all 3 sources
+		$invoices = $this->db->select_sum('amount')->where('payment_type', 'income')->where('year', $year)->get('payment')->row()->amount ?? 0;
+		$daily_fees = $this->db->select_sum('total_amount')->where('year', $year)->get('daily_fee_transactions')->row()->total_amount ?? 0;
+		
+		$this->load->model('Inventory_model');
+		$inventory = $this->Inventory_model->get_total_sales_revenue();
+		
+		$total = $invoices + (floatval($daily_fees) + floatval($inventory));
+		
+		// Selected month
+		$month_start = strtotime(date('Y').'-'.str_pad($selected_month, 2, '0', STR_PAD_LEFT).'-01');
+		$month_end = strtotime(date('Y-m-t', $month_start));
+		
+		$this->db->select_sum('amount');
+		$this->db->where('payment_type', 'income');
+		$this->db->where('year', $year);
+		$this->db->where('day_timestamp >=', $month_start);
+		$this->db->where('day_timestamp <=', $month_end + 86399);
+		$month_invoices = $this->db->get('payment')->row()->amount ?? 0;
+		
+		$this->db->select_sum('total_amount');
+		$this->db->where('year', $year);
+		$this->db->where('payment_date >=', $month_start);
+		$this->db->where('payment_date <=', $month_end);
+		$month_daily = $this->db->get('daily_fee_transactions')->row()->total_amount ?? 0;
+		
+		$month_inventory = $this->Inventory_model->get_total_sales_revenue(date('Y-m-d', $month_start), date('Y-m-d', $month_end));
+		$month = $month_invoices + (floatval($month_daily) + floatval($month_inventory));
+		
+		// Selected month transaction count
+		$month_count = $this->db->where('payment_type', 'income')
+			->where('year', $year)
+			->where('day_timestamp >=', $month_start)
+			->where('day_timestamp <=', $month_end + 86399)
+			->count_all_results('payment');
+		
+		$month_count += $this->db->where('year', $year)
+			->where('payment_date >=', $month_start)
+			->where('payment_date <=', $month_end)
+			->count_all_results('daily_fee_transactions');
+		
+		// Outstanding invoices
+		$this->db->select_sum('due');
+		$this->db->where('year', $year);
+		$this->db->where('status', 'unpaid');
+		$outstanding = $this->db->get('invoice')->row()->due ?? 0;
+		
+		$outstanding_count = $this->db->where('year', $year)
+			->where('status', 'unpaid')
+			->count_all_results('invoice');
+		
+		// Selected academic year total
+		$year_invoices = $this->db->select_sum('amount')
+			->where('payment_type', 'income')
+			->where('year', $selected_year)
+			->get('payment')->row()->amount ?? 0;
+		
+		$year_daily = $this->db->select_sum('total_amount')
+			->where('year', $selected_year)
+			->get('daily_fee_transactions')->row()->total_amount ?? 0;
+		
+		$year_inventory = $this->Inventory_model->get_total_sales_revenue();
+		$year_total = $year_invoices + (floatval($year_daily) + floatval($year_inventory));
+		
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		
+		echo json_encode([
+			'status' => 'success',
+			'total' => $total,
+			'month' => $month,
+			'outstanding' => $outstanding,
+			'year_total' => $year_total,
+			'month_count' => $month_count,
+			'outstanding_count' => $outstanding_count,
+			'change_percent' => 0,
+			'currency' => $currency
+		]);
+	}
+
+	// Get Income Trend (All 3 sources)
+	function get_income_trend() {
+		$year = $this->input->get('year') ?? date('Y');
+		$labels = [];
+		$values = [];
+		
+		$this->load->model('Inventory_model');
+		
+		for($m = 1; $m <= 12; $m++) {
+			$labels[] = date('M', mktime(0, 0, 0, $m, 1));
+			$start = strtotime($year . '-' . str_pad($m, 2, '0', STR_PAD_LEFT) . '-01');
+			$end = strtotime(date('Y-m-t', $start));
+			
+			// Invoices
+			$invoices = $this->db->select_sum('amount')
+				->where('payment_type', 'income')
+				->where('day_timestamp >=', $start)
+				->where('day_timestamp <=', $end + 86399)
+				->get('payment')->row()->amount ?? 0;
+			
+			// Daily Fees
+			$daily = $this->db->select_sum('total_amount')
+				->where('payment_date >=', $start)
+				->where('payment_date <=', $end)
+				->get('daily_fee_transactions')->row()->total_amount ?? 0;
+			
+			// Inventory
+			$inventory = $this->Inventory_model->get_total_sales_revenue(
+				date('Y-m-d', $start), 
+				date('Y-m-d', $end)
+			);
+			
+			$values[] = floatval($invoices + $daily + $inventory);
+		}
+		
+		echo json_encode(['labels' => $labels, 'values' => $values]);
+	}
+
+
+	// Get Revenue Breakdown
+	function get_revenue_breakdown() {
+		$year = $this->input->get('year') ?: get_settings('running_year');
+		$period = $this->input->get('period') ?? 'month';
+		
+		if($period == 'month') {
+			$start = strtotime(date('Y-m-01'));
+			$end = strtotime(date('Y-m-t'));
+		} elseif($period == 'quarter') {
+			$start = strtotime(date('Y-m-01', strtotime('-3 months')));
+			$end = time();
+		} else {
+			$start = strtotime(date('Y-01-01'));
+			$end = time();
+		}
+		
+		$result = [
+			['source' => 'School Fees', 'amount' => 0, 'count' => 0],
+			['source' => 'Daily Fees', 'amount' => 0, 'count' => 0],
+			['source' => 'Other Income', 'amount' => 0, 'count' => 0]
+		];
+		
+		$total = array_sum(array_column($result, 'amount'));
+		
+		foreach($result as &$row) {
+			$row['percent'] = $total > 0 ? round(($row['amount'] / $total) * 100, 1) : 0;
+		}
+		
+		echo json_encode($result);
+	}
+
+	// Get Income Report Data (JSON)
+	function get_income_report_data() {
+		$period = $this->input->get('period') ?? 'month';
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		
+		if($period == 'month') {
+			$start = strtotime(date('Y-m-01'));
+			$end = strtotime(date('Y-m-t'));
+			$title = 'Income_Report_' . date('F_Y');
+		} elseif($period == 'quarter') {
+			$start = strtotime(date('Y-m-01', strtotime('-3 months')));
+			$end = time();
+			$title = 'Income_Report_Quarterly';
+		} else {
+			$start = strtotime(date('Y-01-01'));
+			$end = time();
+			$title = 'Income_Report_' . date('Y');
+		}
+		
+		$this->db->select('p.*, s.name as student_name')
+			->from('payment p')
+			->join('student s', 's.student_id = p.student_id', 'left')
+			->where('p.payment_type', 'income')
+			->where('p.timestamp >=', $start)
+			->where('p.timestamp <=', $end)
+			->order_by('p.timestamp', 'DESC');
+		
+		$payments = $this->db->get()->result_array();
+		
+		$data = [];
+		foreach($payments as $p) {
+			$data[] = [
+				'Date' => date('d-m-Y', $p['timestamp']),
+				'Student' => $p['student_name'] ?? 'N/A',
+				'Title' => $p['title'],
+				'Amount' => number_format($p['amount'], 2)
+			];
+		}
+		
+		echo json_encode(['status' => 'success', 'data' => $data, 'title' => $title, 'currency' => $currency]);
+	}
+
+	// Expenditure Dashboard
+	function expenditure_dashboard() {
+		$page_data['page_name'] = 'expenditure_dashboard';
+		$page_data['page_title'] = get_phrase('expenditure_dashboard');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	// Get Expenditure Statistics
+	function get_expenditure_stats() {
+		$selected_month = $this->input->post('month') ?: date('n');
+		$selected_year = $this->input->post('year') ?: get_settings('running_year');
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		
+		// Total expenditure
+		$total = $this->db->select_sum('amount')
+			->where('payment_type', 'expense')
+			->get('payment')->row()->amount ?? 0;
+		
+		// Selected month
+		$month_start = strtotime(date('Y').'-'.str_pad($selected_month, 2, '0', STR_PAD_LEFT).'-01');
+		$month_end = strtotime(date('Y-m-t', $month_start));
+		$month = $this->db->select_sum('amount')
+			->where('payment_type', 'expense')
+			->where('day_timestamp >=', $month_start)
+			->where('day_timestamp <=', $month_end + 86399)
+			->get('payment')->row()->amount ?? 0;
+		
+		$month_count = $this->db->where('payment_type', 'expense')
+			->where('day_timestamp >=', $month_start)
+			->where('day_timestamp <=', $month_end + 86399)
+			->count_all_results('payment');
+		
+		// Last month for comparison
+		$last_month_start = strtotime(date('Y-m-01', strtotime('-1 month')));
+		$last_month_end = strtotime(date('Y-m-t', strtotime('-1 month')));
+		$last_month = $this->db->select_sum('amount')
+			->where('payment_type', 'expense')
+			->where('day_timestamp >=', $last_month_start)
+			->where('day_timestamp <=', $last_month_end + 86399)
+			->get('payment')->row()->amount ?? 0;
+		
+		$change_percent = $last_month > 0 ? round((($month - $last_month) / $last_month) * 100, 1) : 0;
+		
+		// Selected academic year total (year field in payment table stores academic year like 2022-2023)
+		$year_total = $this->db->select_sum('amount')
+			->where('payment_type', 'expense')
+			->where('year', $selected_year)
+			->get('payment')->row()->amount ?? 0;
+		
+		// Total expense count
+		$expense_count = $this->db->where('payment_type', 'expense')
+			->count_all_results('payment');
+		
+		echo json_encode([
+			'total' => $total,
+			'month' => $month,
+			'month_count' => $month_count,
+			'change_percent' => $change_percent,
+			'year_total' => $year_total,
+			'expense_count' => $expense_count,
+			'currency' => $currency
+		]);
+	}
+
+	// Get Expenditure Trend
+	function get_expenditure_trend() {
+		$year = $this->input->get('year') ?? date('Y');
+		$labels = [];
+		$values = [];
+		
+		for($m = 1; $m <= 12; $m++) {
+			$labels[] = date('M', mktime(0, 0, 0, $m, 1));
+			$start = strtotime($year . '-' . str_pad($m, 2, '0', STR_PAD_LEFT) . '-01');
+			$end = strtotime(date('Y-m-t', $start));
+			
+			$amount = $this->db->select_sum('amount')
+				->where('payment_type', 'expense')
+				->where('day_timestamp >=', $start)
+				->where('day_timestamp <=', $end)
+				->get('payment')->row()->amount ?? 0;
+			
+			$values[] = floatval($amount);
+		}
+		
+		echo json_encode(['labels' => $labels, 'values' => $values]);
+	}
+
+	// Get Category Breakdown
+	function get_category_breakdown() {
+		$this->db->select('ec.name, SUM(p.amount) as total')
+			->from('payment p')
+			->join('expense_category ec', 'ec.expense_category_id = p.expense_category_id')
+			->where('p.payment_type', 'expense')
+			->group_by('p.expense_category_id')
+			->order_by('total', 'DESC')
+			->limit(6);
+		
+		$result = $this->db->get()->result_array();
+		$labels = [];
+		$values = [];
+		
+		foreach($result as $row) {
+			$labels[] = $row['name'];
+			$values[] = floatval($row['total']);
+		}
+		
+		echo json_encode(['labels' => $labels, 'values' => $values]);
+	}
+
+	// Get Top Categories
+	function get_top_categories() {
+		$period = $this->input->get('period') ?? 'month';
+		
+		if($period == 'month') {
+			$start = strtotime(date('Y-m-01'));
+			$end = strtotime(date('Y-m-t'));
+		} elseif($period == 'quarter') {
+			$start = strtotime(date('Y-m-01', strtotime('-3 months')));
+			$end = time();
+		} else {
+			$start = strtotime(date('Y-01-01'));
+			$end = time();
+		}
+		
+		$this->db->select('ec.name as category, SUM(p.amount) as amount, COUNT(*) as count')
+			->from('payment p')
+			->join('expense_category ec', 'ec.expense_category_id = p.expense_category_id')
+			->where('p.payment_type', 'expense')
+			->where('p.day_timestamp >=', $start)
+			->where('p.day_timestamp <=', $end)
+			->group_by('p.expense_category_id')
+			->order_by('amount', 'DESC')
+			->limit(10);
+		
+		$result = $this->db->get()->result_array();
+		$total = array_sum(array_column($result, 'amount'));
+		
+		foreach($result as &$row) {
+			$row['percent'] = $total > 0 ? round(($row['amount'] / $total) * 100, 1) : 0;
+		}
+		
+		echo json_encode($result);
+	}
+
+	// Get Expenditure Report Data (JSON)
+	function get_expenditure_report_data() {
+		$period = $this->input->get('period') ?? 'month';
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		
+		if($period == 'month') {
+			$start = strtotime(date('Y-m-01'));
+			$end = strtotime(date('Y-m-t'));
+			$title = 'Expenditure_Report_' . date('F_Y');
+		} elseif($period == 'quarter') {
+			$start = strtotime(date('Y-m-01', strtotime('-3 months')));
+			$end = time();
+			$title = 'Expenditure_Report_Quarterly';
+		} else {
+			$start = strtotime(date('Y-01-01'));
+			$end = time();
+			$title = 'Expenditure_Report_' . date('Y');
+		}
+		
+		$this->db->select('p.*, ec.name as category_name')
+			->from('payment p')
+			->join('expense_category ec', 'ec.expense_category_id = p.expense_category_id', 'left')
+			->where('p.payment_type', 'expense')
+			->where('p.day_timestamp >=', $start)
+			->where('p.day_timestamp <=', $end)
+			->order_by('p.day_timestamp', 'DESC');
+		
+		$expenses = $this->db->get()->result_array();
+		
+		$data = [];
+		foreach($expenses as $e) {
+			$data[] = [
+				'Date' => date('d-m-Y', $e['day_timestamp']),
+				'Category' => $e['category_name'] ?? 'N/A',
+				'Title' => $e['title'],
+				'Amount' => number_format($e['amount'], 2)
+			];
+		}
+		
+		echo json_encode(['status' => 'success', 'data' => $data, 'title' => $title, 'currency' => $currency]);
+	}
+
+	// Generate Expenditure Report
+	function generate_expenditure_report($type = 'monthly') {
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		
+		if($type == 'monthly') {
+			$start = strtotime(date('Y-m-01'));
+			$end = strtotime(date('Y-m-t'));
+			$title = 'Monthly Expenditure Report - ' . date('F Y');
+		} elseif($type == 'quarterly') {
+			$start = strtotime(date('Y-m-01', strtotime('-3 months')));
+			$end = time();
+			$title = 'Quarterly Expenditure Report';
+		} elseif($type == 'annual') {
+			$start = strtotime(date('Y-01-01'));
+			$end = strtotime(date('Y-12-31'));
+			$title = 'Annual Expenditure Report - ' . date('Y');
+		} elseif($type == 'category') {
+			$start = strtotime(date('Y-m-01'));
+			$end = strtotime(date('Y-m-t'));
+			$title = 'Category-wise Expenditure Report';
+		} elseif($type == 'payment_method') {
+			$start = strtotime(date('Y-m-01'));
+			$end = strtotime(date('Y-m-t'));
+			$title = 'Payment Method Analysis Report';
+		} else {
+			$start = strtotime(date('Y-m-01'));
+			$end = strtotime(date('Y-m-t'));
+			$title = 'Budget vs Actual Report';
+		}
+		
+		$this->db->select('p.*, ec.name as category_name')
+			->from('payment p')
+			->join('expense_category ec', 'ec.expense_category_id = p.expense_category_id', 'left')
+			->where('p.payment_type', 'expense')
+			->where('p.day_timestamp >=', $start)
+			->where('p.day_timestamp <=', $end)
+			->order_by('p.day_timestamp', 'DESC');
+		
+		$expenses = $this->db->get()->result_array();
+		
+		header('Content-Type: text/csv');
+		header('Content-Disposition: attachment; filename="' . str_replace(' ', '_', $title) . '.csv"');
+		
+		$output = fopen('php://output', 'w');
+		fputcsv($output, ['Date', 'Title', 'Category', 'Amount (' . $currency . ')', 'Payment Method', 'Description']);
+		
+		$payment_methods = [1 => 'Cash', 2 => 'Cheque', 3 => 'Mobile Money', 4 => 'Bank Transfer'];
+		
+		foreach($expenses as $exp) {
+			fputcsv($output, [
+				date('d-m-Y', $exp['day_timestamp']),
+				$exp['title'],
+				$exp['category_name'] ?? 'N/A',
+				number_format($exp['amount'], 2),
+				$payment_methods[$exp['payment_method']] ?? 'N/A',
+				$exp['description'] ?? ''
+			]);
+		}
+		
+		fclose($output);
+		exit;
+	}
+
+	// Generate Custom Expenditure Report
+	function generate_custom_expenditure_report() {
+		$report_type = $this->input->get('report_type');
+		$date_range = $this->input->get('date_range');
+		$category = $this->input->get('category');
+		$payment_method = $this->input->get('payment_method');
+		$format = $this->input->get('format');
+		
+		if($date_range == 'today') {
+			$start = strtotime(date('Y-m-d'));
+			$end = strtotime(date('Y-m-d') . ' 23:59:59');
+		} elseif($date_range == 'week') {
+			$start = strtotime('monday this week');
+			$end = time();
+		} elseif($date_range == 'month') {
+			$start = strtotime(date('Y-m-01'));
+			$end = strtotime(date('Y-m-t'));
+		} elseif($date_range == 'quarter') {
+			$start = strtotime(date('Y-m-01', strtotime('-3 months')));
+			$end = time();
+		} elseif($date_range == 'year') {
+			$start = strtotime(date('Y-01-01'));
+			$end = time();
+		} else {
+			$start_date = $this->input->get('start_date');
+			$end_date = $this->input->get('end_date');
+			$start = strtotime(str_replace('-', '/', $start_date));
+			$end = strtotime(str_replace('-', '/', $end_date));
+		}
+		
+		$this->db->select('p.*, ec.name as category_name')
+			->from('payment p')
+			->join('expense_category ec', 'ec.expense_category_id = p.expense_category_id', 'left')
+			->where('p.payment_type', 'expense')
+			->where('p.day_timestamp >=', $start)
+			->where('p.day_timestamp <=', $end);
+		
+		if(!empty($category)) {
+			$this->db->where('p.expense_category_id', $category);
+		}
+		
+		if(!empty($payment_method)) {
+			$this->db->where('p.payment_method', $payment_method);
+		}
+		
+		$this->db->order_by('p.day_timestamp', 'DESC');
+		$expenses = $this->db->get()->result_array();
+		
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		
+		header('Content-Type: text/csv');
+		header('Content-Disposition: attachment; filename="Custom_Expenditure_Report_' . date('Y-m-d') . '.csv"');
+		
+		$output = fopen('php://output', 'w');
+		fputcsv($output, ['Date', 'Title', 'Category', 'Amount (' . $currency . ')', 'Payment Method', 'Description']);
+		
+		$payment_methods = [1 => 'Cash', 2 => 'Cheque', 3 => 'Mobile Money', 4 => 'Bank Transfer'];
+		
+		foreach($expenses as $exp) {
+			fputcsv($output, [
+				date('d-m-Y', $exp['day_timestamp']),
+				$exp['title'],
+				$exp['category_name'] ?? 'N/A',
+				number_format($exp['amount'], 2),
+				$payment_methods[$exp['payment_method']] ?? 'N/A',
+				$exp['description'] ?? ''
+			]);
+		}
+		
+		fclose($output);
+		exit;
+	}
+
+	// Expenditure Reports Page
+	function expenditure_reports() {
+		$page_data['page_name'] = 'expenditure_reports';
+		$page_data['page_title'] = get_phrase('expenditure_reports');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+
+	// Get Custom Expenditure Report Data (JSON)
+	function get_custom_expenditure_report_data() {
+		$report_type = $this->input->post('report_type');
+		$date_range = $this->input->post('date_range');
+		$category = $this->input->post('category');
+		$payment_method = $this->input->post('payment_method');
+		
+		if($date_range == 'today') {
+			$start = strtotime(date('Y-m-d'));
+			$end = strtotime(date('Y-m-d') . ' 23:59:59');
+		} elseif($date_range == 'week') {
+			$start = strtotime('monday this week');
+			$end = time();
+		} elseif($date_range == 'month') {
+			$start = strtotime(date('Y-m-01'));
+			$end = strtotime(date('Y-m-t'));
+		} elseif($date_range == 'quarter') {
+			$start = strtotime(date('Y-m-01', strtotime('-3 months')));
+			$end = time();
+		} elseif($date_range == 'year') {
+			$start = strtotime(date('Y-01-01'));
+			$end = time();
+		} else {
+			$start_date = $this->input->post('start_date');
+			$end_date = $this->input->post('end_date');
+			$start = strtotime(str_replace('-', '/', $start_date));
+			$end = strtotime(str_replace('-', '/', $end_date));
+		}
+		
+		$this->db->select('p.*, ec.name as category_name')
+			->from('payment p')
+			->join('expense_category ec', 'ec.expense_category_id = p.expense_category_id', 'left')
+			->where('p.payment_type', 'expense')
+			->where('p.day_timestamp >=', $start)
+			->where('p.day_timestamp <=', $end);
+		
+		if(!empty($category)) {
+			$this->db->where('p.expense_category_id', $category);
+		}
+		
+		if(!empty($payment_method)) {
+			$this->db->where('p.payment_method', $payment_method);
+		}
+		
+		$this->db->order_by('p.day_timestamp', 'DESC');
+		$expenses = $this->db->get()->result_array();
+		
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		$payment_methods = [1 => 'Cash', 2 => 'Cheque', 3 => 'Mobile Money', 4 => 'Bank Transfer'];
+		
+		$data = [];
+		foreach($expenses as $exp) {
+			$data[] = [
+				'Date' => date('d-m-Y', $exp['day_timestamp']),
+				'Title' => $exp['title'],
+				'Category' => $exp['category_name'] ?? 'N/A',
+				'Amount (' . $currency . ')' => number_format($exp['amount'], 2),
+				'Payment Method' => $payment_methods[$exp['payment_method']] ?? 'N/A',
+				'Description' => $exp['description'] ?? ''
+			];
+		}
+		
+		$title = 'Custom Expenditure Report - ' . date('Y-m-d');
+		echo json_encode(['status' => 'success', 'data' => $data, 'title' => $title]);
+	}
+
+	function expense($param1 = '', $param2 = '') {
+
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		if ($param1 == 'create') {
+			$data['title'] = strtoupper($this->input->post('title'));
+			$data['expense_category_id'] = $this->input->post('expense_category_id');
+			$data['payment_type'] = 'expense';
+			$data['payment_method'] = $this->input->post('method');
+			$data['amount'] = $this->input->post('amount');
+			$selected_date = strtotime($this->input->post('timestamp'));
+			$data['timestamp'] = $selected_date;  // Use selected date instead of current time
+			$data['day_timestamp'] = $selected_date;
+
+			$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+			if ($this->input->post('description') != null) {
+				$data['description'] = $this->input->post('description');
+			}
+			$this->db->insert('payment', $data);
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_added_successfully'));
+			redirect(site_url('admin/expense'));
+		}
+
+		if ($param1 == 'edit') {
+			$data['title'] = strtoupper($this->input->post('title'));
+			$data['expense_category_id'] = $this->input->post('expense_category_id');
+			$data['payment_type'] = 'expense';
+			$data['payment_method'] = $this->input->post('method');
+			$data['amount'] = $this->input->post('amount');
+			$selected_date = strtotime($this->input->post('timestamp'));
+			$data['timestamp'] = $selected_date;  // Use selected date instead of current time
+			$data['day_timestamp'] = $selected_date;
+
+			$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+
+			$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+			if ($this->input->post('description') != null) {
+				$data['description'] = $this->input->post('description');
+			} else {
+				$data['description'] = null;
+			}
+			$this->db->where('payment_id', $param2);
+			$this->db->update('payment', $data);
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_updated'));
+			redirect(site_url('admin/expense'));
+		}
+
+		if ($param1 == 'delete') {
+			$this->db->where('payment_id', $param2);
+			$this->db->delete('payment');
+
+			$ajax_data['message'] = 'done';
+      $ajax_data['route'] = 'expense';
+
+      echo json_encode($ajax_data);
+      return false;
+		}
+
+		$page_data['page_name'] = 'expense';
+		$page_data['page_title'] = get_phrase('expenses');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	// Bulk Expense Creation Modal
+	function expense_bulk_add() {
+		$this->load->view('backend/admin/expense_bulk_add');
+	}
+
+	// AJAX Expense Edit
+	function expense_edit_ajax() {
+		$payment_id = $this->input->post('payment_id');
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		$fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
+		
+		$data['title'] = strtoupper($this->input->post('title'));
+		$data['expense_category_id'] = $this->input->post('expense_category_id');
+		$data['payment_type'] = 'expense';
+		$data['payment_method'] = $this->input->post('method');
+		$data['amount'] = $this->input->post('amount');
+		$data['day_timestamp'] = strtotime($this->input->post('timestamp'));
+		$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$data['term'] = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		
+		if ($this->input->post('description') != null) {
+			$data['description'] = $this->input->post('description');
+		} else {
+			$data['description'] = null;
+		}
+		
+		$this->db->where('payment_id', $payment_id);
+		$this->db->update('payment', $data);
+		
+		// Get total expenses for display
+		$totalExpenses = $this->ajaxload->all_expenses_total();
+		
+		echo json_encode([
+			'status' => 'success',
+			'message' => get_phrase('expense_updated_successfully'),
+			'totalExpenses' => numfmt_format_currency($fmt, $totalExpenses, $currency)
+		]);
+	}
+
+	// Bulk Expense Creation
+	function expense_bulk_create() {
+		$expenses = $this->input->post('expenses');
+		
+		if(empty($expenses)) {
+			echo json_encode(['status' => 'error', 'message' => get_phrase('no_expenses_provided')]);
+			return;
+		}
+		
+		$year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		
+		$this->db->trans_start();
+		
+		foreach($expenses as $expense) {
+			$selected_timestamp = strtotime($expense['date']);
+			$data = array(
+				'title' => strtoupper($expense['title']),
+				'expense_category_id' => $expense['category_id'],
+				'payment_type' => 'expense',
+				'payment_method' => $expense['payment_method'],
+				'amount' => $expense['amount'],
+				'timestamp' => $selected_timestamp,  // Use selected date instead of current time
+				'day_timestamp' => $selected_timestamp,
+				'year' => $year,
+				'term' => $term,
+				'description' => !empty($expense['description']) ? $expense['description'] : null
+			);
+			
+			$this->db->insert('payment', $data);
+		}
+		
+		$this->db->trans_complete();
+		
+		if($this->db->trans_status() === FALSE) {
+			echo json_encode(['status' => 'error', 'message' => get_phrase('operation_failed')]);
+		} else {
+			$this->db->cache_delete();
+			echo json_encode(['status' => 'success', 'message' => get_phrase('expenses_created_successfully')]);
+		}
+	}
+
+	// Bulk Expense Edit Modal
+	function expense_bulk_edit() {
+		$start_date = $this->input->get('start_date');
+		$end_date = $this->input->get('end_date');
+		
+		$this->db->where('payment_type', 'expense');
+		if($start_date && $end_date) {
+			$this->db->where('day_timestamp >=', strtotime($start_date));
+			$this->db->where('day_timestamp <=', strtotime($end_date));
+		}
+		$this->db->order_by('day_timestamp', 'DESC');
+		$this->db->limit(50);
+		$page_data['expenses'] = $this->db->get('payment')->result_array();
+		$page_data['categories'] = $this->db->get('expense_category')->result_array();
+		
+		$this->load->view('backend/admin/expense_bulk_edit', $page_data);
+	}
+
+	// Bulk Expense Update
+	function expense_bulk_update() {
+		$expenses = $this->input->post('expenses');
+		
+		if(empty($expenses)) {
+			echo json_encode(['status' => 'error', 'message' => get_phrase('no_expenses_provided')]);
+			return;
+		}
+		
+		$this->db->trans_start();
+		
+		foreach($expenses as $expense) {
+			$data = array(
+				'title' => strtoupper($expense['title']),
+				'expense_category_id' => $expense['category_id'],
+				'payment_method' => $expense['payment_method'],
+				'amount' => $expense['amount'],
+				'day_timestamp' => strtotime($expense['date']),
+				'description' => !empty($expense['description']) ? $expense['description'] : null
+			);
+			
+			$this->db->where('payment_id', $expense['id']);
+			$this->db->update('payment', $data);
+		}
+		
+		$this->db->trans_complete();
+		
+		if($this->db->trans_status() === FALSE) {
+			echo json_encode(['status' => 'error', 'message' => get_phrase('operation_failed')]);
+		} else {
+			$this->db->cache_delete();
+			echo json_encode(['status' => 'success', 'message' => get_phrase('expenses_updated_successfully')]);
+		}
+	}
+
+	// Bulk Expense Delete
+	function expense_bulk_delete() {
+		$ids = $this->input->post('ids');
+		
+		if(empty($ids)) {
+			echo json_encode(['status' => 'error', 'message' => get_phrase('no_expenses_selected')]);
+			return;
+		}
+		
+		$this->db->trans_start();
+		$this->db->where_in('payment_id', $ids);
+		$this->db->delete('payment');
+		$this->db->trans_complete();
+		
+		if($this->db->trans_status() === FALSE) {
+			echo json_encode(['status' => 'error', 'message' => get_phrase('operation_failed')]);
+		} else {
+			$this->db->cache_delete();
+			echo json_encode(['status' => 'success', 'message' => count($ids) . ' ' . get_phrase('expenses_deleted_successfully')]);
+		}
+	}
+
+	function get_expenses($ajax = '', $start_date = '', $end_date = '', $payment_method = '') {
+
+		/*if($ajax == 'ajax') {
+
+			$timestamp1 = strtotime($start_date);
+			$timestamp2 = strtotime($end_date);
+
+			if($start_date > $end_date) {
+				//error
+				$errData['title'] = 'Start date must not be greater than end date!';
+				$ajaxErrorData = array(
+					'data' => $errData
+				);
+
+				echo json_encode($ajaxErrorData);
+				return;
+			}
+		}*/
+		
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		//currency
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+		$fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
+
+		$columns = array(
+			0 => 'payment_id',
+			1 => 'title',
+			2 => 'year',
+			3 => 'category',
+			4 => 'payment_method',
+			5 => 'amount',
+			6 => 'date',
+			7 => 'options',
+			8 => 'payment_id',
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->ajaxload->all_expenses_count();
+		$totalFiltered = $totalData;
+
+		if (empty($this->input->post('search')['value'])) {
+
+			if($ajax == 'ajax') {
+				$expenses = $this->ajaxload->all_expenses_reload($limit, $start, $order, $dir, $start_date, $end_date, $payment_method);
+			} else {
+
+				$expenses = $this->ajaxload->all_expenses($limit, $start, $order, $dir);
+			}
+			
+		} else {
+			$search = $this->input->post('search')['value'];
+			$expenses = $this->ajaxload->expense_search($limit, $start, $search, $order, $dir);
+			$totalFiltered = $this->ajaxload->expense_search_count($search);
+		}
+
+		$data = array();
+		$totalExpenses = 0;
+
+		// Calculate total expenses from ALL records, not just current page
+		if($ajax == 'ajax') {
+			$totalExpenses = $this->ajaxload->all_expenses_total_reload($start_date, $end_date, $payment_method);
+		} else {
+			$totalExpenses = $this->ajaxload->all_expenses_total();
+		}
+
+		if (!empty($expenses)) {
+			foreach ($expenses as $row) {
+				$category_row = $this->db->get_where('expense_category', array('expense_category_id' => $row->expense_category_id))->row();
+				$category = $category_row ? $category_row->name : 'N/A';
+				
+				// Simple inline action buttons
+				$options = '<div style="text-align:center;">
+					<a href="javascript:;" onclick="expense_edit_modal(' . $row->payment_id . ')" class="btn btn-sm btn-primary" style="margin-right:5px;">
+						<i class="fa fa-edit"></i><span class="btn-text"> Edit</span>
+					</a>
+					<a href="javascript:;" onclick="expense_delete_confirm(' . $row->payment_id . ')" class="btn btn-sm btn-danger">
+						<i class="fa fa-trash"></i><span class="btn-text"> Delete</span>
+					</a>
+				</div>';
+
+				//$nestedData['payment_id'] = $row->payment_id;
+				$nestedData['title'] = $row->title;
+				$nestedData['year'] = $row->year . ' | Term ' . $row->term;
+				$nestedData['category'] = $category;
+				
+				// Convert payment method to readable name
+				$method_names = array(
+					'1' => 'Cash',
+					'2' => 'Cheque',
+					'3' => 'Card',
+					'4' => 'Mobile Money',
+					'Cash' => 'Cash',
+					'Cheque' => 'Cheque',
+					'Card' => 'Card',
+					'Mobile Money' => 'Mobile Money'
+				);
+				$nestedData['payment_method'] = isset($method_names[$row->payment_method]) ? $method_names[$row->payment_method] : $row->payment_method;
+				
+				// Format amount without currency symbol, just the number
+				$nestedData['amount'] = '<div style="text-align:right;">' . number_format($row->amount, 2) . '</div>';
+				$nestedData['date'] = date('d M, Y', $row->timestamp);
+				$nestedData['options'] = $options;
+
+				$data[] = $nestedData;
+			}
+		}
+
+		$json_data = array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"data" => $data,
+			"totalExpenses" => numfmt_format_currency($fmt, $totalExpenses, $currency)
+		);
+
+		echo json_encode($json_data);
+	}
+
+	function expense_category($param1 = '', $param2 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		if ($param1 == 'create') {
+			$data['name'] = $this->input->post('name');
+			$this->db->insert('expense_category', $data);
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_added_successfully'));
+			redirect(site_url('admin/expense_category'));
+		}
+		if ($param1 == 'edit') {
+			$data['name'] = $this->input->post('name');
+			$this->db->where('expense_category_id', $param2);
+			$this->db->update('expense_category', $data);
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_updated'));
+			redirect(site_url('admin/expense_category'));
+		}
+		if ($param1 == 'delete') {
+			$this->db->where('expense_category_id', $param2);
+			$this->db->delete('expense_category');
+
+			$ajax_data['message'] = 'done';
+      $ajax_data['route'] = 'expense_category';
+
+      echo json_encode($ajax_data);
+      return false;
+		}
+
+		$page_data['page_name'] = 'expense_category';
+		$page_data['page_title'] = get_phrase('expense_category');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+		
+	// ============================================
+	// GET CATEGORIES (AJAX)
+	// ============================================
+	public function get_expense_categories()
+	{
+		try {
+			$categories = $this->db->get('expense_category')->result_array();
+			
+			// Add counts for each category
+			foreach($categories as &$cat) {
+				// Count expenses in this category
+				$cat['expense_count'] = $this->db->where('expense_category_id', $cat['expense_category_id'])
+					->where('payment_type', 'expense')
+					->from('payment')
+					->count_all_results();
+				
+				// Sum total amount for this category
+				$cat['total_amount'] = $this->db->select_sum('amount')
+					->where('expense_category_id', $cat['expense_category_id'])
+					->where('payment_type', 'expense')
+					->get('payment')
+					->row()->amount ?? 0;
+				
+				$cat['icon'] = isset($cat['icon']) ? $cat['icon'] : 'folder';
+				$cat['description'] = isset($cat['description']) ? $cat['description'] : '';
+			}
+			
+			echo json_encode(['status' => 'success', 'data' => $categories]);
+		} catch(Exception $e) {
+			echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+		}
+	}
+
+	// ============================================
+	// GET CATEGORY STATISTICS (AJAX)
+	// ============================================
+	public function get_category_stats()
+	{
+		try {
+			$total = $this->db->count_all('expense_category');
+			
+			// Count only expense records (payment_type = 'expense')
+			$expenses = $this->db->where('payment_type', 'expense')
+				->where('expense_category_id IS NOT NULL')
+				->from('payment')
+				->count_all_results();
+			
+			// Count categories that have at least one expense
+			$active = $this->db->select('DISTINCT expense_category_id')
+				->from('payment')
+				->where('payment_type', 'expense')
+				->where('expense_category_id IS NOT NULL')
+				->get()
+				->num_rows();
+			
+			// Get most used category
+			$most_used = $this->db->select('ec.name, COUNT(p.payment_id) as count')
+				->from('expense_category ec')
+				->join('payment p', 'p.expense_category_id = ec.expense_category_id AND p.payment_type = "expense"', 'inner')
+				->group_by('ec.expense_category_id')
+				->order_by('count', 'DESC')
+				->limit(1)
+				->get()
+				->row();
+			
+			echo json_encode([
+				'status' => 'success',
+				'data' => [
+					'total' => $total,
+					'active' => $active,
+					'expenses' => $expenses,
+					'most_used' => $most_used ? $most_used->name : '-'
+				]
+			]);
+		} catch(Exception $e) {
+			echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+		}
+	}
+
+	// ============================================
+	// CATEGORY FORM MODAL
+	// ============================================
+	public function expense_category_form($id = null)
+	{
+		$data['category'] = null;
+		if($id) {
+			$data['category'] = $this->db->get_where('expense_category', ['expense_category_id' => $id])->row();
+		}
+		$this->load->view('backend/admin/expense_category_form', $data);
+	}
+
+	// ============================================
+	// SAVE CATEGORY (CREATE/UPDATE)
+	// ============================================
+	public function save_expense_category()
+	{
+		$id = $this->input->post('expense_category_id');
+		$data = [
+			'name' => $this->input->post('name'),
+			'description' => $this->input->post('description'),
+			'icon' => $this->input->post('icon') ?: 'folder'
+		];
+		
+		if($id) {
+			$this->db->where('expense_category_id', $id);
+			$this->db->update('expense_category', $data);
+			$message = get_phrase('category_updated_successfully');
+		} else {
+			$this->db->insert('expense_category', $data);
+			$message = get_phrase('category_created_successfully');
+		}
+		
+		echo json_encode(['status' => 'success', 'message' => $message]);
+	}
+
+	// ============================================
+	// DELETE CATEGORY
+	// ============================================
+	public function delete_expense_category($id)
+	{
+		// Count expenses in payment table with this category (payment_type = 'expense')
+		$count = $this->db->where('expense_category_id', $id)
+			->where('payment_type', 'expense')
+			->count_all_results('payment');
+		
+		if($count > 0) {
+			echo json_encode(['status' => 'error', 'message' => 'Cannot delete category with existing expenses']);
+			return;
+		}
+		
+		$this->db->where('expense_category_id', $id);
+		$this->db->delete('expense_category');
+		
+		echo json_encode(['status' => 'success', 'message' => get_phrase('category_deleted_successfully')]);
+	}
+
+	// ============================================
+	// BULK CATEGORY FORM MODAL
+	// ============================================
+	public function expense_category_bulk()
+	{
+		$this->load->view('backend/admin/expense_category_bulk');
+	}
+
+	// ============================================
+	// BULK CREATE CATEGORIES
+	// ============================================
+	public function bulk_create_categories()
+	{
+		$categories = json_decode($this->input->post('categories'), true);
+		
+		if(empty($categories)) {
+			echo json_encode(['status' => 'error', 'message' => 'No categories provided']);
+			return;
+		}
+		
+		$this->db->trans_start();
+		
+		$created = 0;
+		foreach($categories as $cat) {
+			if(!empty($cat['name'])) {
+				$this->db->insert('expense_category', [
+					'name' => $cat['name'],
+					'description' => $cat['description'] ?? '',
+					'icon' => $cat['icon'] ?? 'folder'
+				]);
+				$created++;
+			}
+		}
+		
+		$this->db->trans_complete();
+		
+		if($this->db->trans_status() === FALSE) {
+			echo json_encode(['status' => 'error', 'message' => 'Failed to create categories']);
+		} else {
+			echo json_encode(['status' => 'success', 'message' => "$created categories created successfully"]);
+		}
+	}
+
+	/**********MANAGE LIBRARY / BOOKS********************/
+	function book($param1 = '', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		if ($param1 == 'create') {
+			$data['name'] = $this->input->post('name');
+			$data['class_id'] = $this->input->post('class_id');
+			$data['status'] = 'Available';
+			if ($this->input->post('description') != null) {
+				$data['description'] = $this->input->post('description');
+			}
+			if ($this->input->post('price') != null) {
+				$data['price'] = $this->input->post('price');
+			}
+			if ($this->input->post('total_copies') != null) {
+				$data['total_copies'] = $this->input->post('total_copies');
+			}
+			if ($this->input->post('author') != null) {
+				$data['author'] = $this->input->post('author');
+			}
+			if (!empty($_FILES["file_name"]["name"])) {
+				$data['file_name'] = $_FILES["file_name"]["name"];
+			}
+
+			$this->db->insert('book', $data);
+
+			if (!empty($_FILES["file_name"]["name"])) {
+				move_uploaded_file($_FILES["file_name"]["tmp_name"], "uploads/document/" . $_FILES["file_name"]["name"]);
+			}
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('book_added_successfully'));
+			redirect(site_url('admin/book'));
+		}
+
+		if ($param1 == 'do_update') {
+			$data['name'] = $this->input->post('name');
+			$data['class_id'] = $this->input->post('class_id');
+			if ($this->input->post('description') != null) {
+				$data['description'] = $this->input->post('description');
+			} else {
+				$data['description'] = null;
+			}
+			if ($this->input->post('price') != null) {
+				$data['price'] = $this->input->post('price');
+			} else {
+				$data['price'] = null;
+			}
+			if ($this->input->post('author') != null) {
+				$data['author'] = $this->input->post('author');
+			} else {
+				$data['author'] = null;
+			}
+			if ($this->input->post('total_copies') != null) {
+				$data['total_copies'] = $this->input->post('total_copies');
+			} else {
+				$data['total_copies'] = null;
+			}
+			if (!empty($_FILES["file_name"]["name"])) {
+				$data['file_name'] = $_FILES["file_name"]["name"];
+			}
+
+			$this->db->where('book_id', $param2);
+			$this->db->update('book', $data);
+
+			$issued_copies = $this->db->get_where('book', array('book_id' => $param2))->row()->issued_copies;
+			$total_copies = $this->db->get_where('book', array('book_id' => $param2))->row()->total_copies;
+
+			if ($issued_copies < $total_copies) {
+				$data2['status'] = 'Available';
+				$this->db->where('book_id', $param2);
+				$this->db->update('book', $data2);
+			} else {
+				$data2['status'] = 'Unavailable';
+				$this->db->where('book_id', $param2);
+				$this->db->update('book', $data2);
+			}
+
+			if (!empty($_FILES["file_name"]["name"])) {
+				move_uploaded_file($_FILES["file_name"]["tmp_name"], "uploads/document/" . $_FILES["file_name"]["name"]);
+			}
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('book_updated'));
+			redirect(site_url('librarian/book'));
+		} else if ($param1 == 'edit') {
+			$page_data['edit_data'] = $this->db->get_where('book', array('book_id' => $param2))->result_array();
+		}
+
+		if ($param1 == 'delete') {
+			$this->db->where('book_id', $param2);
+			$this->db->delete('book');
+
+			//clear the cached database
+			$queryExecuted = $this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('book_deleted'));
+
+			if($queryExecuted) {
+				$ajaxData['message'] = 'done';
+			} else {
+				$ajaxData['message'] = 'failed';
+			}
+
+			$ajaxData['route'] = 'book';
+			
+			echo json_encode($ajaxData);
+			return;
+		}
+
+		$page_data['books'] = $this->db->get('book')->result_array();
+		$page_data['page_name'] = 'book';
+		$page_data['page_title'] = get_phrase('manage_library_books');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+
+	}
+
+	function get_books() {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$columns = array(
+			0 => 'book_id',
+			1 => 'name',
+			2 => 'author',
+			3 => 'description',
+			4 => 'price',
+			5 => 'total_copies',
+			6 => 'class',
+			7 => 'download',
+			8 => 'options',
+			9 => 'book_id',
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->ajaxload->all_books_count();
+		$totalFiltered = $totalData;
+
+		if (empty($this->input->post('search')['value'])) {
+			$books = $this->ajaxload->all_books($limit, $start, $order, $dir);
+		} else {
+			$search = $this->input->post('search')['value'];
+			$books = $this->ajaxload->book_search($limit, $start, $search, $order, $dir);
+			$totalFiltered = $this->ajaxload->book_search_count($search);
+		}
+
+		$data = array();
+		if (!empty($books)) {
+			foreach ($books as $row) {
+				if ($row->file_name == null) {
+					$download = '';
+				} else {
+					$download = '<a href="' . site_url("uploads/document/$row->file_name") . '" class="btn btn-blue btn-icon icon-left"><i class="entypo-download"></i>' . get_phrase('download') . '</a>';
+				}
+
+				$options = '<div class="btn-group">'.get_action_button().'<ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" onclick="book_edit_modal(' . $row->book_id . ')" style="color: green;"><i class="entypo-pencil"></i>&nbsp;' . get_phrase('edit') . '</a></li><li class="divider"></li><li><a href="#" onclick="book_delete_confirm(' . $row->book_id . ')" style="color: red;"><i class="entypo-trash"></i>&nbsp;' . get_phrase('delete') . '</a></li></ul></div>';
+
+				$nestedData['book_id'] = $row->book_id;
+				$nestedData['name'] = $row->name;
+				$nestedData['author'] = $row->author;
+				$nestedData['description'] = $row->description;
+				$nestedData['price'] = $row->price;
+				$nestedData['total_copies'] = $row->total_copies;
+				$nestedData['class'] = $this->db->get_where('class', array('class_id' => $row->class_id))->row()->name . ' ' . $this->db->get_where('class', array('class_id' => $row->class_id))->row()->name_numeric;
+				$nestedData['download'] = $download;
+				$nestedData['options'] = $options;
+
+				$data[] = $nestedData;
+			}
+		}
+
+		$json_data = array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"data" => $data,
+		);
+
+		echo json_encode($json_data);
+	}
+	/**********MANAGE TRANSPORT / VEHICLES / ROUTES********************/
+	function transport($param1 = '', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect('login');
+		if ($param1 == 'create') {
+			$data['route_name'] = $this->input->post('route_name');
+			$data['number_of_vehicle'] = $this->input->post('number_of_vehicle');
+			if ($this->input->post('description') != null) {
+				$data['description'] = $this->input->post('description');
+			}
+			if ($this->input->post('route_fare') != null) {
+				$data['route_fare'] = $this->input->post('route_fare');
+			}
+			if ($this->db->insert('transport', $data)) {
+				$this->db->cache_delete();
+				echo json_encode(['status' => 'success', 'message' => get_phrase('data_added_successfully')]);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => get_phrase('operation_failed')]);
+			}
+			return;
+		}
+		if ($param1 == 'do_update') {
+			$data['route_name'] = $this->input->post('route_name');
+			$data['number_of_vehicle'] = $this->input->post('number_of_vehicle');
+			if ($this->input->post('description') != null) {
+				$data['description'] = $this->input->post('description');
+			} else {
+				$data['description'] = null;
+			}
+			if ($this->input->post('route_fare') != null) {
+				$data['route_fare'] = $this->input->post('route_fare');
+			} else {
+				$data['route_fare'] = null;
+			}
+
+			$this->db->where('transport_id', $param2);
+			if ($this->db->update('transport', $data)) {
+				$this->db->cache_delete();
+				echo json_encode(['status' => 'success', 'message' => get_phrase('data_updated')]);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => get_phrase('operation_failed')]);
+			}
+			return;
+		} else if ($param1 == 'edit') {
+			$page_data['edit_data'] = $this->db->get_where('transport', array(
+				'transport_id' => $param2,
+			))->result_array();
+
+			//clear the cached database
+			$this->db->cache_delete();
+		}
+		if ($param1 == 'delete') {
+			$this->db->where('transport_id', $param2);
+			$queryExecuted = $this->db->delete('transport');
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+
+
+			if($queryExecuted) {
+				$ajaxData['message'] = 'done';
+			} else {
+				$ajaxData['message'] = 'failed';
+			}
+
+			$ajaxData['route'] = 'transport';
+			
+			echo json_encode($ajaxData);
+			return;
+		}
+
+		$this->transportation();
+		// $page_data['transports'] = $this->db->get('transport')->result_array();
+		// $page_data['page_name'] = 'transport';
+		// $page_data['page_title'] = get_phrase('manage_transport');
+		// $page_data['account_type'] = $this->session->userdata('login_type');
+		// $this->load->view('backend/main', $page_data);
+	}
+
+	/**********ENHANCED TRANSPORT MANAGEMENT********************/
+	
+	function modal_transport_edit($param1 = '') {
+		$this->load->view('backend/admin/modal_transport_edit', array('param2' => $param1));
+	}
+
+	function modal_transport_stats($param1 = '') {
+		$this->load->view('backend/admin/modal_transport_stats', array('param1' => $param1));
+	}
+
+	function get_transports() {
+		$columns = array(
+			0 => 'transport_id',
+			1 => 'route_name',
+			2 => 'number_of_vehicle',
+			3 => 'route_fare',
+			4 => 'description',
+			5 => 'students_count',
+			6 => 'options'
+		);
+
+		$limit = $this->input->post('length');
+		$start = $this->input->post('start');
+		$order = $columns[$this->input->post('order')[0]['column']];
+		$dir = $this->input->post('order')[0]['dir'];
+
+		$totalData = $this->db->count_all('transport');
+
+		$this->db->select('transport.*');
+		$this->db->from('transport');
+
+		if (!empty($this->input->post('search')['value'])) {
+			$search = $this->input->post('search')['value'];
+			$this->db->group_start();
+			$this->db->like('route_name', $search);
+			$this->db->or_like('description', $search);
+			$this->db->group_end();
+		}
+
+		$this->db->order_by($order, $dir);
+		$this->db->limit($limit, $start);
+		$query = $this->db->get();
+		$transports = $query->result();
+
+		$this->db->from('transport');
+		if (!empty($this->input->post('search')['value'])) {
+			$search = $this->input->post('search')['value'];
+			$this->db->group_start();
+			$this->db->like('route_name', $search);
+			$this->db->or_like('description', $search);
+			$this->db->group_end();
+		}
+		$totalFiltered = $this->db->count_all_results();
+
+		$currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
+
+		$running_year_count = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term_count = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		$data = array();
+		foreach ($transports as $row) {
+			$students_count = $this->db->where('transport_id', $row->transport_id)
+				->where('year', $running_year_count)
+				->where('term', $running_term_count)
+				->where('mute', '0')
+				->from('enroll')->count_all_results();
+			
+			$options = '<div class="btn-group">'.get_action_button().'
+				<ul class="dropdown-menu dropdown-default pull-right" role="menu">
+					<li><a href="#" onclick="transport_edit_modal(' . $row->transport_id . ')" style="color: green;">
+						<i class="entypo-pencil"></i>&nbsp;' . get_phrase('edit') . '</a></li>
+					<li class="divider"></li>
+					<li><a href="' . site_url('admin/transport_students/' . $row->transport_id) . '" style="color: blue;">
+						<i class="entypo-users"></i>&nbsp;' . get_phrase('view_students') . '</a></li>
+					<li class="divider"></li>
+					<li><a href="#" onclick="transport_delete_confirm(' . $row->transport_id . ')" style="color: red;">
+						<i class="entypo-trash"></i>&nbsp;' . get_phrase('delete') . '</a></li>
+				</ul></div>';
+
+			$nestedData['transport_id'] = $row->transport_id;
+			$nestedData['route_name'] = $row->route_name;
+			$nestedData['number_of_vehicle'] = $row->number_of_vehicle;
+			$nestedData['route_fare'] = $currency . ' ' . number_format($row->route_fare, 2);
+			$nestedData['description'] = $row->description ? $row->description : '';
+			$nestedData['students_count'] = $students_count;
+			$nestedData['options'] = $options;
+
+			$data[] = $nestedData;
+		}
+
+		echo json_encode(array(
+			"draw" => intval($this->input->post('draw')),
+			"recordsTotal" => intval($totalData),
+			"recordsFiltered" => intval($totalFiltered),
+			"data" => $data
+		));
+	}
+	function get_transport_report_data() {
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		
+		$total_routes = $this->db->count_all('transport');
+		$students_count = $this->db->where('transport_id IS NOT NULL', null, false)
+			->where('year', $running_year)
+			->where('term', $running_term)
+			->where('mute', '0')
+			->from('enroll')->count_all_results();
+		$assigned_routes = $this->db->query("SELECT COUNT(DISTINCT transport_id) as count FROM enroll WHERE transport_id IS NOT NULL AND year = '$running_year' AND term = '$running_term'")->row()->count;
+		$total_collected = $this->db->query("SELECT COALESCE(SUM(transport_amount), 0) as total FROM daily_fee_transactions WHERE year = '$running_year'")->row()->total;
+		
+		$routes = $this->db->select('transport.*, (SELECT COUNT(*) FROM enroll WHERE enroll.transport_id = transport.transport_id AND year = "'.$running_year.'" AND term = "'.$running_term.'") as students_count')
+			->from('transport')
+			->get()
+			->result_array();
+		
+		echo json_encode(array(
+			'total_routes' => $total_routes,
+			'total_students' => $students_count,
+			'active_routes' => $assigned_routes,
+			'total_collected' => $total_collected,
+			'routes' => $routes
+		));
+	}
+
+	function get_transport_collected_fares_by_term() {
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		
+		$students = $this->db->select('s.student_code, s.name as student_name, CONCAT(c.name, " ", c.name_numeric) as class_name, sec.name as section_name, SUM(t.transport_amount) as total_paid')
+			->from('daily_fee_transactions t')
+			->join('student s', 's.student_id = t.student_id')
+			->join('enroll e', 'e.student_id = s.student_id AND e.year = t.year AND e.term = t.term', 'left')
+			->join('class c', 'c.class_id = e.class_id', 'left')
+			->join('section sec', 'c.class_id = sec.class_id', 'left')
+			->where('t.year', $running_year)
+			->where('t.term', $running_term)
+			->where('t.transport_amount >', 0)
+			->group_by('s.student_id')
+			->order_by('s.name', 'asc')
+			->get()
+			->result_array();
+		
+		$total = array_sum(array_column($students, 'total_paid'));
+		
+		echo json_encode(array(
+			'status' => 'success',
+			'students' => $students,
+			'total' => $total
+		));
+	}
+
+
+	function get_transport_template_data() {
+		require_once FCPATH . 'vendor/autoload.php';
+		
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		$class_ids = getAllClassList();
+		$students = array();
+		
+		foreach ($class_ids as $class_id) {
+			$class_students = $this->db->select('s.student_id, s.student_code, s.name, CONCAT(c.name, " ", c.name_numeric, " ", sec.name) as class_name, c.name_numeric as class_order, t.route_name as current_route')
+				->from('enroll e')
+				->join('student s', 's.student_id = e.student_id')
+				->join('class c', 'c.class_id = e.class_id')
+				->join('section sec', 'sec.section_id = e.section_id')
+				->join('transport t', 't.transport_id = e.transport_id', 'left')
+				->where('e.year', $running_year)
+				->where('e.term', $running_term)
+				->where('e.class_id', $class_id)
+				->order_by('s.name', 'asc')
+				->get()->result_array();
+			$students = array_merge($students, $class_students);
+		}
+		
+		$routes = $this->db->get('transport')->result_array();
+		
+		$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+		$spreadsheet->removeSheetByIndex(0);
+		
+		// Instructions Sheet (Sheet 0)
+		$instructionsSheet = $spreadsheet->createSheet(0);
+		$instructionsSheet->setTitle('Instructions');
+		$instructionsSheet->setCellValue('A1', 'TRANSPORT MANAGEMENT TEMPLATE - INSTRUCTIONS');
+		$instructionsSheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+		$instructionsSheet->setCellValue('A3', 'HOW TO USE THIS TEMPLATE:');
+		$instructionsSheet->setCellValue('A4', '1. Go to the "Routes" sheet and review all available transport routes');
+		$instructionsSheet->setCellValue('A5', '2. Go to the "Students" sheet');
+		$instructionsSheet->setCellValue('A6', '3. For each student, select Route Name from the dropdown in column D');
+		$instructionsSheet->setCellValue('A7', '4. Fare and Vehicle Number will auto-fill from the selected route');
+		$instructionsSheet->setCellValue('A8', '5. Leave Route Name blank to keep student\'s existing route unchanged');
+		$instructionsSheet->setCellValue('A9', '6. Save the file and upload it using the Import button');
+		$instructionsSheet->setCellValue('A11', 'COLUMN DESCRIPTIONS:');
+		$instructionsSheet->setCellValue('A12', '- Student Code: Unique student identifier (DO NOT EDIT)');
+		$instructionsSheet->setCellValue('A13', '- Student Name: Full name of student (DO NOT EDIT)');
+		$instructionsSheet->setCellValue('A14', '- Class: Student class (DO NOT EDIT)');
+		$instructionsSheet->setCellValue('A15', '- Route Name: Select from dropdown or leave blank');
+		$instructionsSheet->setCellValue('A16', '- Fare: Auto-filled from route');
+		$instructionsSheet->setCellValue('A17', '- Vehicle Number: Auto-filled from route');
+		$instructionsSheet->getColumnDimension('A')->setWidth(80);
+		
+		// Routes Sheet (Sheet 1)
+		$routesSheet = $spreadsheet->createSheet(1);
+		$routesSheet->setTitle('Routes');
+		$routesSheet->setCellValue('A1', 'Route Name');
+		$routesSheet->setCellValue('B1', 'Vehicle Number');
+		$routesSheet->setCellValue('C1', 'Fare');
+		$routesSheet->getStyle('A1:C1')->getFont()->setBold(true);
+		
+		$row = 2;
+		foreach($routes as $route) {
+			$routesSheet->setCellValue('A' . $row, $route['route_name']);
+			$routesSheet->setCellValue('B' . $row, $route['number_of_vehicle']);
+			$routesSheet->setCellValue('C' . $row, $route['route_fare']);
+			$row++;
+		}
+		foreach(range('A','C') as $col) {
+			$routesSheet->getColumnDimension($col)->setAutoSize(true);
+		}
+		
+		// Students Sheet (Sheet 2)
+		$studentsSheet = $spreadsheet->createSheet(2);
+		$studentsSheet->setTitle('Students');
+		$studentsSheet->setCellValue('A1', 'Student Code');
+		$studentsSheet->setCellValue('B1', 'Name');
+		$studentsSheet->setCellValue('C1', 'Class');
+		$studentsSheet->setCellValue('D1', 'Route Name');
+		$studentsSheet->setCellValue('E1', 'Fare');
+		$studentsSheet->setCellValue('F1', 'Vehicle Number');
+		$studentsSheet->getStyle('A1:F1')->getFont()->setBold(true);
+		
+		// Enable AutoFilter on headers
+		$studentsSheet->setAutoFilter('A1:F1');
+		
+		$row = 2;
+		foreach($students as $student) {
+			$studentsSheet->setCellValue('A' . $row, $student['student_code']);
+			$studentsSheet->setCellValue('B' . $row, $student['name']);
+			$studentsSheet->setCellValue('C' . $row, $student['class_name']);
+			$studentsSheet->setCellValue('D' . $row, $student['current_route']);
+			$studentsSheet->setCellValue('E' . $row, '=IFERROR(INDEX(Routes!$C:$C,MATCH(D' . $row . ',Routes!$A:$A,0)),"")');
+			$studentsSheet->setCellValue('F' . $row, '=IFERROR(INDEX(Routes!$B:$B,MATCH(D' . $row . ',Routes!$A:$A,0)),"")');
+			
+			$validation = $studentsSheet->getCell('D' . $row)->getDataValidation();
+			$validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
+			$validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION);
+			$validation->setAllowBlank(true);
+			$validation->setShowInputMessage(true);
+			$validation->setShowErrorMessage(true);
+			$validation->setShowDropDown(true);
+			$validation->setFormula1('Routes!$A$2:$A$1001');
+			$row++;
+		}
+		foreach(range('A','F') as $col) {
+			$studentsSheet->getColumnDimension($col)->setAutoSize(true);
+		}
+		
+		$spreadsheet->setActiveSheetIndex(2);
+		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment;filename="transport_template_' . date('Y-m-d') . '.xlsx"');
+		header('Cache-Control: max-age=0');
+		$writer->save('php://output');
+		exit;
+	}
+	
+	function import_transport_data() {
+		if(!isset($_FILES['excel_file']) || $_FILES['excel_file']['error'] != 0) {
+			echo json_encode(['status' => 'error', 'message' => 'No file uploaded']);
+			return;
+		}
+		
+		require_once FCPATH . 'vendor/autoload.php';
+		
+		try {
+			$file = $_FILES['excel_file']['tmp_name'];
+			$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
+			$sheet = $spreadsheet->getSheet(2); // Students sheet (index 2)
+			$highestRow = $sheet->getHighestRow();
+			
+			$running_year = get_settings('running_year');
+			$running_term = get_settings('running_term');
+			
+			$routes_created = 0;
+			$routes_updated = 0;
+			$students_assigned = 0;
+			$route_cache = array();
+			
+			$this->db->trans_start();
+			
+			for ($row = 2; $row <= $highestRow; $row++) {
+				$student_code = trim($sheet->getCell('A' . $row)->getCalculatedValue());
+				$route_name = trim($sheet->getCell('D' . $row)->getCalculatedValue());
+				$fare = trim($sheet->getCell('E' . $row)->getCalculatedValue());
+				$vehicle_number = trim($sheet->getCell('F' . $row)->getCalculatedValue());
+				
+				if (empty($student_code)) continue;
+				
+				$student = $this->db->get_where('student', array('student_code' => $student_code))->row();
+				if (!$student) continue;
+				
+				if (empty($route_name)) {
+					$students_assigned++;
+					continue;
+				}
+				
+				if (!isset($route_cache[$route_name])) {
+					$existing_route = $this->db->get_where('transport', array('route_name' => $route_name))->row();
+					
+					if (!$existing_route) {
+						$route_data = array(
+							'route_name' => $route_name,
+							'number_of_vehicle' => $vehicle_number ?: 'N/A',
+							'route_fare' => is_numeric($fare) ? $fare : 0,
+							'description' => 'Auto-created from import'
+						);
+						$this->db->insert('transport', $route_data);
+						$route_cache[$route_name] = $this->db->insert_id();
+						$routes_created++;
+					} else {
+						$route_cache[$route_name] = $existing_route->transport_id;
+					}
+				}
+				
+				if($route_cache[$route_name]) {
+					$this->db->where('student_id', $student->student_id)
+						->where('year', $running_year)
+						->where('term', $running_term)
+						->update('enroll', array('transport_id' => $route_cache[$route_name]));
+					$students_assigned++;
+				}
+			}
+			
+			$this->db->trans_complete();
+			
+			if ($this->db->trans_status() === FALSE) {
+				echo json_encode(array('status' => 'error', 'message' => 'Import failed'));
+			} else {
+				echo json_encode(array(
+					'status' => 'success',
+					'message' => 'Import completed',
+					'routes_created' => $routes_created,
+					'routes_updated' => $routes_updated,
+					'students_assigned' => $students_assigned
+				));
+			}
+		} catch (Exception $e) {
+			echo json_encode(array('status' => 'error', 'message' => 'Error: ' . $e->getMessage()));
+		}
+	}
+
+	function transport_students($transport_id = '') {
+		$page_data['transport'] = $this->db->get_where('transport', array('transport_id' => $transport_id))->row();
+		$page_data['transport_id'] = $transport_id;
+		$page_data['page_name'] = 'transport_students';
+		$page_data['page_title'] = get_phrase('students_using_transport');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function get_transport_students($transport_id) {
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		$this->db->select('student.*, class.name as class_name, class.name_numeric, enroll.section_id');
+		$this->db->from('enroll');
+		$this->db->join('student', 'enroll.student_id = student.student_id');
+		$this->db->join('class', 'enroll.class_id = class.class_id');
+		$this->db->where('enroll.transport_id', $transport_id);
+		$this->db->where('enroll.year', $running_year);
+		$this->db->where('enroll.term', $running_term);
+		$this->db->where('student.mute', '0');
+		$students = $this->db->get()->result_array();
+
+		$data = array();
+		foreach ($students as $row) {
+			$section = $this->db->get_where('section', array('section_id' => $row['section_id']))->row();
+			
+			$nestedData['student_code'] = $row['student_code'];
+			$nestedData['student_id'] = $row['student_id'];
+			$nestedData['name'] = $row['name'];
+			$nestedData['class'] = $row['class_name'] . ' ' . $row['name_numeric'] . ($section ? ' ' . $section->name : '');
+			$nestedData['phone'] = $row['phone'];
+			$nestedData['guardian_phone'] = $row['phone'];
+			$data[] = $nestedData;
+		}
+
+		echo json_encode(array("data" => $data));
+	}
+
+	function export_transport_students($transport_id, $format = 'excel') {
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		$transport = $this->db->get_where('transport', array('transport_id' => $transport_id))->row();
+
+		$this->db->select('student.*, class.name as class_name, class.name_numeric, enroll.section_id');
+		$this->db->from('enroll');
+		$this->db->join('student', 'enroll.student_id = student.student_id');
+		$this->db->join('class', 'enroll.class_id = class.class_id');
+		$this->db->where('enroll.transport_id', $transport_id);
+		$this->db->where('enroll.year', $running_year);
+		$this->db->where('enroll.term', $running_term);
+		$this->db->where('student.mute', '0');
+		$students = $this->db->get()->result_array();
+
+		if ($format == 'excel') {
+			header('Content-Type: application/vnd.ms-excel');
+			header('Content-Disposition: attachment;filename="transport_students_' . $transport->route_name . '_' . date('Y-m-d') . '.xls"');
+			echo '<html><head><meta charset="UTF-8"></head><body>';
+			echo '<table border="1" style="border-collapse: collapse;">';
+			echo '<tr style="background-color: #667eea; color: white; font-weight: bold;">';
+			echo '<th style="padding: 10px;">Student Code</th>';
+			echo '<th style="padding: 10px;">Name</th>';
+			echo '<th style="padding: 10px;">Class</th>';
+			echo '<th style="padding: 10px;">Guardian Phone</th>';
+			echo '</tr>';
+			foreach ($students as $row) {
+				$section = $this->db->get_where('section', array('section_id' => $row['section_id']))->row();
+				$class = $row['class_name'] . ' ' . $row['name_numeric'] . ($section ? ' ' . $section->name : '');
+				echo '<tr>';
+				echo '<td style="padding: 8px;">' . $row['student_code'] . '</td>';
+				echo '<td style="padding: 8px;">' . $row['name'] . '</td>';
+				echo '<td style="padding: 8px;">' . $class . '</td>';
+				echo '<td style="padding: 8px;">' . $row['phone'] . '</td>';
+				echo '</tr>';
+			}
+			echo '</table></body></html>';
+		} elseif ($format == 'pdf') {
+			$this->load->library('pdf');
+			$html = '<h2>Transport Students - ' . $transport->route_name . '</h2>';
+			$html .= '<table border="1" cellpadding="5" style="border-collapse: collapse; width: 100%;">';
+			$html .= '<tr style="background-color: #667eea; color: white;"><th>Student Code</th><th>Name</th><th>Class</th><th>Guardian Phone</th></tr>';
+			foreach ($students as $row) {
+				$section = $this->db->get_where('section', array('section_id' => $row['section_id']))->row();
+				$class = $row['class_name'] . ' ' . $row['name_numeric'] . ($section ? ' ' . $section->name : '');
+				$html .= '<tr><td>' . $row['student_code'] . '</td><td>' . $row['name'] . '</td><td>' . $class . '</td><td>' . $row['phone'] . '</td></tr>';
+			}
+			$html .= '</table>';
+			$this->pdf->loadHtml($html);
+			$this->pdf->render();
+			$this->pdf->stream('transport_students_' . $transport->route_name . '_' . date('Y-m-d') . '.pdf');
+		}
+	}
+
+	function transportation() {
+		$page_data['page_name'] = 'transport_enhanced';
+		$page_data['page_title'] = get_phrase('transport_management');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function fee_collection_permissions() {
+		$page_data['page_name'] = 'fee_collection_permissions';
+		$page_data['page_title'] = get_phrase('fee_collection_permissions');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function update_fee_collection_mode() {
+		$mode = $this->input->post('permission_mode');
+		$exists = $this->db->get_where('settings', ['type' => 'teacher_fee_collection_mode'])->num_rows();
+		if ($exists > 0) {
+			$this->db->where('type', 'teacher_fee_collection_mode');
+			$this->db->update('settings', ['description' => $mode]);
+		} else {
+			$this->db->insert('settings', ['type' => 'teacher_fee_collection_mode', 'description' => $mode]);
+		}
+		echo json_encode(['status' => 'success', 'message' => get_phrase('permission_mode_updated_successfully')]);
+	}
+
+	function save_fee_assignment() {
+		$assignment_id = $this->input->post('assignment_id');
+		$teacher_id = $this->input->post('teacher_id');
+		$class_id = $this->input->post('class_id');
+		$running_year = $this->db->get_where('settings', ['type' => 'running_year'])->row()->description;
+		$running_term = $this->db->get_where('settings', ['type' => 'running_term'])->row()->description;
+		$data = [
+			'teacher_id' => $teacher_id,
+			'class_id' => $class_id,
+			'can_collect_feeding' => $this->input->post('can_collect_feeding') ? 1 : 0,
+			'can_collect_classes' => $this->input->post('can_collect_classes') ? 1 : 0,
+			'can_collect_transport' => $this->input->post('can_collect_transport') ? 1 : 0,
+			'year' => $running_year,
+			'term' => $running_term
+		];
+		if (empty($assignment_id)) {
+			$exists = $this->db->get_where('fee_collection_assignments', ['teacher_id' => $teacher_id, 'class_id' => $class_id, 'year' => $running_year, 'term' => $running_term])->num_rows();
+			if ($exists > 0) {
+				echo json_encode(['status' => 'error', 'message' => get_phrase('assignment_already_exists')]);
+				return;
+			}
+			$data['created_at'] = time();
+			$this->db->insert('fee_collection_assignments', $data);
+		} else {
+			$data['updated_at'] = time();
+			$this->db->where('id', $assignment_id);
+			$this->db->update('fee_collection_assignments', $data);
+		}
+		echo json_encode(['status' => 'success', 'message' => get_phrase('assignment_saved_successfully')]);
+	}
+
+	function get_fee_assignment($id) {
+		$assignment = $this->db->get_where('fee_collection_assignments', ['id' => $id])->row();
+		echo json_encode($assignment);
+	}
+
+	function delete_fee_assignment($id) {
+		$this->db->where('id', $id);
+		$this->db->delete('fee_collection_assignments');
+		echo json_encode(['status' => 'success', 'message' => get_phrase('assignment_deleted_successfully')]);
+	}
+
+	function can_teacher_collect_fees($teacher_id, $class_id) {
+		$running_year = $this->db->get_where('settings', ['type' => 'running_year'])->row()->description;
+		$running_term = $this->db->get_where('settings', ['type' => 'running_term'])->row()->description;
+		$mode = $this->db->get_where('settings', ['type' => 'teacher_fee_collection_mode'])->row()->description ?? 'restricted';
+		if ($mode == 'all_allowed') {
+			return ['can_collect' => true, 'feeding' => true, 'classes' => true, 'transport' => true];
+		} elseif ($mode == 'restricted') {
+			return ['can_collect' => false, 'feeding' => false, 'classes' => false, 'transport' => false];
+		} else {
+			$assignment = $this->db->get_where('fee_collection_assignments', ['teacher_id' => $teacher_id, 'class_id' => $class_id, 'year' => $running_year, 'term' => $running_term])->row();
+			if ($assignment) {
+				return ['can_collect' => true, 'feeding' => $assignment->can_collect_feeding == 1, 'classes' => $assignment->can_collect_classes == 1, 'transport' => $assignment->can_collect_transport == 1];
+			}
+			return ['can_collect' => false, 'feeding' => false, 'classes' => false, 'transport' => false];
+		}
+	}
+
+	function assign_transport($param1 = '') {
+		if ($param1 == 'create' || $param1 == 'update') {
+			$student_ids = $this->input->post('student_ids');
+			$transport_id = $this->input->post('transport_id');
+			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+			
+			$data['transport_id'] = ($transport_id && $transport_id != '0') ? $transport_id : null;
+			$count = 0;
+
+			if (is_array($student_ids)) {
+				foreach ($student_ids as $student_id) {
+					// Update enroll table only (transport_id is stored in enroll, not student)
+					$this->db->where('student_id', $student_id);
+					$this->db->where('year', $running_year);
+					$this->db->where('term', $running_term);
+					if ($this->db->update('enroll', $data)) {
+						$count++;
+					}
+				}
+			}
+			
+			$message = ($transport_id == '0') ? get_phrase('transport_unassigned_successfully') : get_phrase('transport_assigned_successfully');
+			
+			echo json_encode(array(
+				'status' => 'success',
+				'message' => $message,
+				'count' => $count
+			));
+			return;
+		}
+
+		$page_data['transports'] = $this->db->get('transport')->result_array();
+		$page_data['page_name'] = 'assign_transport';
+		$page_data['page_title'] = get_phrase('assign_transport');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function get_transport_fare_students() {
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		$this->db->select('student.student_id, student.student_code, student.name, class.name as class_name, class.name_numeric, enroll.section_id, enroll.transport_id, transport.route_name, transport.route_fare');
+		$this->db->from('enroll');
+		$this->db->join('student', 'enroll.student_id = student.student_id');
+		$this->db->join('class', 'enroll.class_id = class.class_id');
+		$this->db->join('transport', 'enroll.transport_id = transport.transport_id');
+		$this->db->where('enroll.year', $running_year);
+		$this->db->where('enroll.term', $running_term);
+		$this->db->where('enroll.transport_id IS NOT NULL', null, false);
+		$this->db->where('student.mute', '0');
+		$this->db->order_by('student.name', 'ASC');
+		$students = $this->db->get()->result_array();
+
+		$data = array();
+		foreach ($students as $student) {
+			$section = $this->db->get_where('section', array('section_id' => $student['section_id']))->row();
+			
+			$total_paid = $this->db->select_sum('amount_paid')
+				->where('student_id', $student['student_id'])
+				->where('year', $running_year)
+				->where('term', $running_term)
+				->get('daily_fee_wallet')->row()->amount_paid;
+			
+			$balance = $student['route_fare'] - ($total_paid ? $total_paid : 0);
+
+			$nestedData['student_id'] = $student['student_id'];
+			$nestedData['student_code'] = $student['student_code'];
+			$nestedData['name'] = $student['name'];
+			$nestedData['class'] = $student['class_name'] . ' ' . $student['name_numeric'] . ($section ? ' ' . $section->name : '');
+			$nestedData['route_name'] = $student['route_name'];
+			$nestedData['route_fare'] = number_format($student['route_fare'], 2);
+			$nestedData['total_paid'] = number_format($total_paid ? $total_paid : 0, 2);
+			$nestedData['balance'] = number_format($balance, 2);
+			$nestedData['transport_id'] = $student['transport_id'];
+			$data[] = $nestedData;
+		}
+
+		echo json_encode(array('data' => $data));
+	}
+
+	function transport_attendance($param1 = '', $param2 = '') {
+		if ($param1 == 'mark_attendance') {
+			$attendance_data = $this->input->post('attendance');
+			$transport_ids = $this->input->post('transport_ids');
+			$attendance_date = strtotime($this->input->post('attendance_date'));
+			$attendance_type = $this->input->post('attendance_type'); // morning, afternoon, both
+			$marked_by = $this->session->userdata('admin_id');
+			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+			$current_time = date('H:i');
+			
+			$count = 0;
+			if (is_array($attendance_data)) {
+				foreach ($attendance_data as $student_id => $status) {
+					// Get transport_id for this specific student
+					$student_transport_id = isset($transport_ids[$student_id]) ? $transport_ids[$student_id] : null;
+					
+					if ($student_transport_id) {
+						// Check for existing record
+						$existing = $this->db->get_where('bus_attendance', array(
+							'student_id' => $student_id,
+							'attendance_date' => $attendance_date
+						))->row();
+						
+						// Determine boarded status based on attendance status and type
+						$boarded_in = $existing ? $existing->boarded_in : 0;
+						$boarded_out = $existing ? $existing->boarded_out : 0;
+						$in_time = $existing ? $existing->in_time : null;
+						$out_time = $existing ? $existing->out_time : null;
+						$transport_direction = 'none';
+						
+						if ($status === 'present' || $status === 'late') {
+							if ($attendance_type === 'morning') {
+								$boarded_in = 1;
+								$in_time = $current_time;
+								$transport_direction = 'in';
+							} elseif ($attendance_type === 'afternoon') {
+								$boarded_out = 1;
+								$out_time = $current_time;
+								$transport_direction = 'out';
+							} elseif ($attendance_type === 'both') {
+								$boarded_in = 1;
+								$boarded_out = 1;
+								$in_time = $current_time;
+								$out_time = $current_time;
+								$transport_direction = 'both';
+							}
+						}
+						
+						$data = array(
+							'student_id' => $student_id,
+							'route_id' => $student_transport_id,
+							'attendance_date' => $attendance_date,
+							'transport_direction' => $transport_direction,
+							'boarded_in' => $boarded_in,
+							'boarded_out' => $boarded_out,
+							'in_time' => $in_time,
+							'out_time' => $out_time,
+							'conductor_id' => $marked_by,
+							'year' => $running_year,
+							'term' => $running_term,
+							'created_at' => time()
+						);
+						
+						if ($existing) {
+							$this->db->where('id', $existing->id);
+							$this->db->update('bus_attendance', $data);
+						} else {
+							$this->db->insert('bus_attendance', $data);
+						}
+						$count++;
+					}
+				}
+			}
+			
+			echo json_encode(array(
+				'status' => 'success',
+				'message' => get_phrase('attendance_marked_successfully'),
+				'count' => $count
+			));
+			return;
+		}
+		
+		$page_data['transports'] = $this->db->get('transport')->result_array();
+		$page_data['page_name'] = 'transport_attendance';
+		$page_data['page_title'] = get_phrase('transport_attendance');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function get_transport_attendance_students() {
+		$transport_id = $this->input->post('transport_id');
+		$attendance_date = strtotime($this->input->post('attendance_date'));
+		$attendance_type = $this->input->post('attendance_type');
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		$this->db->select('student.student_id, student.student_code, student.name, class.name as class_name, class.name_numeric, enroll.section_id, enroll.transport_id, transport.route_name');
+		$this->db->from('enroll');
+		$this->db->join('student', 'enroll.student_id = student.student_id');
+		$this->db->join('class', 'enroll.class_id = class.class_id');
+		$this->db->join('transport', 'enroll.transport_id = transport.transport_id', 'left');
+		
+		// Handle "all" routes or specific route
+		if ($transport_id !== 'all') {
+			$this->db->where('enroll.transport_id', $transport_id);
+		} else {
+			$this->db->where('enroll.transport_id IS NOT NULL', null, false);
+		}
+		
+		$this->db->where('enroll.year', $running_year);
+		$this->db->where('enroll.term', $running_term);
+		$this->db->where('student.mute', '0');
+		$this->db->order_by('transport.route_name', 'ASC');
+		$this->db->order_by('student.name', 'ASC');
+		$students = $this->db->get()->result_array();
+
+		$data = array();
+		foreach ($students as $student) {
+			$section = $this->db->get_where('section', array('section_id' => $student['section_id']))->row();
+			
+			// Get bus attendance record
+			$bus_attendance = $this->db->get_where('bus_attendance', array(
+				'student_id' => $student['student_id'],
+				'attendance_date' => $attendance_date
+			))->row();
+
+			// Determine status based on attendance type and boarded flags
+			$status = 'absent';
+			if ($bus_attendance) {
+				if ($attendance_type === 'morning' && $bus_attendance->boarded_in == 1) {
+					$status = 'present';
+				} elseif ($attendance_type === 'afternoon' && $bus_attendance->boarded_out == 1) {
+					$status = 'present';
+				} elseif ($attendance_type === 'both' && ($bus_attendance->boarded_in == 1 || $bus_attendance->boarded_out == 1)) {
+					$status = 'present';
+				}
+			}
+
+			$nestedData['student_id'] = $student['student_id'];
+			$nestedData['student_code'] = $student['student_code'];
+			$nestedData['name'] = $student['name'];
+			$nestedData['class'] = $student['class_name'] . ' ' . $student['name_numeric'] . ($section ? ' ' . $section->name : '');
+			$nestedData['route'] = $student['route_name'] ? $student['route_name'] : '-';
+			$nestedData['transport_id'] = $student['transport_id'];
+			$nestedData['status'] = $status;
+			$data[] = $nestedData;
+		}
+
+		echo json_encode(array('data' => $data));
+	}
+
+	function get_all_transport_students() {
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		$this->db->select('student.student_id, student.student_code, student.name, class.name as class_name, class.name_numeric, enroll.section_id');
+		$this->db->from('enroll');
+		$this->db->join('student', 'enroll.student_id = student.student_id');
+		$this->db->join('class', 'enroll.class_id = class.class_id');
+		$this->db->where('enroll.transport_id IS NOT NULL', null, false);
+		$this->db->where('enroll.year', $running_year);
+		$this->db->where('enroll.term', $running_term);
+		$this->db->where('student.mute', '0');
+		$this->db->order_by('student.name', 'ASC');
+		$students = $this->db->get()->result_array();
+
+		$data = array();
+		foreach ($students as $student) {
+			$section = $this->db->get_where('section', array('section_id' => $student['section_id']))->row();
+			$nestedData['student_id'] = $student['student_id'];
+			$nestedData['student_code'] = $student['student_code'];
+			$nestedData['name'] = $student['name'];
+			$nestedData['class'] = $student['class_name'] . ' ' . $student['name_numeric'] . ($section ? ' ' . $section->name : '');
+			$data[] = $nestedData;
+		}
+
+		echo json_encode(array('data' => $data));
+	}
+
+	function get_student_transport_report() {
+		$student_id = $this->input->post('student_id');
+		$year = $this->input->post('year');
+		$term = $this->input->post('term');
+		$from_date = $this->input->post('from_date');
+		$to_date = $this->input->post('to_date');
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		// Use selected year or default to running year
+		if (empty($year)) {
+			$year = $running_year;
+		}
+
+		// Get student info
+		$this->db->select('student.*, enroll.transport_id, transport.route_name, transport.route_fare, class.name as class_name, class.name_numeric, enroll.section_id, enroll.year, enroll.term');
+		$this->db->from('student');
+		$this->db->join('enroll', 'student.student_id = enroll.student_id');
+		$this->db->join('transport', 'enroll.transport_id = transport.transport_id', 'left');
+		$this->db->join('class', 'enroll.class_id = class.class_id');
+		$this->db->where('student.student_id', $student_id);
+		$this->db->where('enroll.year', $year);
+		
+		// Filter by term if not "all"
+		if ($term !== 'all') {
+			$this->db->where('enroll.term', $term);
+		}
+		
+		$student = $this->db->get()->row();
+
+		if (!$student) {
+			echo json_encode(array('status' => 'error', 'message' => 'Student not found'));
+			return;
+		}
+
+		$section = $this->db->get_where('section', array('section_id' => $student->section_id))->row();
+
+		// Build period label
+		$period_label = 'Year: ' . $year;
+		if ($term === 'all') {
+			$period_label .= ' | All Terms';
+		} else {
+			$period_label .= ' | Term ' . $term;
+		}
+		$period_label .= ' (' . date('M d, Y', strtotime($from_date)) . ' - ' . date('M d, Y', strtotime($to_date)) . ')';
+
+		// Get attendance records
+		$this->db->select('bus_attendance.*, admin.name as marked_by_name');
+		$this->db->from('bus_attendance');
+		$this->db->join('admin', 'bus_attendance.conductor_id = admin.admin_id', 'left');
+		$this->db->where('bus_attendance.student_id', $student_id);
+		$this->db->where('bus_attendance.attendance_date >=', strtotime($from_date));
+		$this->db->where('bus_attendance.attendance_date <=', strtotime($to_date));
+		$this->db->order_by('bus_attendance.attendance_date', 'DESC');
+		$attendance_records = $this->db->get()->result_array();
+
+		// Format attendance data for display
+		$attendance = array();
+		foreach ($attendance_records as $record) {
+			$session = 'none';
+			$status = 'absent';
+			
+			if ($record['boarded_in'] == 1 && $record['boarded_out'] == 1) {
+				$session = 'both';
+				$status = 'present';
+			} elseif ($record['boarded_in'] == 1) {
+				$session = 'morning';
+				$status = 'present';
+			} elseif ($record['boarded_out'] == 1) {
+				$session = 'afternoon';
+				$status = 'present';
+			}
+			
+			$attendance[] = array(
+				'attendance_date' => date('Y-m-d', $record['attendance_date']),
+				'attendance_type' => $session,
+				'status' => $status,
+				'marked_by_name' => $record['marked_by_name']
+			);
+		}
+
+		// Calculate statistics
+		$stats = array(
+			'total_days' => count($attendance),
+			'present' => 0,
+			'absent' => 0,
+			'late' => 0
+		);
+
+		foreach ($attendance as $record) {
+			if ($record['status'] === 'present') {
+				$stats['present']++;
+			} else {
+				$stats['absent']++;
+			}
+		}
+
+		$stats['present_percent'] = $stats['total_days'] > 0 ? round(($stats['present'] / $stats['total_days']) * 100, 1) : 0;
+		$stats['absent_percent'] = $stats['total_days'] > 0 ? round(($stats['absent'] / $stats['total_days']) * 100, 1) : 0;
+		$stats['late_percent'] = $stats['total_days'] > 0 ? round(($stats['late'] / $stats['total_days']) * 100, 1) : 0;
+
+		// Get payment information
+		$this->db->select('SUM(transport_amount) as total_paid, COUNT(*) as payment_count');
+		$this->db->from('daily_fee_transactions');
+		$this->db->where('student_id', $student_id);
+		$this->db->where('year', $year);
+		
+		if ($term !== 'all') {
+			$this->db->where('term', $term);
+		}
+		
+		$this->db->where('transport_amount >', 0);
+		$payments = $this->db->get()->row();
+
+		// Calculate expected amount based on term
+		$expected = 0;
+		if ($student->route_fare) {
+			if ($term === 'all') {
+				// Assume 3 terms per year, 3 months per term
+				$expected = $student->route_fare * 9;
+			} else {
+				// 3 months per term
+				$expected = $student->route_fare * 3;
+			}
+		}
+
+		$response = array(
+			'status' => 'success',
+			'data' => array(
+				'student' => array(
+					'student_id' => $student->student_id,
+					'student_code' => $student->student_code,
+					'name' => $student->name,
+					'class' => $student->class_name . ' ' . $student->name_numeric . ($section ? ' ' . $section->name : ''),
+					'route_name' => $student->route_name,
+					'route_fare' => $student->route_fare
+				),
+				'period_label' => $period_label,
+				'stats' => $stats,
+				'attendance' => $attendance,
+				'payments' => array(
+					'total_paid' => $payments->total_paid ? $payments->total_paid : 0,
+					'payment_count' => $payments->payment_count ? $payments->payment_count : 0,
+					'expected' => $expected
+				)
+			)
+		);
+
+		echo json_encode($response);
+	}
+
+	function transport_reports() {
+		$page_data['page_name'] = 'transport_reports';
+		$page_data['page_title'] = get_phrase('transport_reports');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function generate_student_transport_report() {
+		$student_id = $this->input->post('student_id');
+		$year = $this->input->post('year');
+		$term = $this->input->post('term');
+		
+		// Get student basic info
+		$this->db->select('s.student_id, s.name, s.student_code, e.transport_id, t.route_name, t.route_fare, c.name as class');
+		$this->db->from('student s');
+		$this->db->join('enroll e', 's.student_id = e.student_id');
+		$this->db->join('transport t', 'e.transport_id = t.transport_id', 'left');
+		$this->db->join('class c', 'e.class_id = c.class_id');
+		$this->db->where('s.student_id', $student_id);
+		$this->db->where('e.year', $year);
+		if ($term !== 'all') {
+			$this->db->where('e.term', $term);
+		}
+		$this->db->limit(1);
+		$student = $this->db->get()->row();
+		
+		if (!$student) {
+			echo json_encode(['status' => 'error', 'message' => 'Student not found']);
+			return;
+		}
+		
+		// Get attendance statistics from bus_attendance
+		$this->db->select('COUNT(DISTINCT attendance_date) as total_days, SUM(CASE WHEN (boarded_in = 1 OR boarded_out = 1) THEN 1 ELSE 0 END) as present');
+		$this->db->from('bus_attendance');
+		$this->db->where('student_id', $student_id);
+		$this->db->where('year', $year);
+		if ($term !== 'all') {
+			$this->db->where('term', $term);
+		}
+		$attendance_stats = $this->db->get()->row();
+		
+		$total_days = $attendance_stats->total_days ?? 0;
+		$present = $attendance_stats->present ?? 0;
+		$absent = $total_days - $present;
+		
+		$stats = [
+			'total_days' => $total_days,
+			'present' => $present,
+			'absent' => $absent,
+			'present_percent' => $total_days > 0 ? round(($present / $total_days) * 100, 1) : 0,
+			'absent_percent' => $total_days > 0 ? round(($absent / $total_days) * 100, 1) : 0,
+			'late' => 0,
+			'late_percent' => 0
+		];
+		
+		// Get payment information
+		$this->db->select('COALESCE(SUM(transport_amount), 0) as total_paid, COUNT(*) as payment_count');
+		$this->db->from('daily_fee_transactions');
+		$this->db->where('student_id', $student_id);
+		$this->db->where('year', $year);
+		if ($term !== 'all') {
+			$this->db->where('term', $term);
+		}
+		$this->db->where('transport_amount >', 0);
+		$payment = $this->db->get()->row();
+		
+		// Get attendance history
+		$this->db->select('DATE(FROM_UNIXTIME(attendance_date)) as date, boarded_in, boarded_out, t.route_name');
+		$this->db->from('bus_attendance ba');
+		$this->db->join('transport t', 'ba.route_id = t.transport_id', 'left');
+		$this->db->where('ba.student_id', $student_id);
+		$this->db->where('ba.year', $year);
+		if ($term !== 'all') {
+			$this->db->where('ba.term', $term);
+		}
+		$this->db->order_by('ba.attendance_date', 'DESC');
+		$this->db->limit(50);
+		$attendance_history = $this->db->get()->result_array();
+		
+		// Format attendance history
+		$attendance = [];
+		foreach ($attendance_history as $record) {
+			$attendance[] = [
+				'date' => $record['date'],
+				'status' => ($record['boarded_in'] == 1 || $record['boarded_out'] == 1) ? 'present' : 'absent',
+				'route_name' => $record['route_name']
+			];
+		}
+		
+		echo json_encode([
+			'status' => 'success',
+			'data' => [
+				'student' => [
+					'student_id' => $student->student_id,
+					'name' => $student->name,
+					'student_code' => $student->student_code,
+					'class' => $student->class,
+					'route_name' => $student->route_name ?? 'N/A',
+					'route_fare' => $student->route_fare ?? 0
+				],
+				'stats' => $stats,
+				'payment' => [
+					'total_paid' => $payment->total_paid ?? 0,
+					'payment_count' => $payment->payment_count ?? 0
+				],
+				'attendance' => $attendance
+			]
+		]);
+	}
+
+	function generate_route_summary_report() {
+		$route_id = $this->input->post('route_id');
+		$year = $this->input->post('year');
+		$term = $this->input->post('term');
+		
+		// Build query for routes
+		$this->db->select('t.*');
+		$this->db->from('transport t');
+		if ($route_id !== 'all') {
+			$this->db->where('t.transport_id', $route_id);
+		}
+		$routes = $this->db->get()->result_array();
+		
+		$report_data = [];
+		foreach ($routes as $route) {
+			// Get student count
+			$this->db->from('enroll e');
+			$this->db->where('e.transport_id', $route['transport_id']);
+			$this->db->where('e.year', $year);
+			if ($term !== 'all') {
+				$this->db->where('e.term', $term);
+			}
+			$student_count = $this->db->count_all_results();
+			
+			// Get revenue - Fixed query to properly join and filter
+			$this->db->select('COALESCE(SUM(dft.transport_amount), 0) as total_revenue');
+			$this->db->from('daily_fee_transactions dft');
+			$this->db->join('enroll e', 'dft.student_id = e.student_id AND dft.year = e.year', 'inner');
+			$this->db->where('e.transport_id', $route['transport_id']);
+			$this->db->where('dft.year', $year);
+			
+			if ($term !== 'all') {
+				$this->db->where('dft.term', $term);
+				$this->db->where('e.term', $term);
+			}
+			
+			$this->db->where('dft.transport_amount >', 0);
+			$revenue = $this->db->get()->row();
+			
+			$report_data[] = [
+				'route_name' => $route['route_name'],
+				'route_fare' => $route['route_fare'],
+				'student_count' => $student_count,
+				'total_revenue' => $revenue->total_revenue
+			];
+		}
+		
+		echo json_encode([
+			'status' => 'success',
+			'data' => $report_data
+		]);
+	}
+
+	function generate_revenue_report() {
+		$from_date = $this->input->post('from_date');
+		$to_date = $this->input->post('to_date');
+		$group_by = $this->input->post('group_by');
+		
+		$from_timestamp = strtotime($from_date);
+		$to_timestamp = strtotime($to_date . ' 23:59:59');
+		
+		// Use payment_date instead of payment_timestamp
+		$this->db->select('DATE(FROM_UNIXTIME(payment_date)) as payment_date, 
+						   SUM(transport_amount) as daily_revenue, 
+						   COUNT(DISTINCT student_id) as student_count');
+		$this->db->from('daily_fee_transactions');
+		$this->db->where('payment_date >=', $from_timestamp);
+		$this->db->where('payment_date <=', $to_timestamp);
+		$this->db->where('transport_amount >', 0);
+		$this->db->group_by('payment_date');
+		$this->db->order_by('payment_date', 'ASC');
+		$revenue_data = $this->db->get()->result_array();
+		
+		echo json_encode([
+			'status' => 'success',
+			'data' => $revenue_data
+		]);
+	}
+
+	function generate_attendance_report() {
+		$route_id = $this->input->post('route_id');
+		$from_date = $this->input->post('from_date');
+		$to_date = $this->input->post('to_date');
+		
+		$from_timestamp = strtotime($from_date);
+		$to_timestamp = strtotime($to_date . ' 23:59:59');
+		
+		// Get attendance data grouped by date
+		$this->db->select('DATE(FROM_UNIXTIME(ba.attendance_date)) as attendance_date, 
+						   t.route_name,
+						   COUNT(DISTINCT ba.student_id) as expected_count,
+						   SUM(CASE WHEN (ba.boarded_in = 1 OR ba.boarded_out = 1) THEN 1 ELSE 0 END) as boarded_count');
+		$this->db->from('bus_attendance ba');
+		$this->db->join('transport t', 'ba.route_id = t.transport_id', 'left');
+		$this->db->where('ba.attendance_date >=', $from_timestamp);
+		$this->db->where('ba.attendance_date <=', $to_timestamp);
+		
+		if ($route_id !== 'all') {
+			$this->db->where('ba.route_id', $route_id);
+		}
+		
+		$this->db->group_by('attendance_date, t.route_name');
+		$this->db->order_by('attendance_date', 'DESC');
+		$attendance_data = $this->db->get()->result_array();
+		
+		echo json_encode([
+			'status' => 'success',
+			'data' => $attendance_data
+		]);
+	}
+
+	function transport_fare_report() {
+		$page_data['page_name'] = 'transport_fare_report';
+		$page_data['page_title'] = get_phrase('transport_fare_report');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function get_transport_fare_report() {
+		$transport_id = $this->input->post('transport_id');
+		$payment_method = $this->input->post('payment_method');
+		$from_date = $this->input->post('from_date');
+		$to_date = $this->input->post('to_date');
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		
+		// Build base query
+		$this->db->select('transport_fare_payment.*, student.name as student_name, student.student_code, transport.route_name, enroll.class_id');
+		$this->db->from('daily_fee_wallet');
+		$this->db->join('student', 'student.student_id = transport_fare_payment.student_id');
+		$this->db->join('transport', 'transport.transport_id = transport_fare_payment.transport_id');
+		$this->db->join('enroll', 'enroll.student_id = transport_fare_payment.student_id AND enroll.year = transport_fare_payment.year COLLATE utf8mb3_unicode_ci AND enroll.term = transport_fare_payment.term COLLATE utf8mb3_unicode_ci', 'left');
+		// $this->db->where('transport_fare.year', $running_year);
+		// $this->db->where('transport_fare.term', $running_term);
+		
+		if (!empty($transport_id)) {
+			$this->db->where('transport_fare_payment.transport_id', $transport_id);
+		}
+		if (!empty($payment_method)) {
+			$this->db->where('transport_fare_payment.payment_method', $payment_method);
+		}
+		if (!empty($from_date)) {
+			$this->db->where('transport_fare_payment.payment_date >=', $from_date);
+		}
+		if (!empty($to_date)) {
+			$this->db->where('transport_fare_payment.payment_date <=', $to_date);
+		}
+		
+		// Get all payments for statistics
+		$all_payments_query = $this->db->get();
+		$all_payments = $all_payments_query->result_array();
+		
+		// Calculate statistics
+		$total = 0;
+		$cash_total = 0;
+		$momo_total = 0;
+		$total_count = count($all_payments);
+		
+		foreach ($all_payments as $payment) {
+			$total += $payment['amount'];
+			if ($payment['payment_method'] == 'cash') {
+				$cash_total += $payment['amount'];
+			} elseif ($payment['payment_method'] == 'mobile_money') {
+				$momo_total += $payment['amount'];
+			}
+		}
+		
+		// Now get data for table (with ordering)
+		$this->db->select('transport_fare_payment.*, student.name as student_name, student.student_code, transport.route_name, enroll.class_id');
+		$this->db->from('daily_fee_wallet');
+		$this->db->join('student', 'student.student_id = transport_fare_payment.student_id');
+		$this->db->join('transport', 'transport.transport_id = transport_fare_payment.transport_id');
+		$this->db->join('enroll', 'enroll.student_id = transport_fare_payment.student_id AND enroll.year = transport_fare_payment.year COLLATE utf8mb3_unicode_ci AND enroll.term = transport_fare_payment.term COLLATE utf8mb3_unicode_ci', 'left');
+		// $this->db->where('transport_fare.year', $running_year);
+		// $this->db->where('transport_fare.term', $running_term);
+		
+		if (!empty($transport_id)) {
+			$this->db->where('transport_fare_payment.transport_id', $transport_id);
+		}
+		if (!empty($payment_method)) {
+			$this->db->where('transport_fare_payment.payment_method', $payment_method);
+		}
+		if (!empty($from_date)) {
+			$this->db->where('transport_fare_payment.payment_date >=', $from_date);
+		}
+		if (!empty($to_date)) {
+			$this->db->where('transport_fare_payment.payment_date <=', $to_date);
+		}
+		
+		$this->db->order_by('transport_fare_payment.payment_date', 'DESC');
+		$payments = $this->db->get()->result_array();
+		
+		$data = array();
+		foreach ($payments as $payment) {
+			$class_name = '';
+			if ($payment['class_id']) {
+				$class = $this->db->get_where('class', array('class_id' => $payment['class_id']))->row();
+				if ($class) {
+					$class_name = $class->name . ' ' . $class->name_numeric;
+				}
+			}
+			
+			$details = '';
+			if ($payment['payment_method'] == 'mobile_money' && !empty($payment['momo_number'])) {
+				$details = 'MoMo: ' . ($payment['momo_number'] ? $payment['momo_number'] : 'N/A') . '<br>Trans ID: ' . ($payment['transaction_id'] ? $payment['transaction_id'] : 'N/A');
+			} elseif ($payment['payment_method'] == 'cheque' && !empty($payment['bank_name'])) {
+				$details = 'Bank: ' . ($payment['bank_name'] ? $payment['bank_name'] : 'N/A') . '<br>Cheque: ' . ($payment['cheque_number'] ? $payment['cheque_number'] : 'N/A');
+			}
+			
+			$data[] = array(
+				'receipt_number' => $payment['receipt_number'],
+				'student_name' => $payment['student_name'] . ' (' . $payment['student_code'] . ')',
+				'class_name' => $class_name,
+				'route_name' => $payment['route_name'],
+				'amount_paid' => 'GHS ' . number_format($payment['amount'], 2),
+				'payment_date' => date('d M Y', strtotime($payment['payment_date'])),
+				'payment_method' => ucwords(str_replace('_', ' ', $payment['payment_method'])),
+				'details' => $details
+			);
+		}
+		
+		$this->output->set_content_type('application/json');
+		echo json_encode(array(
+			'data' => $data,
+			'total_amount' => 'GHS ' . number_format($total, 2),
+			'total_count' => $total_count,
+			'cash_total' => 'GHS ' . number_format($cash_total, 2),
+			'momo_total' => 'GHS ' . number_format($momo_total, 2)
+		));
+	}
+
+	function export_transport_fare_report() {
+		$transport_id = $this->input->get('transport_id');
+		$payment_method = $this->input->get('payment_method');
+		$from_date = $this->input->get('from_date');
+		$to_date = $this->input->get('to_date');
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+		
+		$this->db->select('transport_fare_payment.*, student.name as student_name, student.student_code, transport.route_name, enroll.class_id');
+		$this->db->from('daily_fee_wallet');
+		$this->db->join('student', 'student.student_id = transport_fare_payment.student_id');
+		$this->db->join('transport', 'transport.transport_id = transport_fare_payment.transport_id');
+		$this->db->join('enroll', 'enroll.student_id = transport_fare_payment.student_id AND enroll.year = transport_fare_payment.year COLLATE utf8mb3_unicode_ci AND enroll.term = transport_fare_payment.term COLLATE utf8mb3_unicode_ci', 'left');
+		$this->db->where('transport_fare_payment.year', $running_year);
+		$this->db->where('transport_fare_payment.term', $running_term);
+		
+		if (!empty($transport_id)) {
+			$this->db->where('transport_fare_payment.transport_id', $transport_id);
+		}
+		if (!empty($payment_method)) {
+			$this->db->where('transport_fare_payment.payment_method', $payment_method);
+		}
+		if (!empty($from_date)) {
+			$this->db->where('transport_fare_payment.payment_date >=', $from_date);
+		}
+		if (!empty($to_date)) {
+			$this->db->where('transport_fare_payment.payment_date <=', $to_date);
+		}
+		
+		$this->db->order_by('transport_fare_payment.payment_date', 'DESC');
+		$payments = $this->db->get()->result_array();
+		
+		header('Content-Type: text/csv');
+		header('Content-Disposition: attachment; filename="transport_fare_report_' . date('Y-m-d') . '.csv"');
+		
+		$output = fopen('php://output', 'w');
+		fputcsv($output, array('Receipt No', 'Student Code', 'Student Name', 'Class', 'Route', 'Amount', 'Payment Date', 'Payment Method', 'MoMo Number', 'Transaction ID', 'Bank Name', 'Cheque Number', 'Remarks'));
+		
+		$total = 0;
+		foreach ($payments as $payment) {
+			$class_name = '';
+			if ($payment['class_id']) {
+				$class = $this->db->get_where('class', array('class_id' => $payment['class_id']))->row();
+				$class_name = $class->name . ' ' . $class->name_numeric;
+			}
+			
+			fputcsv($output, array(
+				$payment['receipt_number'],
+				$payment['student_code'],
+				$payment['student_name'],
+				$class_name,
+				$payment['route_name'],
+				number_format($payment['amount_paid'], 2),
+				$payment['payment_date'],
+				ucwords(str_replace('_', ' ', $payment['payment_method'])),
+				$payment['momo_number'],
+				$payment['transaction_id'],
+				$payment['bank_name'],
+				$payment['cheque_number'],
+				$payment['remarks']
+			));
+			$total += $payment['amount_paid'];
+		}
+		
+		fputcsv($output, array('', '', '', 'TOTAL', '', number_format($total, 2)));
+		fclose($output);
+	}
+
+	function get_assign_transport_students() {
+		$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+		$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+
+		$this->db->select('student.*, class.name as class_name, class.name_numeric, enroll.section_id, enroll.transport_id');
+		$this->db->from('enroll');
+		$this->db->join('student', 'enroll.student_id = student.student_id');
+		$this->db->join('class', 'enroll.class_id = class.class_id');
+		$this->db->where('enroll.year', $running_year);
+		$this->db->where('enroll.term', $running_term);
+		$this->db->where('enroll.mute', '0');
+		$this->db->order_by('student.name', 'ASC');
+		$students = $this->db->get()->result_array();
+
+		$data = array();
+		foreach ($students as $student) {
+			$section = $this->db->get_where('section', array('section_id' => $student['section_id']))->row();
+			$current_transport = $student['transport_id'] ? $this->db->get_where('transport', array('transport_id' => $student['transport_id']))->row() : null;
+
+			$nestedData['student_id'] = $student['student_id'];
+			$nestedData['student_code'] = $student['student_code'];
+			$nestedData['name'] = $student['name'];
+			$nestedData['class'] = $student['class_name'] . ' ' . $student['name_numeric'] . ($section ? ' ' . $section->name : '');
+			$nestedData['current_transport'] = $current_transport ? $current_transport->route_name : '';
+			$nestedData['transport_id'] = $student['transport_id'] ? $student['transport_id'] : '';
+			$data[] = $nestedData;
+		}
+
+		echo json_encode(array('data' => $data));
+	}
+	
+	/**********MANAGE DORMITORY / HOSTELS / ROOMS ********************/
+	function dormitory($param1 = '', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		if ($param1 == 'create') {
+			$data['name'] = $this->input->post('name');
+			$data['number_of_room'] = $this->input->post('number_of_room');
+			if ($this->input->post('description') != null) {
+				$data['description'] = $this->input->post('description');
+			}
+
+			$this->db->insert('dormitory', $data);
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_added_successfully'));
+			redirect(site_url('admin/dormitory'));
+		}
+		if ($param1 == 'do_update') {
+			$data['name'] = $this->input->post('name');
+			$data['number_of_room'] = $this->input->post('number_of_room');
+			if ($this->input->post('description') != null) {
+				$data['description'] = $this->input->post('description');
+			} else {
+				$data['description'] = null;
+			}
+			$this->db->where('dormitory_id', $param2);
+			$this->db->update('dormitory', $data);
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_updated'));
+			redirect(site_url('admin/dormitory'));
+		} else if ($param1 == 'edit') {
+			$page_data['edit_data'] = $this->db->get_where('dormitory', array(
+				'dormitory_id' => $param2,
+			))->result_array();
+		}
+		if ($param1 == 'delete') {
+			$this->db->where('dormitory_id', $param2);
+			$queryExecuted = $this->db->delete('dormitory');
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+
+			if($queryExecuted) {
+				$ajaxData['message'] = 'done';
+			} else {
+				$ajaxData['message'] = 'failed';
+			}
+
+			$ajaxData['route'] = 'dormitory';
+			
+			echo json_encode($ajaxData);
+			return;
+
+		}
+		$page_data['dormitories'] = $this->db->get('dormitory')->result_array();
+		$page_data['page_name'] = 'dormitory';
+		$page_data['page_title'] = get_phrase('manage_dormitory');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+
+	}
+
+	/***MANAGE EVENT / NOTICEBOARD, WILL BE SEEN BY ALL ACCOUNTS DASHBOARD**/
+	function noticeboard($param1 = '', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		if ($param1 == 'create') {
+			$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+			$data['notice_title'] = $this->input->post('notice_title');
+			$data['notice'] = $this->input->post('notice');
+			$data['show_on_website'] = $this->input->post('show_on_website');
+			$data['create_timestamp'] = strtotime($this->input->post('create_timestamp'));
+			$data['created_on'] = strtotime($this->input->post('notice_timestamp'));
+			if ($_FILES['image']['name'] != '') {
+				$data['image'] = $_FILES['image']['name'];
+				move_uploaded_file($_FILES['image']['tmp_name'], 'uploads/frontend/noticeboard/' . $_FILES['image']['name']);
+			} else {
+				$data['image'] = 'notice_placeholder.jpg';
+			}
+			$this->db->insert('noticeboard', $data);
+
+			$check_sms_send = $this->input->post('check_sms');
+			$sms_target = $this->input->post('sms_target');
+
+			if ($check_sms_send == 1) {
+				// sms sending configurations
+				if ($active_sms_service != 'disabled') {
+					$parents = $this->db->get('parent')->result_array();
+					$students = $this->db->get('student')->result_array();
+					$teachers = $this->db->get('teacher')->result_array();
+					$date = date('d M, Y', strtotime($this->input->post('create_timestamp')));
+					$message = $data['notice_title'] . ': ';
+					$message .= $data['notice'] . ' ';
+					$message .= get_phrase('date') . ': ' . $date;
+
+					//send SMS to all: parents, teachers and students
+					if ($sms_target == 1) {
+						foreach ($parents as $row) {
+							$receiver_phone = $row['phone'];
+							if ($receiver_phone == '' || $receiver_phone == NULL) {
+
+							} else {
+								$receiver_phone_array = array();
+								$receiver_phone_array[] = $receiver_phone;
+
+								$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+							}
+						}
+						foreach ($students as $row) {
+							$receiver_phone = $row['phone'];
+							if ($receiver_phone == '' || $receiver_phone == NULL) {
+
+							} else {
+								$receiver_phone_array = array();
+								$receiver_phone_array[] = $receiver_phone;
+
+								$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+							}
+						}
+						foreach ($teachers as $row) {
+							$receiver_phone = $row['phone'];
+							if ($receiver_phone == '' || $receiver_phone == NULL) {
+
+							} else {
+								$receiver_phone_array = array();
+								$receiver_phone_array[] = $receiver_phone;
+
+								$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+							}
+						}
+					}
+
+					//send SMS to parents only
+					if ($sms_target == 2) {
+						foreach ($parents as $row) {
+							$receiver_phone = $row['phone'];
+							if ($receiver_phone == '' || $receiver_phone == NULL) {
+
+							} else {
+								$receiver_phone_array = array();
+								$receiver_phone_array[] = $receiver_phone;
+
+								$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+							}
+						}
+					}
+
+					//send SMS to teachers only
+					if ($sms_target == 3) {
+						foreach ($teachers as $row) {
+							$receiver_phone = $row['phone'];
+							if ($receiver_phone == '' || $receiver_phone == NULL) {
+
+							} else {
+								$receiver_phone_array = array();
+								$receiver_phone_array[] = $receiver_phone;
+
+								$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+							}
+						}
+					}
+
+					//send SMS to students only
+					if ($sms_target == 4) {
+						foreach ($students as $row) {
+							$receiver_phone = $row['phone'];
+							if ($receiver_phone == '' || $receiver_phone == NULL) {
+
+							} else {
+								$receiver_phone_array = array();
+								$receiver_phone_array[] = $receiver_phone;
+
+								$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+							}
+						}
+					}
+				}
+
+			}
+
+			//send email alert
+			$check_email_send = $this->input->post('check_email');
+			if ($check_email_send == 1) {
+				// email sending configurations
+				//school's info
+				$owner_email = $this->db->get_where('settings', array('type' => 'system_email'))->row()->description;
+				$email_subject = $data['notice_title'];
+
+				$parents = $this->db->get('parent')->result_array();
+				$students = $this->db->get('student')->result_array();
+				$teachers = $this->db->get('teacher')->result_array();
+				$date = date('d M, Y', strtotime($this->input->post('create_timestamp')));
+
+				$message = '<!doctype html>
+                             <html>
+                                <head>
+                                    <meta charset="utf-8" />
+                                    <title>Notice Board Announcement</title>
+                                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                                </head>
+                                <body>
+                                <center>';
+
+				$message = '<h3>TITLE: ' . $data['notice_title'] . '<h3/><hr> ';
+				$message .= '<img src="' . base_url('uploads/frontend/noticeboard/' . $data['image']) . '"><br/><hr>';
+				$message .= '<h4>CONTENT: <p style="font-weight: bolder;">' . $data['notice'] . '<h4/><hr>';
+				$message .= '<h4>' . get_phrase('date') . ': ' . $date . '</h4>';
+				$message .= '</center>
+                             </body>
+                             </html>
+                                ';
+				foreach ($parents as $row) {
+					$receiver_email = $row['email'];
+					if ($receiver_email == '' || $receiver_email == NULL) {
+
+					} else {
+
+						$this->email_model->do_email($message, $email_subject, $receiver_email, $owner_email);
+					}
+				}
+				foreach ($students as $row) {
+					$receiver_email = $row['email'];
+					if ($receiver_email == '' || $receiver_email == NULL) {
+
+					} else {
+						$this->email_model->do_email($message, $email_subject, $receiver_email, $owner_email);
+					}
+				}
+				foreach ($teachers as $row) {
+					$receiver_email = $row['email'];
+					if ($receiver_email == '' || $receiver_email == NULL) {
+
+					} else {
+						$this->email_model->do_email($message, $email_subject, $receiver_email, $owner_email);
+					}
+				}
+			}
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_added_successfully'));
+			redirect(site_url('admin/noticeboard?suc=1'));
+		}
+		if ($param1 == 'do_update') {
+			$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+			$image = $this->db->get_where('noticeboard', array('notice_id' => $param2))->row()->image;
+			$data['notice_title'] = $this->input->post('notice_title');
+			$data['notice'] = $this->input->post('notice');
+			$data['show_on_website'] = $this->input->post('show_on_website');
+			$data['create_timestamp'] = strtotime($this->input->post('create_timestamp'));
+			$data['created_on'] = strtotime($this->input->post('notice_timestamp'));
+			if ($_FILES['image']['name'] != '') {
+				$data['image'] = $_FILES['image']['name'];
+				move_uploaded_file($_FILES['image']['tmp_name'], 'uploads/frontend/noticeboard/' . $_FILES['image']['name']);
+			} else {
+				$data['image'] = $image;
+			}
+
+			$this->db->where('notice_id', $param2);
+			$this->db->update('noticeboard', $data);
+
+			$check_sms_send = $this->input->post('check_sms');
+			$sms_target = $this->input->post('sms_target');
+
+			if ($check_sms_send == 1) {
+				// sms sending configurations
+				if ($active_sms_service != 'disabled') {
+					$parents = $this->db->get('parent')->result_array();
+					$students = $this->db->get('student')->result_array();
+					$teachers = $this->db->get('teacher')->result_array();
+					$date = date('d M, Y', strtotime($this->input->post('create_timestamp')));
+					$message = $data['notice_title'] . ' ';
+					$message .= get_phrase('date') . ': ' . $date;
+
+					//send SMS to all: parents, teachers and students
+					if ($sms_target == 1) {
+						foreach ($parents as $row) {
+							$receiver_phone = $row['phone'];
+							if ($receiver_phone == '' || $receiver_phone == NULL) {
+
+							} else {
+								$receiver_phone_array = array();
+								$receiver_phone_array[] = $receiver_phone;
+
+								$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+							}
+						}
+						foreach ($students as $row) {
+							$receiver_phone = $row['phone'];
+							if ($receiver_phone == '' || $receiver_phone == NULL) {
+
+							} else {
+								$receiver_phone_array = array();
+								$receiver_phone_array[] = $receiver_phone;
+
+								$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+							}
+						}
+						foreach ($teachers as $row) {
+							$receiver_phone = $row['phone'];
+							if ($receiver_phone == '' || $receiver_phone == NULL) {
+
+							} else {
+								$receiver_phone_array = array();
+								$receiver_phone_array[] = $receiver_phone;
+
+								$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+							}
+						}
+					}
+
+					//send SMS to parents only
+					if ($sms_target == 2) {
+						foreach ($parents as $row) {
+							$receiver_phone = $row['phone'];
+							if ($receiver_phone == '' || $receiver_phone == NULL) {
+
+							} else {
+								$receiver_phone_array = array();
+								$receiver_phone_array[] = $receiver_phone;
+
+								$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+							}
+						}
+					}
+
+					//send SMS to teachers only
+					if ($sms_target == 3) {
+						foreach ($teachers as $row) {
+							$receiver_phone = $row['phone'];
+							if ($receiver_phone == '' || $receiver_phone == NULL) {
+
+							} else {
+								$receiver_phone_array = array();
+								$receiver_phone_array[] = $receiver_phone;
+
+								$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+							}
+						}
+					}
+
+					//send SMS to students only
+					if ($sms_target == 4) {
+						foreach ($students as $row) {
+							$receiver_phone = $row['phone'];
+							if ($receiver_phone == '' || $receiver_phone == NULL) {
+
+							} else {
+								$receiver_phone_array = array();
+								$receiver_phone_array[] = $receiver_phone;
+
+								$result = $this->sms_model->send_sms($message, $receiver_phone_array);
+							}
+						}
+					}
+				}
+			}
+
+			//send email alert
+			$check_email_send = $this->input->post('check_email');
+			if ($check_email_send == 1) {
+				// email sending configurations
+				//school's info
+				$owner_email = $this->db->get_where('settings', array('type' => 'system_email'))->row()->description;
+				$email_subject = $data['notice_title'];
+
+				$parents = $this->db->get('parent')->result_array();
+				$students = $this->db->get('student')->result_array();
+				$teachers = $this->db->get('teacher')->result_array();
+				$date = date('d M, Y', strtotime($this->input->post('create_timestamp')));
+
+				$message = '<!doctype html>
+                             <html>
+                                <head>
+                                    <meta charset="utf-8" />
+                                    <title>Notice Board Announcement</title>
+                                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                                </head>
+                                <body>
+                                <center>';
+
+				$message = '<h3>TITLE: ' . $data['notice_title'] . '<h3/><hr> ';
+				$message .= '<img src="' . base_url('uploads/frontend/noticeboard/' . $data['image']) . '"><br/><hr>';
+				$message .= '<h4>CONTENT: <p style="font-weight: bolder;">' . $data['notice'] . '<h4/><hr>';
+				$message .= '<h4>' . get_phrase('date') . ': ' . $date . '</h4>';
+				$message .= '</center>
+                             </body>
+                             </html>
+                                ';
+
+				foreach ($parents as $row) {
+					$receiver_email = $row['email'];
+					if ($receiver_email == '' || $receiver_email == NULL) {
+
+					} else {
+						$this->email_model->do_email($message, $email_subject, $receiver_email, $owner_email);
+					}
+				}
+				foreach ($students as $row) {
+					$receiver_email = $row['email'];
+					if ($receiver_email == '' || $receiver_email == NULL) {
+
+					} else {
+						$this->email_model->do_email($message, $email_subject, $receiver_email, $owner_email);
+					}
+				}
+				foreach ($teachers as $row) {
+					$receiver_email = $row['email'];
+					if ($receiver_email == '' || $receiver_email == NULL) {
+
+					} else {
+						$this->email_model->do_email($message, $email_subject, $receiver_email, $owner_email);
+					}
+				}
+			}
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_updated'));
+			redirect(site_url('admin/noticeboard?up=1'));
+		} else if ($param1 == 'edit') {
+			$page_data['edit_data'] = $this->db->get_where('noticeboard', array(
+				'notice_id' => $param2,
+			))->result_array();
+		}
+
+		//delete the image in the uploads/frontend/noticeboard folder
+		$notice_image_name = $this->db->get_where('noticeboard', array('notice_id' => $param2))->row()->image;
+		$notice_image_url = 'uploads/frontend/noticeboard/' . $notice_image_name;
+		if (file_exists($notice_image_url)) {
+			unlink($notice_image_url);
+		}
+
+		if ($param1 == 'delete') {
+			$this->db->where('notice_id', $param2);
+			$queryExecuted = $this->db->delete('noticeboard');
+
+			
+
+			if($queryExecuted) {
+
+				//delete this id from the list of ids in the read_notice_ids column
+			//get all those ids there
+			$tables = array('admin', 'accountant', 'librarian', 'parent', 'student', 'teacher');
+			for ($i = 0; $i < sizeof($tables); $i++) {
+				$r_n_ids_array = $this->db->get($tables[$i])->result_array();
+
+				foreach ($r_n_ids_array as $row_r) {
+
+					$user_id_r = $row_r[$tables[$i] . '_id'];
+					$r_ids = $row_r['read_notice_ids'];
+					$r_ids_explode = explode(',', $r_ids);
+
+					$new_ids = array();
+					$counter_j = 0;
+					for ($j = 0; $j < count($r_ids_explode); $j++) {
+						if ($param2 != $r_ids_explode[$j]) {
+							$new_ids[$counter_j] = $r_ids_explode[$j];
+							$counter_j++;
+						}
+					}
+
+					//clean the column and update it with default value:0;
+					$this->db->where($tables[$i] . '_id', $user_id_r);
+					$this->db->update($tables[$i], array('read_notice_ids' => 0));
+
+					//update the user's table with the new ids
+					for ($n_i = 0; $n_i < sizeof($new_ids); $n_i++) {
+
+						$prev_ids = $this->db->get_where($tables[$i], array($tables[$i] . '_id' => $user_id_r))->row()->read_notice_ids;
+
+						if ($new_ids[$n_i] != 0) {
+							$this->db->where($tables[$i] . '_id', $user_id_r);
+							$this->db->update($tables[$i], array('read_notice_ids' => $prev_ids . ',' . $new_ids[$n_i]));
+						}
+					} //end of update for a user
+
+				} // end of deletion from a user's column
+			} //end of deletion from all users' tables
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+				$ajaxData['message'] = 'done';
+			} else {
+				$ajaxData['message'] = 'failed';
+			}
+
+			$ajaxData['route'] = 'noticeboard';
+			
+			echo json_encode($ajaxData);
+			return;
+
+		}
+		if ($param1 == 'mark_as_archive') {
+			$this->db->where('notice_id', $param2);
+			$this->db->update('noticeboard', array('status' => 0));
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			redirect(site_url('admin/noticeboard'));
+		}
+
+		if ($param1 == 'remove_from_archived') {
+			$this->db->where('notice_id', $param2);
+			$this->db->update('noticeboard', array('status' => 1));
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			redirect(site_url('admin/noticeboard'));
+		}
+		$page_data['page_name'] = 'noticeboard';
+		$page_data['page_title'] = get_phrase('manage_noticeboard');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function noticeboard_edit($notice_id) {
+		if ($this->session->userdata('admin_login') != 1) {
+			redirect(site_url('login'));
+		}
+
+		$page_data['page_name'] = 'noticeboard_edit';
+		$page_data['notice_id'] = $notice_id;
+		$page_data['page_title'] = get_phrase('edit_notice');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function reload_noticeboard() {
+		$this->load->view('backend/admin/noticeboard');
+	}
+	/* private messaging */
+
+	function message($param1 = 'message_home', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		$running_year = get_settings('running_year');
+		$running_term = get_settings('running_term');
+		$running_sem = get_settings('running_sem');
+		$max_size = 4097152;
+
+		if ($param1 == 'send_new') {
+			if (!file_exists('uploads/private_messaging_attached_file/')) {
+				$oldmask = umask(0); // helpful when used in linux server
+				mkdir('uploads/private_messaging_attached_file/', 0777);
+			}
+			if ($_FILES['attached_file_on_messaging']['name'] != "") {
+				if ($_FILES['attached_file_on_messaging']['size'] > $max_size) {
+					$this->session->set_flashdata('error_message', get_phrase('file_size_can_not_be_larger_that_4_Megabyte'));
+					redirect(site_url('admin/message/message_new'));
+				} else {
+					$file_path = 'uploads/private_messaging_attached_file/' . $_FILES['attached_file_on_messaging']['name'];
+					move_uploaded_file($_FILES['attached_file_on_messaging']['tmp_name'], $file_path);
+				}
+			}
+
+			$message_thread_code = $this->crud_model->send_new_private_message();
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('message_sent!'));
+			redirect(site_url('admin/message/message_read/' . $message_thread_code));
+		}
+
+		if ($param1 == 'send_reply') {
+
+			if (!file_exists('uploads/private_messaging_attached_file/')) {
+				$oldmask = umask(0); // helpful when used in linux server
+				mkdir('uploads/private_messaging_attached_file/', 0777);
+			}
+			if ($_FILES['attached_file_on_messaging']['name'] != "") {
+				if ($_FILES['attached_file_on_messaging']['size'] > $max_size) {
+					$this->session->set_flashdata('error_message', get_phrase('file_size_can_not_be_larger_that_4_Megabyte'));
+					redirect(site_url('admin/message/message_read/' . $param2));
+				} else {
+					$file_path = 'uploads/private_messaging_attached_file/' . $_FILES['attached_file_on_messaging']['name'];
+					move_uploaded_file($_FILES['attached_file_on_messaging']['tmp_name'], $file_path);
+				}
+			}
+
+			$this->crud_model->send_reply_message($param2); //$param2 = message_thread_code
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('message_sent!'));
+			redirect(site_url('admin/message/message_read/' . $param2));
+		}
+
+		if ($param1 == 'message_read') {
+			$page_data['current_message_thread_code'] = $param2; // $param2 = message_thread_code
+			$this->crud_model->mark_thread_messages_read($param2);
+
+			//clear the cached database
+			$this->db->cache_delete();
+		}
+
+		if ($param1 == 'delete') {
+			$this->db->where('message_thread_code', $param2);
+			$this->db->delete('message_thread');
+
+			$this->db->where('message_thread_code', $param2);
+			$queryExecuted = $this->db->delete('message');
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+
+			if($queryExecuted) {
+				$ajaxData['message'] = 'done';
+			} else {
+				$ajaxData['message'] = 'failed';
+			}
+
+			$ajaxData['route'] = 'message';
+			
+			echo json_encode($ajaxData);
+			return;
+
+		}
+
+		//sms sending
+		if ($param1 == 'sms_send') {
+
+			if ($param2 == 'sms_submitted') {
+				$active_sms_service = $this->db->get_where('settings', array('type' => 'active_sms_service'))->row()->description;
+				$admin_contact = substr($this->db->get_where('settings', array('type' => 'phone'))->row()->description, 0, 10,);
+
+
+				$phone_num = array();
+				///who to send to
+				$bulk_selector = $this->input->post('bulk');
+				$user_id = $this->input->post('reciever');
+				$message = str_replace('&nbsp;', '', $this->input->post('message'));
+				$message = str_replace('<br>', ' ', $message);
+				$message = strip_tags($message);
+				
+				// Fix: Check if phone post data exists and is an array before accessing
+				$phone_data = $this->input->post('phone');
+				if (!empty($phone_data) && is_array($phone_data) && isset($phone_data[0])) {
+					$explode = explode(',', $phone_data[0]);
+				} else {
+					$explode = array();
+				}
+
+				for ($e = 0; $e < count($explode); $e++) {
+					array_push($phone_num, $explode[$e]);
+				}
+
+				$data_phone = array($admin_contact, '0243618186');
+				$data_user_name = array('Director', 'Developer');
+
+				if ($bulk_selector == 6) {
+					//all admins selected
+					$admins = $this->db->get_where('admin', array('block_limit' => '0'))->result_array();
+
+					foreach ($admins as $a) {
+						if ($a['phone'] != '' || $a['phone'] != null) {
+							array_push($data_phone, trim($a['phone']));
+							$user_name = $a['name'];
+							array_push($data_user_name, $user_name);
+						}
+					}
+
+					$data['send_sms'] = $this->sms_model->send_sms($message, $data_phone, $data_user_name);
+
+				} else if ($bulk_selector == 2) {
+					//all teachers selected
+					$teachers = $this->db->get_where('teacher', array('block_limit' => '0'))->result_array();
+
+					foreach ($teachers as $t) {
+						if ($t['phone'] != '' || $t['phone'] != null) {
+							array_push($data_phone, trim($t['phone']));
+							$user_name = $t['name'];
+							array_push($data_user_name, $user_name);
+						}
+					}
+
+					$data['send_sms'] = $this->sms_model->send_sms($message, $data_phone, $data_user_name);
+
+				} else if ($bulk_selector == 3) {
+					//all students selected
+					$this->db->where('sem', $running_sem);
+					$this->db->or_where('term', $running_term);
+					$students = $this->db->get_where('enroll', array('year' => $running_year, 'mute' => '0'))->result_array();
+
+					foreach ($students as $s) {
+						$query = $this->db->get_where('student', array('student_id' => $s['student_id']));
+						$sphone = trim($query->row()->phone);
+						$user_name = $query->row()->name;
+
+						if ($sphone != '' || $sphone != null) {
+
+							if (strpos($sphone, ',')) {
+								//using multiple numbers separated by ,
+								$pn_array = explode(',', $sphone);
+								for ($n = 0; $n < count($pn_array); $n++) {
+									array_push($data_phone, $pn_array[$n]);
+									array_push($data_user_name, $user_name);
+								}
+
+							} else if (strpos($sphone, '/')) {
+								//using multiple numbers separated by /
+
+								$pn_array = explode('/', $sphone);
+								for ($n = 0; $n < count($pn_array); $n++) {
+									array_push($data_phone, $pn_array[$n]);
+									array_push($data_user_name, $user_name);
+								}
+
+							} else {
+								array_push($data_phone, $sphone);
+
+								array_push($data_user_name, $user_name);
+							}
+						}
+					}
+
+					$data['send_sms'] = $this->sms_model->send_sms($message, $data_phone, $data_user_name);
+
+				} else if ($bulk_selector == 4) {
+					//all parents selected
+					$parents = $this->db->get_where('parent', array('block_limit' => '0'))->result_array();
+
+					foreach ($parents as $p) {
+						$pPhone = trim($p['phone']);
+
+						if ($pPhone != '' || $pPhone != null) {
+
+							if (strpos($pPhone, ',')) {
+								//using multiple numbers separated by ,
+								$pn_array = explode(',', $pPhone);
+								for ($n = 0; $n < count($pn_array); $n++) {
+									array_push($data_phone, $pn_array[$n]);
+
+									$user_name = $p['name'];
+									array_push($data_user_name, $user_name);
+								}
+
+							} else if (strpos($pPhone, '/')) {
+								//using multiple numbers separated by /
+
+								$pn_array = explode('/', $pPhone);
+								for ($n = 0; $n < count($pn_array); $n++) {
+									array_push($data_phone, $pn_array[$n]);
+
+									$user_name = $p['name'];
+									array_push($data_user_name, $user_name);
+								}
+
+							} else {
+								array_push($data_phone, $pPhone);
+								$user_name = $p['name'];
+								array_push($data_user_name, $user_name);
+							}
+
+						}
+					}
+
+					$data['send_sms'] = $this->sms_model->send_sms($message, $data_phone, $data_user_name);
+
+				} else if ($bulk_selector == 1) {
+					//just a single user or a selected number of them were selected
+
+					for ($s = 0; $s < count($user_id); $s++) {
+
+						$user_id_exp = explode('-', $user_id[$s]);
+						
+						// Validate the exploded array has both table name and id
+						if(count($user_id_exp) < 2) {
+							continue; // Skip invalid format
+						}
+						
+						$table_name = $user_id_exp[0];
+						$id = $user_id_exp[1];
+						
+						// Validate table name and id
+						if(empty($table_name) || empty($id)) {
+							continue; // Skip if either is empty
+						}
+
+						$user_phone = trim($this->db->get_where($table_name, array($table_name . '_id' => $id))->row()->phone);
+						$user_name = $this->db->get_where($table_name, array($table_name . '_id' => $id))->row()->name;
+
+						if ($user_phone != '' || $user_phone != null) {
+							array_push($data_phone, $user_phone);
+							array_push($data_user_name, $user_name);
+						} else {
+							//$this->session->set_flashdata('error_message' , get_phrase('SMS Not Sent! No phone number found.'));
+							// redirect(site_url('admin/message/sms_send?success=2'));
+
+							$data['send_sms'] = get_phrase('SMS Not Sent! No phone number found.');
+							echo json_encode($data);
+							return false;
+
+						}
+
+					}
+					$data['send_sms'] = $this->sms_model->send_sms($message, $data_phone, $data_user_name);
+
+				} else if ($bulk_selector == 5) {
+					//Phone number entered
+					if (count($phone_num) > 0) {
+						$data_phone = $phone_num;
+					}
+
+					$data['send_sms'] = $this->sms_model->send_sms($message, $data_phone, '');
+				}
+
+				echo json_encode($data);
+				return false;
+			}
+
+		}
+
+		$page_data['message_inner_page_name'] = $param1;
+		$page_data['page_name'] = 'message';
+		$page_data['page_title'] = get_phrase('private_messaging');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function group_message($param1 = "group_message_home", $param2 = "") {
+		if ($this->session->userdata('admin_login') != 1) {
+			redirect(site_url('login'));
+		}
+
+		$max_size = 4097152;
+		if ($param1 == "create_group") {
+			$this->crud_model->create_group();
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+		} elseif ($param1 == "edit_group") {
+			$this->crud_model->update_group($param2);
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+		} elseif ($param1 == 'group_message_read') {
+			$page_data['current_message_thread_code'] = $param2;
+		} else if ($param1 == 'send_reply') {
+			if (!file_exists('uploads/group_messaging_attached_file/')) {
+				$oldmask = umask(0); // helpful when used in linux server
+				mkdir('uploads/group_messaging_attached_file/', 0777);
+			}
+			if ($_FILES['attached_file_on_messaging']['name'] != "") {
+				if ($_FILES['attached_file_on_messaging']['size'] > $max_size) {
+					$this->session->set_flashdata('error_message', get_phrase('file_size_can_not_be_larger_that_4_Megabyte'));
+					redirect(site_url('admin/group_message/group_message_read/' . $param2));
+				} else {
+					$file_path = 'uploads/group_messaging_attached_file/' . $_FILES['attached_file_on_messaging']['name'];
+					move_uploaded_file($_FILES['attached_file_on_messaging']['tmp_name'], $file_path);
+				}
+			}
+
+			$this->crud_model->send_reply_group_message($param2); //$param2 = message_thread_code
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('message_sent!'));
+			redirect(site_url('admin/group_message/group_message_read/' . $param2));
+		}
+
+		if ($param1 == 'delete') {
+			$this->db->where('group_message_thread_code', $param2);
+			$this->db->delete('group_message_thread');
+
+			//clear the cached database
+			$this->db->cache_delete();
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+			redirect(site_url('admin/group_message'));
+		}
+		$page_data['message_inner_page_name'] = $param1;
+		$page_data['page_name'] = 'group_message';
+		$page_data['page_title'] = get_phrase('group_messaging');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+	function accounts($param1 = '', $param2 = '', $param3 = '') {
+
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+		//Accounts Creation
+		if ($param1 == 'account_create') {
+
+			$errors = array();
+			$ajax_data = array();
+
+			$account_data['bank_name'] = ucwords(strtolower(trim($this->input->post('bank_name'))));
+			$account_data['branch'] = ucwords(strtolower(trim($this->input->post('branch'))));
+			$account_data['account_name'] = ucwords(strtolower(trim($this->input->post('acc_name'))));
+			$account_data['account_number'] = trim($this->input->post('acc_number'));
+
+			//for bank name
+			$bank_explode = explode('-', $account_data['bank_name']);
+
+			if (!empty($bank_explode[1])) {
+				$account_data['bank_name'] = $bank_explode[0] . '-' . strtoupper($bank_explode[1]);
+			} else {
+				$account_data['bank_name'] = $bank_explode[0];
+			}
+
+			//for branch
+			$branch_explode = explode('-', $account_data['branch']);
+
+			if (!empty($branch_explode[1])) {
+				$account_data['branch'] = $branch_explode[0] . '-' . strtoupper($branch_explode[1]);
+			} else {
+				$account_data['branch'] = $branch_explode[0];
+			}
+
+			//for account name
+			$account_explode = explode('-', $account_data['account_name']);
+
+			if (!empty($account_explode[1])) {
+				$account_data['account_name'] = $account_explode[0] . '-' . strtoupper($account_explode[1]);
+			} else {
+				$account_data['account_name'] = $account_explode[0];
+			}
+			//adjustments to the names with '-'
+
+			if (!empty($this->input->post('acc_balance'))) {
+				$account_data['opening_balance'] = $this->input->post('acc_balance');
+			}
+			if (!empty($this->input->post('acc_balance'))) {
+				$account_data['current_balance'] = $this->input->post('acc_balance');
+			}
+			$account_data['account_type'] = $this->input->post('acc_type');
+			$account_data['account_is_bank'] = $this->input->post('bank');
+
+			if (!empty($this->input->post('transferrable'))) {
+				$account_data['account_is_transferrable'] = $this->input->post('transferrable');
+			}
+
+			//validate
+			if (empty($account_data['account_name'])) {
+				$errors['account_name'] = 'Account name is required';
+			}
+
+			if (empty($account_data['account_type'])) {
+				$errors['account_type'] = 'Account type is required';
+			}
+
+			if ($account_data['account_is_bank'] == '') {
+				$errors['account_is_bank'] = 'Account category is required ';
+			}
+
+			if ($account_data['account_is_bank'] == 1) {
+				if ($account_data['branch'] == '') {
+					$errors['branch'] = 'Branch is required ';
+				}
+
+				if ($account_data['bank_name'] == '') {
+					$errors['bank_name'] = 'Bank Name is required ';
+				}
+
+				if ($account_data['account_number'] == '') {
+					$errors['account_number'] = 'Account Number is required ';
+				}
+			}
+
+			//check duplicate
+			if (account_name_validation_insert($account_data['account_name'])) {
+				if (!empty($errors)) {
+					$ajax_data = $errors;
+					echo json_encode($ajax_data);
+				} else {
+					//insert data
+					$this->db->insert('accounts', $account_data);
+
+					////return now
+					$ajax_data['success'] = true;
+					echo json_encode($ajax_data);
+
+				}
+			} else {
+				////return now
+				$ajax_data['success'] = 'duplicate';
+				echo json_encode($ajax_data);
+			}
+		}
+
+		//Accounts Editing
+		if ($param1 == 'account_update') {
+
+			$errors = array();
+			$ajax_data = array();
+
+			$account_id = $param2;
+			$account_data['bank_name'] = ucwords(strtolower(trim($this->input->post('bank_name_' . $account_id))));
+			$account_data['branch'] = ucwords(strtolower(trim($this->input->post('branch_' . $account_id))));
+			$account_data['account_name'] = ucwords(strtolower(trim($this->input->post('acc_name_' . $account_id))));
+			$account_data['account_number'] = trim($this->input->post('acc_number_' . $account_id));
+
+			//for bank name
+			$bank_explode = explode('-', $account_data['bank_name']);
+
+			if (!empty($bank_explode[1])) {
+				$account_data['bank_name'] = $bank_explode[0] . '-' . strtoupper($bank_explode[1]);
+			} else {
+				$account_data['bank_name'] = $bank_explode[0];
+			}
+
+			//for branch
+			$branch_explode = explode('-', $account_data['branch']);
+
+			if (!empty($branch_explode[1])) {
+				$account_data['branch'] = $branch_explode[0] . '-' . strtoupper($branch_explode[1]);
+			} else {
+				$account_data['branch'] = $branch_explode[0];
+			}
+
+			//for account name
+			$account_explode = explode('-', $account_data['account_name']);
+
+			if (!empty($account_explode[1])) {
+				$account_data['account_name'] = $account_explode[0] . '-' . strtoupper($account_explode[1]);
+			} else {
+				$account_data['account_name'] = $account_explode[0];
+			}
+			//adjustments to the names with '-'
+
+			$account_data['opening_balance'] = $this->input->post('acc_balance_' . $param2);
+			//$account_data['current_balance']    = $this->input->post('acc_balance_'.$param2);
+			$account_data['account_type'] = $this->input->post('acc_type_' . $param2);
+			$account_data['account_is_bank'] = $this->input->post('bank_' . $param2);
+
+			//get the previous opening balance
+			$previous_ob = $this->db->get_where('accounts', array('account_id' => $account_id))->row()->opening_balance;
+			$diff = $account_data['opening_balance'] - $previous_ob;
+			$current_bal_data['current_balance'] = $diff;
+
+			if (!empty($this->input->post('transferrable_' . $param2))) {
+				$account_data['account_is_transferrable'] = $this->input->post('transferrable_' . $param2);
+			} else {
+				$account_data['account_is_transferrable'] = 0;
+			}
+
+			//validate
+			if (empty($account_data['account_name'])) {
+				$errors['account_name'] = 'Account name is required';
+			}
+
+			if (empty($account_data['account_type'])) {
+				$errors['account_type'] = 'Account type is required';
+			}
+
+			if ($account_data['account_is_bank'] == '') {
+				$errors['account_is_bank'] = 'Account category is required ';
+			}
+
+			if ($account_data['account_is_bank'] == 1) {
+				if ($account_data['branch'] == '') {
+					$errors['branch'] = 'Branch is required ';
+				}
+
+				if ($account_data['bank_name'] == '') {
+					$errors['bank_name'] = 'Bank Name is required ';
+				}
+
+				if ($account_data['account_number'] == '') {
+					$errors['account_number'] = 'Account Number is required ';
+				}
+			}
+
+			//check duplicate
+			if (account_name_validation_update($account_id, $account_data['account_name'])) {
+				if (!empty($errors)) {
+					$ajax_data = $errors;
+					echo json_encode($ajax_data);
+				} else {
+
+					//update data
+					$this->db->where('account_id', $account_id);
+					$this->db->update('accounts', $account_data);
+
+					//update current balance now
+					$this->db->where('account_id', $account_id);
+					$this->db->set('current_balance', 'current_balance +' . $current_bal_data['current_balance'], FALSE);
+					$this->db->update('accounts');
+
+					////return now
+					$ajax_data['success'] = true;
+					echo json_encode($ajax_data);
+
+				}
+			} else {
+				////return now
+				$ajax_data['success'] = 'duplicate';
+				echo json_encode($ajax_data);
+			}
+
+		}
+
+		//Accounts Deletion
+		if ($param1 == 'account_delete') {
+
+			//find from payment table
+			$this->db->where('account_id', $param2);
+			$rows_returned = $this->db->get('payment')->num_rows();
+
+			if ($rows_returned < 1) {
+				//no match
+				$this->db->where('account_id', $param2);
+				$this->db->delete('accounts');
+
+				//delete from general journal
+				//$this->db->where('account_id', $param2);
+				//$this->db->delete('general_journal');
+
+				////return now
+				$ajax_data['success'] = true;
+				echo json_encode($ajax_data);
+
+			} else {
+				//restrict deletion
+				////return now
+				$ajax_data['success'] = false;
+				echo json_encode($ajax_data);
+			}
+
+		}
+	}
+
+	/*****SITE/SYSTEM SETTINGS*********/
+	function system_settings($param1 = '', $param2 = '', $param3 = '') {
+		//if ($this->session->userdata('admin_login') != 1)
+		//redirect(site_url('login'));
+
+		if ($param1 == 'do_update') {
+
+			if (isset($_POST['disable_frontend'])) {
+				$data['description'] = 1;
+				$this->db->where('type', 'disable_frontend');
+				$this->db->update('settings', $data);
+			} else {
+				$data['description'] = 0;
+				$this->db->where('type', 'disable_frontend');
+				$this->db->update('settings', $data);
+			}
+
+			$this->update_default_controller();
+
+			$data['description'] = strtoupper(strtolower($this->input->post('system_name')));
+			$this->db->where('type', 'system_name');
+			$this->db->update('settings', $data);
+
+			$data['description'] = ucwords(strtolower($this->input->post('system_title')));
+			$this->db->where('type', 'system_title');
+			$this->db->update('settings', $data);
+
+			$data['description'] = strtoupper(strtolower($this->input->post('location')));
+			$this->db->where('type', 'location');
+			$this->db->update('settings', $data);
+
+			$data['description'] = strtoupper(strtolower($this->input->post('box_number')));
+			$this->db->where('type', 'box_number');
+			$this->db->update('settings', $data);
+
+			$data['description'] = strtoupper(strtolower($this->input->post('digital_address')));
+			$this->db->where('type', 'digital_address');
+			$this->db->update('settings', $data);
+
+			$data['description'] = ucwords(strtolower($this->input->post('waec_grading_enabled')));
+			$this->db->where('type', 'raw_score');
+			$this->db->update('settings', $data);
+
+			$data['description'] = strtoupper(strtolower($this->input->post('website_address')));
+			$this->db->where('type', 'website_address');
+			$this->db->update('settings', $data);
+
+			$data['description'] = strtoupper(strtolower($this->input->post('address')));
+			$this->db->where('type', 'address');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('phone')[0];
+			$this->db->where('type', 'phone');
+			$this->db->update('settings', $data);
+
+			$data['description'] = strtoupper($this->input->post('ssnit_number'));
+			$this->db->where('type', 'ssnit_number');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('paypal_email');
+			$this->db->where('type', 'paypal_email');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('currency');
+			$this->db->where('type', 'currency');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('system_email');
+			$this->db->where('type', 'system_email');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('system_name');
+			$this->db->where('type', 'system_name');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('language');
+			$this->db->where('type', 'language');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('text_align');
+			$this->db->where('type', 'text_align');
+			$this->db->update('settings', $data);
+
+			/*$data['description'] = $this->input->post('running_year');
+			$this->db->where('type', 'running_year');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('running_term');
+			$this->db->where('type', 'running_term');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('running_sem');
+			$this->db->where('type', 'running_sem');
+			$this->db->update('settings', $data);*/
+
+			$data['description'] = $this->input->post('term_ending');
+			$this->db->where('type', 'term_ending');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('next_term_begins');
+			$this->db->where('type', 'next_term_begins');
+			$this->db->update('settings', $data);
+
+			// Fee collection mode settings are now handled in the dedicated fee_collection_settings page
+			// Redirect users to that page for fee collection configuration
+
+			/*$data['description'] = $this->input->post('sem_ending');
+			$this->db->where('type', 'sem_ending');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('next_sem_begins');
+			$this->db->where('type', 'next_sem_begins');
+			$this->db->update('settings', $data);*/
+
+			//insert or update the sems and terms tables
+			//for semester
+			/*$sem_data['year'] = get_settings('running_year');
+			$sem_data['sem'] = get_settings('running_sem');
+			$sem_data['sem_ending'] = $this->input->post('sem_ending');
+			$sem_data['next_sem_begins'] = $this->input->post('next_sem_begins');
+			$sem_data['full_payment_date'] = $this->input->post('full_payment_date_jhs');*/
+
+			//for term
+			$term_data['year'] = get_settings('running_year');
+			$term_data['term'] = get_settings('running_term');
+			$term_data['term_ending'] = $this->input->post('term_ending');
+			$term_data['next_term_begins'] = $this->input->post('next_term_begins');
+			$term_data['full_payment_date'] = $this->input->post('full_payment_date');
+			$term_data['days_opened'] = $this->input->post('days_opened') ? $this->input->post('days_opened') : NULL;
+
+			/*$sems_rows = $this->db->get_where('sems', array('year' => $term_data['year'], 'sem' => $sem_data['sem']))->num_rows();
+
+			if ($sems_rows > 0) {
+				//update
+				$this->db->where('year', $sem_data['year']);
+				$this->db->where('sem', $sem_data['sem']);
+				$this->db->update('sems', $sem_data);
+			} else {
+				//insert
+				$this->db->insert('sems', $sem_data);
+			} //end for sems*/
+
+			$terms_rows = $this->db->get_where('terms', array('year' => $term_data['year'], 'term' => $term_data['term']))->num_rows();
+
+			if ($terms_rows > 0) {
+				//update
+				$this->db->where('year', $term_data['year']);
+				$this->db->where('term', $term_data['term']);
+				$this->db->update('terms', $term_data);
+			} else {
+				//insert
+				$this->db->insert('terms', $term_data);
+			} //end for terms
+
+			$data['description'] = $this->input->post('half_payment_week');
+			$this->db->where('type', 'half_payment_week');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('full_payment_date');
+			$this->db->where('type', 'full_payment_date');
+			$this->db->update('settings', $data);
+
+			/*$data['description'] = $this->input->post('full_payment_date_jhs');
+			$this->db->where('type', 'full_payment_date_jhs');
+			$this->db->update('settings', $data);*/
+
+			$data['description'] = strtoupper(strtolower($this->input->post('mo_account_name')));
+			$this->db->where('type', 'mo_account_name');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('mo_account_number');
+			$this->db->where('type', 'mo_account_number');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('teacher_code_prefix');
+			$this->db->where('type', 'teacher_code_prefix');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('teacher_code_format');
+			$this->db->where('type', 'teacher_code_format');
+			$this->db->update('settings', $data);
+
+			// Get old prefix before updating
+			$old_prefix = $this->db->get_where('settings', array('type' => 'student_code_prefix'))->row()->description;
+			$new_prefix = $this->input->post('student_code_prefix');
+			
+			$data['description'] = $new_prefix;
+			$this->db->where('type', 'student_code_prefix');
+			$this->db->update('settings', $data);
+			
+			// Update all student codes if prefix changed
+			if ($old_prefix !== $new_prefix) {
+				$students = $this->db->get('student')->result();
+				foreach ($students as $student) {
+					$old_code = $student->student_code;
+					// Remove old prefix and add new prefix
+					if (strpos($old_code, $old_prefix) === 0) {
+						$numeric_part = substr($old_code, strlen($old_prefix));
+						$new_code = $new_prefix . $numeric_part;
+						$this->db->where('student_id', $student->student_id);
+						$this->db->update('student', ['student_code' => $new_code]);
+					}
+				}
+			}
+
+			$data['description'] = $this->input->post('student_code_format');
+			$this->db->where('type', 'student_code_format');
+			$this->db->update('settings', $data);
+
+			if (is_numeric($this->input->post('invoice_number_format'))) {
+				$data['description'] = $this->input->post('invoice_number_format');
+				$this->db->where('type', 'invoice_number_format');
+				$this->db->update('settings', $data);
+			}
+
+			$data['description'] = $this->input->post('invoice_due');
+			$this->db->where('type', 'invoice_due');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('purchase_code');
+			$this->db->where('type', 'purchase_code');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('receipt_style');
+			$this->db->where('type', 'receipt_style');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('terminal_report_style');
+			$this->db->where('type', 'terminal_report_style');
+			$this->db->update('settings', $data);
+
+			$data['description'] = $this->input->post('boarding_system');
+			$this->db->where('type', 'boarding_system');
+			$this->db->update('settings', $data);
+
+			// Auto-lock setting
+			$auto_lock_value = $this->input->post('auto_lock_enabled') ? $this->input->post('auto_lock_enabled') : 'no';
+			$this->db->where('type', 'auto_lock_enabled');
+			if ($this->db->get('settings')->num_rows() > 0) {
+				$this->db->where('type', 'auto_lock_enabled');
+				$this->db->update('settings', array('description' => $auto_lock_value));
+			} else {
+				$this->db->insert('settings', array('type' => 'auto_lock_enabled', 'description' => $auto_lock_value));
+			}
+
+			// Offline/Online Mode setting
+			$offline_online_value = $this->input->post('offline_online_mode') ? '1' : '0';
+			$this->db->where('type', 'offline_online_mode');
+			$offline_setting_check = $this->db->get('settings');
+			if ($offline_setting_check->num_rows() > 0) {
+				$this->db->where('type', 'offline_online_mode');
+				$this->db->update('settings', array('description' => $offline_online_value));
+			} else {
+				$this->db->insert('settings', array('type' => 'offline_online_mode', 'description' => $offline_online_value));
+			}
+
+			// Creche exam template setting
+			if ($this->input->post('creche_exam_template')) {
+				$template_value = $this->input->post('creche_exam_template');
+				// Validate template value
+				if (in_array($template_value, array('template1', 'template2'))) {
+					$this->db->where('type', 'creche_exam_template');
+					$template_check = $this->db->get('settings');
+					if ($template_check->num_rows() > 0) {
+						$this->db->where('type', 'creche_exam_template');
+						$this->db->update('settings', array('description' => $template_value));
+					} else {
+						$this->db->insert('settings', array('type' => 'creche_exam_template', 'description' => $template_value));
+					}
+				}
+			}
+			
+
+			$this->session->set_flashdata('flash_message', get_phrase('data_updated'));
+			redirect(site_url('admin/system_settings'));
+		}
+
+		if ($param1 == 'upload_logo') {
+			move_uploaded_file($_FILES['userfile']['tmp_name'], 'uploads/school_logo.png');
+
+			
+
+			$this->session->set_flashdata('flash_message', get_phrase('logo_successfully_uploaded'));
+			redirect(site_url('admin/system_settings'));
+		}
+
+		if ($param1 == 'upload_signature') {
+
+			$config['upload_path'] = './uploads/signature/admin/';
+			$config['allowed_types'] = 'png';
+			$config['file_name'] = 'head_teacher.png';
+			$config['max_size'] = 2048;
+			
+
+			$this->load->library('upload', $config);
+			$this->upload->initialize($config);
+
+			if(!$this->upload->do_upload('signature')) {
+				//error
+				$error = array('error' => $this->upload->display_errors());
+
+				$this->session->set_flashdata('error_message', 'Error: '.$this->upload->display_errors());
+
+				redirect(site_url('admin/system_settings'));
+
+			} else {
+				//move_uploaded_file($_FILES['signature']['tmp_name'], 'uploads/signature/admin/head_teacher.png');
+
+				$this->session->set_flashdata('flash_message', get_phrase('signature_successfully_uploaded.'));
+				redirect(site_url('admin/system_settings'));
+			}
+
+		}
+
+		if ($param1 == 'upload_ssnit_logo') {
+			move_uploaded_file($_FILES['ssnit_logo']['tmp_name'], 'uploads/ssnit_logo.png');
+			$this->session->set_flashdata('flash_message', get_phrase('ssnit_logo_successfully_uploaded'));
+			redirect(site_url('admin/system_settings'));
+		}
+
+		if ($param1 == 'change_skin') {
+			$data['description'] = $param2;
+			$this->db->where('type', 'skin_colour');
+			$this->db->update('settings', $data);
+
+			
+
+			$this->session->set_flashdata('flash_message', get_phrase('theme_selected'));
+			redirect(site_url('admin/system_settings'));
+		}
+		$page_data['page_name'] = 'system_settings_modern';
+		$page_data['page_title'] = get_phrase('system_settings');
+		$page_data['settings'] = $this->db->get('settings')->result_array();
+		$page_data['mn'] = $this->input->post('mo_account_number');
+		$page_data['account_type'] = $this->session->userdata('login_type');
+		$this->load->view('backend/main', $page_data);
+	}
+
+
+	//permission settings
+	function permission_settings($param1 = '', $param2 = '', $param3 = '') {
+
+		if($param1 == 'do_update') {
+
+			$updateTo = '1';
+			//get current permission status from the table
+			$current_status = $this->db->get_where('user_permission', ['permission_id' => $param2])->row()->permission_status;
+
+			if($current_status == '1') {
+				$updateTo = '0';
+			}
+
+			//now update
+			$this->db->where('permission_id', $param2);
+			$this->db->set('permission_status', $updateTo);
+			$updated = $this->db->update('user_permission');
 
 			$updatedVal = $this->db->get_where('user_permission', ['permission_id' => $param2])->row()->permission_status;
 			$ajaxData['updatedVal'] = $updatedVal;
