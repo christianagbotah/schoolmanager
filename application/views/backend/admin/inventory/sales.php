@@ -82,7 +82,7 @@
 .filter-input-height {
     min-height: 3.25rem !important;
     height: 3.25rem !important;
-    font-size: 1.125rem !important;
+    font-size: 15px !important;
     border: 2px solid #E5E7EB !important;
     transition: all 0.2s ease !important;
 }
@@ -98,7 +98,7 @@
     height: 3.25rem !important;
     display: flex !important;
     align-items: center !important;
-    font-size: 1.125rem !important;
+    font-size: 15px !important;
     padding: 0 1rem !important;
     border: 2px solid #E5E7EB !important;
     border-radius: 0.5rem !important;
@@ -118,7 +118,7 @@
 .select2-container .select2-selection--single .select2-selection__rendered {
     line-height: 2.75rem !important;
     padding-left: 0 !important;
-    font-size: 1.125rem !important;
+    font-size: 15px !important;
     color: #1F2937 !important;
 }
 
@@ -132,7 +132,7 @@
 }
 
 .select2-container--open .select2-dropdown {
-    font-size: 1.125rem !important;
+    font-size: 15px !important;
     border: 2px solid #667eea !important;
     border-radius: 0.5rem !important;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
@@ -141,7 +141,7 @@
 
 .select2-results__option {
     padding: 0.75rem 1rem !important;
-    font-size: 1.125rem !important;
+    font-size: 15px !important;
     transition: all 0.15s ease !important;
 }
 
@@ -204,17 +204,57 @@
     .modern-filters {
         padding: 1.5rem;
     }
-    
+
     .filter-card {
         padding: 1rem;
     }
 }
 </style>
+<style>
+.inventory-transaction-workspace { margin:0 !important; padding:24px 28px 40px !important; background:#f8fafc; min-height:100%; }
+.inventory-transaction-head { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; margin-bottom:18px; padding-bottom:18px; border-bottom:1px solid #e2e8f0; }
+.inventory-transaction-eyebrow { margin:0 0 4px; color:#2563eb; font-size:13px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.inventory-transaction-head h1 { margin:0; color:#0f172a; font-size:30px !important; line-height:1.2; font-weight:800; letter-spacing:-.02em; }
+.inventory-transaction-head p:last-child { margin:7px 0 0; color:#64748b; font-size:15px !important; line-height:1.5; }
+.inventory-transaction-primary { min-height:44px; padding:10px 15px !important; border-radius:9px !important; background:#2563eb !important; border-color:#2563eb !important; color:#fff !important; font-size:14px !important; font-weight:800 !important; }
+.inventory-sales-workspace .modern-filters { margin-bottom:16px !important; padding:16px !important; border:1px solid #e2e8f0; border-radius:14px; background:#fff; box-shadow:0 1px 2px rgba(15,23,42,.05); }
+.inventory-sales-workspace .modern-filters > .grid { gap:12px !important; }
+.inventory-sales-workspace .filter-card { padding:0 !important; border-radius:0 !important; box-shadow:none !important; transform:none !important; }
+.inventory-sales-workspace .filter-label { margin-bottom:6px !important; color:#475569; font-size:13px !important; font-weight:800; text-transform:none; letter-spacing:0; }
+.inventory-sales-workspace .filter-input-height,
+.inventory-sales-workspace .select2-container .select2-selection--single { min-height:44px !important; height:44px !important; border:1px solid #cbd5e1 !important; border-radius:9px !important; font-size:15px !important; }
+.inventory-sales-workspace .select2-container .select2-selection--single .select2-selection__rendered { line-height:42px !important; font-size:15px !important; }
+.inventory-sales-workspace .select2-container .select2-selection--single .select2-selection__arrow { height:42px !important; }
+.inventory-sales-workspace .modern-filter-btn { min-height:44px !important; height:44px !important; padding:9px 14px !important; border-radius:9px !important; background:#2563eb !important; box-shadow:none !important; transform:none !important; font-size:14px !important; font-weight:800; }
+.inventory-sales-workspace > .grid.grid-cols-1.gap-6 { gap:12px !important; margin-bottom:16px !important; }
+.inventory-sales-workspace > .grid.grid-cols-1.gap-6 > div { min-height:126px; padding:16px !important; border:1px solid #e2e8f0; border-left-width:4px !important; border-radius:14px !important; box-shadow:0 1px 2px rgba(15,23,42,.05) !important; transform:none !important; }
+.inventory-sales-workspace > .grid.grid-cols-1.gap-6 > div .p-3 { padding:9px !important; }
+.inventory-sales-workspace > .grid.grid-cols-1.gap-6 > div i.text-2xl { font-size:18px !important; }
+.inventory-sales-workspace #total_sales, .inventory-sales-workspace #total_transactions, .inventory-sales-workspace #avg_sale { font-size:27px !important; }
+.inventory-sales-workspace > .bg-white.border { overflow-x:auto !important; border:1px solid #e2e8f0 !important; border-radius:14px !important; box-shadow:0 1px 2px rgba(15,23,42,.05) !important; }
+#sales_table { min-width:900px; margin:0 !important; }
+#sales_table thead { background:#f8fafc !important; }
+#sales_table thead th { padding:12px 13px !important; color:#475569 !important; font-size:13px !important; font-weight:800 !important; letter-spacing:.035em; border-bottom:1px solid #e2e8f0 !important; }
+#sales_table tbody td { padding:12px 13px !important; color:#334155 !important; font-size:14px !important; line-height:1.45; border-bottom:1px solid #eef2f7 !important; }
+#sales_table tbody td * { font-size:inherit !important; }
+.inventory-sales-workspace .dataTables_wrapper { min-width:900px; padding:14px; }
+.inventory-sales-workspace .dataTables_length, .inventory-sales-workspace .dataTables_filter, .inventory-sales-workspace .dataTables_info, .inventory-sales-workspace .dataTables_paginate { color:#475569; font-size:14px; }
+.inventory-sales-workspace .dataTables_length select, .inventory-sales-workspace .dataTables_filter input { min-height:40px; padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; }
+.inventory-sales-workspace .dt-buttons .btn { min-height:38px; padding:8px 11px !important; border-radius:8px !important; box-shadow:none !important; transform:none !important; font-size:13px !important; font-weight:800 !important; }
+@media(max-width:767px){ .inventory-transaction-workspace{padding:18px 14px 32px !important}.inventory-transaction-head{display:block}.inventory-transaction-head h1{font-size:26px !important}.inventory-transaction-primary{display:block;width:100%;margin-top:14px;text-align:center}.inventory-sales-workspace .modern-filters>.grid{grid-template-columns:1fr !important}.inventory-sales-workspace .filter-card.lg\:col-span-2{grid-column:auto}.inventory-sales-workspace .filter-input-height{font-size:16px !important} }
+</style>
 
-<div class="inventory-content p-8 sm:p-10 lg:p-12" style="margin-top: 70px;">
-    <div class="mb-8">
-        <h1 style="font-size: 2.5rem !important; font-weight: 700; line-height: 1.2;" class="text-gray-900 tracking-tight">Sales History</h1>
-        <p style="font-size: 1.125rem !important; margin-top: 0.75rem;" class="text-gray-600">View and manage all sales transactions with advanced filtering</p>
+
+<div class="inventory-content inventory-transaction-workspace inventory-sales-workspace">
+    <div class="inventory-transaction-head">
+        <div>
+            <p class="inventory-transaction-eyebrow">Inventory Sales</p>
+            <h1>Sales History</h1>
+            <p>Review sales, customers, items and revenue with date and customer filtering.</p>
+        </div>
+        <a href="<?php echo site_url('inventory/pos'); ?>" class="btn btn-primary inventory-transaction-primary">
+            <i class="fa fa-shopping-cart"></i> Open Point of Sale
+        </a>
     </div>
 
     <!-- Modern Filter Section -->
@@ -230,7 +270,7 @@
                     <i class="fa fa-calendar calendar-icon"></i>
                 </div>
             </div>
-            
+
             <!-- End Date Filter -->
             <div class="filter-card">
                 <label class="filter-label">
@@ -241,7 +281,7 @@
                     <i class="fa fa-calendar calendar-icon"></i>
                 </div>
             </div>
-            
+
             <!-- Customer Filter -->
             <div class="filter-card lg:col-span-2">
                 <label class="filter-label">
@@ -250,36 +290,36 @@
                 <select id="filter_customer" class="w-full">
                     <option value="">All Customers</option>
                     <option value="0">Walk-in Customers</option>
-                    <?php 
+                    <?php
                     // Get students who made purchases
                     $customers = $this->db->query(
-                        "SELECT DISTINCT s.student_id, s.name 
-                        FROM student s 
-                        INNER JOIN inventory_sales isales ON s.student_id = isales.student_id 
+                        "SELECT DISTINCT s.student_id, s.name
+                        FROM student s
+                        INNER JOIN inventory_sales isales ON s.student_id = isales.student_id
                         ORDER BY s.name"
                     )->result();
-                    foreach($customers as $customer): 
+                    foreach($customers as $customer):
                     ?>
                     <option value="<?php echo $customer->student_id; ?>"><?php echo $customer->name; ?></option>
                     <?php endforeach; ?>
-                    
-                    <?php 
+
+                    <?php
                     // Get walk-in customers with custom names
                     $walkin_customers = $this->db->query(
-                        "SELECT DISTINCT customer_name 
-                        FROM inventory_sales 
-                        WHERE (student_id IS NULL OR student_id = 0) 
-                        AND customer_name IS NOT NULL 
-                        AND customer_name != '' 
+                        "SELECT DISTINCT customer_name
+                        FROM inventory_sales
+                        WHERE (student_id IS NULL OR student_id = 0)
+                        AND customer_name IS NOT NULL
+                        AND customer_name != ''
                         ORDER BY customer_name"
                     )->result();
-                    foreach($walkin_customers as $walkin): 
+                    foreach($walkin_customers as $walkin):
                     ?>
                     <option value="walkin_<?php echo $walkin->customer_name; ?>"><?php echo $walkin->customer_name; ?> (Walk-in)</option>
                     <?php endforeach; ?>
                 </select>
             </div>
-            
+
             <!-- Apply Button -->
             <div class="filter-card flex items-end">
                 <button onclick="loadSales()" class="modern-filter-btn w-full">
@@ -300,12 +340,12 @@
                 </div>
                 <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">REVENUE</span>
             </div>
-            <h3 style="font-size: 1.125rem !important;" class="font-semibold text-gray-600 mb-4">Total Sales</h3>
-            <p style="font-size: 3rem !important; line-height: 1.1;" class="font-bold text-gray-900" id="total_sales">
-                <sup style="font-size: 1.5rem !important;" class="font-normal text-gray-500"><?php echo $currency; ?></sup> 0.00
+            <h3 style="font-size: 15px !important;" class="font-semibold text-gray-600 mb-4">Total Sales</h3>
+            <p style="font-size: 28px !important; line-height: 1.1;" class="font-bold text-gray-900" id="total_sales">
+                <sup style="font-size: 18px !important;" class="font-normal text-gray-500"><?php echo $currency; ?></sup> 0.00
             </p>
         </div>
-        
+
         <!-- Transactions Card -->
         <div onclick="showTransactionsBreakdown()" class="group bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-green-500">
             <div class="flex items-center justify-between mb-4">
@@ -314,10 +354,10 @@
                 </div>
                 <span class="text-xs font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full">COUNT</span>
             </div>
-            <h3 style="font-size: 1.125rem !important;" class="font-semibold text-gray-600 mb-4">Transactions</h3>
-            <p style="font-size: 3rem !important; line-height: 1.1;" class="font-bold text-gray-900" id="total_transactions">0</p>
+            <h3 style="font-size: 15px !important;" class="font-semibold text-gray-600 mb-4">Transactions</h3>
+            <p style="font-size: 28px !important; line-height: 1.1;" class="font-bold text-gray-900" id="total_transactions">0</p>
         </div>
-        
+
         <!-- Items Sold Card -->
         <div onclick="showItemsSoldBreakdown()" class="group bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-purple-500">
             <div class="flex items-center justify-between mb-4">
@@ -326,8 +366,8 @@
                 </div>
                 <span class="text-xs font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">PRODUCTS</span>
             </div>
-            <h3 style="font-size: 1.125rem !important;" class="font-semibold text-gray-600 mb-4">Items Sold</h3>
-            <p style="font-size: 3rem !important; line-height: 1.1;" class="font-bold text-gray-900" id="avg_sale">0</p>
+            <h3 style="font-size: 15px !important;" class="font-semibold text-gray-600 mb-4">Items Sold</h3>
+            <p style="font-size: 28px !important; line-height: 1.1;" class="font-bold text-gray-900" id="avg_sale">0</p>
         </div>
     </div>
 
@@ -336,16 +376,16 @@
             <table id="sales_table" class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                     <tr>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">Sale ID</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">Date</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">Customer</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">Items</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-right font-bold text-gray-700 uppercase tracking-wider">Amount</th>
-                        <th style="font-size: 1.25rem !important;" class="px-8 py-5 text-center font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">Sale ID</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">Date</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">Customer</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-left font-bold text-gray-700 uppercase tracking-wider">Items</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-right font-bold text-gray-700 uppercase tracking-wider">Amount</th>
+                        <th style="font-size: 14px !important;" class="px-8 py-5 text-center font-bold text-gray-700 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="sales_tbody">
-                    <tr><td colspan="6" style="font-size: 1.25rem !important;" class="px-8 py-10 text-center text-gray-500">Loading sales...</td></tr>
+                    <tr><td colspan="6" style="font-size: 14px !important;" class="px-8 py-10 text-center text-gray-500">Loading sales...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -371,20 +411,20 @@ $(document).ready(function() {
         todayHighlight: true,
         orientation: 'bottom auto'
     });
-    
+
     // Initialize Select2 for customer dropdown with search
     $('#filter_customer').select2({
         placeholder: 'All Customers',
         allowClear: true,
         width: '100%'
     });
-    
+
     // Set default date values in dd/mm/yyyy format
     const today = new Date();
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     $('#start_date').val(formatDateDisplay(firstDay));
     $('#end_date').val(formatDateDisplay(today));
-    
+
     loadSales();
 });
 
@@ -405,32 +445,32 @@ function renderSalesTable(sales) {
     if ($.fn.DataTable.isDataTable('#sales_table')) {
         $('#sales_table').DataTable().destroy();
     }
-    
+
     let html = '';
     const currency = '<?php echo $currency; ?>';
-    
+
     // Don't add "no data" row - let DataTable handle it
     sales.forEach(sale => {
         // Use customer_name as is from backend (already handles custom walk-in names)
         const customerName = sale.customer_name || 'Walk-in Customer';
-        
+
         html += `
             <tr class="hover:bg-blue-50 transition-colors">
-                <td style="font-size: 1.25rem !important;" class="px-8 py-5 text-gray-900 font-semibold">#${sale.id}</td>
-                <td style="font-size: 1.25rem !important;" class="px-8 py-5 text-gray-900">${new Date(sale.sale_date).toLocaleDateString('en-GB')}</td>
-                <td style="font-size: 1.25rem !important;" class="px-8 py-5 text-gray-900 font-medium">${customerName}</td>
-                <td style="font-size: 1.25rem !important;" class="px-8 py-5 text-gray-600">${sale.item_count} item(s)</td>
-                <td style="font-size: 1.25rem !important;" class="px-8 py-5 text-right font-semibold text-gray-900"><sup style="font-size: 0.6em; vertical-align: super;">${currency}</sup> ${parseFloat(sale.total_amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td style="font-size: 14px !important;" class="px-8 py-5 text-gray-900 font-semibold">#${sale.id}</td>
+                <td style="font-size: 14px !important;" class="px-8 py-5 text-gray-900">${new Date(sale.sale_date).toLocaleDateString('en-GB')}</td>
+                <td style="font-size: 14px !important;" class="px-8 py-5 text-gray-900 font-medium">${customerName}</td>
+                <td style="font-size: 14px !important;" class="px-8 py-5 text-gray-600">${sale.item_count} item(s)</td>
+                <td style="font-size: 14px !important;" class="px-8 py-5 text-right font-semibold text-gray-900"><sup style="font-size: 0.6em; vertical-align: super;">${currency}</sup> ${parseFloat(sale.total_amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                 <td class="px-8 py-5 text-center">
-                    <button onclick="editSale(${sale.id})" style="font-size: 1.25rem !important;" class="font-semibold text-blue-600 hover:text-blue-900 transition-colors mr-4">Edit</button>
-                    <button onclick="viewSaleDetails(${sale.id})" style="font-size: 1.25rem !important;" class="font-semibold text-green-600 hover:text-green-900 transition-colors">View Details</button>
+                    <button onclick="editSale(${sale.id})" style="font-size: 14px !important;" class="font-semibold text-blue-600 hover:text-blue-900 transition-colors mr-4">Edit</button>
+                    <button onclick="viewSaleDetails(${sale.id})" style="font-size: 14px !important;" class="font-semibold text-green-600 hover:text-green-900 transition-colors">View Details</button>
                 </td>
             </tr>
         `;
     });
-    
+
     $('#sales_tbody').html(html);
-    
+
     // Initialize DataTable
     $('#sales_table').DataTable({
         "pageLength": 25,
@@ -540,41 +580,41 @@ function renderSalesTable(sales) {
 
 function updateSummary(summary) {
     const currency = '<?php echo $currency; ?>';
-    
+
     // Format total sales with commas and 2 decimal places
     const formattedTotal = parseFloat(summary.total || 0).toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
-    
+
     // Format count with commas (no decimals)
     const formattedCount = parseInt(summary.count || 0).toLocaleString('en-US');
-    
+
     // Format items sold with commas (no decimals)
     const formattedItems = parseInt(summary.items_sold || 0).toLocaleString('en-US');
-    
-    $('#total_sales').html('<sup style="font-size: 1.5rem !important;" class="font-normal text-gray-500">' + currency + '</sup> ' + formattedTotal);
+
+    $('#total_sales').html('<sup style="font-size: 18px !important;" class="font-normal text-gray-500">' + currency + '</sup> ' + formattedTotal);
     $('#total_transactions').text(formattedCount);
     $('#avg_sale').text(formattedItems);
 }
 
 function printReceiptNow(saleId, currency, school, slogan) {
-    if(!window.currentSale || !window.currentItems) { 
-        showAjaxModal_alert('No sale data loaded. Please select a sale to print.', 'Warning', false, true); 
-        return; 
+    if(!window.currentSale || !window.currentItems) {
+        showAjaxModal_alert('No sale data loaded. Please select a sale to print.', 'Warning', false, true);
+        return;
     }
-    
+
     const sale = window.currentSale;
     const items = window.currentItems;
     const customer = sale.customer_name || 'Walk-in Customer';
     const date = new Date(sale.sale_date);
     const dateFormatted = date.toLocaleDateString('en-GB') + ' ' + date.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
-    
+
     let itemsHtml = '';
     items.forEach(function(item) {
         itemsHtml += '<tr><td>' + item.product_name + '</td><td style="text-align:center">' + item.quantity + '</td><td style="text-align:right">' + currency + ' ' + parseFloat(item.total_price).toFixed(2) + '</td></tr>';
     });
-    
+
     const printWindow = window.open('', '', 'width=400,height=600');
     const html = '<html><head><title>Receipt</title>' +
     '<style>' +
@@ -604,7 +644,7 @@ function printReceiptNow(saleId, currency, school, slogan) {
     '<div class="total"><div><span>TOTAL</span><span>' + currency + ' ' + parseFloat(sale.total_amount).toFixed(2) + '</span></div></div>' +
     '<div class="footer"><p>Thank you for your purchase!</p><p>' + slogan + '</p></div>' +
     '</body></html>';
-    
+
     printWindow.document.write(html);
     printWindow.document.close();
     setTimeout(function() { printWindow.print(); }, 500);
@@ -697,7 +737,7 @@ function printModalContent() {
     const startDate = new Date($('#start_date').val()).toLocaleDateString('en-GB', {day: '2-digit', month: 'long', year: 'numeric'});
     const endDate = new Date($('#end_date').val()).toLocaleDateString('en-GB', {day: '2-digit', month: 'long', year: 'numeric'});
     const dateRange = 'Period: ' + startDate + ' to ' + endDate;
-    
+
     const printWindow = window.open('', '', 'height=600,width=800');
     printWindow.document.write('<html><head><title>' + title + '</title>');
     printWindow.document.write('<style>');
