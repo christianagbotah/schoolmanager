@@ -202,6 +202,7 @@ class Librarian extends CI_Controller
 
         if ($param1 == "accept")
         {
+            $book_id        = $this->db->get_where('book_request', array('book_request_id' => $param2))->row()->book_id;
             $status         = $this->db->get_where('book', array('book_id' => $book_id))->row()->status;
             if($status == 'Unavailable') {
                 $this->session->set_flashdata('error_message', get_phrase('no_copy_of_this_book_is_available'));
