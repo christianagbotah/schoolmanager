@@ -2,8 +2,88 @@
 $edit_data		=	$this->db->get_where('book' , array('book_id' => $param2) )->result_array();
 
 ?>
+<style>
+/* Direct UI/UX rebuild — Edit Book modal */
+.library-book-edit-modal {
+    padding: 0 !important;
+    background: #fff;
+}
+.library-book-edit-modal .box-content {
+    padding: 18px !important;
+}
+.library-book-edit-modal .form-group {
+    margin: 0 0 15px !important;
+}
+.library-book-edit-modal .control-label {
+    padding-top: 10px;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 700;
+    text-align: left;
+}
+.library-book-edit-modal .form-control,
+.library-book-edit-modal .selectboxit-container .selectboxit {
+    min-height: 46px !important;
+    height: 46px !important;
+    padding: 9px 11px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 9px !important;
+    background: #fff !important;
+    color: #0f172a !important;
+    font-size: 15px !important;
+}
+.library-book-edit-modal input[type="file"].form-control {
+    height: auto !important;
+}
+.library-book-edit-modal .form-control:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+    outline: none;
+}
+.library-book-edit-modal h4[style*="background-color"] {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    margin: 0;
+    padding: 6px 10px !important;
+    border-radius: 999px;
+    font-size: 13px;
+    line-height: 1.3;
+    font-weight: 800;
+}
+.library-book-edit-modal button[type="submit"] {
+    min-height: 44px;
+    padding: 9px 16px !important;
+    border-radius: 9px !important;
+    background: #059669 !important;
+    border-color: #059669 !important;
+    color: #fff !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+}
+.library-book-edit-modal button[type="submit"]:hover {
+    background: #047857 !important;
+    border-color: #047857 !important;
+}
+@media (max-width: 767px) {
+    .library-book-edit-modal .box-content { padding: 15px !important; }
+    .library-book-edit-modal .control-label {
+        padding-top: 0;
+        margin-bottom: 7px;
+    }
+    .library-book-edit-modal .form-group > [class*="col-"] {
+        width: 100% !important;
+        float: none !important;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .library-book-edit-modal .form-control { font-size: 16px !important; }
+    .library-book-edit-modal button[type="submit"] { width: 100%; }
+}
+</style>
 
-<div class="tab-pane box active" id="edit" style="padding: 5px">
+<div class="tab-pane box active library-book-edit-modal" id="edit" style="padding: 5px">
     <div class="box-content">
         <?php foreach($edit_data as $row):
             if($row['status'] == 'Available') {
