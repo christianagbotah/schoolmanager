@@ -1,6 +1,259 @@
+<style>
+/* Direct UI/UX rebuild — Chart of Accounts */
+.accounts-ledger-workspace {
+  margin: 0 !important;
+  padding: 24px 28px 40px;
+  background: #f8fafc;
+  min-height: 100%;
+}
+.accounts-ledger-workspace > .col-md-12 {
+  padding: 0 !important;
+}
+.accounts-page-head {
+  margin: 0 0 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.accounts-eyebrow {
+  margin: 0 0 4px;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.accounts-page-head h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 30px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+.accounts-page-head p:last-child {
+  margin: 7px 0 0;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.accounts-ledger-workspace > .col-md-12 > div[style*="border: 2px solid red"] {
+  width: 100% !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+.accounts-ledger-workspace .container {
+  width: 100% !important;
+  max-width: none !important;
+  padding: 0 !important;
+  margin: 0 0 16px !important;
+}
+.accounts-ledger-workspace .container > .row {
+  margin: 0 !important;
+}
+.accounts-ledger-workspace .container > .row > .col-md-12 {
+  padding: 0 !important;
+}
+.accounts-ledger-workspace h5 {
+  margin: 0 !important;
+  padding: 15px 18px;
+  border: 1px solid #e2e8f0;
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  background: #fff;
+  color: #0f172a;
+  font-size: 17px;
+  line-height: 1.35;
+  font-weight: 800;
+}
+.accounts-ledger-workspace h5 + hr {
+  display: none;
+}
 
-    <div class="row">
+/* Add-account card */
+#create_account_form {
+  padding: 16px 18px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 0 0 14px 14px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#create_account_form table {
+  min-width: 980px;
+  margin: 0 !important;
+  border: 0 !important;
+}
+#create_account_form thead th,
+#create_account_form tbody th {
+  padding: 8px 9px !important;
+  border: 0 !important;
+  color: #475569 !important;
+  font-size: 13px !important;
+  line-height: 1.35;
+  font-weight: 800 !important;
+  letter-spacing: .02em;
+}
+#create_account_form td {
+  padding: 6px 9px !important;
+  border: 0 !important;
+  vertical-align: middle !important;
+}
+#create_account_form .form-control {
+  min-height: 46px;
+  height: 46px;
+  padding: 9px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #fff;
+  color: #0f172a;
+  font-size: 15px;
+}
+#create_account_form .form-control:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+  outline: none;
+}
+#create_account_form input[type="radio"],
+#create_account_form input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0 6px 0 0;
+  vertical-align: middle;
+  accent-color: #2563eb;
+}
+#create_account_form .form-check-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 10px;
+  color: #334155;
+  font-size: 14px;
+}
+#create_account_form button[type="submit"] {
+  min-height: 44px;
+  padding: 9px 16px;
+  border-radius: 9px;
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+}
+#create_account_form button[type="submit"]:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+/* Existing accounts card */
+#account_update_form {
+  padding: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 0 0 14px 14px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15,23,42,.05);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#dataTable {
+  width: 100% !important;
+  min-width: 1220px;
+  margin: 0 !important;
+  border: 0 !important;
+}
+#dataTable thead th {
+  padding: 12px 11px !important;
+  background: #f8fafc !important;
+  color: #475569 !important;
+  font-size: 13px !important;
+  line-height: 1.35;
+  font-weight: 800 !important;
+  letter-spacing: .025em;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+#dataTable tbody td {
+  padding: 11px !important;
+  color: #334155 !important;
+  font-size: 14px !important;
+  line-height: 1.45;
+  vertical-align: middle !important;
+  border-bottom: 1px solid #eef2f7 !important;
+}
+#dataTable tbody tr:hover td { background: #f8fbff !important; }
+#dataTable .form-control {
+  min-height: 40px;
+  height: 40px;
+  padding: 7px 9px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #0f172a;
+  font-size: 14px;
+  background: #fff;
+}
+#dataTable input[type="radio"],
+#dataTable input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  accent-color: #2563eb;
+}
+#dataTable .btn {
+  min-height: 36px;
+  padding: 7px 10px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+#dataTable .btn-info { background: #0284c7; border-color: #0284c7; }
+#dataTable .btn-success { background: #059669; border-color: #059669; }
+#dataTable .btn-danger { background: #dc2626; border-color: #dc2626; }
+
+.accounts-ledger-workspace .dataTables_wrapper {
+  min-width: 1220px;
+  padding: 14px;
+}
+.accounts-ledger-workspace .dataTables_length,
+.accounts-ledger-workspace .dataTables_filter,
+.accounts-ledger-workspace .dataTables_info,
+.accounts-ledger-workspace .dataTables_paginate {
+  color: #475569;
+  font-size: 14px;
+}
+.accounts-ledger-workspace .dataTables_length select,
+.accounts-ledger-workspace .dataTables_filter input[type="search"] {
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #0f172a;
+  font-size: 14px;
+}
+#preloader2 {
+  min-height: 240px !important;
+  top: 0 !important;
+  border-radius: 12px;
+  background: rgba(255,255,255,.94) !important;
+}
+.ajax_alert { top: 70px !important; }
+
+@media (max-width: 767px) {
+  .accounts-ledger-workspace { padding: 18px 14px 32px; }
+  .accounts-page-head h1 { font-size: 26px; }
+  .accounts-ledger-workspace h5 { padding: 14px 15px; }
+  #create_account_form { padding: 14px; }
+}
+</style>
+
+
+    <div class="row accounts-ledger-workspace">
       <div class="col-md-12">
+        <div class="accounts-page-head">
+          <p class="accounts-eyebrow">Fees & Finance</p>
+          <h1>Chart of Accounts</h1>
+          <p>Create and maintain bank, cash, receivable, payable and operating accounts while protecting system-critical accounts.</p>
+        </div>
+
         <div style="border: 2px solid red; width: 100%; padding: 5px">
           <style type="text/css">
   #preloader2{
@@ -28,7 +281,7 @@ $account_type_array = $this->db->get('account_type')->result_array();
                   <div class="col-md-12">
                     <h5>Add New Account</h5>
                     <hr>
-                    <?php echo form_open(site_url('admin/subject_category/create'), array('class' => 'form-horizontal form-groups-bordered validate', 'id' => 'create_account_form', 'target' => '_top')); ?>
+                    <?php echo form_open(site_url('admin/accounts/account_create'), array('class' => 'form-horizontal form-groups-bordered validate', 'id' => 'create_account_form', 'target' => '_top')); ?>
                       <table class="table table-responsive" id="" style="width:100%; border-collapse:collapse;">
                         <thead>
 
