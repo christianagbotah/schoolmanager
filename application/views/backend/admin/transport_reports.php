@@ -1,90 +1,152 @@
 <style>
+/* Direct UI/UX rebuild — Transport Reports */
+.transport-reports-workspace {
+    margin: 0 !important;
+    padding: 24px 28px 40px !important;
+    background: #f8fafc;
+    min-height: 100%;
+}
+.transport-reports-workspace > .col-md-12 { padding: 0 !important; }
+.transport-reports-workspace .panel.panel-primary {
+    margin: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+.transport-reports-workspace .panel-heading {
+    margin-bottom: 18px;
+    padding: 0 0 18px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    background: transparent !important;
+}
+.transport-reports-workspace .panel-heading h4 {
+    margin: 0 !important;
+    color: #0f172a !important;
+    font-size: 30px !important;
+    line-height: 1.2;
+    font-weight: 800 !important;
+    letter-spacing: -.02em;
+}
+.transport-reports-workspace .panel-heading h4 i { margin-right: 7px; color: #2563eb; }
+.transport-reports-workspace .panel-body {
+    padding: 0 !important;
+    background: transparent !important;
+}
+.transport-reports-workspace .panel-body > .row {
+    margin-left: -6px;
+    margin-right: -6px;
+}
+.transport-reports-workspace .panel-body > .row > [class*="col-"] {
+    padding-left: 6px;
+    padding-right: 6px;
+}
 .report-card {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-    transition: all 0.3s;
+    min-height: 260px;
+    margin-bottom: 12px;
+    padding: 17px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+    transition: border-color .2s ease, box-shadow .2s ease;
 }
-.report-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-}
+.report-card:hover { transform: none; border-color: #cbd5e1; box-shadow: 0 7px 18px rgba(15,23,42,.07); }
 .report-header {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 20px;
+    gap: 11px;
+    margin-bottom: 14px;
 }
 .report-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
-    color: white;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-radius: 10px;
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    font-size: 18px;
 }
+.report-header h4 { margin: 0 !important; color: #0f172a; font-size: 17px !important; font-weight: 800 !important; }
+.report-header p { margin: 4px 0 0 !important; color: #64748b !important; font-size: 13px !important; line-height: 1.4; }
 .filter-section {
+    margin-bottom: 0;
+    padding: 13px;
+    border: 1px solid #e2e8f0;
+    border-radius: 11px;
     background: #f8fafc;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
 }
 .filter-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 16px;
+    grid-template-columns: minmax(150px,1.25fr) minmax(110px,.75fr) minmax(110px,.75fr) auto;
+    gap: 9px;
+    align-items: end;
+    margin-bottom: 0;
 }
 .filter-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 6px;
+    display: block;
+    margin-bottom: 5px;
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.35;
+    font-weight: 800;
 }
-.filter-control {
+.filter-control,
+.transport-reports-workspace .select2-container .select2-selection--single {
     width: 100%;
-    padding: 10px 12px;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    font-size: 14px;
+    min-height: 42px !important;
+    height: 42px !important;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    background: #fff;
+    color: #0f172a;
+    font-size: 14px !important;
 }
-.filter-control:focus {
-    border-color: #3b82f6;
-    outline: none;
-}
+.filter-control:focus { border-color: #2563eb !important; outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+.transport-reports-workspace .select2-container .select2-selection__rendered { line-height: 40px !important; padding-left: 10px !important; font-size: 14px !important; }
+.transport-reports-workspace .select2-container .select2-selection__arrow { height: 40px !important; }
 .btn-generate {
-    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-    color: white;
-    padding: 12px 32px;
+    min-height: 42px;
+    padding: 8px 13px !important;
+    border: 1px solid #2563eb;
     border-radius: 8px;
-    border: none;
-    font-weight: 600;
+    background: #2563eb !important;
+    color: #fff;
+    box-shadow: none !important;
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 800;
     cursor: pointer;
-    transition: all 0.3s;
 }
-.btn-generate:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59,130,246,0.3);
-}
+.btn-generate:hover { background: #1d4ed8 !important; transform: none; box-shadow: none !important; }
 .report-result {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    margin-top: 20px;
+    margin-top: 16px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
 }
-@media (max-width: 768px) {
-    .filter-row {
-        grid-template-columns: 1fr;
-    }
+#reportResults { margin-top: 4px; }
+@media (max-width: 1100px) {
+    .filter-row { grid-template-columns: 1fr 1fr; }
+    .filter-row .btn-generate { width: 100%; }
+}
+@media (max-width: 767px) {
+    .transport-reports-workspace { padding: 18px 14px 32px !important; }
+    .transport-reports-workspace .panel-heading h4 { font-size: 26px !important; }
+    .transport-reports-workspace .panel-body > .row > .col-md-6 { width: 100%; float: none; }
+    .filter-row { grid-template-columns: 1fr; }
+    .filter-control { font-size: 16px !important; }
+    .report-card { min-height: auto; }
 }
 </style>
 
-<div class="row" style="margin-top: 20px;">
+<div class="row transport-reports-workspace">
     <div class="col-md-12">
         <div class="panel panel-primary">
             <div class="panel-heading" style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); border: none;">
@@ -123,8 +185,7 @@
                                             <?php populate_academic_year('yes'); ?>
                                         </select>
                                     </div>
-                                </div>
-                                <div class="filter-row">
+
                                     <div>
                                         <label class="filter-label"><?php echo get_phrase('term'); ?></label>
                                         <select id="student_report_term" class="filter-control">
@@ -178,8 +239,7 @@
                                             <?php populate_academic_year('yes'); ?>
                                         </select>
                                     </div>
-                                </div>
-                                <div class="filter-row">
+
                                     <div>
                                         <label class="filter-label"><?php echo get_phrase('term'); ?></label>
                                         <select id="route_report_term" class="filter-control">
@@ -226,8 +286,7 @@
                                         <label class="filter-label"><?php echo get_phrase('to_date'); ?></label>
                                         <input type="text" id="revenue_to_date" class="filter-control datepicker" placeholder="dd/mm/yyyy" readonly>
                                     </div>
-                                </div>
-                                <div class="filter-row">
+
                                     <div>
                                         <label class="filter-label"><?php echo get_phrase('group_by'); ?></label>
                                         <select id="revenue_group_by" class="filter-control">
@@ -276,8 +335,7 @@
                                         <label class="filter-label"><?php echo get_phrase('from_date'); ?></label>
                                         <input type="text" id="attendance_from_date" class="filter-control datepicker" placeholder="dd/mm/yyyy" readonly>
                                     </div>
-                                </div>
-                                <div class="filter-row">
+
                                     <div>
                                         <label class="filter-label"><?php echo get_phrase('to_date'); ?></label>
                                         <input type="text" id="attendance_to_date" class="filter-control datepicker" placeholder="dd/mm/yyyy" readonly>
