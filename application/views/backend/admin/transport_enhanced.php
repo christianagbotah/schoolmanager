@@ -1,290 +1,256 @@
 <style>
-.transport-stat-card {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: all 0.3s;
-    cursor: pointer;
-    border-left: 4px solid;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 15px;
+/* Direct UI/UX rebuild — Transport Management */
+.transport-workspace {
+    margin: 0 !important;
+    padding: 24px 28px 40px !important;
+    background: #f8fafc;
+    min-height: 100%;
 }
-.transport-stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+.transport-workspace > .col-md-12 { padding: 0 !important; }
+.transport-workspace .panel.panel-primary {
+    margin: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
 }
-.stat-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    flex-shrink: 0;
+.transport-workspace .panel-heading {
+    padding: 0 0 18px !important;
+    margin-bottom: 18px;
+    border: 0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    background: transparent !important;
 }
-.stat-content {
-    text-align: right;
-    flex: 1;
+.transport-workspace .panel-heading > div {
+    align-items: flex-end !important;
+    gap: 14px !important;
 }
-.stat-value {
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 4px;
+.transport-workspace .panel-heading h4 {
+    margin: 0 !important;
+    color: #0f172a !important;
+    font-size: 30px !important;
+    line-height: 1.2;
+    font-weight: 800 !important;
+    letter-spacing: -.02em;
 }
-.stat-label {
-    font-size: 14px;
-    color: #666;
-    font-weight: 500;
+.transport-workspace .panel-heading h4 i {
+    margin-right: 7px;
+    color: #2563eb;
 }
-.action-btn {
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.3s;
-    border: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    white-space: nowrap;
-    margin-bottom: 10px;
-    display: inline-block;
-}
-.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-#transport_table {
-    border-collapse: separate;
-    border-spacing: 0;
-}
-#transport_table thead th {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    color: #1e293b;
-    font-weight: 700;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 12px 16px;
-    border: none;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-#transport_table tbody td {
-    padding: 10px 16px;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 14px;
-    color: #374151;
-    vertical-align: middle;
-    line-height: 1.4;
-}
-#transport_table tbody tr {
-    background: white;
-    transition: all 0.2s ease;
-}
-#transport_table tbody tr:hover {
-    background: #f8fafc !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-#transport_table tbody tr td:first-child {
-    font-weight: 700;
-    color: #3b82f6;
-}
-.dataTables_wrapper .dataTables_length select,
-.dataTables_wrapper .dataTables_filter input {
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 8px 12px;
-    transition: all 0.3s;
-}
-.dataTables_wrapper .dataTables_length select:focus,
-.dataTables_wrapper .dataTables_filter input:focus {
-    border-color: #3b82f6;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-}
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-    border-radius: 6px;
-    padding: 8px 14px;
-    margin: 0 2px;
-    transition: all 0.2s;
-}
-.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-    color: white !important;
-    border: none;
-}
-.report-section {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    margin-top: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+.transport-workspace .panel-body {
+    padding: 0 !important;
+    background: transparent !important;
 }
 .header-actions-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
 }
-.header-btn-mobile {
-    padding: 10px 16px !important;
+.transport-workspace .header-btn-mobile,
+.transport-workspace .action-btn {
+    min-height: 40px;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    background: #fff !important;
+    color: #334155 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    font-size: 13px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+    white-space: nowrap;
+}
+.transport-workspace .header-btn-mobile:hover,
+.transport-workspace .action-btn:hover {
+    border-color: #94a3b8 !important;
+    background: #f8fafc !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+.transport-workspace .action-btn:first-child {
+    border-color: #2563eb !important;
+    background: #2563eb !important;
+    color: #fff !important;
+}
+.transport-workspace .panel-body > .row {
+    margin-left: -6px;
+    margin-right: -6px;
+}
+.transport-workspace .panel-body > .row > [class*="col-"] {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+.transport-stat-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 132px;
+    margin-bottom: 12px;
+    padding: 17px;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
+    cursor: pointer;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+.transport-stat-card:hover {
+    transform: none;
+    box-shadow: 0 7px 18px rgba(15,23,42,.08);
+}
+.transport-stat-card .stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 11px;
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    font-size: 19px;
+}
+.transport-stat-card .stat-content { flex: 1; text-align: right; }
+.transport-stat-card .stat-value {
+    margin-bottom: 5px;
+    color: #0f172a !important;
+    font-size: 28px;
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+.transport-stat-card .stat-value sup { font-size: 12px !important; }
+.transport-stat-card .stat-label {
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.3;
+    font-weight: 800;
+    letter-spacing: .045em;
+    text-transform: uppercase;
+}
+.transport-workspace hr {
+    margin: 5px 0 16px;
+    border-color: #e2e8f0;
+}
+.transport-workspace .no-print[style*="margin-bottom"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px !important;
+}
+.table-responsive-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 !important;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px !important;
+    background: #fff !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+}
+#transport_table {
+    width: 100% !important;
+    min-width: 940px;
+    margin: 0 !important;
+    border-collapse: collapse;
+}
+#transport_table thead th {
+    position: static;
+    padding: 12px 13px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-size: 13px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+}
+#transport_table tbody td {
+    padding: 12px 13px !important;
+    border-bottom: 1px solid #eef2f7 !important;
+    color: #334155 !important;
     font-size: 14px !important;
+    line-height: 1.45;
+    vertical-align: middle;
+}
+#transport_table tbody tr { background: #fff; }
+#transport_table tbody tr:hover { background: #f8fbff !important; box-shadow: none; }
+#transport_table tbody tr td:first-child { color: #2563eb !important; font-weight: 800; }
+.transport-workspace .dataTables_wrapper {
+    min-width: 940px;
+    padding: 14px;
+}
+.transport-workspace .dataTables_length,
+.transport-workspace .dataTables_filter,
+.transport-workspace .dataTables_info,
+.transport-workspace .dataTables_paginate {
+    color: #475569;
+    font-size: 14px;
+}
+.transport-workspace .dataTables_length select,
+.transport-workspace .dataTables_filter input {
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    color: #0f172a;
+    font-size: 14px;
+}
+.transport-workspace .dataTables_paginate .paginate_button {
+    padding: 6px 10px !important;
+    margin: 0 2px !important;
+    border-radius: 7px !important;
+}
+.transport-workspace .dataTables_paginate .paginate_button.current {
+    border-color: #2563eb !important;
+    background: #2563eb !important;
+    color: #fff !important;
+}
+.report-section {
+    margin-top: 16px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05);
 }
 @media print {
     .no-print { display: none !important; }
-    .report-section { box-shadow: none; }
+    .transport-workspace { padding: 0 !important; background: #fff; }
+    .report-section, .table-responsive-wrapper { box-shadow: none !important; }
 }
-@media (max-width: 768px) {
-    .stat-icon {
-        width: 50px;
-        height: 50px;
-        font-size: 22px;
-    }
-    .stat-value {
-        font-size: 24px;
-    }
-    .stat-value sup {
-        font-size: 14px !important;
-    }
-    .stat-label {
-        font-size: 12px;
-    }
-    .transport-stat-card {
-        padding: 16px;
-        margin-bottom: 12px;
-    }
-    .action-btn {
-        width: 100%;
-        text-align: center;
-        margin-right: 0 !important;
-        padding: 12px 16px;
-        margin-bottom: 8px;
-    }
+@media (max-width: 767px) {
+    .transport-workspace { padding: 18px 14px 32px !important; }
+    .transport-workspace .panel-heading > div { display: block !important; }
+    .transport-workspace .panel-heading h4 { font-size: 26px !important; }
     .header-actions-container {
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         width: 100%;
+        margin-top: 14px;
     }
-    .header-btn-mobile {
-        width: 100%;
-        text-align: center;
-        margin-right: 0 !important;
-        margin-bottom: 8px;
+    .transport-workspace .header-btn-mobile { width: 100%; text-align: center; }
+    .transport-workspace .no-print[style*="margin-bottom"] {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
     }
-    .panel-heading > div {
-        flex-direction: column !important;
-        gap: 15px;
-    }
-    .panel-heading h4 {
-        font-size: 18px;
-        text-align: center;
-    }
-    #transport_table {
-        font-size: 12px;
-    }
-    #transport_table thead th {
-        padding: 8px 6px;
-        font-size: 11px;
-    }
-    #transport_table tbody td {
-        padding: 8px 6px;
-        font-size: 12px;
-    }
-    .dataTables_wrapper .dataTables_length,
-    .dataTables_wrapper .dataTables_filter {
-        text-align: center;
-        margin-bottom: 10px;
-    }
-    .dataTables_wrapper .dataTables_info,
-    .dataTables_wrapper .dataTables_paginate {
-        text-align: center;
-        margin-top: 10px;
-    }
-    .table-responsive-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        padding: 12px !important;
-    }
-    .report-section {
-        padding: 16px;
-    }
-    .col-xs-12 {
-        padding-left: 8px;
-        padding-right: 8px;
-    }
-    .panel-body {
-        padding: 10px !important;
-    }
-}
-    .dataTables_wrapper .dataTables_paginate {
-        text-align: center;
-        margin-top: 10px;
-    }
-    .table-responsive-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
+    .transport-workspace .action-btn { width: 100%; text-align: center; }
+    .transport-stat-card { min-height: 116px; padding: 14px; }
+    .transport-stat-card .stat-value { font-size: 24px; }
+    .transport-workspace .dataTables_filter { float: none; text-align: left; margin-top: 10px; }
+    .transport-workspace .dataTables_filter input { width: 220px; max-width: calc(100vw - 90px); font-size: 16px; }
 }
 @media (max-width: 480px) {
-    .stat-value {
-        font-size: 20px;
-    }
-    .stat-icon {
-        width: 45px;
-        height: 45px;
-        font-size: 20px;
-    }
-    #transport_table thead th {
-        padding: 6px 4px;
-        font-size: 10px;
-    }
-    #transport_table tbody td {
-        padding: 6px 4px;
-        font-size: 11px;
-    }
-    .header-btn-mobile {
-        padding: 10px 12px !important;
-        font-size: 13px !important;
-    }
-    .panel-heading h4 {
-        font-size: 16px;
-    }
-    .row {
-        margin-left: 0;
-        margin-right: 0;
-    }
-    .table-responsive-wrapper {
-        padding: 8px !important;
-    }
+    .header-actions-container,
+    .transport-workspace .no-print[style*="margin-bottom"] { grid-template-columns: 1fr; }
 }
-/* Improve table scrolling on mobile */
-.dataTables_wrapper {
-    width: 100%;
-}
-/* Make sure action buttons stack nicely on very small screens */
-@media (max-width: 360px) {
-    .stat-value {
-        font-size: 18px;
-    }
-    .stat-label {
-        font-size: 11px;
-    }
-    .header-btn-mobile {
-        font-size: 12px !important;
-        padding: 8px 10px !important;
-    }
-    #transport_table thead th,
-    #transport_table tbody td {
-        font-size: 10px;
-        padding: 4px 3px;
-    }
-}
-
 </style>
-<div class="row" style="margin-top: 20px;">
+<div class="row transport-workspace">
     <div class="col-md-12">
         <div class="panel panel-primary">
             <div class="panel-heading" style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); border: none;">
@@ -641,6 +607,5 @@ function processImport() {
     });
 }
 </script>
-
 
 
