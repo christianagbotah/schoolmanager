@@ -79,6 +79,9 @@
     vertical-align: middle;
 }
 .modern-table tbody tr:hover { background: #f8fbff; }
+.badge { display:inline-flex; min-height:27px; align-items:center; padding:5px 9px; border-radius:999px; font-size:12px; font-weight:800; }
+.badge-success { background:#ecfdf5; color:#047857; }
+.badge-warning { background:#fffbeb; color:#b45309; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .form-group { margin-bottom: 0; }
 .form-group-full { grid-column: 1 / -1; }
@@ -132,6 +135,7 @@ textarea.form-control { min-height: 88px !important; height: auto !important; }
 <th>Capacity</th>
 <th>Type</th>
 <th>Floor</th>
+<th>Status</th>
 <th>Actions</th>
 </tr>
 </thead>
@@ -149,6 +153,7 @@ echo $house ? $house->house_name : 'N/A';
 <td><?php echo isset($dorm['dormitory_capacity']) ? $dorm['dormitory_capacity'] : 'N/A';?></td>
 <td><?php echo $dorm['dormitory_type'];?></td>
 <td><?php echo $dorm['dormitory_floor'];?></td>
+<td><span class="badge <?php echo $dorm['dormitory_status'] === 'Available' ? 'badge-success' : 'badge-warning';?>"><?php echo html_escape($dorm['dormitory_status']);?></span></td>
 <td>
 <button class="btn-modern" style="background:#f59e0b;color:#fff;padding:8px 16px" onclick='editDorm(<?php echo json_encode($dorm);?>)'><i class="fa fa-edit"></i></button>
 <button class="btn-modern" style="background:#ef4444;color:#fff;padding:8px 16px" onclick="deleteDorm(<?php echo $dorm['dormitory_id'];?>)"><i class="fa fa-trash"></i></button>
@@ -208,6 +213,15 @@ const formHtml=`
 <label>Floor</label>
 <input type="text" name="dormitory_floor" id="dormitory_floor" class="form-control" value="${isEdit?dorm.dormitory_floor:''}">
 </div>
+<div class="form-group">
+<label>Status</label>
+<select name="dormitory_status" id="dormitory_status" class="form-control">
+<option value="Available">Available</option>
+<option value="Assigned">Assigned</option>
+<option value="Maintenance">Maintenance</option>
+<option value="Unknown">Unknown</option>
+</select>
+</div>
 <div class="form-group form-group-full">
 <label>Description</label>
 <textarea name="dormitory_description" id="dormitory_description" class="form-control" rows="3">${isEdit?dorm.dormitory_description:''}</textarea>
@@ -224,6 +238,7 @@ $('#boarding_dormitory_modal_body').html(formHtml);
 if(isEdit){
 $('#house_id').val(dorm.house_id);
 $('#dormitory_type').val(dorm.dormitory_type);
+$('#dormitory_status').val(dorm.dormitory_status || 'Available');
 }
 $('#modal_boarding_dormitory').modal('show');
 setTimeout(function(){
@@ -255,8 +270,9 @@ function deleteDorm(id){
 showConfirmModal('Delete Dormitory','Are you sure you want to delete this dormitory?',function(){
 showAjaxModal_alert('Deleting...','loading');
 $.post('<?php echo site_url("admin/manageBoardingDormitory/delete/");?>'+id,function(res){
-showAjaxModal_alert('Dormitory deleted successfully!','success');
-setTimeout(function(){$('#modal_alert').modal('hide');location.reload();},1500);
+if(typeof res === 'string'){ try { res = JSON.parse(res); } catch(e) { res = {status:'error',message:'Unexpected server response'}; } }
+if(res.status === 'success'){ showAjaxModal_alert('Dormitory deleted successfully!','success'); setTimeout(function(){$('#modal_alert').modal('hide');location.reload();},1500); }
+else { showAjaxModal_alert(res.message || 'Failed to delete dormitory.','error'); }
 }).fail(function(){
 showAjaxModal_alert('Failed to delete dormitory.','error');
 });

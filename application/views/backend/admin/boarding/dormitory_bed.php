@@ -69,7 +69,7 @@ echo $dorm ? $dorm->dormitory_name : 'N/A';
 ?></td>
 <td><?php echo $bed['bed_number'];?></td>
 <td><?php echo $bed['bed_type'];?></td>
-<td><span class="badge <?php echo $bed['bed_status']=='available'?'badge-success':'badge-danger';?>"><?php echo ucfirst($bed['bed_status']);?></span></td>
+<td><span class="badge <?php echo strcasecmp($bed['bed_status'],'Available')===0?'badge-success':'badge-danger';?>"><?php echo ucfirst($bed['bed_status']);?></span></td>
 <td>
 <button class="btn-modern" style="background:#f59e0b;color:#fff;padding:8px 16px" onclick='editBed(<?php echo json_encode($bed);?>)'><i class="fa fa-edit"></i></button>
 <button class="btn-modern" style="background:#ef4444;color:#fff;padding:8px 16px" onclick="deleteBed(<?php echo $bed['bed_id'];?>)"><i class="fa fa-trash"></i></button>
@@ -127,9 +127,10 @@ const formHtml=`
 <div class="form-group">
 <label>Status</label>
 <select name="bed_status" id="bed_status" class="form-control">
-<option value="available">Available</option>
-<option value="occupied">Occupied</option>
-<option value="maintenance">Maintenance</option>
+<option value="Available">Available</option>
+<option value="Assigned">Assigned</option>
+<option value="Maintenance">Maintenance</option>
+<option value="Unknown">Unknown</option>
 </select>
 </div>
 <div class="form-group">
@@ -179,8 +180,9 @@ function deleteBed(id){
 showConfirmModal('Delete Bed','Are you sure you want to delete this bed?',function(){
 showAjaxModal_alert('Deleting...','loading');
 $.post('<?php echo site_url("admin/manageDormitoryBed/delete/");?>'+id,function(res){
-showAjaxModal_alert('Bed deleted successfully!','success');
-setTimeout(function(){$('#modal_alert').modal('hide');location.reload();},1500);
+if(typeof res === 'string'){ try { res = JSON.parse(res); } catch(e) { res = {status:'error',message:'Unexpected server response'}; } }
+if(res.status === 'success'){ showAjaxModal_alert('Bed deleted successfully!','success'); setTimeout(function(){$('#modal_alert').modal('hide');location.reload();},1500); }
+else { showAjaxModal_alert(res.message || 'Failed to delete bed.','error'); }
 }).fail(function(){
 showAjaxModal_alert('Failed to delete bed.','error');
 });

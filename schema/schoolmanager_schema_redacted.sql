@@ -957,10 +957,13 @@ CREATE TABLE `blood_group` (
 CREATE TABLE `boarding_bed` (
   `bed_id` int NOT NULL,
   `bed_code` longtext COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `bed_number` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `bed_type` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `bed_description` text COLLATE utf8mb4_unicode_520_ci,
   `dormitory_id` int NOT NULL,
   `bed_status` enum('Available','Assigned','Maintenance','Unknown') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'Available',
   `sync` enum('yes','no') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'no'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 -- --------------------------------------------------------
 

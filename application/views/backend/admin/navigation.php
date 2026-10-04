@@ -1124,7 +1124,7 @@ if ($_level == 4 || $admin_level == 4) {
         <?php endif; ?>
 
         <?php if($boarding_system == 'yes'):?>
-        <li class="<?php if ($page_name == '/boarding/boarding_house' || $page_name == '/boarding/boarding_dormitory' || $page_name == '/boarding/dormitory_bed' || $page_name == '/boarding/boarding_reports') echo 'opened active'; ?>">
+        <li class="<?php if ($page_name == '/boarding/boarding_house' || $page_name == '/boarding/boarding_dormitory' || $page_name == '/boarding/dormitory_bed' || $page_name == '/boarding/student_assignment' || $page_name == '/boarding/boarding_reports') echo 'opened active'; ?>">
             <a href="#">
                 <i class="fa fa-building"></i>
                 <span><?php echo get_phrase('boarding_management'); ?></span>
@@ -1143,6 +1143,11 @@ if ($_level == 4 || $admin_level == 4) {
                 <li class="<?php if ($page_name == '/boarding/dormitory_bed') echo 'active'; ?>">
                     <a href="#" onclick="navigation('<?php echo site_url('admin/manageDormitoryBed'); ?>')">
                         <span><i class="fa fa-bed"></i> <?php echo get_phrase('beds'); ?></span>
+                    </a>
+                </li>
+                <li class="<?php if ($page_name == '/boarding/student_assignment') echo 'active'; ?>">
+                    <a href="#" onclick="navigation('<?php echo site_url('admin/assign_boarding'); ?>')">
+                        <span><i class="fa fa-user-plus"></i> <?php echo get_phrase('student_assignment'); ?></span>
                     </a>
                 </li>
                 <li class="<?php if ($page_name == '/boarding/boarding_reports') echo 'active'; ?>">

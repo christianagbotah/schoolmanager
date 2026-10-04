@@ -1,4 +1,38 @@
-<div class="row">
+<style>
+/* Direct UI/UX rebuild — Boarding Student Assignment */
+.boarding-assignment-workspace {
+    margin:0 !important; padding:24px 28px 40px !important; background:#f8fafc; min-height:100%;
+}
+.boarding-assignment-workspace > .col-md-12 { padding:0 !important; }
+.boarding-assignment-workspace .panel.panel-primary { margin:0 !important; border:0 !important; background:transparent !important; box-shadow:none !important; }
+.boarding-assignment-workspace .panel-heading { margin-bottom:18px; padding:0 0 18px !important; border:0 !important; border-bottom:1px solid #e2e8f0 !important; background:transparent !important; }
+.boarding-assignment-workspace .panel-title { margin:0 !important; color:#0f172a !important; font-size:30px !important; line-height:1.2; font-weight:800 !important; letter-spacing:-.02em; }
+.boarding-assignment-workspace .panel-title i { margin-right:7px; color:#2563eb; }
+.boarding-assignment-workspace .panel-body { padding:0 !important; background:transparent !important; }
+.boarding-assignment-workspace .nav-tabs { display:flex; gap:4px; margin-bottom:14px; border-bottom:1px solid #e2e8f0; }
+.boarding-assignment-workspace .nav-tabs > li { margin:0 0 -1px; }
+.boarding-assignment-workspace .nav-tabs > li > a { margin:0; padding:10px 14px; border:0 !important; border-bottom:2px solid transparent !important; border-radius:0 !important; color:#64748b; font-size:14px; font-weight:800; }
+.boarding-assignment-workspace .nav-tabs > li.active > a { border-bottom-color:#2563eb !important; background:transparent !important; color:#2563eb !important; }
+.boarding-assignment-workspace .tab-content { padding:18px; border:1px solid #e2e8f0; border-radius:14px; background:#fff; box-shadow:0 1px 2px rgba(15,23,42,.05); }
+.boarding-assignment-workspace .form-horizontal { max-width:900px; margin:0 auto; }
+.boarding-assignment-workspace .form-group { display:grid; grid-template-columns:minmax(180px,.45fr) minmax(0,1fr); gap:14px; align-items:center; margin:0 0 14px !important; }
+.boarding-assignment-workspace .control-label { width:auto !important; padding:0 !important; color:#334155; font-size:14px; font-weight:800; text-align:left !important; }
+.boarding-assignment-workspace .form-group > .col-sm-7,
+.boarding-assignment-workspace .form-group > .col-sm-offset-3 { width:auto !important; margin-left:0 !important; padding:0 !important; float:none !important; }
+.boarding-assignment-workspace .form-control,
+.boarding-assignment-workspace .select2-container--default .select2-selection--single,
+.boarding-assignment-workspace .select2-container--default .select2-selection--multiple { width:100%; min-height:44px !important; border:1px solid #cbd5e1 !important; border-radius:9px !important; background:#fff !important; color:#0f172a; font-size:15px !important; }
+.boarding-assignment-workspace .form-control { padding:9px 11px !important; }
+.boarding-assignment-workspace .select2-container { width:100% !important; }
+.boarding-assignment-workspace .select2-selection--single .select2-selection__rendered { line-height:42px !important; padding-left:11px !important; font-size:15px !important; }
+.boarding-assignment-workspace .select2-selection--single .select2-selection__arrow { height:42px !important; }
+.boarding-assignment-workspace .select2-selection--multiple { padding:4px 7px !important; }
+.boarding-assignment-workspace .btn-primary { min-height:44px; padding:9px 15px !important; border-radius:9px !important; background:#2563eb !important; border-color:#2563eb !important; font-size:14px !important; font-weight:800 !important; }
+.boarding-assignment-workspace .help-block { margin:7px 0 0; color:#64748b; font-size:13px; }
+@media(max-width:767px){.boarding-assignment-workspace{padding:18px 14px 32px !important}.boarding-assignment-workspace .panel-title{font-size:26px !important}.boarding-assignment-workspace .form-group{grid-template-columns:1fr;gap:6px}.boarding-assignment-workspace .form-control{font-size:16px !important}.boarding-assignment-workspace .nav-tabs{overflow-x:auto;white-space:nowrap}.boarding-assignment-workspace .tab-content{padding:14px}}
+</style>
+
+<div class="row boarding-assignment-workspace">
     <div class="col-md-12">
         <div class="panel panel-primary">
             <div class="panel-heading">
@@ -36,10 +70,10 @@
                                 <select name="house_id" id="house_id_single" class="form-control" required>
                                     <option value=""><?php echo get_phrase('select'); ?></option>
                                     <?php
-                                    $houses = $this->db->get('house')->result_array();
+                                    $houses = $this->db->where('house_status', 'Available')->order_by('house_name', 'ASC')->get('boarding_house')->result_array();
                                     foreach($houses as $house):
                                     ?>
-                                    <option value="<?php echo $house['house_id']; ?>"><?php echo $house['name']; ?></option>
+                                    <option value="<?php echo $house['house_id']; ?>"><?php echo $house['house_name']; ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -104,7 +138,7 @@
                                 <select name="house_id" id="house_id_bulk" class="form-control" required>
                                     <option value=""><?php echo get_phrase('select'); ?></option>
                                     <?php foreach($houses as $house): ?>
-                                    <option value="<?php echo $house['house_id']; ?>"><?php echo $house['name']; ?></option>
+                                    <option value="<?php echo $house['house_id']; ?>"><?php echo $house['house_name']; ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -178,7 +212,7 @@ function loadBeds(dormitory_id, type) {
 
 function loadStudentsByClass(class_id) {
     $.ajax({
-        url: '<?php echo site_url('admin/get_students_by_class_json'); ?>',
+        url: '<?php echo site_url('admin/get_students_by_class'); ?>',
         type: 'POST',
         data: {class_id: class_id},
         success: function(response) {
