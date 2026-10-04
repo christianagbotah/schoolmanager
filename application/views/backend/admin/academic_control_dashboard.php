@@ -25,6 +25,188 @@ button:focus-visible, [onclick]:focus-visible {
 @media (prefers-reduced-motion: reduce) {
     .animate-spin { animation: none; }
 }
+
+/* Direct UI/UX refinement — Academic Control Dashboard */
+body { background: #f8fafc; }
+.min-h-screen.bg-gray-50 {
+    padding: 24px 28px 40px !important;
+    background: #f8fafc !important;
+}
+.min-h-screen.bg-gray-50 > .mb-6 {
+    margin-bottom: 18px !important;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e2e8f0;
+}
+.min-h-screen.bg-gray-50 > .mb-6 h1 {
+    margin: 0;
+    color: #0f172a !important;
+    font-size: 30px !important;
+    line-height: 1.2;
+    font-weight: 800 !important;
+    letter-spacing: -.02em;
+}
+.min-h-screen.bg-gray-50 > .mb-6 p {
+    margin-top: 7px !important;
+    color: #64748b !important;
+    font-size: 15px !important;
+    line-height: 1.5;
+}
+.min-h-screen.bg-gray-50 > .bg-white.rounded-lg.shadow.p-4 {
+    margin-bottom: 16px !important;
+    padding: 16px 18px !important;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+}
+.min-h-screen.bg-gray-50 > .bg-white.rounded-lg.shadow.p-4 .grid {
+    gap: 14px !important;
+}
+.min-h-screen.bg-gray-50 label {
+    margin-bottom: 7px !important;
+    color: #334155 !important;
+    font-size: 14px !important;
+    line-height: 1.4;
+    font-weight: 700 !important;
+}
+#year, #term {
+    min-height: 46px !important;
+    height: 46px !important;
+    padding: 9px 11px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 9px !important;
+    color: #0f172a !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+}
+.min-h-screen.bg-gray-50 button[onclick="loadMetrics()"] {
+    min-height: 46px;
+    padding: 9px 16px !important;
+    border-radius: 9px !important;
+    font-size: 14px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+}
+
+#classGrid {
+    gap: 14px !important;
+}
+#classGrid > .bg-white {
+    padding: 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-left-width: 4px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
+}
+#classGrid > .bg-white:hover {
+    box-shadow: 0 4px 12px rgba(15,23,42,.06) !important;
+}
+#classGrid h3 {
+    color: #0f172a !important;
+    font-size: 16px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+}
+#classGrid span.rounded-full {
+    padding: 5px 9px !important;
+    border-radius: 999px !important;
+    font-size: 12px !important;
+    line-height: 1.25;
+    font-weight: 800 !important;
+}
+#classGrid .space-y-3 {
+    margin-bottom: 14px !important;
+}
+#classGrid .space-y-3 > div {
+    margin-top: 0 !important;
+    margin-bottom: 10px !important;
+}
+#classGrid .space-y-3 .text-sm {
+    font-size: 13px !important;
+    line-height: 1.4;
+}
+#classGrid .h-2 {
+    height: 7px !important;
+}
+#classGrid .flex.gap-2.flex-wrap {
+    gap: 7px !important;
+}
+#classGrid .flex.gap-2.flex-wrap button {
+    min-height: 38px;
+    padding: 8px 11px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    line-height: 1.25;
+    font-weight: 700 !important;
+}
+#classGrid .col-span-full {
+    padding-top: 36px !important;
+    padding-bottom: 36px !important;
+}
+#classGrid .col-span-full .h-12 {
+    width: 34px !important;
+    height: 34px !important;
+}
+#classGrid .col-span-full p {
+    margin-top: 10px !important;
+    color: #64748b !important;
+    font-size: 14px !important;
+}
+
+#auditModal {
+    background: rgba(15,23,42,.55) !important;
+}
+#auditModal > .relative {
+    top: 8vh !important;
+    width: min(720px, calc(100% - 28px)) !important;
+    padding: 0 !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 14px !important;
+    background: #fff !important;
+    box-shadow: 0 20px 45px rgba(15,23,42,.20) !important;
+    overflow: hidden;
+}
+#auditModal > .relative > .flex.justify-between.items-center {
+    margin-bottom: 0 !important;
+    padding: 15px 18px;
+    border-bottom: 1px solid #e2e8f0;
+}
+#auditModal h3 {
+    color: #0f172a;
+    font-size: 17px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+}
+#auditModal button[onclick="closeAuditModal()"] {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+#auditModal #auditContent {
+    max-height: 60vh !important;
+    padding: 15px 18px 18px;
+}
+#auditModal #auditContent .space-y-3 > div {
+    padding: 10px 0 10px 12px !important;
+}
+#auditModal #auditContent .font-semibold {
+    color: #0f172a;
+    font-size: 14px;
+}
+#auditModal #auditContent .text-sm {
+    font-size: 13px !important;
+    line-height: 1.45;
+}
+
+@media (max-width: 767px) {
+    .min-h-screen.bg-gray-50 { padding: 18px 14px 32px !important; }
+    .min-h-screen.bg-gray-50 > .mb-6 h1 { font-size: 26px !important; }
+    #year, #term { font-size: 16px !important; }
+    #classGrid { grid-template-columns: 1fr !important; }
+}
 </style>
 
 <div class="p-4 md:p-6 bg-gray-50 min-h-screen">
