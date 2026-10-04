@@ -1,3 +1,40 @@
+<style>
+/* Direct UI/UX refinement — academic term selector */
+#term_change {
+    margin: 0;
+    padding: 4px 0;
+}
+#term_change > li {
+    list-style: none;
+    margin: 0;
+}
+#term_change .form-group {
+    margin: 0;
+}
+#change_running_term {
+    width: 100% !important;
+    min-height: 46px !important;
+    height: 46px !important;
+    padding: 9px 12px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 9px !important;
+    background: #fff !important;
+    color: #0f172a !important;
+    font-size: 15px !important;
+    line-height: 1.4 !important;
+    font-weight: 700 !important;
+    box-shadow: none !important;
+}
+#change_running_term:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+    outline: none;
+}
+@media (max-width: 767px) {
+    #change_running_term { font-size: 16px !important; }
+}
+</style>
+
 <?php echo form_open(site_url('admin/change_term') , array('id' => 'term_change'))
 ;
 $running_year = get_settings('running_year');

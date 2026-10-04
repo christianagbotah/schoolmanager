@@ -1,3 +1,80 @@
+<style>
+/* Direct UI/UX refinement — year/term invoice selector */
+#view_single_bulk_invoice_form {
+    margin: 0;
+}
+#view_single_bulk_invoice_form > .grid {
+    display: grid !important;
+    grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+    gap: 12px !important;
+    align-items: end !important;
+    margin-top: 0 !important;
+}
+#view_single_bulk_invoice_form .flex.gap-5 {
+    display: block !important;
+}
+#view_single_bulk_invoice_form .control-label {
+    display: block;
+    margin: 0 0 7px;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 700;
+}
+#view_single_bulk_invoice_form select,
+#view_single_bulk_invoice_form .select2-container .select2-selection--single,
+#view_single_bulk_invoice_form .select2-container .select2-choice {
+    width: 100% !important;
+    min-height: 46px !important;
+    height: 46px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 9px !important;
+    background: #fff !important;
+    color: #0f172a !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+}
+#view_single_bulk_invoice_form .select2-container {
+    width: 100% !important;
+}
+#view_single_bulk_invoice_form .select2-container .select2-selection__rendered,
+#view_single_bulk_invoice_form .select2-container .select2-choice > span:first-child {
+    line-height: 44px !important;
+    padding-left: 11px !important;
+    color: #0f172a !important;
+    font-size: 15px !important;
+}
+#view_single_bulk_invoice_form .select2-container .select2-selection__arrow {
+    height: 44px !important;
+}
+#view_single_bulk_invoice_form input[type="submit"] {
+    width: 100%;
+    min-height: 46px !important;
+    height: 46px !important;
+    padding: 9px 16px !important;
+    border-radius: 9px !important;
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #fff !important;
+    font-size: 14px !important;
+    line-height: 1.35;
+    font-weight: 800 !important;
+}
+#view_single_bulk_invoice_form input[type="submit"]:hover {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+}
+@media (max-width: 767px) {
+    #view_single_bulk_invoice_form > .grid {
+        grid-template-columns: 1fr !important;
+    }
+    #view_single_bulk_invoice_form select,
+    #view_single_bulk_invoice_form .select2-container .select2-selection__rendered {
+        font-size: 16px !important;
+    }
+}
+</style>
+
 <?php 
 
   $un_year = $param2;
