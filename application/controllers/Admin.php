@@ -36633,6 +36633,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// SMS Automation page
 	function sms_automation() {
+		if ($this->session->userdata('admin_login') != 1) {
+			redirect(site_url('login'), 'refresh');
+			return;
+		}
+
 		$page_data['page_name'] = 'sms_automation';
 		$page_data['page_title'] = get_phrase('sms_automation');
 		$page_data['account_type'] = $this->session->userdata('login_type');
@@ -36641,12 +36646,22 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Get SMS templates
 	function get_sms_templates() {
+		if ($this->session->userdata('admin_login') != 1) {
+			redirect(site_url('login'), 'refresh');
+			return;
+		}
+
 		$templates = $this->db->get('sms_templates')->result_array();
 		echo json_encode($templates);
 	}
 
 	// Get SMS schedules
 	function get_sms_schedules() {
+		if ($this->session->userdata('admin_login') != 1) {
+			redirect(site_url('login'), 'refresh');
+			return;
+		}
+
 		$this->db->select('s.*, t.name as template_name');
 		$this->db->from('sms_schedules s');
 		$this->db->join('sms_templates t', 't.code = s.template_code');
@@ -36656,6 +36671,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Send bulk payment reminders
 	function send_bulk_payment_reminders() {
+		if ($this->session->userdata('admin_login') != 1) {
+			redirect(site_url('login'), 'refresh');
+			return;
+		}
+
 		$criteria = $this->input->post('criteria');
 		$template_code = $this->input->post('template');
 		
@@ -40726,6 +40746,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Cron setup page for automated bill reminders
 	function cron_setup() {
+		if ($this->session->userdata('admin_login') != 1) {
+			redirect(site_url('login'), 'refresh');
+			return;
+		}
+
 		$page_data['page_name'] = 'cron_setup';
 		$page_data['page_title'] = 'Automated Bill Reminder Setup';
 		$this->load->view('backend/main', $page_data);
@@ -40733,6 +40758,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Send test bill reminder SMS
 	function send_test_bill_reminder() {
+		if ($this->session->userdata('admin_login') != 1) {
+			redirect(site_url('login'), 'refresh');
+			return;
+		}
+
 		$test_phones = $this->input->post('test_phones');
 		
 		if (empty($test_phones)) {
@@ -40833,6 +40863,11 @@ private function determine_payment_type($wallet, $feeding, $breakfast, $classes,
 
 	// Get SMS bundle info and cost estimate
 	function get_sms_bundle_info() {
+		if ($this->session->userdata('admin_login') != 1) {
+			redirect(site_url('login'), 'refresh');
+			return;
+		}
+
 		$message_count = $this->input->post('message_count');
 		$messages = $this->input->post('messages'); // Array of message texts
 		

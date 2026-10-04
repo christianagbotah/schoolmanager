@@ -1,48 +1,19 @@
-<div class="overflow-x-auto">
-    <table class="w-full text-base">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700"><?php echo get_phrase('date'); ?></th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700"><?php echo get_phrase('recipient'); ?></th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700"><?php echo get_phrase('phone'); ?></th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700"><?php echo get_phrase('status'); ?></th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700"><?php echo get_phrase('message'); ?></th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-            <?php if(empty($logs)): ?>
-                <tr>
-                    <td colspan="5" class="px-4 py-8 text-center text-gray-500">
-                        <?php echo get_phrase('no_logs_found'); ?>
-                    </td>
-                </tr>
-            <?php else: ?>
-                <?php foreach($logs as $log): ?>
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 text-gray-700"><?php echo date('M d, Y H:i', strtotime($log['sent_at'])); ?></td>
-                        <td class="px-4 py-3 text-gray-700"><?php echo $log['recipient_name']; ?></td>
-                        <td class="px-4 py-3 text-gray-700"><?php echo $log['recipient_phone']; ?></td>
-                        <td class="px-4 py-3">
-                            <?php
-                            $status_class = 'bg-gray-100 text-gray-700';
-                            if($log['status'] == 'sent') $status_class = 'bg-green-100 text-green-700';
-                            if($log['status'] == 'failed') $status_class = 'bg-red-100 text-red-700';
-                            if($log['status'] == 'pending') $status_class = 'bg-yellow-100 text-yellow-700';
-                            ?>
-                            <span class="px-3 py-1 rounded-full text-sm font-semibold <?php echo $status_class; ?>">
-                                <?php echo ucfirst($log['status']); ?>
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-gray-700"><?php echo substr($log['message'], 0, 50) . '...'; ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </tbody>
-    </table>
-</div>
-
-<div class="mt-4 pt-4 border-t">
-    <button type="button" class="w-full px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg font-semibold rounded-lg transition" data-dismiss="modal">
-        Close
-    </button>
+<style>
+.sms-log-modal{padding:18px;color:#334155}.sms-log-shell{overflow-x:auto;border:1px solid #e2e8f0;border-radius:11px}.sms-log-table{width:100%;min-width:820px;margin:0;border-collapse:collapse}.sms-log-table th{padding:11px 12px;border-bottom:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:13px;font-weight:800;text-align:left}.sms-log-table td{padding:11px 12px;border-bottom:1px solid #eef2f7;color:#334155;font-size:13px;line-height:1.45;vertical-align:top}.sms-log-status{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}.sms-log-status.sent{background:#ecfdf5;color:#047857}.sms-log-status.failed{background:#fef2f2;color:#b91c1c}.sms-log-status.pending{background:#fffbeb;color:#b45309}.sms-log-message{max-width:360px;white-space:normal;overflow-wrap:anywhere}.sms-log-error{display:block;margin-top:4px;color:#b91c1c;font-size:11px}.sms-log-close{display:flex;justify-content:flex-end;margin-top:14px}.sms-log-close .btn{min-height:40px;padding:8px 13px!important;border-radius:8px!important;font-size:13px!important;font-weight:800!important}
+</style>
+<div class="sms-log-modal">
+    <div class="sms-log-shell"><table class="sms-log-table"><thead><tr><th>Date</th><th>Recipient</th><th>Phone</th><th>Status</th><th>Message</th></tr></thead><tbody>
+    <?php if(empty($logs)): ?>
+        <tr><td colspan="5" style="padding:28px;text-align:center;color:#64748b">No delivery logs found for this automation.</td></tr>
+    <?php else: foreach($logs as $log): ?>
+        <tr>
+            <td><?php echo html_escape(date('d M Y H:i', strtotime($log['sent_at']))); ?></td>
+            <td><?php echo html_escape($log['recipient_name'] ?: '—'); ?></td>
+            <td><?php echo html_escape($log['recipient_phone']); ?></td>
+            <td><span class="sms-log-status <?php echo in_array($log['status'],['sent','failed','pending'],true)?$log['status']:'pending'; ?>"><?php echo html_escape(ucfirst($log['status'])); ?></span></td>
+            <td class="sms-log-message"><?php echo html_escape($log['message']); ?><?php if(!empty($log['error_message'])): ?><span class="sms-log-error"><?php echo html_escape($log['error_message']); ?></span><?php endif; ?></td>
+        </tr>
+    <?php endforeach; endif; ?>
+    </tbody></table></div>
+    <div class="sms-log-close"><button type="button" class="btn btn-default" data-dismiss="modal">Close</button></div>
 </div>
