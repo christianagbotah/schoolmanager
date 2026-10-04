@@ -1,0 +1,65 @@
+name: Apply one-time Finance transport
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/apply-finance-transport.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: schoolmanager-finance-transport
+  cancel-in-progress: false
+
+jobs:
+  apply-finance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout transport commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download and verify encrypted bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            'https://schoolmanager.lightworldtech.com/uploads/.finance-transport-6bdcffa0f1df26343858cb5f2546c33d.enc' \
+            --output /tmp/finance.bundle.enc
+          echo 'e59bb913e9831a53fc81c70f868e06c3dea8980680edd9bc25b2136081c909fe  /tmp/finance.bundle.enc' | sha256sum -c -
+          openssl enc -d -aes-256-cbc -pbkdf2 \
+            -in /tmp/finance.bundle.enc \
+            -out /tmp/finance.bundle \
+            -pass pass:'8f68c244ebf625e0693d306fdb6fbb03c43ec351b725b68ad167d7b274840dbf'
+          echo '5f0a5ad7ec7174233c25ea93add82640d476dea2384053454f8fbd96966a3ac8  /tmp/finance.bundle' | sha256sum -c -
+          git bundle verify /tmp/finance.bundle
+
+      - name: Import and apply tested Finance commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch /tmp/finance.bundle refs/heads/main:refs/heads/finance-local
+          test "$(git rev-parse finance-local)" = '6d9e2dd57cc5b6523bcfe104a8e690ba7a08cd14'
+          git config user.name 'SchoolManager Finance Transport'
+          git config user.email 'christianagbotah@users.noreply.github.com'
+          git cherry-pick finance-local
+
+      - name: Remove one-time workflow and verify final tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/apply-finance-transport.yml
+          git commit -m 'chore: remove one-time finance transport'
+          FINAL_TREE="$(git rev-parse HEAD^{tree})"
+          echo "Final tree: ${FINAL_TREE}"
+          test "${FINAL_TREE}" = 'b6a1ac812a55b3b08e21550fd29798e5d67d74d7'
+
+      - name: Push verified Finance tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git push origin HEAD:main
