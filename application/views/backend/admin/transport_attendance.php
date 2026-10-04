@@ -31,20 +31,21 @@
 /* Direct UX refinement — Transport Attendance */
 body { background: #f8fafc; }
 .transport-attendance-workspace {
-    padding: 24px 28px 40px !important; color: #334155;
+    margin: 0 !important; padding: 24px 28px 40px !important; color: #334155; background: #f8fafc; min-height: 100%;
 }
 .transport-attendance-workspace > div {
-    border: 1px solid #e2e8f0; border-radius: 14px !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important; overflow: hidden;
+    border: 0 !important; border-radius: 0 !important; background: transparent !important;
+    box-shadow: none !important; overflow: visible;
 }
 .transport-attendance-workspace > div > div:first-child {
-    background: #0f172a !important; padding: 20px 24px !important;
-    border-radius: 0 !important; border-bottom: 1px solid rgba(255,255,255,.08);
+    margin-bottom: 18px; padding: 0 0 18px !important;
+    background: transparent !important; border-radius: 0 !important; border-bottom: 1px solid #e2e8f0;
 }
 .transport-attendance-workspace > div > div:first-child h2 {
-    font-size: 26px !important; line-height: 1.25; font-weight: 800 !important; letter-spacing: -.02em;
+    margin: 0 !important; color: #0f172a !important; font-size: 30px !important; line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em;
 }
-.transport-attendance-workspace > div > div:nth-child(2) { padding: 20px !important; }
+.transport-attendance-workspace > div > div:first-child h2 i { color: #2563eb; margin-right: 7px; }
+.transport-attendance-workspace > div > div:nth-child(2) { padding: 0 !important; }
 
 .transport-attendance-workspace .filter-card {
     margin-bottom: 16px; padding: 18px; border: 1px solid #e2e8f0;
@@ -120,9 +121,21 @@ body { background: #f8fafc; }
     border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12);
 }
 
+
+.transport-attendance-workspace .filter-card:first-of-type .filter-grid {
+    display: grid !important;
+    grid-template-columns: minmax(180px,1.2fr) repeat(3,minmax(145px,.9fr)) auto !important;
+    gap: 10px !important; align-items: end !important;
+}
+.transport-attendance-workspace .student-report-filter-grid {
+    display: grid !important;
+    grid-template-columns: minmax(240px,1.5fr) repeat(4,minmax(125px,.75fr)) auto !important;
+    gap: 10px !important; align-items: end !important;
+}
+.transport-attendance-workspace .student-report-filter-grid .filter-group { min-width: 0; }
 @media (max-width: 768px) {
     .transport-attendance-workspace { padding: 16px 14px 32px !important; }
-    .transport-attendance-workspace > div > div:first-child h2 { font-size: 23px !important; }
+    .transport-attendance-workspace > div > div:first-child h2 { font-size: 26px !important; }
     .transport-attendance-workspace > div > div:nth-child(2) { padding: 14px !important; }
     .transport-attendance-workspace .filter-card { padding: 14px; }
     .transport-attendance-workspace .filter-grid { grid-template-columns: 1fr !important; }
@@ -190,7 +203,7 @@ body { background: #f8fafc; }
                 <h3 style="color: #1e40af; margin-bottom: 16px; font-weight: 700;">
                     <i class="entypo-user"></i> <?php echo get_phrase('student_transport_report'); ?>
                 </h3>
-                <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 16px; align-items: end;" class="filter-grid">
+                <div class="filter-grid student-report-filter-grid">
                     <div class="filter-group">
                         <label class="filter-label"><?php echo get_phrase('select_student'); ?></label>
                         <select id="report_student_id" class="filter-select select2-student" style="border-color: #3b82f6; width: 100%;">
@@ -214,9 +227,7 @@ body { background: #f8fafc; }
                             <option value="3" <?php echo ($this->db->get_where('settings', array('type' => 'running_term'))->row()->description == '3') ? 'selected' : ''; ?>>3</option>
                         </select>
                     </div>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; align-items: end; margin-top: 16px;" class="filter-grid">
+
                     <div class="filter-group">
                         <label class="filter-label"><?php echo get_phrase('from_date'); ?></label>
                         <input type="date" id="report_from_date" class="filter-input" style="border-color: #3b82f6;">
