@@ -2,12 +2,12 @@
 .filter-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
 .filter-group { display: flex; flex-direction: column; gap: 8px; }
 .filter-label { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px; }
-.filter-input, .filter-select, .filter-btn { height: 48px; border: 2px solid #e5e7eb; border-radius: 8px; padding: 0 16px; font-size: 15px; transition: all 0.3s; }
+.filter-input, .filter-select, .filter-btn { height: var(--sm-ui-control-height, 42px); border: 2px solid #e5e7eb; border-radius: 8px; padding: 0 11px; font-size: 14px; transition: all 0.3s; }
 .filter-input:focus, .filter-select:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
 .filter-btn { background: #1e40af; color: white; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .filter-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
 .action-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
-.btn-action { height: 48px; padding: 0 24px; border-radius: 8px; font-weight: 600; font-size: 15px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
+.btn-action { height: var(--sm-ui-control-height, 42px); padding: 0 14px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
 .btn-present { background: #059669; color: white; }
 .btn-absent { background: #dc2626; color: white; }
 .btn-save { background: #7c3aed; color: white; margin-left: auto; }
@@ -31,7 +31,7 @@
 /* Direct UX refinement — Transport Attendance */
 body { background: #f8fafc; }
 .transport-attendance-workspace {
-    margin: 0 !important; padding: 24px 28px 40px !important; color: #334155; background: #f8fafc; min-height: 100%;
+    margin: 0 !important; padding: 0 0 32px !important; color: #334155; background: #f8fafc; min-height: 100%;
 }
 .transport-attendance-workspace > div {
     border: 0 !important; border-radius: 0 !important; background: transparent !important;
@@ -42,7 +42,7 @@ body { background: #f8fafc; }
     background: transparent !important; border-radius: 0 !important; border-bottom: 1px solid #e2e8f0;
 }
 .transport-attendance-workspace > div > div:first-child h2 {
-    margin: 0 !important; color: #0f172a !important; font-size: 30px !important; line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em;
+    margin: 0 !important; color: #0f172a !important; font-size: 24px !important; line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em;
 }
 .transport-attendance-workspace > div > div:first-child h2 i { color: #2563eb; margin-right: 7px; }
 .transport-attendance-workspace > div > div:nth-child(2) { padding: 0 !important; }
@@ -65,8 +65,8 @@ body { background: #f8fafc; }
 .transport-attendance-workspace .filter-input,
 .transport-attendance-workspace .filter-select,
 .transport-attendance-workspace .filter-btn {
-    min-height: 46px; height: 46px; padding: 0 12px;
-    border-width: 1px; border-color: #cbd5e1; border-radius: 9px; font-size: 15px;
+    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 0 11px;
+    border-width: 1px; border-color: #cbd5e1; border-radius: 9px; font-size: 14px;
 }
 .transport-attendance-workspace .filter-input:focus,
 .transport-attendance-workspace .filter-select:focus {
@@ -81,12 +81,12 @@ body { background: #f8fafc; }
 }
 
 .transport-attendance-workspace .select2-container .select2-selection--single {
-    min-height: 46px; height: 46px; border: 1px solid #cbd5e1; border-radius: 9px;
+    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); border: 1px solid #cbd5e1; border-radius: 9px;
 }
 .transport-attendance-workspace .select2-container .select2-selection__rendered {
-    line-height: 44px; padding-left: 12px; font-size: 15px;
+    line-height: 40px; padding-left: 11px; font-size: 14px;
 }
-.transport-attendance-workspace .select2-container .select2-selection__arrow { height: 44px; }
+.transport-attendance-workspace .select2-container .select2-selection__arrow { height: 40px; }
 
 .transport-attendance-workspace .action-btns {
     gap: 10px; margin-bottom: 14px; padding-top: 2px;
@@ -134,8 +134,8 @@ body { background: #f8fafc; }
 }
 .transport-attendance-workspace .student-report-filter-grid .filter-group { min-width: 0; }
 @media (max-width: 768px) {
-    .transport-attendance-workspace { padding: 16px 14px 32px !important; }
-    .transport-attendance-workspace > div > div:first-child h2 { font-size: 26px !important; }
+    .transport-attendance-workspace { padding: 0 0 28px !important; }
+    .transport-attendance-workspace > div > div:first-child h2 { font-size: 22px !important; }
     .transport-attendance-workspace > div > div:nth-child(2) { padding: 14px !important; }
     .transport-attendance-workspace .filter-card { padding: 14px; }
     .transport-attendance-workspace .filter-grid { grid-template-columns: 1fr !important; }
@@ -150,7 +150,7 @@ body { background: #f8fafc; }
 <div style="padding: 24px;" class="transport-attendance-workspace">
     <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
         <div style="background: #7c3aed; padding: 24px; border-radius: 12px 12px 0 0;">
-            <h2 style="margin: 0; color: white; font-size: 28px; font-weight: 700;">
+            <h2 style="margin: 0; color: white; font-size: 24px; font-weight: 700;">
                 <i class="entypo-clipboard"></i> <?php echo get_phrase('transport_attendance'); ?>
             </h2>
         </div>
@@ -434,7 +434,7 @@ function displayStudentReport(data) {
     }
     
     // Action Buttons
-    html += '<div class="no-print" style="display: flex; gap: 12px; justify-content: center; margin-top: 30px;">';
+    html += '<div class="no-print" style="display: flex; gap: 12px; justify-content: center; margin-top: 16px;">';
     html += '<button onclick="printStudentReport()" class="btn btn-primary" style="background: #3b82f6; border: none; padding: 12px 32px; border-radius: 8px; font-weight: 600;">';
     html += '<i class="entypo-print"></i> Print Report</button>';
     html += '<button onclick="exportStudentReportPDF()" class="btn btn-success" style="background: #10b981; border: none; padding: 12px 32px; border-radius: 8px; font-weight: 600;">';

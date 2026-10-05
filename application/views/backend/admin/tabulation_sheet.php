@@ -47,6 +47,33 @@
     padding: 12px 10px; font-size: 14px; vertical-align: middle;
 }
 #main_page table.table-bordered tbody tr:hover { background: #f9fafb; }
+
+#tabulation_filter_form.tabulation-filter-grid {
+    display: grid;
+    grid-template-columns: minmax(150px,.9fr) minmax(110px,.65fr) minmax(160px,.9fr) minmax(190px,1.1fr) auto;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 16px;
+}
+#tabulation_filter_form.tabulation-filter-grid > [class*="col-"] {
+    float: none; width: auto; padding: 0; margin: 0; min-width: 0;
+}
+#tabulation_filter_form.tabulation-filter-grid .form-group { margin: 0; }
+#tabulation_filter_form.tabulation-filter-grid label.col-sm-3 {
+    float: none; width: auto; padding: 0; display: block;
+}
+#tabulation_filter_form .tabulation-filter-action { align-self: end; }
+#tabulation_filter_form .tabulation-filter-action .btn { white-space: nowrap; }
+@media (max-width: 1100px) {
+    #tabulation_filter_form.tabulation-filter-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    #tabulation_filter_form .tabulation-filter-action { grid-column: span 2; }
+    #tabulation_filter_form .tabulation-filter-action .btn { width: 100%; }
+}
+@media (max-width: 767px) {
+    #tabulation_filter_form.tabulation-filter-grid { grid-template-columns: 1fr; gap: 10px; }
+    #tabulation_filter_form .tabulation-filter-action { grid-column: auto; }
+}
+
 @media (prefers-reduced-motion: reduce) {
     #main_page .btn, #main_page .form-control { transition: none; }
     #main_page .btn:hover { transform: none; }
@@ -66,7 +93,7 @@
 <hr />
 <div class="row">
 	<div class="col-md-12">
-		<?php echo form_open(site_url('admin/tabulation_sheet'));?>
+		<?php echo form_open(site_url('admin/tabulation_sheet'), array('id' => 'tabulation_filter_form', 'class' => 'tabulation-filter-grid'));?>
 			<div class="col-md-2">
 				<div class="form-group">
 					<label class="control-label"><?php echo get_phrase('class');?></label>
@@ -155,7 +182,7 @@
 				</div>
 			</div>
 			<input type="hidden" name="operation" value="selection">
-			<div class="col-md-3" style="margin-top: 20px;">
+			<div class="col-md-3 tabulation-filter-action">
 				<button type="submit" id = 'submit' class="btn btn-info"><?php echo get_phrase('view_tabulation_sheet');?></button>
 			</div>
 		<?php echo form_close();?>

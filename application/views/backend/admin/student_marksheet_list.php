@@ -1,6 +1,6 @@
 <style>
 .marksheet-container {
-    margin-top: 25px;
+    margin-top: 0;
 }
 .modern-panel {
     background: #764ba2;
@@ -16,22 +16,22 @@
 }
 .modern-panel-body {
     background: white;
-    padding: 30px;
+    padding: 18px;
     border-radius: 0 0 12px 12px;
 }
 .modern-label {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 8px;
     display: block;
 }
 .modern-select {
-    height: 45px;
-    font-size: 15px;
+    height: var(--sm-ui-control-height, 42px);
+    font-size: 14px;
     border: 2px solid #e2e8f0;
     border-radius: 8px;
-    padding: 0 15px;
+    padding: 0 11px;
     transition: all 0.3s;
 }
 .modern-select:focus {
@@ -44,9 +44,9 @@
     cursor: not-allowed;
 }
 .modern-btn {
-    height: 45px;
-    padding: 0 30px;
-    font-size: 15px;
+    height: var(--sm-ui-control-height, 42px);
+    padding: 0 14px;
+    font-size: 14px;
     font-weight: 600;
     border: none;
     border-radius: 8px;
@@ -69,24 +69,24 @@
     margin-right: 8px;
 }
 .select2-container--default .select2-selection--single {
-    height: 45px;
+    height: var(--sm-ui-control-height, 42px);
     border: 2px solid #e2e8f0;
     border-radius: 8px;
 }
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 41px;
-    padding-left: 15px;
-    font-size: 15px;
+    line-height: 40px;
+    padding-left: 11px;
+    font-size: 14px;
 }
 .select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 43px;
+    height: 40px;
 }
 .select2-container--default.select2-container--focus .select2-selection--single {
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 #marksheet_content {
-    margin-top: 30px;
+    margin-top: 16px;
 }
 .loading-spinner {
     text-align: center;

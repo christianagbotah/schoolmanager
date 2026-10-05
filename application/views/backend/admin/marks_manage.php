@@ -33,38 +33,7 @@
  ?>
 <?php echo form_open(site_url('admin/marks_selector'), array('id' => 'marks_selector_form'));?>
 
-<style>
-/* Mobile-responsive fixes for marks management filters */
-@media (max-width: 640px) {
-    .form-group label {
-        font-size: 14px !important;
-    }
-    
-    .form-group select {
-        font-size: 16px !important;
-        height: auto !important;
-        min-height: 50px !important;
-        padding: 12px !important;
-    }
-    
-    #subject_holder {
-        margin-top: 0 !important;
-    }
-    
-    #submit {
-        width: 100% !important;
-        padding: 15px !important;
-        font-size: 16px !important;
-    }
-}
 
-@media (min-width: 641px) and (max-width: 768px) {
-    .form-group select {
-        font-size: 18px !important;
-        height: 60px !important;
-    }
-}
-</style>
 <style>
 @media screen {
 
@@ -86,23 +55,23 @@
   #marks_selector_form .form-group { margin-bottom: 0 !important; }
   #marks_selector_form .control-label {
     display: block; margin-bottom: 7px !important;
-    color: #334155; font-size: 14px !important; line-height: 1.35; font-weight: 700 !important;
+    color: #334155; font-size: 13px !important; line-height: 1.35; font-weight: 700 !important;
   }
   #marks_selector_form select,
   #marks_selector_form .select2-container .select2-selection--single,
   #marks_selector_form .select2-container .select2-choice {
-    min-height: 46px !important; height: 46px !important; max-height: 46px !important;
+    min-height: var(--sm-ui-control-height, 42px) !important; height: var(--sm-ui-control-height, 42px) !important; max-height: var(--sm-ui-control-height, 42px) !important;
     border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
     background: #fff !important; color: #0f172a !important;
-    font-size: 15px !important; line-height: 1.4 !important; font-weight: 600 !important;
+    font-size: 14px !important; line-height: 1.4 !important; font-weight: 600 !important;
   }
   #marks_selector_form select {
     padding: 9px 11px !important;
   }
   #marks_selector_form .select2-container .select2-selection__rendered,
   #marks_selector_form .select2-container .select2-choice > span:first-child {
-    line-height: 44px !important; min-height: 44px !important;
-    font-size: 15px !important; color: #0f172a !important; font-weight: 600 !important;
+    line-height: 40px !important; min-height: 40px !important;
+    font-size: 14px !important; color: #0f172a !important; font-weight: 600 !important;
   }
   #marks_selector_form select:focus,
   #marks_selector_form .select2-container--focus .select2-selection--single {
@@ -120,7 +89,7 @@
   #marks_selector_form button[type="submit"],
   #marks_selector_form input[type="submit"],
   #marks_selector_form .btn {
-    min-height: 46px !important; height: 46px !important;
+    min-height: var(--sm-ui-control-height, 42px) !important; height: var(--sm-ui-control-height, 42px) !important;
     padding: 9px 16px !important; border-radius: 9px !important;
     font-size: 14px !important; line-height: 1.35; font-weight: 800 !important;
   }
