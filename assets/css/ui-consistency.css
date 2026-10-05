@@ -291,3 +291,96 @@ body.page-body {
         max-width: none !important;
     }
 }
+
+/* ============================================================
+   Page-chrome normalization pass
+   Removes duplicate page-start spacing and aligns legacy selector rows
+   without changing KPI/stat/print typography.
+   ============================================================ */
+
+/* JS marks only the first meaningful page container and its page shell. */
+#main_page > .sm-ui-page-root {
+    margin-top: 0 !important;
+}
+#main_page .sm-ui-page-shell {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+#main_page > hr.sm-ui-leading-rule {
+    display: none !important;
+    margin: 0 !important;
+    border: 0 !important;
+}
+
+/* The first real page heading is marked by JS; KPI/stat headings are excluded. */
+#main_page .sm-ui-page-title {
+    font-size: var(--sm-ui-title-size) !important;
+    line-height: 1.25 !important;
+    margin-top: 0 !important;
+}
+
+/* Catch custom filter controls that do not use .form-control. */
+#main_page form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="image"]):not([type="range"]):not([type="color"]),
+#main_page form select,
+#main_page .filter-input,
+#main_page .filter-select {
+    height: var(--sm-ui-control-height) !important;
+    min-height: var(--sm-ui-control-height) !important;
+    max-height: var(--sm-ui-control-height) !important;
+    box-sizing: border-box !important;
+    font-size: var(--sm-ui-font-size) !important;
+    line-height: 1.35 !important;
+}
+#main_page form input[type="submit"]:not(.btn-xs):not(.btn-sm),
+#main_page form input[type="button"]:not(.btn-xs):not(.btn-sm),
+#main_page form button[type="submit"]:not(.btn-xs):not(.btn-sm),
+#main_page .filter-btn,
+#main_page .btn-action:not(.btn-xs):not(.btn-sm) {
+    height: var(--sm-ui-control-height) !important;
+    min-height: var(--sm-ui-control-height) !important;
+    max-height: var(--sm-ui-control-height) !important;
+    box-sizing: border-box !important;
+    font-size: var(--sm-ui-font-size) !important;
+}
+
+/* Legacy selector rows: preserve Bootstrap widths, align every column baseline. */
+#main_page form .sm-ui-inline-controls {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: flex-end !important;
+}
+#main_page form .sm-ui-inline-controls > [class*="col-"] {
+    float: none !important;
+    margin-top: 0 !important;
+    align-self: flex-end !important;
+}
+#main_page form .sm-ui-inline-controls > [class*="col-"] > .form-group {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+#main_page form .sm-ui-inline-controls > [class*="col-"] > center {
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+}
+
+/* Common page-level shells should not re-add a second 24px top gutter. */
+#main_page > [class*="workspace"],
+#main_page > [class$="-page"],
+#main_page > [class*="-page "] {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+@media (max-width: 767px) {
+    #main_page form .sm-ui-inline-controls {
+        display: block !important;
+    }
+    #main_page form .sm-ui-inline-controls > [class*="col-"] {
+        width: 100% !important;
+        margin-bottom: 10px !important;
+    }
+    #main_page form .sm-ui-inline-controls > [class*="col-"]:last-child {
+        margin-bottom: 0 !important;
+    }
+}
