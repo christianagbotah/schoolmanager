@@ -60,6 +60,8 @@
 <!-- Wave 1 shell modernization: design tokens + reskin layer (loaded last by design) -->
 <link rel="stylesheet" href="<?php echo base_url('assets/css/design-system.css');?>?v=<?php echo time(); ?>"/>
 <link rel="stylesheet" href="<?php echo base_url('assets/css/shell-modern.css');?>?v=<?php echo time(); ?>"/>
+<!-- Global UI consistency contract: typography, spacing, control heights -->
+<link rel="stylesheet" href="<?php echo base_url('assets/css/ui-consistency.css');?>?v=<?php echo time(); ?>"/>
 
 
 

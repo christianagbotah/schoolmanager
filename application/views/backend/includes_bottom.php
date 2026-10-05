@@ -205,6 +205,9 @@
 </script>
 
 
+<!-- Global UI consistency: dynamic topbar spacing -->
+<script src="<?php echo base_url('assets/js/ui-consistency.js');?>?v=<?php echo time(); ?>"></script>
+
 <!-- Global script to make HTML5 date inputs clickable anywhere -->
 <script>
 $(document).on('click', 'input[type="date"]', function() {
