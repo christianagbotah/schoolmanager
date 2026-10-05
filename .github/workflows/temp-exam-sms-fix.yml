@@ -1,0 +1,98 @@
+name: Temporary Exam SMS Fix Bridge
+
+on:
+  push:
+    branches:
+      - bridge/exam-sms-fix-20261005-run
+
+permissions:
+  contents: write
+
+jobs:
+  apply-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify expected base
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "3e5bc56968d70ad81258807fa993629c3a3c78ea"
+
+      - name: Apply surgical Exam Marks SMS fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('application/controllers/Admin.php')
+          data = path.read_bytes()
+          text = data.decode('utf-8')
+
+          pattern = r"str_word_count\(\$row3\['name'\], 1\)\[0\] == '([A-Za-z]+)' \|\| str_word_count\(\$row3\['name'\], 1\)\[0\] == '[A-Z]+'"
+          text, count = re.subn(pattern, lambda m: "$subject_first_word == '" + m.group(1).upper() + "'", text)
+          if count != 24:
+              raise SystemExit(f'Expected 24 undefined-row comparisons, replaced {count}')
+
+          for indent in ('\t' * 9, '\t' * 8):
+              old = f"{indent}$subject_name = $subject;\r\n{indent}if ($subject_first_word == 'RELIGIOUS') {{"
+              new = f"{indent}$subject_name = $subject;\r\n{indent}$subject_words = str_word_count((string) $subject, 1);\r\n{indent}$subject_first_word = strtoupper($subject_words[0] ?? '');\r\n{indent}if ($subject_first_word == 'RELIGIOUS') {{"
+              if old not in text:
+                  raise SystemExit(f'Expected abbreviation block not found for indent {len(indent)}')
+              text = text.replace(old, new, 1)
+
+          sms_lines = [
+              "$message .= ucwords(strtolower($subject)) . ' ' .$mark_obtained. ' '  . $grade_obtained . ' ' . ucwords(strtolower($remarks_obtained)) . \",  \";",
+              "$message .= ucwords(strtolower($subject)) . ' ' .$mark_obtained.' '  . $grade_obtained . ' ' . ucwords(strtolower($remarks_obtained)) . \",  \";",
+          ]
+          for old in sms_lines:
+              if text.count(old) != 1:
+                  raise SystemExit('Expected outgoing SMS subject line not found exactly once')
+              text = text.replace(old, old.replace('$subject)', '$subject_name)'), 1)
+
+          if "$row3['name']" in text:
+              raise SystemExit('Undefined $row3 subject reference remains')
+
+          path.write_bytes(text.encode('utf-8'))
+          PY
+
+          test "$(git diff --name-only)" = "application/controllers/Admin.php"
+          git -c core.whitespace=cr-at-eol diff --check
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+
+      - name: Validate patched controller
+        shell: bash
+        run: |
+          set -euo pipefail
+          php -l application/controllers/Admin.php
+          grep -q "subject_first_word" application/controllers/Admin.php
+          if grep -q "row3\['name'\]" application/controllers/Admin.php; then
+            echo "Undefined row3 subject reference still present"
+            exit 1
+          fi
+          echo "Changed files:"
+          git diff --name-only
+          echo "Diff stat:"
+          git diff --stat
+
+      - name: Commit and fast-forward main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add application/controllers/Admin.php
+          git commit -m "fix(exams): repair exam marks SMS subject formatting"
+          git push origin HEAD:main
