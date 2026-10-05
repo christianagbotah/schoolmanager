@@ -15706,36 +15706,84 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				}
 				$ajaxData['route'] = 'income';
 			} else {
-				$this->db->select('student_id');
+				$this->db->select('student_id, can_delete, delete_request_issuer_id');
 				$this->db->where('invoice_code', $param2);
 				$invoice_data = $this->db->get('invoice')->row();
 				if($invoice_data) {
-					$student_name = $this->db->get_where('student', ['student_id' => $invoice_data->student_id])->row()->name;
+					$current_user_id = (int)$this->session->userdata('login_user_id');
+					if($invoice_data->can_delete === 'approved' && (int)$invoice_data->delete_request_issuer_id === $current_user_id) {
+						$this->db->trans_begin();
+						$this->db->where('invoice_code', $param2);
+						$this->db->where('can_delete', 'approved');
+						$this->db->where('delete_request_issuer_id', $current_user_id);
+						$this->db->set('can_delete', 'trash');
+						$invoice_deleted = $this->db->update('invoice');
+
+						if(!$invoice_deleted || $this->db->affected_rows() !== 1) {
+							$this->db->trans_rollback();
+							$ajaxData['message'] = 'Approval is no longer valid for this invoice.';
+							$ajaxData['route'] = 'income';
+							echo json_encode($ajaxData);
+							return;
+						}
+
+						$this->db->where('invoice_code', $param2);
+						$this->db->set('can_delete', 'trash');
+						$this->db->set('delete_request_issuer_id', $current_user_id);
+						$payment_deleted = $this->db->update('payment');
+
+						if(!$payment_deleted || $this->db->trans_status() === FALSE) {
+							$this->db->trans_rollback();
+							$ajaxData['message'] = 'The approved invoice deletion could not be completed.';
+							$ajaxData['route'] = 'income';
+							echo json_encode($ajaxData);
+							return;
+						}
+
+						$this->db->trans_commit();
+						$this->db->cache_delete();
+						$ajaxData['message'] = 'done';
+						$ajaxData['route'] = 'income';
+						echo json_encode($ajaxData);
+						return;
+					}
+					$student_row = $this->db->get_where('student', ['student_id' => $invoice_data->student_id])->row();
+					$student_name = $student_row ? $student_row->name : 'Unknown student';
 					$requester = $this->db->where('admin_id', $this->session->userdata('login_user_id'))->get('admin')->row();
+					$requestData = [];
 					$requestData['request_description'] = 'To delete invoice: ' . $param2 . ' for student: ' . $student_name;
-					$requestData['request_type'] = 'delete';
+					$requestData['request_issuer_id'] = $this->session->userdata('login_user_id');
 					$requestData['request_table'] = 'invoice';
 					$requestData['request_ids'] = $param2;
-					$requestData['requested_by'] = $this->session->userdata('login_user_id');
-					$requestData['request_timestamp'] = time();
-					$requestData['status'] = 'pending';
-					$this->db->insert('invoice_requests', $requestData);
-					$this->db->where('invoice_code', $param2);
-					$this->db->update('invoice', ['can_delete' => 'pending']);
-					$school_name = $this->db->get_where('settings', ['type' => 'system_name'])->row()->description;
+
+					$requestResult = $this->crud_model->createInvoiceDeleteRequest(
+						[$param2],
+						$requestData['request_issuer_id'],
+						$requestData['request_description']
+					);
+
+					if($requestResult['status'] !== 'success') {
+						$ajaxData['message'] = $requestResult['message'];
+						$ajaxData['route'] = 'income';
+						echo json_encode($ajaxData);
+						return;
+					}
+					$school_row = $this->db->get_where('settings', ['type' => 'system_name'])->row();
+					$school_name = $school_row ? $school_row->description : 'School';
 					$super_admins = $this->db->where('level', 1)->get('admin')->result();
 					foreach($super_admins as $admin) {
 						$this->db->insert('notifications', [
 							'user_id' => $admin->admin_id,
 							'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
 							'title' => 'Invoice Delete Approval Required',
-							'message' => $requester->name . ' requested to delete invoice ' . $param2 . ' for ' . $student_name,
+							'message' => ($requester ? $requester->name : 'An administrator') . ' requested to delete invoice ' . $param2 . ' for ' . $student_name,
 							'type' => 'invoice_delete_approval',
+							'link' => site_url('admin/manageRequestApproval'),
 							'created_at' => date('Y-m-d H:i:s')
 						]);
 						$active_sms = $this->db->get_where('settings', ['type' => 'active_sms_service'])->row();
 						if($active_sms && $active_sms->description != 'disabled' && !empty($admin->phone)) {
-							$sms_message = "[$school_name] Invoice delete approval needed: {$requester->name} wants to delete invoice {$param2}. Review at: " . site_url('admin/manageRequestApproval');
+							$sms_message = "[$school_name] Invoice delete approval needed: " . ($requester ? $requester->name : 'An administrator') . " wants to delete invoice {$param2}. Review at: " . site_url('admin/manageRequestApproval');
 							$this->sms_model->send_sms($sms_message, [$admin->phone]);
 						}
 					}
@@ -15767,36 +15815,84 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				}
 				$ajaxData['route'] = 'all_invoices';
 			} else {
-				$this->db->select('student_id');
+				$this->db->select('student_id, can_delete, delete_request_issuer_id');
 				$this->db->where('invoice_code', $param2);
 				$invoice_data = $this->db->get('invoice')->row();
 				if($invoice_data) {
-					$student_name = $this->db->get_where('student', ['student_id' => $invoice_data->student_id])->row()->name;
+					$current_user_id = (int)$this->session->userdata('login_user_id');
+					if($invoice_data->can_delete === 'approved' && (int)$invoice_data->delete_request_issuer_id === $current_user_id) {
+						$this->db->trans_begin();
+						$this->db->where('invoice_code', $param2);
+						$this->db->where('can_delete', 'approved');
+						$this->db->where('delete_request_issuer_id', $current_user_id);
+						$this->db->set('can_delete', 'trash');
+						$invoice_deleted = $this->db->update('invoice');
+
+						if(!$invoice_deleted || $this->db->affected_rows() !== 1) {
+							$this->db->trans_rollback();
+							$ajaxData['message'] = 'Approval is no longer valid for this invoice.';
+							$ajaxData['route'] = 'all_invoices';
+							echo json_encode($ajaxData);
+							return;
+						}
+
+						$this->db->where('invoice_code', $param2);
+						$this->db->set('can_delete', 'trash');
+						$this->db->set('delete_request_issuer_id', $current_user_id);
+						$payment_deleted = $this->db->update('payment');
+
+						if(!$payment_deleted || $this->db->trans_status() === FALSE) {
+							$this->db->trans_rollback();
+							$ajaxData['message'] = 'The approved invoice deletion could not be completed.';
+							$ajaxData['route'] = 'all_invoices';
+							echo json_encode($ajaxData);
+							return;
+						}
+
+						$this->db->trans_commit();
+						$this->db->cache_delete();
+						$ajaxData['message'] = 'done';
+						$ajaxData['route'] = 'all_invoices';
+						echo json_encode($ajaxData);
+						return;
+					}
+					$student_row = $this->db->get_where('student', ['student_id' => $invoice_data->student_id])->row();
+					$student_name = $student_row ? $student_row->name : 'Unknown student';
 					$requester = $this->db->where('admin_id', $this->session->userdata('login_user_id'))->get('admin')->row();
+					$requestData = [];
 					$requestData['request_description'] = 'To delete invoice: ' . $param2 . ' for student: ' . $student_name;
-					$requestData['request_type'] = 'delete';
+					$requestData['request_issuer_id'] = $this->session->userdata('login_user_id');
 					$requestData['request_table'] = 'invoice';
 					$requestData['request_ids'] = $param2;
-					$requestData['requested_by'] = $this->session->userdata('login_user_id');
-					$requestData['request_timestamp'] = time();
-					$requestData['status'] = 'pending';
-					$this->db->insert('invoice_requests', $requestData);
-					$this->db->where('invoice_code', $param2);
-					$this->db->update('invoice', ['can_delete' => 'pending']);
-					$school_name = $this->db->get_where('settings', ['type' => 'system_name'])->row()->description;
+
+					$requestResult = $this->crud_model->createInvoiceDeleteRequest(
+						[$param2],
+						$requestData['request_issuer_id'],
+						$requestData['request_description']
+					);
+
+					if($requestResult['status'] !== 'success') {
+						$ajaxData['message'] = $requestResult['message'];
+						$ajaxData['route'] = 'all_invoices';
+						echo json_encode($ajaxData);
+						return;
+					}
+					$school_row = $this->db->get_where('settings', ['type' => 'system_name'])->row();
+					$school_name = $school_row ? $school_row->description : 'School';
 					$super_admins = $this->db->where('level', 1)->get('admin')->result();
 					foreach($super_admins as $admin) {
 						$this->db->insert('notifications', [
 							'user_id' => $admin->admin_id,
 							'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
 							'title' => 'Invoice Delete Approval Required',
-							'message' => $requester->name . ' requested to delete invoice ' . $param2 . ' for ' . $student_name,
+							'message' => ($requester ? $requester->name : 'An administrator') . ' requested to delete invoice ' . $param2 . ' for ' . $student_name,
 							'type' => 'invoice_delete_approval',
+							'link' => site_url('admin/manageRequestApproval'),
 							'created_at' => date('Y-m-d H:i:s')
 						]);
 						$active_sms = $this->db->get_where('settings', ['type' => 'active_sms_service'])->row();
 						if($active_sms && $active_sms->description != 'disabled' && !empty($admin->phone)) {
-							$sms_message = "[$school_name] Invoice delete approval needed: {$requester->name} wants to delete invoice {$param2}. Review at: " . site_url('admin/manageRequestApproval');
+							$sms_message = "[$school_name] Invoice delete approval needed: " . ($requester ? $requester->name : 'An administrator') . " wants to delete invoice {$param2}. Review at: " . site_url('admin/manageRequestApproval');
 							$this->sms_model->send_sms($sms_message, [$admin->phone]);
 						}
 					}
@@ -24610,118 +24706,168 @@ function parents_gender_report() {
 
 	//bulk invoice deletion
 	function bulk_invoice_delete($location = '', $isRequest=false) {
-		$counter = 0;
-		$invoice_array = array();
 		$invoice_array = $this->input->post('invoices_sel');
+		$invoice_array = is_array($invoice_array) ? $invoice_array : [];
+		$invoice_array = array_values(array_unique(array_filter(array_map(function($code) {
+			return trim((string)$code);
+		}, $invoice_array), 'strlen')));
 
 		$ajaxData = array();
+		if(empty($invoice_array)) {
+			$ajaxData['status'] = 'fail';
+			$ajaxData['message'] = 'Please select at least one invoice.';
+			echo json_encode($ajaxData);
+			return;
+		}
 
-		$ajaxData['student_id'] = $this->db->get_where('invoice', ['invoice_code' => $invoice_array[0]])->row()->student_id;
+		$first_invoice = $this->db->select('student_id')->where('invoice_code', $invoice_array[0])->get('invoice')->row();
+		if(!$first_invoice) {
+			$ajaxData['status'] = 'fail';
+			$ajaxData['message'] = 'The selected invoice could not be found.';
+			echo json_encode($ajaxData);
+			return;
+		}
+		$ajaxData['student_id'] = $first_invoice->student_id;
 
-		// Check if user is super admin
-		$user_level = $this->session->userdata('user_type');
-		$is_super_admin = ($user_level == 1);
+		$user_level = (int)$this->session->userdata('user_type');
+		$current_user_id = (int)$this->session->userdata('login_user_id');
+		$is_super_admin = ($user_level === 1);
+		$request_mode = filter_var($isRequest, FILTER_VALIDATE_BOOLEAN);
 
-		//echo count($invoice_array);
+		if(!$request_mode || $is_super_admin) {
+			// Non-superadmins may execute a delete only after every selected invoice
+			// was approved specifically for the same requester. Never trust the UI/URL flag.
+			if(!$is_super_admin) {
+				$approved_rows = $this->db
+					->select('invoice_code, can_delete, delete_request_issuer_id')
+					->where_in('invoice_code', $invoice_array)
+					->get('invoice')->result_array();
 
-		if(!$isRequest || $is_super_admin) {
+				if(count($approved_rows) !== count($invoice_array)) {
+					$ajaxData['status'] = 'fail';
+					$ajaxData['message'] = 'One or more selected invoices could not be found.';
+					echo json_encode($ajaxData);
+					return;
+				}
+
+				foreach($approved_rows as $approved_row) {
+					if($approved_row['can_delete'] !== 'approved' || (int)$approved_row['delete_request_issuer_id'] !== $current_user_id) {
+						$ajaxData['status'] = 'fail';
+						$ajaxData['message'] = 'Deletion is not approved for one or more selected invoices.';
+						echo json_encode($ajaxData);
+						return;
+					}
+				}
+			}
+
+			$this->db->trans_begin();
+			$this->db->where_in('invoice_code', $invoice_array);
+			if(!$is_super_admin) {
+				$this->db->where('can_delete', 'approved');
+				$this->db->where('delete_request_issuer_id', $current_user_id);
+			}
+			$this->db->set('can_delete', 'trash');
+			$this->db->set('delete_request_issuer_id', $current_user_id);
+			$invoice_update = $this->db->update('invoice');
+
+			if(!$invoice_update || (!$is_super_admin && $this->db->affected_rows() !== count($invoice_array))) {
+				$this->db->trans_rollback();
+				$ajaxData['status'] = 'fail';
+				$ajaxData['message'] = 'The approved invoice deletion could not be completed safely.';
+				echo json_encode($ajaxData);
+				return;
+			}
 
 			$this->db->where_in('invoice_code', $invoice_array);
 			$this->db->set('can_delete', 'trash');
-			$this->db->set('delete_request_issuer_id', $this->session->userdata('login_user_id'));
-			$this->db->update('invoice');
+			$this->db->set('delete_request_issuer_id', $current_user_id);
+			$payment_update = $this->db->update('payment');
 
-			//delete from payment table as well
-			$this->db->where_in('invoice_code', $invoice_array);
-			$this->db->set('can_delete', 'trash');
-			$this->db->set('delete_request_issuer_id', $this->session->userdata('login_user_id'));
-			$this->db->update('payment');
+			if(!$payment_update || $this->db->trans_status() === FALSE) {
+				$this->db->trans_rollback();
+				$ajaxData['status'] = 'fail';
+				$ajaxData['message'] = 'The invoice deletion could not be completed.';
+				echo json_encode($ajaxData);
+				return;
+			}
 
-			//clear the cached database
+			$this->db->trans_commit();
 			$this->db->cache_delete();
-
-			//$counter++;
-
-			//}
-
 			$this->session->set_flashdata('flash_message', get_phrase(count($invoice_array) . ' invoices_deleted'));
 
+			$ajaxData['url'] = $location == '' ? site_url('admin/income') : site_url('admin/'.$location);
+			$ajaxData['status'] = 'success';
+			$ajaxData['message'] = 'The selected invoices were moved to the trash bin successfully!';
+			echo json_encode($ajaxData);
+			return;
+		}
 
+		/* Non-superadmin approval request. */
+		$this->db->select('student_id, invoice_code');
+		$this->db->distinct();
+		$this->db->where_in('invoice_code', $invoice_array);
+		$invoice_data_array = $this->db->get('invoice')->result_array();
 
-			if($location == '') {
-				$ajaxData['url'] = site_url('admin/income');
-			} else {
-				$ajaxData['url'] = site_url('admin/'.$location);
+		if(count($invoice_data_array) !== count($invoice_array)) {
+			$ajaxData['status'] = 'fail';
+			$ajaxData['message'] = 'One or more selected invoices could not be found.';
+			echo json_encode($ajaxData);
+			return;
+		}
+
+		$invoice_details_array = [];
+		foreach($invoice_data_array as $inv) {
+			$student = $this->crud_model->getStudentInfoById($inv['student_id']);
+			$student_name = $student ? ucwords(strtolower($student->name)) : 'Unknown student';
+			$invoice_details_array[] = $inv['invoice_code'].'-'.$student_name;
+		}
+
+		$requestData = [];
+		$requestData['request_description'] = 'To delete the following invoices: '. implode(', ', $invoice_details_array);
+		$requestData['request_issuer_id'] = $current_user_id;
+		$requestData['request_table'] = 'invoice';
+		$requestData['request_ids'] = implode(',', $invoice_array);
+
+		$requestResult = $this->crud_model->createInvoiceDeleteRequest(
+			$invoice_array,
+			$requestData['request_issuer_id'],
+			$requestData['request_description']
+		);
+
+		if($requestResult['status'] === 'success') {
+			$requester = $this->db->where('admin_id', $current_user_id)->get('admin')->row();
+			$school_row = $this->db->get_where('settings', ['type' => 'system_name'])->row();
+			$school_name = $school_row ? $school_row->description : 'School';
+			$super_admins = $this->db->where('level', 1)->get('admin')->result();
+
+			foreach($super_admins as $admin) {
+				$this->db->insert('notifications', [
+					'user_id' => $admin->admin_id,
+					'user_type' => 'admin',
+					'title' => 'Bulk Invoice Delete Approval Required',
+					'message' => ($requester ? $requester->name : 'An administrator') . ' requested to delete ' . count($invoice_array) . ' invoices',
+					'type' => 'invoice_delete_approval',
+					'link' => site_url('admin/manageRequestApproval'),
+					'created_at' => date('Y-m-d H:i:s')
+				]);
+
+				$active_sms = $this->db->get_where('settings', ['type' => 'active_sms_service'])->row();
+				if($active_sms && $active_sms->description != 'disabled' && !empty($admin->phone)) {
+					$sms_message = "[$school_name] Bulk invoice delete approval needed: " . ($requester ? $requester->name : 'An administrator') . " wants to delete " . count($invoice_array) . " invoices. Review at: " . site_url('admin/manageRequestApproval');
+					$this->sms_model->send_sms($sms_message, [$admin->phone]);
+				}
 			}
 
 			$ajaxData['status'] = 'success';
-			$ajaxData['message'] = 'The selected invoices were moved to the trash bin successfuly!';
-			echo json_encode($ajaxData);
-
+			$ajaxData['message'] = 'Your request has been submitted successfully. You will be notified after the administrator takes action.';
 		} else {
+			$ajaxData['status'] = 'fail';
+			$ajaxData['message'] = $requestResult['message'];
+		}
 
-			/*this is a request*/
-			$this->db->select('student_id, invoice_code');
-			$this->db->distinct();
-			$this->db->where_in('invoice_code', $invoice_array);
-			$invoice_data_array = $this->db->get('invoice')->result_array();
-
-			$invoice_details_array = [];
-			foreach($invoice_data_array as $inv) {
-
-				$student_name = ucwords(strtolower($this->crud_model->getStudentInfoById($inv['student_id'])->name));
-				$invoice_details_array[] = $inv['invoice_code'].'-'.$student_name;
-			}
-
-			$requestData['request_description'] = 'To delete the following invoices: '. implode(', ', $invoice_details_array);
-			$requestData['request_issuer_id'] = $this->session->userdata('login_user_id');
-			$requestData['request_table'] = 'invoice';
-			$requestData['request_ids'] = implode(',', $invoice_array);
-
-			$result = $this->crud_model->createRequest($requestData);
-
-			if($result) {
-				/*update can delete column in the invoice table*/
-				$this->db->where_in('invoice_code', $invoice_array);
-				$this->db->set('can_delete', 'request');
-				$this->db->set('delete_request_issuer_id', $requestData['request_issuer_id']);
-				$this->db->update('invoice');
-
-				// Notify super admins
-				$requester = $this->db->where('admin_id', $this->session->userdata('login_user_id'))->get('admin')->row();
-				$school_name = $this->db->get_where('settings', ['type' => 'system_name'])->row()->description;
-				$super_admins = $this->db->where('level', 1)->get('admin')->result();
-
-				foreach($super_admins as $admin) {
-					$this->db->insert('notifications', [
-						'user_id' => $admin->admin_id,
-						'user_type' => $this->session->userdata('user_type') == 1 ? 'superadmin' : 'admin',
-						'title' => 'Bulk Invoice Delete Approval Required',
-						'message' => $requester->name . ' requested to delete ' . count($invoice_array) . ' invoices',
-						'type' => 'invoice_delete_approval',
-						'created_at' => date('Y-m-d H:i:s')
-					]);
-
-					$active_sms = $this->db->get_where('settings', ['type' => 'active_sms_service'])->row();
-					if($active_sms && $active_sms->description != 'disabled' && !empty($admin->phone)) {
-						$sms_message = "[$school_name] Bulk invoice delete approval needed: {$requester->name} wants to delete " . count($invoice_array) . " invoices. Review at: " . site_url('admin/manageRequestApproval');
-						$this->sms_model->send_sms($sms_message, [$admin->phone]);
-					}
-				}
-
-				$ajaxData['status'] = 'success';
-				$ajaxData['message'] = 'Your request has been submitted successfuly. You will be notified on it\'s status after the administrator takes action.';
-			} else {
-
-				$ajaxData['status'] = 'fail';
-				$ajaxData['message'] = 'Sorry! Something happened and your request could not be submitted. Please try again later.';
-			}
-
-			echo json_encode($ajaxData);
-
-		} /*end of request submission*/
-
+		echo json_encode($ajaxData);
 	}
+
 
 	//bulk invoice deletion
 	function bulk_students_delete($class_id) {
@@ -29054,6 +29200,12 @@ function parents_gender_report() {
 
 		// Fetch invoice modification requests
 		$page_data['invoice_requests'] = $this->db->order_by('request_id', 'DESC')->get('invoice_modification_requests')->result_array();
+
+		// Canonical invoice-delete approvals use the generic request table.
+		$page_data['delete_requests'] = $this->db
+			->where('request_table', 'invoice')
+			->order_by('request_id', 'DESC')
+			->get('request')->result_array();
 
 		$page_data['page_name'] = 'receipt_invoice_modification_requests';
 		$page_data['page_title'] = get_phrase('invoice_&_receipt_approvals');

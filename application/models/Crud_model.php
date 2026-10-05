@@ -4414,6 +4414,96 @@ class Crud_model extends MY_Model {
         return $result;
     }
 
+    /**
+     * Atomically create an invoice-delete approval request and move every
+     * targeted invoice into the canonical `request` workflow state.
+     *
+     * @return array{status:string,message:string,request_id?:int}
+     */
+    function createInvoiceDeleteRequest($invoice_codes, $issuer_id, $description) {
+        $invoice_codes = is_array($invoice_codes) ? $invoice_codes : explode(',', (string)$invoice_codes);
+        $invoice_codes = array_values(array_unique(array_filter(array_map('trim', $invoice_codes), 'strlen')));
+        sort($invoice_codes, SORT_NATURAL);
+        $issuer_id = (int)$issuer_id;
+
+        if(!$invoice_codes || !$issuer_id) {
+            return ['status' => 'error', 'message' => 'Invalid invoice delete request'];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($invoice_codes), '?'));
+        $this->db->trans_begin();
+
+        // Lock the target invoice rows so concurrent requests cannot create
+        // two pending approvals for the same invoice.
+        $rows = $this->db->query(
+            "SELECT invoice_code, can_delete FROM invoice WHERE invoice_code IN ($placeholders) FOR UPDATE",
+            $invoice_codes
+        )->result_array();
+
+        if(!$rows) {
+            $this->db->trans_rollback();
+            return ['status' => 'error', 'message' => 'Invoice not found'];
+        }
+
+        $seen = [];
+        foreach($rows as $row) {
+            $code = (string)$row['invoice_code'];
+            $seen[$code] = true;
+            $delete_state = (string)$row['can_delete'];
+            if($delete_state === 'trash') {
+                $this->db->trans_rollback();
+                return ['status' => 'error', 'message' => 'One or more selected invoices are already in the trash'];
+            }
+            if($delete_state === 'request') {
+                $this->db->trans_rollback();
+                return ['status' => 'error', 'message' => 'A delete request is already pending for one or more selected invoices'];
+            }
+            if($delete_state === 'approved') {
+                $this->db->trans_rollback();
+                return ['status' => 'error', 'message' => 'One or more selected invoices are already approved for deletion'];
+            }
+            if(!in_array($delete_state, ['default', 'declined'], true)) {
+                $this->db->trans_rollback();
+                return ['status' => 'error', 'message' => 'One or more selected invoices are not eligible for a delete request'];
+            }
+        }
+
+        foreach($invoice_codes as $code) {
+            if(!isset($seen[(string)$code])) {
+                $this->db->trans_rollback();
+                return ['status' => 'error', 'message' => 'One or more selected invoices could not be found'];
+            }
+        }
+
+        $request_data = [
+            'request_description' => (string)$description,
+            'request_issuer_id' => $issuer_id,
+            'request_table' => 'invoice',
+            'request_ids' => implode(',', $invoice_codes),
+            'approval_status' => 'Pending'
+        ];
+
+        if(!$this->db->insert('request', $request_data)) {
+            $this->db->trans_rollback();
+            return ['status' => 'error', 'message' => 'Could not create approval request'];
+        }
+        $request_id = (int)$this->db->insert_id();
+
+        $this->db->where_in('invoice_code', $invoice_codes);
+        $updated = $this->db->update('invoice', [
+            'can_delete' => 'request',
+            'delete_request_issuer_id' => $issuer_id
+        ]);
+
+        if(!$updated || $this->db->affected_rows() !== count($invoice_codes) || $this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            return ['status' => 'error', 'message' => 'Could not lock every selected invoice for approval'];
+        }
+
+        $this->db->trans_commit();
+        return ['status' => 'success', 'message' => 'Approval request created', 'request_id' => $request_id];
+    }
+
     function updateSingleInvoiceRequest($request_id, $status) {
 
         $request_id = (int)$request_id;
@@ -4432,10 +4522,32 @@ class Crud_model extends MY_Model {
             return false;
         }
 
-        $invoice_codes_array = array_values(array_filter(array_map('trim', explode(',', (string)$request->request_ids))));
+        if((string)$request->request_table !== 'invoice') {
+            $this->db->trans_rollback();
+            return false;
+        }
+
+        $invoice_codes_array = array_values(array_unique(array_filter(array_map('trim', explode(',', (string)$request->request_ids)), 'strlen')));
         if(!$invoice_codes_array) {
             $this->db->trans_rollback();
             return false;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($invoice_codes_array), '?'));
+        $invoice_rows = $this->db->query(
+            "SELECT invoice_code, can_delete, delete_request_issuer_id FROM invoice WHERE invoice_code IN ($placeholders) FOR UPDATE",
+            $invoice_codes_array
+        )->result_array();
+
+        if(count($invoice_rows) !== count($invoice_codes_array)) {
+            $this->db->trans_rollback();
+            return false;
+        }
+        foreach($invoice_rows as $invoice_row) {
+            if($invoice_row['can_delete'] !== 'request' || (int)$invoice_row['delete_request_issuer_id'] !== (int)$request->request_issuer_id) {
+                $this->db->trans_rollback();
+                return false;
+            }
         }
 
         $this->db->where('request_id', $request_id);
@@ -4451,10 +4563,12 @@ class Crud_model extends MY_Model {
         }
 
         $this->db->where_in('invoice_code', $invoice_codes_array);
+        $this->db->where('can_delete', 'request');
+        $this->db->where('delete_request_issuer_id', (int)$request->request_issuer_id);
         $this->db->set('can_delete', strtolower($status));
         $invoiceResult = $this->db->update('invoice');
 
-        if(!$invoiceResult || $this->db->trans_status() === FALSE) {
+        if(!$invoiceResult || $this->db->affected_rows() !== count($invoice_codes_array) || $this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
             return false;
         }
