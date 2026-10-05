@@ -7,82 +7,82 @@ $currency = get_settings('currency');
 if(empty($student_id)) {
 ?>
 <style>
-.enterprise-card {
+.apply-discount-workspace .enterprise-card {
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
   overflow: hidden;
 }
-.enterprise-header {
+.apply-discount-workspace .enterprise-header {
   background: #2563eb;
-  padding: 32px;
+  padding: 18px 20px;
   color: white;
 }
-.enterprise-body {
-  padding: 32px;
+.apply-discount-workspace .enterprise-body {
+  padding: 18px;
 }
-.form-group-modern {
-  margin-bottom: 24px;
+.apply-discount-workspace .form-group-modern {
+  margin-bottom: 16px;
 }
-.form-group-modern label {
+.apply-discount-workspace .form-group-modern label {
   display: block;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 13px;
   color: #374151;
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.form-control-modern {
-  height: 56px !important;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 0 16px;
-  font-size: 15px;
+.apply-discount-workspace .form-control-modern {
+  height: var(--sm-ui-control-height, 42px) !important;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  padding: 0 11px;
+  font-size: 14px;
   font-weight: 500;
   transition: all 0.3s;
   background: #f9fafb;
 }
-.form-control-modern:focus {
+.apply-discount-workspace .form-control-modern:focus {
   border-color: #667eea;
   background: white;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
   outline: none;
 }
-.form-control-modern:disabled {
+.apply-discount-workspace .form-control-modern:disabled {
   background: #f3f4f6;
   cursor: not-allowed;
   opacity: 0.6;
 }
-.select2-container--default .select2-selection--single {
-  height: 56px !important;
-  border: 2px solid #e5e7eb !important;
-  border-radius: 12px !important;
+.apply-discount-workspace .select2-container--default .select2-selection--single {
+  height: var(--sm-ui-control-height, 42px) !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 9px !important;
   background: #f9fafb !important;
 }
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-  line-height: 52px !important;
-  padding-left: 16px !important;
-  font-size: 15px !important;
+.apply-discount-workspace .select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 40px !important;
+  padding-left: 11px !important;
+  font-size: 14px !important;
   font-weight: 500 !important;
   color: #374151 !important;
 }
-.select2-container--default .select2-selection--single .select2-selection__arrow {
-  height: 52px !important;
+.apply-discount-workspace .select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 40px !important;
   right: 12px !important;
 }
-.select2-container--default.select2-container--focus .select2-selection--single,
-.select2-container--default.select2-container--open .select2-selection--single {
+.apply-discount-workspace .select2-container--default.select2-container--focus .select2-selection--single,
+.apply-discount-workspace .select2-container--default.select2-container--open .select2-selection--single {
   border-color: #667eea !important;
   background: white !important;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
 }
-.btn-enterprise {
-  height: 56px;
-  padding: 0 32px;
-  font-size: 15px;
+.apply-discount-workspace .btn-enterprise {
+  height: var(--sm-ui-control-height, 42px);
+  padding: 0 14px;
+  font-size: 14px;
   font-weight: 700;
-  border-radius: 12px;
+  border-radius: 9px;
   border: none;
   background: #2563eb;
   color: white;
@@ -91,17 +91,17 @@ if(empty($student_id)) {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.btn-enterprise:hover:not(:disabled) {
+.apply-discount-workspace .btn-enterprise:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
   color: white;
 }
-.btn-enterprise:disabled {
+.apply-discount-workspace .btn-enterprise:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
-.info-badge {
+.apply-discount-workspace .info-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -113,18 +113,27 @@ if(empty($student_id)) {
   color: #0c4a6e;
   font-weight: 500;
 }
+
+.apply-discount-workspace { margin: 0; padding: 0 0 32px; }
+@media (max-width: 767px) {
+  .apply-discount-workspace { padding-bottom: 28px; }
+  .apply-discount-workspace .enterprise-header { padding: 16px; }
+  .apply-discount-workspace .enterprise-body { padding: 14px; }
+  .apply-discount-workspace .apply-discount-title { font-size: 22px !important; }
+}
 </style>
 
+<div class="apply-discount-workspace">
 <div class="row">
   <div class="col-md-12">
     <div class="enterprise-card">
       <div class="enterprise-header">
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <h2 style="margin: 0; font-size: 32px; font-weight: 700; color: white;">
+            <h2 class="apply-discount-title" style="margin: 0; font-size: 24px; font-weight: 700; color: white;">
               <i class="fa fa-tag"></i> <?php echo get_phrase('apply_discount'); ?>
             </h2>
-            <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 16px;">Select student and invoice to apply discount profile</p>
+            <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 14px;">Select student and invoice to apply discount profile</p>
           </div>
           <div class="info-badge" style="background: rgba(255,255,255,0.2); border: none; color: white;">
             <i class="fa fa-info-circle"></i>
@@ -175,7 +184,7 @@ if(empty($student_id)) {
           </div>
         </div>
 
-        <div class="row" style="margin-top: 32px;">
+        <div class="row" style="margin-top: 16px;">
           <div class="col-md-12">
             <div style="display: flex; justify-content: flex-end; align-items: center;">
               <div class="info-badge">
@@ -186,7 +195,7 @@ if(empty($student_id)) {
           </div>
         </div>
 
-        <div id="invoice_details_section" style="display: none; margin-top: 30px;">
+        <div id="invoice_details_section" style="display: none; margin-top: 16px;">
           <div class="enterprise-card">
             <div class="enterprise-header" style="background: #059669;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -213,7 +222,7 @@ if(empty($student_id)) {
         </div>
 
         <!-- Discount Profile Section -->
-        <div id="discount-profile-section" style="display: none; margin-top: 30px; background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 16px; padding: 25px;">
+        <div id="discount-profile-section" style="display: none; margin-top: 16px; background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 12px; padding: 18px;">
           <h5 style="color: #0c4a6e; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
             <i class="fa fa-tag" style="color: #0ea5e9;"></i>
             <?php echo get_phrase('assign_discount_profile'); ?>
@@ -222,8 +231,8 @@ if(empty($student_id)) {
             <input type="hidden" name="student_id" id="profile_student_id">
             <input type="hidden" name="invoice_code" id="profile_invoice_code">
             <div class="form-group">
-              <label style="font-weight: 600; color: #374151; margin-bottom: 10px;"><?php echo get_phrase('select_discount_profile'); ?></label>
-              <select name="profile_id" id="discount_profile_select" class="form-control" style="height: 50px; border: 2px solid #3b82f6; border-radius: 10px; font-weight: 600;" required>
+              <label style="font-weight: 700; font-size: 13px; color: #334155; margin-bottom: 7px;"><?php echo get_phrase('select_discount_profile'); ?></label>
+              <select name="profile_id" id="discount_profile_select" class="form-control" style="height: 42px; border: 1px solid #3b82f6; border-radius: 9px; font-size: 14px; font-weight: 600;" required>
                 <option value=""><?php echo get_phrase('select_profile'); ?></option>
                 <?php
                 $profiles = $this->db->where('is_active', 1)->where('discount_category', 'invoice')->get('discount_profiles')->result_array();
@@ -239,7 +248,7 @@ if(empty($student_id)) {
               </select>
             </div>
             <div id="profile-preview" style="display: none; background: white; border-radius: 10px; padding: 20px; margin: 15px 0; border: 2px solid #10b981; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1);"></div>
-            <button type="submit" class="btn btn-primary" style="background: #2563eb; border: none; padding: 12px 30px; font-weight: 700; border-radius: 10px;">
+            <button type="submit" class="btn btn-primary" style="background: #2563eb; border: none; min-height: 42px; padding: 9px 14px; font-size: 14px; font-weight: 700; border-radius: 9px;">
               <i class="fa fa-check-circle"></i> <?php echo get_phrase('assign_profile'); ?>
             </button>
           <?php echo form_close(); ?>
@@ -247,6 +256,7 @@ if(empty($student_id)) {
       </div>
     </div>
   </div>
+</div>
 </div>
 
 <script>
@@ -692,7 +702,7 @@ foreach($invoice_codes as &$inv) {
     </div>
 
     <!-- Discount Profile Section -->
-    <div id="discount-profile-section" style="display: none; margin-top: 30px; background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 16px; padding: 25px;">
+    <div id="discount-profile-section" style="display: none; margin-top: 16px; background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 12px; padding: 18px;">
       <h5 style="color: #0c4a6e; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
         <i class="fa fa-tag" style="color: #0ea5e9;"></i>
         <?php echo get_phrase('assign_discount_profile'); ?>
@@ -701,8 +711,8 @@ foreach($invoice_codes as &$inv) {
         <input type="hidden" name="student_id" id="profile_student_id" value="<?php echo $student_id; ?>">
         <input type="hidden" name="invoice_code" id="profile_invoice_code">
         <div class="form-group">
-          <label style="font-weight: 600; color: #374151; margin-bottom: 10px;"><?php echo get_phrase('select_discount_profile'); ?></label>
-          <select name="profile_id" id="discount_profile_select" class="form-control" style="height: 50px; border: 2px solid #3b82f6; border-radius: 10px; font-weight: 600;" required>
+          <label style="font-weight: 700; font-size: 13px; color: #334155; margin-bottom: 7px;"><?php echo get_phrase('select_discount_profile'); ?></label>
+          <select name="profile_id" id="discount_profile_select" class="form-control" style="height: 42px; border: 1px solid #3b82f6; border-radius: 9px; font-size: 14px; font-weight: 600;" required>
             <option value=""><?php echo get_phrase('select_profile'); ?></option>
             <?php
             $profiles = $this->db->where('is_active', 1)->where('discount_category', 'invoice')->get('discount_profiles')->result_array();
@@ -718,7 +728,7 @@ foreach($invoice_codes as &$inv) {
           </select>
         </div>
         <div id="profile-preview" style="display: none; background: white; border-radius: 10px; padding: 20px; margin: 15px 0; border: 2px solid #10b981; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1);"></div>
-        <button type="submit" class="btn btn-primary" style="background: #2563eb; border: none; padding: 12px 30px; font-weight: 700; border-radius: 10px;">
+        <button type="submit" class="btn btn-primary" style="background: #2563eb; border: none; min-height: 42px; padding: 9px 14px; font-size: 14px; font-weight: 700; border-radius: 9px;">
           <i class="fa fa-check-circle"></i> <?php echo get_phrase('assign_profile'); ?>
         </button>
       <?php echo form_close(); ?>

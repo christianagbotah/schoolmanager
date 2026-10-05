@@ -26,12 +26,12 @@
 }
 
 /* Direct UI/UX rebuild — All Invoices */
-.all-invoices-workspace { margin: 0; padding: 24px 28px 40px; background: #f8fafc; }
+.all-invoices-workspace { margin: 0; padding: 0 0 32px; background: #f8fafc; }
 .all-invoices-workspace > .col-md-12 { padding: 0; }
 .all-invoices-page-head { margin: 0 0 18px; padding: 0 0 18px; border-bottom: 1px solid #e2e8f0; }
 .all-invoices-eyebrow { margin: 0 0 4px; color: #2563eb; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-.all-invoices-page-head h1 { margin: 0; color: #0f172a; font-size: 30px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em; }
-.all-invoices-page-head p:last-child { margin: 7px 0 0; color: #64748b; font-size: 15px; line-height: 1.5; }
+.all-invoices-page-head h1 { margin: 0; color: #0f172a; font-size: 24px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em; }
+.all-invoices-page-head p:last-child { margin: 7px 0 0; color: #64748b; font-size: 14px; line-height: 1.5; }
 .all-invoices-filter-card {
     display: flex; align-items: end; justify-content: space-between; gap: 18px;
     margin-bottom: 16px; padding: 15px 17px; border: 1px solid #e2e8f0;
@@ -43,8 +43,8 @@
 .all-invoices-year-field .form-control,
 .all-invoices-year-field .selectboxit-container { width: 100% !important; }
 .all-invoices-year-field .form-control {
-    min-height: 44px; height: 44px; padding: 9px 12px; border: 1px solid #cbd5e1;
-    border-radius: 9px; font-size: 15px; color: #0f172a; background: #fff;
+    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 11px; border: 1px solid #cbd5e1;
+    border-radius: 9px; font-size: 14px; color: #0f172a; background: #fff;
 }
 #table_holder {
     overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0 !important;
@@ -64,8 +64,8 @@
     border-radius: 8px; background: #fff; color: #0f172a; font-size: 14px;
 }
 @media (max-width: 767px) {
-    .all-invoices-workspace { padding: 18px 14px 32px; }
-    .all-invoices-page-head h1 { font-size: 26px; }
+    .all-invoices-workspace { padding: 0 0 28px; }
+    .all-invoices-page-head h1 { font-size: 22px; }
     .all-invoices-filter-card { align-items: stretch; flex-direction: column; }
     .all-invoices-year-field { width: 100%; }
 }

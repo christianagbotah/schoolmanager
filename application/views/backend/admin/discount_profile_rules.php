@@ -1,36 +1,44 @@
 <style>
-* { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-.modern-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
-.modern-header { background: #059669; color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25); }
-.modern-header h2 { margin: 0 0 8px 0; font-size: 28px; font-weight: 700; display: flex; align-items: center; gap: 12px; color: white; }
-.modern-header h2 i { color: white; }
-.modern-header p { margin: 0; opacity: 0.95; font-size: 15px; }
-.modern-actions { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-.modern-btn { padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-.modern-btn-primary { background: #059669; color: white; }
-.modern-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-.modern-btn-secondary { background: white; color: #374151; border: 2px solid #e5e7eb; }
-.modern-btn-secondary:hover { border-color: #10b981; color: #10b981; }
-.info-card { background: #dbeafe; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 12px; margin-bottom: 24px; }
-.info-card strong { color: #1e40af; display: block; margin-bottom: 8px; font-size: 15px; }
-.info-card ul { margin: 0; padding-left: 20px; color: #1e3a8a; }
-.info-card li { margin: 4px 0; }
-.rules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-.rule-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #10b981; transition: all 0.3s; }
-.rule-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
-.rule-value { font-size: 32px; font-weight: 800; color: #10b981; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-.rule-detail { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.rule-label { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
-.rule-value-text { font-size: 14px; font-weight: 600; color: #1f2937; }
-.badge-all { display: inline-block; background: white; color: #6b7280; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 2px solid #e5e7eb; }
-.rule-actions { margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb; display: flex; gap: 8px; }
-.btn-delete { background: #dc2626; color: white; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; }
-.btn-delete:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
-.btn-edit { background: #d97706; color: white; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; }
-.btn-edit:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
-.empty-state { text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.empty-state i { font-size: 64px; color: #d1d5db; margin-bottom: 16px; }
-.empty-state h3 { color: #6b7280; font-size: 18px; font-weight: 600; margin: 0; }
+.modern-container, .modern-container * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-sizing: border-box; }
+.modern-container { max-width: 1400px; margin: 0 auto; padding: 0 0 32px; }
+.modern-container .modern-header { background: #059669; color: white; padding: 18px 20px; border-radius: 14px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25); }
+.modern-container .modern-header h2 { margin: 0 0 6px 0; font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; color: white; }
+.modern-container .modern-header h2 i { color: white; }
+.modern-container .modern-header p { margin: 0; opacity: 0.95; font-size: 14px; }
+.modern-container .modern-actions { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.modern-btn { min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 14px; border-radius: 10px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.modern-container .modern-btn-primary { background: #059669; color: white; }
+.modern-container .modern-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+.modern-container .modern-btn-secondary { background: white; color: #374151; border: 2px solid #e5e7eb; }
+.modern-container .modern-btn-secondary:hover { border-color: #10b981; color: #10b981; }
+.modern-container .info-card { background: #dbeafe; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 12px; margin-bottom: 24px; }
+.modern-container .info-card strong { color: #1e40af; display: block; margin-bottom: 8px; font-size: 14px; }
+.modern-container .info-card ul { margin: 0; padding-left: 20px; color: #1e3a8a; }
+.modern-container .info-card li { margin: 4px 0; }
+.modern-container .rules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+.modern-container .rule-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #10b981; transition: all 0.3s; }
+.modern-container .rule-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+.modern-container .rule-value { font-size: 32px; font-weight: 800; color: #10b981; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.modern-container .rule-detail { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.modern-container .rule-label { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+.modern-container .rule-value-text { font-size: 14px; font-weight: 600; color: #1f2937; }
+.modern-container .badge-all { display: inline-block; background: white; color: #6b7280; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 2px solid #e5e7eb; }
+.modern-container .rule-actions { margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb; display: flex; gap: 8px; }
+.modern-container .btn-delete { background: #dc2626; color: white; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; }
+.modern-container .btn-delete:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+.modern-container .btn-edit { background: #d97706; color: white; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; }
+.modern-container .btn-edit:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
+.modern-container .empty-state { text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.modern-container .empty-state i { font-size: 64px; color: #d1d5db; margin-bottom: 16px; }
+.modern-container .empty-state h3 { color: #6b7280; font-size: 18px; font-weight: 600; margin: 0; }
+@media (max-width: 640px) {
+    .modern-container { padding-bottom: 28px; }
+    .modern-container .modern-header { padding: 16px; }
+    .modern-container .modern-header h2 { font-size: 22px; }
+    .modern-container .modern-actions { flex-direction: column; }
+    .modern-btn { width: 100%; justify-content: center; }
+}
+
 </style>
 
 <div class="modern-container">
@@ -116,20 +124,20 @@ function showCreateRuleModal() {
     var content = `
         <style>
             .modern-form-group { margin-bottom: 20px; }
-            .modern-label { display: block; font-weight: 600; color: #2d3748; font-size: 15px; margin-bottom: 8px; letter-spacing: 0.3px; }
-            .modern-select, .modern-input { width: 100%; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: all 0.2s; background: #ffffff; color: #1a202c; font-weight: 500; }
+            .modern-label { display: block; font-weight: 700; color: #334155; font-size: 13px; margin-bottom: 7px; letter-spacing: 0.3px; }
+            .modern-select, .modern-input { width: 100%; min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; transition: all 0.2s; background: #ffffff; color: #1a202c; font-weight: 500; }
             .modern-select:focus, .modern-input:focus { border-color: #10b981; outline: none; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); background: #f0fdf4; }
-            .modern-btn { background: #059669; color: white; padding: 13px 26px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+            .modern-btn { background: #059669; color: white; min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 14px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
             .modern-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4); }
             .modern-btn i { margin-right: 6px; }
             .select2-container { width: 100% !important; }
-            .select2-container--default .select2-selection--multiple { border: 2px solid #e2e8f0 !important; border-radius: 8px !important; min-height: 50px !important; padding: 6px 10px !important; background: #ffffff !important; font-size: 16px !important; }
-            .select2-container--default .select2-selection--single { border: 2px solid #e2e8f0 !important; border-radius: 8px !important; height: 50px !important; padding: 10px 16px !important; background: #ffffff !important; font-size: 16px !important; }
-            .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 30px !important; color: #1a202c !important; font-size: 16px !important; }
-            .select2-container--default .select2-selection--single .select2-selection__arrow { height: 48px !important; }
+            .select2-container--default .select2-selection--multiple { border: 2px solid #e2e8f0 !important; border-radius: 8px !important; min-height: var(--sm-ui-control-height, 42px) !important; padding: 4px 8px !important; background: #ffffff !important; font-size: 14px !important; }
+            .select2-container--default .select2-selection--single { border: 2px solid #e2e8f0 !important; border-radius: 8px !important; height: var(--sm-ui-control-height, 42px) !important; padding: 8px 11px !important; background: #ffffff !important; font-size: 14px !important; }
+            .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 40px !important; color: #1a202c !important; font-size: 14px !important; }
+            .select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px !important; }
             .select2-container--default.select2-container--focus .select2-selection--multiple,
             .select2-container--default.select2-container--focus .select2-selection--single { border-color: #10b981 !important; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important; }
-            .select2-container--default .select2-selection--multiple .select2-selection__choice { background: #059669 !important; border: none !important; color: white !important; border-radius: 6px !important; padding: 6px 12px !important; margin: 4px !important; font-size: 15px !important; }
+            .select2-container--default .select2-selection--multiple .select2-selection__choice { background: #059669 !important; border: none !important; color: white !important; border-radius: 6px !important; padding: 6px 12px !important; margin: 4px !important; font-size: 13px !important; }
             .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: white !important; margin-right: 6px !important; }
             .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover { color: #fee !important; }
             small { font-size: 13px !important; }
@@ -165,10 +173,10 @@ function editRule(ruleId, classId, categoryId, discountValue) {
     var content = `
         <style>
             .modern-form-group { margin-bottom: 20px; }
-            .modern-label { display: block; font-weight: 600; color: #2d3748; font-size: 15px; margin-bottom: 8px; letter-spacing: 0.3px; }
-            .modern-select, .modern-input { width: 100%; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: all 0.2s; background: #ffffff; color: #1a202c; font-weight: 500; }
+            .modern-label { display: block; font-weight: 700; color: #334155; font-size: 13px; margin-bottom: 7px; letter-spacing: 0.3px; }
+            .modern-select, .modern-input { width: 100%; min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; transition: all 0.2s; background: #ffffff; color: #1a202c; font-weight: 500; }
             .modern-select:focus, .modern-input:focus { border-color: #10b981; outline: none; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); background: #f0fdf4; }
-            .modern-btn { background: #059669; color: white; padding: 13px 26px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+            .modern-btn { background: #059669; color: white; min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 14px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
             .modern-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4); }
             .modern-btn i { margin-right: 6px; }
         </style>

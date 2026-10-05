@@ -9,23 +9,23 @@ $image_path = !empty($row['image']) ? FCPATH . 'uploads/frontend/noticeboard/' .
 $has_image = $image_path && is_file($image_path);
 ?>
 <style>
-.notice-edit-workspace{margin:0!important;padding:24px 28px 40px!important;background:#f8fafc;min-height:100%;color:#334155}
+.notice-edit-workspace{margin:0!important;padding:0 0 32px!important;background:#f8fafc;min-height:100%;color:#334155}
 .notice-edit-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid #e2e8f0}
 .notice-edit-eyebrow{margin:0 0 4px;color:#2563eb;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-.notice-edit-head h1{margin:0;color:#0f172a;font-size:30px!important;line-height:1.2;font-weight:800;letter-spacing:-.02em}
-.notice-edit-head p:last-child{margin:7px 0 0;color:#64748b;font-size:15px;line-height:1.5}
+.notice-edit-head h1{margin:0;color:#0f172a;font-size:24px!important;line-height:1.2;font-weight:800;letter-spacing:-.02em}
+.notice-edit-head p:last-child{margin:7px 0 0;color:#64748b;font-size:14px;line-height:1.5}
 .notice-edit-back{min-height:42px;padding:9px 13px!important;border:1px solid #cbd5e1!important;border-radius:9px!important;background:#fff!important;color:#334155!important;font-size:14px!important;font-weight:800!important}
 .notice-edit-card{max-width:980px;margin:0 auto;padding:16px;border:1px solid #e2e8f0;border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.05)}
 .notice-edit-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(200px,.6fr);gap:14px}
 .notice-edit-field{margin-bottom:14px}.notice-edit-field-full{grid-column:1/-1}
 .notice-edit-field label{display:block;margin:0 0 6px;color:#334155;font-size:13px;font-weight:800}
-.notice-edit-field input[type="text"],.notice-edit-field select,.notice-edit-field textarea{width:100%;min-height:44px;padding:9px 11px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#0f172a;font-size:15px!important;line-height:1.4}
+.notice-edit-field input[type="text"],.notice-edit-field select,.notice-edit-field textarea{width:100%;min-height:var(--sm-ui-control-height,42px);padding:9px 11px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#0f172a;font-size:14px!important;line-height:1.4}
 .notice-edit-field textarea{min-height:145px;resize:vertical}.notice-edit-field input:focus,.notice-edit-field select:focus,.notice-edit-field textarea:focus{border-color:#2563eb;outline:0;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 .notice-edit-media{display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:14px;align-items:start;padding:14px;border:1px dashed #cbd5e1;border-radius:11px;background:#f8fafc}
 .notice-edit-media input[type=file]{width:100%;padding:9px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;font-size:14px}.notice-edit-preview{display:block;width:200px;height:120px;object-fit:cover;border:1px solid #e2e8f0;border-radius:9px;background:#fff}.notice-edit-preview.is-empty{display:none}
 .notice-edit-delivery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:14px;border:1px solid #e2e8f0;border-radius:11px;background:#f8fafc}.notice-edit-service{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:5px 8px;border-radius:999px;font-size:12px;font-weight:800}.notice-edit-service.active{background:#ecfdf5;color:#047857}.notice-edit-service.disabled{background:#fef2f2;color:#b91c1c}
-.notice-edit-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px;padding-top:14px;border-top:1px solid #e2e8f0}.notice-edit-actions .btn{min-height:44px;padding:9px 15px!important;border-radius:9px!important;font-size:14px!important;font-weight:800!important}.notice-edit-actions .btn-primary{background:#2563eb!important;border-color:#2563eb!important}
-@media(max-width:767px){.notice-edit-workspace{padding:18px 14px 32px!important}.notice-edit-head{display:block}.notice-edit-head h1{font-size:26px!important}.notice-edit-back{width:100%;margin-top:14px}.notice-edit-grid,.notice-edit-media,.notice-edit-delivery{grid-template-columns:1fr}.notice-edit-preview{width:100%;height:180px}.notice-edit-field input[type="text"],.notice-edit-field select,.notice-edit-field textarea{font-size:16px!important}.notice-edit-actions{display:grid;grid-template-columns:1fr}}
+.notice-edit-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px;padding-top:14px;border-top:1px solid #e2e8f0}.notice-edit-actions .btn{min-height:var(--sm-ui-control-height,42px);height:var(--sm-ui-control-height,42px);padding:9px 14px!important;border-radius:9px!important;font-size:14px!important;font-weight:800!important}.notice-edit-actions .btn-primary{background:#2563eb!important;border-color:#2563eb!important}
+@media(max-width:767px){.notice-edit-workspace{padding:0 0 28px!important}.notice-edit-head{display:block}.notice-edit-head h1{font-size:22px!important}.notice-edit-back{width:100%;margin-top:14px}.notice-edit-grid,.notice-edit-media,.notice-edit-delivery{grid-template-columns:1fr}.notice-edit-preview{width:100%;height:180px}.notice-edit-field input[type="text"],.notice-edit-field select,.notice-edit-field textarea{font-size:16px!important}.notice-edit-actions{display:grid;grid-template-columns:1fr}}
 </style>
 <div class="notice-edit-workspace">
     <div class="notice-edit-head">
