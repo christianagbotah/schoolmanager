@@ -8096,29 +8096,31 @@ class Admin extends MY_Controller {
 
 									//abbreviate those subjects with long words
 									$subject_name = $subject;
-									if (str_word_count($row3['name'], 1)[0] == 'Religious' || str_word_count($row3['name'], 1)[0] == 'RELIGIOUS') {
+									$subject_words = str_word_count((string) $subject, 1);
+									$subject_first_word = strtoupper($subject_words[0] ?? '');
+									if ($subject_first_word == 'RELIGIOUS') {
 										$subject_name = 'R.M.E';
-									} else if (str_word_count($row3['name'], 1)[0] == 'English' || str_word_count($row3['name'], 1)[0] == 'ENGLISH') {
+									} else if ($subject_first_word == 'ENGLISH') {
 										$subject_name = 'English';
-									} else if (str_word_count($row3['name'], 1)[0] == 'Information' || str_word_count($row3['name'], 1)[0] == 'INFORMATION') {
+									} else if ($subject_first_word == 'INFORMATION') {
 										$subject_name = 'ICT';
-									} else if (str_word_count($row3['name'], 1)[0] == 'Health' || str_word_count($row3['name'], 1)[0] == 'HEALTH') {
+									} else if ($subject_first_word == 'HEALTH') {
 										$subject_name = 'H&Safety';
-									} else if (str_word_count($row3['name'], 1)[0] == 'Citizenship' || str_word_count($row3['name'], 1)[0] == 'CITIZENSHIP') {
+									} else if ($subject_first_word == 'CITIZENSHIP') {
 										$subject_name = 'C.E';
-									} else if (str_word_count($row3['name'], 1)[0] == 'Mathematics' || str_word_count($row3['name'], 1)[0] == 'MATHEMATICS') {
+									} else if ($subject_first_word == 'MATHEMATICS') {
 										$subject_name = 'Maths';
-									} else if (str_word_count($row3['name'], 1)[0] == 'Creative' || str_word_count($row3['name'], 1)[0] == 'CREATIVE') {
+									} else if ($subject_first_word == 'CREATIVE') {
 										$subject_name = 'C.A';
-									} else if (str_word_count($row3['name'], 1)[0] == 'Numeracy' || str_word_count($row3['name'], 1)[0] == 'NUMERACY') {
+									} else if ($subject_first_word == 'NUMERACY') {
 										$subject_name = 'Numeracy';
-									} else if (str_word_count($row3['name'], 1)[0] == 'Natural' || str_word_count($row3['name'], 1)[0] == 'NATURAL') {
+									} else if ($subject_first_word == 'NATURAL') {
 										$subject_name = 'Science';
-									} else if (str_word_count($row3['name'], 1)[0] == 'Integrated' || str_word_count($row3['name'], 1)[0] == 'INTEGRATED') {
+									} else if ($subject_first_word == 'INTEGRATED') {
 										$subject_name = 'Science';
-									} else if (str_word_count($row3['name'], 1)[0] == 'Our' || str_word_count($row3['name'], 1)[0] == 'OUR') {
+									} else if ($subject_first_word == 'OUR') {
 										$subject_name = 'O.W.O.P';
-									} else if (str_word_count($row3['name'], 1)[0] == 'Physical' || str_word_count($row3['name'], 1)[0] == 'PHYSICAL') {
+									} else if ($subject_first_word == 'PHYSICAL') {
 										$subject_name = 'P.E'; //If they want the short form, use subject_name instead of subject
 									}
 
@@ -8132,7 +8134,7 @@ class Admin extends MY_Controller {
 									$remarks_obtained = $grade['name']; //remarks
 
 									//$message      .= $subject .': ' .$mark_obtained. ', ';
-									$message .= ucwords(strtolower($subject)) . ' ' .$mark_obtained. ' '  . $grade_obtained . ' ' . ucwords(strtolower($remarks_obtained)) . ",  ";
+									$message .= ucwords(strtolower($subject_name)) . ' ' .$mark_obtained. ' '  . $grade_obtained . ' ' . ucwords(strtolower($remarks_obtained)) . ",  ";
 
 								}
 
@@ -8261,29 +8263,31 @@ class Admin extends MY_Controller {
 
 								//abbreviate those subjects with long words
 								$subject_name = $subject;
-								if (str_word_count($row3['name'], 1)[0] == 'Religious' || str_word_count($row3['name'], 1)[0] == 'RELIGIOUS') {
+								$subject_words = str_word_count((string) $subject, 1);
+								$subject_first_word = strtoupper($subject_words[0] ?? '');
+								if ($subject_first_word == 'RELIGIOUS') {
 									$subject_name = 'R.M.E';
-								} else if (str_word_count($row3['name'], 1)[0] == 'English' || str_word_count($row3['name'], 1)[0] == 'ENGLISH') {
+								} else if ($subject_first_word == 'ENGLISH') {
 									$subject_name = 'English';
-								} else if (str_word_count($row3['name'], 1)[0] == 'Information' || str_word_count($row3['name'], 1)[0] == 'INFORMATION') {
+								} else if ($subject_first_word == 'INFORMATION') {
 									$subject_name = 'ICT';
-								} else if (str_word_count($row3['name'], 1)[0] == 'Health' || str_word_count($row3['name'], 1)[0] == 'HEALTH') {
+								} else if ($subject_first_word == 'HEALTH') {
 									$subject_name = 'H&Safety';
-								} else if (str_word_count($row3['name'], 1)[0] == 'Citizenship' || str_word_count($row3['name'], 1)[0] == 'CITIZENSHIP') {
+								} else if ($subject_first_word == 'CITIZENSHIP') {
 									$subject_name = 'C.E';
-								} else if (str_word_count($row3['name'], 1)[0] == 'Mathematics' || str_word_count($row3['name'], 1)[0] == 'MATHEMATICS') {
+								} else if ($subject_first_word == 'MATHEMATICS') {
 									$subject_name = 'Maths';
-								} else if (str_word_count($row3['name'], 1)[0] == 'Creative' || str_word_count($row3['name'], 1)[0] == 'CREATIVE') {
+								} else if ($subject_first_word == 'CREATIVE') {
 									$subject_name = 'C.A';
-								} else if (str_word_count($row3['name'], 1)[0] == 'Numeracy' || str_word_count($row3['name'], 1)[0] == 'NUMERACY') {
+								} else if ($subject_first_word == 'NUMERACY') {
 									$subject_name = 'Numeracy';
-								} else if (str_word_count($row3['name'], 1)[0] == 'Natural' || str_word_count($row3['name'], 1)[0] == 'NATURAL') {
+								} else if ($subject_first_word == 'NATURAL') {
 									$subject_name = 'Science';
-								} else if (str_word_count($row3['name'], 1)[0] == 'Integrated' || str_word_count($row3['name'], 1)[0] == 'INTEGRATED') {
+								} else if ($subject_first_word == 'INTEGRATED') {
 									$subject_name = 'Science';
-								} else if (str_word_count($row3['name'], 1)[0] == 'Our' || str_word_count($row3['name'], 1)[0] == 'OUR') {
+								} else if ($subject_first_word == 'OUR') {
 									$subject_name = 'O.W.O.P';
-								} else if (str_word_count($row3['name'], 1)[0] == 'Physical' || str_word_count($row3['name'], 1)[0] == 'PHYSICAL') {
+								} else if ($subject_first_word == 'PHYSICAL') {
 									$subject_name = 'P.E'; //If they want the short form, use subject_name instead of subject
 								}
 
@@ -8297,7 +8301,7 @@ class Admin extends MY_Controller {
 								$remarks_obtained = $grade['name']; //remarks
 
 								//$message      .= $subject .': ' .$mark_obtained. ', ';
-								$message .= ucwords(strtolower($subject)) . ' ' .$mark_obtained.' '  . $grade_obtained . ' ' . ucwords(strtolower($remarks_obtained)) . ",  ";
+								$message .= ucwords(strtolower($subject_name)) . ' ' .$mark_obtained.' '  . $grade_obtained . ' ' . ucwords(strtolower($remarks_obtained)) . ",  ";
 
 							}
 
