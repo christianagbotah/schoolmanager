@@ -1,152 +1,132 @@
 <?php
-$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
-$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
+$running_year_row = $this->db->get_where('settings', array('type' => 'running_year'))->row();
+$running_term_row = $this->db->get_where('settings', array('type' => 'running_term'))->row();
+$running_year = $running_year_row ? $running_year_row->description : '';
+$running_term = $running_term_row ? $running_term_row->description : '';
+$teacher_id = $this->session->userdata('teacher_id');
 
-//creche
-$this->db->select('class_id');
-$this->db->distinct();
-$find_teacher_creche = $this->db->get_where('subject_creche', array('teacher_id' => $this->session->userdata('teacher_id'), 'year' => $running_year, 'term' => $running_term));
-$class_ids_creche = $find_teacher_creche->result_array();
+$eligible_class_ids = array();
+$this->db->select('class_id')->distinct();
+foreach ($this->db->get_where('subject_creche', array('teacher_id' => $teacher_id, 'year' => $running_year, 'term' => $running_term))->result_array() as $assignment) {
+    $eligible_class_ids[(int) $assignment['class_id']] = true;
+}
+$this->db->select('class_id')->distinct();
+foreach ($this->db->get_where('subject', array('teacher_id' => $teacher_id, 'year' => $running_year, 'term' => $running_term))->result_array() as $assignment) {
+    $eligible_class_ids[(int) $assignment['class_id']] = true;
+}
 
-//general
-$this->db->select('class_id');
-$this->db->distinct();
-$find_teacher = $this->db->get_where('subject', array('teacher_id' => $this->session->userdata('teacher_id'), 'year' => $running_year, 'term' => $running_term));
-$class_ids = $find_teacher->result_array();
-
+$eligible_classes = array();
+foreach (array_keys($eligible_class_ids) as $eligible_class_id) {
+    $class_row = $this->db->get_where('class', array('class_id' => $eligible_class_id))->row_array();
+    if (!$class_row) continue;
+    $section_row = $this->db->get_where('section', array('class_id' => $eligible_class_id))->row_array();
+    $variant_count = $this->db->get_where('class', array('name' => $class_row['name'], 'name_numeric' => $class_row['name_numeric']))->num_rows();
+    $section_name = ($variant_count > 1 && $section_row) ? $section_row['name'] : '';
+    $class_row['display_name'] = trim($class_row['name'] . ' ' . $class_row['name_numeric'] . $section_name);
+    $eligible_classes[] = $class_row;
+}
+usort($eligible_classes, function($a, $b) { return strcasecmp($a['display_name'], $b['display_name']); });
+$exams = $this->db->order_by('exam_id', 'desc')->get('exam')->result_array();
 ?>
-<div class="row">
-    <div class="col-md-12">
-        <div class="panel panel-primary" data-collapsed="0">
-            <div class="panel-heading">
-                <div class="panel-title" >
-                    <i class="entypo-plus-circled"></i>
-                    <?php echo get_phrase('add_question_paper');?>
+
+<style>
+.qp-form { --qpf-border:#e5e7eb; --qpf-text:#172033; --qpf-muted:#667085; }
+.qp-form .qpf-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:18px 20px; border-bottom:1px solid var(--qpf-border); background:#fff; }
+.qp-form .qpf-heading { display:flex; align-items:center; gap:12px; min-width:0; padding-right:28px; }
+.qp-form .qpf-icon { width:42px; height:42px; flex:0 0 42px; display:flex; align-items:center; justify-content:center; border-radius:11px; background:#eef4ff; border:1px solid #d7e5ff; color:#2563eb; }
+.qp-form .qpf-title { margin:0; color:var(--qpf-text); font-size:20px; font-weight:700; }
+.qp-form .qpf-subtitle { margin:4px 0 0; color:var(--qpf-muted); font-size:13px; line-height:1.45; }
+.qp-form .qpf-body { padding:20px; background:#f8fafc; }
+.qp-form .qpf-card { padding:20px; border:1px solid var(--qpf-border); border-radius:14px; background:#fff; }
+.qp-form .qpf-grid { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(180px,.8fr); gap:14px; }
+.qp-form .qpf-field { margin-bottom:16px; }
+.qp-form .qpf-field:last-child { margin-bottom:0; }
+.qp-form .qpf-label { display:block; margin:0 0 7px; color:#344054; font-size:14px; font-weight:700; }
+.qp-form .qpf-required { color:#b42318; }
+.qp-form .qpf-control { width:100%; min-height:44px; border:1.5px solid #d0d5dd; border-radius:10px; background:#fff; color:#172033; font-size:14px; padding:9px 12px; outline:none; }
+.qp-form .qpf-control:focus { border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.14); }
+.qp-form .qpf-help { display:block; margin-top:6px; color:var(--qpf-muted); font-size:12px; line-height:1.45; }
+.qp-form .qpf-editor-wrap { border:1.5px solid #d0d5dd; border-radius:10px; background:#fff; overflow:hidden; }
+.qp-form .qpf-editor-wrap textarea { min-height:260px; border:0 !important; border-radius:0 !important; box-shadow:none !important; }
+.qp-form .qpf-empty { padding:12px 14px; border:1px solid #fed7aa; border-radius:10px; background:#fff7ed; color:#9a3412; font-size:13px; line-height:1.45; }
+.qp-form .qpf-footer { display:flex; justify-content:flex-end; gap:10px; padding:15px 20px; border-top:1px solid var(--qpf-border); background:#fff; }
+.qp-form .qpf-btn { min-height:40px; padding:8px 15px; border-radius:9px; font-size:14px; font-weight:700; }
+.qp-form .qpf-cancel { border:1px solid #d0d5dd; background:#fff; color:#475467; }
+.qp-form .qpf-save { border:1px solid #2563eb; background:#2563eb; color:#fff; }
+.qp-form .qpf-save:hover, .qp-form .qpf-save:focus { background:#1d4ed8; border-color:#1d4ed8; color:#fff; }
+@media (max-width:767px) {
+    .qp-form .qpf-grid { grid-template-columns:1fr; gap:0; }
+    .qp-form .qpf-body { padding:14px; }
+    .qp-form .qpf-card { padding:16px; }
+    .qp-form .qpf-footer { flex-direction:column-reverse; }
+    .qp-form .qpf-btn { width:100%; }
+}
+</style>
+
+<div class="qp-form">
+    <?php echo form_open(site_url('teacher/question_paper/create'), array('id' => 'teacherQuestionPaperAddForm', 'enctype' => 'multipart/form-data')); ?>
+        <div class="modal-header qpf-head">
+            <div class="qpf-heading">
+                <div class="qpf-icon"><i class="entypo-plus"></i></div>
+                <div>
+                    <h4 class="qpf-title"><?php echo get_phrase('add_question_paper'); ?></h4>
+                    <p class="qpf-subtitle">Create a question paper for one of your assigned classes in <?php echo htmlspecialchars($running_year, ENT_QUOTES, 'UTF-8'); ?>.</p>
                 </div>
             </div>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+        </div>
 
-            <div class="panel-body">
-                
-                <?php echo form_open(site_url('teacher/question_paper/create') , array('class' => 'form-horizontal form-groups-bordered validate', 'enctype' => 'multipart/form-data'));?>
-    
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('title');?></label>
-                        
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" name="title" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" value="" autofocus>
-                        </div>
+        <div class="modal-body qpf-body">
+            <div class="qpf-card">
+                <div class="qpf-field">
+                    <label class="qpf-label" for="qp_add_title"><?php echo get_phrase('title'); ?> <span class="qpf-required">*</span></label>
+                    <input type="text" class="qpf-control" id="qp_add_title" name="title" maxlength="160" required autofocus>
+                </div>
+
+                <div class="qpf-grid">
+                    <div class="qpf-field">
+                        <label class="qpf-label" for="qp_add_class"><?php echo get_phrase('class'); ?> <span class="qpf-required">*</span></label>
+                        <select name="class_id" id="qp_add_class" class="qpf-control" required>
+                            <option value=""><?php echo get_phrase('select_a_class'); ?></option>
+                            <?php foreach ($eligible_classes as $class_row): ?>
+                                <option value="<?php echo (int) $class_row['class_id']; ?>"><?php echo htmlspecialchars($class_row['display_name'], ENT_QUOTES, 'UTF-8'); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php if (empty($eligible_classes)): ?>
+                            <div class="qpf-empty">No class assignment is available for the current academic year and term. A class must be assigned to you before a question paper can be created.</div>
+                        <?php endif; ?>
                     </div>
 
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label"><?php echo get_phrase('class'); ?></label>
-                        <div class="col-sm-6">
-                            <select name="class_id" id = 'class_id' class="form-control selectboxit" required>
-                                <option value=""><?php echo get_phrase('select_a_class'); ?></option>
-                                <?php
-                    foreach($class_ids_creche as $subj):
-                        $name_array = array('CRECHE', 'NURSERY');
-                        $this->db->where_in('name', $name_array);
-                        $classes = $this->db->get_where('class', array('class_id' =>  $subj['class_id']))->result_array();
-                        foreach($classes as $row):
-                            //add section A or B if the class has more than one section
-                        $section_name = $this->db->get_where('section', array('class_id' => $row['class_id']))->row()->name;
-                        $class_has_more_sections = $this->db->get_where('class', array('name' => $row['name'], 'name_numeric' => $row['name_numeric']))->num_rows();
-                        $sec_name = '';
-                        if($class_has_more_sections > 1) {
-                            $sec_name = $section_name;
-                        }
-                    ?>
-                    <option value="<?php echo $row['class_id'];?>"
-                        <?php if($class_id == $row['class_id']) echo 'selected';?>><?php echo $row['name'].' '.$row['name_numeric'].$sec_name;?></option>
-                    <?php endforeach; endforeach; //FOR CRECHE ?>
-
-                    <?php
-                    foreach($class_ids as $subj):
-                        $classes = $this->db->get_where('class', array('class_id' =>  $subj['class_id']))->result_array();
-                        foreach($classes as $row):
-                            //add section A or B if the class has more than one section
-                            $section_name = $this->db->get_where('section', array('class_id' => $row['class_id']))->row()->name;
-                            $class_has_more_sections = $this->db->get_where('class', array('name' => $row['name'], 'name_numeric' => $row['name_numeric']))->num_rows();
-                            $sec_name = '';
-                            if($class_has_more_sections > 1) {
-                                $sec_name = $section_name;
-                            }
-                    ?>
-                    <option value="<?php echo $row['class_id'];?>"
-                        <?php if($class_id == $row['class_id']) echo 'selected';?>><?php echo $row['name'].' '.$row['name_numeric'].$sec_name;?></option>
-                    <?php endforeach; endforeach; ?>
-                            </select>
-                        </div>
+                    <div class="qpf-field">
+                        <label class="qpf-label" for="qp_add_exam"><?php echo get_phrase('exam'); ?> <span class="qpf-required">*</span></label>
+                        <select name="exam_id" id="qp_add_exam" class="qpf-control" required>
+                            <option value=""><?php echo get_phrase('select_an_exam'); ?></option>
+                            <?php foreach ($exams as $exam): ?>
+                                <option value="<?php echo (int) $exam['exam_id']; ?>"><?php echo htmlspecialchars($exam['name'], ENT_QUOTES, 'UTF-8'); ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label"><?php echo get_phrase('exam'); ?></label>
-                        <div class="col-sm-6">
-                            <select name="exam_id" class="form-control" required>
-                                <option value=""><?php echo get_phrase('select_an_exam'); ?></option>
-                                <?php 
-                                $exams = $this->db->get('exam')->result_array();
-                                foreach ($exams as $row) { ?>
-                                    <option value="<?php echo $row['exam_id']; ?>">
-                                        <?php echo $row['name'];?>
-                                    </option>
-                                <?php } ?>
-                            </select>
-                        </div>
+                <div class="qpf-field">
+                    <label class="qpf-label" for="qp_add_body"><?php echo get_phrase('question_paper'); ?> <span class="qpf-required">*</span></label>
+                    <div class="qpf-editor-wrap">
+                        <textarea id="qp_add_body" class="form-control wysihtml5" data-stylesheet-url="<?php echo base_url('assets/css/wysihtml5-color.css'); ?>" name="question_paper" required></textarea>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="field-2" class="col-sm-3 control-label"><?php echo get_phrase('question_paper');?></label>
-                        
-                        <div class="col-sm-9">
-                            <textarea class="form-control wysihtml5" data-stylesheet-url="assets/css/wysihtml5-color.css" name="question_paper" required></textarea>
-                        </div> 
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="col-sm-offset-3 col-sm-5">
-                            <button type="submit" id = "submit" class="btn btn-info"><?php echo get_phrase('submit');?></button>
-                        </div>
-                    </div>
-
-                <?php echo form_close();?>
-
+                    <small class="qpf-help">Use the rich-text editor for headings, instructions, numbered questions and emphasis. Existing formatting is stored with the paper.</small>
+                </div>
             </div>
         </div>
-    </div>
+
+        <div class="modal-footer qpf-footer">
+            <button type="button" class="btn qpf-btn qpf-cancel" data-dismiss="modal"><i class="entypo-cancel"></i> <?php echo get_phrase('cancel'); ?></button>
+            <button type="submit" class="btn qpf-btn qpf-save" <?php echo empty($eligible_classes) ? 'disabled' : ''; ?>><i class="entypo-check"></i> <?php echo get_phrase('submit'); ?></button>
+        </div>
+    <?php echo form_close(); ?>
 </div>
-<script type = 'text/javascript'>
-                var class_id = '';
-                jQuery(document).ready(function($) {
-                    $("#submit").attr('disabled', 'disabled');
-                });
 
-                function check_validation(){
-                    if(class_id !== ''){
-                        $('#submit').removeAttr('disabled');
-                    }
-                    else{
-                        $("#submit").attr('disabled', 'disabled');
-                    }
-                }
-                $('#class_id').change(function(){
-                    class_id = $('#class_id').val();
-                    check_validation();
-                });
-            </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<script type="text/javascript">
+(function($) {
+    setTimeout(function() { $('#qp_add_title').focus(); }, 150);
+})(jQuery);
+</script>
