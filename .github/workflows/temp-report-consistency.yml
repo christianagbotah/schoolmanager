@@ -1,0 +1,90 @@
+name: Temporary Report Consistency Bridge
+
+on:
+  push:
+    branches:
+      - report-consistency-baseline-20261005
+
+permissions:
+  contents: write
+
+jobs:
+  apply-report-consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify expected base
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "74ef196a7b0950d478d8bac7821079060a60da31"
+
+      - name: Download checksum-verified patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location --retry 3 \
+            "https://schoolmanager.lightworldtech.com/bridge-report-consistency-542d052bee50.patch" \
+            --output /tmp/report-consistency.patch
+          echo "5bddce8966fd2a5ddd00da1856735cf6210c35524a5b626fce2065a5247c6730  /tmp/report-consistency.patch" | sha256sum --check --strict
+
+      - name: Apply exact five-file patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git apply --check /tmp/report-consistency.patch
+          git apply /tmp/report-consistency.patch
+          mapfile -t changed < <(git diff --name-only | sort)
+          expected=(
+            "application/views/backend/admin/exam_reports.php"
+            "application/views/backend/admin/marks_manage.php"
+            "application/views/backend/admin/student_marksheet_list.php"
+            "application/views/backend/admin/tabulation_sheet.php"
+            "application/views/backend/admin/transport_attendance.php"
+          )
+          mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
+          test "${#changed[@]}" -eq "${#expected_sorted[@]}"
+          diff -u <(printf '%s\n' "${expected_sorted[@]}") <(printf '%s\n' "${changed[@]}")
+          git -c core.whitespace=cr-at-eol diff --check
+
+      - name: Validate page consistency
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            application/views/backend/admin/exam_reports.php
+            application/views/backend/admin/marks_manage.php
+            application/views/backend/admin/student_marksheet_list.php
+            application/views/backend/admin/tabulation_sheet.php
+            application/views/backend/admin/transport_attendance.php
+          )
+          for file in "${files[@]}"; do php -l "$file"; done
+          grep -q "margin-top: 0" application/views/backend/admin/student_marksheet_list.php
+          grep -q "margin-top: 0" application/views/backend/admin/exam_reports.php
+          grep -q -- "--sm-ui-control-height" application/views/backend/admin/marks_manage.php
+          grep -q "tabulation-filter-grid" application/views/backend/admin/tabulation_sheet.php
+          grep -q -- "--sm-ui-control-height" application/views/backend/admin/transport_attendance.php
+          if grep -q "min-height: 50px\|height: 60px" application/views/backend/admin/marks_manage.php; then
+            echo 'Oversized marks selector control remains'
+            exit 1
+          fi
+          if grep -q "margin-top: 25px" application/views/backend/admin/student_marksheet_list.php application/views/backend/admin/exam_reports.php; then
+            echo 'Legacy page-start gap remains'
+            exit 1
+          fi
+          echo 'Report/result consistency validation passed'
+
+      - name: Commit to applied branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add application/views/backend/admin/exam_reports.php application/views/backend/admin/marks_manage.php application/views/backend/admin/student_marksheet_list.php application/views/backend/admin/tabulation_sheet.php application/views/backend/admin/transport_attendance.php
+          git commit -m "fix(ui): normalize report and assessment page controls"
+          git push origin HEAD:refs/heads/report-consistency-applied-20261005
