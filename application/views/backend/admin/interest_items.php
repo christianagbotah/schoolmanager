@@ -1,497 +1,324 @@
-<!-- Interest Items Management - Modern UI -->
-<div class="row">
-    <div class="col-md-12">
-        
-        <!-- Page Header -->
-        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:32px;border-radius:16px;margin-bottom:24px;box-shadow:0 10px 40px rgba(102,126,234,0.3);">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+<?php
+$total_interest_items = is_array($interest_items) || $interest_items instanceof Countable ? count($interest_items) : 0;
+$active_interest_items = 0;
+if (!empty($interest_items)) {
+    foreach ($interest_items as $interest_item_count) {
+        if (!empty($interest_item_count->is_active)) {
+            $active_interest_items++;
+        }
+    }
+}
+$inactive_interest_items = $total_interest_items - $active_interest_items;
+?>
+
+<style>
+.interest-page { --ip-border:#e5e7eb; --ip-text:#172033; --ip-muted:#667085; }
+.interest-page .ip-hero,
+.interest-page .ip-stat,
+.interest-page .ip-info,
+.interest-page .ip-card {
+    background:#fff;
+    border:1px solid var(--ip-border);
+    border-radius:16px;
+    box-shadow:0 1px 2px rgba(16,24,40,.05);
+}
+.interest-page .ip-hero { padding:24px; margin-bottom:16px; }
+.interest-page .ip-hero-row { display:flex; align-items:center; justify-content:space-between; gap:18px; }
+.interest-page .ip-title-wrap { display:flex; align-items:center; gap:14px; min-width:0; }
+.interest-page .ip-icon {
+    width:52px; height:52px; flex:0 0 52px; display:flex; align-items:center; justify-content:center;
+    border-radius:14px; background:#fff7ed; border:1px solid #fed7aa; color:#c2410c; font-size:22px;
+}
+.interest-page .ip-title { margin:0; color:var(--ip-text); font-size:26px; line-height:1.2; font-weight:700; }
+.interest-page .ip-subtitle { margin:6px 0 0; color:var(--ip-muted); font-size:15px; line-height:1.5; }
+.interest-page .ip-add {
+    min-height:42px; padding:9px 15px; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    border:1px solid #2563eb; border-radius:10px; background:#2563eb; color:#fff; font-size:14px; font-weight:700;
+}
+.interest-page .ip-add:hover, .interest-page .ip-add:focus { background:#1d4ed8; border-color:#1d4ed8; color:#fff; }
+.interest-page .ip-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+.interest-page .ip-stat { padding:15px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.interest-page .ip-stat span { color:var(--ip-muted); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.02em; }
+.interest-page .ip-stat strong { color:var(--ip-text); font-size:24px; line-height:1; }
+.interest-page .ip-info { padding:16px 18px; margin-bottom:16px; display:flex; align-items:flex-start; gap:12px; }
+.interest-page .ip-info-icon {
+    width:36px; height:36px; flex:0 0 36px; display:flex; align-items:center; justify-content:center;
+    border-radius:10px; background:#fff7ed; border:1px solid #fed7aa; color:#c2410c;
+}
+.interest-page .ip-info h4 { margin:0 0 5px; color:var(--ip-text); font-size:15px; font-weight:700; }
+.interest-page .ip-info p { margin:0; color:var(--ip-muted); font-size:14px; line-height:1.55; }
+.interest-page .ip-card { overflow:hidden; }
+.interest-page .ip-card-head { padding:16px 18px; border-bottom:1px solid var(--ip-border); display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.interest-page .ip-card-head h3 { margin:0; color:var(--ip-text); font-size:17px; font-weight:700; }
+.interest-page .ip-card-head span { color:var(--ip-muted); font-size:13px; }
+.interest-page .ip-table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.interest-page #interest-items-table { width:100%; min-width:820px; margin:0; }
+.interest-page #interest-items-table thead th {
+    background:#f8fafc; border-color:var(--ip-border); color:#475467; padding:12px 10px; font-size:13px; font-weight:700; vertical-align:middle;
+}
+.interest-page #interest-items-table tbody td { border-color:var(--ip-border); color:#344054; padding:12px 10px; font-size:14px; vertical-align:middle; }
+.interest-page #interest-items-table tbody tr[data-id]:hover { background:#f9fbfd; }
+.interest-page .ip-drag { width:42px; text-align:center; cursor:grab; color:#98a2b3; }
+.interest-page .ip-drag:active { cursor:grabbing; }
+.interest-page .ip-order {
+    display:inline-flex; align-items:center; justify-content:center; min-width:48px; min-height:32px; padding:5px 10px;
+    border-radius:999px; background:#eef4ff; border:1px solid #d7e5ff; color:#1d4ed8; font-size:13px; font-weight:700;
+}
+.interest-page .ip-name { color:var(--ip-text); font-size:14px; font-weight:700; }
+.interest-page .ip-status {
+    display:inline-flex; align-items:center; gap:6px; min-height:32px; padding:6px 10px; border-radius:999px;
+    font-size:12px; font-weight:700; white-space:nowrap;
+}
+.interest-page .ip-status.is-active { background:#ecfdf3; border:1px solid #abefc6; color:#067647; }
+.interest-page .ip-status.is-inactive { background:#f8fafc; border:1px solid #d0d5dd; color:#667085; }
+.interest-page .ip-actions { display:flex; align-items:center; justify-content:center; gap:7px; }
+.interest-page .ip-action {
+    width:38px; height:38px; padding:0; display:inline-flex; align-items:center; justify-content:center;
+    border-radius:9px; background:#fff; border:1px solid #d0d5dd; color:#475467; cursor:pointer;
+}
+.interest-page .ip-action:hover, .interest-page .ip-action:focus { background:#f8fafc; color:#172033; border-color:#98a2b3; }
+.interest-page .ip-action.is-edit { color:#1d4ed8; border-color:#bfdbfe; background:#eff6ff; }
+.interest-page .ip-action.is-delete { color:#b42318; border-color:#fecaca; background:#fef2f2; }
+.interest-page .ip-empty { padding:44px 20px !important; text-align:center; color:var(--ip-muted) !important; }
+.interest-page .ip-empty i { display:block; font-size:38px; color:#cbd5e1; margin-bottom:10px; }
+.interest-page .ui-sortable-helper { background:#fff !important; box-shadow:0 12px 24px rgba(16,24,40,.14) !important; }
+.interest-page .ui-state-highlight { height:58px; background:#eff6ff !important; border:1px dashed #60a5fa !important; }
+@media (max-width:767px) {
+    .interest-page .ip-hero { padding:18px; }
+    .interest-page .ip-hero-row { flex-direction:column; align-items:flex-start; }
+    .interest-page .ip-add { width:100%; }
+    .interest-page .ip-title { font-size:22px; }
+    .interest-page .ip-stats { grid-template-columns:1fr; }
+    .interest-page .ip-info { padding:14px; }
+}
+</style>
+
+<div class="interest-page">
+    <section class="ip-hero" aria-labelledby="interestPageTitle">
+        <div class="ip-hero-row">
+            <div class="ip-title-wrap">
+                <div class="ip-icon" aria-hidden="true"><i class="entypo-star"></i></div>
                 <div>
-                    <h2 style="color:#fff;margin:0;font-size:28px;font-weight:700;display:flex;align-items:center;gap:12px;">
-                        <i class="entypo-star"></i>
-                        <?php echo get_phrase('manage_interest_items'); ?>
-                    </h2>
-                    <p style="color:rgba(255,255,255,0.9);margin:8px 0 0 0;font-size:15px;">
-                        <?php echo get_phrase('configure_interest_items_for_report_cards'); ?>
-                    </p>
-                </div>
-                <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                    <button class="modern-btn modern-btn-light" id="add-interest-item" style="background:#fff;color:#667eea;">
-                        <i class="entypo-plus"></i> <?php echo get_phrase('add_new_interest_item'); ?>
-                    </button>
+                    <h2 class="ip-title" id="interestPageTitle"><?php echo get_phrase('manage_interest_items'); ?></h2>
+                    <p class="ip-subtitle"><?php echo get_phrase('configure_interest_items_for_report_cards'); ?></p>
                 </div>
             </div>
+            <button type="button" class="ip-add" id="add-interest-item"><i class="entypo-plus"></i><?php echo get_phrase('add_new_interest_item'); ?></button>
         </div>
+    </section>
 
-        <!-- Instructions Card -->
-        <div style="background:#fff;padding:24px;border-radius:12px;margin-bottom:24px;border:2px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
-            <div style="display:flex;align-items:start;gap:16px;">
-                <div style="width:48px;height:48px;background:#dbeafe;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i class="entypo-info" style="font-size:24px;color:#3b82f6;"></i>
-                </div>
-                <div style="flex:1;">
-                    <h4 style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#1f2937;">
-                        <?php echo get_phrase('instructions'); ?>
-                    </h4>
-                    <ul style="margin:0;padding-left:20px;color:#6b7280;font-size:14px;line-height:1.8;">
-                        <li><strong><?php echo get_phrase('drag_to_reorder'); ?>:</strong> Click and drag the <i class="entypo-menu"></i> icon to reorder items</li>
-                        <li><strong><?php echo get_phrase('toggle_status'); ?>:</strong> Click the eye icon to activate/deactivate items</li>
-                        <li><strong><?php echo get_phrase('visibility'); ?>:</strong> Inactive items are hidden from teachers but retained in database</li>
-                        <li><strong><?php echo get_phrase('edit_delete'); ?>:</strong> Use pencil icon to edit, trash icon to delete</li>
-                        <li><strong><?php echo get_phrase('max_interests'); ?>:</strong> Maximum 5 interests can be selected per student</li>
-                    </ul>
-                </div>
-            </div>
+    <div class="ip-stats" id="interestStats">
+        <div class="ip-stat"><span><?php echo get_phrase('total_items'); ?></span><strong id="interestTotal"><?php echo (int) $total_interest_items; ?></strong></div>
+        <div class="ip-stat"><span><?php echo get_phrase('active'); ?></span><strong id="interestActive"><?php echo (int) $active_interest_items; ?></strong></div>
+        <div class="ip-stat"><span><?php echo get_phrase('inactive'); ?></span><strong id="interestInactive"><?php echo (int) $inactive_interest_items; ?></strong></div>
+    </div>
+
+    <div class="ip-info">
+        <div class="ip-info-icon"><i class="entypo-info"></i></div>
+        <div>
+            <h4><?php echo get_phrase('how_this_list_works'); ?></h4>
+            <p>Drag a row by its handle to reorder it. Active interests are available to teachers when completing report cards; inactive items remain stored but hidden. A student can have a maximum of five interests selected.</p>
         </div>
+    </div>
 
-        <!-- Items Table Card -->
-        <div style="background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);overflow:hidden;">
-            <div style="padding:24px;border-bottom:2px solid #f3f4f6;">
-                <h4 style="margin:0;font-size:18px;font-weight:600;color:#1f2937;">
-                    <i class="entypo-star"></i> <?php echo get_phrase('interest_items'); ?>
-                </h4>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="table table-hover" id="interest-items-table" style="margin:0;">
-                    <thead style="background:#f9fafb;">
-                        <tr>
-                            <th width="50" style="padding:16px;"><i class="entypo-menu"></i></th>
-                            <th width="100" style="padding:16px;font-weight:600;color:#374151;font-size:14px;"><?php echo get_phrase('order'); ?></th>
-                            <th style="padding:16px;font-weight:600;color:#374151;font-size:14px;"><?php echo get_phrase('interest_item_name'); ?></th>
-                            <th width="120" style="padding:16px;font-weight:600;color:#374151;font-size:14px;"><?php echo get_phrase('status'); ?></th>
-                            <th width="140" class="text-center" style="padding:16px;font-weight:600;color:#374151;font-size:14px;"><?php echo get_phrase('created_at'); ?></th>
-                            <th width="160" class="text-center" style="padding:16px;font-weight:600;color:#374151;font-size:14px;"><?php echo get_phrase('actions'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody id="sortable-interest-items">
-                        <?php if (!empty($interest_items)): ?>
-                            <?php foreach ($interest_items as $item): ?>
-                                <tr data-id="<?php echo $item->id; ?>" data-order="<?php echo $item->display_order; ?>" style="transition:background 0.2s;">
-                                    <td class="drag-handle" style="cursor:move;padding:16px;vertical-align:middle;">
-                                        <i class="entypo-menu" style="font-size:18px;color:#9ca3af;"></i>
-                                    </td>
-                                    <td style="padding:16px;vertical-align:middle;">
-                                        <div style="display:flex;align-items:center;gap:12px;">
-                                            <span class="order-badge" style="display:inline-block;background:#dbeafe;color:#1e40af;padding:6px 14px;border-radius:20px;font-weight:700;font-size:15px;min-width:50px;text-align:center;">
-                                                #<?php echo $item->display_order; ?>
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td style="padding:16px;vertical-align:middle;">
-                                        <span style="font-size:15px;font-weight:500;color:#1f2937;line-height:1.5;">
-                                            <?php echo htmlspecialchars($item->name); ?>
-                                        </span>
-                                    </td>
-                                    <td class="status-cell" style="padding:16px;vertical-align:middle;">
-                                        <?php if ($item->is_active): ?>
-                                            <span class="status-badge status-active" style="display:inline-flex;align-items:center;gap:6px;background:#d1fae5;color:#065f46;padding:8px 16px;border-radius:20px;font-weight:600;font-size:13px;white-space:nowrap;">
-                                                <i class="entypo-check"></i> <?php echo get_phrase('active'); ?>
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="status-badge status-inactive" style="display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;color:#6b7280;padding:8px 16px;border-radius:20px;font-weight:600;font-size:13px;white-space:nowrap;">
-                                                <i class="entypo-cancel"></i> <?php echo get_phrase('inactive'); ?>
-                                            </span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="text-center" style="padding:16px;vertical-align:middle;">
-                                        <small style="color:#6b7280;font-size:13px;white-space:nowrap;">
-                                            <?php echo date('d M Y', strtotime($item->created_at)); ?>
-                                        </small>
-                                    </td>
-                                    <td class="text-center" style="padding:16px;vertical-align:middle;">
-                                        <div class="btn-group" style="display:flex;gap:8px;justify-content:center;">
-                                            <button class="action-btn toggle-interest-status" 
-                                                    data-id="<?php echo $item->id; ?>"
-                                                    data-status="<?php echo $item->is_active; ?>"
-                                                    data-name="<?php echo htmlspecialchars($item->name); ?>"
-                                                    title="<?php echo $item->is_active ? get_phrase('deactivate') : get_phrase('activate'); ?>"
-                                                    style="padding:10px 14px;border:none;border-radius:8px;background:#f3f4f6;color:#6b7280;cursor:pointer;transition:all 0.2s;font-size:15px;">
-                                                <i class="entypo-<?php echo $item->is_active ? 'cancel' : 'eye'; ?>"></i>
-                                            </button>
-                                            <button class="action-btn edit-interest-item" 
-                                                    data-id="<?php echo $item->id; ?>"
-                                                    title="<?php echo get_phrase('edit'); ?>"
-                                                    style="padding:10px 14px;border:none;border-radius:8px;background:#dbeafe;color:#1e40af;cursor:pointer;transition:all 0.2s;font-size:15px;">
-                                                <i class="entypo-pencil"></i>
-                                            </button>
-                                            <button class="action-btn delete-interest-item" 
-                                                    data-id="<?php echo $item->id; ?>"
-                                                    data-name="<?php echo htmlspecialchars($item->name); ?>"
-                                                    title="<?php echo get_phrase('delete'); ?>"
-                                                    style="padding:10px 14px;border:none;border-radius:8px;background:#fee2e2;color:#991b1b;cursor:pointer;transition:all 0.2s;font-size:15px;">
-                                                <i class="entypo-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="6" class="text-center" style="padding:48px;">
-                                    <div style="color:#9ca3af;">
-                                        <i class="entypo-info" style="font-size:48px;display:block;margin-bottom:16px;"></i>
-                                        <p style="font-size:16px;margin:0;font-weight:500;"><?php echo get_phrase('no_interest_items_found'); ?></p>
-                                        <p style="font-size:14px;margin:8px 0 0 0;"><?php echo get_phrase('click_add_to_create_first_item'); ?></p>
+    <section class="ip-card" aria-label="Interest items list">
+        <div class="ip-card-head">
+            <h3><?php echo get_phrase('interest_items'); ?></h3>
+            <span><?php echo get_phrase('drag_to_reorder'); ?></span>
+        </div>
+        <div class="ip-table-wrap">
+            <table class="table table-bordered" id="interest-items-table">
+                <thead>
+                    <tr>
+                        <th style="width:52px;"></th>
+                        <th style="width:90px;"><?php echo get_phrase('order'); ?></th>
+                        <th><?php echo get_phrase('interest_item_name'); ?></th>
+                        <th style="width:120px;"><?php echo get_phrase('status'); ?></th>
+                        <th style="width:130px;" class="text-center"><?php echo get_phrase('created_at'); ?></th>
+                        <th style="width:150px;" class="text-center"><?php echo get_phrase('actions'); ?></th>
+                    </tr>
+                </thead>
+                <tbody id="sortable-interest-items">
+                    <?php if (!empty($interest_items)): ?>
+                        <?php foreach ($interest_items as $item): ?>
+                            <tr data-id="<?php echo (int) $item->id; ?>" data-active="<?php echo (int) $item->is_active; ?>">
+                                <td class="ip-drag drag-handle" title="<?php echo get_phrase('drag_to_reorder'); ?>"><i class="entypo-menu"></i></td>
+                                <td><span class="ip-order order-badge">#<?php echo (int) $item->display_order; ?></span></td>
+                                <td><span class="ip-name"><?php echo htmlspecialchars($item->name, ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                <td class="status-cell">
+                                    <?php if ($item->is_active): ?>
+                                        <span class="ip-status is-active"><i class="entypo-check"></i><?php echo get_phrase('active'); ?></span>
+                                    <?php else: ?>
+                                        <span class="ip-status is-inactive"><i class="entypo-cancel"></i><?php echo get_phrase('inactive'); ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-center"><?php echo htmlspecialchars(date('d M Y', strtotime($item->created_at)), ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td>
+                                    <div class="ip-actions">
+                                        <button type="button" class="ip-action toggle-interest-status" data-id="<?php echo (int) $item->id; ?>" data-status="<?php echo (int) $item->is_active; ?>" data-name="<?php echo htmlspecialchars($item->name, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo $item->is_active ? get_phrase('deactivate') : get_phrase('activate'); ?>"><i class="entypo-<?php echo $item->is_active ? 'eye-off' : 'eye'; ?>"></i></button>
+                                        <button type="button" class="ip-action is-edit edit-interest-item" data-id="<?php echo (int) $item->id; ?>" title="<?php echo get_phrase('edit'); ?>"><i class="entypo-pencil"></i></button>
+                                        <button type="button" class="ip-action is-delete delete-interest-item" data-id="<?php echo (int) $item->id; ?>" data-name="<?php echo htmlspecialchars($item->name, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo get_phrase('delete'); ?>"><i class="entypo-trash"></i></button>
                                     </div>
                                 </td>
                             </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr class="empty-row"><td colspan="6" class="ip-empty"><i class="entypo-info"></i><strong><?php echo get_phrase('no_interest_items_found'); ?></strong><div><?php echo get_phrase('click_add_to_create_first_item'); ?></div></td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
-
-    </div>
+    </section>
 </div>
 
-<!-- Load jQuery UI for Sortable (since it's disabled globally) -->
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
-
-<!-- JavaScript for Interest Items Management -->
+<script src="<?php echo base_url('assets/js/jquery-ui/js/jquery-ui-1.10.3.custom.min.js'); ?>"></script>
 <script type="text/javascript">
-jQuery(document).ready(function($) {
-    
-    // Helper function to ensure modal backdrop is removed
+(function($) {
     function cleanupModalBackdrop() {
-        // Remove any lingering backdrops
         $('.modal-backdrop').remove();
-        // Remove modal-open class from body
-        $('body').removeClass('modal-open');
-        // Reset body padding
-        $('body').css('padding-right', '');
+        $('body').removeClass('modal-open').css('padding-right', '');
     }
-    
-    // Initialize jQuery UI Sortable for drag-and-drop reordering
-    $("#sortable-interest-items").sortable({
-        handle: ".drag-handle",
-        axis: "y",
-        placeholder: "ui-state-highlight",
-        helper: function(e, tr) {
-            var $originals = tr.children();
-            var $helper = tr.clone();
-            $helper.children().each(function(index) {
-                $(this).width($originals.eq(index).width());
-            });
-            return $helper;
-        },
-        start: function(e, ui) {
-            ui.placeholder.height(ui.item.height());
-            ui.item.css('opacity', '0.6');
-        },
-        stop: function(e, ui) {
-            ui.item.css('opacity', '1');
-        },
-        update: function(event, ui) {
-            var orderMap = {};
-            var newOrder = 1;
-            
-            // Build order map
-            $("#sortable-interest-items tr").each(function() {
-                if ($(this).data('id')) {
-                    var itemId = $(this).data('id');
-                    orderMap[itemId] = newOrder;
-                    // Update order badge
-                    $(this).find('.order-badge').text('#' + newOrder);
-                    newOrder++;
-                }
-            });
-            
-            // Send AJAX request to save new order
-            $.ajax({
-                url: '<?php echo site_url('admin/interest_items/reorder'); ?>',
-                type: 'POST',
-                data: { order_map: orderMap },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.status === 'success') {
-                        toastr.success(response.message || '<?php echo get_phrase('order_updated_successfully'); ?>');
-                    } else {
-                        toastr.error(response.message || '<?php echo get_phrase('error_updating_order'); ?>');
-                        // Don't reload - just show error, order remains as dragged
-                    }
-                },
-                error: function(xhr, status, error) {
-                    toastr.error('<?php echo get_phrase('error_updating_order'); ?>');
-                    // Don't reload - just show error, order remains as dragged
-                }
-            });
+
+    function renderInterestEmptyState() {
+        if ($('#sortable-interest-items tr[data-id]').length === 0) {
+            $('#sortable-interest-items').html('<tr class="empty-row"><td colspan="6" class="ip-empty"><i class="entypo-info"></i><strong><?php echo get_phrase('no_interest_items_found'); ?></strong><div><?php echo get_phrase('click_add_to_create_first_item'); ?></div></td></tr>');
         }
-    });
-    
-    // Add new interest item
-    $("#add-interest-item").click(function() {
-        $('#modal_ajax .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
+    }
+
+    window.refreshInterestStatsFromRows = function() {
+        var total = $('#sortable-interest-items tr[data-id]').length;
+        var active = $('#sortable-interest-items tr[data-id][data-active="1"]').length;
+        $('#interestTotal').text(total);
+        $('#interestActive').text(active);
+        $('#interestInactive').text(total - active);
+    };
+
+    window.initInterestSortable = function() {
+        var $body = $('#sortable-interest-items');
+        if (!$body.length || !$.fn.sortable) return;
+        if ($body.hasClass('ui-sortable')) {
+            try { $body.sortable('destroy'); } catch (e) {}
+        }
+        $body.sortable({
+            items: 'tr[data-id]',
+            handle: '.drag-handle',
+            axis: 'y',
+            placeholder: 'ui-state-highlight',
+            helper: function(e, tr) {
+                var $originals = tr.children();
+                var $helper = tr.clone();
+                $helper.children().each(function(index) { $(this).width($originals.eq(index).width()); });
+                return $helper;
+            },
+            update: function() {
+                var orderMap = {};
+                $body.find('tr[data-id]').each(function(index) {
+                    orderMap[$(this).data('id')] = index + 1;
+                    $(this).find('.order-badge').text('#' + (index + 1));
+                });
+                $.ajax({
+                    url: '<?php echo site_url('admin/interest_items/reorder'); ?>',
+                    type: 'POST',
+                    data: { order_map: orderMap },
+                    dataType: 'json'
+                }).done(function(response) {
+                    if (response.status === 'success') toastr.success(response.message || '<?php echo get_phrase('order_updated_successfully'); ?>');
+                    else toastr.error(response.message || '<?php echo get_phrase('error_updating_order'); ?>');
+                }).fail(function() {
+                    toastr.error('<?php echo get_phrase('error_updating_order'); ?>');
+                });
+            }
+        });
+    };
+
+    function loadInterestForm(itemId) {
+        $('#modal_ajax .modal-body').html('<div style="padding:36px;text-align:center;color:#667085;"><i class="fa fa-spinner fa-spin"></i> <?php echo get_phrase('loading'); ?>...</div>');
         $('#modal_ajax').modal('show', {backdrop: 'static'});
-        
         $.ajax({
             url: '<?php echo site_url('admin/interest_items/get_form'); ?>',
             type: 'POST',
-            success: function(response) {
-                $('#modal_ajax .modal-body').html(response);
-            },
-            error: function() {
-                $('#modal_ajax .modal-body').html('<div style="text-align:center;padding:40px;color:#e74c3c;"><h4>Error Loading Form</h4><p>Unable to load the form.</p></div>');
-            }
+            data: itemId ? { id: itemId } : {}
+        }).done(function(response) {
+            $('#modal_ajax .modal-body').html(response);
+        }).fail(function() {
+            $('#modal_ajax .modal-body').html('<div class="alert alert-danger" style="margin:20px;">Unable to load the form. Please try again.</div>');
         });
-    });
-    
-    // Edit interest item
-    $(document).on('click', '.edit-interest-item', function() {
-        var itemId = $(this).data('id');
-        
-        $('#modal_ajax .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
-        $('#modal_ajax').modal('show', {backdrop: 'static'});
-        
-        $.ajax({
-            url: '<?php echo site_url('admin/interest_items/get_form'); ?>',
-            type: 'POST',
-            data: { id: itemId },
-            success: function(response) {
-                $('#modal_ajax .modal-body').html(response);
-            },
-            error: function() {
-                $('#modal_ajax .modal-body').html('<div style="text-align:center;padding:40px;color:#e74c3c;"><h4>Error Loading Form</h4><p>Unable to load the form.</p></div>');
-            }
-        });
-    });
-    
-    // Toggle active status
+    }
+
+    $('#add-interest-item').on('click', function() { loadInterestForm(null); });
+    $(document).on('click', '.edit-interest-item', function() { loadInterestForm($(this).data('id')); });
+
     $(document).on('click', '.toggle-interest-status', function() {
-        var itemId = $(this).data('id');
-        var itemName = $(this).data('name');
-        var currentStatus = $(this).data('status');
         var $button = $(this);
-        var $row = $button.closest('tr');
-        var newStatusText = currentStatus == 1 ? '<?php echo get_phrase('deactivate'); ?>' : '<?php echo get_phrase('activate'); ?>';
-        
-        // Use confirm_modal.php's showConfirmModal
-        showConfirmModal(
-            '<?php echo get_phrase('confirm_action'); ?>',
-            '<?php echo get_phrase('are_you_sure_you_want_to'); ?> <strong>' + newStatusText.toLowerCase() + '</strong> "<strong>' + itemName + '</strong>"?',
-            function() {
-                // Show loading modal
-                showAjaxModal_alert('<?php echo get_phrase('processing'); ?>...', 'loading', false, false);
-                
-                // User clicked Confirm - proceed with toggle
-                $.ajax({
-                    url: '<?php echo site_url('admin/interest_items/toggle'); ?>/' + itemId,
-                    type: 'POST',
-                    dataType: 'json',
-                    success: function(response) {
-                        // Hide loading modal and cleanup backdrop
-                        $('#modal_alert').modal('hide');
-                        cleanupModalBackdrop();
-                        
-                        if (response.status === 'success') {
-                            // Update UI - status badge
-                            var $statusCell = $row.find('.status-cell');
-                            if (response.new_status == 1) {
-                                // Item is now active
-                                $statusCell.html('<span class="status-badge status-active" style="display:inline-flex;align-items:center;gap:6px;background:#d1fae5;color:#065f46;padding:8px 16px;border-radius:20px;font-weight:600;font-size:13px;white-space:nowrap;"><i class="entypo-check"></i> <?php echo get_phrase('active'); ?></span>');
-                                $button.find('i').removeClass('entypo-eye').addClass('entypo-cancel');
-                                $button.attr('title', '<?php echo get_phrase('deactivate'); ?>');
-                            } else {
-                                // Item is now inactive
-                                $statusCell.html('<span class="status-badge status-inactive" style="display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;color:#6b7280;padding:8px 16px;border-radius:20px;font-weight:600;font-size:13px;white-space:nowrap;"><i class="entypo-cancel"></i> <?php echo get_phrase('inactive'); ?></span>');
-                                $button.find('i').removeClass('entypo-cancel').addClass('entypo-eye');
-                                $button.attr('title', '<?php echo get_phrase('activate'); ?>');
-                            }
-                            $button.data('status', response.new_status);
-                            
-                            // Show success toastr instead of modal to avoid backdrop
-                            toastr.success(response.message);
-                        } else {
-                            toastr.error(response.message || '<?php echo get_phrase('error_toggling_status'); ?>');
-                        }
-                    },
-                    error: function() {
-                        $('#modal_alert').modal('hide');
-                        cleanupModalBackdrop();
-                        toastr.error('<?php echo get_phrase('error_toggling_status'); ?>');
-                    }
-                });
-            },
-            '<?php echo get_phrase('confirm'); ?>',
-            'warning'
-        );
+        var $row = $button.closest('tr[data-id]');
+        var itemId = $button.data('id');
+        var itemName = $button.data('name');
+        var currentStatus = parseInt($button.data('status'), 10) || 0;
+        var actionText = currentStatus === 1 ? '<?php echo get_phrase('deactivate'); ?>' : '<?php echo get_phrase('activate'); ?>';
+
+        showConfirmModal('<?php echo get_phrase('confirm_action'); ?>', '<?php echo get_phrase('are_you_sure_you_want_to'); ?> <strong>' + actionText.toLowerCase() + '</strong> "<strong>' + itemName + '</strong>"?', function() {
+            showAjaxModal_alert('<?php echo get_phrase('processing'); ?>...', 'loading', false, false);
+            $.ajax({
+                url: '<?php echo site_url('admin/interest_items/toggle'); ?>/' + itemId,
+                type: 'POST',
+                dataType: 'json'
+            }).done(function(response) {
+                $('#modal_alert').modal('hide');
+                cleanupModalBackdrop();
+                if (response.status !== 'success') {
+                    toastr.error(response.message || '<?php echo get_phrase('error_toggling_status'); ?>');
+                    return;
+                }
+                var isActive = parseInt(response.new_status, 10) === 1;
+                $row.attr('data-active', isActive ? '1' : '0');
+                $row.find('.status-cell').html(isActive ? '<span class="ip-status is-active"><i class="entypo-check"></i><?php echo get_phrase('active'); ?></span>' : '<span class="ip-status is-inactive"><i class="entypo-cancel"></i><?php echo get_phrase('inactive'); ?></span>');
+                $button.data('status', isActive ? 1 : 0).attr('title', isActive ? '<?php echo get_phrase('deactivate'); ?>' : '<?php echo get_phrase('activate'); ?>');
+                $button.find('i').attr('class', isActive ? 'entypo-eye-off' : 'entypo-eye');
+                refreshInterestStatsFromRows();
+                toastr.success(response.message || '<?php echo get_phrase('updated_successfully'); ?>');
+            }).fail(function() {
+                $('#modal_alert').modal('hide');
+                cleanupModalBackdrop();
+                toastr.error('<?php echo get_phrase('error_toggling_status'); ?>');
+            });
+        }, '<?php echo get_phrase('confirm'); ?>', 'warning');
     });
-    
-    // Delete interest item
+
     $(document).on('click', '.delete-interest-item', function() {
+        var $row = $(this).closest('tr[data-id]');
         var itemId = $(this).data('id');
         var itemName = $(this).data('name');
-        var $row = $(this).closest('tr');
-        
-        // Use confirm_modal.php's showConfirmModal
-        showConfirmModal(
-            '<?php echo get_phrase('delete_confirmation'); ?>',
-            '<?php echo get_phrase('are_you_sure_you_want_to_delete'); ?> "<strong>' + itemName + '</strong>"?<br><br><span style="color:#e74c3c;"><?php echo get_phrase('this_action_cannot_be_undone'); ?></span>',
-            function() {
-                // Show loading modal
-                showAjaxModal_alert('<?php echo get_phrase('deleting'); ?>...', 'loading', false, false);
-                
-                // User clicked Confirm - proceed with deletion
-                $.ajax({
-                    url: '<?php echo site_url('admin/interest_items/delete'); ?>/' + itemId,
-                    type: 'POST',
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            // Show success modal that stays visible during reload
-                            showAjaxModal_alert(response.message || '<?php echo get_phrase('item_deleted_successfully'); ?>', 'success', false, false);
-                            
-                            // Fade out and remove row
-                            $row.fadeOut(400, function() {
-                                $(this).remove();
-                                // Check if table is empty
-                                if ($('#sortable-interest-items tr[data-id]').length === 0) {
-                                    $('#sortable-interest-items').html('<tr><td colspan="6" class="text-center" style="padding:48px;"><div style="color:#9ca3af;"><i class="entypo-info" style="font-size:48px;display:block;margin-bottom:16px;"></i><p style="font-size:16px;margin:0;font-weight:500;"><?php echo get_phrase('no_interest_items_found'); ?></p><p style="font-size:14px;margin:8px 0 0 0;"><?php echo get_phrase('click_add_to_create_first_item'); ?></p></div></td></tr>');
-                                }
-                                
-                                // Close success modal after row removal
-                                setTimeout(function() {
-                                    $('#modal_alert').modal('hide');
-                                }, 1000);
-                            });
-                        } else {
-                            $('#modal_alert').modal('hide');
-                            showAjaxModal_alert(response.message || '<?php echo get_phrase('error_deleting_item'); ?>', 'error', false, false);
-                        }
-                    },
-                    error: function() {
-                        $('#modal_alert').modal('hide');
-                        showAjaxModal_alert('<?php echo get_phrase('error_deleting_item'); ?>', 'error', false, false);
-                    }
+        showConfirmModal('<?php echo get_phrase('delete_confirmation'); ?>', '<?php echo get_phrase('are_you_sure_you_want_to_delete'); ?> "<strong>' + itemName + '</strong>"?<br><br><span style="color:#b42318;"><?php echo get_phrase('this_action_cannot_be_undone'); ?></span>', function() {
+            showAjaxModal_alert('<?php echo get_phrase('deleting'); ?>...', 'loading', false, false);
+            $.ajax({
+                url: '<?php echo site_url('admin/interest_items/delete'); ?>/' + itemId,
+                type: 'POST',
+                dataType: 'json'
+            }).done(function(response) {
+                $('#modal_alert').modal('hide');
+                cleanupModalBackdrop();
+                if (response.status !== 'success') {
+                    toastr.error(response.message || '<?php echo get_phrase('error_deleting_item'); ?>');
+                    return;
+                }
+                $row.fadeOut(180, function() {
+                    $(this).remove();
+                    renderInterestEmptyState();
+                    refreshInterestStatsFromRows();
+                    initInterestSortable();
                 });
-            },
-            '<?php echo get_phrase('delete'); ?>',
-            'danger'
-        );
+                toastr.success(response.message || '<?php echo get_phrase('item_deleted_successfully'); ?>');
+            }).fail(function() {
+                $('#modal_alert').modal('hide');
+                cleanupModalBackdrop();
+                toastr.error('<?php echo get_phrase('error_deleting_item'); ?>');
+            });
+        }, '<?php echo get_phrase('delete'); ?>', 'danger');
     });
-    
-});
+
+    $(function() {
+        initInterestSortable();
+        refreshInterestStatsFromRows();
+    });
+})(jQuery);
 </script>
-
-<style>
-/* Modern Interest Items Styling */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-.action-btn {
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-}
-
-.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-#sortable-interest-items tr:hover {
-    background: #f9fafb !important;
-}
-
-#sortable-interest-items tr {
-    cursor: default;
-}
-
-#sortable-interest-items .drag-handle {
-    cursor: move !important;
-}
-
-#sortable-interest-items .ui-sortable-helper {
-    background-color: #fff !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important;
-    opacity: 0.9;
-}
-
-#sortable-interest-items .ui-state-highlight {
-    height: 60px;
-    background-color: #dbeafe !important;
-    border: 2px dashed #3b82f6 !important;
-}
-
-.modern-btn-light {
-    padding: 12px 24px;
-    border-radius: 10px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    border: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    font-size: 14px;
-}
-
-.modern-btn-light:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-}
-
-/* Better text rendering */
-#interest-items-table {
-    font-size: 14px;
-}
-
-#interest-items-table thead th {
-    letter-spacing: 0.025em;
-    text-transform: uppercase;
-    font-size: 12px;
-}
-
-#interest-items-table tbody td {
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.order-badge {
-    letter-spacing: 0.05em;
-}
-
-.status-badge {
-    letter-spacing: 0.025em;
-    text-transform: uppercase;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .table-responsive {
-        overflow-x: auto;
-    }
-    
-    #interest-items-table th,
-    #interest-items-table td {
-        padding: 12px 8px !important;
-        font-size: 13px;
-    }
-    
-    .action-btn {
-        padding: 8px 10px !important;
-        font-size: 14px !important;
-    }
-    
-    .order-badge {
-        padding: 4px 10px !important;
-        font-size: 13px !important;
-    }
-    
-    .status-badge {
-        padding: 6px 12px !important;
-        font-size: 10px !important;
-    }
-}
-
-@media (max-width: 480px) {
-    #interest-items-table {
-        font-size: 12px;
-    }
-    
-    #interest-items-table thead th {
-        font-size: 11px;
-    }
-}
-</style>

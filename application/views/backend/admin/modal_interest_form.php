@@ -2,238 +2,170 @@
 $is_edit = isset($interest_item);
 $form_id = 'interest-item-form';
 $submit_url = $is_edit ? site_url('admin/interest_items/edit/' . $interest_item->id) : site_url('admin/interest_items/create');
+$modal_title = $is_edit ? get_phrase('edit_interest_item') : get_phrase('add_interest_item');
 ?>
 
-<div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-radius: 6px 6px 0 0;">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: #fff; opacity: 0.8;">&times;</button>
-    <h4 class="modal-title" style="font-weight: 600;">
-        <i class="entypo-<?php echo $is_edit ? 'pencil' : 'plus'; ?>"></i>
-        <?php echo $is_edit ? get_phrase('edit_interest_item') : get_phrase('add_interest_item'); ?>
-    </h4>
-</div>
+<style>
+#<?php echo $form_id; ?> .catalog-modal-header { padding:20px 24px; border-bottom:1px solid #e5e7eb; background:#fff; }
+#<?php echo $form_id; ?> .catalog-modal-heading { display:flex; align-items:center; gap:12px; padding-right:32px; }
+#<?php echo $form_id; ?> .catalog-modal-icon {
+    width:42px; height:42px; flex:0 0 42px; display:flex; align-items:center; justify-content:center;
+    border-radius:11px; background:#fff7ed; border:1px solid #fed7aa; color:#c2410c; font-size:18px;
+}
+#<?php echo $form_id; ?> .catalog-modal-title { margin:0; color:#172033; font-size:20px; font-weight:700; }
+#<?php echo $form_id; ?> .catalog-modal-subtitle { margin:4px 0 0; color:#667085; font-size:13px; line-height:1.45; }
+#<?php echo $form_id; ?> .catalog-modal-close { position:absolute; top:17px; right:20px; color:#667085; opacity:1; font-size:28px; font-weight:400; }
+#<?php echo $form_id; ?> .catalog-modal-body { padding:22px 24px; background:#f8fafc; }
+#<?php echo $form_id; ?> .catalog-form-card { padding:20px; border:1px solid #e5e7eb; border-radius:14px; background:#fff; }
+#<?php echo $form_id; ?> .catalog-grid { display:grid; grid-template-columns:minmax(0,1.7fr) minmax(150px,.7fr); gap:16px; }
+#<?php echo $form_id; ?> .catalog-field { margin-bottom:18px; }
+#<?php echo $form_id; ?> .catalog-field:last-child { margin-bottom:0; }
+#<?php echo $form_id; ?> .catalog-label { display:block; margin:0 0 7px; color:#344054; font-size:14px; font-weight:700; }
+#<?php echo $form_id; ?> .catalog-required { color:#b42318; }
+#<?php echo $form_id; ?> .catalog-input {
+    width:100%; height:44px; padding:9px 12px; border:1.5px solid #d0d5dd; border-radius:10px;
+    background:#fff; color:#172033; font-size:14px; outline:none;
+}
+#<?php echo $form_id; ?> .catalog-input:focus { border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.14); }
+#<?php echo $form_id; ?> .catalog-help { display:block; margin-top:6px; color:#667085; font-size:12px; line-height:1.45; }
+#<?php echo $form_id; ?> .catalog-toggle {
+    display:flex; align-items:center; gap:12px; padding:13px 14px; border:1px solid #e5e7eb; border-radius:11px; background:#f8fafc; cursor:pointer;
+}
+#<?php echo $form_id; ?> .catalog-toggle input { width:20px; height:20px; margin:0; accent-color:#2563eb; }
+#<?php echo $form_id; ?> .catalog-toggle strong { display:block; color:#344054; font-size:14px; }
+#<?php echo $form_id; ?> .catalog-toggle span { display:block; margin-top:2px; color:#667085; font-size:12px; line-height:1.4; }
+#<?php echo $form_id; ?> .catalog-error { display:none; margin:16px 0 0; padding:12px 14px; border:1px solid #fecaca; border-radius:10px; background:#fef2f2; color:#b42318; font-size:13px; }
+#<?php echo $form_id; ?> .catalog-modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 24px; border-top:1px solid #e5e7eb; background:#fff; }
+#<?php echo $form_id; ?> .catalog-btn { min-height:40px; padding:8px 15px; border-radius:9px; font-size:14px; font-weight:700; }
+#<?php echo $form_id; ?> .catalog-btn-cancel { border:1px solid #d0d5dd; background:#fff; color:#475467; }
+#<?php echo $form_id; ?> .catalog-btn-save { border:1px solid #2563eb; background:#2563eb; color:#fff; }
+#<?php echo $form_id; ?> .catalog-btn-save:hover, #<?php echo $form_id; ?> .catalog-btn-save:focus { background:#1d4ed8; border-color:#1d4ed8; color:#fff; }
+@media (max-width:767px) {
+    #<?php echo $form_id; ?> .catalog-grid { grid-template-columns:1fr; gap:0; }
+    #<?php echo $form_id; ?> .catalog-modal-header, #<?php echo $form_id; ?> .catalog-modal-body, #<?php echo $form_id; ?> .catalog-modal-footer { padding-left:18px; padding-right:18px; }
+    #<?php echo $form_id; ?> .catalog-modal-footer { flex-direction:column-reverse; }
+    #<?php echo $form_id; ?> .catalog-btn { width:100%; }
+}
+</style>
 
 <form id="<?php echo $form_id; ?>" method="post" action="<?php echo $submit_url; ?>">
     <?php if ($this->security->get_csrf_token_name()): ?>
-    <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
+        <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
     <?php endif; ?>
-    
-    <div class="modal-body" style="padding: 24px;">
-        
-        <!-- Name Field -->
-        <div class="form-group">
-            <label for="interest_name" style="font-weight: 600; color: #1f2937; font-size: 14px;">
-                <?php echo get_phrase('interest_item_name'); ?> <span style="color: #e74c3c;">*</span>
-            </label>
-            <input type="text" 
-                   class="form-control" 
-                   id="interest_name" 
-                   name="name" 
-                   placeholder="<?php echo get_phrase('enter_interest_item_name'); ?>"
-                   value="<?php echo $is_edit ? htmlspecialchars($interest_item->name) : ''; ?>"
-                   maxlength="100"
-                   style="font-size: 14px; padding: 10px 12px; border-radius: 6px;"
-                   required>
-            <small class="text-muted" style="font-size: 13px;">
-                <?php echo get_phrase('max_100_characters'); ?>
-            </small>
-        </div>
 
-        <!-- Display Order Field -->
-        <div class="form-group">
-            <label for="interest_display_order" style="font-weight: 600; color: #1f2937; font-size: 14px;">
-                <?php echo get_phrase('display_order'); ?>
-            </label>
-            <input type="number" 
-                   class="form-control" 
-                   id="interest_display_order" 
-                   name="display_order" 
-                   placeholder="<?php echo get_phrase('enter_display_order'); ?>"
-                   value="<?php echo $is_edit ? $interest_item->display_order : ''; ?>"
-                   min="1"
-                   style="font-size: 14px; padding: 10px 12px; border-radius: 6px;">
-            <small class="text-muted" style="font-size: 13px;">
-                <?php echo get_phrase('leave_blank_for_auto_order'); ?>
-            </small>
+    <div class="modal-header catalog-modal-header">
+        <button type="button" class="close catalog-modal-close" data-dismiss="modal" aria-label="Close">&times;</button>
+        <div class="catalog-modal-heading">
+            <div class="catalog-modal-icon"><i class="entypo-<?php echo $is_edit ? 'pencil' : 'plus'; ?>"></i></div>
+            <div>
+                <h4 class="catalog-modal-title"><?php echo $modal_title; ?></h4>
+                <p class="catalog-modal-subtitle"><?php echo $is_edit ? get_phrase('update_interest_item_details') : get_phrase('create_new_interest_item_for_report_cards'); ?></p>
+            </div>
         </div>
+    </div>
 
-        <!-- Active Status Checkbox -->
-        <div class="form-group">
-            <div class="checkbox">
-                <label style="font-size: 14px; font-weight: 500;">
-                    <input type="checkbox" 
-                           id="interest_is_active" 
-                           name="is_active" 
-                           value="1"
-                           <?php echo ($is_edit && $interest_item->is_active) || !$is_edit ? 'checked' : ''; ?>>
-                    <?php echo get_phrase('active'); ?>
-                    <small class="text-muted" style="font-size: 13px;">
-                        (<?php echo get_phrase('inactive_items_hidden_from_teachers'); ?>)
-                    </small>
+    <div class="modal-body catalog-modal-body">
+        <div class="catalog-form-card">
+            <div class="catalog-grid">
+                <div class="catalog-field">
+                    <label class="catalog-label" for="interest_name"><?php echo get_phrase('interest_item_name'); ?> <span class="catalog-required">*</span></label>
+                    <input type="text" class="catalog-input" id="interest_name" name="name" maxlength="100" required
+                           value="<?php echo $is_edit ? htmlspecialchars($interest_item->name, ENT_QUOTES, 'UTF-8') : ''; ?>"
+                           placeholder="<?php echo get_phrase('enter_interest_item_name'); ?>">
+                    <small class="catalog-help"><?php echo get_phrase('max_100_characters'); ?> · <span id="interestNameCount"><?php echo $is_edit ? strlen($interest_item->name) : 0; ?></span>/100</small>
+                </div>
+
+                <div class="catalog-field">
+                    <label class="catalog-label" for="interest_display_order"><?php echo get_phrase('display_order'); ?></label>
+                    <input type="number" class="catalog-input" id="interest_display_order" name="display_order" min="1"
+                           value="<?php echo $is_edit ? (int) $interest_item->display_order : ''; ?>"
+                           placeholder="1">
+                    <small class="catalog-help"><?php echo get_phrase('leave_blank_for_auto_order'); ?></small>
+                </div>
+            </div>
+
+            <div class="catalog-field">
+                <label class="catalog-label"><?php echo get_phrase('visibility_status'); ?></label>
+                <label class="catalog-toggle" for="interest_is_active">
+                    <input type="checkbox" id="interest_is_active" name="is_active" value="1" <?php echo ($is_edit && $interest_item->is_active) || !$is_edit ? 'checked' : ''; ?>>
+                    <div>
+                        <strong><?php echo get_phrase('active_item'); ?></strong>
+                        <span><?php echo get_phrase('inactive_items_hidden_from_teachers'); ?></span>
+                    </div>
                 </label>
             </div>
         </div>
 
-        <!-- Validation Errors Display -->
-        <div id="interest-form-errors" class="alert alert-danger" style="display: none; font-size: 14px; border-radius: 6px;"></div>
-
+        <div id="interest-form-errors" class="catalog-error" role="alert"></div>
     </div>
 
-    <div class="modal-footer" style="background: #f9fafb; border-top: 1px solid #e5e7eb; padding: 16px 24px;">
-        <button type="button" class="btn btn-default" data-dismiss="modal" style="font-size: 14px; padding: 8px 16px;">
-            <i class="entypo-cancel"></i> <?php echo get_phrase('cancel'); ?>
-        </button>
-        <button type="submit" class="btn btn-primary" id="interest-submit-btn" style="font-size: 14px; padding: 8px 20px; background: #667eea; border: none;">
-            <i class="entypo-check"></i> 
-            <?php echo $is_edit ? get_phrase('update') : get_phrase('save'); ?>
-        </button>
+    <div class="modal-footer catalog-modal-footer">
+        <button type="button" class="btn catalog-btn catalog-btn-cancel" data-dismiss="modal"><i class="entypo-cancel"></i> <?php echo get_phrase('cancel'); ?></button>
+        <button type="submit" class="btn catalog-btn catalog-btn-save" id="interest-submit-btn"><i class="entypo-<?php echo $is_edit ? 'check' : 'plus'; ?>"></i> <?php echo $is_edit ? get_phrase('update') : get_phrase('save'); ?></button>
     </div>
 </form>
 
 <script type="text/javascript">
-jQuery(document).ready(function($) {
-    
-    // Handle form submission via AJAX
-    $('#<?php echo $form_id; ?>').submit(function(e) {
+(function($) {
+    var $form = $('#<?php echo $form_id; ?>');
+    var $submit = $('#interest-submit-btn');
+    var $errors = $('#interest-form-errors');
+    var defaultSubmitHtml = $submit.html();
+
+    function restoreSubmit() {
+        $submit.prop('disabled', false).html(defaultSubmitHtml);
+    }
+
+    function refreshInterestList() {
+        return $.ajax({ url: '<?php echo site_url('admin/interest_items'); ?>', type: 'GET' }).done(function(html) {
+            var $html = $('<div>').append($.parseHTML(html, document, true));
+            var $newBody = $html.find('#sortable-interest-items');
+            if ($newBody.length) $('#sortable-interest-items').html($newBody.html());
+            ['interestTotal','interestActive','interestInactive'].forEach(function(id) {
+                var value = $html.find('#' + id).text();
+                if (value !== '') $('#' + id).text(value);
+            });
+            if (window.initInterestSortable) window.initInterestSortable();
+            if (window.refreshInterestStatsFromRows) window.refreshInterestStatsFromRows();
+        });
+    }
+
+    $('#interest_name').on('input', function() {
+        $('#interestNameCount').text($(this).val().length);
+    });
+
+    $form.on('submit', function(e) {
         e.preventDefault();
-        
-        var $form = $(this);
-        var $submitBtn = $('#interest-submit-btn');
-        var $errorDiv = $('#interest-form-errors');
-        
-        // Disable submit button
-        $submitBtn.prop('disabled', true).html('<i class="entypo-hourglass"></i> <?php echo get_phrase('saving'); ?>...');
-        $errorDiv.hide();
-        
-        // Show loading modal
-        showAjaxModal_alert('<?php echo get_phrase('saving_changes'); ?>...', 'loading', false, false);
-        
+        $errors.hide().empty();
+        $submit.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> <?php echo get_phrase('saving'); ?>...');
+
         $.ajax({
             url: $form.attr('action'),
             type: 'POST',
             data: $form.serialize(),
-            dataType: 'json',
-            success: function(response) {
-                if (response.status === 'success') {
-                    // Close form modal first
-                    $('#modal_ajax').modal('hide');
-                    
-                    // Show success message WITHOUT reload
-                    showAjaxModal_alert(response.message, 'success', false, false);
-                    
-                    // Reload just the table content via AJAX
-                    setTimeout(function() {
-                        $.ajax({
-                            url: '<?php echo site_url('admin/interest_items'); ?>',
-                            type: 'GET',
-                            success: function(html) {
-                                // Extract and update just the table body
-                                var newTable = $(html).find('#interest-items-table tbody');
-                                if (newTable.length) {
-                                    $('#interest-items-table tbody').html(newTable.html());
-                                    
-                                    // Re-initialize sortable after content update
-                                    $("#interest-items-table tbody").sortable('destroy');
-                                    $("#interest-items-table tbody").sortable({
-                                        items: 'tr',
-                                        cursor: 'move',
-                                        opacity: 0.6,
-                                        helper: function(e, tr) {
-                                            var $originals = tr.children();
-                                            var $helper = tr.clone();
-                                            $helper.children().each(function(index) {
-                                                $(this).width($originals.eq(index).width());
-                                            });
-                                            return $helper;
-                                        },
-                                        update: function(event, ui) {
-                                            var orderData = [];
-                                            $('#interest-items-table tbody tr').each(function(index) {
-                                                var id = $(this).find('[data-id]').first().data('id');
-                                                if (id) {
-                                                    orderData.push({ id: id, order: index + 1 });
-                                                }
-                                            });
-                                            
-                                            if (orderData.length > 0) {
-                                                $.ajax({
-                                                    url: '<?php echo site_url('admin/interest_items/reorder'); ?>',
-                                                    type: 'POST',
-                                                    data: { order_data: orderData },
-                                                    dataType: 'json',
-                                                    success: function(response) {
-                                                        if (response.success) {
-                                                            toastr.success(response.message || '<?php echo get_phrase('order_updated_successfully'); ?>');
-                                                        } else {
-                                                            toastr.error(response.message || '<?php echo get_phrase('error_updating_order'); ?>');
-                                                            location.reload();
-                                                        }
-                                                    },
-                                                    error: function(xhr, status, error) {
-                                                        toastr.error('<?php echo get_phrase('error_updating_order'); ?>');
-                                                        location.reload();
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    });
-                                }
-                                
-                                // Close success modal after reload
-                                setTimeout(function() {
-                                    $('#modal_alert').modal('hide');
-                                }, 1500);
-                            },
-                            error: function() {
-                                // Fallback to full page reload if AJAX fails
-                                location.reload();
-                            }
-                        });
-                    }, 500);
-                } else {
-                    // Hide loading modal
-                    $('#modal_alert').modal('hide');
-                    
-                    // Show error message in form
-                    $errorDiv.html(response.message).show();
-                    $submitBtn.prop('disabled', false).html('<i class="entypo-check"></i> <?php echo $is_edit ? get_phrase('update') : get_phrase('save'); ?>');
-                }
-            },
-            error: function(xhr, status, error) {
-                // Hide loading modal
-                $('#modal_alert').modal('hide');
-                
-                var errorMsg = '<?php echo get_phrase('error_saving_interest_item'); ?>';
-                
-                try {
-                    var response = JSON.parse(xhr.responseText);
-                    if (response.message) {
-                        errorMsg = response.message;
-                    }
-                } catch(e) {
-                    // Use default error message
-                }
-                
-                $errorDiv.html(errorMsg).show();
-                $submitBtn.prop('disabled', false).html('<i class="entypo-check"></i> <?php echo $is_edit ? get_phrase('update') : get_phrase('save'); ?>');
+            dataType: 'json'
+        }).done(function(response) {
+            if (response.status !== 'success') {
+                $errors.html(response.message || '<?php echo get_phrase('error_saving_interest_item'); ?>').show();
+                restoreSubmit();
+                return;
             }
+
+            $('#modal_ajax').modal('hide');
+            refreshInterestList().always(function() {
+                toastr.success(response.message || '<?php echo get_phrase('updated_successfully'); ?>');
+            });
+        }).fail(function(xhr) {
+            var message = '<?php echo get_phrase('error_saving_interest_item'); ?>';
+            try {
+                var response = JSON.parse(xhr.responseText);
+                if (response.message) message = response.message;
+            } catch (ignore) {}
+            $errors.html(message).show();
+            restoreSubmit();
         });
     });
-    
-    // Focus on name field when modal opens
-    $('#interest_name').focus();
-    
-});
+
+    setTimeout(function() { $('#interest_name').focus(); }, 150);
+})(jQuery);
 </script>
-
-<style>
-.form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.btn-primary:hover {
-    background: #5568d3 !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-</style>
