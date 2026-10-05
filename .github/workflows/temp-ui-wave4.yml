@@ -1,0 +1,85 @@
+name: Temporary UI Consistency Wave Four Bridge
+
+on:
+  push:
+    branches:
+      - ui-wave4-baseline-20261005
+
+permissions:
+  contents: write
+
+jobs:
+  apply-ui-wave-four:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify expected base
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "2f3b9a81c068f785dff75e22c97e53e1a413ec5e"
+
+      - name: Download checksum-verified patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL "https://schoolmanager.lightworldtech.com/bridge-ui-wave4-a23f381899b1.patch" -o /tmp/ui-wave4.patch
+          echo "1f0502ae9802e5a0dded6bc3146e4f1e891d0d42d0f9c2ecf677e6158b9b4abb  /tmp/ui-wave4.patch" | sha256sum -c -
+
+      - name: Apply exact six-file patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git apply --check /tmp/ui-wave4.patch
+          git apply /tmp/ui-wave4.patch
+          cat > /tmp/expected-files <<'EOF'
+          application/views/backend/admin/assign_student_discount.php
+          application/views/backend/admin/daily_fee_collection.php
+          application/views/backend/admin/frontend_news.php
+          application/views/backend/admin/marks_manage_view_creche2.php
+          application/views/backend/admin/student_marksheet.php
+          application/views/backend/admin/student_results_sheet_creche_2.php
+          EOF
+          git diff --name-only | sort > /tmp/actual-files
+          diff -u /tmp/expected-files /tmp/actual-files
+
+      - name: Validate UI consistency contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            application/views/backend/admin/assign_student_discount.php
+            application/views/backend/admin/daily_fee_collection.php
+            application/views/backend/admin/frontend_news.php
+            application/views/backend/admin/marks_manage_view_creche2.php
+            application/views/backend/admin/student_marksheet.php
+            application/views/backend/admin/student_results_sheet_creche_2.php
+          )
+          for f in "${files[@]}"; do php -l "$f"; done
+          grep -Fq '.creche-mark-action-row {' application/views/backend/admin/marks_manage_view_creche2.php
+          grep -Fq '#results_form { display:grid;' application/views/backend/admin/student_results_sheet_creche_2.php
+          grep -Fq 'height: var(--sm-ui-control-height, 42px)' application/views/backend/admin/assign_student_discount.php
+          grep -Fq '.daily-fee-workspace .panel-heading h2' application/views/backend/admin/daily_fee_collection.php
+          grep -Fq "'style' => 'margin-top: 0;'" application/views/backend/admin/frontend_news.php
+          ! grep -Fq 'btn btn-primary btn-lg btn-md btn-sm' application/views/backend/admin/student_marksheet.php
+
+      - name: Commit applied branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b ui-wave4-applied-20261005
+          git add application/views/backend/admin/assign_student_discount.php \
+                  application/views/backend/admin/daily_fee_collection.php \
+                  application/views/backend/admin/frontend_news.php \
+                  application/views/backend/admin/marks_manage_view_creche2.php \
+                  application/views/backend/admin/student_marksheet.php \
+                  application/views/backend/admin/student_results_sheet_creche_2.php
+          git commit -m 'fix(ui): align legacy marks discounts and daily fees'
+          git push origin HEAD
