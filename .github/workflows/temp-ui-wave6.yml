@@ -1,0 +1,93 @@
+name: Temporary UI Consistency Wave Six Bridge
+
+on:
+  push:
+    branches:
+      - ui-wave6-baseline-20261005
+
+permissions:
+  contents: write
+
+jobs:
+  apply-ui-wave-six:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify expected base
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "d00ec626a6625a41c299d5b0673987a84c763b6e"
+
+      - name: Download checksum-verified patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL "https://schoolmanager.lightworldtech.com/bridge-ui-wave6-a4f227cc5b11.patch" -o /tmp/ui-wave6.patch
+          echo "56122657ba36ae4235e8ef3b719002e0764fbbf8a2546a1a789b26f2c1929b85  /tmp/ui-wave6.patch" | sha256sum -c -
+
+      - name: Apply exact seven-file patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git apply --check /tmp/ui-wave6.patch
+          git apply /tmp/ui-wave6.patch
+          cat > /tmp/expected-files <<'EOF'
+          application/views/backend/admin/sms_automation.php
+          application/views/backend/admin/sms_log_report.php
+          application/views/backend/admin/system_settings_modern.php
+          application/views/backend/admin/teacher_attendance_privileges.php
+          application/views/backend/admin/user_permissions.php
+          application/views/backend/admin/user_permissions_list.php
+          application/views/backend/admin/user_permissions_manage.php
+          EOF
+          git diff --name-only | LC_ALL=C sort > /tmp/actual-files
+          LC_ALL=C sort /tmp/expected-files -o /tmp/expected-files
+          diff -u /tmp/expected-files /tmp/actual-files
+
+      - name: Validate UI consistency contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            application/views/backend/admin/sms_automation.php
+            application/views/backend/admin/sms_log_report.php
+            application/views/backend/admin/system_settings_modern.php
+            application/views/backend/admin/teacher_attendance_privileges.php
+            application/views/backend/admin/user_permissions.php
+            application/views/backend/admin/user_permissions_list.php
+            application/views/backend/admin/user_permissions_manage.php
+          )
+          for f in "${files[@]}"; do php -l "$f"; done
+          grep -Fq '.privileges-container .btn {' application/views/backend/admin/teacher_attendance_privileges.php
+          grep -Fq 'font-size:24px!important' application/views/backend/admin/sms_log_report.php
+          grep -Fq 'min-height:var(--sm-ui-control-height,42px);height:var(--sm-ui-control-height,42px)' application/views/backend/admin/sms_automation.php
+          grep -Fq 'top: calc(var(--sm-topbar-height-dynamic, 72px) + 8px)' application/views/backend/admin/system_settings_modern.php
+          grep -Fq '.settings-container .form-group input, .settings-container .form-group select, .settings-container .form-group textarea {' application/views/backend/admin/system_settings_modern.php
+          for f in application/views/backend/admin/user_permissions.php application/views/backend/admin/user_permissions_manage.php application/views/backend/admin/user_permissions_list.php; do
+            grep -Fq 'class="row permissions-workspace"' "$f"
+            grep -Fq 'font-size:24px' "$f"
+          done
+          ! grep -Eq '^[[:space:]]*(\.btn|\.badge|table|\.form-group|\.toggle-|tbody tr:hover)' application/views/backend/admin/teacher_attendance_privileges.php application/views/backend/admin/system_settings_modern.php application/views/backend/admin/user_permissions.php application/views/backend/admin/user_permissions_manage.php application/views/backend/admin/user_permissions_list.php
+
+      - name: Commit applied branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b ui-wave6-applied-20261005
+          git add application/views/backend/admin/sms_automation.php \
+                  application/views/backend/admin/sms_log_report.php \
+                  application/views/backend/admin/system_settings_modern.php \
+                  application/views/backend/admin/teacher_attendance_privileges.php \
+                  application/views/backend/admin/user_permissions.php \
+                  application/views/backend/admin/user_permissions_list.php \
+                  application/views/backend/admin/user_permissions_manage.php
+          git commit -m 'fix(ui): normalize settings sms and permission chrome'
+          git push origin HEAD
