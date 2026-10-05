@@ -710,7 +710,7 @@
                                                 <strong>Please enter student's marks before proceeding with the conducts. Go to >>Examination >>Manage Exam Marks</strong>
                                             </div>
                                         </div>
-                                        <input type="submit" name="save_conducts" id="submit_c" class="btn btn-primary btn-lg btn-md btn-sm" value="<?php echo get_phrase('save_conducts_&_remarks');?>" style="position: relative; float: right; bottom: 20px; right: 10px; margin-top: 30px;">
+                                        <input type="submit" name="save_conducts" id="submit_c" class="btn btn-primary" value="<?php echo get_phrase('save_conducts_&_remarks');?>" style="float: right; margin-top: 12px;">
                                     </div>
                                 <?php echo form_close();?>
                             </div>
@@ -1477,7 +1477,7 @@
                                                 <strong>Please enter student's marks before proceeding with the conducts. Go to >>Examination >>Manage Exam Marks</strong>
                                             </div>
                                         </div>
-                                        <input type="submit" name="save_conducts" id="submit_c" class="btn btn-primary btn-lg btn-md btn-sm" value="<?php echo get_phrase('save_conducts_&_remarks');?>" style="position: relative; float: right; bottom: 20px; right: 10px; margin-top: 30px;">
+                                        <input type="submit" name="save_conducts" id="submit_c" class="btn btn-primary" value="<?php echo get_phrase('save_conducts_&_remarks');?>" style="float: right; margin-top: 12px;">
                                     </div>
                                 <?php echo form_close();?>
                             </div>

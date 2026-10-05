@@ -14,7 +14,7 @@
 </ul>
 
 <div class="tab-content">
-	<div class="tab-pane active" id="tab1" style="margin-top: 20px;">
+	<div class="tab-pane active" id="tab1" style="margin-top: 0;">
 		<table class="table table-bordered datatable" id="table_export">
 			<thead>
 				<tr>
@@ -65,7 +65,7 @@
 	</div>
 	<div class="tab-pane" id="tab2">
 
-      <?php echo form_open(site_url('admin/frontend_news/add_news') , array('class' => 'form-horizontal form-groups', 'enctype' => 'multipart/form-data', 'id' => 'jq-submit', 'style' => 'margin-top: 20px;'));?>
+      <?php echo form_open(site_url('admin/frontend_news/add_news') , array('class' => 'form-horizontal form-groups', 'enctype' => 'multipart/form-data', 'id' => 'jq-submit', 'style' => 'margin-top: 0;'));?>
 
       <div class="form-group">
 				<label class="col-sm-3 control-label"><?php echo get_phrase('news_title'); ?></label>

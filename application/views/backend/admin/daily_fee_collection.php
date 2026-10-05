@@ -8,20 +8,34 @@ $transport_enabled = is_fee_module_enabled('transport');
 ?>
 <style>
 .fee-card { background: #2563eb; border-radius: 15px; padding: 20px; color: white; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15); }
-.fee-card h3 { margin: 0 0 10px 0; font-size: 16px; opacity: 0.9; }
+.fee-card h3 { margin: 0 0 10px 0; font-size: 14px; opacity: 0.9; }
 .fee-card .amount { font-size: 32px; font-weight: bold; }
 .fee-toggle { background: rgba(255,255,255,0.2); border-radius: 10px; padding: 15px; margin: 10px 0; cursor: pointer; transition: all 0.3s; }
 .fee-toggle:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
 .fee-toggle.active { background: rgba(255,255,255,0.4); border: 2px solid white; }
-.fee-input { background: rgba(255,255,255,0.9); border: none; border-radius: 8px; padding: 12px; font-size: 16px; width: 100%; }
+.fee-input { background: rgba(255,255,255,0.9); border: none; border-radius: 8px; min-height: var(--sm-ui-control-height, 42px); padding: 9px 11px; font-size: 14px; width: 100%; }
 .total-display { background: #1e293b; border-radius: 15px; padding: 25px; text-align: center; color: white; font-size: 36px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15); }
-.btn-collect { background: #059669; border: none; border-radius: 12px; padding: 18px 40px; font-size: 18px; font-weight: bold; color: white; width: 100%; box-shadow: 0 1px 2px rgba(5, 150, 105, 0.35); transition: background-color .2s ease; }
+.btn-collect { background: #059669; border: none; border-radius: 9px; min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 16px; font-size: 14px; font-weight: bold; color: white; width: 100%; box-shadow: 0 1px 2px rgba(5, 150, 105, 0.35); transition: background-color .2s ease; }
 .btn-collect:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
-.student-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.student-card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 .badge-custom { padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+
+.daily-fee-workspace { margin: 0 !important; padding: 0 0 32px; }
+.daily-fee-workspace > .col-md-12 { padding: 0 !important; }
+.daily-fee-workspace .panel { margin: 0; box-shadow: none !important; border: 1px solid #e2e8f0 !important; border-radius: 14px !important; overflow: hidden; }
+.daily-fee-workspace .panel-heading { padding: 18px 20px !important; border-radius: 0 !important; }
+.daily-fee-workspace .panel-heading h2 { margin: 0 !important; font-size: 24px !important; line-height: 1.2; font-weight: 800 !important; }
+.daily-fee-workspace .panel-heading p { font-size: 14px; line-height: 1.45; }
+.daily-fee-workspace .panel-body { padding: 18px !important; background: #f8fafc; }
+.daily-fee-workspace .student-card > label { display: block; margin-bottom: 7px !important; font-size: 13px !important; font-weight: 700 !important; color: #334155 !important; }
+.daily-fee-workspace #student_id { height: var(--sm-ui-control-height, 42px) !important; font-size: 14px !important; }
+.daily-fee-workspace .select2-container .select2-selection--single { min-height: var(--sm-ui-control-height, 42px) !important; height: var(--sm-ui-control-height, 42px) !important; border: 1px solid #cbd5e1; border-radius: 9px; }
+.daily-fee-workspace .select2-container .select2-selection__rendered { line-height: 40px !important; font-size: 14px !important; }
+.daily-fee-workspace .select2-container .select2-selection__arrow { height: 40px !important; }
+@media (max-width: 767px) { .daily-fee-workspace { padding-bottom: 28px; } .daily-fee-workspace .panel-heading h2 { font-size: 22px !important; } .daily-fee-workspace .panel-body { padding: 14px !important; } }
 </style>
 
-<div class="row">
+<div class="row daily-fee-workspace">
     <div class="col-md-12">
         <div class="panel" style="border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-radius: 15px;">
             <div class="panel-heading" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border-radius: 15px 15px 0 0; padding: 25px;">
@@ -32,10 +46,10 @@ $transport_enabled = is_fee_module_enabled('transport');
                 
                 <!-- Student Selection -->
                 <div class="student-card">
-                    <label style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 10px;">
+                    <label style="font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 7px;">
                         <i class="fa fa-user-graduate"></i> <?php echo get_phrase('select_student'); ?>
                     </label>
-                    <select class="form-control select2" id="student_id" style="height: 50px; font-size: 16px;">
+                    <select class="form-control select2" id="student_id" style="height: 42px; font-size: 14px;">
                         <option value=""><?php echo get_phrase('search_student_by_name_or_code'); ?></option>
                         <?php
                         $students = $this->db->query("
@@ -157,13 +171,13 @@ $transport_enabled = is_fee_module_enabled('transport');
 
                         <!-- Total Display -->
                         <div class="total-display">
-                            <div style="font-size: 16px; opacity: 0.9; margin-bottom: 5px;"><?php echo get_phrase('total_amount'); ?></div>
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;"><?php echo get_phrase('total_amount'); ?></div>
                             <div id="total_amount">GHS 0.00</div>
                         </div>
 
                         <!-- Payment Method -->
                         <div class="student-card">
-                            <label style="font-size: 16px; font-weight: 600; color: #333;"><?php echo get_phrase('payment_method'); ?></label>
+                            <label style="font-size: 13px; font-weight: 700; color: #334155;"><?php echo get_phrase('payment_method'); ?></label>
                             <select class="fee-input" name="payment_method" required>
                                 <option value="1"><?php echo get_phrase('cash'); ?></option>
                                 <option value="3"><?php echo get_phrase('mobile_money'); ?></option>

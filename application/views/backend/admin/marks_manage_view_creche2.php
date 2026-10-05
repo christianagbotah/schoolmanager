@@ -23,6 +23,24 @@ only screen and (min-width: 1530px),
   	}
   }
 
+	/* Consistent selector/action row */
+	.creche-mark-action-row {
+		display: grid;
+		grid-template-columns: minmax(260px, 1fr) auto auto;
+		gap: 12px;
+		align-items: end;
+		margin: 0 0 16px;
+	}
+	.creche-mark-action-row > [class*="col-"] { float: none; width: auto; padding: 0; margin: 0; min-width: 0; }
+	.creche-mark-action-row .form-group { margin: 0; }
+	.creche-mark-action-row .control-label { float: none; width: auto; padding: 0; display: block; margin: 0 0 7px !important; font-size: 13px; font-weight: 700; }
+	.creche-mark-action-row .form-control { width: 100% !important; float: none; min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); font-size: 14px; }
+	.creche-mark-action-row .btn { min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 14px; font-size: 14px; white-space: nowrap; }
+	@media (max-width: 900px) {
+		.creche-mark-action-row { grid-template-columns: 1fr; gap: 10px; }
+		.creche-mark-action-row .btn { width: 100%; }
+	}
+
 </style>
 <hr />
 <?php echo form_open(site_url('admin/marks_selector_creche'));?>
@@ -99,7 +117,7 @@ only screen and (min-width: 1530px),
     	</div>
     	<span style="color:red; display: none;" id="error_notec"></span>
     </div>
-    <div class="row">
+    <div class="row creche-mark-action-row">
         <div class="col-md-8">
 			<div class="form-group">
 			<label class="control-label col-md-2" style="margin-bottom: 5px;"><?php echo get_phrase('subject');?></label>
@@ -119,14 +137,14 @@ only screen and (min-width: 1530px),
 			</div>
 			<span style="color:red; display: none;" id="error_note"></span>
 		</div>
-		<div class="col-md-4" style="margin-top: 20px;">
+		<div class="col-md-4">
 			<center>
 				<button type="submit" class="btn btn-info" id="btn_marks"><?php echo get_phrase('manage_marks');?></button>
 			</center>
 		</div>
 		
 		<!-- View Marksheet Button -->
-		<div class="col-md-4" style="margin-top: 20px;">
+		<div class="col-md-4">
 			<?php
 				// Get first enrolled student in this class for current academic session
 				$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;

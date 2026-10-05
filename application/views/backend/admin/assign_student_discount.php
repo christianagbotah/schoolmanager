@@ -1,21 +1,30 @@
 <style>
-* { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-.modern-container { max-width: 900px; margin: 0 auto; padding: 24px; }
-.modern-header { background: #2563eb; color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25); }
-.modern-header h2 { margin: 0 0 8px 0; font-size: 28px; font-weight: 700; display: flex; align-items: center; gap: 12px; color: white; }
-.modern-header p { margin: 0; opacity: 0.95; font-size: 15px; }
-.modern-card { background: white; border-radius: 16px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.modern-form-group { margin-bottom: 32px; }
-.modern-label { display: block; font-weight: 600; color: #2d3748; font-size: 15px; margin-bottom: 12px; letter-spacing: 0.3px; }
+.modern-container, .modern-container * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-sizing: border-box; }
+.modern-container { max-width: 900px; margin: 0 auto; padding: 0 0 32px; }
+.modern-header { background: #2563eb; color: white; padding: 18px 20px; border-radius: 14px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25); }
+.modern-header h2 { margin: 0 0 6px 0; font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; color: white; }
+.modern-header p { margin: 0; opacity: 0.95; font-size: 14px; }
+.modern-card { background: white; border-radius: 14px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.modern-form-group { margin-bottom: 18px; }
+.modern-label { display: block; font-weight: 700; color: #334155; font-size: 13px; margin-bottom: 7px; letter-spacing: 0.3px; }
 .modern-label i { color: #667eea; margin-right: 8px; }
-.modern-input, .modern-select { width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s; background: #ffffff; color: #1a202c; font-weight: 500; }
+.modern-input, .modern-select { width: 100%; height: var(--sm-ui-control-height, 42px); padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 9px; font-size: 14px; transition: all 0.2s; background: #ffffff; color: #1a202c; font-weight: 500; }
 .modern-input:focus, .modern-select:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); background: #f7fafc; }
-.modern-actions { display: flex; gap: 12px; margin-top: 40px; }
-.modern-btn { padding: 16px 32px; border-radius: 10px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.modern-actions { display: flex; gap: 8px; margin-top: 18px; }
+.modern-btn { min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 14px; border-radius: 9px; font-weight: 700; font-size: 14px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 .modern-btn-primary { background: #2563eb; color: white; }
 .modern-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 .modern-btn-secondary { background: white; color: #374151; border: 2px solid #e5e7eb; }
 .modern-btn-secondary:hover { border-color: #667eea; color: #667eea; }
+@media (max-width: 640px) {
+    .modern-container { padding-bottom: 28px; }
+    .modern-header { padding: 16px; border-radius: 12px; }
+    .modern-header h2 { font-size: 22px; }
+    .modern-card { padding: 14px; }
+    .modern-actions { flex-direction: column; }
+    .modern-btn { width: 100%; justify-content: center; }
+}
+
 </style>
 
 <div class="modern-container">

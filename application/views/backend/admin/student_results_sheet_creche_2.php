@@ -31,6 +31,17 @@
     background-color: #34495e;
     border: 2px solid #34495e;
   }
+  /* Consistent result selector row */
+  #results_form { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)) auto; gap:12px; align-items:end; margin-bottom:16px; }
+  #results_form > [class*="col-"], #results_form #exam_holder > [class*="col-"] { float:none; width:auto; padding:0; margin:0; min-width:0; }
+  #results_form #exam_holder { display:contents; }
+  #results_form .form-group { margin:0; }
+  #results_form .control-label { display:block; margin:0 0 7px; font-size:13px; font-weight:700; }
+  #results_form .form-control, #results_form .selectboxit-container .selectboxit { min-height:var(--sm-ui-control-height,42px); height:var(--sm-ui-control-height,42px); font-size:14px; }
+  #results_form .btn { min-height:var(--sm-ui-control-height,42px); height:var(--sm-ui-control-height,42px); padding:9px 14px; font-size:14px; white-space:nowrap; }
+  @media (max-width:900px) { #results_form { grid-template-columns:1fr 1fr; } #results_form #submit { width:100%; } }
+  @media (max-width:640px) { #results_form { grid-template-columns:1fr; gap:10px; } }
+
 </style>
 
 <?php
@@ -150,7 +161,7 @@
             </div>
             <input type="hidden" name="operation" value="selection">
             <input type="hidden" name="student_id" id="student_id" value="<?php echo $student_id; ?>">
-            <div class="col-md-3" style="margin-top: 20px;">
+            <div class="col-md-3 result-selector-action">
                 <button type="submit" id="submit" class="btn btn-info"><?php echo get_phrase('view_results');?></button>
             </div>
         </div>
@@ -179,8 +190,8 @@
     <table class="table table-bordered" style="margin-top: 10px;">
       <thead>
           <tr>
-              <th style="font-size: 16px">ABBREVIATION</th>
-              <th style="font-size: 16px">MEANING</th>
+              <th style="font-size: 14px">ABBREVIATION</th>
+              <th style="font-size: 14px">MEANING</th>
           </tr>
       </thead>
       <tbody>
@@ -189,8 +200,8 @@
           foreach($grading_sys as $grade): 
         ?>
         <tr>
-          <td style="font-size: 16px"><?= $grade['abbrev']; ?></td>
-          <td style="font-size: 16px"><?= $grade['full_name']; ?></td>
+          <td style="font-size: 14px"><?= $grade['abbrev']; ?></td>
+          <td style="font-size: 14px"><?= $grade['full_name']; ?></td>
         </tr>
       <?php endforeach; ?>
       </tbody>
