@@ -9872,169 +9872,179 @@ class Admin extends MY_Controller {
 	}
 
 	function portfolio_assessment_update($timestamps, $st_ids, $ass_ids) {
+		$ajax = array('success' => 0);
+		$class_id = trim((string) $this->input->post('class_id'));
+		$exam_id = trim((string) $this->input->post('exam_id'));
+		$section_id = trim((string) $this->input->post('section_id'));
+		$subject_id = trim((string) $this->input->post('subject_id'));
+		$week = trim((string) $this->input->post('week'));
 
-		$class_id = $this->input->post('class_id');
-		$exam_id = $this->input->post('exam_id');
-		$section_id = $this->input->post('section_id');
-		$subject_id = $this->input->post('subject_id');
-		$week = $this->input->post('week');
+		if ($class_id === '' || $exam_id === '' || $subject_id === '' || $week === '') {
+			$ajax['message'] = 'Select the exam, class, week and subject before saving.';
+			echo json_encode($ajax);
+			return;
+		}
 
-		if ($class_id != '' && $exam_id != '') {
+		$list_of_students = array_values(array_filter(array_map('intval', explode('-', (string) $st_ids))));
+		$assessment_ids = array_values(array_filter(array_map('intval', explode('-', (string) $ass_ids))));
+		$dates_array = array_values(array_filter(array_map('intval', explode('-', (string) $timestamps))));
+		$expected_cells = count($list_of_students) * count($dates_array);
 
-			$list_of_students = explode('-', $st_ids); //each student's id
-			$assessment_ids = explode('-', $ass_ids); //assessment ids
-			$dates_array = explode('-', $timestamps); //timestamps
+		if (empty($list_of_students) || empty($dates_array) || count($assessment_ids) !== $expected_cells) {
+			$ajax['message'] = 'The assessment grid is incomplete. Reload the selection and try again.';
+			echo json_encode($ajax);
+			return;
+		}
 
-			/*$code_error_counter = 0;
-				//checking if code is empty
-				for ($ts = 0; $ts < sizeof($dates_array); $ts++) {
-					//Each timestamp or date
-					$data['code'] = strtoupper(strtolower(trim($this->input->post('code_' . $dates_array[$ts]))));
+		$running_year_row = $this->db->get_where('settings', array('type' => 'running_year'))->row();
+		$running_term_row = $this->db->get_where('settings', array('type' => 'running_term'))->row();
+		$running_sem_row = $this->db->get_where('settings', array('type' => 'running_sem'))->row();
+		$running_year = $running_year_row ? $running_year_row->description : '';
+		$running_term = $running_term_row ? $running_term_row->description : '';
+		$running_sem = $running_sem_row ? $running_sem_row->description : '';
+		$class_name = strtoupper((string) $this->crud_model->get_class_name($class_id));
+		$is_jhs = ($class_name === 'JHSS');
+		$period_field = $is_jhs ? 'sem' : 'term';
+		$period_value = $is_jhs ? $running_sem : $running_term;
 
-					if($data['code'] == '' || empty($data['code'])) {
-						$code_error_counter++;
+		$this->db->where_in('assessment_id', $assessment_ids);
+		$this->db->where('class_id', $class_id);
+		$this->db->where('subject_id', $subject_id);
+		$this->db->where('exam_id', $exam_id);
+		$this->db->where('week', $week);
+		$this->db->where('year', $running_year);
+		$this->db->where($period_field, $period_value);
+		$assessment_rows = $this->db->get('portfolio_assessment')->result_array();
+		$assessment_map = array();
+		foreach ($assessment_rows as $assessment_row) {
+			$assessment_map[(int) $assessment_row['assessment_id']] = $assessment_row;
+		}
+
+		if (count($assessment_map) !== $expected_cells) {
+			$ajax['message'] = 'One or more assessment rows no longer match this selection. Reload before saving.';
+			echo json_encode($ajax);
+			return;
+		}
+
+		$batch_data = array();
+		$assessment_counter = 0;
+		foreach ($list_of_students as $student_id) {
+			foreach ($dates_array as $date_timestamp) {
+				$assessment_id = $assessment_ids[$assessment_counter];
+				if (!isset($assessment_map[$assessment_id])) {
+					$ajax['message'] = 'Assessment row validation failed. Reload and try again.';
+					echo json_encode($ajax);
+					return;
+				}
+
+				$current_row = $assessment_map[$assessment_id];
+				if ((int) $current_row['student_id'] !== (int) $student_id || (int) $current_row['timestamp'] !== (int) $date_timestamp) {
+					$ajax['message'] = 'Assessment row order changed. Reload the page before saving.';
+					echo json_encode($ajax);
+					return;
+				}
+
+				$posted_code = $this->input->post('code_' . $date_timestamp);
+				$code = ($posted_code === NULL) ? (string) $current_row['code'] : strtoupper(trim((string) $posted_code));
+				$posted_score = $this->input->post('strand_' . $assessment_id);
+				if ($posted_score === NULL || trim((string) $posted_score) === '') {
+					$score = (float) $current_row['strand_score'];
+				} else {
+					if (!is_numeric($posted_score)) {
+						$ajax['message'] = 'Every entered portfolio score must be numeric.';
+						echo json_encode($ajax);
+						return;
+					}
+					$score = (float) $posted_score;
+					if ($score < 0 || $score > 100) {
+						$ajax['message'] = 'Portfolio scores must be between 0 and 100.';
+						echo json_encode($ajax);
+						return;
 					}
 				}
 
-				if($code_error_counter > 0) {
-					$errors['codes'] = 'Sorry some strand codes are empty';
-					echo json_encode($errors);
-					return false;
-			*/
-			//error checks ends here
-
-			$batchData = array();
-			$assessment_counter = 0;
-
-			for ($st = 0; $st < sizeof($list_of_students); $st++) {
-				//each student
-
-				//updating code for each strand, student and strand score
-				for ($ts = 0; $ts < sizeof($dates_array); $ts++) {
-					//Each timestamp or date
-					$data['code'] = strtoupper(strtolower(trim($this->input->post('code_' . $dates_array[$ts]))));
-
-					/*$this->db->where('timestamp', $dates_array[$ts]);
-						$this->db->where('student_id', $list_of_students[$st]);
-						$this->db->where('class_id', $class_id);
-						$this->db->where('subject_id', $subject_id);
-						$this->db->where('week', $week);
-						$this->db->set('code', $data['code']);
-					*/
-
-					$data['strand_score'] = trim($this->input->post('strand_' . $assessment_ids[$assessment_counter]));
-
-					if ($data['strand_score'] == '' || empty($data['strand_score'])) {
-						$data['strand_score'] = 0;
-					}
-
-					$batchData[] = array(
-						'assessment_id' => $assessment_ids[$assessment_counter],
-						'student_id' => $list_of_students[$st],
-						'timestamp' => $dates_array[$ts],
-						'subject_id' => $subject_id,
-						'class_id' => $class_id,
-						'code' => $data['code'],
-						'strand_score' => round($data['strand_score'], 2),
-					);
-
-					$assessment_counter++;
-
-				}
-
-				//updating strand score for each student
-				/*for ($as = 0; $as < sizeof($assessment_ids); $as++) {
-					//Assement ID
-					for ($ts = 0; $ts < sizeof($dates_array); $ts++) {
-						//Each timestamp or date
-						$data['strand_score'] = trim($this->input->post('strand_' . $assessment_ids[$as]));
-
-						if ($data['strand_score'] == '' || empty($data['strand_score'])) {
-							$data['strand_score'] = 0;
-						}
-
-						$this->db->where('assessment_id', $assessment_ids[$as]);
-						$this->db->where('subject_id', $subject_id);
-						$this->db->where('student_id', $list_of_students[$st]);
-						$this->db->where('timestamp', $dates_array[$ts]);
-						$this->db->set('strand_score', round($data['strand_score'], 2));
-						$this->db->update('portfolio_assessment');
-					}
-				}*/
+				$batch_data[] = array(
+					'assessment_id' => $assessment_id,
+					'code' => $code,
+					'strand_score' => round($score, 2),
+				);
+				$assessment_counter++;
 			}
+		}
 
-				//////////////////////////////////////\\\\
-			//do batch update here
-			$this->db->update_batch('portfolio_assessment', $batchData, 'assessment_id');
-			//////////////////////////////////////\\\\
+		$this->db->trans_start();
+		$this->db->update_batch('portfolio_assessment', $batch_data, 'assessment_id');
 
-			//trying to find the average mark from the portfolio assessment table and then put it in mark table
-			$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
-			$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-			$running_sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
+		// Sync the portfolio average into the normal mark table when that table
+		// has already been initialized. Portfolio saving itself must not fail
+		// merely because terminal mark rows have not yet been created.
+		$mark_seed_filter = array(
+			'class_id' => $class_id,
+			'subject_id' => $subject_id,
+			'year' => $running_year,
+			$period_field => $period_value,
+		);
+		$mark_seed = $this->db->get_where('mark', $mark_seed_filter)->row();
+		$mark_sync = 0;
 
-			$exam_id2 = $this->db->get_where('mark', array('class_id' => $class_id, 'year' => $running_year, 'term' => $running_term))->row()->exam_id;
-			//non jhs
+		if ($mark_seed) {
+			$terminal_exam_id = $mark_seed->exam_id;
 			$this->db->select('student_id');
 			$this->db->distinct();
 			$this->db->where('class_id', $class_id);
-			$this->db->where('exam_id', $exam_id2);
+			$this->db->where('subject_id', $subject_id);
+			$this->db->where('exam_id', $terminal_exam_id);
 			$this->db->where('year', $running_year);
-			$this->db->where('term', $running_term);
-			$students_ids = $this->db->get('mark')->result_array();
+			$this->db->where($period_field, $period_value);
+			$mark_students = $this->db->get('mark')->result_array();
 
-			//find the total number of entries made so far
 			$this->db->select('timestamp');
 			$this->db->distinct();
-			$this->db->where('strand_score >', '0');
+			$this->db->where('strand_score >', 0);
 			$this->db->where('class_id', $class_id);
 			$this->db->where('subject_id', $subject_id);
-			//$this->db->where('exam_id', $data['exam_id']);
 			$this->db->where('year', $running_year);
-			$this->db->where('term', $running_term);
-			$num_rows = $this->db->get('portfolio_assessment')->num_rows();
+			$this->db->where($period_field, $period_value);
+			$assessment_days = $this->db->get('portfolio_assessment')->result_array();
+			$assessment_day_count = count($assessment_days);
 
-			foreach ($students_ids as $id) {
-				//now let's find the average score
+			foreach ($mark_students as $mark_student) {
 				$this->db->select_sum('strand_score');
-				$this->db->where('strand_score >', '0');
+				$this->db->where('strand_score >', 0);
 				$this->db->where('class_id', $class_id);
 				$this->db->where('subject_id', $subject_id);
-				//$this->db->where('exam_id', $data['exam_id']);
-				$this->db->where('student_id', $id['student_id']);
+				$this->db->where('student_id', $mark_student['student_id']);
 				$this->db->where('year', $running_year);
-				$this->db->where('term', $running_term);
-				$total_score = $this->db->get('portfolio_assessment')->row()->strand_score;
-
-				if ($total_score != NULL) {
-					$total_score = $total_score * 10; //multiply by 10
-
-					$average_score = (floatval($total_score) / floatval($num_rows)); //divide total score by the number times the test was conducted
-					$percentage_average = $average_score * 0.2; //finding 20% of the average score
-
-					$percentage_average = round($percentage_average, 2); //round it up
-				} else {
-					$percentage_average = $total_score;
+				$this->db->where($period_field, $period_value);
+				$total_row = $this->db->get('portfolio_assessment')->row();
+				$total_score = ($total_row && $total_row->strand_score !== NULL) ? (float) $total_row->strand_score : 0;
+				$percentage_average = 0;
+				if ($assessment_day_count > 0 && $total_score > 0) {
+					$percentage_average = round((($total_score * 10) / $assessment_day_count) * 0.2, 2);
 				}
 
-				//update now
 				$this->db->where('class_id', $class_id);
 				$this->db->where('subject_id', $subject_id);
-				$this->db->where('student_id', $id['student_id']);
-				$this->db->where('exam_id', $exam_id2);
+				$this->db->where('student_id', $mark_student['student_id']);
+				$this->db->where('exam_id', $terminal_exam_id);
 				$this->db->where('year', $running_year);
-				$this->db->where('term', $running_term);
+				$this->db->where($period_field, $period_value);
 				$this->db->set('test1', $percentage_average);
-
 				$this->db->update('mark');
 			}
-
-			$ajax['success'] = 1;
-
-		} else {
-			$ajax['success'] = 0;
+			$mark_sync = 1;
 		}
 
+		$this->db->trans_complete();
+		if ($this->db->trans_status() === FALSE) {
+			$ajax['message'] = 'The assessment could not be saved. No partial changes were kept.';
+			echo json_encode($ajax);
+			return;
+		}
+
+		$ajax['success'] = 1;
+		$ajax['mark_sync'] = $mark_sync;
+		$ajax['message'] = $mark_sync ? 'Portfolio assessment saved and mark averages synchronized.' : 'Portfolio assessment saved. Mark averages will synchronize after the mark sheet is initialized.';
 		echo json_encode($ajax);
 	}
 
