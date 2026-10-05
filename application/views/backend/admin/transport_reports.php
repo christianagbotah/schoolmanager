@@ -2,7 +2,7 @@
 /* Direct UI/UX rebuild — Transport Reports */
 .transport-reports-workspace {
     margin: 0 !important;
-    padding: 24px 28px 40px !important;
+    padding: 0 0 32px !important;
     background: #f8fafc;
     min-height: 100%;
 }
@@ -23,7 +23,7 @@
 .transport-reports-workspace .panel-heading h4 {
     margin: 0 !important;
     color: #0f172a !important;
-    font-size: 30px !important;
+    font-size: 24px !important;
     line-height: 1.2;
     font-weight: 800 !important;
     letter-spacing: -.02em;
@@ -137,8 +137,8 @@
     .filter-row .btn-generate { width: 100%; }
 }
 @media (max-width: 767px) {
-    .transport-reports-workspace { padding: 18px 14px 32px !important; }
-    .transport-reports-workspace .panel-heading h4 { font-size: 26px !important; }
+    .transport-reports-workspace { padding: 0 0 28px !important; }
+    .transport-reports-workspace .panel-heading h4 { font-size: 22px !important; }
     .transport-reports-workspace .panel-body > .row > .col-md-6 { width: 100%; float: none; }
     .filter-row { grid-template-columns: 1fr; }
     .filter-control { font-size: 16px !important; }

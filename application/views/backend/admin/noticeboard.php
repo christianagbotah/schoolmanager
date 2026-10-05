@@ -4,12 +4,12 @@ $archived_notice_count = $this->db->where('status', 0)->count_all_results('notic
 $sms_is_active = !empty($active_sms_service) && $active_sms_service !== 'disabled';
 ?>
 <style>
-.noticeboard-workspace{margin:0!important;padding:24px 28px 40px!important;background:#f8fafc;min-height:100%;color:#334155}
+.noticeboard-workspace{margin:0!important;padding:0 0 32px!important;background:#f8fafc;min-height:100%;color:#334155}
 .noticeboard-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid #e2e8f0}
 .noticeboard-eyebrow{margin:0 0 4px;color:#2563eb;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-.noticeboard-head h1{margin:0;color:#0f172a;font-size:30px!important;line-height:1.2;font-weight:800;letter-spacing:-.02em}
-.noticeboard-head p:last-child{margin:7px 0 0;color:#64748b;font-size:15px;line-height:1.5}
-.noticeboard-primary{min-height:44px;padding:10px 15px!important;border-radius:9px!important;background:#2563eb!important;border-color:#2563eb!important;color:#fff!important;font-size:14px!important;font-weight:800!important}
+.noticeboard-head h1{margin:0;color:#0f172a;font-size:24px!important;line-height:1.2;font-weight:800;letter-spacing:-.02em}
+.noticeboard-head p:last-child{margin:7px 0 0;color:#64748b;font-size:14px;line-height:1.5}
+.noticeboard-primary{min-height:var(--sm-ui-control-height,42px);height:var(--sm-ui-control-height,42px);padding:9px 14px!important;border-radius:9px!important;background:#2563eb!important;border-color:#2563eb!important;color:#fff!important;font-size:14px!important;font-weight:800!important}
 .noticeboard-alert{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;padding:12px 14px;border:1px solid #a7f3d0;border-radius:11px;background:#ecfdf5;color:#047857;font-size:14px;font-weight:700}
 .noticeboard-alert .close{position:static!important;float:none!important;margin:0;color:#047857;opacity:.8;font-size:20px}
 .noticeboard-tabs,.noticeboard-status-tabs{display:flex;gap:4px;margin:0 0 14px!important;padding:0;border-bottom:1px solid #e2e8f0!important;list-style:none}
@@ -27,7 +27,7 @@ $sms_is_active = !empty($active_sms_service) && $active_sms_service !== 'disable
 .noticeboard-field{margin-bottom:14px}
 .noticeboard-field-full{grid-column:1/-1}
 .noticeboard-field label{display:block;margin:0 0 6px;color:#334155;font-size:13px;font-weight:800}
-.noticeboard-field input[type="text"],.noticeboard-field input[type="date"],.noticeboard-field select,.noticeboard-field textarea{width:100%;min-height:44px;padding:9px 11px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#0f172a;font-size:15px!important;line-height:1.4}
+.noticeboard-field input[type="text"],.noticeboard-field input[type="date"],.noticeboard-field select,.noticeboard-field textarea{width:100%;min-height:var(--sm-ui-control-height,42px);padding:9px 11px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:#0f172a;font-size:14px!important;line-height:1.4}
 .noticeboard-field textarea{min-height:145px;resize:vertical}
 .noticeboard-field input:focus,.noticeboard-field select:focus,.noticeboard-field textarea:focus{border-color:#2563eb;outline:0;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 .noticeboard-media-box{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:14px;align-items:start;padding:14px;border:1px dashed #cbd5e1;border-radius:11px;background:#f8fafc}
@@ -37,7 +37,7 @@ $sms_is_active = !empty($active_sms_service) && $active_sms_service !== 'disable
 .noticeboard-service-state{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:5px 8px;border-radius:999px;font-size:12px;font-weight:800}
 .noticeboard-service-state.is-active{background:#ecfdf5;color:#047857}.noticeboard-service-state.is-disabled{background:#fef2f2;color:#b91c1c}
 .noticeboard-form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px;padding-top:14px;border-top:1px solid #e2e8f0}
-.noticeboard-form-actions .btn{min-height:44px;padding:9px 15px!important;border-radius:9px!important;font-size:14px!important;font-weight:800!important}
+.noticeboard-form-actions .btn{min-height:var(--sm-ui-control-height,42px);height:var(--sm-ui-control-height,42px);padding:9px 14px!important;border-radius:9px!important;font-size:14px!important;font-weight:800!important}
 .noticeboard-table-shell{overflow-x:auto}
 .noticeboard-table{width:100%!important;min-width:700px;margin:0!important;border-collapse:collapse!important}
 .noticeboard-table thead th{padding:11px 12px!important;border:0!important;border-bottom:1px solid #e2e8f0!important;background:#f8fafc!important;color:#475569!important;font-size:13px!important;font-weight:800!important;letter-spacing:.035em;text-transform:uppercase}
@@ -46,7 +46,7 @@ $sms_is_active = !empty($active_sms_service) && $active_sms_service !== 'disable
 .noticeboard-row-actions{display:flex;gap:6px;justify-content:flex-end;white-space:nowrap}
 .noticeboard-row-actions .btn{min-width:36px;min-height:34px;padding:6px 9px!important;border-radius:7px!important;font-size:12px!important;box-shadow:none!important}
 .noticeboard-workspace .dataTables_wrapper{padding:0!important}.noticeboard-workspace .dataTables_length,.noticeboard-workspace .dataTables_filter,.noticeboard-workspace .dataTables_info,.noticeboard-workspace .dataTables_paginate{color:#475569;font-size:13px}.noticeboard-workspace .dataTables_length select,.noticeboard-workspace .dataTables_filter input{min-height:38px;padding:7px 9px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;font-size:14px}
-@media(max-width:767px){.noticeboard-workspace{padding:18px 14px 32px!important}.noticeboard-head{display:block}.noticeboard-head h1{font-size:26px!important}.noticeboard-primary{width:100%;margin-top:14px}.noticeboard-form-grid,.noticeboard-delivery,.noticeboard-media-box{grid-template-columns:1fr}.noticeboard-image-preview{width:100%;height:180px}.noticeboard-field input[type="text"],.noticeboard-field select,.noticeboard-field textarea{font-size:16px!important}.noticeboard-form-actions{display:grid;grid-template-columns:1fr}.noticeboard-tabs,.noticeboard-status-tabs{overflow-x:auto;white-space:nowrap}}
+@media(max-width:767px){.noticeboard-workspace{padding:0 0 28px!important}.noticeboard-head{display:block}.noticeboard-head h1{font-size:22px!important}.noticeboard-primary{width:100%;margin-top:14px}.noticeboard-form-grid,.noticeboard-delivery,.noticeboard-media-box{grid-template-columns:1fr}.noticeboard-image-preview{width:100%;height:180px}.noticeboard-field input[type="text"],.noticeboard-field select,.noticeboard-field textarea{font-size:16px!important}.noticeboard-form-actions{display:grid;grid-template-columns:1fr}.noticeboard-tabs,.noticeboard-status-tabs{overflow-x:auto;white-space:nowrap}}
 </style>
 
 <div class="noticeboard-workspace">

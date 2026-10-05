@@ -2,7 +2,7 @@
 /* Direct UI/UX rebuild — Transport Assignment */
 .assign-transport-page {
     margin: 0 !important;
-    padding: 24px 28px 40px;
+    padding: 0 0 32px;
     background: #f8fafc;
     min-height: 100%;
 }
@@ -23,7 +23,7 @@
 .assign-header h2 {
     margin: 0;
     color: #0f172a !important;
-    font-size: 30px;
+    font-size: 24px;
     line-height: 1.2;
     font-weight: 800;
     letter-spacing: -.02em;
@@ -31,7 +31,7 @@
 .assign-header h2 i { margin-right: 7px; color: #2563eb; }
 .sticky-wrapper {
     position: sticky;
-    top: 72px;
+    top: calc(var(--sm-topbar-height-dynamic, 72px) + 8px);
     z-index: 50;
     margin: 0 0 16px;
     padding: 14px;
@@ -52,13 +52,13 @@
 #student_search {
     width: 100%;
     min-width: 0 !important;
-    height: 44px;
+    height: var(--sm-ui-control-height, 42px);
     padding: 9px 11px !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 9px !important;
     background: #fff;
     color: #0f172a;
-    font-size: 15px !important;
+    font-size: 14px !important;
     line-height: 1.35;
     transition: border-color .2s ease, box-shadow .2s ease;
 }
@@ -69,7 +69,7 @@
     box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
 }
 .action-button {
-    min-height: 44px;
+    min-height: var(--sm-ui-control-height, 42px);
     padding: 9px 15px !important;
     border: 1px solid #2563eb !important;
     border-radius: 9px;
@@ -141,8 +141,8 @@
     .assign-controls .action-button { grid-column: 1 / -1; }
 }
 @media (max-width: 767px) {
-    .assign-transport-page { padding: 18px 14px 32px; }
-    .assign-header h2 { font-size: 26px; }
+    .assign-transport-page { padding: 0 0 28px; }
+    .assign-header h2 { font-size: 22px; }
     .sticky-wrapper { position: static; padding: 12px; }
     .assign-controls { grid-template-columns: 1fr; }
     .assign-controls .action-button { grid-column: auto; width: 100%; }
@@ -171,7 +171,7 @@
                 <?php endforeach; ?>
             </select>
             
-            <input type="text" id="student_search" placeholder="<?php echo get_phrase('search_student_name_or_code'); ?>" style="font-size: 15px; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; min-width: 300px; transition: all 0.3s;">
+            <input type="text" id="student_search" placeholder="<?php echo get_phrase('search_student_name_or_code'); ?>">
             
             <button type="submit" id="bulk_assign_btn" disabled class="action-button" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
                 <i class="fa fa-check"></i> <?php echo get_phrase('assign_selected'); ?>

@@ -2,7 +2,7 @@
 /* Direct UI/UX rebuild — Chart of Accounts */
 .accounts-ledger-workspace {
   margin: 0 !important;
-  padding: 24px 28px 40px;
+  padding: 0 0 32px;
   background: #f8fafc;
   min-height: 100%;
 }
@@ -25,7 +25,7 @@
 .accounts-page-head h1 {
   margin: 0;
   color: #0f172a;
-  font-size: 30px;
+  font-size: 24px;
   line-height: 1.2;
   font-weight: 800;
   letter-spacing: -.02em;
@@ -33,7 +33,7 @@
 .accounts-page-head p:last-child {
   margin: 7px 0 0;
   color: #64748b;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.5;
 }
 .accounts-ledger-workspace > .col-md-12 > div[style*="border: 2px solid red"] {
@@ -100,14 +100,14 @@
   vertical-align: middle !important;
 }
 #create_account_form .form-control {
-  min-height: 46px;
-  height: 46px;
+  min-height: var(--sm-ui-control-height, 42px);
+  height: var(--sm-ui-control-height, 42px);
   padding: 9px 11px;
   border: 1px solid #cbd5e1;
   border-radius: 9px;
   background: #fff;
   color: #0f172a;
-  font-size: 15px;
+  font-size: 14px;
 }
 #create_account_form .form-control:focus {
   border-color: #2563eb;
@@ -131,7 +131,8 @@
   font-size: 14px;
 }
 #create_account_form button[type="submit"] {
-  min-height: 44px;
+  min-height: var(--sm-ui-control-height, 42px);
+  height: var(--sm-ui-control-height, 42px);
   padding: 9px 16px;
   border-radius: 9px;
   background: #2563eb !important;
@@ -238,8 +239,8 @@
 .ajax_alert { top: 70px !important; }
 
 @media (max-width: 767px) {
-  .accounts-ledger-workspace { padding: 18px 14px 32px; }
-  .accounts-page-head h1 { font-size: 26px; }
+  .accounts-ledger-workspace { padding: 0 0 28px; }
+  .accounts-page-head h1 { font-size: 22px; }
   .accounts-ledger-workspace h5 { padding: 14px 15px; }
   #create_account_form { padding: 14px; }
 }

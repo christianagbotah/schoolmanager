@@ -113,7 +113,7 @@ foreach($students_ids as $sid) {
 /* Attendance + fee collection — presentation only */
 body { background: #f8fafc; }
 .attendance-entry-workspace {
-    max-width: 1600px !important; padding: 24px 28px 96px !important; color: #334155;
+    max-width: 1600px !important; padding: 0 0 96px !important; color: #334155;
 }
 .attendance-entry-workspace > .bg-yellow-50,
 .attendance-entry-workspace > .bg-blue-50 {
@@ -131,30 +131,30 @@ body { background: #f8fafc; }
 }
 #att_selector_form .grid { gap: 14px !important; }
 #att_selector_form label {
-    margin-bottom: 7px !important; color: #334155 !important; font-size: 14px !important; font-weight: 700 !important;
+    margin-bottom: 7px !important; color: #334155 !important; font-size: 13px !important; font-weight: 700 !important;
 }
 #att_selector_form select,
 #att_selector_form input[type="text"] {
-    min-height: 46px !important; height: 46px !important; padding: 9px 12px !important;
+    min-height: var(--sm-ui-control-height, 42px) !important; height: var(--sm-ui-control-height, 42px) !important; padding: 9px 11px !important;
     border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
-    background: #fff !important; color: #0f172a !important; font-size: 15px !important;
+    background: #fff !important; color: #0f172a !important; font-size: 14px !important;
 }
 #att_selector_form select:focus,
 #att_selector_form input[type="text"]:focus {
     border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important; outline: none;
 }
 #att_selector_form button[type="submit"] {
-    min-height: 46px !important; height: 46px !important; padding: 9px 16px !important;
+    min-height: var(--sm-ui-control-height, 42px) !important; height: var(--sm-ui-control-height, 42px) !important; padding: 9px 14px !important;
     border-radius: 9px !important; font-size: 14px !important; font-weight: 800 !important;
 }
 
 #attendance_form > .sticky.top-0 {
-    top: 10px !important; margin-bottom: 14px !important; padding: 12px 14px !important;
+    top: calc(var(--sm-topbar-height-dynamic, 72px) + 8px) !important; margin-bottom: 14px !important; padding: 12px 14px !important;
     border: 1px solid #e2e8f0 !important; border-radius: 12px !important;
     box-shadow: 0 4px 14px rgba(15,23,42,.07) !important; background: rgba(255,255,255,.98) !important;
 }
 #attendance_form > .sticky.top-0 > .flex { gap: 12px !important; }
-#attendance_form > .sticky.top-0 label { font-size: 14px !important; font-weight: 700 !important; }
+#attendance_form > .sticky.top-0 label { font-size: 13px !important; font-weight: 700 !important; }
 #student_filter {
     min-height: 40px; padding: 8px 11px !important; border: 1px solid #cbd5e1 !important;
     border-radius: 8px !important; font-size: 14px; color: #0f172a;
@@ -166,7 +166,7 @@ body { background: #f8fafc; }
 }
 
 #attendance_form > .sticky.top-\[72px\] {
-    top: 64px !important; margin-bottom: 14px !important; padding: 16px 18px !important;
+    top: calc(var(--sm-topbar-height-dynamic, 72px) + 64px) !important; margin-bottom: 14px !important; padding: 16px 18px !important;
     border: 1px solid #e2e8f0 !important; border-radius: 14px !important;
     box-shadow: 0 4px 14px rgba(15,23,42,.07) !important; background: rgba(255,255,255,.98) !important;
 }
@@ -239,8 +239,8 @@ body { background: #f8fafc; }
 
 #attendance_form > .fixed.bottom-6.right-6 { bottom: 18px !important; right: 22px !important; z-index: 40; }
 #attendance_form > .fixed.bottom-6.right-6 button {
-    min-height: 46px; padding: 10px 18px !important; border-radius: 10px !important;
-    font-size: 15px !important; font-weight: 800 !important;
+    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 16px !important; border-radius: 9px !important;
+    font-size: 14px !important; font-weight: 800 !important;
     box-shadow: 0 8px 20px rgba(5,150,105,.22) !important;
 }
 
@@ -248,7 +248,7 @@ body { background: #f8fafc; }
     #attendance_grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
 }
 @media (max-width: 767px) {
-    .attendance-entry-workspace { padding: 16px 14px 88px !important; }
+    .attendance-entry-workspace { padding: 0 0 88px !important; }
     #att_selector_form .grid { grid-template-columns: 1fr !important; }
     #attendance_form > .sticky.top-0,
     #attendance_form > .sticky.top-\[72px\] {
@@ -275,7 +275,7 @@ body { background: #f8fafc; }
     #attendance_form > .fixed.bottom-6.right-6 button { width: 100%; justify-content: center; }
 }
 @media (max-width: 400px) {
-    .attendance-entry-workspace { padding: 12px 10px 84px !important; }
+    .attendance-entry-workspace { padding: 0 0 84px !important; }
     #attendance_form > .sticky.top-\[72px\] .grid.grid-cols-2.md\:grid-cols-5 {
         grid-template-columns: 1fr !important;
     }
