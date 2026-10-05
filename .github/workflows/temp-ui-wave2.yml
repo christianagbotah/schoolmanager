@@ -1,0 +1,86 @@
+name: Temporary UI Consistency Wave Two Bridge
+
+on:
+  push:
+    branches:
+      - ui-wave2-baseline-20261005
+
+permissions:
+  contents: write
+
+jobs:
+  apply-ui-wave-two:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify expected base
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "41935ab8cd673aa5b6aa80417610d8c951ff471b"
+
+      - name: Download checksum-verified patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL "https://schoolmanager.lightworldtech.com/bridge-ui-wave2-1fe6c8153acf.patch" -o /tmp/ui-wave2.patch
+          echo "0c15cef4c39d20dfcee3474d24406e01584cb20c738b4666f019542093c23eb0  /tmp/ui-wave2.patch" | sha256sum -c -
+
+      - name: Apply exact six-file patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git apply --check /tmp/ui-wave2.patch
+          git apply /tmp/ui-wave2.patch
+          cat > /tmp/expected-files <<'EOF'
+          application/views/backend/admin/accounts.php
+          application/views/backend/admin/assign_transport.php
+          application/views/backend/admin/class_routine_add.php
+          application/views/backend/admin/manage_attendance_view.php
+          application/views/backend/admin/noticeboard.php
+          application/views/backend/admin/transport_reports.php
+          EOF
+          git diff --name-only | sort > /tmp/actual-files
+          diff -u /tmp/expected-files /tmp/actual-files
+
+      - name: Validate UI consistency contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            application/views/backend/admin/accounts.php
+            application/views/backend/admin/assign_transport.php
+            application/views/backend/admin/class_routine_add.php
+            application/views/backend/admin/manage_attendance_view.php
+            application/views/backend/admin/noticeboard.php
+            application/views/backend/admin/transport_reports.php
+          )
+          for f in "${files[@]}"; do php -l "$f"; done
+          grep -Fq 'font-size: 24px;' application/views/backend/admin/class_routine_add.php
+          grep -Fq 'var(--sm-ui-control-height, 42px)' application/views/backend/admin/accounts.php
+          grep -Fq 'calc(var(--sm-topbar-height-dynamic, 72px) + 8px)' application/views/backend/admin/manage_attendance_view.php
+          grep -Fq 'font-size:24px!important' application/views/backend/admin/noticeboard.php
+          grep -Fq 'font-size: 24px !important;' application/views/backend/admin/transport_reports.php
+          grep -Fq 'calc(var(--sm-topbar-height-dynamic, 72px) + 8px)' application/views/backend/admin/assign_transport.php
+          ! grep -Eq 'padding: 24px 28px|font-size: (30|26)px|height: 46px|min-height: 46px|top: 72px' "${files[@]}"
+
+      - name: Commit applied branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b ui-wave2-applied-20261005
+          git add application/views/backend/admin/accounts.php \
+                  application/views/backend/admin/assign_transport.php \
+                  application/views/backend/admin/class_routine_add.php \
+                  application/views/backend/admin/manage_attendance_view.php \
+                  application/views/backend/admin/noticeboard.php \
+                  application/views/backend/admin/transport_reports.php
+          git commit -m 'fix(ui): normalize remaining page chrome wave two'
+          git push origin HEAD
