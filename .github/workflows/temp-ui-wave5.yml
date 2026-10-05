@@ -1,0 +1,86 @@
+name: Temporary UI Consistency Wave Five Bridge
+
+on:
+  push:
+    branches:
+      - ui-wave5-baseline-20261005
+
+permissions:
+  contents: write
+
+jobs:
+  apply-ui-wave-five:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify expected base
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "df17622ad28642f0082e5f023d2a7f2129d14002"
+
+      - name: Download checksum-verified patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL "https://schoolmanager.lightworldtech.com/bridge-ui-wave5-0c1908170f46.patch" -o /tmp/ui-wave5.patch
+          echo "bea55d959f6cb54a84ec0e43c564c936b8f0a763213f8b13e52508656b6e4915  /tmp/ui-wave5.patch" | sha256sum -c -
+
+      - name: Apply exact six-file patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git apply --check /tmp/ui-wave5.patch
+          git apply /tmp/ui-wave5.patch
+          cat > /tmp/expected-files <<'EOF'
+          application/views/backend/admin/all_invoices.php
+          application/views/backend/admin/apply_discount.php
+          application/views/backend/admin/discount_approvals.php
+          application/views/backend/admin/discount_profile_rules.php
+          application/views/backend/admin/discount_reports.php
+          application/views/backend/admin/noticeboard_edit.php
+          EOF
+          git diff --name-only | sort > /tmp/actual-files
+          diff -u /tmp/expected-files /tmp/actual-files
+
+      - name: Validate UI consistency contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            application/views/backend/admin/all_invoices.php
+            application/views/backend/admin/apply_discount.php
+            application/views/backend/admin/discount_approvals.php
+            application/views/backend/admin/discount_profile_rules.php
+            application/views/backend/admin/discount_reports.php
+            application/views/backend/admin/noticeboard_edit.php
+          )
+          for f in "${files[@]}"; do php -l "$f"; done
+          grep -Fq 'font-size:24px!important' application/views/backend/admin/noticeboard_edit.php
+          grep -Fq '.reports-container .table {' application/views/backend/admin/discount_reports.php
+          grep -Fq '.modern-container, .modern-container *' application/views/backend/admin/discount_profile_rules.php
+          grep -Fq 'font-size:24px!important' application/views/backend/admin/discount_approvals.php
+          grep -Fq '.apply-discount-workspace .select2-container--default' application/views/backend/admin/apply_discount.php
+          grep -Fq 'font-size: 24px; line-height: 1.2' application/views/backend/admin/all_invoices.php
+          ! grep -Eq '^\* \{|^\.table \{|^\.badge \{|^\.select2-container--default' application/views/backend/admin/discount_reports.php application/views/backend/admin/discount_profile_rules.php application/views/backend/admin/apply_discount.php
+
+      - name: Commit applied branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b ui-wave5-applied-20261005
+          git add application/views/backend/admin/all_invoices.php \
+                  application/views/backend/admin/apply_discount.php \
+                  application/views/backend/admin/discount_approvals.php \
+                  application/views/backend/admin/discount_profile_rules.php \
+                  application/views/backend/admin/discount_reports.php \
+                  application/views/backend/admin/noticeboard_edit.php
+          git commit -m 'fix(ui): normalize discount and invoice page chrome'
+          git push origin HEAD
