@@ -177,7 +177,7 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
     body { background: #f8fafc; }
     .stats-header {
         margin-bottom: 18px !important;
-        padding: 20px 22px !important;
+        padding: 18px 20px !important;
         border-radius: 14px !important;
         background: #0f172a !important;
         box-shadow: 0 1px 2px rgba(15,23,42,.10) !important;
@@ -207,10 +207,10 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
     .filter-card > .row > [class*="col-"] { width: 100% !important; padding: 0 !important; }
     .filter-card label {
         margin-bottom: 7px !important; color: #334155 !important;
-        font-size: 14px !important; font-weight: 700 !important;
+        font-size: 13px !important; font-weight: 700 !important;
     }
     .filter-card .form-control {
-        min-height: 46px !important; height: 46px !important;
+        min-height: var(--sm-ui-control-height, 42px) !important; height: var(--sm-ui-control-height, 42px) !important;
         padding: 9px 11px !important; border: 1px solid #cbd5e1 !important;
         border-radius: 9px !important; background: #fff !important;
         color: #0f172a !important; font-size: 14px !important;
@@ -219,7 +219,7 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
         border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
     }
     .filter-card .btn-primary {
-        min-height: 46px !important; height: 46px !important; padding: 9px 14px !important;
+        min-height: var(--sm-ui-control-height, 42px) !important; height: var(--sm-ui-control-height, 42px) !important; padding: 9px 14px !important;
         border-radius: 9px !important; font-size: 14px !important; font-weight: 800 !important;
         box-shadow: none !important;
     }
@@ -328,8 +328,8 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
                             <i class="fa fa-bar-chart" style="font-size: 32px;"></i>
                         </div>
                         <div>
-                            <h2 style="margin: 0; font-weight: 700; font-size: 28px; color: white;">Fee Collection Statistics</h2>
-                            <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 15px; color: white;">Comprehensive analytics and reports</p>
+                            <h2 style="margin: 0; font-weight: 700; font-size: 24px; color: white;">Fee Collection Statistics</h2>
+                            <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px; color: white;">Comprehensive analytics and reports</p>
                         </div>
                     </div>
                 </div>

@@ -18,9 +18,9 @@ body { background: #f9fafb; min-height: 100vh; }
 .admission-header::before { content: ''; position: absolute; top: -50%; right: -10%; width: 300px; height: 300px; background: rgba(255,255,255,0.1); border-radius: 50%; }
 .admission-header::after { content: ''; position: absolute; bottom: -30%; left: -5%; width: 200px; height: 200px; background: rgba(255,255,255,0.08); border-radius: 50%; }
 @media (max-width: 640px) { .admission-header { padding: 60px 15px 30px; } }
-.admission-header h2 { margin: 0; font-size: 36px; font-weight: 800; color: white; position: relative; z-index: 1; letter-spacing: -0.5px; }
-@media (max-width: 640px) { .admission-header h2 { font-size: 26px; } }
-.admission-header p { margin: 12px 0 0; opacity: 0.95; color: white; font-size: 16px; position: relative; z-index: 1; font-weight: 500; }
+.admission-header h2 { margin: 0; font-size: 24px; font-weight: 800; color: white; position: relative; z-index: 1; letter-spacing: -0.5px; }
+@media (max-width: 640px) { .admission-header h2 { font-size: 22px; } }
+.admission-header p { margin: 12px 0 0; opacity: 0.95; color: white; font-size: 14px; position: relative; z-index: 1; font-weight: 500; }
 @media (max-width: 640px) { .admission-header p { font-size: 14px; } }
 .form-content { padding: 0 40px; box-sizing: border-box; background: #e8e8e8; }
 @media (max-width: 640px) { .form-content { padding: 0 10px; } }
@@ -84,12 +84,12 @@ body { background: #f9fafb; min-height: 100vh; }
 .bill-empty-state p { font-size: 14px; font-weight: 500; margin: 0; }
 
 /* Modern Select2 Styling */
-.select2-container--default .select2-selection--single { height: 48px; border: 2px solid #e5e7eb; border-radius: 10px; padding: 8px 12px; transition: all 0.3s ease; }
+.select2-container--default .select2-selection--single { height: var(--sm-ui-control-height, 42px); border: 2px solid #e5e7eb; border-radius: 10px; padding: 8px 12px; transition: all 0.3s ease; }
 .select2-container--default .select2-selection--single:hover { border-color: #3b82f6; }
 .select2-container--default.select2-container--focus .select2-selection--single { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-.select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 30px; color: #111827; font-size: 15px; font-weight: 600; padding-left: 8px; }
+.select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 40px; color: #111827; font-size: 14px; font-weight: 600; padding-left: 8px; }
 .select2-container--default .select2-selection--single .select2-selection__placeholder { color: #9ca3af; font-weight: 500; }
-.select2-container--default .select2-selection--single .select2-selection__arrow { height: 46px; }
+.select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px; }
 .select2-dropdown { border: 2px solid #e5e7eb; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 4px; }
 .select2-container--default .select2-results__option { padding: 14px 18px; font-size: 15px; font-weight: 600; color: #111827; transition: all 0.2s ease; border-bottom: 1px solid #f3f4f6; }
 .select2-container--default .select2-results__option:last-child { border-bottom: none; }
@@ -104,27 +104,27 @@ body { background: #f9fafb; min-height: 100vh; }
 /* ---- Direct UI/UX refinement: Student Admission workspace ---- */
 body { background: #f8fafc; }
 .admission-container {
-    max-width: 1500px; margin: 24px auto 48px; padding: 0 24px;
+    max-width: 1500px; margin: 0 auto 32px; padding: 0;
     background: transparent; border: 0; border-radius: 0; box-shadow: none; overflow: visible;
 }
 .admission-header {
     display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto;
     column-gap: 24px; row-gap: 5px; align-items: center; text-align: left;
-    background: #0f172a; padding: 26px 30px; border-radius: 16px;
+    background: #0f172a; padding: 18px 20px; border-radius: 14px;
     box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16);
 }
 .admission-header::before, .admission-header::after { display: none; }
 .admission-header h2 {
-    grid-column: 1; grid-row: 1; font-size: 30px; line-height: 1.2; letter-spacing: -0.02em;
+    grid-column: 1; grid-row: 1; font-size: 24px; line-height: 1.2; letter-spacing: -0.02em;
 }
 .admission-header p {
-    grid-column: 1; grid-row: 2; margin: 2px 0 0; font-size: 15px; line-height: 1.5;
+    grid-column: 1; grid-row: 2; margin: 2px 0 0; font-size: 14px; line-height: 1.5;
     color: #cbd5e1; opacity: 1;
 }
 .admission-header .customize-form-btn {
     position: static !important; top: auto !important; right: auto !important;
     grid-column: 2; grid-row: 1 / 3; align-self: center;
-    min-height: 44px; padding: 10px 16px !important; border: 1px solid rgba(255,255,255,.28) !important;
+    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 14px !important; border: 1px solid rgba(255,255,255,.28) !important;
     border-radius: 10px !important; background: #fff !important; color: #1d4ed8 !important;
     box-shadow: 0 2px 8px rgba(0,0,0,.14) !important; font-size: 14px; font-weight: 700 !important;
 }
@@ -146,11 +146,11 @@ body { background: #f8fafc; }
 .section-header i { color: #2563eb; font-size: 19px; }
 .form-grid { gap: 18px 20px; }
 .form-field label {
-    margin-bottom: 7px; color: #334155; font-size: 15px; font-weight: 700; letter-spacing: 0;
+    margin-bottom: 7px; color: #334155; font-size: 13px; font-weight: 700; letter-spacing: 0;
 }
 .form-field input, .form-field select, .form-field textarea {
-    min-height: 46px; padding: 11px 13px; border: 1px solid #cbd5e1; border-radius: 9px;
-    font-size: 15px; font-weight: 500; color: #0f172a; background: #fff;
+    min-height: var(--sm-ui-control-height, 42px); padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 9px;
+    font-size: 14px; font-weight: 500; color: #0f172a; background: #fff;
 }
 .form-field textarea { min-height: 108px; line-height: 1.5; resize: vertical; }
 .form-field input:hover, .form-field select:hover, .form-field textarea:hover { border-color: #94a3b8; }
@@ -158,16 +158,16 @@ body { background: #f8fafc; }
     border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.14);
 }
 .form-field input::placeholder, .form-field textarea::placeholder { color: #94a3b8; }
-.form-field button[type="button"] { min-height: 46px; }
+.form-field button[type="button"] { min-height: var(--sm-ui-control-height, 42px); }
 .photo-upload { padding: 24px; background: #f8fafc; border-color: #cbd5e1; border-radius: 12px; }
 .photo-upload:hover { border-color: #2563eb; background: #eff6ff; }
 .select2-container--default .select2-selection--single {
-    min-height: 46px; height: 46px; border: 1px solid #cbd5e1; border-radius: 9px; padding: 7px 10px;
+    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); border: 1px solid #cbd5e1; border-radius: 9px; padding: 7px 10px;
 }
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 30px; font-size: 15px; font-weight: 600;
+    line-height: 40px; font-size: 14px; font-weight: 600;
 }
-.select2-container--default .select2-selection--single .select2-selection__arrow { height: 44px; }
+.select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px; }
 
 .admission-actions {
     position: sticky; bottom: 14px; z-index: 40; display: flex; justify-content: flex-end; gap: 10px;
@@ -176,8 +176,8 @@ body { background: #f8fafc; }
     backdrop-filter: blur(10px);
 }
 .admission-reset-btn, .admission-submit-btn {
-    min-height: 46px; padding: 11px 20px; border: 0; border-radius: 10px;
-    font-size: 15px; font-weight: 800; cursor: pointer; display: inline-flex;
+    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 16px; border: 0; border-radius: 10px;
+    font-size: 14px; font-weight: 800; cursor: pointer; display: inline-flex;
     align-items: center; justify-content: center; gap: 8px; transition: .18s ease;
 }
 .admission-reset-btn { background: #fff; color: #b91c1c; border: 1px solid #fecaca; }
@@ -189,7 +189,7 @@ body { background: #f8fafc; }
 .admission-submit-btn:hover { background: #1d4ed8 !important; transform: translateY(-1px); }
 
 @media (max-width: 900px) {
-    .admission-container { padding: 0 16px; }
+    .admission-container { padding: 0; }
     .admission-header { grid-template-columns: 1fr; grid-template-rows: auto; padding: 22px; }
     .admission-header h2, .admission-header p, .admission-header .customize-form-btn {
         grid-column: 1; grid-row: auto;
@@ -197,9 +197,9 @@ body { background: #f8fafc; }
     .admission-header .customize-form-btn { justify-self: start; margin-top: 10px; }
 }
 @media (max-width: 640px) {
-    .admission-container { width: 100%; margin: 12px auto 32px; padding: 0 10px; }
+    .admission-container { width: 100%; margin: 0 auto 28px; padding: 0; }
     .admission-header { padding: 20px 16px; border-radius: 12px; }
-    .admission-header h2 { font-size: 24px; }
+    .admission-header h2 { font-size: 22px; }
     .admission-header p { font-size: 14px; }
     .admission-header .customize-form-btn { width: 100%; justify-content: center; }
     .section-card { padding: 16px; margin: 14px 0; border-radius: 12px; }
@@ -722,7 +722,7 @@ body { background: #f8fafc; }
 						<label style="font-size: 13px; color: #64748b; margin-bottom: 5px; display: block;">
 							<i class="fa fa-file-invoice" style="color: #3b82f6;"></i> Invoice Discount
 						</label>
-						<select name="invoice_discount_profile" id="invoice_discount_profile" class="select2" style="width: 100%; height: 50px; border: 2px solid #3b82f6; border-radius: 10px; padding: 0 15px; font-size: 14px; font-weight: 600; color: #0c4a6e; background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);">
+						<select name="invoice_discount_profile" id="invoice_discount_profile" class="select2" style="width: 100%; height: 42px; border: 2px solid #3b82f6; border-radius: 10px; padding: 0 15px; font-size: 14px; font-weight: 600; color: #0c4a6e; background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);">
 							<option value="">No Invoice Discount</option>
 							<?php
 							$invoice_profiles = $this->db->where('is_active', 1)->where('discount_category', 'invoice')->get('discount_profiles')->result_array();
@@ -744,7 +744,7 @@ body { background: #f8fafc; }
 						<label style="font-size: 13px; color: #64748b; margin-bottom: 5px; display: block;">
 							<i class="fa fa-calendar-day" style="color: #10b981;"></i> Daily Fees Discount
 						</label>
-						<select name="daily_fees_discount_profile" id="daily_fees_discount_profile" class="select2" style="width: 100%; height: 50px; border: 2px solid #10b981; border-radius: 10px; padding: 0 15px; font-size: 14px; font-weight: 600; color: #0c4a6e; background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);">
+						<select name="daily_fees_discount_profile" id="daily_fees_discount_profile" class="select2" style="width: 100%; height: 42px; border: 2px solid #10b981; border-radius: 10px; padding: 0 15px; font-size: 14px; font-weight: 600; color: #0c4a6e; background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);">
 							<option value="">No Daily Fees Discount</option>
 							<?php
 							$daily_profiles = $this->db->where('is_active', 1)->where('discount_category', 'daily_fees')->get('discount_profiles')->result_array();

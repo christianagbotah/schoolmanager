@@ -5,8 +5,8 @@ $school_name = $this->db->get_where('settings', array('type' => 'system_name'))-
 
 <style>
 .enterprise-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; border-radius: 16px; margin-bottom: 30px; color: white; text-align: center; }
-.enterprise-header h1 { font-size: 32px; font-weight: 700; margin: 0 0 8px 0; color: white; }
-.enterprise-header p { font-size: 18px; opacity: 0.95; margin: 0; color: white; }
+.enterprise-header h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px 0; color: white; }
+.enterprise-header p { font-size: 14px; opacity: 0.95; margin: 0; color: white; }
 .filter-section { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 30px; }
 .filter-section h3 { font-size: 20px; font-weight: 700; color: #1f2937; margin: 0 0 25px 0; }
 .form-group-modern { margin-bottom: 20px; }
@@ -73,7 +73,7 @@ $school_name = $this->db->get_where('settings', array('type' => 'system_name'))-
     padding: 22px 24px; margin-bottom: 16px; border-radius: 14px;
     background: #0f172a; box-shadow: 0 8px 22px rgba(15,23,42,.14);
   }
-  .enterprise-header h1 { font-size: 28px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em; }
+  .enterprise-header h1 { font-size: 24px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em; }
   .enterprise-header p { margin-top: 4px; font-size: 14px; line-height: 1.45; color: #cbd5e1; opacity: 1; }
 
   .filter-section {
@@ -91,18 +91,18 @@ $school_name = $this->db->get_where('settings', array('type' => 'system_name'))-
   .filter-section .row > div { width: auto; padding: 0; }
   .form-group-modern { margin-bottom: 0; }
   .form-group-modern label {
-    margin-bottom: 7px; color: #334155; font-size: 14px; font-weight: 700;
+    margin-bottom: 7px; color: #334155; font-size: 13px; font-weight: 700;
   }
   .form-group-modern label i { color: #2563eb; }
   .modern-input {
-    min-height: 44px; height: 44px; padding: 9px 11px;
-    border: 1px solid #cbd5e1; border-radius: 9px; color: #0f172a; font-size: 15px;
+    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 11px;
+    border: 1px solid #cbd5e1; border-radius: 9px; color: #0f172a; font-size: 14px;
   }
   .modern-input:focus {
     border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
   }
   .modern-btn {
-    min-height: 44px; height: 44px; padding: 9px 15px;
+    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 14px;
     border-radius: 9px; font-size: 14px; font-weight: 800; box-shadow: none;
   }
   .btn-primary-modern { background: #2563eb; }
@@ -153,7 +153,7 @@ $school_name = $this->db->get_where('settings', array('type' => 'system_name'))-
   }
   @media (max-width: 640px) {
     .enterprise-header { padding: 18px 16px; text-align: left; }
-    .enterprise-header h1 { font-size: 24px; }
+    .enterprise-header h1 { font-size: 22px; }
     .filter-section { padding: 14px; }
     .filter-section .row { grid-template-columns: 1fr; }
     .filter-section .row > div:last-child { grid-column: auto; }

@@ -13,14 +13,14 @@
 }
 #change_running_term {
     width: 100% !important;
-    min-height: 46px !important;
-    height: 46px !important;
-    padding: 9px 12px !important;
+    min-height: var(--sm-ui-control-height, 42px) !important;
+    height: var(--sm-ui-control-height, 42px) !important;
+    padding: 9px 11px !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 9px !important;
     background: #fff !important;
     color: #0f172a !important;
-    font-size: 15px !important;
+    font-size: 14px !important;
     line-height: 1.4 !important;
     font-weight: 700 !important;
     box-shadow: none !important;

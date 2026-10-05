@@ -8,7 +8,7 @@ $pass_mark = !empty($pass_grades) ? min(array_column($pass_grades, 'mark_from'))
 <style>
 .grade-workspace {
     margin: 0 !important;
-    padding: 24px 28px 40px !important;
+    padding: 0 0 32px !important;
     background: #f8fafc;
     min-height: 100%;
     color: #334155;
@@ -33,7 +33,7 @@ $pass_mark = !empty($pass_grades) ? min(array_column($pass_grades, 'mark_from'))
 .grade-page-head h1 {
     margin: 0;
     color: #0f172a;
-    font-size: 30px !important;
+    font-size: 24px !important;
     line-height: 1.2;
     font-weight: 800;
     letter-spacing: -.02em;
@@ -41,12 +41,13 @@ $pass_mark = !empty($pass_grades) ? min(array_column($pass_grades, 'mark_from'))
 .grade-page-head p:last-child {
     margin: 7px 0 0;
     color: #64748b;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.5;
 }
 .grade-add-button {
-    min-height: 44px;
-    padding: 9px 15px !important;
+    min-height: var(--sm-ui-control-height, 42px);
+    height: var(--sm-ui-control-height, 42px);
+    padding: 9px 14px !important;
     border: 1px solid #2563eb !important;
     border-radius: 9px !important;
     background: #2563eb !important;
@@ -205,14 +206,14 @@ $pass_mark = !empty($pass_grades) ? min(array_column($pass_grades, 'mark_from'))
 }
 .grade-field input {
     width: 100%;
-    min-height: 44px;
-    height: 44px;
+    min-height: var(--sm-ui-control-height, 42px);
+    height: var(--sm-ui-control-height, 42px);
     padding: 9px 11px;
     border: 1px solid #cbd5e1;
     border-radius: 9px;
     background: #fff;
     color: #0f172a;
-    font-size: 15px !important;
+    font-size: 14px !important;
     box-sizing: border-box;
 }
 .grade-field input:focus {
@@ -229,8 +230,9 @@ $pass_mark = !empty($pass_grades) ? min(array_column($pass_grades, 'mark_from'))
     border-top: 1px solid #e2e8f0;
 }
 .grade-form-actions button {
-    min-height: 44px;
-    padding: 9px 15px !important;
+    min-height: var(--sm-ui-control-height, 42px);
+    height: var(--sm-ui-control-height, 42px);
+    padding: 9px 14px !important;
     border-radius: 9px !important;
     font-size: 14px !important;
     font-weight: 800 !important;
@@ -276,9 +278,9 @@ $pass_mark = !empty($pass_grades) ? min(array_column($pass_grades, 'mark_from'))
     .grade-stats { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 767px) {
-    .grade-workspace { padding: 18px 14px 32px !important; }
+    .grade-workspace { padding: 0 0 28px !important; }
     .grade-page-head { display: block; }
-    .grade-page-head h1 { font-size: 26px !important; }
+    .grade-page-head h1 { font-size: 22px !important; }
     .grade-add-button { width: 100%; margin-top: 14px; }
     .grade-form-grid { grid-template-columns: 1fr; }
     .grade-field.full { grid-column: auto; }
