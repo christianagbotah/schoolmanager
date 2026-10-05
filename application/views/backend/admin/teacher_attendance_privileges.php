@@ -1,36 +1,36 @@
 <style>
-.privileges-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-.privileges-header { background: #764ba2; color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-.privileges-header h1 { margin: 0; font-size: 28px; font-weight: 600; color: white !important; }
-.privileges-header p { margin: 10px 0 0; opacity: 0.9; }
+.privileges-container { max-width: 1400px; margin: 0 auto; padding: 0 0 32px; }
+.privileges-header { background: #764ba2; color: white; padding: 18px 20px; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.privileges-header h1 { margin: 0; font-size: 24px; font-weight: 600; color: white !important; }
+.privileges-header p { margin: 7px 0 0; opacity: 0.9; font-size: 14px; }
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
 .stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #667eea; }
 .stat-card h3 { margin: 0 0 10px; font-size: 32px; font-weight: 700; color: #1f2937; }
 .stat-card p { margin: 0; color: #6b7280; font-size: 14px; }
 .privileges-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 .privileges-card-title { font-size: 20px; font-weight: 600; color: #1f2937; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; }
-.btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s; }
-.btn-primary { background: #764ba2; color: white; }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
-.btn-success { background: #10b981; color: white; }
-.btn-success:hover { background: #059669; }
-.btn-danger { background: #ef4444; color: white; }
-.btn-danger:hover { background: #dc2626; }
-.btn-secondary { background: #6b7280; color: white; }
-.btn-secondary:hover { background: #4b5563; }
-.badge { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; }
-.badge-success { background: #d1fae5; color: #065f46; }
-.badge-danger { background: #fee2e2; color: #991b1b; }
+.privileges-container .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s; }
+.privileges-container .btn-primary { background: #764ba2; color: white; }
+.privileges-container .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+.privileges-container .btn-success { background: #10b981; color: white; }
+.privileges-container .btn-success:hover { background: #059669; }
+.privileges-container .btn-danger { background: #ef4444; color: white; }
+.privileges-container .btn-danger:hover { background: #dc2626; }
+.privileges-container .btn-secondary { background: #6b7280; color: white; }
+.privileges-container .btn-secondary:hover { background: #4b5563; }
+.privileges-container .badge { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+.privileges-container .badge-success { background: #d1fae5; color: #065f46; }
+.privileges-container .badge-danger { background: #fee2e2; color: #991b1b; }
 .search-filter-bar { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
 .search-filter-bar input, .search-filter-bar select { padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; }
 .search-filter-bar input { flex: 1; min-width: 250px; }
 .bulk-actions { display: flex; gap: 10px; align-items: center; padding: 15px; background: #f9fafb; border-radius: 8px; margin-bottom: 20px; }
 .bulk-actions select { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; }
-table { width: 100%; border-collapse: collapse; }
-table thead { background: #f9fafb; }
-table th { padding: 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 2px solid #e5e7eb; }
-table td { padding: 12px; border-bottom: 1px solid #f3f4f6; }
-table tbody tr:hover { background: #f9fafb; }
+.privileges-container table { width: 100%; border-collapse: collapse; }
+.privileges-container table thead { background: #f9fafb; }
+.privileges-container table th { padding: 12px; text-align: left; font-weight: 600; color: #374151; border-bottom: 2px solid #e5e7eb; }
+.privileges-container table td { padding: 12px; border-bottom: 1px solid #f3f4f6; }
+.privileges-container table tbody tr:hover { background: #f9fafb; }
 .checkbox-cell { width: 40px; text-align: center; }
 .checkbox-cell input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
 .teacher-info { display: flex; align-items: center; gap: 12px; }
@@ -46,20 +46,19 @@ table tbody tr:hover { background: #f9fafb; }
   .search-filter-bar { flex-direction: column; }
   .search-filter-bar input { min-width: 100%; }
   .bulk-actions { flex-direction: column; align-items: stretch; }
-  table { font-size: 13px; }
-  table th, table td { padding: 8px; }
+  .privileges-container table { font-size: 13px; }
+  .privileges-container table th, .privileges-container table td { padding: 8px; }
 }
 
 /* Direct UX refinement — Teacher Attendance Privileges */
-body { background: #f8fafc; }
-.privileges-container { padding: 24px 28px 40px; }
+.privileges-container { padding: 0 0 32px; }
 .privileges-header {
     margin-bottom: 18px !important; padding: 20px 24px !important;
     border-radius: 14px !important; background: #0f172a !important;
     box-shadow: 0 8px 22px rgba(15,23,42,.16) !important;
 }
 .privileges-header h1 {
-    font-size: 27px !important; line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em;
+    font-size: 24px !important; line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em;
 }
 .privileges-header p { margin-top: 5px !important; font-size: 14px !important; color: #cbd5e1 !important; }
 
@@ -103,14 +102,14 @@ body { background: #f8fafc; }
     border-radius: 8px !important; font-size: 14px !important;
 }
 
-.btn {
+.privileges-container .btn {
     min-height: 40px; padding: 8px 13px !important; border-radius: 8px !important;
     font-size: 14px !important; line-height: 1.35; font-weight: 700 !important;
 }
-.btn-primary { background: #2563eb !important; }
-.btn-primary:hover { background: #1d4ed8 !important; transform: translateY(-1px) !important; box-shadow: 0 3px 10px rgba(37,99,235,.16) !important; }
-.btn-sm { min-height: 36px; padding: 7px 11px !important; font-size: 13px !important; }
-.badge {
+.privileges-container .btn-primary { background: #2563eb !important; }
+.privileges-container .btn-primary:hover { background: #1d4ed8 !important; transform: translateY(-1px) !important; box-shadow: 0 3px 10px rgba(37,99,235,.16) !important; }
+.privileges-container .btn-sm { min-height: 36px; padding: 7px 11px !important; font-size: 13px !important; }
+.privileges-container .badge {
     min-height: 30px; padding: 6px 10px !important; border-radius: 999px !important;
     display: inline-flex; align-items: center; font-size: 13px !important; font-weight: 700 !important;
 }
@@ -134,13 +133,13 @@ body { background: #f8fafc; }
 .action-buttons { gap: 7px !important; }
 .action-buttons button { min-height: 36px; padding: 7px 10px !important; font-size: 13px !important; }
 
-#modal_ajax .form-control { min-height: 44px; font-size: 15px; border-radius: 8px; }
+#modal_ajax .form-control { min-height: var(--sm-ui-control-height, 42px); font-size: 14px; border-radius: 8px; }
 #modal_ajax textarea.form-control { min-height: 96px; }
 
 @media (max-width: 768px) {
-    .privileges-container { padding: 16px 14px 32px; }
+    .privileges-container { padding: 0 0 28px; }
     .privileges-header { padding: 18px !important; }
-    .privileges-header h1 { font-size: 23px !important; }
+    .privileges-header h1 { font-size: 22px !important; }
     .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 10px !important; }
     .stat-card { padding: 14px !important; }
     .stat-card h3 { font-size: 24px !important; }
@@ -401,11 +400,11 @@ function showGrantModal(teacherId, teacherName) {
     <div style="padding: 20px;">
       <h4 style="margin-bottom: 20px;">Grant Attendance Privilege</h4>
       <p>Grant attendance monitoring privilege to <strong>${teacherName}</strong>?</p>
-      <div class="form-group" style="margin-top: 20px;">
+      <div class="form-group" style="margin-top: 16px;">
         <label>Notes (Optional)</label>
         <textarea id="grant-notes-input" class="form-control" rows="3" placeholder="Add notes for this privilege grant..."></textarea>
       </div>
-      <div style="margin-top: 20px; text-align: right;">
+      <div style="margin-top: 16px; text-align: right;">
         <button type="button" class="btn btn-secondary" onclick="$('#modal_ajax').modal('hide')">Cancel</button>
         <button type="button" class="btn btn-success" onclick="executeGrantPrivilege(${teacherId})" style="margin-left: 10px;">Grant Privilege</button>
       </div>
@@ -425,11 +424,11 @@ function showRevokeModal(teacherId, teacherName) {
         <i class="mdi mdi-alert"></i> Warning: This will revoke attendance monitoring access.
       </div>
       <p>Revoke attendance monitoring privilege from <strong>${teacherName}</strong>?</p>
-      <div class="form-group" style="margin-top: 20px;">
+      <div class="form-group" style="margin-top: 16px;">
         <label>Reason for Revocation (Optional)</label>
         <textarea id="revoke-notes-input" class="form-control" rows="3" placeholder="Add reason for revocation..."></textarea>
       </div>
-      <div style="margin-top: 20px; text-align: right;">
+      <div style="margin-top: 16px; text-align: right;">
         <button type="button" class="btn btn-secondary" onclick="$('#modal_ajax').modal('hide')">Cancel</button>
         <button type="button" class="btn btn-danger" onclick="executeRevokePrivilege(${teacherId})" style="margin-left: 10px;">Revoke Privilege</button>
       </div>
@@ -510,11 +509,11 @@ function bulkGrantPrivileges() {
     <div style="padding: 20px;">
       <h4 style="margin-bottom: 20px;">Bulk Grant Privileges</h4>
       <p>You are about to grant privileges to <strong>${selectedTeachers.size}</strong> teacher(s).</p>
-      <div class="form-group" style="margin-top: 20px;">
+      <div class="form-group" style="margin-top: 16px;">
         <label>Notes (Optional)</label>
         <textarea id="bulk-notes-input" class="form-control" rows="3" placeholder="Add notes for this bulk grant..."></textarea>
       </div>
-      <div style="margin-top: 20px; text-align: right;">
+      <div style="margin-top: 16px; text-align: right;">
         <button type="button" class="btn btn-secondary" onclick="$('#modal_ajax').modal('hide')">Cancel</button>
         <button type="button" class="btn btn-success" onclick="executeBulkAction()" style="margin-left: 10px;">Grant Privileges</button>
       </div>
@@ -538,11 +537,11 @@ function bulkRevokePrivileges() {
         <i class="mdi mdi-alert"></i> Warning: This action will revoke privileges from multiple teachers.
       </div>
       <p>You are about to revoke privileges from <strong>${selectedTeachers.size}</strong> teacher(s).</p>
-      <div class="form-group" style="margin-top: 20px;">
+      <div class="form-group" style="margin-top: 16px;">
         <label>Reason for Revocation (Optional)</label>
         <textarea id="bulk-notes-input" class="form-control" rows="3" placeholder="Add reason for revocation..."></textarea>
       </div>
-      <div style="margin-top: 20px; text-align: right;">
+      <div style="margin-top: 16px; text-align: right;">
         <button type="button" class="btn btn-secondary" onclick="$('#modal_ajax').modal('hide')">Cancel</button>
         <button type="button" class="btn btn-danger" onclick="executeBulkAction()" style="margin-left: 10px;">Revoke Privileges</button>
       </div>

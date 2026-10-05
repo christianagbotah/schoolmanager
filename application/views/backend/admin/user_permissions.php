@@ -1,16 +1,26 @@
+<style>
+.permissions-workspace { margin: 0 !important; padding: 0 0 32px; }
+.permissions-workspace > .col-md-12 { padding: 0 !important; }
+.permissions-workspace > .col-md-12 > div:first-of-type { padding: 18px 20px !important; margin-bottom: 16px !important; border-radius: 14px !important; background: #0f172a !important; box-shadow: 0 1px 2px rgba(15,23,42,.10) !important; }
+.permissions-workspace > .col-md-12 > div:first-of-type h2 { font-size: 24px !important; line-height: 1.2; font-weight: 800 !important; }
+.permissions-workspace > .col-md-12 > div:first-of-type p { font-size: 14px !important; line-height: 1.45; }
+.permissions-workspace .modern-btn { min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 14px !important; border-radius: 9px !important; font-size: 14px !important; font-weight: 700 !important; }
+.permissions-workspace #search-users { min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 11px !important; font-size: 14px !important; }
+@media (max-width: 767px) { .permissions-workspace { padding-bottom: 28px; } .permissions-workspace > .col-md-12 > div:first-of-type { padding: 16px !important; } .permissions-workspace > .col-md-12 > div:first-of-type h2 { font-size: 22px !important; } }
+</style>
 <!-- User Permissions Management - Dashboard -->
-<div class="row">
+<div class="row permissions-workspace">
     <div class="col-md-12">
         
         <!-- Page Header -->
-        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:32px;border-radius:16px;margin-bottom:24px;box-shadow:0 10px 40px rgba(102,126,234,0.3);">
+        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:18px 20px;border-radius:14px;margin-bottom:16px;box-shadow:0 10px 40px rgba(102,126,234,0.3);">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
                 <div>
-                    <h2 style="color:#fff;margin:0;font-size:28px;font-weight:700;display:flex;align-items:center;gap:12px;">
+                    <h2 style="color:#fff;margin:0;font-size:24px;font-weight:800;display:flex;align-items:center;gap:12px;">
                         <i class="entypo-lock"></i>
                         <?php echo get_phrase('user_permissions_management'); ?>
                     </h2>
-                    <p style="color:rgba(255,255,255,0.9);margin:8px 0 0 0;font-size:15px;">
+                    <p style="color:rgba(255,255,255,0.9);margin:8px 0 0 0;font-size:14px;">
                         <?php echo get_phrase('grant_and_manage_user_permissions_across_modules'); ?>
                     </p>
                 </div>
@@ -265,17 +275,19 @@
 </div>
 
 <style>
-    .action-btn:hover {
+    .permissions-workspace .action-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     
-    .modern-btn {
+    .permissions-workspace .modern-btn {
         display:inline-flex;
         align-items:center;
         gap:8px;
-        padding:12px 24px;
-        border-radius:8px;
+        min-height:var(--sm-ui-control-height,42px);
+        height:var(--sm-ui-control-height,42px);
+        padding:9px 14px;
+        border-radius:9px;
         font-weight:600;
         font-size:14px;
         border:none;
@@ -284,7 +296,7 @@
         text-decoration:none;
     }
     
-    .modern-btn:hover {
+    .permissions-workspace .modern-btn:hover {
         transform:translateY(-2px);
         box-shadow:0 4px 12px rgba(0,0,0,0.2);
     }
