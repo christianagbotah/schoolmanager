@@ -32,6 +32,22 @@
         return false;
     }
 
+    function isPageHeading(heading, root) {
+        if (!heading || isKpiHeading(heading, root)) return false;
+        if (heading.tagName === 'H1') return true;
+        if (heading.tagName !== 'H2') return false;
+        if (heading.parentElement === root) return true;
+
+        var node = heading.parentElement;
+        while (node && node !== root) {
+            var classes = typeof node.className === 'string' ? node.className.toLowerCase() : '';
+            if (/(^|[-_\s])(card|panel|widget|section|modal|stat|kpi|metric)([-_\s]|$)/.test(classes)) return false;
+            if (/(page[-_\s]*(head|header|title)|workspace[-_\s]*head|hero|modern[-_\s]*header|enterprise[-_\s]*header|admission[-_\s]*header)/.test(classes)) return true;
+            node = node.parentElement;
+        }
+        return false;
+    }
+
     function markPageChrome() {
         var main = document.getElementById('main_page');
         if (!main) return;
@@ -90,7 +106,7 @@
             var headingScope = shell || root;
             var headings = headingScope.querySelectorAll('h1, h2');
             for (var h = 0; h < headings.length; h += 1) {
-                if (!isKpiHeading(headings[h], headingScope)) {
+                if (isPageHeading(headings[h], headingScope)) {
                     headings[h].classList.add('sm-ui-page-title');
                     break;
                 }
