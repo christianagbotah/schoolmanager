@@ -39,6 +39,7 @@ jobs:
           set -euo pipefail
           git apply --check /tmp/ui-consistency.patch
           git apply /tmp/ui-consistency.patch
+          git add -N assets/css/ui-consistency.css assets/js/ui-consistency.js
           mapfile -t changed < <(git diff --name-only | sort)
           expected=(
             "application/views/backend/includes_bottom.php"
