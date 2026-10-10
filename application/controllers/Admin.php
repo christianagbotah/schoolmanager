@@ -20643,35 +20643,94 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 	//Payment settings
 	function payment_settings($param1 = '', $param2 = '') {
-		//if ($this->session->userdata('admin_login') != 1)
-		//redirect(site_url('login'));
+		if ($this->session->userdata('admin_login') != 1) {
+			if ($param1 !== '') {
+				$this->output->set_status_header(401)->set_content_type('application/json')->set_output(json_encode([
+					'status' => 'error',
+					'message' => 'Authentication required'
+				]));
+				return;
+			}
+			redirect(site_url('login'));
+			return;
+		}
 
-		$json_data = array();
+		// Gateway credentials and money-movement endpoints are super-admin only.
+		if ((int) $this->session->userdata('user_type') !== 1) {
+			if ($param1 !== '') {
+				$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode([
+					'status' => 'error',
+					'message' => 'Super administrator permission required'
+				]));
+				return;
+			}
+			$this->session->set_flashdata('error_message', 'Only a super administrator can manage payment gateway credentials.');
+			redirect(site_url('admin/dashboard'));
+			return;
+		}
 
 		$this->load->library('form_validation');
 		if ($param1 == 'hubtel_payment') {
-			$fields = ['hubtel_payment_client_id', 'hubtel_payment_client_secret', 'hubtel_payment_merchant_number', 'hubtel_payment_enabled', 'hubtel_payment_test_mode'];
+			$receive_url = trim((string) $this->input->post('hubtel_payment_receive_url'));
+			$send_url = trim((string) $this->input->post('hubtel_payroll_send_url'));
+
+			if ($receive_url !== '' && (stripos($receive_url, 'https://') !== 0 || !filter_var($receive_url, FILTER_VALIDATE_URL))) {
+				$this->output->set_status_header(422)->set_content_type('application/json')->set_output(json_encode([
+					'status' => 'error',
+					'message' => 'Hubtel receive URL must be a valid HTTPS URL.'
+				]));
+				return;
+			}
+
+			$send_url_probe = str_replace('{mobileNumber}', '233200000000', $send_url);
+			if ($send_url !== '' && (strpos($send_url, '{mobileNumber}') === false || stripos($send_url_probe, 'https://') !== 0 || !filter_var($send_url_probe, FILTER_VALIDATE_URL))) {
+				$this->output->set_status_header(422)->set_content_type('application/json')->set_output(json_encode([
+					'status' => 'error',
+					'message' => 'Hubtel payroll send URL must be HTTPS and include the literal {mobileNumber} placeholder.'
+				]));
+				return;
+			}
+
+			$fields = [
+				'hubtel_payment_client_id',
+				'hubtel_payment_client_secret',
+				'hubtel_payment_merchant_number',
+				'hubtel_payment_receive_url',
+				'hubtel_payroll_send_url',
+				'hubtel_payment_enabled',
+				'hubtel_payment_test_mode'
+			];
 
 			foreach ($fields as $field) {
 				$value = $this->input->post($field);
-				if ($value !== null) {
+				if ($value === null) {
+					continue;
+				}
+
+				$setting = $this->db->get_where('settings', ['type' => $field])->row();
+				if ($setting) {
 					$this->db->where('type', $field)->update('settings', ['description' => $value]);
+				} else {
+					$this->db->insert('settings', ['type' => $field, 'description' => $value]);
 				}
 			}
 
 			$this->db->cache_delete();
-			echo json_encode(['status' => 'success', 'message' => get_phrase('hubtel_payment_settings_updated')]);
+			$this->output->set_content_type('application/json')->set_output(json_encode([
+				'status' => 'success',
+				'message' => get_phrase('hubtel_payment_settings_updated')
+			]));
 			return;
 		}
 
 		if ($param1 == 'active_service') {
-
 			$data['description'] = $this->input->post('active_payment_service');
 			$this->db->where('type', 'active_payment_service');
 			$this->db->update('settings', $data);
 
 			$this->session->set_flashdata('flash_message', get_phrase('payment_settings_updated'));
 			redirect(site_url('admin/payment_settings'));
+			return;
 		}
 
 		$page_data['page_name'] = 'payment_settings';
@@ -29302,10 +29361,10 @@ function parents_gender_report() {
 		// Check permissions
 		// HR (level 1 or has HR role): can create and submit
 		// Manager/Principal (level 2): can approve/reject
-		// Finance (level 3 or has Finance role): can mark as paid
+		// Finance (level 3 or Finance role) and super admin can initiate Hubtel salary payout
 		$page_data['can_submit'] = ($page_data['user_level'] == 1 || strpos(strtolower($page_data['user_role']), 'hr') !== false);
 		$page_data['can_approve'] = ($page_data['user_level'] == 2 || strpos(strtolower($page_data['user_role']), 'manager') !== false || strpos(strtolower($page_data['user_role']), 'principal') !== false);
-		$page_data['can_mark_paid'] = ($page_data['user_level'] == 3 || strpos(strtolower($page_data['user_role']), 'finance') !== false);
+		$page_data['can_mark_paid'] = (in_array((int) $page_data['user_level'], [1, 3], true) || strpos(strtolower((string) $page_data['user_role']), 'finance') !== false);
 
 		// Page metadata
 		$page_data['page_name'] = 'payroll_approvals';
@@ -29980,83 +30039,53 @@ function parents_gender_report() {
 	}
 
 	/**
-	 * Wave 8 - Task 11.3: Mark payroll as paid
+	 * Legacy compatibility endpoint for salary payout initiation.
 	 *
 	 * Endpoint: POST /admin/payroll_mark_paid/{pay_id}
 	 *
-	 * Marks an approved payroll as paid
-	 * Requires user to have finance permissions
-	 * Transitions status from 'approved' to 'paid'
+	 * This route never marks payroll paid directly. It delegates to the Hubtel
+	 * payout ledger and the provider callback owns the final paid transition.
 	 */
 	public function payroll_mark_paid($pay_id) {
-		// Verify AJAX request
+		// Backward-compatible route: this no longer marks payroll paid directly.
 		if (!$this->input->is_ajax_request()) {
 			show_404();
 			return;
 		}
 
-		// Get current user ID
-		$user_id = $this->session->userdata('admin_id');
+		$user_id = (int) $this->session->userdata('admin_id');
+		$user_level = (int) $this->session->userdata('user_type');
+		$user_role = strtolower(trim((string) $this->session->userdata('role')));
 
-		if (!$user_id) {
-			echo json_encode([
+		if ($this->session->userdata('admin_login') != 1 || $user_id <= 0) {
+			$this->output->set_status_header(401)->set_content_type('application/json')->set_output(json_encode([
 				'status' => 'error',
-				'message' => 'User not authenticated'
-			]);
+				'message' => 'Authentication required'
+			]));
 			return;
 		}
 
-		// Load Payroll_model
-
-		// Check if payroll is in approved status
-		$payroll = $this->db->get_where('payroll', ['pay_id' => $pay_id])->row_array();
-
-		if (!$payroll) {
-			echo json_encode([
+		if (!in_array($user_level, [1, 3], true) && strpos($user_role, 'finance') === false) {
+			$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode([
 				'status' => 'error',
-				'message' => 'Payroll not found'
-			]);
+				'message' => 'Finance or super administrator permission required'
+			]));
 			return;
 		}
 
-		if ($payroll['approval_status'] !== 'approved') {
-			echo json_encode([
-				'status' => 'error',
-				'message' => 'Only approved payrolls can be marked as paid'
-			]);
-			return;
-		}
+		$this->load->model('Hubtel_payroll_payout_model', 'hubtel_payouts');
+		$actor_role = $user_level === 1 ? 'super_admin' : 'admin';
+		$result = $this->hubtel_payouts->initiate_payout((int) $pay_id, $user_id, $actor_role);
 
-		// Update status to paid
-		$update_data = [
-			'approval_status' => 'paid',
-			'payment_date' => date('Y-m-d H:i:s')
-		];
-
-		$this->db->where('pay_id', $pay_id);
-		$updated = $this->db->update('payroll', $update_data);
-
-		if ($updated) {
-			// Log the action in audit log
-			$audit_data = [
-				'pay_id' => $pay_id,
-				'action' => 'marked_paid',
-				'user_id' => $user_id,
-				'timestamp' => date('Y-m-d H:i:s'),
-				'comments' => 'Payment processed'
-			];
-			$this->db->insert('payroll_audit_log', $audit_data);
-
-			echo json_encode([
-				'status' => 'success',
-				'message' => 'Payroll marked as paid successfully'
-			]);
-		} else {
-			echo json_encode([
-				'status' => 'error',
-				'message' => 'Failed to update payroll status'
-			]);
-		}
+		$status_code = !empty($result['success']) ? 200 : 422;
+		$this->output->set_status_header($status_code)->set_content_type('application/json')->set_output(json_encode([
+			'status' => !empty($result['success']) ? 'success' : 'error',
+			'payout_status' => $result['status'] ?? 'error',
+			'code' => $result['code'] ?? '',
+			'message' => !empty($result['success'])
+				? 'Hubtel salary payout initiated. Payroll will be marked paid only after provider confirmation.'
+				: ($result['message'] ?? 'Could not initiate Hubtel salary payout.')
+		]));
 	}
 
 	/**
@@ -30120,6 +30149,14 @@ function parents_gender_report() {
 	 * Returns list of all payrolls awaiting approval
 	 */
 	public function payroll_pending_approvals() {
+		if ($this->session->userdata('admin_login') != 1) {
+			$this->output->set_status_header(401)->set_content_type('application/json')->set_output(json_encode([
+				'status' => 'error',
+				'message' => 'Authentication required'
+			]));
+			return;
+		}
+
 		// Load Payroll_approval_model
 		$this->load->model('Payroll_approval_model', 'payroll_approval');
 
@@ -30142,6 +30179,14 @@ function parents_gender_report() {
 	 * Returns complete approval workflow history for a payroll record
 	 */
 	public function payroll_approval_history($pay_id) {
+		if ($this->session->userdata('admin_login') != 1) {
+			$this->output->set_status_header(401)->set_content_type('application/json')->set_output(json_encode([
+				'status' => 'error',
+				'message' => 'Authentication required'
+			]));
+			return;
+		}
+
 		// Load Payroll_approval_model
 		$this->load->model('Payroll_approval_model', 'payroll_approval');
 

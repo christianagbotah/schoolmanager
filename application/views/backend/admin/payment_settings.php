@@ -226,10 +226,10 @@
                 <div class="tab-pane" id="v-home">
                     <?php echo form_open(site_url('admin/payment_settings/hubtel_payment') ,
                         array('class' => 'form-horizontal form-groups-bordered validate','target'=>'_top', 'id' => 'hubtel_form'));?>
-                        
+
                         <h4 class="text-primary">Payment Gateway Credentials</h4>
                         <hr>
-                        
+
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Client ID</label>
                             <div class="col-sm-5">
@@ -238,7 +238,7 @@
                                     placeholder="Enter Hubtel Client ID" required>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Client Secret</label>
                             <div class="col-sm-5">
@@ -256,7 +256,27 @@
                                     placeholder="HM0000000" required>
                             </div>
                         </div>
-                        
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Receive Money API URL</label>
+                            <div class="col-sm-7">
+                                <input type="url" class="form-control" name="hubtel_payment_receive_url"
+                                    value="<?php echo html_escape((string) get_settings('hubtel_payment_receive_url')); ?>"
+                                    placeholder="https://api.hubtel.com/...">
+                                <small class="text-muted">Optional. Paste the exact HTTPS Receive Money endpoint from the Hubtel developer portal; leave blank to use the legacy merchant receive endpoint.</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Payroll Send Money URL</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" name="hubtel_payroll_send_url"
+                                    value="<?php echo html_escape((string) get_settings('hubtel_payroll_send_url')); ?>"
+                                    placeholder="https://.../{mobileNumber}/...">
+                                <small class="text-muted">Required for salary payouts. Paste the exact HTTPS Hubtel Send Money endpoint template and keep the literal <code>{mobileNumber}</code> placeholder. iEduPro will not guess a live payout endpoint.</small>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Enable Gateway</label>
                             <div class="col-sm-5">
@@ -267,7 +287,7 @@
                                 </select>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Test Mode</label>
                             <div class="col-sm-5">
@@ -278,7 +298,7 @@
                                 </select>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <div class="col-sm-offset-3 col-sm-5">
                                 <button type="submit" class="btn btn-info btn-block"><?php echo get_phrase('save');?></button>
