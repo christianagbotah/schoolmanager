@@ -13,6 +13,30 @@ class Attendance extends CI_Controller {
         }
     }
     
+    private function can_access_class($class_id) {
+        if($this->session->userdata('login_type') !== 'teacher') {
+            return true;
+        }
+
+        $teacher_id = $this->session->userdata('login_user_id');
+        if(!$class_id || !$teacher_id) {
+            return false;
+        }
+
+        return $this->db->get_where('class', [
+            'class_id' => $class_id,
+            'teacher_id' => $teacher_id
+        ])->num_rows() > 0;
+    }
+
+    private function deny_class_access_json() {
+        $this->output->set_status_header(403);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Access denied. You can only manage attendance for your assigned classes.'
+        ]);
+    }
+
     public function dashboard() {
         $data['page_name'] = 'attendance/dashboard';
         $data['page_title'] = get_phrase('attendance_management');
@@ -29,6 +53,10 @@ class Attendance extends CI_Controller {
         
         $login_type = $this->session->userdata('login_type');
         $user_id = $this->session->userdata('login_user_id');
+
+        if($class_id && !$this->can_access_class($class_id)) {
+            show_error('Access denied. You can only manage attendance for your assigned classes.', 403);
+        }
         
         $section = $this->db->get_where('section', ['class_id' => $class_id])->row();
         $section_id = $section ? $section->section_id : 0;
@@ -124,6 +152,11 @@ class Attendance extends CI_Controller {
             echo json_encode(['status' => 'error', 'message' => 'Class ID required']);
             return;
         }
+
+        if(!$this->can_access_class($class_id)) {
+            $this->deny_class_access_json();
+            return;
+        }
         
         // Get section if not provided
         if(!$section_id) {
@@ -164,6 +197,16 @@ class Attendance extends CI_Controller {
         $date = $this->input->post('date');
         $attendance = $this->input->post('attendance');
         $fees = $this->input->post('fees');
+
+        if(!$class_id) {
+            echo json_encode(['status' => 'error', 'message' => 'Class ID required']);
+            return;
+        }
+
+        if(!$this->can_access_class($class_id)) {
+            $this->deny_class_access_json();
+            return;
+        }
         
         if(!$attendance) {
             echo json_encode(['status' => 'error', 'message' => get_phrase('no_students_selected')]);
