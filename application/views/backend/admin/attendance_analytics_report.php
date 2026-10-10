@@ -128,8 +128,8 @@
                         <th><?php echo get_phrase('present'); ?></th>
                         <th><?php echo get_phrase('absent'); ?></th>
                         <th><?php echo get_phrase('late'); ?></th>
-                        <th>Sick-Home</th>
-                        <th>Sick-Clinic</th>
+                        <th>Sick at Home</th>
+                        <th>Sick at Clinic</th>
                         <th><?php echo get_phrase('total'); ?></th>
                         <th><?php echo get_phrase('attendance_rate'); ?></th>
                     </tr>
@@ -176,8 +176,8 @@ const statusChart = new Chart(statusCtx, {
             '<?php echo get_phrase('present'); ?>', 
             '<?php echo get_phrase('absent'); ?>', 
             '<?php echo get_phrase('late'); ?>', 
-            'Sick-Home', 
-            'Sick-Clinic'
+            'Sick at Home',
+            'Sick at Clinic'
         ],
         datasets: [{
             data: [

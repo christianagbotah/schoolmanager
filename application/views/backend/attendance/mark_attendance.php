@@ -567,8 +567,8 @@ input:checked + .toggle-slider:before { transform: translateX(24px); }
                     <option value="1" <?php echo $current_status == 1 ? 'selected' : ''; ?>>Present (P)</option>
                     <option value="2" <?php echo $current_status == 2 ? 'selected' : ''; ?>>Absent (A)</option>
                     <option value="3" <?php echo $current_status == 3 ? 'selected' : ''; ?>>Late (L)</option>
-                    <option value="4" <?php echo $current_status == 4 ? 'selected' : ''; ?>>Sick-Home (S)</option>
-                    <option value="5" <?php echo $current_status == 5 ? 'selected' : ''; ?>>Sick-Clinic (C)</option>
+                    <option value="4" <?php echo $current_status == 4 ? 'selected' : ''; ?>>Sick at Home (S)</option>
+                    <option value="5" <?php echo $current_status == 5 ? 'selected' : ''; ?>>Sick at Clinic (C)</option>
                 </select>
             </div>
             
