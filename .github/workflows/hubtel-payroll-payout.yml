@@ -1,0 +1,45 @@
+name: Hubtel Payroll Payout
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/controllers/Payroll_payout.php'
+      - 'application/models/Hubtel_payroll_payout_model.php'
+      - 'application/models/Payroll_approval_model.php'
+      - 'application/migrations/20261010_create_payroll_payout_transactions.sql'
+      - 'tests/hubtel-payroll-payout.test.js'
+      - '.github/workflows/hubtel-payroll-payout.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Payroll_payout.php'
+      - 'application/models/Hubtel_payroll_payout_model.php'
+      - 'application/models/Payroll_approval_model.php'
+      - 'application/migrations/20261010_create_payroll_payout_transactions.sql'
+      - 'tests/hubtel-payroll-payout.test.js'
+      - '.github/workflows/hubtel-payroll-payout.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  payout-safety:
+    name: Hubtel payroll payout contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Parse payout PHP
+        run: |
+          php -l application/controllers/Payroll_payout.php
+          php -l application/models/Hubtel_payroll_payout_model.php
+          php -l application/models/Payroll_approval_model.php
+      - name: Run payout regression contract
+        run: node --test tests/hubtel-payroll-payout.test.js
