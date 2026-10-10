@@ -86,13 +86,14 @@ class Hubtel_payment_model extends CI_Model
             $url = 'https://api.hubtel.com/v1/merchantaccount/merchants/' . rawurlencode($this->merchant_number) . '/receive/mobilemoney';
         }
 
+        $callback_token = $this->callback_token_for_reference($transaction_ref);
         $fields = [
             'CustomerName' => trim((string) ($customer['customer_name'] ?? 'School fee payer')),
             'CustomerMsisdn' => $phone,
             'CustomerEmail' => trim((string) ($customer['email'] ?? '')),
             'Channel' => trim((string) ($customer['network'] ?? '')),
             'Amount' => $amount,
-            'PrimaryCallbackUrl' => site_url('payment_gateway/hubtel_callback'),
+            'PrimaryCallbackUrl' => site_url('payment_gateway/hubtel_callback') . '?token=' . rawurlencode($callback_token),
             'Description' => 'School fees payment - ' . $invoice_code,
             'ClientReference' => $transaction_ref
         ];
@@ -137,7 +138,7 @@ class Hubtel_payment_model extends CI_Model
         ];
     }
 
-    public function handle_callback($raw_body)
+    public function handle_callback($raw_body, $callback_token = '')
     {
         $payload = json_decode((string) $raw_body, true);
         if (!is_array($payload)) {
@@ -154,6 +155,12 @@ class Hubtel_payment_model extends CI_Model
 
         if ($client_reference === '') {
             return ['success' => false, 'http_code' => 400, 'code' => 'missing_reference', 'message' => 'Missing client reference.'];
+        }
+
+        $expected_callback_token = $this->callback_token_for_reference($client_reference);
+        $callback_token = trim((string) $callback_token);
+        if ($expected_callback_token === '' || $callback_token === '' || !hash_equals($expected_callback_token, $callback_token)) {
+            return ['success' => false, 'http_code' => 403, 'code' => 'invalid_callback_token', 'message' => 'Callback authentication failed.'];
         }
 
         $transaction = $this->db->where('transaction_ref', $client_reference)
@@ -340,6 +347,20 @@ class Hubtel_payment_model extends CI_Model
             'curl_error' => $curl_error,
             'body' => json_decode((string) $raw, true)
         ];
+    }
+
+    private function callback_token_for_reference($transaction_ref)
+    {
+        $transaction_ref = trim((string) $transaction_ref);
+        if ($transaction_ref === '' || $this->client_secret === '') {
+            return '';
+        }
+
+        return hash_hmac(
+            'sha256',
+            'hubtel-collection|' . $this->merchant_number . '|' . $transaction_ref,
+            $this->client_secret
+        );
     }
 
     private function generate_transaction_ref()

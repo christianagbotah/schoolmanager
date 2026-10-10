@@ -84,7 +84,10 @@ class Payment_gateway extends CI_Controller {
     }
 
     public function hubtel_callback() {
-        $result = $this->hubtel_payments->handle_callback(file_get_contents('php://input'));
+        $result = $this->hubtel_payments->handle_callback(
+            file_get_contents('php://input'),
+            (string) $this->input->get('token', true)
+        );
         return $this->respond_json([
             'status' => !empty($result['success']) ? 'success' : 'error',
             'code' => $result['code'] ?? '',
