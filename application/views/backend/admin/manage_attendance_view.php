@@ -541,9 +541,9 @@ body { background: #f8fafc; }
                 <select name="status_<?php echo $row['attendance_id']; ?>" class="attendance-select w-full px-3 py-2 border-2 border-gray-300 rounded-lg font-semibold text-sm" data-student="<?php echo $row['student_id']; ?>">
                     <option value="1" <?php if($row['status'] == 1) echo 'selected'; ?>>Present (P)</option>
                     <option value="2" <?php if($row['status'] == 2) echo 'selected'; ?>>Absent (A)</option>
-                    <option value="3" <?php if($row['status'] == 3) echo 'selected'; ?>>Busy (B)</option>
-                    <option value="4" <?php if($row['status'] == 4) echo 'selected'; ?>>Sick-Home (S)</option>
-                    <option value="5" <?php if($row['status'] == 5) echo 'selected'; ?>>Sick-Clinic (C)</option>
+                    <option value="3" <?php if($row['status'] == 3) echo 'selected'; ?>>Late (L)</option>
+                    <option value="4" <?php if($row['status'] == 4) echo 'selected'; ?>>Sick at Home (S)</option>
+                    <option value="5" <?php if($row['status'] == 5) echo 'selected'; ?>>Sick at Clinic (C)</option>
                 </select>
             </div>
             <?php endif; ?>
@@ -849,7 +849,7 @@ $('#deselect_all_btn').click(function() {
 $(document).on('change', '.attendance-select', function() {
     const student = $(this).data('student');
     const status = $(this).val();
-    const isAbsent = status != '1';
+    const isAbsent = status != '1' && status != '3';
     
     // Handle breakfast opt-in checkbox
     const breakfastOptin = $('#breakfast_optin_' + student);

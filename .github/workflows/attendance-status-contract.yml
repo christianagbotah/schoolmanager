@@ -1,0 +1,52 @@
+name: Attendance Status Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/controllers/Admin.php'
+      - 'application/views/backend/admin/manage_attendance_view.php'
+      - 'application/views/backend/attendance/mark_attendance.php'
+      - 'application/views/backend/admin/attendance_analytics_report.php'
+      - 'tests/attendance-status-contract.test.js'
+      - '.github/workflows/attendance-status-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Admin.php'
+      - 'application/views/backend/admin/manage_attendance_view.php'
+      - 'application/views/backend/attendance/mark_attendance.php'
+      - 'application/views/backend/admin/attendance_analytics_report.php'
+      - 'tests/attendance-status-contract.test.js'
+      - '.github/workflows/attendance-status-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  attendance-status-contract:
+    name: Canonical attendance statuses
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run attendance status regression tests
+        run: node --test tests/attendance-status-contract.test.js
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+
+      - name: Lint attendance views
+        run: |
+          php -l application/controllers/Admin.php
+          php -l application/views/backend/admin/manage_attendance_view.php
+          php -l application/views/backend/attendance/mark_attendance.php
+          php -l application/views/backend/admin/attendance_analytics_report.php

@@ -33003,9 +33003,9 @@ function attendance_update($class_id, $section_id, $timestamp) {
 		$this->db->where('attendance_id', $attendance->attendance_id);
 		$this->db->update('attendance', ['status' => $status]);
 
-		// CRITICAL: Always process daily charges when student is marked PRESENT
+		// CRITICAL: Always process daily charges when student is marked PRESENT or LATE
 		// Breakfast/water subscription handled via student preferences in database
-		if($status == 1) {
+		if($status == 1 || $status == 3) {
 			$options = ['transport_status' => $transport_status];
 
 			// ALWAYS process charges - this deducts from prepaid or adds to arrears
