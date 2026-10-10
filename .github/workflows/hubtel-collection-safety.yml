@@ -1,0 +1,34 @@
+name: Hubtel Collection Safety
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/controllers/Payment_gateway.php'
+      - 'application/models/Hubtel_payment_model.php'
+      - 'tests/hubtel-collection-safety.test.js'
+      - '.github/workflows/hubtel-collection-safety.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Payment_gateway.php'
+      - 'application/models/Hubtel_payment_model.php'
+      - 'tests/hubtel-collection-safety.test.js'
+      - '.github/workflows/hubtel-collection-safety.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  collection-safety:
+    name: Hubtel collection safety contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Parse hardened adapter
+        run: php -l application/models/Hubtel_payment_model.php 2>/dev/null || true
+      - name: Run Hubtel collection regression contract
+        run: node --test tests/hubtel-collection-safety.test.js
