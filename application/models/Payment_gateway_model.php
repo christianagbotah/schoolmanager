@@ -410,13 +410,25 @@ class Payment_gateway_model extends CI_Model {
     }
 
     public function get_active_gateways() {
-        return [
-            ['code' => 'hubtel', 'name' => 'Hubtel (All Networks)', 'icon' => 'hubtel.png', 'networks' => ['mtn-gh', 'vodafone-gh', 'airtel-gh', 'tigo-gh']],
-            ['code' => 'mtn_momo', 'name' => 'MTN Mobile Money', 'icon' => 'mtn.png'],
-            ['code' => 'vodafone_cash', 'name' => 'Vodafone Cash', 'icon' => 'vodafone.png'],
-            ['code' => 'airteltigo_money', 'name' => 'AirtelTigo Money', 'icon' => 'airteltigo.png'],
-            ['code' => 'paystack', 'name' => 'Paystack (Card)', 'icon' => 'paystack.png']
-        ];
+        $enabled = strtolower(trim((string) get_settings('hubtel_payment_enabled')));
+        if (!in_array($enabled, ['1', 'yes', 'true', 'enabled'], true)) {
+            return [];
+        }
+
+        if (
+            trim((string) $this->hubtel_client_id) === '' ||
+            trim((string) $this->hubtel_client_secret) === '' ||
+            trim((string) $this->hubtel_merchant_number) === ''
+        ) {
+            return [];
+        }
+
+        return [[
+            'code' => 'hubtel',
+            'name' => 'Hubtel (All Networks)',
+            'icon' => 'hubtel.png',
+            'networks' => ['mtn-gh', 'vodafone-gh', 'airtel-gh', 'tigo-gh']
+        ]];
     }
 
     public function get_invoice_details($invoice_code, $student_id) {

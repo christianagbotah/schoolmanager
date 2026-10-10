@@ -48,12 +48,20 @@ $student = $this->db->where('student_id', $this->session->userdata('student_id')
                 <h5 class="mb-3"><?php echo get_phrase('select_payment_method'); ?></h5>
 
                 <div class="row">
+                    <?php if (empty($gateways)): ?>
+                    <div class="col-12">
+                        <div class="alert alert-warning mb-0">
+                            <i class="mdi mdi-alert-circle-outline"></i>
+                            Online payment is not configured yet. Please contact the school finance office.
+                        </div>
+                    </div>
+                    <?php else: ?>
                     <?php foreach ($gateways as $gateway): ?>
                     <div class="col-md-6 mb-3">
-                        <div class="card gateway-card" onclick="selectGateway('<?php echo $gateway['code']; ?>')">
+                        <div class="card gateway-card" onclick="selectGateway('<?php echo $gateway['code']; ?>', event)">
                             <div class="card-body text-center">
-                                <img src="<?php echo base_url('assets/images/gateways/' . $gateway['icon']); ?>" 
-                                     alt="<?php echo $gateway['name']; ?>" 
+                                <img src="<?php echo base_url('assets/images/gateways/' . $gateway['icon']); ?>"
+                                     alt="<?php echo $gateway['name']; ?>"
                                      style="height: 50px; margin-bottom: 10px;"
                                      onerror="this.src='<?php echo base_url('assets/images/default-gateway.png'); ?>'">
                                 <h6><?php echo $gateway['name']; ?></h6>
@@ -61,6 +69,7 @@ $student = $this->db->where('student_id', $this->session->userdata('student_id')
                         </div>
                     </div>
                     <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -101,43 +110,6 @@ $student = $this->db->where('student_id', $this->session->userdata('student_id')
                     </button>
                 </form>
 
-                <!-- Mobile Money Form -->
-                <form id="momoForm" style="display:none;">
-                    <div class="form-group">
-                        <label><?php echo get_phrase('phone_number'); ?></label>
-                        <input type="tel" name="phone_number" class="form-control" 
-                               placeholder="0XXXXXXXXX" value="<?php echo $student['phone']; ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label><?php echo get_phrase('amount'); ?></label>
-                        <input type="number" step="0.01" name="amount" class="form-control" 
-                               value="<?php echo $invoice['due']; ?>" max="<?php echo $invoice['due']; ?>" required>
-                    </div>
-                    <input type="hidden" name="invoice_code" value="<?php echo $invoice['invoice_code']; ?>">
-                    <input type="hidden" name="gateway" id="momo-gateway">
-                    <button type="submit" class="btn btn-primary btn-block btn-lg">
-                        <i class="mdi mdi-lock"></i> <?php echo get_phrase('pay_now'); ?>
-                    </button>
-                </form>
-
-                <!-- Paystack Form -->
-                <form id="paystackForm" style="display:none;">
-                    <div class="form-group">
-                        <label><?php echo get_phrase('email'); ?></label>
-                        <input type="email" name="email" class="form-control" 
-                               value="<?php echo $student['email']; ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label><?php echo get_phrase('amount'); ?></label>
-                        <input type="number" step="0.01" name="amount" class="form-control" 
-                               value="<?php echo $invoice['due']; ?>" max="<?php echo $invoice['due']; ?>" required>
-                    </div>
-                    <input type="hidden" name="invoice_code" value="<?php echo $invoice['invoice_code']; ?>">
-                    <button type="submit" class="btn btn-primary btn-block btn-lg">
-                        <i class="mdi mdi-credit-card"></i> <?php echo get_phrase('pay_with_card'); ?>
-                    </button>
-                </form>
-
                 <div id="payment-info" class="text-center text-muted">
                     <i class="mdi mdi-information-outline" style="font-size: 48px;"></i>
                     <p class="mt-3"><?php echo get_phrase('select_payment_method_to_continue'); ?></p>
@@ -156,26 +128,15 @@ $student = $this->db->where('student_id', $this->session->userdata('student_id')
 <script>
 let selectedGateway = null;
 
-function selectGateway(gateway) {
+function selectGateway(gateway, event) {
     selectedGateway = gateway;
-    
-    // Reset all cards
     $('.gateway-card').removeClass('border-primary');
-    
-    // Highlight selected
-    event.currentTarget.classList.add('border-primary');
-    
-    // Hide all forms
-    $('#hubtelForm, #momoForm, #paystackForm, #payment-info').hide();
-    
-    // Show appropriate form
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('border-primary');
+    }
+    $('#hubtelForm, #payment-info').hide();
     if (gateway === 'hubtel') {
         $('#hubtelForm').show();
-    } else if (gateway === 'paystack') {
-        $('#paystackForm').show();
-    } else {
-        $('#momo-gateway').val(gateway);
-        $('#momoForm').show();
     }
 }
 
@@ -196,55 +157,6 @@ $('#hubtelForm').submit(function(e) {
         if(data.status === 'success') {
             showAjaxModal_alert('<?php echo get_phrase('payment_initiated'); ?><br><small><?php echo get_phrase('check_phone_for_prompt'); ?></small>', 'success');
             checkPaymentStatus(data.transaction_ref);
-        } else {
-            showAjaxModal_alert(data.message, 'error');
-        }
-    }).fail(function() {
-        showAjaxModal_alert('<?php echo get_phrase('an_error_occurred'); ?>', 'error');
-    });
-});
-
-// Mobile Money Payment
-$('#momoForm').submit(function(e) {
-    e.preventDefault();
-    showAjaxModal_alert('<?php echo get_phrase('initiating_payment'); ?>...', 'loading');
-    
-    $.ajax({
-        url: '<?php echo site_url('payment_gateway/initiate_momo_payment'); ?>',
-        type: 'POST',
-        data: new FormData(this),
-        cache: false,
-        contentType: false,
-        processData: false
-    }).done(function(response) {
-        var data = typeof response === 'string' ? JSON.parse(response) : response;
-        if(data.status === 'success') {
-            showAjaxModal_alert('<?php echo get_phrase('payment_initiated'); ?><br><small><?php echo get_phrase('check_phone_for_prompt'); ?></small>', 'success');
-            checkPaymentStatus(data.transaction_ref);
-        } else {
-            showAjaxModal_alert(data.message, 'error');
-        }
-    }).fail(function() {
-        showAjaxModal_alert('<?php echo get_phrase('an_error_occurred'); ?>', 'error');
-    });
-});
-
-// Paystack Payment
-$('#paystackForm').submit(function(e) {
-    e.preventDefault();
-    showAjaxModal_alert('<?php echo get_phrase('initiating_payment'); ?>...', 'loading');
-    
-    $.ajax({
-        url: '<?php echo site_url('payment_gateway/initiate_paystack'); ?>',
-        type: 'POST',
-        data: new FormData(this),
-        cache: false,
-        contentType: false,
-        processData: false
-    }).done(function(response) {
-        var data = typeof response === 'string' ? JSON.parse(response) : response;
-        if(data.status === 'success') {
-            window.location.href = data.authorization_url;
         } else {
             showAjaxModal_alert(data.message, 'error');
         }

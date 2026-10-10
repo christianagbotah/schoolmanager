@@ -1,0 +1,48 @@
+name: Payment Gateway Surface Safety
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/controllers/Payment_gateway.php'
+      - 'application/models/Payment_gateway_model.php'
+      - 'application/views/backend/student/pay_invoice.php'
+      - 'tests/payment-gateway-surface-safety.test.js'
+      - 'tests/payment_gateway_surface_behavior_test.php'
+      - '.github/workflows/payment-gateway-surface-safety.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Payment_gateway.php'
+      - 'application/models/Payment_gateway_model.php'
+      - 'application/views/backend/student/pay_invoice.php'
+      - 'tests/payment-gateway-surface-safety.test.js'
+      - 'tests/payment_gateway_surface_behavior_test.php'
+      - '.github/workflows/payment-gateway-surface-safety.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  payment-surface-safety:
+    name: Payment gateway surface contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: PHP syntax
+        run: |
+          php -l application/controllers/Payment_gateway.php
+          php -l application/models/Payment_gateway_model.php
+          php -l application/views/backend/student/pay_invoice.php
+          php -l tests/payment_gateway_surface_behavior_test.php
+      - name: Run structural contract
+        run: node --test tests/payment-gateway-surface-safety.test.js
+      - name: Run gateway availability behavior contract
+        run: php tests/payment_gateway_surface_behavior_test.php
