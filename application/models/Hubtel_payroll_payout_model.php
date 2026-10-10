@@ -173,12 +173,11 @@ class Hubtel_payroll_payout_model extends CI_Model
         $callback_amount = isset($data['amount']) ? round((float) $data['amount'], 2)
             : (isset($data['Amount']) ? round((float) $data['Amount'], 2) : null);
         $provider_status = strtolower(trim((string) ($data['status'] ?? $data['Status'] ?? '')));
+        $successful_statuses = ['success', 'successful', 'completed', 'complete', 'paid'];
+        $failed_statuses = ['failed', 'failure', 'declined', 'rejected', 'cancelled', 'canceled'];
 
         if ($client_reference === '' || $provider_transaction_id === '' || $callback_amount === null || $callback_phone === '') {
             return $this->callback_result(false, 400, 'missing_binding', 'Callback is missing required payout binding data.');
-        }
-        if ($provider_status !== '' && !in_array($provider_status, ['success', 'successful', 'completed', 'complete', 'paid'], true)) {
-            return $this->callback_result(true, 200, 'provider_not_successful', 'Callback recorded without marking payroll paid.');
         }
 
         $this->db->trans_begin();
@@ -211,6 +210,21 @@ class Hubtel_payroll_payout_model extends CI_Model
                 $this->record_callback_review($payout, $payload, 'provider_transaction_mismatch');
                 $this->db->trans_commit();
                 return $this->callback_result(false, 409, 'provider_transaction_mismatch', 'Provider transaction mismatch.');
+            }
+
+            if ($provider_status === '') {
+                $this->record_callback_review($payout, $payload, 'provider_status_missing');
+                $this->db->trans_commit();
+                return $this->callback_result(false, 400, 'provider_status_missing', 'Callback is missing provider payout status.');
+            }
+            if (!in_array($provider_status, $successful_statuses, true)) {
+                if (in_array($provider_status, $failed_statuses, true)) {
+                    $this->record_provider_failure($payout, $payload, $provider_status);
+                } else {
+                    $this->record_callback_review($payout, $payload, 'provider_status_' . $provider_status);
+                }
+                $this->db->trans_commit();
+                return $this->callback_result(true, 200, 'provider_not_successful', 'Callback recorded without marking payroll paid.');
             }
 
             $transition = $this->mark_payroll_paid_from_provider($payout, $provider_transaction_id);
@@ -300,6 +314,18 @@ class Hubtel_payroll_payout_model extends CI_Model
             'callback_payload' => json_encode($payload),
             'failure_reason' => $reason,
             'updated_at' => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    private function record_provider_failure(array $payout, array $payload, $provider_status)
+    {
+        $now = date('Y-m-d H:i:s');
+        $this->db->where('payout_id', (int) $payout['payout_id'])->update('payroll_payout_transactions', [
+            'status' => 'failed',
+            'callback_payload' => json_encode($payload),
+            'failure_reason' => 'provider_status_' . $provider_status,
+            'failed_at' => $now,
+            'updated_at' => $now
         ]);
     }
 
