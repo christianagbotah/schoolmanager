@@ -14,48 +14,38 @@ class Payment_gateway extends CI_Controller {
     public function pay_invoice($invoice_code = '') {
         if ($this->session->userdata('student_login') != 1) {
             redirect(site_url('login'), 'refresh');
+            return;
         }
 
-        $student_id = $this->session->userdata('student_id');
+        $student_id = (int) $this->session->userdata('student_id');
         $page_data['invoice'] = $this->Payment_gateway_model->get_invoice_details($invoice_code, $student_id);
+        if (!$page_data['invoice']) {
+            show_404();
+            return;
+        }
+
         $page_data['gateways'] = $this->Payment_gateway_model->get_active_gateways();
-        $page_data['page_name'] = 'payment_gateway/pay_invoice';
+        $page_data['page_name'] = 'pay_invoice';
         $page_data['page_title'] = get_phrase('pay_invoice');
         $this->load->view('backend/index', $page_data);
     }
 
     // ==================== MOBILE MONEY ====================
     public function initiate_momo_payment() {
-        $data = [
-            'student_id' => $this->session->userdata('student_id'),
-            'invoice_code' => $this->input->post('invoice_code'),
-            'amount' => $this->input->post('amount'),
-            'gateway' => $this->input->post('gateway'),
-            'phone_number' => $this->input->post('phone_number')
-        ];
-
-        $this->Payment_gateway_model->initiate_momo_payment($data);
+        return $this->legacy_gateway_disabled(true);
     }
 
     public function momo_callback() {
-        $this->Payment_gateway_model->process_momo_callback();
+        return $this->legacy_gateway_disabled(false);
     }
 
     // ==================== PAYSTACK ====================
     public function initiate_paystack() {
-        $data = [
-            'student_id' => $this->session->userdata('student_id'),
-            'invoice_code' => $this->input->post('invoice_code'),
-            'amount' => $this->input->post('amount'),
-            'email' => $this->input->post('email')
-        ];
-
-        $this->Payment_gateway_model->initiate_paystack($data);
+        return $this->legacy_gateway_disabled(true);
     }
 
     public function paystack_callback() {
-        $reference = $this->input->get('reference');
-        $this->Payment_gateway_model->verify_paystack_payment($reference);
+        return $this->legacy_gateway_disabled(false);
     }
 
     // ==================== HUBTEL ====================
@@ -157,19 +147,35 @@ class Payment_gateway extends CI_Controller {
 
     // ==================== WEBHOOK HANDLERS ====================
     public function webhook_mtn() {
-        $this->Payment_gateway_model->handle_mtn_webhook();
+        return $this->legacy_gateway_disabled(false);
     }
 
     public function webhook_vodafone() {
-        $this->Payment_gateway_model->handle_vodafone_webhook();
+        return $this->legacy_gateway_disabled(false);
     }
 
     public function webhook_paystack() {
-        $this->Payment_gateway_model->handle_paystack_webhook();
+        return $this->legacy_gateway_disabled(false);
     }
 
     public function webhook_hubtel() {
         return $this->hubtel_callback();
+    }
+
+    private function legacy_gateway_disabled($require_student = false) {
+        if ($require_student && $this->session->userdata('student_login') != 1) {
+            return $this->respond_json([
+                'status' => 'error',
+                'code' => 'authentication_required',
+                'message' => 'Authentication required.'
+            ], 401);
+        }
+
+        return $this->respond_json([
+            'status' => 'error',
+            'code' => 'legacy_gateway_disabled',
+            'message' => 'This legacy payment gateway is disabled. Use the configured Hubtel payment option.'
+        ], 410);
     }
 
     private function respond_json(array $payload, $status_code = 200) {
