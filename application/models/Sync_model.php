@@ -99,8 +99,12 @@ class Sync_model extends CI_Model {
                 $this->db->where($this->get_primary_key($table), $record_id)->update($table, $data);
                 break;
             case 'DELETE':
-                $this->db->where($this->get_primary_key($table), $record_id)->delete($table);
-                break;
+                // Gen2 pull does not yet consume sync_deletions tombstones.
+                // Fail closed instead of creating a deletion that other devices
+                // cannot reliably observe and replay.
+                throw new RuntimeException(
+                    'DELETE is disabled on Gen2 sync until tombstone propagation is unified'
+                );
         }
         
         return [

@@ -64,7 +64,7 @@ students/teachers/classes/invoices/payments/sync_queue), `offline-sync.js`, `off
 | S2 | Unauthenticated data endpoint | `controllers/Sync.php::cache_data()` — auth commented out; dumps student/invoice/payment rows | Security cleanup; §11 |
 | S3 | No table allowlist in Gen2 paths | `Sync_model::process_push_item()`, `Sync_manager::process_sync_data()` insert/update/delete arbitrary client-named tables; Gen1 `validate_table_name()` only checks existence, not sync-enabled status | Dynamic table safety; §3 |
 | S4 | REPLACE semantics | **FIXED 2026-10-10** — `api/Sync.php::process_batch_record()` updates existing rows in place and inserts new rows; no sync-surface `$this->db->replace()` calls remain | §9 |
-| S5 | Hard deletes via API | `Sync_model::process_push_item()` `DELETE FROM` on client instruction — no tombstone | §6 |
+| S5 | Hard deletes via API | **MITIGATED 2026-10-10** — Gen2 `Sync_model::process_push_item()` now rejects client `DELETE` requests fail-closed; full Gen2 tombstone propagation is still missing | §6 |
 | S6 | Remote DB credentials on client path | Gen1 `sync_locations` stores remote DB credentials used by web-server-side sync (acceptable server-side); risk arises if this model is copied to browser flows. Contract target is API-mediated sync | §1 |
 
 ## 3. Contract-vs-reality matrix
@@ -76,7 +76,7 @@ students/teachers/classes/invoices/payments/sync_queue), `offline-sync.js`, `off
 | 3. Consistent metadata | PARTIAL | 94 tables `sync_status`; 93 `version`+`last_modified_at`; 92 `last_modified_by`; 96 `device_id`; **2 `sync_operation_type`**; 6 `deleted_at/is_deleted`; `employee` (and others) have none |
 | 4. Server-controlled versioning | MISSING | No base-version compare-and-increment anywhere; Gen1 uses natural keys + timestamps; Gen2 timestamp LWW |
 | 5. Monotonic change cursor | MISSING | All pulls are `last_modified_at >` style; no `sync_change_log`/change_seq; per-device cursor only as `last_sync_at` timestamps in `sync_devices` |
-| 6. Deletion propagation | PARTIAL (Gen1) / MISSING (Gen2) | Gen1: `sync_deletions` + apply/cleanup. Gen2: hard `DELETE` |
+| 6. Deletion propagation | PARTIAL (Gen1) / GUARDED (Gen2) | Gen1: `sync_deletions` + apply/cleanup. Gen2: direct `DELETE` is disabled until tombstone pull/application is unified |
 | 7. Idempotency keys | MISSING | No mutation receipts; retry-duplication guarded only by natural-key checks in Gen1 |
 | 8. Domain conflict policies | WEAK | Single `conflict_resolution` strategy from `sync_config` (timestamp/server_wins/client_wins); no per-domain policy; financial append-only not enforced |
 | 9. No REPLACE upserts | **DONE 2026-10-10** | Gen1 and Gen2 now both avoid destructive REPLACE semantics; Gen2 `batch_push` performs primary-key UPDATE/INSERT |
@@ -143,8 +143,8 @@ No index will be added without an EXPLAIN proof per the query-optimization rules
    received_at)` — idempotency ledger.
 4. Version-checked UPDATE pattern: `UPDATE t SET ..., version = version + 1 WHERE pk = ?
    AND version = ?` → 0 rows = stale = conflict.
-5. Tombstone unification: extend Gen1 `sync_deletions` as the single tombstone source; Gen2 hard
-   delete path must be removed when auth is fixed.
+5. Tombstone unification: extend Gen1 `sync_deletions` as the single tombstone source; Gen2 direct
+   deletes are now fail-closed, and the remaining work is tombstone pull/application on the Gen2 path.
 6. Selective MyISAM → InnoDB (report first per table).
 7. `employee` (+ rest of long tail) metadata decision matrix: sync-opt-in vs local-only per table.
 
@@ -165,7 +165,7 @@ No index will be added without an EXPLAIN proof per the query-optimization rules
 | P0 | Make `verify_device()` actually verify the token (store hash at enrollment; keep response shape) | Device impersonation | **PARTIALLY DONE** — global X-API-Key gate added to api/Sync (fail-closed); full token verification blocked on missing schema column (migration proposal §6.6) |
 | P1 | Replace `db->replace()` in `api/Sync.php::batch_push()` with Gen1-style insert-or-update | Silent FK/audit damage | **DONE 2026-10-10** — primary-key lookup + in-place UPDATE for existing rows; INSERT for new rows; offline `record_id` preserved on first insert; structural + behavioral regression coverage added |
 | P1 | Enforce server-side allowlist (sync_metadata sync_enabled=1) in all client-driven write paths | Arbitrary table writes | **DONE 2026-10-03** — static allowlist (5 offline tables + plural aliases) on Sync::push, api/Sync::push/batch_push/pull; metadata-driven allowlist deferred to sync-contract PR |
-| P2 | Kill or feature-flag Gen2 hard-delete path in favor of tombstones | Data loss across devices | OPEN |
+| P2 | Kill or feature-flag Gen2 hard-delete path in favor of tombstones | Data loss across devices | **DONE 2026-10-10** — Gen2 client `DELETE` requests now fail closed with a tombstone-propagation safety error; full Gen2 tombstone consumption remains a separate open contract |
 | P2 | Consolidate client offline JS into one versioned storage abstraction | Race conditions, double queues | OPEN |
 
 Also fixed 2026-10-03: `Sync::pull()` session-key bug (`user_id` never set by this app → used `login_user_id`), and `Sync::complete()` now requires an authenticated session.
