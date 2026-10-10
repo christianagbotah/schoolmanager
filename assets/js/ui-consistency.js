@@ -48,6 +48,90 @@
         return false;
     }
 
+    function closestAnchor(target) {
+        var node = target;
+        while (node && node !== document) {
+            if (node.tagName === 'A') return node;
+            node = node.parentElement;
+        }
+        return null;
+    }
+
+    function closestListItem(node) {
+        while (node && node !== document) {
+            if (node.tagName === 'LI') return node;
+            node = node.parentElement;
+        }
+        return null;
+    }
+
+    function isAjaxNavigationLink(anchor) {
+        if (!anchor || !anchor.getAttribute) return false;
+        var inlineHandler = anchor.getAttribute('onclick') || '';
+        return /(^|[^A-Za-z0-9_$])navigation\s*\(/.test(inlineHandler);
+    }
+
+    function syncSidebarActiveState(anchor) {
+        var menu = document.getElementById('main-menu');
+        if (!menu || !anchor || !menu.contains(anchor)) return;
+
+        var activeItem = closestListItem(anchor);
+        if (!activeItem) return;
+
+        Array.prototype.forEach.call(menu.querySelectorAll('li.active'), function (item) {
+            item.classList.remove('active');
+        });
+
+        activeItem.classList.add('active');
+
+        var ancestor = activeItem.parentElement;
+        while (ancestor && ancestor !== menu) {
+            if (ancestor.tagName === 'LI') {
+                ancestor.classList.add('opened');
+            }
+            ancestor = ancestor.parentElement;
+        }
+    }
+
+    function handleAjaxNavigationClick(event) {
+        var anchor = closestAnchor(event.target);
+        if (!isAjaxNavigationLink(anchor)) return;
+
+        // Most legacy sidebar links use href="#" plus an inline navigation(...)
+        // call. Prevent only the anchor's hash jump; the existing inline handler
+        // still performs the AJAX navigation.
+        event.preventDefault();
+        syncSidebarActiveState(anchor);
+    }
+
+    function ensureInteractionStyles() {
+        if (document.getElementById('sm-ui-interaction-contract')) return;
+
+        var style = document.createElement('style');
+        style.id = 'sm-ui-interaction-contract';
+        style.textContent = [
+            '#main-menu a,',
+            'a[href],',
+            'a[onclick],',
+            'button:not(:disabled),',
+            'input[type="button"]:not(:disabled),',
+            'input[type="submit"]:not(:disabled),',
+            'input[type="reset"]:not(:disabled),',
+            '[role="button"]:not([aria-disabled="true"]),',
+            '[onclick]:not([aria-disabled="true"]) {',
+            '    cursor: pointer !important;',
+            '}',
+            'button:disabled,',
+            'input[type="button"]:disabled,',
+            'input[type="submit"]:disabled,',
+            'input[type="reset"]:disabled,',
+            '[aria-disabled="true"] {',
+            '    cursor: not-allowed !important;',
+            '}'
+        ].join('\n');
+        (document.head || document.documentElement).appendChild(style);
+    }
+
     function markPageChrome() {
         var main = document.getElementById('main_page');
         if (!main) return;
@@ -143,6 +227,7 @@
 
     function applyUiConsistency() {
         scheduled = false;
+        ensureInteractionStyles();
         syncTopbarHeight();
         markPageChrome();
     }
@@ -152,6 +237,10 @@
         scheduled = true;
         window.requestAnimationFrame(applyUiConsistency);
     }
+
+    // Capture-phase delegation fixes legacy href="#" leaf links without
+    // replacing their existing inline navigation(...) handlers.
+    document.addEventListener('click', handleAjaxNavigationClick, true);
 
     document.addEventListener('DOMContentLoaded', function () {
         scheduleSync();
