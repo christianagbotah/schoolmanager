@@ -1,4 +1,4 @@
-name: Attendance Status Contract
+name: Attendance Contracts
 
 on:
   pull_request:
@@ -8,7 +8,10 @@ on:
       - 'application/views/backend/admin/manage_attendance_view.php'
       - 'application/views/backend/attendance/mark_attendance.php'
       - 'application/views/backend/admin/attendance_analytics_report.php'
+      - 'application/views/backend/admin/students_daily_attendance_modern.php'
+      - 'assets/backend/js/attendance_report_modern.js'
       - 'tests/attendance-status-contract.test.js'
+      - 'tests/attendance-report-filter-contract.test.js'
       - '.github/workflows/attendance-status-contract.yml'
   push:
     branches: [main]
@@ -17,7 +20,10 @@ on:
       - 'application/views/backend/admin/manage_attendance_view.php'
       - 'application/views/backend/attendance/mark_attendance.php'
       - 'application/views/backend/admin/attendance_analytics_report.php'
+      - 'application/views/backend/admin/students_daily_attendance_modern.php'
+      - 'assets/backend/js/attendance_report_modern.js'
       - 'tests/attendance-status-contract.test.js'
+      - 'tests/attendance-report-filter-contract.test.js'
       - '.github/workflows/attendance-status-contract.yml'
 
 permissions:
@@ -25,7 +31,7 @@ permissions:
 
 jobs:
   attendance-status-contract:
-    name: Canonical attendance statuses
+    name: Attendance status and report contracts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,8 +41,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Run attendance status regression tests
-        run: node --test tests/attendance-status-contract.test.js
+      - name: Run attendance regression tests
+        run: node --test tests/attendance-*.test.js
+
+      - name: Parse attendance report JavaScript
+        run: node --check assets/backend/js/attendance_report_modern.js
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -50,3 +59,4 @@ jobs:
           php -l application/views/backend/admin/manage_attendance_view.php
           php -l application/views/backend/attendance/mark_attendance.php
           php -l application/views/backend/admin/attendance_analytics_report.php
+          php -l application/views/backend/admin/students_daily_attendance_modern.php

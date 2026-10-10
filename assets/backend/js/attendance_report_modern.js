@@ -442,7 +442,7 @@ var AttendanceReport = {
                 var statusClass = '';
                 var statusText = '';
                 
-                // Status values: 1=Present, 2=Absent, 3=Late, 4=Sick-Home, 5=Sick-Clinic, 0=Not Marked
+                // Status values: 1=Present, 2=Absent, 3=Late, 4=Sick at Home, 5=Sick at Clinic, 0=Not Marked
                 if (student.status == 1 || student.status == 3) {
                     statusClass = 'status-present';
                     statusText = student.status == 1 ? 'Present' : 'Late';
@@ -451,10 +451,10 @@ var AttendanceReport = {
                     statusText = 'Absent';
                 } else if (student.status == 4) {
                     statusClass = 'status-absent';
-                    statusText = 'Sick - Home';
+                    statusText = 'Sick at Home';
                 } else if (student.status == 5) {
                     statusClass = 'status-absent';
-                    statusText = 'Sick - Clinic';
+                    statusText = 'Sick at Clinic';
                 } else {
                     statusClass = 'status-not-marked';
                     statusText = 'Not Marked';
