@@ -42,8 +42,7 @@ single sync contract today.
 `libraries/Conflict_resolver.php` (564).
 
 - Auth concept: `X-Device-ID` + `X-Auth-Token` headers → `Sync_model::verify_device()`.
-- `batch_push()`: transactional batch, but uses `$this->db->replace()` — **the REPLACE INTO path
-  the contract explicitly forbids going forward** (§9).
+- `batch_push()`: transactional batch now uses an FK-safe primary-key UPDATE/INSERT path (**fixed 2026-10-10**); destructive `REPLACE INTO` semantics were removed. Version-checked optimistic concurrency is still a later contract phase (§4).
 - `Sync::cache_data()` (`controllers/Sync.php`): **auth deliberately skipped**
   ("Skip auth check for now"); small allowlist map (student/teacher/class/invoice/payment),
   returns raw rows — PII/financial exposure if reachable in production.
@@ -64,7 +63,7 @@ students/teachers/classes/invoices/payments/sync_queue), `offline-sync.js`, `off
 | S1 | Device token never verified | `Sync_model::verify_device()` queries `sync_devices` by device_id + ACTIVE only; `$auth_token` unused; `register_device()` returns a token it never stores | §11 device security |
 | S2 | Unauthenticated data endpoint | `controllers/Sync.php::cache_data()` — auth commented out; dumps student/invoice/payment rows | Security cleanup; §11 |
 | S3 | No table allowlist in Gen2 paths | `Sync_model::process_push_item()`, `Sync_manager::process_sync_data()` insert/update/delete arbitrary client-named tables; Gen1 `validate_table_name()` only checks existence, not sync-enabled status | Dynamic table safety; §3 |
-| S4 | REPLACE semantics | `api/Sync.php::process_batch_record()` uses `$this->db->replace()` | §9 |
+| S4 | REPLACE semantics | **FIXED 2026-10-10** — `api/Sync.php::process_batch_record()` updates existing rows in place and inserts new rows; no sync-surface `$this->db->replace()` calls remain | §9 |
 | S5 | Hard deletes via API | `Sync_model::process_push_item()` `DELETE FROM` on client instruction — no tombstone | §6 |
 | S6 | Remote DB credentials on client path | Gen1 `sync_locations` stores remote DB credentials used by web-server-side sync (acceptable server-side); risk arises if this model is copied to browser flows. Contract target is API-mediated sync | §1 |
 
@@ -80,7 +79,7 @@ students/teachers/classes/invoices/payments/sync_queue), `offline-sync.js`, `off
 | 6. Deletion propagation | PARTIAL (Gen1) / MISSING (Gen2) | Gen1: `sync_deletions` + apply/cleanup. Gen2: hard `DELETE` |
 | 7. Idempotency keys | MISSING | No mutation receipts; retry-duplication guarded only by natural-key checks in Gen1 |
 | 8. Domain conflict policies | WEAK | Single `conflict_resolution` strategy from `sync_config` (timestamp/server_wins/client_wins); no per-domain policy; financial append-only not enforced |
-| 9. No REPLACE upserts | VIOLATED (Gen2) | Gen1 already implements correct insert-or-update; Gen2 `batch_push` regressed |
+| 9. No REPLACE upserts | **DONE 2026-10-10** | Gen1 and Gen2 now both avoid destructive REPLACE semantics; Gen2 `batch_push` performs primary-key UPDATE/INSERT |
 | 10. MyISAM audit | DONE (see §4) | 25 MyISAM tables; several are sync participants |
 | 11. Device security | BROKEN | S1 + no rotation/revocation UI, no token hashes, tokens returned in API responses |
 | 12. Browser offline UX | FRAGMENTED | Multiple overlapping JS modules; SW caches 3 URLs; no unified outbox/state store; offline banner exists in scattered forms |
@@ -164,7 +163,7 @@ No index will be added without an EXPLAIN proof per the query-optimization rules
 |---|---|---|---|
 | P0 | Re-enable auth on `Sync::cache_data()` (smallest compatible fix; code already exists commented) | Public PII/finance exposure | **DONE 2026-10-03** — session auth via correct keys (login_type/login_user_id) |
 | P0 | Make `verify_device()` actually verify the token (store hash at enrollment; keep response shape) | Device impersonation | **PARTIALLY DONE** — global X-API-Key gate added to api/Sync (fail-closed); full token verification blocked on missing schema column (migration proposal §6.6) |
-| P1 | Replace `db->replace()` in `api/Sync.php::batch_push()` with Gen1-style insert-or-update | Silent FK/audit damage | OPEN — scheduled for sync-contract PR (now guarded by API key + allowlist) |
+| P1 | Replace `db->replace()` in `api/Sync.php::batch_push()` with Gen1-style insert-or-update | Silent FK/audit damage | **DONE 2026-10-10** — primary-key lookup + in-place UPDATE for existing rows; INSERT for new rows; offline `record_id` preserved on first insert; structural + behavioral regression coverage added |
 | P1 | Enforce server-side allowlist (sync_metadata sync_enabled=1) in all client-driven write paths | Arbitrary table writes | **DONE 2026-10-03** — static allowlist (5 offline tables + plural aliases) on Sync::push, api/Sync::push/batch_push/pull; metadata-driven allowlist deferred to sync-contract PR |
 | P2 | Kill or feature-flag Gen2 hard-delete path in favor of tombstones | Data loss across devices | OPEN |
 | P2 | Consolidate client offline JS into one versioned storage abstraction | Race conditions, double queues | OPEN |
