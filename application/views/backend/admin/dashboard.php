@@ -91,6 +91,28 @@ $this->db->where('can_delete !=', 'trash');
 $total_revenue = $this->db->get('payment')->row()->amount ?? 0;
 $total_revenue = floatval($total_revenue); // Ensure numeric value
 
+// Dashboard KPI contract: active invoice arrears for the selected term
+$this->db->select_sum('due');
+$this->db->where('year', $un_year);
+$this->db->where('term', $un_term);
+$this->db->where('mute', '0');
+$this->db->where('can_delete !=', 'trash');
+$this->db->where('due >', 0);
+$fee_arrears = $this->db->get('invoice')->row()->due ?? 0;
+$fee_arrears = floatval($fee_arrears);
+
+// Total income keeps the existing current-term income definition.
+$total_income = $total_revenue;
+
+// Total expenses mirrors the existing Financial Summary expense calculation.
+$this->db->select_sum('amount');
+$this->db->where('year', $un_year);
+$this->db->where('term', $un_term);
+$this->db->where('payment_type', 'expense');
+$this->db->where('can_delete !=', 'trash');
+$total_expenses = $this->db->get('payment')->row()->amount ?? 0;
+$total_expenses = floatval($total_expenses); // Ensure numeric value
+
 // Previous term for comparison
 $prev_term = $un_term > 1 ? $un_term - 1 : 3;
 // Handle year format "2025-2026" - if term is 1, we need previous year "2024-2025"
@@ -487,99 +509,142 @@ a:focus-visible .dashboard-card {
 
 	<!-- Financial Overview (Super Admin, Accountant, and Admin Level 2) -->
 	<?php if (($account_type == 'admin' && ($admin_level <= 3))): ?>
-	<div class="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
-		<!-- Daily Revenue Card - Clickable -->
-		<a href="javascript:;" onclick="showDailyRevenueModal(<?php echo $timestamp; ?>)" class="block cursor-pointer" style="text-decoration: none;">
-			<div class="dashboard-card hover:shadow-lg transition-shadow duration-300" style="border-left: 5px solid #43e97b; padding: 20px; min-height: 180px; display: flex; align-items: center;">
+	<!-- Approved KPI Row 2: collection performance -->
+	<div data-dashboard-kpi-row="financial-performance" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
+		<a href="<?php echo site_url('admin/financial_reports/payments'); ?>" class="block" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+			<div class="dashboard-card" style="border-left: 5px solid #10b981; padding: 20px; min-height: 180px; display: flex; align-items: center;">
 				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="width: 100%;">
 					<div class="flex flex-col items-start gap-2">
-						<div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); width: 56px; height: 56px; font-size: 26px;">
-							<i class="entypo-chart-line"></i>
-						</div>
+						<div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><i class="fa fa-money"></i></div>
+						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Collected for Term</h3>
+					</div>
+					<div class="text-right ml-auto">
+						<p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_revenue, 2); ?></p>
+						<p class="text-gray-600" style="font-size: 14px;">Payments received this term</p>
+					</div>
+				</div>
+			</div>
+		</a>
+
+		<a href="javascript:;" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_unpaid_invoices/'.$un_term .'/'. $un_year.'/'. $un_sem);?>', 'modal_unpaid_invoices');" class="block" style="text-decoration: none; color: inherit;">
+			<div class="dashboard-card" style="border-left: 5px solid #f59e0b; padding: 20px; min-height: 180px; display: flex; align-items: center;">
+				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="width: 100%;">
+					<div class="flex flex-col items-start gap-2">
+						<div class="stat-icon" style="background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);"><i class="fa fa-exclamation-circle"></i></div>
+						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Fee Arrears</h3>
+					</div>
+					<div class="text-right ml-auto">
+						<p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($fee_arrears, 2); ?></p>
+						<p class="text-gray-600" style="font-size: 14px;">Active-student balance due</p>
+					</div>
+				</div>
+			</div>
+		</a>
+
+		<a href="javascript:;" onclick="showDailyRevenueModal(<?php echo $timestamp; ?>)" class="block" style="text-decoration: none; color: inherit;">
+			<div class="dashboard-card" style="border-left: 5px solid #14b8a6; padding: 20px; min-height: 180px; display: flex; align-items: center;">
+				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="width: 100%;">
+					<div class="flex flex-col items-start gap-2">
+						<div class="stat-icon" style="background: linear-gradient(135deg, #2dd4bf 0%, #0f766e 100%);"><i class="entypo-chart-line"></i></div>
 						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Daily Revenue</h3>
 					</div>
 					<div class="text-right ml-auto">
-						<p class="text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($daily_revenue, 2); ?></p>
+						<p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($daily_revenue, 2); ?></p>
 						<p class="text-gray-600" style="font-size: 14px;"><?php echo ($timestamp == strtotime(date('d-m-Y'))) ? 'Today' : date('M d, Y', $timestamp); ?></p>
 					</div>
 				</div>
 			</div>
 		</a>
 
-		<div class="dashboard-card" style="border-left: 5px solid #667eea; padding: 20px; min-height: 180px; display: flex; align-items: center;">
+		<div class="dashboard-card" style="border-left: 5px solid #3b82f6; padding: 20px; min-height: 180px; display: flex; align-items: center;">
 			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="width: 100%;">
 				<div class="flex flex-col items-start gap-2">
-					<div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 56px; height: 56px; font-size: 26px;">
-						<i class="entypo-gauge"></i>
-					</div>
+					<div class="stat-icon" style="background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);"><i class="entypo-gauge"></i></div>
 					<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Collection Rate</h3>
 				</div>
 				<div class="text-right ml-auto">
-					<p class="text-4xl font-extrabold text-gray-900 leading-none mb-1"><?php echo $collection_rate; ?>%</p>
-					<p class="text-gray-700" style="font-size: 14px;">Collected: <span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_revenue, 0); ?></p>
-					<span class="text-xs font-bold px-2 py-1 rounded-full <?php echo $collection_rate >= 80 ? 'bg-green-100 text-green-700' : ($collection_rate >= 60 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'); ?> mt-1 inline-block">
-						<?php echo $collection_rate >= 80 ? 'Excellent' : ($collection_rate >= 60 ? 'Good' : 'Needs Attention'); ?>
-					</span>
+					<p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><?php echo $collection_rate; ?>%</p>
+					<p class="text-gray-600" style="font-size: 14px;">Collected vs billed this term</p>
 				</div>
 			</div>
 		</div>
-		
-		<!-- Student Credits Card - NEW -->
-		<a href="<?php echo site_url('admin/student_credits'); ?>" class="block cursor-pointer" style="text-decoration: none;">
-			<div class="dashboard-card hover:shadow-lg transition-shadow duration-300" style="border-left: 5px solid #10b981; padding: 20px; min-height: 180px; display: flex; align-items: center;">
+	</div>
+
+	<!-- Approved KPI Row 3: finance risk and P&L -->
+	<div data-dashboard-kpi-row="financial-risk" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
+		<a href="javascript:;" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_outstanding_debt/'.$un_term .'/'. $un_year);?>', 'modal_outstanding_debt');" class="block" style="text-decoration: none; color: inherit;">
+			<div class="dashboard-card" style="border-left: 5px solid #f97316; padding: 20px; min-height: 180px; display: flex; align-items: center;">
 				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="width: 100%;">
 					<div class="flex flex-col items-start gap-2">
-						<div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); width: 56px; height: 56px; font-size: 26px;">
-							<i class="fa fa-gift"></i>
-						</div>
-						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Student Credits</h3>
+						<div class="stat-icon" style="background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);"><i class="fa fa-file-text-o"></i></div>
+						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Students with Outstanding Bills</h3>
 					</div>
 					<div class="text-right ml-auto">
-						<p class="text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_active_credits, 0); ?></p>
-						<p class="text-gray-700" style="font-size: 14px;"><?php echo $students_with_credits; ?> students</p>
-						<?php if ($students_with_credits > 0): ?>
-						<span class="text-xs font-bold px-2 py-1 rounded-full bg-green-100 text-green-700 mt-1 inline-block">
-							<i class="fa fa-check-circle mr-1"></i>Prepaid Balances
-						</span>
-						<?php endif; ?>
+						<p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><?php echo $active_pending_payments; ?></p>
+						<p class="text-gray-600" style="font-size: 14px;">Active students with unpaid bills</p>
 					</div>
 				</div>
 			</div>
 		</a>
 
-		<div class="dashboard-card" style="border-left: 5px solid #fa709a; padding: 20px; min-height: 180px; display: flex; align-items: center;">
-			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="width: 100%;">
-				<div class="flex flex-col items-start gap-2">
-					<div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); width: 56px; height: 56px; font-size: 26px;">
-						<i class="entypo-credit-card"></i>
+		<a href="javascript:;" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_bad_debt/'.$un_term .'/'. $un_year);?>', 'modal_bad_debt');" class="block" style="text-decoration: none; color: inherit;">
+			<div class="dashboard-card" style="border-left: 5px solid #dc2626; padding: 20px; min-height: 180px; display: flex; align-items: center;">
+				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="width: 100%;">
+					<div class="flex flex-col items-start gap-2">
+						<div class="stat-icon" style="background: linear-gradient(135deg, #f87171 0%, #b91c1c 100%);"><i class="fa fa-user-times"></i></div>
+						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Bad Debt / Muted Students</h3>
 					</div>
-					<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Outstanding Debt</h3>
-				</div>
-				<div class="text-right ml-auto">
-					<!-- Outstanding Debt - Clickable -->
-					<a href="javascript:;" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_outstanding_debt/'.$un_term .'/'. $un_year);?>', 'modal_outstanding_debt');" style="text-decoration: none; color: inherit;">
-						<p class="text-4xl font-extrabold text-gray-900 leading-none mb-1 hover:text-orange-600 transition-colors" style="cursor: pointer;"><?php echo $active_pending_payments; ?></p>
-						<p class="text-orange-700 hover:text-orange-800 transition-colors" style="font-size: 12px; cursor: pointer;">Active students with unpaid bills</p>
-						<?php if ($active_pending_payments > 0): ?>
-						<span class="text-xs font-bold px-2 py-1 rounded-full bg-orange-100 text-orange-700 metric-badge mt-1 inline-block">
-							Action Needed
-						</span>
-						<?php endif; ?>
-					</a>
-					
-					<!-- Bad Debt - Clickable -->
-					<?php if ($bad_debt_count > 0): ?>
-					<a href="javascript:;" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_bad_debt/'.$un_term .'/'. $un_year);?>', 'modal_bad_debt');" style="text-decoration: none; color: inherit;">
-						<div class="mt-2 pt-2 border-t border-gray-200 hover:bg-red-50 transition-colors" style="cursor: pointer; padding: 4px; border-radius: 4px;">
-							<p class="text-2xl font-bold text-red-600 hover:text-red-700 transition-colors"><?php echo $bad_debt_count; ?></p>
-							<p class="text-red-600 hover:text-red-700 transition-colors" style="font-size: 13px;">Bad Debt (muted students)</p>
-						</div>
-					</a>
-					<?php endif; ?>
+					<div class="text-right ml-auto">
+						<p class="text-3xl md:text-4xl font-extrabold text-red-700 leading-none mb-1"><?php echo $bad_debt_count; ?></p>
+						<p class="text-gray-600" style="font-size: 14px;">Muted students with unpaid bills</p>
+					</div>
 				</div>
 			</div>
-		</div>
+		</a>
+
+		<a href="<?php echo site_url('admin/financial_reports/payments'); ?>" class="block" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+			<div class="dashboard-card" style="border-left: 5px solid #16a34a; padding: 20px; min-height: 180px; display: flex; align-items: center;">
+				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="width: 100%;">
+					<div class="flex flex-col items-start gap-2">
+						<div class="stat-icon" style="background: linear-gradient(135deg, #4ade80 0%, #15803d 100%);"><i class="fa fa-line-chart"></i></div>
+						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Total Income</h3>
+					</div>
+					<div class="text-right ml-auto">
+						<p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_income, 2); ?></p>
+						<p class="text-gray-600" style="font-size: 14px;">Income recorded this term</p>
+					</div>
+				</div>
+			</div>
+		</a>
+
+		<a href="<?php echo site_url('admin/expense'); ?>" class="block" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+			<div class="dashboard-card" style="border-left: 5px solid #7c3aed; padding: 20px; min-height: 180px; display: flex; align-items: center;">
+				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3" style="width: 100%;">
+					<div class="flex flex-col items-start gap-2">
+						<div class="stat-icon" style="background: linear-gradient(135deg, #a78bfa 0%, #6d28d9 100%);"><i class="fa fa-tags"></i></div>
+						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Total Expenses</h3>
+					</div>
+					<div class="text-right ml-auto">
+						<p class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-none mb-1"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_expenses, 2); ?></p>
+						<p class="text-gray-600" style="font-size: 14px;">Expenses recorded this term</p>
+					</div>
+				</div>
+			</div>
+		</a>
 	</div>
+
+	<!-- Auxiliary finance insight retained from the legacy dashboard. -->
+	<a href="<?php echo site_url('admin/student_credits'); ?>" class="block mb-6" style="text-decoration: none; color: inherit;">
+		<div class="dashboard-card" style="border-left: 5px solid #0ea5e9; padding: 18px 20px;">
+			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+				<div class="flex items-center gap-3">
+					<div class="stat-icon" style="background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); width: 48px; height: 48px; font-size: 22px;"><i class="fa fa-gift"></i></div>
+					<div><h3 class="text-gray-800 font-semibold" style="font-size: 15px; margin: 0;">Student Credits</h3><p class="text-gray-600" style="font-size: 14px; margin: 3px 0 0;">Billed-invoice credit balances remain separate from daily-fee wallets.</p></div>
+				</div>
+				<div class="text-right"><p class="text-2xl font-extrabold text-gray-900" style="margin: 0;"><span class="currency-symbol"><?php echo $currency; ?></span><?php echo number_format($total_active_credits, 2); ?></p><p class="text-gray-600" style="font-size: 14px; margin: 3px 0 0;"><?php echo $students_with_credits; ?> students</p></div>
+			</div>
+		</div>
+	</a>
 	<?php endif; ?>
 
 	<!-- Charts Section -->
