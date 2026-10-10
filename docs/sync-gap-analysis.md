@@ -60,7 +60,7 @@ students/teachers/classes/invoices/payments/sync_queue), `offline-sync.js`, `off
 
 | # | Gap | Evidence | Required fix (contract ref) |
 |---|-----|----------|------------------------------|
-| S1 | Device token never verified | `Sync_model::verify_device()` queries `sync_devices` by device_id + ACTIVE only; `$auth_token` unused; `register_device()` returns a token it never stores | §11 device security |
+| S1 | Device token never verified | **FIXED 2026-10-10** — device bearer tokens are generated with 256-bit entropy, stored only as SHA-256 hashes in `sync_devices.auth_token_hash`, and verified with `hash_equals`; missing schema/hash fails closed | §11 device security |
 | S2 | Unauthenticated data endpoint | `controllers/Sync.php::cache_data()` — auth commented out; dumps student/invoice/payment rows | Security cleanup; §11 |
 | S3 | No table allowlist in Gen2 paths | `Sync_model::process_push_item()`, `Sync_manager::process_sync_data()` insert/update/delete arbitrary client-named tables; Gen1 `validate_table_name()` only checks existence, not sync-enabled status | Dynamic table safety; §3 |
 | S4 | REPLACE semantics | **FIXED 2026-10-10** — `api/Sync.php::process_batch_record()` updates existing rows in place and inserts new rows; no sync-surface `$this->db->replace()` calls remain | §9 |
@@ -81,7 +81,7 @@ students/teachers/classes/invoices/payments/sync_queue), `offline-sync.js`, `off
 | 8. Domain conflict policies | WEAK | Single `conflict_resolution` strategy from `sync_config` (timestamp/server_wins/client_wins); no per-domain policy; financial append-only not enforced |
 | 9. No REPLACE upserts | **DONE 2026-10-10** | Gen1 and Gen2 now both avoid destructive REPLACE semantics; Gen2 `batch_push` performs primary-key UPDATE/INSERT |
 | 10. MyISAM audit | DONE (see §4) | 25 MyISAM tables; several are sync participants |
-| 11. Device security | BROKEN | S1 + no rotation/revocation UI, no token hashes, tokens returned in API responses |
+| 11. Device security | PARTIAL | Token hash storage/verification is **DONE 2026-10-10**; ACTIVE status is enforced. Rotation/revocation administration UX and token lifecycle tooling remain open |
 | 12. Browser offline UX | FRAGMENTED | Multiple overlapping JS modules; SW caches 3 URLs; no unified outbox/state store; offline banner exists in scattered forms |
 | 13. Attachment sync | MISSING | No content-hash/upload-token protocol |
 | 14. Referential ordering | PARTIAL | Gen1 `get_sync_order()` (priority-based, correct core ordering); pull batching not dependency-grouped |
@@ -162,7 +162,7 @@ No index will be added without an EXPLAIN proof per the query-optimization rules
 | Priority | Item | Risk if unfixed | Status |
 |---|---|---|---|
 | P0 | Re-enable auth on `Sync::cache_data()` (smallest compatible fix; code already exists commented) | Public PII/finance exposure | **DONE 2026-10-03** — session auth via correct keys (login_type/login_user_id) |
-| P0 | Make `verify_device()` actually verify the token (store hash at enrollment; keep response shape) | Device impersonation | **PARTIALLY DONE** — global X-API-Key gate added to api/Sync (fail-closed); full token verification blocked on missing schema column (migration proposal §6.6) |
+| P0 | Make `verify_device()` actually verify the token (store hash at enrollment; keep response shape) | Device impersonation | **DONE 2026-10-10** — idempotent migration adds `auth_token_hash`; registration stores only SHA-256 hash and returns plaintext once; verification uses `hash_equals`; schema/hash absence fails closed; registration bootstraps only after the global API-key gate |
 | P1 | Replace `db->replace()` in `api/Sync.php::batch_push()` with Gen1-style insert-or-update | Silent FK/audit damage | **DONE 2026-10-10** — primary-key lookup + in-place UPDATE for existing rows; INSERT for new rows; offline `record_id` preserved on first insert; structural + behavioral regression coverage added |
 | P1 | Enforce server-side allowlist (sync_metadata sync_enabled=1) in all client-driven write paths | Arbitrary table writes | **DONE 2026-10-03** — static allowlist (5 offline tables + plural aliases) on Sync::push, api/Sync::push/batch_push/pull; metadata-driven allowlist deferred to sync-contract PR |
 | P2 | Kill or feature-flag Gen2 hard-delete path in favor of tombstones | Data loss across devices | **DONE 2026-10-10** — Gen2 client `DELETE` requests now fail closed with a tombstone-propagation safety error; full Gen2 tombstone consumption remains a separate open contract |
