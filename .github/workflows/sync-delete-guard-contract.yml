@@ -1,0 +1,53 @@
+name: Sync Delete Guard Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/models/Sync_model.php'
+      - 'application/controllers/api/Sync.php'
+      - 'tests/sync-delete-guard-contract.test.js'
+      - 'tests/sync_delete_guard_behavior_test.php'
+      - 'docs/sync-gap-analysis.md'
+      - '.github/workflows/sync-delete-guard-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/models/Sync_model.php'
+      - 'application/controllers/api/Sync.php'
+      - 'tests/sync-delete-guard-contract.test.js'
+      - 'tests/sync_delete_guard_behavior_test.php'
+      - 'docs/sync-gap-analysis.md'
+      - '.github/workflows/sync-delete-guard-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  gen2-delete-guard:
+    name: Gen2 tombstone safety guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run structural delete guard contract
+        run: node --test tests/sync-delete-guard-contract.test.js
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+
+      - name: Lint model and behavior harness
+        run: |
+          php -l application/models/Sync_model.php
+          php -l tests/sync_delete_guard_behavior_test.php
+
+      - name: Run delete guard behavior harness
+        run: php tests/sync_delete_guard_behavior_test.php
