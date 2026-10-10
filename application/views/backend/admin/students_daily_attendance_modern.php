@@ -8,15 +8,12 @@
     <link rel="stylesheet" href="<?php echo base_url('assets/css/sync-design-system.css'); ?>?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="<?php echo base_url('assets/css/attendance-report-modern.css'); ?>?v=<?php echo time(); ?>">
     
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/cdn/css/dataTables.dataTables.css">
-    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/cdn/css/buttons.dataTables.css">
+    <!-- DataTables styles are provided by the shared top include. -->
     
     <!-- Date Range Picker -->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/cdn/css/daterangepicker.css">
     
-    <!-- Chart.js -->
-    <script src="<?php echo base_url(); ?>assets/cdn/js/chart-3.9.1.min.js"></script>
+    <!-- Chart.js is provided by the shared top include. -->
 </head>
 
 <body>
@@ -273,16 +270,7 @@
     <!-- Include Attendance Details Modal -->
     <?php include VIEWPATH . 'backend/admin/modal_attendance_details.php'; ?>
     
-    <!-- DataTables JS -->
-    <script src="<?php echo base_url(); ?>assets/cdn/js/dataTables.js"></script>
-    <script src="<?php echo base_url(); ?>assets/cdn/js/dataTables.js"></script>
-    <script src="<?php echo base_url(); ?>assets/cdn/js/dataTables.buttons-3.0.2.js"></script>
-    <script src="<?php echo base_url(); ?>assets/cdn/js/buttons.dataTables-3.2.4.js"></script>
-    <script src="<?php echo base_url(); ?>assets/cdn/js/jszip.min.js"></script>
-    <script src="<?php echo base_url(); ?>assets/cdn/js/pdfmake.min.js"></script>
-    <script src="<?php echo base_url(); ?>assets/cdn/js/vfs_fonts.js"></script>
-    <script src="<?php echo base_url(); ?>assets/cdn/js/buttons.html5.min.js"></script>
-    <script src="<?php echo base_url(); ?>assets/cdn/js/buttons.html5.min.js"></script>
+    <!-- DataTables and export dependencies are provided by the shared bottom include. -->
     
     <!-- Date Range Picker -->
     <script src="<?php echo base_url(); ?>assets/cdn/js/moment.min.js"></script>

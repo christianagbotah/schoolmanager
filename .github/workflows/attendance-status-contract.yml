@@ -14,6 +14,7 @@ on:
       - 'tests/attendance-status-contract.test.js'
       - 'tests/attendance-teacher-scope-contract.test.js'
       - 'tests/attendance-report-filter-contract.test.js'
+      - 'tests/attendance-report-assets-contract.test.js'
       - '.github/workflows/attendance-status-contract.yml'
   push:
     branches: [main]
@@ -28,6 +29,7 @@ on:
       - 'tests/attendance-status-contract.test.js'
       - 'tests/attendance-teacher-scope-contract.test.js'
       - 'tests/attendance-report-filter-contract.test.js'
+      - 'tests/attendance-report-assets-contract.test.js'
       - '.github/workflows/attendance-status-contract.yml'
 
 permissions:
