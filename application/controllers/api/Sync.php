@@ -232,8 +232,8 @@ class Sync extends CI_Controller {
      * This method handles the critical edge case where a record is inserted offline
      * and updated (one or more times) before the first sync occurs.
      * 
-     * Uses REPLACE INTO for atomic insert/update handling to ensure that whether
-     * the record exists remotely or not, it will be inserted or updated correctly.
+     * Uses an FK-safe primary-key upsert: existing rows are updated in place and
+     * new rows are inserted without DELETE+INSERT/REPLACE semantics.
      * 
      * @return JSON response with per-record success/failure status
      * 
@@ -296,12 +296,9 @@ class Sync extends CI_Controller {
                 }
                 $table = $resolved_table;
 
-                // Use REPLACE INTO for atomic insert/update
-                // This handles the edge case where a record is inserted and updated
-                // offline before first sync - whether the record exists or not,
-                // REPLACE INTO will insert or update it correctly
-                // NOTE: replacing REPLACE semantics with version-checked upserts is
-                // scheduled for the dedicated sync-contract PR (docs/sync-gap-analysis.md §8).
+                // FK-safe insert-or-update. Existing rows keep their identity and
+                // dependent foreign-key/audit relationships; new offline rows retain
+                // the supplied primary key on first sync.
                 $result = $this->process_batch_record($table, $record_data, $record_id);
                 
                 $results[] = [
@@ -368,38 +365,59 @@ class Sync extends CI_Controller {
     }
     
     /**
-     * Process a single record using REPLACE INTO for atomic insert/update
-     * 
-     * REPLACE INTO works as follows:
-     * 1. If record with primary key exists: DELETE old record, INSERT new record
-     * 2. If record doesn't exist: INSERT new record
-     * 
-     * This ensures atomic insert/update behavior and handles the critical edge case
-     * where a record is inserted offline and updated before first sync.
-     * 
+     * Process one batch record without destructive REPLACE semantics.
+     *
+     * Existing records are updated in place by primary key so foreign-key and
+     * audit relationships are preserved. New offline records are inserted and,
+     * when record_id is supplied separately, retain that identifier on first sync.
+     *
      * @param string $table Table name
      * @param array $data Record data
      * @param mixed $record_id Primary key value
      * @return array Result with operation type
      */
     private function process_batch_record($table, $data, $record_id) {
-        // Get primary key for this table
         $primary_key = $this->get_table_primary_key($table);
-        
-        // Check if record exists to determine operation type (for logging)
+
+        // A batch item has one authoritative identity. Reject conflicting IDs
+        // instead of inserting/updating a different row than record_id names.
+        if ($record_id !== null && array_key_exists($primary_key, $data)
+            && (string)$data[$primary_key] !== (string)$record_id) {
+            throw new InvalidArgumentException('record_id does not match payload primary key');
+        }
+
+        // Some clients provide the primary key inside data, others use record_id.
+        $lookup_id = $record_id;
+        if ($lookup_id === null && array_key_exists($primary_key, $data)) {
+            $lookup_id = $data[$primary_key];
+        }
+
         $exists = false;
-        if ($record_id !== null) {
-            $exists = $this->db->where($primary_key, $record_id)
+        if ($lookup_id !== null) {
+            $exists = $this->db->where($primary_key, $lookup_id)
                 ->count_all_results($table) > 0;
         }
-        
-        // Use REPLACE INTO for atomic insert/update
-        // This is the professional solution for handling records that may or may not exist
-        $this->db->replace($table, $data);
-        
-        return [
-            'operation' => $exists ? 'updated' : 'inserted'
-        ];
+
+        if ($exists) {
+            // Never attempt to mutate the primary key of an existing row.
+            $update_data = $data;
+            unset($update_data[$primary_key]);
+
+            if (!empty($update_data)) {
+                $this->db->where($primary_key, $lookup_id)
+                    ->update($table, $update_data);
+            }
+
+            return ['operation' => 'updated'];
+        }
+
+        // Preserve the offline-created identity when the ID arrived separately.
+        if ($record_id !== null && !array_key_exists($primary_key, $data)) {
+            $data[$primary_key] = $record_id;
+        }
+
+        $this->db->insert($table, $data);
+        return ['operation' => 'inserted'];
     }
     
     /**

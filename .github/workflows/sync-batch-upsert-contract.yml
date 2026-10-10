@@ -1,0 +1,51 @@
+name: Sync Batch Upsert Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/controllers/api/Sync.php'
+      - 'tests/sync-batch-upsert-contract.test.js'
+      - 'tests/sync_batch_upsert_behavior_test.php'
+      - 'docs/sync-gap-analysis.md'
+      - '.github/workflows/sync-batch-upsert-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/api/Sync.php'
+      - 'tests/sync-batch-upsert-contract.test.js'
+      - 'tests/sync_batch_upsert_behavior_test.php'
+      - 'docs/sync-gap-analysis.md'
+      - '.github/workflows/sync-batch-upsert-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  sync-batch-upsert:
+    name: FK-safe sync batch upsert
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run structural sync contract
+        run: node --test tests/sync-batch-upsert-contract.test.js
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+
+      - name: Lint sync controller and behavior harness
+        run: |
+          php -l application/controllers/api/Sync.php
+          php -l tests/sync_batch_upsert_behavior_test.php
+
+      - name: Run sync upsert behavior harness
+        run: php tests/sync_batch_upsert_behavior_test.php
