@@ -25,10 +25,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Parse hardened adapter
-        run: php -l application/models/Hubtel_payment_model.php 2>/dev/null || true
+      - name: Parse hardened Hubtel PHP
+        run: |
+          php -l application/models/Hubtel_payment_model.php
+          php -l application/controllers/Payment_gateway.php
       - name: Run Hubtel collection regression contract
         run: node --test tests/hubtel-collection-safety.test.js
