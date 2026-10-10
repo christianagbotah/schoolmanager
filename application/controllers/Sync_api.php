@@ -252,7 +252,7 @@ class Sync_api extends CI_Controller {
      * Register device
      * 
      * Registers a new device for sync operations.
-     * Returns device_id and auth_token for future requests.
+     * Returns the registered device_id. Legacy clients continue to authenticate with X-Sync-API-Key.
      */
     public function register() {
         $device_id = $this->input->post('device_id');

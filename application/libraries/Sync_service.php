@@ -60,26 +60,52 @@ class Sync_service {
     }
     
     /**
-     * Register device with user
-     * 
+     * Register a legacy sync device without mutating Gen2 credentials or sync state.
+     *
+     * $user_id and $user_type are retained only for backward-compatible callers;
+     * identity binding is handled by the Gen2 device registration flow.
+     *
      * @param string $device_id Device identifier
      * @param string $device_name Device name
-     * @param int $user_id User ID
-     * @param string $user_type User type (admin, teacher, parent)
+     * @param int|null $user_id Legacy compatibility argument (not persisted)
+     * @param string|null $user_type Legacy compatibility argument (not persisted)
      * @return string Device ID
      */
     public function register_device($device_id, $device_name, $user_id, $user_type) {
-        $data = [
+        $existing = $this->CI->db
+            ->where('device_id', $device_id)
+            ->get('sync_devices')
+            ->row();
+
+        if ($existing) {
+            if (strtoupper((string) ($existing->status ?? '')) === 'BLOCKED') {
+                throw new RuntimeException('Blocked device cannot be re-registered through the legacy sync API.');
+            }
+
+            $updated = $this->CI->db
+                ->where('device_id', $device_id)
+                ->update('sync_devices', [
+                    'device_name' => $device_name
+                ]);
+
+            if (!$updated) {
+                throw new RuntimeException('Could not update sync device registration.');
+            }
+
+            return $device_id;
+        }
+
+        $inserted = $this->CI->db->insert('sync_devices', [
             'device_id' => $device_id,
             'device_name' => $device_name,
-            'user_id' => $user_id,
-            'user_type' => $user_type,
             'status' => 'ACTIVE',
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
-        ];
-        
-        $this->CI->db->replace('sync_devices', $data);
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+
+        if (!$inserted) {
+            throw new RuntimeException('Could not register sync device.');
+        }
+
         return $device_id;
     }
     
