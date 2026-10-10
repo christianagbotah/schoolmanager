@@ -421,7 +421,7 @@ a:focus-visible .dashboard-card {
 						<div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 56px; height: 56px; font-size: 26px;">
 							<i class="fa fa-users"></i>
 						</div>
-						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Total Students</h3>
+						<h3 class="text-gray-700 font-medium" style="font-size: 15px;">Active Students</h3>
 					</div>
 					<div class="text-right ml-auto">
 						<p class="text-4xl font-extrabold text-gray-900 leading-none mb-1">

@@ -29,7 +29,8 @@ function section(startMarker, endMarker) {
 
 test('primary people KPI row keeps the approved order', () => {
     const block = section('<!-- Key Metrics Cards -->', '<!-- Financial Overview');
-    ordered(block, ['Total Students', 'Active Teachers', 'Active Parents', 'Attendance']);
+    const headings = [...block.matchAll(/<h3[^>]*>([^<]+)<\/h3>/g)].map((match) => match[1].trim());
+    assert.deepEqual(headings.slice(0, 4), ['Active Students', 'Active Teachers', 'Active Parents', 'Attendance']);
     assert.match(block, /grid-cols-1\s+sm:grid-cols-2\s+lg:grid-cols-4/);
 });
 
