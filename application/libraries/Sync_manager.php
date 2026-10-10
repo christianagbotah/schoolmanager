@@ -13,7 +13,7 @@ class Sync_manager {
     public function __construct() {
         $this->CI =& get_instance();
         $this->CI->load->database();
-        $this->CI->load->config('sync_config');
+        $this->CI->load->config('sync');
         $this->conflict_strategy = $this->CI->config->item('conflict_resolution');
     }
     
