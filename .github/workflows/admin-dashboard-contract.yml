@@ -1,0 +1,30 @@
+name: Admin Dashboard Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/views/backend/admin/dashboard.php'
+      - 'tests/admin-dashboard-contract.test.js'
+      - '.github/workflows/admin-dashboard-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/views/backend/admin/dashboard.php'
+      - 'tests/admin-dashboard-contract.test.js'
+      - '.github/workflows/admin-dashboard-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  dashboard-contract:
+    name: Dashboard KPI and layout contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run dashboard regression contract
+        run: node --test tests/admin-dashboard-contract.test.js
