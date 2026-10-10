@@ -8,6 +8,7 @@ const view = fs.readFileSync(path.join(root, 'application/views/backend/admin/pa
 const admin = fs.readFileSync(path.join(root, 'application/controllers/Admin.php'), 'utf8');
 const payoutController = fs.readFileSync(path.join(root, 'application/controllers/Payroll_payout.php'), 'utf8');
 const approval = fs.readFileSync(path.join(root, 'application/models/Payroll_approval_model.php'), 'utf8');
+const paymentSettings = fs.readFileSync(path.join(root, 'application/views/backend/admin/payment_settings.php'), 'utf8');
 
 function functionBody(source, name) {
   const marker = `function ${name}`;
@@ -62,6 +63,24 @@ test('payroll approval JSON is restricted to authenticated administrators', () =
 test('payout status polling keeps the same finance or super-admin authorization boundary', () => {
   const body = functionBody(payoutController, 'status');
   assert.match(body, /can_current_admin_initiate_payout/);
+});
+
+test('Hubtel gateway settings can persist explicit receive and payroll send endpoints', () => {
+  const body = functionBody(admin, 'payment_settings');
+  assert.match(body, /hubtel_payment_receive_url/);
+  assert.match(body, /hubtel_payroll_send_url/);
+  assert.match(body, /insert\s*\(\s*['"]settings['"]/);
+  assert.match(paymentSettings, /name=['"]hubtel_payment_receive_url['"]/);
+  assert.match(paymentSettings, /name=['"]hubtel_payroll_send_url['"]/);
+  assert.match(paymentSettings, /\{mobileNumber\}/);
+});
+
+test('Hubtel payroll send URL is validated and payment credential changes require super admin', () => {
+  const body = functionBody(admin, 'payment_settings');
+  assert.match(body, /user_type/);
+  assert.match(body, /403/);
+  assert.match(body, /mobileNumber/);
+  assert.match(body, /https/i);
 });
 
 test('legacy approval-model mark_as_paid cannot directly transition payroll to paid', () => {

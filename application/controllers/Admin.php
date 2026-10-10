@@ -20643,35 +20643,94 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 
 	//Payment settings
 	function payment_settings($param1 = '', $param2 = '') {
-		//if ($this->session->userdata('admin_login') != 1)
-		//redirect(site_url('login'));
+		if ($this->session->userdata('admin_login') != 1) {
+			if ($param1 !== '') {
+				$this->output->set_status_header(401)->set_content_type('application/json')->set_output(json_encode([
+					'status' => 'error',
+					'message' => 'Authentication required'
+				]));
+				return;
+			}
+			redirect(site_url('login'));
+			return;
+		}
 
-		$json_data = array();
+		// Gateway credentials and money-movement endpoints are super-admin only.
+		if ((int) $this->session->userdata('user_type') !== 1) {
+			if ($param1 !== '') {
+				$this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode([
+					'status' => 'error',
+					'message' => 'Super administrator permission required'
+				]));
+				return;
+			}
+			$this->session->set_flashdata('error_message', 'Only a super administrator can manage payment gateway credentials.');
+			redirect(site_url('admin/dashboard'));
+			return;
+		}
 
 		$this->load->library('form_validation');
 		if ($param1 == 'hubtel_payment') {
-			$fields = ['hubtel_payment_client_id', 'hubtel_payment_client_secret', 'hubtel_payment_merchant_number', 'hubtel_payment_enabled', 'hubtel_payment_test_mode'];
+			$receive_url = trim((string) $this->input->post('hubtel_payment_receive_url'));
+			$send_url = trim((string) $this->input->post('hubtel_payroll_send_url'));
+
+			if ($receive_url !== '' && (stripos($receive_url, 'https://') !== 0 || !filter_var($receive_url, FILTER_VALIDATE_URL))) {
+				$this->output->set_status_header(422)->set_content_type('application/json')->set_output(json_encode([
+					'status' => 'error',
+					'message' => 'Hubtel receive URL must be a valid HTTPS URL.'
+				]));
+				return;
+			}
+
+			$send_url_probe = str_replace('{mobileNumber}', '233200000000', $send_url);
+			if ($send_url !== '' && (strpos($send_url, '{mobileNumber}') === false || stripos($send_url_probe, 'https://') !== 0 || !filter_var($send_url_probe, FILTER_VALIDATE_URL))) {
+				$this->output->set_status_header(422)->set_content_type('application/json')->set_output(json_encode([
+					'status' => 'error',
+					'message' => 'Hubtel payroll send URL must be HTTPS and include the literal {mobileNumber} placeholder.'
+				]));
+				return;
+			}
+
+			$fields = [
+				'hubtel_payment_client_id',
+				'hubtel_payment_client_secret',
+				'hubtel_payment_merchant_number',
+				'hubtel_payment_receive_url',
+				'hubtel_payroll_send_url',
+				'hubtel_payment_enabled',
+				'hubtel_payment_test_mode'
+			];
 
 			foreach ($fields as $field) {
 				$value = $this->input->post($field);
-				if ($value !== null) {
+				if ($value === null) {
+					continue;
+				}
+
+				$setting = $this->db->get_where('settings', ['type' => $field])->row();
+				if ($setting) {
 					$this->db->where('type', $field)->update('settings', ['description' => $value]);
+				} else {
+					$this->db->insert('settings', ['type' => $field, 'description' => $value]);
 				}
 			}
 
 			$this->db->cache_delete();
-			echo json_encode(['status' => 'success', 'message' => get_phrase('hubtel_payment_settings_updated')]);
+			$this->output->set_content_type('application/json')->set_output(json_encode([
+				'status' => 'success',
+				'message' => get_phrase('hubtel_payment_settings_updated')
+			]));
 			return;
 		}
 
 		if ($param1 == 'active_service') {
-
 			$data['description'] = $this->input->post('active_payment_service');
 			$this->db->where('type', 'active_payment_service');
 			$this->db->update('settings', $data);
 
 			$this->session->set_flashdata('flash_message', get_phrase('payment_settings_updated'));
 			redirect(site_url('admin/payment_settings'));
+			return;
 		}
 
 		$page_data['page_name'] = 'payment_settings';
