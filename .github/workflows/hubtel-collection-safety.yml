@@ -7,6 +7,7 @@ on:
       - 'application/controllers/Payment_gateway.php'
       - 'application/models/Hubtel_payment_model.php'
       - 'tests/hubtel-collection-safety.test.js'
+      - 'tests/hubtel_collection_callback_auth_behavior_test.php'
       - '.github/workflows/hubtel-collection-safety.yml'
   push:
     branches: [main]
@@ -14,6 +15,7 @@ on:
       - 'application/controllers/Payment_gateway.php'
       - 'application/models/Hubtel_payment_model.php'
       - 'tests/hubtel-collection-safety.test.js'
+      - 'tests/hubtel_collection_callback_auth_behavior_test.php'
       - '.github/workflows/hubtel-collection-safety.yml'
 
 permissions:
@@ -38,3 +40,5 @@ jobs:
           php -l application/controllers/Payment_gateway.php
       - name: Run Hubtel collection regression contract
         run: node --test tests/hubtel-collection-safety.test.js
+      - name: Run callback authentication behavior contract
+        run: php tests/hubtel_collection_callback_auth_behavior_test.php
