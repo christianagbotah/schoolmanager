@@ -43,6 +43,19 @@ test('payout callback binds reference amount recipient and provider transaction'
   assert.match(model, /provider_transaction_mismatch|provider transaction mismatch/i);
 });
 
+test('callback requires an explicit provider success state before payroll is paid', () => {
+  assert.match(model, /provider_status_missing/);
+  assert.match(model, /provider_not_successful/);
+  assert.match(model, /provider_status\s*===\s*['"]['"]/);
+});
+
+test('failed or declined provider callbacks are persisted for reconciliation', () => {
+  assert.match(model, /function\s+record_provider_failure\s*\(/);
+  assert.match(model, /callback_payload/);
+  assert.match(model, /status['"]\s*=>\s*['"]failed['"]/);
+  assert.match(model, /failed_at/);
+});
+
 test('provider-confirmed transition synchronizes payroll paid state atomically', () => {
   assert.match(model, /function\s+mark_payroll_paid_from_provider\s*\(/);
   assert.match(model, /approval_status['"]\s*=>\s*['"]paid['"]/);
