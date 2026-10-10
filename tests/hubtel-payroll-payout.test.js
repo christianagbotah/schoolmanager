@@ -6,11 +6,9 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const modelPath = path.join(root, 'application/models/Hubtel_payroll_payout_model.php');
 const controllerPath = path.join(root, 'application/controllers/Payroll_payout.php');
-const approvalPath = path.join(root, 'application/models/Payroll_approval_model.php');
 const migrationPath = path.join(root, 'application/migrations/20261010_create_payroll_payout_transactions.sql');
 const model = fs.existsSync(modelPath) ? fs.readFileSync(modelPath, 'utf8') : '';
 const controller = fs.existsSync(controllerPath) ? fs.readFileSync(controllerPath, 'utf8') : '';
-const approval = fs.readFileSync(approvalPath, 'utf8');
 const migration = fs.existsSync(migrationPath) ? fs.readFileSync(migrationPath, 'utf8') : '';
 
 test('outbound payroll uses a dedicated payout ledger', () => {
@@ -42,13 +40,15 @@ test('payout callback binds reference amount recipient and provider transaction'
   assert.match(model, /transactionId|TransactionId/);
   assert.match(model, /amount_mismatch|amount mismatch/i);
   assert.match(model, /recipient_mismatch|recipient mismatch/i);
+  assert.match(model, /provider_transaction_mismatch|provider transaction mismatch/i);
 });
 
-test('provider confirmation is the only machine path that marks payroll paid', () => {
-  assert.match(approval, /function\s+confirm_provider_payment\s*\(/);
-  assert.match(approval, /approval_status['"]\s*=>\s*['"]paid['"]/);
-  assert.match(approval, /status['"]\s*=>\s*['"]paid['"]/);
-  assert.match(model, /confirm_provider_payment\s*\(/);
+test('provider-confirmed transition synchronizes payroll paid state atomically', () => {
+  assert.match(model, /function\s+mark_payroll_paid_from_provider\s*\(/);
+  assert.match(model, /approval_status['"]\s*=>\s*['"]paid['"]/);
+  assert.match(model, /status['"]\s*=>\s*['"]paid['"]/);
+  assert.match(model, /payroll_approvals/);
+  assert.match(model, /status['"]\s*=>\s*['"]success['"]/);
 });
 
 test('payout initiation is authenticated and callback remains provider-facing', () => {
