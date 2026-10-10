@@ -54,6 +54,7 @@ class Sync_server extends CI_Controller {
         // Load dependencies
         $this->load->library('Offline_sync');
         $this->load->database();
+        $this->load->model('Sync_model');
         $this->load->config('sync');
         
         // Load bidirectional sync libraries
@@ -2956,6 +2957,106 @@ class Sync_server extends CI_Controller {
         return $result;
     }
     
+    /**
+     * Require a level-1 super administrator for device credential lifecycle actions.
+     * Navigation visibility is not treated as an authorization boundary.
+     */
+    private function require_super_admin($json = false) {
+        $admin_id = (int) $this->session->userdata('admin_id');
+        $admin = $admin_id > 0
+            ? $this->db->select('level')->where('admin_id', $admin_id)->get('admin')->row()
+            : null;
+        $is_super_admin = $admin && (int) $admin->level === 1;
+
+        if ($is_super_admin) {
+            return $admin_id;
+        }
+
+        if ($json) {
+            $this->output->set_status_header(403);
+            $this->output->set_content_type('application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Super administrator access required']);
+            exit;
+        }
+
+        show_error('Super administrator access required', 403);
+        exit;
+    }
+
+    /**
+     * Gen2 sync device registry and credential lifecycle screen.
+     */
+    public function devices() {
+        $this->require_super_admin();
+        $this->check_sync_enabled();
+
+        $page_data['devices'] = $this->Sync_model->list_devices_for_admin();
+        $page_data['page_name'] = 'sync_devices';
+        $page_data['page_title'] = 'Sync Device Security';
+        $page_data['skip_datatables'] = TRUE;
+        $this->load->view('backend/main', $page_data);
+    }
+
+    /**
+     * Rotate an ACTIVE device token. CSRF validation is provided by CI's global
+     * form protection; the plaintext token is kept only in flashdata for the
+     * immediate redirected view and is never logged.
+     */
+    public function rotate_device_token() {
+        $admin_id = $this->require_super_admin();
+        if ($this->input->method(TRUE) !== 'POST') {
+            show_error('Method Not Allowed', 405);
+            return;
+        }
+
+        $device_id = trim((string) $this->input->post('device_id', TRUE));
+        if ($device_id === '') {
+            $this->session->set_flashdata('error_message', 'Device ID is required.');
+            redirect(site_url('sync_server/devices'), 'refresh');
+            return;
+        }
+
+        $result = $this->Sync_model->rotate_device_token($device_id);
+        if (($result['status'] ?? 'error') === 'success') {
+            $this->session->set_flashdata('sync_device_token_once', $result['auth_token']);
+            $this->session->set_flashdata('sync_device_token_id', $device_id);
+            $this->session->set_flashdata('flash_message', 'Device token rotated. Copy the new token now; it will not be shown again.');
+            log_message('warning', 'Sync device token rotated by admin_id=' . $admin_id . ' device_id=' . $device_id);
+        } else {
+            $this->session->set_flashdata('error_message', $result['message'] ?? 'Token rotation failed.');
+        }
+
+        redirect(site_url('sync_server/devices'), 'refresh');
+    }
+
+    /**
+     * Revoke a device by blocking it and destroying the stored credential hash.
+     */
+    public function revoke_device() {
+        $admin_id = $this->require_super_admin();
+        if ($this->input->method(TRUE) !== 'POST') {
+            show_error('Method Not Allowed', 405);
+            return;
+        }
+
+        $device_id = trim((string) $this->input->post('device_id', TRUE));
+        if ($device_id === '') {
+            $this->session->set_flashdata('error_message', 'Device ID is required.');
+            redirect(site_url('sync_server/devices'), 'refresh');
+            return;
+        }
+
+        $result = $this->Sync_model->revoke_device($device_id);
+        if (($result['status'] ?? 'error') === 'success') {
+            $this->session->set_flashdata('flash_message', 'Device access revoked. Its previous token can no longer authenticate.');
+            log_message('warning', 'Sync device revoked by admin_id=' . $admin_id . ' device_id=' . $device_id);
+        } else {
+            $this->session->set_flashdata('error_message', $result['message'] ?? 'Device revocation failed.');
+        }
+
+        redirect(site_url('sync_server/devices'), 'refresh');
+    }
+
     // ============================================================================
     // DASHBOARD METHODS
     // ============================================================================

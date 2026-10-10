@@ -74,6 +74,88 @@ class Sync_model extends CI_Model {
         ];
     }
     
+    /**
+     * Return device registry metadata for the admin lifecycle screen.
+     * Deliberately omits auth_token_hash and any bearer credential material.
+     */
+    public function list_devices_for_admin() {
+        return $this->db
+            ->select('device_id, device_name, school_id, last_sync_at, status, created_at')
+            ->from('sync_devices')
+            ->order_by('created_at', 'DESC')
+            ->get()
+            ->result_array();
+    }
+
+    /**
+     * Rotate the bearer token for an ACTIVE device. The plaintext token is
+     * returned once; only its SHA-256 hash is persisted.
+     */
+    public function rotate_device_token($device_id) {
+        if (!$this->db->field_exists('auth_token_hash', 'sync_devices')) {
+            return ['status' => 'error', 'message' => 'Device authentication storage is not configured'];
+        }
+
+        $device = $this->db->where([
+            'device_id' => $device_id,
+            'status' => 'ACTIVE'
+        ])->get('sync_devices')->row();
+
+        if (!$device) {
+            return ['status' => 'error', 'message' => 'Only an active device can rotate its token'];
+        }
+
+        $auth_token = bin2hex(random_bytes(32));
+        $updated = $this->db
+            ->where('device_id', $device_id)
+            ->where('status', 'ACTIVE')
+            ->update('sync_devices', [
+                'auth_token_hash' => hash('sha256', $auth_token)
+            ]);
+
+        if (!$updated) {
+            return ['status' => 'error', 'message' => 'Token rotation failed'];
+        }
+
+        return [
+            'status' => 'success',
+            'device_id' => $device_id,
+            'auth_token' => $auth_token
+        ];
+    }
+
+    /**
+     * Permanently revoke current device credentials. Reactivation requires a
+     * fresh enrollment; a blocked device cannot regain access with its old token.
+     */
+    public function revoke_device($device_id) {
+        if (!$this->db->field_exists('auth_token_hash', 'sync_devices')) {
+            return ['status' => 'error', 'message' => 'Device authentication storage is not configured'];
+        }
+
+        $device = $this->db->where('device_id', $device_id)->get('sync_devices')->row();
+        if (!$device) {
+            return ['status' => 'error', 'message' => 'Device not found'];
+        }
+
+        if ($device->status === 'BLOCKED' && empty($device->auth_token_hash)) {
+            return ['status' => 'success', 'device_id' => $device_id, 'already_revoked' => true];
+        }
+
+        $updated = $this->db
+            ->where('device_id', $device_id)
+            ->update('sync_devices', [
+                'status' => 'BLOCKED',
+                'auth_token_hash' => null
+            ]);
+
+        if (!$updated) {
+            return ['status' => 'error', 'message' => 'Device revocation failed'];
+        }
+
+        return ['status' => 'success', 'device_id' => $device_id];
+    }
+
     public function process_push_item($item, $device_id) {
         $table = $item['table_name'];
         $operation = $item['operation'];

@@ -1257,7 +1257,7 @@ if ($_level == 4 || $admin_level == 4) {
 
         <?php if ($account_type == 'admin' && $admin_level <= 3 && $sync_enabled):?>
         <!-- Cloud Sync Menu -->
-        <li class="<?php if (in_array($page_name, ['sync_dashboard', 'sync_table_management', 'sync_settings'])) echo 'opened active'; ?>">
+        <li class="<?php if (in_array($page_name, ['sync_dashboard', 'sync_devices', 'sync_table_management', 'sync_settings'])) echo 'opened active'; ?>">
             <a href="#">
                 <i class="fa fa-cloud-upload-alt"></i>
                 <span><?php echo get_phrase('cloud_sync'); ?></span>
@@ -1270,6 +1270,12 @@ if ($_level == 4 || $admin_level == 4) {
                     </a>
                 </li>
                 <?php if ($account_type == 'admin' && $admin_level == 1):?>
+                <li class="<?php if ($page_name == 'sync_devices') echo 'active'; ?>">
+                    <a href="#" onclick="navigation('<?php echo site_url('sync_server/devices'); ?>')">
+                        <i class="fa fa-shield-alt"></i>
+                        <span>Device Security</span>
+                    </a>
+                </li>
                 <li class="<?php if ($page_name == 'sync_table_management') echo 'active'; ?>">
                     <a href="#" onclick="navigation('<?php echo site_url('sync_server/table_management'); ?>')">
                         <i class="fa fa-table"></i>
