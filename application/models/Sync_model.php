@@ -4,23 +4,69 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Sync_model extends CI_Model {
     
     public function verify_device($device_id, $auth_token) {
-        return $this->db->where([
+        // Device authentication must fail closed until the token-hash migration
+        // has been applied. Falling back to device_id-only verification would
+        // silently preserve the impersonation vulnerability this method closes.
+        if (!$this->db->field_exists('auth_token_hash', 'sync_devices')) {
+            log_message('error', 'Sync_model::verify_device blocked: sync_devices.auth_token_hash is missing');
+            return null;
+        }
+
+        if (!is_string($auth_token) || $auth_token === '') {
+            return null;
+        }
+
+        $device = $this->db->where([
             'device_id' => $device_id,
             'status' => 'ACTIVE'
         ])->get('sync_devices')->row();
+
+        if (!$device || empty($device->auth_token_hash)) {
+            return null;
+        }
+
+        $provided_hash = hash('sha256', $auth_token);
+        if (!hash_equals((string)$device->auth_token_hash, $provided_hash)) {
+            return null;
+        }
+
+        return $device;
     }
     
     public function register_device($device_name, $school_id) {
+        // Never issue a token that cannot subsequently be verified. Existing
+        // installations must run the migration before enrolling/re-enrolling
+        // Gen2 sync devices.
+        if (!$this->db->field_exists('auth_token_hash', 'sync_devices')) {
+            log_message('error', 'Sync_model::register_device blocked: sync_devices.auth_token_hash is missing');
+            return [
+                'status' => 'error',
+                'message' => 'Device authentication storage is not configured'
+            ];
+        }
+
         $device_id = uniqid('device_', true);
         $auth_token = bin2hex(random_bytes(32));
         
-        $this->db->insert('sync_devices', [
+        $inserted = $this->db->insert('sync_devices', [
             'device_id' => $device_id,
+            'auth_token_hash' => hash('sha256', $auth_token),
             'device_name' => $device_name,
             'school_id' => $school_id,
             'status' => 'ACTIVE'
         ]);
+
+        if (!$inserted) {
+            log_message('error', 'Sync_model::register_device failed to persist device ' . $device_id);
+            return [
+                'status' => 'error',
+                'message' => 'Device registration failed'
+            ];
+        }
         
+        // The plaintext bearer token is intentionally returned once and never
+        // stored. The caller must persist it in the protected client credential
+        // store; server-side verification uses only auth_token_hash.
         return [
             'status' => 'success',
             'device_id' => $device_id,
