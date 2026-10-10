@@ -28200,29 +28200,14 @@ function parents_gender_report() {
 			// OPTIMIZATION 5: Use pre-fetched attendance data
 			$att_status = isset($attendance_map[$student_id]) ? $attendance_map[$student_id] : 0; // Default: Not Marked
 
-			// Apply status filter
-			// Status filter values: 1=Present (includes 1 and 3), 2=Absent (includes 2, 4, 5), 0=Not Marked
-			if ($status !== '' && $status !== null) {
-				$matchesFilter = false;
-
-				if ($status == '1') {
-					// Present filter: includes Present (1) and Late (3)
-					$matchesFilter = ($att_status == 1 || $att_status == 3);
-				} else if ($status == '2') {
-					// Absent filter: includes Absent (2), Sick-Home (4), Sick-Clinic (5)
-					$matchesFilter = ($att_status == 2 || $att_status == 4 || $att_status == 5);
-				} else if ($status == '0') {
-					// Not Marked filter
-					$matchesFilter = ($att_status == 0);
-				}
-
-				if (!$matchesFilter) {
-					continue; // Skip this student if status doesn't match filter
-				}
+			// Apply exact canonical status filter. Summary cards still group Late with Present
+			// and sick statuses with Absent, but drill-down filtering keeps all six states distinct.
+			if ($status !== '' && $status !== null && (string)$att_status !== (string)$status) {
+				continue; // Skip this student if the exact status does not match the selected filter.
 			}
 
 			// Update summary counters
-			// Status values: 1=Present, 2=Absent, 3=Late, 4=Sick-Home, 5=Sick-Clinic, 0=Not Marked
+			// Status values: 1=Present, 2=Absent, 3=Late, 4=Sick at Home, 5=Sick at Clinic, 0=Not Marked
 			$summary['total']++;
 			if ($att_status == 1) {
 				// Regular Present

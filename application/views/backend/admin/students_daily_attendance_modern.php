@@ -74,8 +74,8 @@
                     <div class="card-percentage" id="absent-percentage">0%</div>
                     <div class="card-breakdown" id="absent-breakdown" style="font-size: 11px; margin-top: 4px; opacity: 0.9; display: none;">
                         <div><strong>Absent:</strong> <span id="absent-regular-count">0</span></div>
-                        <div><strong>Sick - Home:</strong> <span id="absent-sick-home-count">0</span></div>
-                        <div><strong>Sick - Clinic:</strong> <span id="absent-sick-clinic-count">0</span></div>
+                        <div><strong>Sick at Home:</strong> <span id="absent-sick-home-count">0</span></div>
+                        <div><strong>Sick at Clinic:</strong> <span id="absent-sick-clinic-count">0</span></div>
                     </div>
                 </div>
             </div>
@@ -152,6 +152,9 @@
                         <option value="">All Status</option>
                         <option value="1">Present</option>
                         <option value="2">Absent</option>
+                        <option value="3">Late</option>
+                        <option value="4">Sick at Home</option>
+                        <option value="5">Sick at Clinic</option>
                         <option value="0">Not Marked</option>
                     </select>
                 </div>
