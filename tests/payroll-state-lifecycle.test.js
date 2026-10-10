@@ -3,6 +3,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
+// Money-state invariant: calculating salary creates an obligation; only the
+// approved payment transition may represent an employee as paid.
 const root = path.resolve(__dirname, '..');
 const payroll = fs.readFileSync(path.join(root, 'application/models/Payroll_model.php'), 'utf8');
 const approval = fs.readFileSync(path.join(root, 'application/models/Payroll_approval_model.php'), 'utf8');
