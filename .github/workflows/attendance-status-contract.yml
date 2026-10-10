@@ -5,24 +5,28 @@ on:
     branches: [main]
     paths:
       - 'application/controllers/Admin.php'
+      - 'application/controllers/Attendance.php'
       - 'application/views/backend/admin/manage_attendance_view.php'
       - 'application/views/backend/attendance/mark_attendance.php'
       - 'application/views/backend/admin/attendance_analytics_report.php'
       - 'application/views/backend/admin/students_daily_attendance_modern.php'
       - 'assets/backend/js/attendance_report_modern.js'
       - 'tests/attendance-status-contract.test.js'
+      - 'tests/attendance-teacher-scope-contract.test.js'
       - 'tests/attendance-report-filter-contract.test.js'
       - '.github/workflows/attendance-status-contract.yml'
   push:
     branches: [main]
     paths:
       - 'application/controllers/Admin.php'
+      - 'application/controllers/Attendance.php'
       - 'application/views/backend/admin/manage_attendance_view.php'
       - 'application/views/backend/attendance/mark_attendance.php'
       - 'application/views/backend/admin/attendance_analytics_report.php'
       - 'application/views/backend/admin/students_daily_attendance_modern.php'
       - 'assets/backend/js/attendance_report_modern.js'
       - 'tests/attendance-status-contract.test.js'
+      - 'tests/attendance-teacher-scope-contract.test.js'
       - 'tests/attendance-report-filter-contract.test.js'
       - '.github/workflows/attendance-status-contract.yml'
 
@@ -56,6 +60,7 @@ jobs:
       - name: Lint attendance views
         run: |
           php -l application/controllers/Admin.php
+          php -l application/controllers/Attendance.php
           php -l application/views/backend/admin/manage_attendance_view.php
           php -l application/views/backend/attendance/mark_attendance.php
           php -l application/views/backend/admin/attendance_analytics_report.php
