@@ -1,0 +1,35 @@
+name: Sync Device Auth Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/models/Sync_model.php'
+      - 'application/migrations/20261010_add_sync_device_auth_token_hash.sql'
+      - 'tests/sync-device-auth-contract.test.js'
+      - '.github/workflows/sync-device-auth-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/models/Sync_model.php'
+      - 'application/migrations/20261010_add_sync_device_auth_token_hash.sql'
+      - 'tests/sync-device-auth-contract.test.js'
+      - '.github/workflows/sync-device-auth-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  device-auth-contract:
+    name: Device token authentication contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run device auth regression tests
+        run: node --test tests/sync-device-auth-contract.test.js
+      - name: PHP syntax check
+        run: php -l application/models/Sync_model.php
