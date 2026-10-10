@@ -5,7 +5,9 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
 const dashboardPath = path.join(root, 'application/views/backend/admin/dashboard.php');
+const uiScriptPath = path.join(root, 'assets/js/ui-consistency.js');
 const dashboard = fs.readFileSync(dashboardPath, 'utf8');
+const uiScript = fs.readFileSync(uiScriptPath, 'utf8');
 
 function ordered(text, labels) {
     let cursor = -1;
@@ -63,6 +65,14 @@ test('financial KPI values use the approved legacy semantics', () => {
     assert.match(block, /\$bad_debt_count/);
     assert.match(block, /\$total_income/);
     assert.match(block, /\$total_expenses/);
+});
+
+test('server-rendered dashboard remains the single source of truth for finance KPIs', () => {
+    assert.match(dashboard, /data-dashboard-kpi-row=["']financial-performance["']/);
+    assert.match(dashboard, /data-dashboard-kpi-row=["']financial-risk["']/);
+    assert.doesNotMatch(uiScript, /composeAdminDashboardSummary/);
+    assert.doesNotMatch(uiScript, /sm-dashboard-approved-summary/);
+    assert.doesNotMatch(uiScript, /data-sm-dashboard-source-grid/);
 });
 
 test('dashboard analytics preserve paired two-column desktop layouts', () => {
