@@ -398,110 +398,22 @@ class Payroll_approval_model extends MY_Model
     }
     
     /**
-     * Mark payroll as paid
-     * 
-     * Updates the pay_salary record status to 'paid'. Requires 'approved' status
-     * and Finance Manager role.
-     * 
+     * Deprecated direct paid-state transition.
+     *
+     * Kept for legacy callers, but it deliberately refuses the transition.
+     * Hubtel_payroll_payout_model is the sole authority for provider-confirmed paid state.
+     *
      * @param int $pay_id The pay_salary record ID
-     * @return array Status array with success boolean and message
+     * @return array Failure result directing callers to the provider payout workflow
      */
     public function mark_as_paid($pay_id)
     {
-        // Check if user is Finance Manager
-        $account_type = $this->session->userdata('account_type');
-        if ($account_type !== 'super_admin' && $account_type !== 'admin') {
-            return ['success' => false, 'message' => 'Only administrators can mark payroll as paid'];
-        }
-        
-        // Start transaction
-        $this->db->trans_start();
-        
-        try {
-            // Get current payroll data
-            $payroll = $this->db->get_where('pay_salary', ['pay_id' => $pay_id])->row();
-            
-            if (!$payroll) {
-                $this->db->trans_rollback();
-                return ['success' => false, 'message' => 'Payroll record not found'];
-            }
-            
-            // Check if in approved status
-            if ($payroll->approval_status !== 'approved') {
-                $this->db->trans_rollback();
-                return ['success' => false, 'message' => 'Payroll must be approved before marking as paid'];
-            }
-            
-            // Update pay_salary status
-            $this->db->where('pay_id', $pay_id);
-            $this->db->update('pay_salary', [
-                'approval_status' => 'paid',
-                'updated_at' => date('Y-m-d H:i:s'),
-                'paid_at' => date('Y-m-d H:i:s')
-            ]);
-            
-            // Insert approval record
-            $approval_data = [
-                'pay_id' => $pay_id,
-                'approver_user_id' => $this->session->userdata('admin_id'),
-                'approver_role' => $this->session->userdata('account_type'),
-                'action' => 'paid',
-                'comments' => 'Marked as paid',
-                'action_date' => date('Y-m-d H:i:s')
-            ];
-            
-            $this->db->insert('payroll_approvals', $approval_data);
-            
-            // Log the action
-            $this->Audit_log_model->log_action(
-                'payroll',
-                'mark_paid',
-                $pay_id,
-                ['approval_status' => $payroll->approval_status],
-                ['approval_status' => 'paid']
-            );
-            
-            // Complete transaction
-            $this->db->trans_complete();
-            
-            if ($this->db->trans_status() === FALSE) {
-                return ['success' => false, 'message' => 'Transaction failed'];
-            }
-            
-            // Task 17.2: Invalidate dashboard cache after marking as paid
-            $this->load->driver('cache', array('adapter' => 'file'));
-            $cache_key = "payroll_dashboard_" . $payroll->month . "_" . $payroll->year;
-            $this->cache->delete($cache_key);
-            
-            // Task 5.4: Trigger payment notification
-            // Requirement 5.4: Send notifications after successful payment status update
-            try {
-                // Load Notification_dispatcher library
-                $this->load->library('Notification_dispatcher');
-                
-                // Get payroll data with employee details for notification
-                $payroll_data = $this->get_payroll_with_staff($pay_id);
-                
-                // Dispatch notification
-                $this->notification_dispatcher->dispatch_notification(
-                    'payment',
-                    $payroll_data,
-                    ['marked_paid_by' => $this->session->userdata('admin_id') ?: $this->session->userdata('teacher_id')]
-                );
-                
-            } catch (Exception $e) {
-                // Requirement 5.8: Catch exceptions without disrupting workflow
-                log_message('error', 'Notification dispatch failed for payroll payment ' . $pay_id . ': ' . $e->getMessage());
-                // Continue without failing the mark as paid operation
-            }
-            
-            return ['success' => true, 'message' => 'Payroll marked as paid successfully'];
-            
-        } catch (Exception $e) {
-            $this->db->trans_rollback();
-            log_message('error', 'Mark as paid failed: ' . $e->getMessage());
-            return ['success' => false, 'message' => 'Failed to mark payroll as paid: ' . $e->getMessage()];
-        }
+        log_message('warning', 'Blocked direct payroll paid transition for pay_id ' . (int) $pay_id . '; Hubtel provider confirmation is required.');
+
+        return [
+            'success' => false,
+            'message' => 'Direct paid transition is disabled. Initiate the Hubtel provider payout instead.'
+        ];
     }
     
     /**
@@ -519,8 +431,15 @@ class Payroll_approval_model extends MY_Model
         $this->db->join('teacher t', 'ps.employee_code = t.teacher_code AND ps.employment_category = "teacher"', 'left');
         $this->db->join('admin a', 'ps.employee_code = a.admin_code AND ps.employment_category = "administrator"', 'left');
         $this->db->join('non_teaching_staff nts', 'ps.employee_code = nts.staff_code AND ps.employment_category = "non_teaching_staff"', 'left');
-        // Removed approval_status filter to return ALL payrolls for filtering on frontend
-        // Old: $this->db->where('ps.approval_status', 'pending_approval');
+
+        if ($this->db->table_exists('payroll_payout_transactions')) {
+            $this->db->select('ppt.status AS payout_status, ppt.client_reference AS payout_reference, ppt.provider_transaction_id, ppt.failure_reason AS payout_failure_reason');
+            $this->db->join('payroll_payout_transactions ppt', 'ppt.pay_id = ps.pay_id', 'left');
+        } else {
+            $this->db->select('NULL AS payout_status, NULL AS payout_reference, NULL AS provider_transaction_id, NULL AS payout_failure_reason', false);
+        }
+
+        // Return all payroll states so the frontend can filter and reconcile payout state.
         $this->db->order_by('ps.created_at', 'DESC');
         
         return $this->db->get()->result();

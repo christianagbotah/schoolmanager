@@ -392,6 +392,36 @@
             });
         }
 
+        function payoutActionButton(payroll, cardMode) {
+            const payoutStatus = String(payroll.payout_status || '').toLowerCase();
+            const sizeClass = cardMode
+                ? 'flex-1 text-sm px-4 py-2.5'
+                : 'text-xs px-3 py-1.5';
+
+            if (payoutStatus === 'pending' || payoutStatus === 'processing') {
+                return `<button type="button" disabled class="${sizeClass} text-amber-700 bg-amber-50 border border-amber-300 rounded-lg font-medium cursor-not-allowed">
+                    <i class="fas fa-spinner fa-spin mr-1"></i> Hubtel Processing
+                </button>`;
+            }
+
+            if (payoutStatus === 'failed') {
+                return `<span class="${sizeClass} text-red-700 bg-red-50 border border-red-200 rounded-lg font-medium">
+                    <i class="fas fa-triangle-exclamation mr-1"></i> Payout failed — review
+                </span>`;
+            }
+
+            if (payoutStatus === 'success') {
+                return `<button type="button" disabled class="${sizeClass} text-green-700 bg-green-50 border border-green-200 rounded-lg font-medium cursor-not-allowed">
+                    <i class="fas fa-circle-check mr-1"></i> Provider confirmed
+                </button>`;
+            }
+
+            return `<button onclick="initiatePayrollPayout(${payroll.pay_id})"
+                    class="${sizeClass} text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-center">
+                <i class="fas fa-money-bill-transfer mr-1"></i> Pay via Hubtel
+            </button>`;
+        }
+
         // Create approval table row HTML
         function createApprovalTableRow(payroll) {
             const statusClass = `status-${payroll.approval_status || 'draft'}`;
@@ -412,12 +442,7 @@
                     </button>
                 `;
             } else if (payroll.approval_status === 'approved' && userCanMarkPaid) {
-                actionButtons = `
-                    <button onclick="markAsPaid(${payroll.pay_id})" 
-                            class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center">
-                        <i class="fas fa-money-bill-wave mr-1"></i> Mark Paid
-                    </button>
-                `;
+                actionButtons = payoutActionButton(payroll, false);
             } else {
                 // For other statuses, show a placeholder or nothing
                 actionButtons = `<span class="text-xs text-gray-500 italic">No actions available</span>`;
@@ -474,14 +499,7 @@
                     </div>
                 `;
             } else if (payroll.approval_status === 'approved' && userCanMarkPaid) {
-                actionButtons = `
-                    <div class="flex gap-2 pt-4 border-t border-gray-200">
-                        <button onclick="markAsPaid(${payroll.pay_id})" 
-                                class="flex-1 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center">
-                            <i class="fas fa-money-bill-wave mr-2"></i> Mark as Paid
-                        </button>
-                    </div>
-                `;
+                actionButtons = `<div class="flex gap-2 pt-4 border-t border-gray-200">${payoutActionButton(payroll, true)}</div>`;
             }
             
             return `
@@ -633,32 +651,65 @@
             });
         });
 
-        // Mark as paid (for finance role)
-        function markAsPaid(payId) {
+        // Initiate the salary transfer. Payroll remains approved until Hubtel confirms success.
+        function initiatePayrollPayout(payId) {
             showCustomConfirm(
-                'Are you sure you want to mark this payroll as paid? This action confirms payment has been processed.',
+                'Send this approved net salary through Hubtel? The payroll will remain APPROVED until Hubtel confirms the transfer.',
                 function() {
-                    // On Yes - proceed with marking as paid
                     $.ajax({
-                        url: '<?= site_url("admin/payroll_mark_paid/"); ?>' + payId,
+                        url: '<?= site_url("payroll_payout/initiate/"); ?>' + payId,
                         type: 'POST',
                         dataType: 'json',
                         success: function(response) {
-                            if (response.status === 'success') {
-                                showSuccess(response.message || 'Payroll marked as paid successfully');
-                                loadApprovals(); // Reload data
+                            if (response.success) {
+                                showSuccess('Hubtel payout submitted. Waiting for provider confirmation before marking this payroll paid.');
+                                loadApprovals();
+                                watchPayrollPayout(payId, 0);
                             } else {
-                                showError(response.message || 'Failed to mark payroll as paid');
+                                showError(response.message || 'Failed to initiate Hubtel payout');
                             }
                         },
-                        error: function(xhr, status, error) {
-                            console.error('Mark paid error:', error);
-                            showError('Error marking payroll as paid: ' + error);
+                        error: function(xhr) {
+                            const message = xhr.responseJSON && xhr.responseJSON.message
+                                ? xhr.responseJSON.message
+                                : 'Could not initiate Hubtel salary payout.';
+                            showError(message);
                         }
                     });
                 }
-                // On No - do nothing (modal closes automatically)
             );
+        }
+
+        function watchPayrollPayout(payId, attempt) {
+            if (attempt >= 30) {
+                loadApprovals();
+                return;
+            }
+
+            setTimeout(function() {
+                $.ajax({
+                    url: '<?= site_url("payroll_payout/status/"); ?>' + payId,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        const payoutStatus = String(response.status || '').toLowerCase();
+                        if (response.success && payoutStatus === 'success') {
+                            showSuccess('Hubtel confirmed the salary transfer. Payroll is now Paid.');
+                            loadApprovals();
+                            return;
+                        }
+                        if (response.success && payoutStatus === 'failed') {
+                            showError('Hubtel reported that the salary payout failed. Review the payout before retrying.');
+                            loadApprovals();
+                            return;
+                        }
+                        watchPayrollPayout(payId, attempt + 1);
+                    },
+                    error: function() {
+                        watchPayrollPayout(payId, attempt + 1);
+                    }
+                });
+            }, 2000);
         }
 
         // Refresh approvals

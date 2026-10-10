@@ -5,19 +5,25 @@ on:
     branches: [main]
     paths:
       - 'application/controllers/Payroll_payout.php'
+      - 'application/controllers/Admin.php'
+      - 'application/views/backend/admin/payroll_approvals.php'
       - 'application/models/Hubtel_payroll_payout_model.php'
       - 'application/models/Payroll_approval_model.php'
       - 'application/migrations/20261010_create_payroll_payout_transactions.sql'
       - 'tests/hubtel-payroll-payout.test.js'
+      - 'tests/payroll-hubtel-ui-authority.test.js'
       - '.github/workflows/hubtel-payroll-payout.yml'
   push:
     branches: [main]
     paths:
       - 'application/controllers/Payroll_payout.php'
+      - 'application/controllers/Admin.php'
+      - 'application/views/backend/admin/payroll_approvals.php'
       - 'application/models/Hubtel_payroll_payout_model.php'
       - 'application/models/Payroll_approval_model.php'
       - 'application/migrations/20261010_create_payroll_payout_transactions.sql'
       - 'tests/hubtel-payroll-payout.test.js'
+      - 'tests/payroll-hubtel-ui-authority.test.js'
       - '.github/workflows/hubtel-payroll-payout.yml'
 
 permissions:
@@ -42,4 +48,4 @@ jobs:
           php -l application/models/Hubtel_payroll_payout_model.php
           php -l application/models/Payroll_approval_model.php
       - name: Run payout regression contract
-        run: node --test tests/hubtel-payroll-payout.test.js
+        run: node --test tests/hubtel-payroll-payout.test.js tests/payroll-hubtel-ui-authority.test.js
