@@ -39,7 +39,7 @@ test('financial KPI rows keep the approved business order and four-card desktop 
         'Fee Arrears',
         'Daily Revenue',
         'Collection Rate',
-        'Outstanding Bills',
+        'Students with Outstanding Bills',
         'Bad Debt',
         'Total Income',
         'Total Expenses'
@@ -47,7 +47,22 @@ test('financial KPI rows keep the approved business order and four-card desktop 
 
     assert.match(block, /data-dashboard-kpi-row=["']financial-performance["'][^>]*class=["'][^"']*lg:grid-cols-4/);
     assert.match(block, /data-dashboard-kpi-row=["']financial-risk["'][^>]*class=["'][^"']*lg:grid-cols-4/);
-    assert.doesNotMatch(block, />Student Credits</);
+
+    const expensesIndex = block.indexOf('Total Expenses');
+    const creditsIndex = block.indexOf('Student Credits');
+    assert.ok(creditsIndex === -1 || creditsIndex > expensesIndex, 'Student Credits must not displace the approved KPI rows');
+});
+
+test('financial KPI values use the approved legacy semantics', () => {
+    const block = section('<!-- Financial Overview', '<!-- Charts Section -->');
+    assert.match(block, /\$total_revenue/);
+    assert.match(block, /\$fee_arrears/);
+    assert.match(block, /\$daily_revenue/);
+    assert.match(block, /\$collection_rate/);
+    assert.match(block, /\$active_pending_payments/);
+    assert.match(block, /\$bad_debt_count/);
+    assert.match(block, /\$total_income/);
+    assert.match(block, /\$total_expenses/);
 });
 
 test('dashboard analytics preserve paired two-column desktop layouts', () => {
