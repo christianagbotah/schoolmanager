@@ -12,9 +12,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  *   Sync_api controller). If no key is configured, this API fails CLOSED.
  * - push()/batch_push() enforce a server-side table allowlist ("dynamic table
  *   safety"); client-supplied table names are never passed through unchecked.
- * - The device token column does not exist in the current schema (migration
- *   proposal pending), so token verification remains an accepted gap for the
- *   dedicated sync-contract PR, not for arbitrary anonymous access.
+ * - Device bearer tokens are verified against SHA-256 hashes stored in
+ *   sync_devices.auth_token_hash. Registration is the only API-key-only
+ *   bootstrap path; all data/sync methods require device credentials as well.
  */
 class Sync extends CI_Controller {
 
@@ -40,29 +40,37 @@ class Sync extends CI_Controller {
     }
     
     /**
-     * Authenticate device using token + global API key
+     * Authenticate the sync API. Every request requires the global API key.
+     * Device enrollment bootstraps from that key; all other methods additionally
+     * require an active device ID and its bearer token.
      */
     private function authenticate() {
-        $this->device_id = $this->input->get_request_header('X-Device-ID');
-        $this->auth_token = $this->input->get_request_header('X-Auth-Token');
-        
-        if(!$this->device_id || !$this->auth_token) {
+        // Global API key gate always runs first and fails closed when unconfigured.
+        $api_key = $this->resolve_api_key();
+        $provided_key = $this->input->get_request_header('X-API-Key');
+        if(empty($api_key) || !is_string($provided_key) || !hash_equals((string)$api_key, (string)$provided_key)) {
+            log_message('error', 'api/Sync: request rejected — missing or invalid X-API-Key');
             $this->output->set_status_header(401);
             echo json_encode(['error' => 'Unauthorized']);
             exit;
         }
 
-        // Global API key gate (fail closed when unconfigured)
-        $api_key = $this->resolve_api_key();
-        $provided_key = $this->input->get_request_header('X-API-Key');
-        if(empty($api_key) || !is_string($provided_key) || !hash_equals((string)$api_key, (string)$provided_key)) {
-            log_message('error', 'api/Sync: request rejected — missing or invalid X-API-Key for device ' . $this->device_id);
+        // A new device cannot already possess valid device credentials. Enrollment
+        // is therefore the sole API-key-only bootstrap path. The plaintext token
+        // returned by register_device() is one-time and only its hash is stored.
+        $method = $this->router->fetch_method();
+        if($method === 'register_device') {
+            return;
+        }
+
+        $this->device_id = $this->input->get_request_header('X-Device-ID');
+        $this->auth_token = $this->input->get_request_header('X-Auth-Token');
+        if(!$this->device_id || !$this->auth_token) {
             $this->output->set_status_header(401);
             echo json_encode(['error' => 'Unauthorized']);
             exit;
         }
         
-        // Verify device
         $device = $this->Sync_model->verify_device($this->device_id, $this->auth_token);
         if(!$device) {
             $this->output->set_status_header(403);
