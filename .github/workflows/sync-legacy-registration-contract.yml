@@ -1,0 +1,46 @@
+name: Sync Legacy Registration Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/libraries/Sync_service.php'
+      - 'application/controllers/Sync_api.php'
+      - 'tests/sync-legacy-registration-contract.test.js'
+      - 'tests/sync_legacy_registration_behavior_test.php'
+      - '.github/workflows/sync-legacy-registration-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/libraries/Sync_service.php'
+      - 'application/controllers/Sync_api.php'
+      - 'tests/sync-legacy-registration-contract.test.js'
+      - 'tests/sync_legacy_registration_behavior_test.php'
+      - '.github/workflows/sync-legacy-registration-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  legacy-registration-contract:
+    name: Legacy registration safety contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+      - name: Run structural contract
+        run: node --test tests/sync-legacy-registration-contract.test.js
+      - name: Run behavior contract
+        run: php tests/sync_legacy_registration_behavior_test.php
+      - name: PHP syntax
+        run: |
+          php -l application/libraries/Sync_service.php
+          php -l application/controllers/Sync_api.php
