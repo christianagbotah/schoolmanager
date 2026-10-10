@@ -152,8 +152,8 @@ class Payroll_model extends MY_Model {
 					// FIX: Map 'admin' table back to 'administrator' employment category for validator
 					$data['employment_category'] = ($actual_table === 'admin') ? 'administrator' : $actual_table;
 					$data['reference'] = $reference;
-					$data['approval_status'] = 'paid'; // Automatically mark as paid - skip approval workflow
-					$data['status'] = 'paid'; // Set status to paid as well
+					$data['approval_status'] = 'draft'; // Calculation creates an obligation; approval/payment happen later
+					$data['status'] = 'draft'; // Do not report payment before an actual disbursement
 					
 					// Snapshot statutory rates at time of payroll creation for historical accuracy
 					// (Rates loaded once before loop for performance)
@@ -241,42 +241,8 @@ class Payroll_model extends MY_Model {
 	                	$batchDataInsert[] = $data;
 	                }
 
-	                /*preparing sms*/
-	                $staff_row = $this->db->get_where($actual_table, [$table_code_field => $staff_code])->row();
-	                
-	                // Check if staff record exists and has phone
-	                if (!$staff_row) {
-	                	log_message('error', 'Payroll SMS Error: Staff not found - ' . $staff_code);
-	                	continue; // Skip SMS for this staff but continue processing
-	                }
-	                
-	                $staffPhone = isset($staff_row->phone) ? $staff_row->phone : '';
-	                
-	                // Only add to SMS array if phone number exists
-	                if (!empty($staffPhone)) {
-	                	// Build SMS message dynamically
-	                	$smsMessage = 'Your account has been credited with '.$currency.' '.number_format($data['net_salary'], 2, '.', ',').' as your Net Salary for '.$payrollMonth .' '.$payrollYear. '. Basic salary is '.$currency.' '.number_format($data['basic_salary'], 2, '.', ',');
-	                	
-	                	// Add allowances if any
-	                	if ($data['total_allowances'] > 0) {
-	                		$smsMessage .= ', total allowances: '.$currency.' '.number_format($data['total_allowances'], 2, '.', ',');
-	                	}
-	                	
-	                	// Add deductions only if any
-	                	if ($data['total_deductions'] > 0) {
-	                		$smsMessage .= ', total deductions: '.$currency.' '.number_format($data['total_deductions'], 2, '.', ',');
-	                	}
-	                	
-	                	$smsMessage .= '. Payment reference: '.$reference.'. For more details, please login to your portal. Thank you.';
 
-	                	// FIX: Use 'Recipient' key instead of 'To' for send_sms_batch_personalized compatibility
-	                	$sms_data_array[$i]['Recipient'] = $staffPhone;
-						$sms_data_array[$i]['Content'] = $smsMessage;
-					} else {
-						log_message('error', 'Payroll SMS Error: No phone number for staff - ' . $staff_code);
-					}
-
-
+	                // Payment notification is intentionally deferred until mark_as_paid().
 				endfor;
 
 				$updateResult = false;
@@ -372,35 +338,7 @@ class Payroll_model extends MY_Model {
 				$cache_key = "payroll_dashboard_{$payrollMonthYearArray[1]}_{$payrollYear}";
 				$this->cache->delete($cache_key);
 
-				if($result == true) {
-					/*send sms*/
-					if($active_sms_service != 'disabled') {
-						/*We can send sms*/
-						
-						// Check if we have valid SMS recipients
-						if (!empty($sms_data_array)) {
-							try {
-								log_message('info', 'Payroll SMS: Attempting to send ' . count($sms_data_array) . ' SMS messages');
-								$response = $this->sms_model->send_sms_batch_personalized($sms_data_array);
-								
-								// Log successful SMS sending
-								if (isset($response) && $response === 0) {
-									log_message('info', 'Payroll SMS: Successfully sent ' . count($sms_data_array) . ' SMS messages');
-								} else {
-									log_message('error', 'Payroll SMS: Failed with response code: ' . json_encode($response));
-								}
-							} catch (Exception $e) {
-								log_message('error', 'Payroll SMS Exception: ' . $e->getMessage());
-								// Don't fail the operation if SMS fails
-							}
-						} else {
-							log_message('warning', 'Payroll SMS: No valid recipients found for SMS (check phone numbers)');
-						}
-						
-					} else {
-						log_message('info', 'Payroll SMS: SMS service is disabled');
-					}
-				}
+				// Employee payment notifications are sent only by the paid transition.
 
 				return $result;
 				
