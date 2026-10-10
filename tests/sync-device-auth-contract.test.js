@@ -5,14 +5,16 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
 const modelPath = path.join(root, 'application/models/Sync_model.php');
+const controllerPath = path.join(root, 'application/controllers/api/Sync.php');
 const migrationPath = path.join(root, 'application/migrations/20261010_add_sync_device_auth_token_hash.sql');
 const model = fs.readFileSync(modelPath, 'utf8');
+const controller = fs.readFileSync(controllerPath, 'utf8');
 
 function functionBody(source, name) {
   const start = source.indexOf(`function ${name}`);
   assert.notEqual(start, -1, `${name} must exist`);
-  const next = source.indexOf('\n    public function ', start + 1);
-  return source.slice(start, next === -1 ? source.length : next);
+  const nextPublic = source.indexOf('\n    public function ', start + 1);
+  return source.slice(start, nextPublic === -1 ? source.length : nextPublic);
 }
 
 test('device verification is fail-closed and compares a stored token hash', () => {
@@ -30,6 +32,19 @@ test('device registration persists only the token hash while returning the one-t
   assert.match(register, /['"]auth_token_hash['"]\s*=>\s*hash\s*\(\s*['"]sha256['"]\s*,\s*\$auth_token\s*\)/);
   assert.doesNotMatch(register, /['"]auth_token['"]\s*=>\s*\$auth_token\s*,?\s*\n\s*['"]status['"]/);
   assert.match(register, /['"]auth_token['"]\s*=>\s*\$auth_token/);
+});
+
+test('registration bootstraps only after the global API key gate; normal calls still require device credentials', () => {
+  const auth = functionBody(controller, 'authenticate');
+  assert.match(auth, /router->fetch_method\s*\(\s*\)/);
+  const apiKeyGate = auth.indexOf('resolve_api_key');
+  const bootstrapCheck = auth.indexOf('register_device');
+  const deviceHeaderCheck = auth.indexOf('X-Device-ID');
+  assert.ok(apiKeyGate >= 0, 'global API key must be resolved');
+  assert.ok(bootstrapCheck > apiKeyGate, 'registration exemption must happen after API-key validation');
+  assert.ok(deviceHeaderCheck > bootstrapCheck, 'normal device credentials must be checked after the registration exemption');
+  assert.match(auth, /register_device[\s\S]*return\s*;/);
+  assert.match(auth, /X-Auth-Token/);
 });
 
 test('schema migration adds an idempotent fixed-length device token hash column', () => {
