@@ -6,6 +6,7 @@ on:
     paths:
       - 'assets/js/admin-dashboard-layout.js'
       - 'assets/js/ui-consistency.js'
+      - 'application/views/backend/admin/dashboard.php'
       - 'tests/admin-dashboard-layout-regression.test.js'
       - '.github/workflows/admin-dashboard-layout-regression.yml'
   push:
@@ -13,6 +14,7 @@ on:
     paths:
       - 'assets/js/admin-dashboard-layout.js'
       - 'assets/js/ui-consistency.js'
+      - 'application/views/backend/admin/dashboard.php'
       - 'tests/admin-dashboard-layout-regression.test.js'
       - '.github/workflows/admin-dashboard-layout-regression.yml'
 
