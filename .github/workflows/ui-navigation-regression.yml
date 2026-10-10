@@ -1,4 +1,4 @@
-name: UI Navigation Regression
+name: UI Regression
 
 on:
   pull_request:
@@ -7,6 +7,7 @@ on:
       - 'assets/js/ui-consistency.js'
       - 'assets/css/ui-consistency.css'
       - 'tests/ui-navigation-regression.test.js'
+      - 'tests/admin-dashboard-layout.test.js'
       - '.github/workflows/ui-navigation-regression.yml'
   push:
     branches: [main]
@@ -14,14 +15,15 @@ on:
       - 'assets/js/ui-consistency.js'
       - 'assets/css/ui-consistency.css'
       - 'tests/ui-navigation-regression.test.js'
+      - 'tests/admin-dashboard-layout.test.js'
       - '.github/workflows/ui-navigation-regression.yml'
 
 permissions:
   contents: read
 
 jobs:
-  navigation-contract:
-    name: Navigation interaction contract
+  interaction-contract:
+    name: UI interaction and dashboard contract
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,5 +36,5 @@ jobs:
       - name: Parse shared UI script
         run: node --check assets/js/ui-consistency.js
 
-      - name: Run navigation regression tests
-        run: node --test tests/ui-navigation-regression.test.js
+      - name: Run UI regression tests
+        run: node --test tests/ui-navigation-regression.test.js tests/admin-dashboard-layout.test.js
