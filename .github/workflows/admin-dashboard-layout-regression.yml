@@ -1,0 +1,38 @@
+name: Admin Dashboard Layout Regression
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'assets/js/admin-dashboard-layout.js'
+      - 'assets/js/ui-consistency.js'
+      - 'tests/admin-dashboard-layout-regression.test.js'
+      - '.github/workflows/admin-dashboard-layout-regression.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/admin-dashboard-layout.js'
+      - 'assets/js/ui-consistency.js'
+      - 'tests/admin-dashboard-layout-regression.test.js'
+      - '.github/workflows/admin-dashboard-layout-regression.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  dashboard-layout-contract:
+    name: Approved dashboard KPI layout
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Parse dashboard layout script
+        run: node --check assets/js/admin-dashboard-layout.js
+
+      - name: Run dashboard layout regression tests
+        run: node --test tests/admin-dashboard-layout-regression.test.js
