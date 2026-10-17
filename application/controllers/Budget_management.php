@@ -9,12 +9,26 @@ class Budget_management extends CI_Controller {
         $this->load->library('session');
         $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         $this->output->set_header('Pragma: no-cache');
+
+        if ($this->session->userdata('admin_login') != 1) {
+            if ($this->input->is_ajax_request()) {
+                $this->output
+                    ->set_status_header(401)
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode(array(
+                        'status' => 'error',
+                        'message' => 'Authentication required.'
+                    )));
+                $this->output->_display();
+                exit;
+            }
+
+            redirect(site_url('login'), 'location', 302);
+            exit;
+        }
     }
 
     public function index() {
-        if ($this->session->userdata('admin_login') != 1)
-            redirect(base_url(), 'refresh');
-            
         $page_data['page_name'] = 'budget_management';
         $page_data['page_title'] = get_phrase('budget_management');
         $this->load->view('backend/index', $page_data);
@@ -26,12 +40,12 @@ class Budget_management extends CI_Controller {
         $this->db->join('admin u', 'b.created_by = u.admin_id', 'left');
         $this->db->order_by('b.created_at', 'DESC');
         $budgets = $this->db->get()->result_array();
-        
+
         foreach ($budgets as &$budget) {
-            $budget['utilization_pct'] = $budget['total_amount'] > 0 ? 
+            $budget['utilization_pct'] = $budget['total_amount'] > 0 ?
                 round(($this->get_actual_spent($budget['budget_id']) / $budget['total_amount']) * 100, 2) : 0;
         }
-        
+
         echo json_encode(['status' => 'success', 'data' => $budgets]);
     }
 
@@ -89,7 +103,7 @@ class Budget_management extends CI_Controller {
         $this->db->join('chart_of_accounts coa', 'bl.account_id = coa.account_id');
         $this->db->where('bl.budget_id', $budget_id);
         $lines = $this->db->get()->result_array();
-        
+
         echo json_encode(['status' => 'success', 'data' => $lines]);
     }
 
@@ -117,7 +131,7 @@ class Budget_management extends CI_Controller {
         ];
 
         $line = $this->db->where('budget_line_id', $line_id)->get('budget_lines')->row();
-        
+
         if ($this->db->where('budget_line_id', $line_id)->update('budget_lines', $data)) {
             $this->update_budget_total($line->budget_id);
             echo json_encode(['status' => 'success', 'message' => get_phrase('budget_line_updated_successfully')]);
@@ -128,7 +142,7 @@ class Budget_management extends CI_Controller {
 
     public function delete_line($line_id) {
         $line = $this->db->where('budget_line_id', $line_id)->get('budget_lines')->row();
-        
+
         if ($this->db->where('budget_line_id', $line_id)->delete('budget_lines')) {
             $this->update_budget_total($line->budget_id);
             echo json_encode(['status' => 'success', 'message' => get_phrase('budget_line_deleted_successfully')]);
@@ -142,7 +156,7 @@ class Budget_management extends CI_Controller {
                           ->where('budget_id', $budget_id)
                           ->get('budget_lines')
                           ->row()->budgeted_amount;
-        
+
         $this->db->where('budget_id', $budget_id)->update('budgets', ['total_amount' => $total ?: 0]);
     }
 
@@ -183,21 +197,21 @@ class Budget_management extends CI_Controller {
                           ->join('chart_of_accounts coa', 'bl.account_id = coa.account_id')
                           ->where('bl.budget_id', $budget_id)
                           ->get()->result_array();
-        
+
         $budget['lines'] = $lines;
         $budget['total_budgeted'] = array_sum(array_column($lines, 'budgeted_amount'));
         $budget['total_actual'] = array_sum(array_column($lines, 'actual_amount'));
         $budget['total_variance'] = $budget['total_budgeted'] - $budget['total_actual'];
-        
+
         echo json_encode(['status' => 'success', 'data' => $budget]);
     }
 
     public function export_budgets() {
-        
+
         $budgets = $this->db->select('budget_name, fiscal_year, start_date, end_date, total_amount, status')
                             ->order_by('created_at', 'DESC')
                             ->get('budgets')->result_array();
-        
+
         $data = [];
         foreach ($budgets as $budget) {
             $data[] = [
@@ -209,7 +223,7 @@ class Budget_management extends CI_Controller {
                 ucfirst($budget['status'])
             ];
         }
-        
+
         $headers = ['Budget Name', 'Fiscal Year', 'Start Date', 'End Date', 'Total Amount', 'Status'];
         export_to_excel($data, 'Budgets_' . date('Y-m-d'), $headers);
     }
