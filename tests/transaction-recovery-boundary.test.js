@@ -28,7 +28,7 @@ test('Transaction_recovery requires an authenticated super administrator', () =>
   assert.match(ctor, /set_status_header\s*\(\s*401\s*\)/, 'unauthenticated AJAX must receive HTTP 401');
   assert.match(ctor, /select\s*\(\s*['\"]level['\"]\s*\)/, 'authorization must resolve the persisted admin level');
   assert.match(ctor, /admin_id/);
-  assert.match(ctor, /level\s*!==?\s*1|level\s*!=\s*1|\(int\)\s*\$admin->level\s*!==\s*1/, 'only level-1 super administrators may use recovery');
+  assert.match(ctor, /\(int\)\s*\$admin->level\s*!==\s*1|\$admin->level\s*!=\s*1/, 'only level-1 super administrators may use recovery');
   assert.match(ctor, /set_status_header\s*\(\s*403\s*\)/, 'authenticated non-super-admin AJAX must receive HTTP 403');
   assert.match(ctor, /exit\s*;/, 'denials must terminate dispatch');
 });
@@ -40,9 +40,13 @@ test('recovery mutation is POST-only', () => {
   assert.match(process, /set_status_header\s*\(\s*405\s*\)/, 'non-POST recovery attempts must return HTTP 405');
 });
 
-test('recovery UI invokes the mutation with POST, never GET', () => {
+test('recovery UI invokes the mutation with POST and sends the configured CSRF token', () => {
   assert.match(view, /xhr\.open\(\s*['\"]POST['\"]/);
   assert.doesNotMatch(view, /xhr\.open\(\s*['\"]GET['\"]\s*,\s*['\"][^'\"]*transaction_recovery\/process/);
+  assert.match(view, /get_csrf_token_name\s*\(\s*\)/, 'view must use CodeIgniter CSRF token name');
+  assert.match(view, /get_csrf_hash\s*\(\s*\)/, 'view must use the current CodeIgniter CSRF hash');
+  assert.match(view, /new\s+FormData\s*\(/, 'POST request should carry form data');
+  assert.match(view, /\.append\s*\(/, 'CSRF token must be appended to the POST body');
 });
 
 test('all public recovery surfaces remain behind the constructor boundary', () => {
