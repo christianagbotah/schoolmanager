@@ -3,105 +3,137 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
  * Sync Setup Controller
- * 
- * Handles initial setup and configuration of the sync system.
- * Provides utilities for generating API keys, testing connections,
- * and verifying the sync system is properly configured.
- * 
- * This controller complements Sync_server by providing:
- * - Setup wizard for first-time configuration
- * - API key management
- * - System health checks
- * - Maintenance utilities
- * 
- * @package    School Manager
- * @subpackage Controllers
- * @category   Sync
- * @author     School Manager Team
- * @version    1.0.0
- * 
- * @see Sync_server For ongoing sync operations and settings management
+ *
+ * Handles privileged setup and configuration of the sync system.
+ * This surface can rotate API credentials, configure remote databases,
+ * initialize sync metadata and run destructive maintenance, so it is
+ * restricted to level-1 super administrators.
  */
 class Sync_setup extends CI_Controller {
-    
-    /**
-     * Constructor
-     */
+
     public function __construct() {
         parent::__construct();
-        
-        // Check authentication
-        if ($this->session->userdata('admin_login') != 1) {
-            redirect(site_url('login'), 'refresh');
-        }
-        
-        // Check if sync module is enabled
-        $this->check_sync_enabled();
-        
+
+        // These dependencies are required by the authorization and sync checks.
         $this->load->database();
+        $this->load->library('session');
+
+        if ($this->session->userdata('admin_login') != 1) {
+            if ($this->input->is_ajax_request()) {
+                $this->output
+                    ->set_status_header(401)
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode([
+                        'status' => 'error',
+                        'message' => 'Authentication required.'
+                    ]));
+                $this->output->_display();
+                exit;
+            }
+
+            redirect(site_url('login'), 'location', 302);
+            exit;
+        }
+
+        $admin_id = (int) $this->session->userdata('admin_id');
+        $admin = $this->db
+            ->select('level')
+            ->from('admin')
+            ->where('admin_id', $admin_id)
+            ->get()
+            ->row();
+
+        if (!$admin || (int) $admin->level !== 1) {
+            if ($this->input->is_ajax_request()) {
+                $this->output
+                    ->set_status_header(403)
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode([
+                        'status' => 'error',
+                        'message' => 'Super administrator permission required.'
+                    ]));
+                $this->output->_display();
+                exit;
+            }
+
+            $this->session->set_flashdata('error_message', 'Super administrator permission required.');
+            redirect(site_url('admin/dashboard'), 'location', 302);
+            exit;
+        }
+
+        $this->check_sync_enabled();
     }
-    
+
     /**
-     * Check if sync module is enabled
-     * 
-     * Redirects to dashboard with error message if sync is disabled.
+     * Check if sync module is enabled.
      */
     private function check_sync_enabled() {
-        // Load sync configuration
         $this->config->load('sync', TRUE);
-        
-        // Check database setting first
+
         $setting = $this->db->get_where('settings', ['type' => 'offline_online_mode'])->row();
-        
+
         if ($setting) {
             $sync_enabled = ($setting->description === '1' || $setting->description === 1);
         } else {
-            // Fall back to config file
             $sync_enabled = $this->config->item('sync_enabled', 'sync') ?? TRUE;
         }
-        
+
         if (!$sync_enabled) {
-            // Sync module is disabled
             $this->session->set_flashdata('error_message', get_phrase('sync_module_disabled'));
-            redirect(site_url('admin/dashboard'), 'refresh');
+            redirect(site_url('admin/dashboard'), 'location', 302);
+            exit;
         }
     }
-    
+
     /**
-     * Setup wizard page
+     * Require POST for every operation that changes sync infrastructure or
+     * accepts remote connection credentials.
+     */
+    private function require_post() {
+        if ($this->input->method(true) !== 'POST') {
+            $this->output
+                ->set_status_header(405)
+                ->set_header('Allow: POST')
+                ->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'status' => 'error',
+                    'message' => 'POST required.'
+                ]));
+            $this->output->_display();
+            exit;
+        }
+    }
+
+    /**
+     * Setup wizard page.
      */
     public function index() {
         $page_data['page_name'] = 'sync_setup';
         $page_data['page_title'] = get_phrase('sync_setup');
-        
-        // Check current setup status
         $page_data['setup_status'] = $this->get_setup_status();
-        
-        // Get current configuration
         $page_data['config'] = $this->get_current_config();
-        
-        // Get tables status
         $page_data['tables_status'] = $this->get_tables_status();
-        
+        $page_data['csrf_token_name'] = $this->security->get_csrf_token_name();
+        $page_data['csrf_token_hash'] = $this->security->get_csrf_hash();
+
         $this->load->view('backend/main', $page_data);
     }
-    
+
     /**
-     * Generate new API key
+     * Generate new API key.
      */
     public function generate_api_key() {
-        // Generate secure API key
+        $this->require_post();
+
         $api_key = 'sk_live_' . bin2hex(random_bytes(32));
-        
-        // Save to settings
+
         $this->db->replace('settings', [
             'type' => 'sync_api_key',
             'description' => $api_key
         ]);
-        
-        // Log the generation
+
         log_message('info', '[Sync Setup] API key generated by admin: ' . $this->session->userdata('admin_id'));
-        
+
         if ($this->input->is_ajax_request()) {
             echo json_encode([
                 'status' => 'success',
@@ -113,39 +145,38 @@ class Sync_setup extends CI_Controller {
             redirect(site_url('sync_setup'));
         }
     }
-    
+
     /**
-     * Test remote connection
+     * Test remote connection.
      */
     public function test_connection() {
+        $this->require_post();
+
         $host = $this->input->post('host');
         $port = $this->input->post('port') ?: 3306;
         $user = $this->input->post('user');
         $pass = $this->input->post('password');
         $database = $this->input->post('database');
-        
+
         $result = [
             'status' => 'error',
             'message' => '',
             'details' => []
         ];
-        
-        // Test basic connectivity
+
         $start = microtime(true);
         $connection = @fsockopen($host, $port, $errno, $errstr, 5);
         $latency = round((microtime(true) - $start) * 1000);
-        
+
         if (!$connection) {
             $result['message'] = "Cannot connect to {$host}:{$port} - {$errstr}";
             echo json_encode($result);
             return;
         }
         fclose($connection);
-        
+
         $result['details']['latency_ms'] = $latency;
-        
-        // Test database connection
-        $dsn = "mysqli://{$user}:{$pass}@{$host}:{$port}/{$database}";
+
         $remote_db = $this->load->database([
             'hostname' => $host,
             'port' => $port,
@@ -157,18 +188,17 @@ class Sync_setup extends CI_Controller {
             'pconnect' => FALSE,
             'db_debug' => FALSE
         ], TRUE);
-        
+
         if (!$remote_db->conn_id) {
             $result['message'] = 'Database connection failed. Check credentials.';
             echo json_encode($result);
             return;
         }
-        
-        // Test if required tables exist
+
         $tables = $remote_db->list_tables();
         $required_tables = ['student', 'parent', 'class', 'section', 'invoice', 'payment'];
         $missing_tables = array_diff($required_tables, $tables);
-        
+
         if (!empty($missing_tables)) {
             $result['status'] = 'warning';
             $result['message'] = 'Connected but missing tables: ' . implode(', ', $missing_tables);
@@ -177,43 +207,69 @@ class Sync_setup extends CI_Controller {
             $result['status'] = 'success';
             $result['message'] = 'Connection successful!';
         }
-        
+
         $result['details']['tables_count'] = count($tables);
-        
-        // Close connection
         $remote_db->close();
-        
+
         echo json_encode($result);
     }
-    
+
     /**
-     * Save remote configuration
+     * Save configuration fields that are actually present in the request.
+     * This prevents the remote form and device form from erasing each other's
+     * settings when they are saved independently.
      */
     public function save_config() {
-        $settings = [
-            'remote_db_host' => $this->input->post('host'),
-            'remote_db_port' => $this->input->post('port') ?: '3306',
-            'remote_db_user' => $this->input->post('user'),
-            'remote_db_pass' => $this->input->post('password'),
-            'remote_db_name' => $this->input->post('database'),
-            'device_id' => $this->input->post('device_id'),
-            'device_name' => $this->input->post('device_name'),
-            'sync_enabled' => $this->input->post('sync_enabled') ? '1' : '0',
-            'sync_frequency_hours' => $this->input->post('sync_frequency') ?: '2'
+        $this->require_post();
+
+        $field_map = [
+            'host' => 'remote_db_host',
+            'port' => 'remote_db_port',
+            'user' => 'remote_db_user',
+            'password' => 'remote_db_pass',
+            'database' => 'remote_db_name',
+            'device_id' => 'device_id',
+            'device_name' => 'device_name',
+            'sync_enabled' => 'sync_enabled',
+            'sync_frequency' => 'sync_frequency_hours'
         ];
-        
+
+        $settings = [];
+        foreach ($field_map as $post_key => $setting_key) {
+            $value = $this->input->post($post_key);
+            if ($value === NULL) {
+                continue;
+            }
+
+            if ($post_key === 'port' && $value === '') {
+                $value = '3306';
+            }
+            if ($post_key === 'sync_frequency' && $value === '') {
+                $value = '2';
+            }
+            if ($post_key === 'sync_enabled') {
+                $value = ($value === '1' || $value === 1 || $value === true || $value === 'on') ? '1' : '0';
+            }
+
+            $settings[$setting_key] = $value;
+        }
+
         foreach ($settings as $key => $value) {
             $this->db->replace('settings', [
                 'type' => $key,
                 'description' => $value
             ]);
         }
-        
-        // Register this location
+
         if (!empty($settings['device_id'])) {
-            $this->register_location($settings);
+            $location_settings = [
+                'device_id' => $settings['device_id'],
+                'device_name' => $settings['device_name'] ?? $this->get_setting_value('device_name', 'Main Location'),
+                'sync_enabled' => $settings['sync_enabled'] ?? $this->get_setting_value('sync_enabled', '1')
+            ];
+            $this->register_location($location_settings);
         }
-        
+
         if ($this->input->is_ajax_request()) {
             echo json_encode([
                 'status' => 'success',
@@ -224,14 +280,15 @@ class Sync_setup extends CI_Controller {
             redirect(site_url('sync_setup'));
         }
     }
-    
+
     /**
-     * Initialize sync metadata
+     * Initialize sync metadata.
      */
     public function initialize_metadata() {
-        // Run the initialization SQL
+        $this->require_post();
+
         $sql_file = APPPATH . '../database/initialize_sync_metadata_complete.sql';
-        
+
         if (!file_exists($sql_file)) {
             echo json_encode([
                 'status' => 'error',
@@ -239,63 +296,57 @@ class Sync_setup extends CI_Controller {
             ]);
             return;
         }
-        
+
         $sql = file_get_contents($sql_file);
-        
-        // Split by semicolon and execute each statement
         $statements = array_filter(array_map('trim', explode(';', $sql)));
         $errors = [];
         $success = 0;
-        
+
         foreach ($statements as $statement) {
             if (empty($statement) || strpos($statement, '--') === 0) {
                 continue;
             }
-            
+
             if ($this->db->query($statement)) {
                 $success++;
             } else {
                 $errors[] = $this->db->error()['message'];
             }
         }
-        
+
         echo json_encode([
             'status' => empty($errors) ? 'success' : 'partial',
             'message' => "Executed {$success} statements",
             'errors' => $errors
         ]);
     }
-    
+
     /**
-     * Run maintenance procedures
+     * Run maintenance procedures.
      */
     public function run_maintenance() {
+        $this->require_post();
+
         $procedures = [
             'cleanup_sync_queue' => 'DELETE FROM sync_queue WHERE synced = TRUE AND synced_at < DATE_SUB(NOW(), INTERVAL 7 DAY)',
             'cleanup_audit_logs' => 'DELETE FROM sync_audit_log WHERE synced_at < DATE_SUB(NOW(), INTERVAL 90 DAY)',
             'cleanup_metrics' => 'DELETE FROM sync_metrics WHERE recorded_at < DATE_SUB(NOW(), INTERVAL 30 DAY)',
             'cleanup_conflicts' => 'DELETE FROM sync_conflicts WHERE status IN ("resolved", "ignored") AND resolved_at < DATE_SUB(NOW(), INTERVAL 30 DAY)'
         ];
-        
+
         $results = [];
-        
         foreach ($procedures as $name => $sql) {
             $this->db->query($sql);
             $results[$name] = $this->db->affected_rows();
         }
-        
+
         echo json_encode([
             'status' => 'success',
             'message' => 'Maintenance completed',
             'results' => $results
         ]);
     }
-    
-    /**
-     * Get setup status
-     * 
-     * @return array Status of each setup step
-     */
+
     private function get_setup_status() {
         $status = [
             'database_tables' => $this->check_database_tables(),
@@ -304,17 +355,11 @@ class Sync_setup extends CI_Controller {
             'device_id' => $this->check_device_id(),
             'sync_metadata' => $this->check_sync_metadata()
         ];
-        
-        $status['complete'] = !in_array(false, $status);
-        
+
+        $status['complete'] = !in_array(false, $status, true);
         return $status;
     }
-    
-    /**
-     * Check if required database tables exist
-     * 
-     * @return bool
-     */
+
     private function check_database_tables() {
         $required_tables = [
             'sync_metadata',
@@ -325,92 +370,68 @@ class Sync_setup extends CI_Controller {
             'sync_metrics',
             'location_registry'
         ];
-        
+
         $existing_tables = $this->db->list_tables();
-        
         foreach ($required_tables as $table) {
-            if (!in_array($table, $existing_tables)) {
+            if (!in_array($table, $existing_tables, true)) {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
-    /**
-     * Check if API key is configured
-     * 
-     * @return bool
-     */
+
     private function check_api_key() {
         $setting = $this->db->get_where('settings', ['type' => 'sync_api_key'])->row();
         return $setting && !empty($setting->description);
     }
-    
-    /**
-     * Check if remote database is configured
-     * 
-     * @return bool
-     */
+
     private function check_remote_config() {
         $host = $this->db->get_where('settings', ['type' => 'remote_db_host'])->row();
         $user = $this->db->get_where('settings', ['type' => 'remote_db_user'])->row();
         $database = $this->db->get_where('settings', ['type' => 'remote_db_name'])->row();
-        
+
         return $host && !empty($host->description) &&
                $user && !empty($user->description) &&
                $database && !empty($database->description);
     }
-    
-    /**
-     * Check if device ID is configured
-     * 
-     * @return bool
-     */
+
     private function check_device_id() {
         $setting = $this->db->get_where('settings', ['type' => 'device_id'])->row();
         return $setting && !empty($setting->description);
     }
-    
-    /**
-     * Check if sync_metadata has entries
-     * 
-     * @return bool
-     */
+
     private function check_sync_metadata() {
-        $count = $this->db->count_all('sync_metadata');
-        return $count > 0;
+        if (!$this->db->table_exists('sync_metadata')) {
+            return false;
+        }
+
+        return $this->db->count_all('sync_metadata') > 0;
     }
-    
-    /**
-     * Get current configuration
-     * 
-     * @return array
-     */
+
     private function get_current_config() {
         $settings = $this->db->where_in('type', [
-            'remote_db_host', 'remote_db_port', 'remote_db_user', 
-            'remote_db_pass', 'remote_db_name', 'device_id', 
+            'remote_db_host', 'remote_db_port', 'remote_db_user',
+            'remote_db_pass', 'remote_db_name', 'device_id',
             'device_name', 'sync_enabled', 'sync_frequency_hours',
             'sync_api_key'
         ])->get('settings')->result();
-        
+
         $config = [];
         foreach ($settings as $setting) {
             $config[$setting->type] = $setting->description;
         }
-        
+
         return $config;
     }
-    
-    /**
-     * Get tables sync status
-     * 
-     * @return array
-     */
+
     private function get_tables_status() {
+        if (!$this->db->table_exists('sync_metadata')) {
+            return [];
+        }
+
         $query = $this->db->query("
-            SELECT 
+            SELECT
                 table_name,
                 sync_enabled,
                 conflict_strategy,
@@ -421,15 +442,15 @@ class Sync_setup extends CI_Controller {
             FROM sync_metadata
             ORDER BY priority DESC, table_name ASC
         ");
-        
+
         return $query->result_array();
     }
-    
-    /**
-     * Register this location in location_registry
-     * 
-     * @param array $settings Configuration settings
-     */
+
+    private function get_setting_value($type, $default = '') {
+        $row = $this->db->get_where('settings', ['type' => $type])->row();
+        return $row ? $row->description : $default;
+    }
+
     private function register_location($settings) {
         $location_data = [
             'location_name' => $settings['device_name'] ?: 'Main Location',
@@ -439,10 +460,9 @@ class Sync_setup extends CI_Controller {
             'priority' => 1,
             'created_at' => date('Y-m-d H:i:s')
         ];
-        
-        // Check if already exists
+
         $existing = $this->db->get_where('location_registry', ['device_id' => $settings['device_id']])->row();
-        
+
         if ($existing) {
             $this->db->where('id', $existing->id)->update('location_registry', $location_data);
         } else {
