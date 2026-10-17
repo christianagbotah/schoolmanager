@@ -139,6 +139,8 @@ class Expense_management extends CI_Controller {
     }
 
     public function approve($expense_id) {
+        $this->requirePostMutation();
+
         $expense = $this->db->where('id', $expense_id)->get('expenses_enhanced')->row_array();
         
         $data = [
@@ -182,6 +184,8 @@ class Expense_management extends CI_Controller {
     }
 
     public function delete($expense_id) {
+        $this->requirePostMutation();
+
         $expense = $this->db->where('id', $expense_id)->get('expenses_enhanced')->row_array();
         
         if ($expense['attachment'] && file_exists('./uploads/expenses/' . $expense['attachment'])) {
@@ -258,6 +262,21 @@ class Expense_management extends CI_Controller {
         
         $headers = ['Date', 'Description', 'Category', 'Vendor', 'Amount', 'Status'];
         export_to_excel($data, 'Expenses_' . date('Y-m-d'), $headers);
+    }
+
+    private function requirePostMutation() {
+        if ($this->input->method(TRUE) !== 'POST') {
+            $this->output
+                ->set_status_header(405)
+                ->set_content_type('application/json')
+                ->set_header('Allow: POST')
+                ->set_output(json_encode(array(
+                    'status' => 'error',
+                    'message' => 'Method not allowed. Use POST.'
+                )));
+            $this->output->_display();
+            exit;
+        }
     }
 
     private function log_audit($module, $action, $record_id, $old_values, $new_values) {

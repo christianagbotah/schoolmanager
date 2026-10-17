@@ -353,6 +353,9 @@ function approveExpense(id) {
             $.ajax({
                 url: '<?php echo site_url("admin/expense_management/approve/"); ?>' + id,
                 type: 'POST',
+                data: {
+                    '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
+                },
                 dataType: 'json'
             }).done(function(response) {
                 if(response.status === 'success') {

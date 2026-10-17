@@ -1,0 +1,34 @@
+name: Expense Management Mutation Safety
+
+on:
+  pull_request:
+    paths:
+      - 'application/controllers/Expense_management.php'
+      - 'application/views/backend/admin/expense_management.php'
+      - 'application/views/backend/admin/accounts/expense_management.php'
+      - 'tests/expense-management-mutation-safety.test.js'
+      - '.github/workflows/expense-management-mutation-safety.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Expense_management.php'
+      - 'application/views/backend/admin/expense_management.php'
+      - 'application/views/backend/admin/accounts/expense_management.php'
+      - 'tests/expense-management-mutation-safety.test.js'
+      - '.github/workflows/expense-management-mutation-safety.yml'
+
+jobs:
+  mutation-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Expense mutation safety contract
+        run: node --test tests/expense-management-mutation-safety.test.js
+      - name: PHP syntax
+        run: |
+          php -l application/controllers/Expense_management.php
+          php -l application/views/backend/admin/expense_management.php
+          php -l application/views/backend/admin/accounts/expense_management.php
