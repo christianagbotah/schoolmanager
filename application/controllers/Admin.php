@@ -97,14 +97,120 @@ class Admin extends MY_Controller {
 			show_error('You are not authorised to access this administrative action.', 403);
 			return;
 		}
+
+		$this->enforce_shared_record_scope($role, $method);
 	}
 
 	private function shared_admin_route_allowlist() {
 		return [
-			'parent' => ['get_class_name', 'get_exam_type', 'get_exam_type_sem', 'get_invoice_term', 'student_marksheet', 'student_marksheet_print_view', 'student_marksheet_print_view_creche', 'student_results_sheet', 'student_results_sheet_creche', 'student_results_sheet_print_view', 'tabulation_sheet', 'tabulation_sheet_print_view'],
-			'student' => ['get_class_name', 'get_exam_type', 'get_exam_type_sem', 'get_invoice_term', 'student_marksheet', 'student_marksheet_print_view', 'student_marksheet_print_view_creche', 'student_results_sheet', 'student_results_sheet_creche', 'student_results_sheet_print_view', 'tabulation_sheet', 'tabulation_sheet_print_view'],
+			'parent' => ['get_class_name', 'get_exam_type', 'get_exam_type_sem', 'get_invoice_term', 'student_marksheet', 'student_marksheet_print_view', 'student_marksheet_print_view_creche', 'student_results_sheet', 'student_results_sheet_creche', 'student_results_sheet_print_view'],
+			'student' => ['get_class_name', 'get_exam_type', 'get_exam_type_sem', 'get_invoice_term', 'student_marksheet', 'student_marksheet_print_view', 'student_marksheet_print_view_creche', 'student_results_sheet', 'student_results_sheet_creche', 'student_results_sheet_print_view'],
 			'teacher' => ['attendance_report_print_view', 'attendance_report_selector', 'attendance_selector', 'attendance_update', 'beneficiary_checker', 'bulk_cummulative_reports', 'class_routine', 'classes_fee_paid', 'classes_owe_updator', 'classes_owe_updator_is_present', 'conduct_items', 'conducts_update', 'conducts_update_2', 'create_barcode', 'cummulative_reports', 'delete_question_from_online_exam', 'fare_owe_updator', 'fare_paid', 'feeding_fee_paid', 'feeding_owe_updator', 'feeding_owe_updator_is_present', 'get_class_name', 'get_class_name_numeric', 'get_class_section_subject', 'get_class_students', 'get_class_subject', 'get_exam_type', 'get_exam_type_sem', 'get_multi_select_students', 'get_section', 'get_students_to_promote', 'grade', 'head_teacher_remarks', 'interest_items', 'manage_attendance', 'manage_attendance_view', 'manage_multiple_choices_options', 'marks_get_subject', 'marks_manage', 'marks_selector', 'marks_selector_creche', 'marks_update', 'marks_update_creche', 'payslip_preview', 'portfolio_assessment_manage', 'portfolio_assessment_selector', 'portfolio_assessment_update', 'student_information_print', 'student_marksheet', 'student_marksheet_bulk_print_view', 'student_marksheet_bulk_print_view_creche', 'student_marksheet_creche', 'student_marksheet_print_view', 'student_marksheet_print_view_creche', 'student_profile', 'student_results_sheet', 'student_results_sheet_creche', 'student_results_sheet_preview_creche', 'student_results_sheet_print_view', 'student_results_sheet_print_view_creche', 'students_att', 'tabulation_sheet', 'tabulation_sheet_print_view', 'update_online_exam_question', 'verify_check_in'],
 		];
+	}
+
+
+	/**
+	 * Record-level scope for legacy Admin routes still shared with student/parent portals.
+	 * Route allowlisting is not enough: browser-supplied student or invoice identifiers
+	 * must also belong to the authenticated actor.
+	 */
+	private function enforce_shared_record_scope($role, $method) {
+		if (!in_array($role, ['parent', 'student'], true)) {
+			return;
+		}
+
+		$student_report_methods = [
+			'student_marksheet',
+			'student_marksheet_print_view',
+			'student_marksheet_print_view_creche',
+			'student_results_sheet',
+			'student_results_sheet_creche',
+			'student_results_sheet_print_view',
+		];
+
+		if (in_array($method, $student_report_methods, true)) {
+			$student_id = (int) $this->uri->segment(3);
+			if ($student_id <= 0) {
+				$student_id = (int) $this->input->post('student_id', true);
+			}
+			if ($student_id <= 0 || !$this->is_shared_student_authorised($student_id, $role)) {
+				$this->deny_shared_record_access();
+			}
+			return;
+		}
+
+		if ($method === 'get_invoice_term') {
+			$invoice_code = trim((string) $this->uri->segment(3));
+			if ($invoice_code === '') {
+				$this->deny_shared_record_access();
+				return;
+			}
+
+			$invoice = $this->db
+				->select('student_id')
+				->where('invoice_code', $invoice_code)
+				->where('can_delete !=', 'trash')
+				->get('invoice')
+				->row_array();
+			if (!$invoice || !$this->is_shared_student_authorised((int) $invoice['student_id'], $role)) {
+				$this->deny_shared_record_access();
+			}
+		}
+	}
+
+	private function shared_authorised_student_ids($role = '') {
+		if ($role === '') {
+			if ($this->session->userdata('student_login') == 1) {
+				$role = 'student';
+			} elseif ($this->session->userdata('parent_login') == 1) {
+				$role = 'parent';
+			}
+		}
+
+		if ($role === 'student') {
+			$student_id = (int) $this->session->userdata('student_id');
+			return $student_id > 0 ? [$student_id] : [];
+		}
+
+		if ($role === 'parent') {
+			$parent_id = (int) $this->session->userdata('parent_id');
+			if ($parent_id <= 0) {
+				return [];
+			}
+			$rows = $this->db
+				->select('student_id')
+				->where('parent_id', $parent_id)
+				->get('student')
+				->result_array();
+			return array_map('intval', array_column($rows, 'student_id'));
+		}
+
+		return [];
+	}
+
+	private function is_shared_student_authorised($student_id, $role = '') {
+		$student_id = (int) $student_id;
+		return $student_id > 0 && in_array($student_id, $this->shared_authorised_student_ids($role), true);
+	}
+
+	private function filter_shared_report_students($rows) {
+		if ($this->session->userdata('admin_login') == 1 || $this->session->userdata('teacher_login') == 1) {
+			return $rows;
+		}
+		$allowed = $this->shared_authorised_student_ids();
+		if (empty($allowed)) {
+			return [];
+		}
+		return array_values(array_filter((array) $rows, function ($row) use ($allowed) {
+			$student_id = is_array($row) ? (int) ($row['student_id'] ?? 0) : (int) ($row->student_id ?? 0);
+			return in_array($student_id, $allowed, true);
+		}));
+	}
+
+	private function deny_shared_record_access() {
+		$this->output->set_status_header(403);
+		show_error('You are not authorised to access this student record.', 403);
 	}
 
 	/***default function, redirects to login page if no admin logged in yet***/
@@ -951,7 +1057,7 @@ class Admin extends MY_Controller {
 		$page_data['exam_id'] = $exam_id;
 		$page_data['page_title'] = get_phrase('student_profile');
 		$page_data['student_id'] = $student_id;
-		$page_data['other_students'] = $other_students;
+		$page_data['other_students'] = $this->filter_shared_report_students($other_students);
 		$page_data['account_type'] = $this->session->userdata('login_type');
 		$page_data['is_teacher_view'] = false; // Admin has full access
 		$this->load->view('backend/main', $page_data);
@@ -1642,7 +1748,7 @@ class Admin extends MY_Controller {
 		$page_data['class_id'] = $class_id;
 		$page_data['section_id'] = $section_id;
 		$page_data['exam_id'] = $exam_id;
-		$page_data['other_students'] = $other_students;
+		$page_data['other_students'] = $this->filter_shared_report_students($other_students);
 
 		$page_data['account_type'] = $this->session->userdata('login_type');
 		$page_data['ajax'] = $ajax;
@@ -1714,7 +1820,7 @@ class Admin extends MY_Controller {
 				$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
 
 				$other_students = $this->db->get_where('enroll', array('year' => get_settings('running_year'),  'mute' => '0', 'sem' => get_settings('running_sem'), 'class_id' => $this->session->userdata('class_id_for_result_archives')))->result_array();
-				$page_data['other_students'] = $other_students;
+				$page_data['other_students'] = $this->filter_shared_report_students($other_students);
 
 				//selecting the marksheet based
 				$terminal_report_style = $this->db->get_where('settings' , array('type'=>'terminal_report_style'))->row()->description;
@@ -1778,7 +1884,7 @@ class Admin extends MY_Controller {
 				$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
 
 				$other_students = $this->db->get_where('enroll', array('year' => get_settings('running_year'), 'mute' => '0', 'term' => get_settings('running_term'), 'class_id' => $this->session->userdata('class_id_for_result_archives')))->result_array();
-				$page_data['other_students'] = $other_students;
+				$page_data['other_students'] = $this->filter_shared_report_students($other_students);
 
 				if ($raw_score == 'Yes') {
 					if ($class_name == 'JHSS') {
@@ -1844,7 +1950,7 @@ class Admin extends MY_Controller {
 				$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
 
 				$other_students = $this->db->get_where('enroll', array('year' => get_settings('running_year'),  'mute' => '0', 'term' => get_settings('running_term'), 'class_id' => $this->session->userdata('class_id_for_result_archives')))->result_array();
-				$page_data['other_students'] = $other_students;
+				$page_data['other_students'] = $this->filter_shared_report_students($other_students);
 
 				if ($raw_score == 'Yes') {
 					if ($class_name == 'JHSS') {
@@ -1894,7 +2000,7 @@ class Admin extends MY_Controller {
 				$raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
 
 				$other_students = $this->db->get_where('enroll', array('year' => get_settings('running_year'), 'term' => get_settings('running_term'), 'mute' => '0', 'class_id' => $this->session->userdata('class_id_for_result_archives')))->result_array();
-				$page_data['other_students'] = $other_students;
+				$page_data['other_students'] = $this->filter_shared_report_students($other_students);
 
 				if ($raw_score == 'Yes') {
 					if ($class_name == 'JHSS') {
@@ -2190,7 +2296,7 @@ class Admin extends MY_Controller {
 		$page_data['class_id'] = $class_id;
 		$page_data['section_id'] = $section_id;
 		$page_data['exam_id'] = $exam_id;
-		$page_data['other_students'] = $other_students;
+		$page_data['other_students'] = $this->filter_shared_report_students($other_students);
 		$page_data['account_type'] = $this->session->userdata('login_type');
 
 		// Load active conduct and interest items for teacher interface
@@ -2255,7 +2361,7 @@ class Admin extends MY_Controller {
 
 		$other_students = $this->db->get_where('enroll', array('year' => get_settings('running_year'),  'mute' => '0', 'term' => get_settings('running_term'), 'class_id' => $this->session->userdata('class_id_for_result_archives')))->result_array();
 
-		$page_data['other_students'] = $other_students;
+		$page_data['other_students'] = $this->filter_shared_report_students($other_students);
 		$page_data['student_id'] = $data['student_id'];
 		$page_data['class_id'] = $data['class_id'];
 		$page_data['exam_id'] = $data['exam_id'];
