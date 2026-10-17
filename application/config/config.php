@@ -313,7 +313,17 @@ $config['cache_query_string'] = FALSE;
 | http://codeigniter.com/user_guide/libraries/encryption.html
 |
 */
-$config['encryption_key'] = hex2bin('9341be06a7300bc5a7706c701a941bab');
+$iedupro_encryption_key = getenv('IEDUPRO_ENCRYPTION_KEY');
+if (!is_string($iedupro_encryption_key) || trim($iedupro_encryption_key) === '') {
+    $local_secrets_file = APPPATH . 'config/local_secrets.php';
+    if (is_file($local_secrets_file)) {
+        $local_secrets = require $local_secrets_file;
+        if (is_array($local_secrets) && isset($local_secrets['encryption_key'])) {
+            $iedupro_encryption_key = $local_secrets['encryption_key'];
+        }
+    }
+}
+$config['encryption_key'] = is_string($iedupro_encryption_key) ? trim($iedupro_encryption_key) : '';
 
 /*
 |--------------------------------------------------------------------------
