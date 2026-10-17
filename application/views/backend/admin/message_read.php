@@ -58,8 +58,8 @@ if (!$partner_data) { echo '<div class="msg-empty">Conversation participant not 
                     <?php echo nl2br(html_escape($row['message'])); ?>
                 </div>
                 
-                <?php if (!empty($row['attached_file_name'])): $attachment_name = basename($row['attached_file_name']); ?>
-                    <a href="<?php echo base_url('uploads/private_messaging_attached_file/'.rawurlencode($attachment_name)); ?>"
+                <?php if (!empty($row['attached_file_name']) && !empty($row['attached_file_storage_key'])): $attachment_name = basename($row['attached_file_name']); ?>
+                    <a href="<?php echo site_url('message_attachment/private_message/'.$row['message_id']); ?>"
                        target="_blank" download class="msg-attachment">
                         <i class="fa fa-paperclip"></i>
                         <span><?php echo html_escape($attachment_name); ?></span>

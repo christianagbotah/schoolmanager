@@ -27,14 +27,14 @@ $members = $thread ? $this->crud_model->get_group_member_profiles($current_messa
             $profile = $this->crud_model->get_group_user_profile($message['sender']);
             $display_name = $profile ? $profile['name'] : 'Unknown user';
             $image_url = $profile ? $profile['image_url'] : base_url('uploads/user.jpg');
-            $attachment = !empty($message['attached_file_name']) ? basename($message['attached_file_name']) : '';
+            $attachment = (!empty($message['attached_file_name']) && !empty($message['attached_file_storage_key'])) ? basename($message['attached_file_name']) : '';
         ?>
             <div class="group-message-entry">
                 <img class="group-message-avatar" src="<?php echo html_escape($image_url); ?>" alt="">
                 <div class="group-message-bubble">
                     <div class="group-message-meta"><span class="group-message-name"><?php echo html_escape($display_name); ?></span><span class="group-message-date"><?php echo !empty($message['timestamp'])?date('d M Y · H:i',(int)$message['timestamp']):''; ?></span></div>
                     <?php if(trim((string)$message['message'])!==''): ?><div class="group-message-text"><?php echo html_escape($message['message']); ?></div><?php endif; ?>
-                    <?php if($attachment!==''): ?><a class="group-message-file" href="<?php echo base_url('uploads/group_messaging_attached_file/'.rawurlencode($attachment)); ?>" target="_blank" rel="noopener"><i class="fa fa-paperclip"></i> <?php echo html_escape($attachment); ?></a><?php endif; ?>
+                    <?php if($attachment!==''): ?><a class="group-message-file" href="<?php echo site_url('message_attachment/group_message/'.$message['group_message_id']); ?>" target="_blank" rel="noopener"><i class="fa fa-paperclip"></i> <?php echo html_escape($attachment); ?></a><?php endif; ?>
                 </div>
             </div>
         <?php endforeach; endif; ?>

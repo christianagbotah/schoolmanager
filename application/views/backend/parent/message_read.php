@@ -40,10 +40,10 @@ foreach ($messages as $row):
 
     <div class="mail-text" style="background-color: <?php echo $m_text_b; ?>">
         <p> <?php echo $row['message']; ?></p>
-        <?php if ($row['attached_file_name'] != ''):?>
+        <?php if ($row['attached_file_name'] != '' && !empty($row['attached_file_storage_key'])):?>
           <p style="text-align: right;">
-            <a href="<?php echo base_url('uploads/private_messaging_attached_file/'.$row['attached_file_name']);?>" target="_blank" download style="color: #2196F3;">
-            <i class="entypo-download" style="color: #757575"></i> <?php echo $row['attached_file_name']; ?>
+            <a href="<?php echo site_url('message_attachment/private_message/'.$row['message_id']);?>" target="_blank" download style="color: #2196F3;">
+            <i class="entypo-download" style="color: #757575"></i> <?php echo html_escape(basename($row['attached_file_name'])); ?>
           </a>
           </p>
         <?php endif; ?>

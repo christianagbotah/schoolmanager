@@ -2155,59 +2155,48 @@ class Teacher extends CI_Controller
             $this->session->set_userdata('last_page' , current_url());
             redirect(base_url());
         }
-
-        $max_size = 4097152;
         if ($param1 == 'send_new') {
-
-            // Folder creation
-            if (!file_exists('uploads/private_messaging_attached_file/')) {
-              $oldmask = umask(0);  // helpful when used in linux server
-              mkdir ('uploads/private_messaging_attached_file/', 0777);
-            }
-            if ($_FILES['attached_file_on_messaging']['name'] != "") {
-              if($_FILES['attached_file_on_messaging']['size'] > $max_size){
-                echo json_encode(['status' => 'error', 'message' => get_phrase('file_size_can_not_be_larger_that_4_Megabyte')]);
+            $attachment = $this->crud_model->upload_private_message_attachment();
+            if (empty($attachment['status'])) {
+                echo json_encode(['status' => 'error', 'message' => $attachment['message']]);
                 return;
-              }
-              else{
-                $file_path = 'uploads/private_messaging_attached_file/'.$_FILES['attached_file_on_messaging']['name'];
-                move_uploaded_file($_FILES['attached_file_on_messaging']['tmp_name'], $file_path);
-              }
             }
-            $message_thread_code = $this->crud_model->send_new_private_message();
+            $message_thread_code = $this->crud_model->send_new_private_message($attachment);
+            if (!$message_thread_code) { echo json_encode(['status'=>'error','message'=>'Message could not be sent.']); return; }
             echo json_encode(['status' => 'success', 'message' => get_phrase('message_sent!'), 'redirect' => site_url('teacher/message/message_read/'.$message_thread_code)]);
             return;
         }
 
         if ($param1 == 'send_reply') {
-
-            if (!file_exists('uploads/private_messaging_attached_file/')) {
-              $oldmask = umask(0);  // helpful when used in linux server
-              mkdir ('uploads/private_messaging_attached_file/', 0777);
-            }
-            if ($_FILES['attached_file_on_messaging']['name'] != "") {
-              if($_FILES['attached_file_on_messaging']['size'] > $max_size){
-                echo json_encode(['status' => 'error', 'message' => get_phrase('file_size_can_not_be_larger_that_4_Megabyte')]);
+            if (!$this->crud_model->is_message_thread_participant($param2)) {
+                show_error('Message thread not found or access denied.', 403);
                 return;
-              }
-              else{
-                $file_path = 'uploads/private_messaging_attached_file/'.$_FILES['attached_file_on_messaging']['name'];
-                move_uploaded_file($_FILES['attached_file_on_messaging']['tmp_name'], $file_path);
-              }
             }
-            $this->crud_model->send_reply_message($param2);  //$param2 = message_thread_code
+            $attachment = $this->crud_model->upload_private_message_attachment();
+            if (empty($attachment['status'])) {
+                echo json_encode(['status' => 'error', 'message' => $attachment['message']]);
+                return;
+            }
+            $sent = $this->crud_model->send_reply_message($param2, $attachment);
+            if (!$sent) { echo json_encode(['status'=>'error','message'=>'Message could not be sent.']); return; }  //$param2 = message_thread_code
             echo json_encode(['status' => 'success', 'message' => get_phrase('message_sent!')]);
             return;
         }
 
         if ($param1 == 'message_read') {
-            $page_data['current_message_thread_code'] = $param2;  // $param2 = message_thread_code
+            if (!$this->crud_model->is_message_thread_participant($param2)) {
+                show_error('Message thread not found or access denied.', 403);
+                return;
+            }
+            $page_data['current_message_thread_code'] = $param2;
             $this->crud_model->mark_thread_messages_read($param2);
         }
 
          if ($param1 == 'delete') {
-            $this->db->where('message_thread_code', $param2);
-            $this->db->delete('message_thread');
+            if (!$this->crud_model->delete_private_message_thread($param2)) {
+                show_error('Message thread not found or access denied.', 403);
+                return;
+            }
             $this->session->set_flashdata('flash_message' , get_phrase('data_deleted'));
             redirect(site_url('teacher/message'));
         }
@@ -2245,11 +2234,7 @@ class Teacher extends CI_Controller
             if (empty($upload['status'])) {
                 echo json_encode(['status'=>'error','message'=>$upload['message']]); return;
             }
-            $ok = $this->crud_model->send_reply_group_message($param2, $upload['file_name']);
-            if (!$ok && !empty($upload['file_name'])) {
-                $path = FCPATH.'uploads/group_messaging_attached_file/'.basename($upload['file_name']);
-                if (is_file($path)) @unlink($path);
-            }
+            $ok = $this->crud_model->send_reply_group_message($param2, $upload);
             echo json_encode(['status'=>$ok?'success':'error','message'=>$ok?get_phrase('message_sent!'):'Message could not be sent.']); return;
         }
         if ($param1 === 'delete' || $param1 === 'leave') {
