@@ -1,0 +1,29 @@
+name: Transaction Recovery Boundary
+
+on:
+  pull_request:
+    paths:
+      - 'application/controllers/Transaction_recovery.php'
+      - 'application/views/backend/admin/transaction_recovery.php'
+      - 'tests/transaction-recovery-boundary.test.js'
+      - '.github/workflows/transaction-recovery-boundary.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Transaction_recovery.php'
+      - 'application/views/backend/admin/transaction_recovery.php'
+      - 'tests/transaction-recovery-boundary.test.js'
+      - '.github/workflows/transaction-recovery-boundary.yml'
+
+jobs:
+  recovery-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Transaction recovery security contract
+        run: node --test tests/transaction-recovery-boundary.test.js
+      - name: PHP syntax
+        run: php -l application/controllers/Transaction_recovery.php
