@@ -486,7 +486,10 @@ function approveExpense(expenseId) {
             showAjaxModal_alert('<?php echo get_phrase('approving'); ?>...', 'loading');
             $.ajax({
                 url: '<?php echo base_url(); ?>expense_management/approve/' + expenseId,
-                type: 'GET',
+                type: 'POST',
+                data: {
+                    '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
+                },
                 dataType: 'json',
                 success: function(response) {
                     showAjaxModal_alert(response.message, response.status);
