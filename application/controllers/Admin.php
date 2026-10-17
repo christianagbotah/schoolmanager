@@ -6886,81 +6886,85 @@ class Admin extends MY_Controller {
 	}
 
 	function upload_academic_syllabus() {
-		$data['academic_syllabus_code'] = substr(md5(rand(0, 1000000)), 0, 7);
-		if ($this->input->post('description') != null) {
-			$data['description'] = $this->input->post('description');
+		if (empty($_FILES['file_name'])) {
+			$this->session->set_flashdata('error_message', 'A syllabus file is required.');
+			redirect(site_url('admin/academic_syllabus/' . (int) $this->input->post('class_id')));
+			return;
 		}
-		$data['title'] = ucwords(strtolower($this->input->post('title')));
-		$data['class_id'] = $this->input->post('class_id');
-		$data['subject_id'] = $this->input->post('subject_id');
-		$data['uploader_type'] = $this->session->userdata('login_type');
-		$data['uploader_id'] = $this->session->userdata('login_user_id');
-		$data['year'] = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
-		$data['timestamp'] = strtotime(date("Y-m-d H:i:s"));
-		//uploading file using codeigniter upload library
-		$files = $_FILES['file_name'];
-		$this->load->library('upload');
-		$config['upload_path'] = './uploads/syllabus/';
-		$config['allowed_types'] = '*';
-		$_FILES['file_name']['name'] = $files['name'];
-		$_FILES['file_name']['type'] = $files['type'];
-		$_FILES['file_name']['tmp_name'] = $files['tmp_name'];
-		$_FILES['file_name']['size'] = $files['size'];
-		$this->upload->initialize($config);
-		$this->upload->do_upload('file_name');
 
-		$data['file_name'] = $_FILES['file_name']['name'];
+		$code = bin2hex(random_bytes(8));
+		$this->load->library('Private_file_storage', null, 'private_files');
+		try {
+			$stored = $this->private_files->store_uploaded_file($_FILES['file_name'], 'syllabus', $code);
+		} catch (Exception $e) {
+			$this->session->set_flashdata('error_message', $e->getMessage());
+			redirect(site_url('admin/academic_syllabus/' . (int) $this->input->post('class_id')));
+			return;
+		}
 
-		$this->db->insert('academic_syllabus', $data);
+		$data = [
+			'academic_syllabus_code' => $code,
+			'description' => $this->input->post('description'),
+			'title' => ucwords(strtolower($this->input->post('title'))),
+			'class_id' => (int) $this->input->post('class_id'),
+			'subject_id' => (int) $this->input->post('subject_id'),
+			'uploader_type' => $this->session->userdata('login_type'),
+			'uploader_id' => $this->session->userdata('login_user_id'),
+			'year' => $this->db->get_where('settings', array('type' => 'running_year'))->row()->description,
+			'timestamp' => time(),
+			'file_name' => $stored['original_name'],
+		];
 
-		//clear the cached database
+		if (!$this->db->insert('academic_syllabus', $data)) {
+			$this->private_files->delete($stored['storage_key']);
+			$this->session->set_flashdata('error_message', 'Syllabus could not be saved.');
+			redirect(site_url('admin/academic_syllabus/' . $data['class_id']));
+			return;
+		}
+
 		$this->db->cache_delete();
-
 		$this->session->set_flashdata('flash_message', get_phrase('syllabus_uploaded'));
 		redirect(site_url('admin/academic_syllabus/' . $data['class_id']));
-
 	}
 
 	function download_academic_syllabus($academic_syllabus_code) {
-		$file_name = $this->db->get_where('academic_syllabus', array(
+		$row = $this->db->get_where('academic_syllabus', array(
 			'academic_syllabus_code' => $academic_syllabus_code,
-		))->row()->file_name;
-		$data = file_get_contents("uploads/syllabus/" . $file_name);
-		$name = $file_name;
-
-		force_download($name, $data);
+		))->row();
+		if (!$row) {
+			show_404();
+			return;
+		}
+		$this->load->helper('download');
+		$this->load->library('Private_file_storage', null, 'private_files');
+		$key = $this->private_files->named_storage_key('syllabus', $row->academic_syllabus_code, $row->file_name);
+		$path = $this->private_files->resolve($key);
+		if ($path === null) {
+			show_404();
+			return;
+		}
+		force_download(basename($row->file_name), file_get_contents($path));
 	}
 
 	function delete_academic_syllabus($academic_syllabus_code) {
-		$file_name = $this->db->get_where('academic_syllabus', array(
+		$row = $this->db->get_where('academic_syllabus', array(
 			'academic_syllabus_code' => $academic_syllabus_code,
-		))->row()->file_name;
-		if (file_exists('uploads/syllabus/' . $file_name)) {
-			// unlink('uploads/syllabus/'.$file_name);
+		))->row();
+		if (!$row) {
+			show_404();
+			return;
 		}
 		$this->db->where('academic_syllabus_code', $academic_syllabus_code);
-		$queryExecuted = $this->db->delete('academic_syllabus');
-
-		//clear the cached database
-		$this->db->cache_delete();
-
-		$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
-
-
-		if($queryExecuted) {
-			$ajaxData['message'] = 'done';
-		} else {
-			$ajaxData['message'] = 'failed';
+		if ($this->db->delete('academic_syllabus')) {
+			$this->load->library('Private_file_storage', null, 'private_files');
+			$key = $this->private_files->named_storage_key('syllabus', $row->academic_syllabus_code, $row->file_name);
+			$this->private_files->delete($key);
 		}
-
-		$ajaxData['route'] = 'academic_syllabus';
-
-		echo json_encode($ajaxData);
-		return;
-
+		$this->db->cache_delete();
+		$this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
+		redirect(site_url('admin/academic_syllabus/' . (int) $row->class_id));
 	}
 
-	/****MANAGE SECTIONS*****/
 	function section($class_id = '') {
 		//if ($this->session->userdata('admin_login') != 1)
 		//redirect(site_url('login'));

@@ -1227,53 +1227,45 @@ class Crud_model extends MY_Model {
     function save_study_material_info()
     {
         $timestamp_input = $this->input->post('timestamp');
-        $data['timestamp'] = strtotime($timestamp_input);
-
-        // Validate that timestamp is today's date
+        $timestamp = strtotime($timestamp_input);
         $today_start = strtotime('today');
         $today_end = strtotime('tomorrow') - 1;
-
-        if ($data['timestamp'] < $today_start || $data['timestamp'] > $today_end) {
+        if ($timestamp < $today_start || $timestamp > $today_end) {
             throw new Exception('Creation date must be today\'s date. You cannot backdate or future-date study materials.');
         }
+        if (empty($_FILES['file_name'])) {
+            throw new Exception('A study material file is required.');
+        }
 
-        $data['title']             = strtoupper($this->input->post('title')); // Uppercase
+        $this->load->library('Private_file_storage', null, 'private_files');
+        $stored = $this->private_files->store_uploaded_file($_FILES['file_name'], 'study_materials');
 
-        // Handle teacher_id: use session teacher_id if available, otherwise use posted teacher_id or NULL
+        $data = [
+            'timestamp' => $timestamp,
+            'title' => strtoupper($this->input->post('title')),
+            'description' => strtoupper($this->input->post('description')),
+            'file_name' => $stored['original_name'],
+            'file_path' => $stored['storage_key'],
+            'file_type' => strtolower(pathinfo($stored['original_name'], PATHINFO_EXTENSION)),
+            'class_id' => (int) $this->input->post('class_id'),
+            'start_date' => strtotime($this->input->post('start')),
+            'end_date' => strtotime($this->input->post('end')),
+            'subject_id' => (int) $this->input->post('subject_id'),
+        ];
         if ($this->session->userdata('teacher_id')) {
-            $data['teacher_id'] = $this->session->userdata('teacher_id');
+            $data['teacher_id'] = (int) $this->session->userdata('teacher_id');
         } elseif ($this->input->post('teacher_id')) {
-            $data['teacher_id'] = $this->input->post('teacher_id');
+            $data['teacher_id'] = (int) $this->input->post('teacher_id');
         } else {
-            $data['teacher_id'] = NULL;
+            $data['teacher_id'] = null;
         }
 
-        $data['description']       = strtoupper($this->input->post('description')); // Uppercase
-        $data['file_name']         = $_FILES["file_name"]["name"];
-        $data['file_type']         = $this->input->post('file_type');
-        $data['class_id']          = $this->input->post('class_id');
-        $data['start_date']        = strtotime($this->input->post('start'));
-        $data['end_date']          = strtotime($this->input->post('end'));
-        $data['subject_id']        = $this->input->post('subject_id');
-
-        $this->db->insert('document',$data);
-
-        $document_id            = $this->db->insert_id();
-        $uploadPath = "uploads/documents/lesson_notes/";
-        $file_path = $uploadPath . $document_id.'_'.$_FILES["file_name"]["name"];
-
-        if (!is_dir($uploadPath)) {
-            mkdir($uploadPath, 0755, true);
+        if (!$this->db->insert('document', $data)) {
+            $this->private_files->delete($stored['storage_key']);
+            throw new Exception('Study material could not be saved.');
         }
-
-        move_uploaded_file($_FILES["file_name"]["tmp_name"], $file_path);
-
-
-        /*update with file path*/
-        $this->db->where('document_id', $document_id);
-        $this->db->set('file_path', $file_path);
-        $this->db->update('document');
     }
+
 
     function update_study_material_status() {
         $status = $this->input->post('status');
@@ -1313,89 +1305,95 @@ class Crud_model extends MY_Model {
         $this->db->order_by("timestamp", "desc");
         return $this->db->get_where('document',array('teacher_id'=>$this->session->userdata('teacher_id')))->result_array();
     }
-
     function select_study_material_info_for_student()
     {
-        $student_id = $this->session->userdata('student_id');
-        $class_id   = $this->db->get_where('enroll', array(
-            'student_id' => $student_id, 'mute' => '0',
-                'year' => $this->db->get_where('settings' , array('type' => 'running_year'))->row()->description))->row()->class_id;
-        $this->db->order_by("timestamp", "desc");
-        return $this->db->get_where('document', array('class_id' => $class_id))->result_array();
-    }
+        $student_id = (int) $this->session->userdata('student_id');
+        $running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+        $enrolment = $this->db->get_where('enroll', array(
+            'student_id' => $student_id,
+            'mute' => '0',
+            'year' => $running_year,
+        ))->row();
+        if (!$enrolment) {
+            return [];
+        }
 
+        $this->db->order_by('timestamp', 'desc');
+        $this->db->like('file_path', 'private://study_materials/', 'after');
+        return $this->db->get_where('document', array(
+            'class_id' => (int) $enrolment->class_id,
+            'status' => 'Approved',
+        ))->result_array();
+    }
     function update_study_material_info($document_id)
     {
-        $timestamp_input = $this->input->post('timestamp');
-        $data['timestamp'] = strtotime($timestamp_input);
+        $document_id = (int) $document_id;
+        $existing = $this->db->get_where('document', array('document_id' => $document_id))->row();
+        if (!$existing) {
+            throw new Exception('Study material not found.');
+        }
 
-        // Validate that timestamp is today's date
+        $timestamp = strtotime($this->input->post('timestamp'));
         $today_start = strtotime('today');
         $today_end = strtotime('tomorrow') - 1;
-
-        if ($data['timestamp'] < $today_start || $data['timestamp'] > $today_end) {
+        if ($timestamp < $today_start || $timestamp > $today_end) {
             throw new Exception('Creation date must be today\'s date. You cannot backdate or future-date study materials.');
         }
 
-        $data['title']             = strtoupper($this->input->post('title')); // Uppercase
-        $data['description']       = strtoupper($this->input->post('description')); // Uppercase
-        $data['class_id']          = $this->input->post('class_id');
-        $data['start_date']        = strtotime($this->input->post('start'));
-        $data['end_date']          = strtotime($this->input->post('end'));
-        $data['subject_id']        = $this->input->post('subject_id');
+        $data = [
+            'timestamp' => $timestamp,
+            'title' => strtoupper($this->input->post('title')),
+            'description' => strtoupper($this->input->post('description')),
+            'class_id' => (int) $this->input->post('class_id'),
+            'start_date' => strtotime($this->input->post('start')),
+            'end_date' => strtotime($this->input->post('end')),
+            'subject_id' => (int) $this->input->post('subject_id'),
+        ];
 
-        // Only update file if a new one is uploaded
-        if (!empty($_FILES["file_name"]["name"])) {
-            $data['file_name']     = $_FILES["file_name"]["name"];
-            $data['file_type']     = $this->input->post('file_type');
-
-            $uploadPath = "uploads/documents/lesson_notes/";
-            $file_path = $uploadPath . $document_id.'_'.$_FILES["file_name"]["name"];
-
-            if (!is_dir($uploadPath)) {
-                mkdir($uploadPath, 0755, true);
-            }
-
-            // Delete old file if it exists
-            $old_file = $this->db->get_where('document', array('document_id' => $document_id))->row();
-            if ($old_file && !empty($old_file->file_path) && file_exists($old_file->file_path)) {
-                unlink($old_file->file_path);
-            }
-
-            // Upload new file
-            move_uploaded_file($_FILES["file_name"]["tmp_name"], $file_path);
-
-            // Update file path
-            $data['file_path'] = $file_path;
-        } else if ($this->input->post('file_type')) {
-            // Update file type only if provided
-            $data['file_type'] = $this->input->post('file_type');
+        $new_key = null;
+        if (!empty($_FILES['file_name']) && !empty($_FILES['file_name']['name'])) {
+            $this->load->library('Private_file_storage', null, 'private_files');
+            $stored = $this->private_files->store_uploaded_file($_FILES['file_name'], 'study_materials');
+            $new_key = $stored['storage_key'];
+            $data['file_name'] = $stored['original_name'];
+            $data['file_path'] = $stored['storage_key'];
+            $data['file_type'] = strtolower(pathinfo($stored['original_name'], PATHINFO_EXTENSION));
+        } elseif ($this->input->post('file_type')) {
+            $data['file_type'] = strtolower((string) $this->input->post('file_type'));
         }
 
-        $this->db->where('document_id',$document_id);
-        $this->db->update('document',$data);
-    }
+        $this->db->where('document_id', $document_id);
+        if (!$this->db->update('document', $data)) {
+            if ($new_key !== null) {
+                $this->private_files->delete($new_key);
+            }
+            throw new Exception('Study material could not be updated.');
+        }
 
+        if ($new_key !== null && strpos((string) $existing->file_path, 'private://') === 0) {
+            $this->private_files->delete($existing->file_path);
+        }
+    }
     function delete_study_material_info($document_id)
     {
-        $this->db->where('document_id',$document_id);
-        $document = $this->db->get('document')->row();
-
-        if ($document) {
-            $file_path = $document->file_path;
-
-            // Delete from database
-            $this->db->where('document_id',$document_id);
-            $this->db->delete('document');
-
-            // Delete the file if it exists
-            if (!empty($file_path) && file_exists($file_path)) {
-                unlink($file_path);
-            }
+        $document_id = (int) $document_id;
+        $document = $this->db->get_where('document', array('document_id' => $document_id))->row();
+        if (!$document) {
+            return false;
         }
+
+        $this->db->where('document_id', $document_id);
+        if (!$this->db->delete('document')) {
+            return false;
+        }
+
+        if (strpos((string) $document->file_path, 'private://') === 0) {
+            $this->load->library('Private_file_storage', null, 'private_files');
+            $this->private_files->delete($document->file_path);
+        }
+        return true;
     }
 
-    ////////private message//////
     function is_valid_message_user_key($user_key) {
         $user_key = trim((string)$user_key);
         if (!preg_match('/^(admin|accountant|librarian|parent|student|teacher)-(\d+)$/', $user_key, $matches)) {

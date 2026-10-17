@@ -29,7 +29,7 @@
                         echo $name;?>
                 </td>
                 <td>
-                    <a href="<?php echo base_url().'uploads/document/'.$row['file_name']; ?>" class="btn btn-blue btn-icon icon-left">
+                    <a href="<?php echo site_url('student/download_study_material/'.intval($row['document_id'])); ?>" class="btn btn-blue btn-icon icon-left">
                         <i class="entypo-download"></i>
                         Download
                     </a>

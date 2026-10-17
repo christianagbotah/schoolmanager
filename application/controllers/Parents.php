@@ -162,18 +162,41 @@ class Parents extends CI_Controller
 
     function download_academic_syllabus($academic_syllabus_code)
     {
-        $file_name = $this->db->get_where('academic_syllabus', array(
+        $row = $this->db->get_where('academic_syllabus', array(
             'academic_syllabus_code' => $academic_syllabus_code
-        ))->row()->file_name;
-        $data = file_get_contents("uploads/syllabus/" . $file_name);
-        $name = $file_name;
-
-        force_download($name, $data);
+        ))->row();
+        if (!$row) {
+            show_404();
+            return;
+        }
+        $parent_id = (int) $this->session->userdata('parent_id');
+        $allowed = $this->db
+            ->select('enroll.student_id')
+            ->from('enroll')
+            ->join('student', 'student.student_id = enroll.student_id')
+            ->where('student.parent_id', $parent_id)
+            ->where('enroll.class_id', (int) $row->class_id)
+            ->where('enroll.year', $row->year)
+            ->where('enroll.mute', '0')
+            ->limit(1)
+            ->get()
+            ->num_rows() > 0;
+        if (!$allowed) {
+            $this->output->set_status_header(403);
+            show_error('You are not authorised to download this syllabus.', 403);
+            return;
+        }
+        $this->load->helper('download');
+        $this->load->library('Private_file_storage', null, 'private_files');
+        $key = $this->private_files->named_storage_key('syllabus', $row->academic_syllabus_code, $row->file_name);
+        $path = $this->private_files->resolve($key);
+        if ($path === null) {
+            show_404();
+            return;
+        }
+        force_download(basename($row->file_name), file_get_contents($path));
     }
 
-
-
-    /****MANAGE SUBJECTS*****/
     function subject($param1 = '', $param2 = '')
     {
         if ($this->session->userdata('parent_login') != 1)
