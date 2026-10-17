@@ -25,6 +25,7 @@ test('Expense_management enforces admin authentication in its constructor', () =
   assert.match(ctor, /!=\s*1|!==\s*1/);
   assert.match(ctor, /redirect\s*\(|set_status_header\s*\(|show_error\s*\(/);
   assert.match(ctor, /exit\s*;/, 'constructor denial must terminate dispatch, not merely return');
+  assert.match(ctor, /redirect\s*\(\s*site_url\('login'\)\s*,\s*'location'\s*,\s*302\s*\)/, 'normal browser auth failure should use an explicit HTTP 302 Location redirect');
 });
 
 test('expense data and mutation methods rely on the constructor boundary rather than index-only auth', () => {
