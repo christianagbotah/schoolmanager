@@ -1,0 +1,27 @@
+name: Web Updater Retirement
+
+on:
+  pull_request:
+    paths:
+      - 'application/controllers/Updater.php'
+      - 'tests/web-updater-retirement.test.js'
+      - '.github/workflows/web-updater-retirement.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Updater.php'
+      - 'tests/web-updater-retirement.test.js'
+      - '.github/workflows/web-updater-retirement.yml'
+
+jobs:
+  retirement-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Web updater retirement contract
+        run: node --test tests/web-updater-retirement.test.js
+      - name: PHP syntax
+        run: php -l application/controllers/Updater.php
