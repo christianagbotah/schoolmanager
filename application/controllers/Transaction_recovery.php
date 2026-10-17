@@ -70,6 +70,8 @@ class Transaction_recovery extends CI_Controller {
         try {
             $data['page_title'] = 'Transaction Recovery';
             $data['stats'] = $this->get_recovery_stats();
+            $data['csrf_token_name'] = $this->security->get_csrf_token_name();
+            $data['csrf_token_hash'] = $this->security->get_csrf_hash();
 
             // Debug: Log stats
             log_message('debug', 'Recovery stats: ' . json_encode($data['stats']));
