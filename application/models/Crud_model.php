@@ -1728,7 +1728,11 @@ class Crud_model extends MY_Model {
 
         $product_code = $code;
 
-        $personal_token = "FkA9UyDiQT0YiKwYLK3ghyFNRVV9SeUn";
+        $personal_token = trim((string) getenv('ENVATO_PERSONAL_TOKEN'));
+        if ($personal_token === '') {
+            log_message('warning', 'Purchase verification is unavailable because its runtime credential is not configured.');
+            return false;
+        }
         $url = "https://api.envato.com/v3/market/author/sale?code=".$product_code;
         $curl = curl_init($url);
 
@@ -1743,7 +1747,8 @@ class Crud_model extends MY_Model {
         $ch_verify = curl_init( $verify_url . '?code=' . $product_code );
 
         curl_setopt( $ch_verify, CURLOPT_HTTPHEADER, $header );
-        curl_setopt( $ch_verify, CURLOPT_SSL_VERIFYPEER, false );
+        curl_setopt( $ch_verify, CURLOPT_SSL_VERIFYPEER, true );
+        curl_setopt( $ch_verify, CURLOPT_SSL_VERIFYHOST, 2 );
         curl_setopt( $ch_verify, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt( $ch_verify, CURLOPT_CONNECTTIMEOUT, 2 ); // Reduced from 5 to 2 seconds for faster offline detection
         curl_setopt( $ch_verify, CURLOPT_TIMEOUT, 3 ); // Added: maximum 3 seconds total execution time
@@ -1753,18 +1758,17 @@ class Crud_model extends MY_Model {
         $curl_error = curl_error($ch_verify); // Capture error for logging
         curl_close( $ch_verify );
 
-        // Log if verification failed due to connectivity issues (offline mode)
-        if ($curl_error) {
-            log_message('info', 'License verification skipped - System appears to be offline: ' . $curl_error);
+        // Connectivity or malformed provider responses never authorize an update.
+        if ($cinit_verify_data === false || $curl_error !== '') {
+            log_message('warning', 'Purchase verification failed safely; no update authorization was granted.');
+            return false;
         }
 
         $response = json_decode($cinit_verify_data, true);
-
-        if (count($response['verify-purchase']) > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return is_array($response)
+            && isset($response['verify-purchase'])
+            && is_array($response['verify-purchase'])
+            && count($response['verify-purchase']) > 0;
 
     }
 
