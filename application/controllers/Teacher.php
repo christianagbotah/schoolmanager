@@ -980,49 +980,66 @@ class Teacher extends CI_Controller
 
     function upload_academic_syllabus()
     {
-        $data['academic_syllabus_code'] =   substr(md5(rand(0, 1000000)), 0, 7);
-        $data['title']                  =   strtoupper($this->input->post('title'));
-        $data['description']            =   $this->input->post('description');
-        $data['class_id']               =   $this->input->post('class_id');
-        if ($this->input->post('subject_id') != null) {
-           $data['subject_id']          =   $this->input->post('subject_id');
+        if (empty($_FILES['file_name'])) {
+            $this->output->set_status_header(422);
+            echo json_encode(['status' => 'error', 'message' => 'A syllabus file is required.']);
+            return;
         }
-        $data['uploader_type']          =   $this->session->userdata('login_type');
-        $data['uploader_id']            =   $this->session->userdata('login_user_id');
-        $data['year']                   =   $this->db->get_where('settings',array('type'=>'running_year'))->row()->description;
-        $data['timestamp']              =   strtotime(date("Y-m-d H:i:s"));
-        //uploading file using codeigniter upload library
-        $files = $_FILES['file_name'];
-        $this->load->library('upload');
-        $config['upload_path']   =  'uploads/syllabus/';
-        $config['allowed_types'] =  '*';
-        $_FILES['file_name']['name']     = $files['name'];
-        $_FILES['file_name']['type']     = $files['type'];
-        $_FILES['file_name']['tmp_name'] = $files['tmp_name'];
-        $_FILES['file_name']['size']     = $files['size'];
-        $this->upload->initialize($config);
-        $this->upload->do_upload('file_name');
 
-        $data['file_name'] = $_FILES['file_name']['name'];
+        $code = bin2hex(random_bytes(8));
+        $this->load->library('Private_file_storage', null, 'private_files');
+        try {
+            $stored = $this->private_files->store_uploaded_file($_FILES['file_name'], 'syllabus', $code);
+        } catch (Exception $e) {
+            $this->output->set_status_header(422);
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            return;
+        }
 
-        $this->db->insert('academic_syllabus', $data);
+        $data = [
+            'academic_syllabus_code' => $code,
+            'title' => strtoupper($this->input->post('title')),
+            'description' => $this->input->post('description'),
+            'class_id' => (int) $this->input->post('class_id'),
+            'uploader_type' => $this->session->userdata('login_type'),
+            'uploader_id' => $this->session->userdata('login_user_id'),
+            'year' => $this->db->get_where('settings', array('type' => 'running_year'))->row()->description,
+            'timestamp' => time(),
+            'file_name' => $stored['original_name'],
+        ];
+        if ($this->input->post('subject_id') !== null) {
+            $data['subject_id'] = (int) $this->input->post('subject_id');
+        }
+
+        if (!$this->db->insert('academic_syllabus', $data)) {
+            $this->private_files->delete($stored['storage_key']);
+            $this->output->set_status_header(500);
+            echo json_encode(['status' => 'error', 'message' => 'Syllabus could not be saved.']);
+            return;
+        }
         echo json_encode(['status' => 'success', 'message' => get_phrase('syllabus_uploaded')]);
-        return;
-
     }
 
     function download_academic_syllabus($academic_syllabus_code)
     {
-        $file_name = $this->db->get_where('academic_syllabus', array(
+        $row = $this->db->get_where('academic_syllabus', array(
             'academic_syllabus_code' => $academic_syllabus_code
-        ))->row()->file_name;
-        $data = file_get_contents("uploads/syllabus/" . $file_name);
-        $name = $file_name;
-
-        force_download($name, $data);
+        ))->row();
+        if (!$row) {
+            show_404();
+            return;
+        }
+        $this->load->helper('download');
+        $this->load->library('Private_file_storage', null, 'private_files');
+        $key = $this->private_files->named_storage_key('syllabus', $row->academic_syllabus_code, $row->file_name);
+        $path = $this->private_files->resolve($key);
+        if ($path === null) {
+            show_404();
+            return;
+        }
+        force_download(basename($row->file_name), file_get_contents($path));
     }
 
-    /*****BACKUP / RESTORE / DELETE DATA PAGE**********/
     function backup_restore($operation = '', $type = '')
     {
         if ($this->session->userdata('teacher_login') != 1)

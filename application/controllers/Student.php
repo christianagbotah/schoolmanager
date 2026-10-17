@@ -886,16 +886,36 @@ class Student extends CI_Controller
 
     function download_academic_syllabus($academic_syllabus_code)
     {
-        $file_name = $this->db->get_where('academic_syllabus', array(
+        $row = $this->db->get_where('academic_syllabus', array(
             'academic_syllabus_code' => $academic_syllabus_code
-        ))->row()->file_name;
-        $data = file_get_contents("uploads/syllabus/" . $file_name);
-        $name = $file_name;
-
-        force_download($name, $data);
+        ))->row();
+        if (!$row) {
+            show_404();
+            return;
+        }
+        $student_id = (int) $this->session->userdata('student_id');
+        $allowed = $this->db->get_where('enroll', array(
+            'student_id' => $student_id,
+            'class_id' => (int) $row->class_id,
+            'year' => $row->year,
+            'mute' => '0',
+        ))->num_rows() > 0;
+        if (!$allowed) {
+            $this->output->set_status_header(403);
+            show_error('You are not authorised to download this syllabus.', 403);
+            return;
+        }
+        $this->load->helper('download');
+        $this->load->library('Private_file_storage', null, 'private_files');
+        $key = $this->private_files->named_storage_key('syllabus', $row->academic_syllabus_code, $row->file_name);
+        $path = $this->private_files->resolve($key);
+        if ($path === null) {
+            show_404();
+            return;
+        }
+        force_download(basename($row->file_name), file_get_contents($path));
     }
 
-    /******MANAGE BILLING / INVOICES WITH STATUS*****/
     function invoice($param1 = '', $param2 = '', $param3 = '')
     {
         $student_id = (int) $this->session->userdata('student_id');
@@ -1200,6 +1220,41 @@ class Student extends CI_Controller
         $data['page_name']              = 'study_material';
         $data['page_title']             = get_phrase('study_material');
         $this->load->view('backend/main', $data);
+    }
+
+    function download_study_material($document_id)
+    {
+        $student_id = (int) $this->session->userdata('student_id');
+        $running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
+        $enrolment = $this->db->get_where('enroll', array(
+            'student_id' => $student_id,
+            'mute' => '0',
+            'year' => $running_year,
+        ))->row();
+        if (!$enrolment) {
+            show_404();
+            return;
+        }
+
+        $document = $this->db->get_where('document', array(
+            'document_id' => (int) $document_id,
+            'class_id' => (int) $enrolment->class_id,
+            'status' => 'Approved',
+        ))->row();
+        if (!$document) {
+            show_404();
+            return;
+        }
+
+        $this->load->helper('download');
+        $this->load->library('Private_file_storage', null, 'private_files');
+        $path = $this->private_files->resolve($document->file_path);
+        if ($path === null) {
+            show_404();
+            return;
+        }
+
+        force_download(basename($document->file_name), file_get_contents($path));
     }
 
     // MANAGE BOOK REQUESTS

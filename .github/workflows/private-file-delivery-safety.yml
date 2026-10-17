@@ -1,0 +1,60 @@
+name: Private File Delivery Safety
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/libraries/Private_file_storage.php'
+      - 'application/models/Crud_model.php'
+      - 'application/controllers/Admin.php'
+      - 'application/controllers/Teacher.php'
+      - 'application/controllers/Parents.php'
+      - 'application/controllers/Student.php'
+      - 'application/views/backend/student/study_material.php'
+      - 'tests/private-file-delivery-safety.test.js'
+      - 'tests/private_file_storage_behavior_test.php'
+      - '.github/workflows/private-file-delivery-safety.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/libraries/Private_file_storage.php'
+      - 'application/models/Crud_model.php'
+      - 'application/controllers/Admin.php'
+      - 'application/controllers/Teacher.php'
+      - 'application/controllers/Parents.php'
+      - 'application/controllers/Student.php'
+      - 'application/views/backend/student/study_material.php'
+      - 'tests/private-file-delivery-safety.test.js'
+      - 'tests/private_file_storage_behavior_test.php'
+      - '.github/workflows/private-file-delivery-safety.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  private-file-safety:
+    name: Private school file contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: PHP syntax
+        run: |
+          php -l application/libraries/Private_file_storage.php
+          php -l application/models/Crud_model.php
+          php -l application/controllers/Admin.php
+          php -l application/controllers/Teacher.php
+          php -l application/controllers/Parents.php
+          php -l application/controllers/Student.php
+          php -l application/views/backend/student/study_material.php
+          php -l tests/private_file_storage_behavior_test.php
+      - name: Run structural file-delivery contract
+        run: node --test tests/private-file-delivery-safety.test.js
+      - name: Run private storage behavior contract
+        run: php tests/private_file_storage_behavior_test.php
