@@ -335,22 +335,22 @@
         showSyncModal(operationName);
         updateSyncModalProgress(0, 'Initializing ' + operationName.toLowerCase() + '...');
         
-        // Get CSRF token from cookie
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
-            return null;
+        // Use the server-rendered CSRF contract so the CSRF cookie can remain HttpOnly.
+        const csrf = window.iEduProSyncCsrf || {};
+        if (!csrf.name || !csrf.hash) {
+            console.error('CSRF token unavailable; sync request blocked.');
+            hideSyncModal();
+            if (typeof showAjaxModal_alert === 'function') {
+                showAjaxModal_alert('Security token unavailable. Refresh the page and try again.', 'Error', false);
+            } else {
+                alert('Security token unavailable. Refresh the page and try again.');
+            }
+            return;
         }
         
-        const csrfToken = getCookie('joana_vic');
-        console.log('CSRF Token:', csrfToken ? 'Found' : 'Not found');
-        
-        // Build request data with CSRF token
-        const requestData = { 
-            type: type,
-            agbotah_essuon: csrfToken
-        };
+        // Build request data with the current CSRF token name supplied by CI.
+        const requestData = { type: type };
+        requestData[csrf.name] = csrf.hash;
         
         // Make AJAX request to correct endpoint
         $.ajax({
