@@ -68,7 +68,7 @@
                                         <td colspan="2" style="text-align: center; font-weight: bold;">TOTAL AMOUNT</td>
                                         <td style="text-align: center; font-weight: bold;"><u> <?php echo numfmt_format_currency($fmt, $total_count, $currency); ?></u></td>
                                         <td colspan="2" align="right">
-                                            <a class="btn btn-default" href="javascript:(void);" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_mobile_money_payment/'.$unpaid['invoice_code'].'/'.$student_id); ?>')" >
+                                            <a class="btn btn-default" href="<?php echo site_url('payment_gateway/pay_invoice/'.$unpaid['invoice_code']).'?student_id='.intval($student_id); ?>">
                                                 I WANT TO PAY
                                             </a>
                                         </td>

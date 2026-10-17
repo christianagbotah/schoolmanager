@@ -125,6 +125,8 @@
         } else if(strpos($page_name, 'examination/') === 0) {
             $attendance_file = str_replace('examination/', '', $page_name);
             include 'examination/'.$attendance_file.'.php';
+        } else if($page_name === 'pay_invoice') {
+            include 'payment_gateway/pay_invoice.php';
         } else {
             include $account_type.'/'.$page_name.'.php';
         }

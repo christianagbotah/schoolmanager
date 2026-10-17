@@ -1475,37 +1475,6 @@ a.text-primary:hover {
 	});
 
 
-		//update payment alert for admin
-	/**	setInterval(function() {
-			mobile_money_payment_alert_rows(); //mobile_money_payment_alert_show();
-		}, 600); **/
-
-		/**function mobile_money_payment_alert_rows() {
-			$.ajax({
-				url: '<?php // echo site_url('admin/mobile_money_payment_alert_rows'); ?>',
-				success: function(num_rows) {
-					if(num_rows > 0) {
-						$('#badge1').text(num_rows);
-						$('#badge1').css('display', 'inline-flex');
-						$('#momo').css({'color': '#ffffff', 'font-weight': 'bold'});
-					}else{
-						$('#badge1').css('display', 'none');
-						$('#momo').css({'color': '#1325ab'});
-					}
-				}
-			});
-		} **/
-
-	/**	function mobile_money_payment_alert_show() {
-			var page_name = '<?php echo $page_name; ?>';
-			$.ajax({
-				url: '<?php echo site_url('admin/mobile_money_payment_alert_show/'); ?>' + page_name,
-				success: function(message) {
-					$('#momo_message_list_holder').html(message);
-				}
-			});
-		} **/
-
 		/**update payment alert for admin
 		setInterval(function() {
 			notifications(); notifications_rows();

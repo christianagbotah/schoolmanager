@@ -563,87 +563,8 @@ class Parents extends CI_Controller
           $this->load->view('backend/stripe_checkout', $page_data);
     }
 
-    function mobile_money_checkout_callback() {
-
-        $payload = json_decode(file_get_contents("php://input"));
-
-    }
 
 
-    function mobile_money_checkout($student_id, $param1='', $param2='', $param3='', $param4=''){
-        
-        if($param1 == 'view') {
-            $page_data['student_id'] = $student_id;
-            $page_data['invoice_id'] = $param2;
-            $page_data['page_name'] = $param3;
-            $page_data['timestamp'] = $param4;
-            $this->load->view('backend/parent/modal_mobile_money_payment_pending', $page_data);   
-        } else {
-
-            if($student_id == 'callback') {
-                $jaxData = json_decode(file_get_contents("php://input"), true);
-
-                $pData['data'] = $jaxData;
-                $pData['page_name'] = 'callback';
-                $pData['page_title'] = 'Callback Page';
-                $this->load->view('backend/main', $pData);
-                return false;
-
-            } else if($student_id == 'returned') {
-                $pData['page_name'] = 'returned';
-                $pData['page_title'] = 'Returned Page';
-                $this->load->view('backend/main', $pData);
-                return false;
-                
-            } else if($student_id == 'cancelled') {
-                $pData['page_name'] = 'cancelled';
-                $pData['page_title'] = 'Cancelled Page';
-                $this->load->view('backend/main', $pData);
-                return false;
-                
-            }
-           
-          $data['invoice_code'] = $this->input->post('invoice_code');
-          $data['student_id'] = $student_id;
-
-          $errors = [];
-          //validate form
-          //$data['t_id'] = $this->input->post('t_id');
-          $data['mo_a_paid'] = $this->input->post('mo_a_paid');
-          $student_name = $this->input->post('student_name');
-          $momo_user_name = $this->input->post('momo_user_name');
-          $momo_number = $this->input->post('momo_number');
-          $momo_channel = $this->input->post('momo_channel');
-          $user_id = $this->input->post('user_id');
-
-
-          $ajax['json'] = $this->momo_model->sendMomo($momo_number, $momo_channel, $user_id, $student_name, $data['mo_a_paid'], $data['invoice_code'], $momo_user_name);
-          //redirect($ajax['result']);
-          /*$ajax['success'] = 1;
-            $ajax['message'] = 'Payment Successful';*/
-            //$ajax['message'] = 'Redirecting you to payment page...';
-            
-
-
-
-          $ajax['date_time'] = $this->input->post('mo_timestamp');
-          $ajax['timestamp'] = strtotime($this->input->post('mo_timestamp'));
-          $ajax['method'] = 4;
-          $ajax['description'] = $this->input->post('description');
-          $ajax['title'] = $this->input->post('title');
-          $ajax['year']         =   $this->db->get_where('settings' , array('type' => 'running_year'))->row()->description;
-          $ajax['term']         =   $this->db->get_where('settings' , array('type' => 'running_term'))->row()->description;
-          $ajax['payment_type'] =   'income';
-
-          echo json_encode($ajax);
-
-            /*$this->db->insert('mobile_money_payment', $data);
-
-                
-                $this->session->set_flashdata('flash_message', get_phrase('payment_submitted_successfully_and_currently_pending_for_approval.'));
-                 redirect(site_url('parents/invoice/'.$student_id));*/
-        }
-    }
 
     function bank_checkout($student_id = ''){
       if ($this->session->userdata('parent_login') != 1)
@@ -1164,29 +1085,7 @@ class Parents extends CI_Controller
     }
 
     //payment via mobile money modal launcher
-    function mo_money_modal($invoice_id) {
-        $page_data['invoice_id'] = $invoice_id;
-        $this->load->view('backend/parent/modal_mobile_money_payment', $page_data);
-    }
 
-    function modal_payment_status($invoice_id, $student_id = '', $page_name = '', $timestamp = '') {
-        if($this->session->userdata('login_type') == 'parent') {
-            $page_data['student_id'] = $student_id;
-            $page_data['invoice_id'] = $invoice_id;
-            $page_data['page_name'] = $page_name;
-            $page_data['timestamp'] = $timestamp;
-            $this->load->view('backend/parent/modal_payment_status', $page_data);  
-
-        }elseif($this->session->userdata('login_type') == 'student') {
-            $page_data['student_id'] = $student_id;
-            $page_data['invoice_id'] = $invoice_id;
-            $page_data['page_name'] = $page_name;
-            $page_data['timestamp'] = $timestamp;
-            $this->load->view('backend/student/modal_payment_status', $page_data);  
-        } 
-
-            
-    }
 
     function class_master() {
         if ($this->session->userdata('parent_login') != 1)
@@ -1240,22 +1139,4 @@ class Parents extends CI_Controller
     }
 
     //get channel logo for momo transaction
-    function get_channel_logo($channel_logo='') {
-        $file_extension = 'jpeg';
-        $title = '';
-
-        if($channel_logo == 'vodafone-gh') {
-            $file_extension = 'jpg';
-            $title = 'Pay with Vodafone Cash';
-
-        } else if($channel_logo == 'mtn-gh') {
-            $title = 'Pay with MTN Money';
-
-        } else if($channel_logo == 'tigo-gh') {
-            $title = 'Pay with AirtelTigo Money';
-        }
-
-        $html_tag = '<img src="'.base_url('/uploads/payment_channels/'.$channel_logo.'.'.$file_extension).'" width="70" title="'.$title.'"/>';
-        echo $html_tag;
-    } 
 }

@@ -191,6 +191,6 @@ $autoload['language'] = array('receipt_modification', 'discount');
 |	$autoload['model'] = array('first_model' => 'first');
 */
 
-$autoload['model'] = array('email_model', 'crud_model', 'invoice_model', 'barcode_model', 'sms_model', 'frontend_model', 'financial_report_model', 'momo_model', 'boarding_model', 'payroll_model', 'Finance_model', 'Accounts_model', 'Daily_fee_model', 'Daily_fee_discount_model', 'Discount_model', 'Notification_model', 'Payment_gateway_model', 'Setting_model', 'Sync_model', 'Transport_model', 'Login_model');
+$autoload['model'] = array('email_model', 'crud_model', 'invoice_model', 'barcode_model', 'sms_model', 'frontend_model', 'financial_report_model', 'boarding_model', 'payroll_model', 'Finance_model', 'Accounts_model', 'Daily_fee_model', 'Daily_fee_discount_model', 'Discount_model', 'Notification_model', 'Payment_gateway_model', 'Setting_model', 'Sync_model', 'Transport_model', 'Login_model');
 
-// $autoload['model'] = array('email_model', 'crud_model', 'invoice_model', 'barcode_model', 'sms_model', 'frontend_model', 'financial_report_model', 'momo_model', 'boarding_model', 'payroll_model', 'Finance_model', 'Accounts_model', 'Daily_fee_model', 'Daily_fee_discount_model', 'Discount_model', 'Notification_model', 'Payment_gateway_model', 'Setting_model', 'Sync_model', 'Transport_model', 'Login_model');
+// $autoload['model'] = array('email_model', 'crud_model', 'invoice_model', 'barcode_model', 'sms_model', 'frontend_model', 'financial_report_model', 'boarding_model', 'payroll_model', 'Finance_model', 'Accounts_model', 'Daily_fee_model', 'Daily_fee_discount_model', 'Discount_model', 'Notification_model', 'Payment_gateway_model', 'Setting_model', 'Sync_model', 'Transport_model', 'Login_model');
