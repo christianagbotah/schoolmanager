@@ -32,8 +32,6 @@ class Parents extends CI_Controller
         parent::__construct();
         $this->load->database();
         $this->load->library('session');
-        $this->load->model('stripe_model');
-        $this->load->model('paypal_model');
         $this->load->model(array('Ajaxdataload_model' => 'ajaxload'));
         /*cache control*/
 
@@ -51,7 +49,55 @@ class Parents extends CI_Controller
 
         if ($this->session->userdata('parent_login') != 1) {
             redirect(site_url('login'), 'refresh');
+            return;
         }
+
+        $this->enforce_parent_record_scope();
+    }
+
+    private function enforce_parent_record_scope() {
+        $method = isset($this->router) ? (string) $this->router->fetch_method() : '';
+        $student_segment_by_method = [
+            'academic_syllabus' => 3,
+            'marks' => 3,
+            'student_marksheet_print_view' => 3,
+            'student_results_sheet_print_view' => 3,
+            'student_results_sheet_print_view_creche' => 3,
+            'class_routine' => 3,
+            'class_routine_print_view' => 5,
+            'invoice' => 3,
+            'attendance_report' => 3,
+            'attendance_report_selector' => 3,
+            'attendance_report_view' => 7,
+            'attendance_report_print_view' => 7,
+            'get_marksheet' => 5,
+            'get_marksheet_raw_score' => 5,
+        ];
+
+        if (!isset($student_segment_by_method[$method])) {
+            return;
+        }
+
+        $student_id = (int) $this->uri->segment($student_segment_by_method[$method]);
+        if ($student_id > 0 && !$this->current_parent_owns_student($student_id)) {
+            $this->deny_parent_record_access();
+        }
+    }
+
+    private function current_parent_owns_student($student_id) {
+        $parent_id = (int) $this->session->userdata('parent_id');
+        if ($parent_id <= 0 || (int) $student_id <= 0) {
+            return false;
+        }
+        return $this->db
+            ->where('student_id', (int) $student_id)
+            ->where('parent_id', $parent_id)
+            ->count_all_results('student') > 0;
+    }
+
+    private function deny_parent_record_access() {
+        $this->output->set_status_header(403);
+        show_error('You are not authorised to access this student record.', 403);
     }
 
     /***default functin, redirects to login page if no admin logged in yet***/
@@ -466,135 +512,13 @@ class Parents extends CI_Controller
     /******MANAGE BILLING / INVOICES WITH STATUS*****/
     function invoice($student_id = '' , $param1 = '', $param2 = '', $param3 = '')
     {
-        //if($this->session->userdata('parent_login')!=1)redirect(base_url() );
-        if ($param1 == 'make_payment') {
-            $invoice_id      = $this->input->post('invoice_id');
-            $system_settings = $this->db->get_where('settings', array(
-                'type' => 'paypal_email'
-            ))->row();
-            $invoice_details = $this->db->get_where('invoice', array(
-                'invoice_id' => $invoice_id
-            ))->row();
-
-            /****TRANSFERRING USER TO PAYPAL TERMINAL****/
-            $this->paypal->add_field('rm', 2);
-            $this->paypal->add_field('no_note', 0);
-            $this->paypal->add_field('item_name', $invoice_details->title);
-            $this->paypal->add_field('amount', $invoice_details->amount);
-            $this->paypal->add_field('custom', $invoice_details->invoice_id);
-            $this->paypal->add_field('business', $system_settings->description);
-            $this->paypal->add_field('notify_url', site_url('parents/invoice/paypal_ipn'));
-            $this->paypal->add_field('cancel_return', site_url('parents/invoice/paypal_cancel'));
-            $this->paypal->add_field('return', site_url('parents/invoice/paypal_success'));
-
-            $this->paypal->submit_paypal_post();
-            // submit the fields to paypal
-        }
-        if ($param1 == 'paypal_ipn') {
-            if ($this->paypal->validate_ipn() == true) {
-                $ipn_response = '';
-                foreach ($_POST as $key => $value) {
-                    $value = urlencode(stripslashes($value));
-                    $ipn_response .= "\n$key=$value";
-                }
-                $data['payment_details']   = $ipn_response;
-                $data['payment_timestamp'] = strtotime(date("m/d/Y"));
-                $data['payment_method']    = 'paypal';
-                $data['status']            = 'paid';
-                $invoice_id                = $_POST['custom'];
-                $this->db->where('invoice_id', $invoice_id);
-                $this->db->update('invoice', $data);
-
-                $data2['method']       =   'paypal';
-                $data2['invoice_id']   =   $_POST['custom'];
-                $data2['timestamp']    =   strtotime(date("m/d/Y"));
-                $data2['payment_type'] =   'income';
-                $data2['title']        =   $this->db->get_where('invoice' , array('invoice_id' => $data2['invoice_id']))->row()->title;
-                $data2['description']  =   $this->db->get_where('invoice' , array('invoice_id' => $data2['invoice_id']))->row()->description;
-                $data2['student_id']   =   $this->db->get_where('invoice' , array('invoice_id' => $data2['invoice_id']))->row()->student_id;
-                $data2['amount']       =   $this->db->get_where('invoice' , array('invoice_id' => $data2['invoice_id']))->row()->amount;
-                $this->db->insert('payment' , $data2);
-            }
-        }
-        if ($param1 == 'paypal_cancel') {
-            $this->session->set_flashdata('flash_message', get_phrase('payment_cancelled'));
-            redirect(site_url('parents/invoice/'. $student_id));
-        }
-        if ($param1 == 'paypal_success') {
-            $this->session->set_flashdata('flash_message', get_phrase('payment_successfull'));
-            redirect(site_url('parents/invoice/'. $student_id));
-        }
-        $parent_profile         = $this->db->get_where('parent', array(
-            'parent_id' => $this->session->userdata('parent_id')
-        ))->row();
-        $page_data['student_id'] = $student_id;
+        $page_data['student_id'] = (int) $student_id;
         $page_data['page_name']  = 'invoice';
         $page_data['page_title'] = get_phrase('manage_invoice/payment');
-        
-
-            $page_data['account_type'] = $this->session->userdata('login_type');
-                     $page_data['account_type'] = $this->session->userdata('login_type');
+        $page_data['account_type'] = $this->session->userdata('login_type');
         $this->load->view('backend/main', $page_data);
     }
 
-    function paypal_checkout($student_id = '') {
-      if ($this->session->userdata('parent_login') != 1)
-          redirect('login');
-
-        $invoice_id = $this->input->post('invoice_id');
-        $page_data['student_details'] = $this->db->get_where('student', array('student_id' => $student_id))->row();
-        $page_data['invoice_details'] = $this->db->get_where('invoice', array(
-            'invoice_id' => $invoice_id
-        ))->row();
-        $this->load->view('backend/paypal_checkout', $page_data);
-    }
-    function stripe_checkout($student_id = ''){
-      if ($this->session->userdata('parent_login') != 1)
-          redirect('login');
-
-          $invoice_id = $this->input->post('invoice_id');
-          $page_data['student_details'] = $this->db->get_where('student', array('student_id' => $student_id))->row();
-          $page_data['invoice_details'] = $this->db->get_where('invoice', array(
-              'invoice_id' => $invoice_id
-          ))->row();
-          $this->load->view('backend/stripe_checkout', $page_data);
-    }
-
-
-
-
-    function bank_checkout($student_id = ''){
-      if ($this->session->userdata('parent_login') != 1)
-          redirect('login');
-
-          $invoice_id = $this->input->post('invoice_id');
-          $page_data['student_details'] = $this->db->get_where('student', array('student_id' => $student_id))->row();
-          $page_data['invoice_details'] = $this->db->get_where('invoice', array(
-              'invoice_id' => $invoice_id
-          ))->row();
-          $this->load->view('backend/bank_checkout', $page_data);
-    }
-    
-    function pay($gateway = '', $invoice_id = '') {
-
-      if ($gateway == 'stripe') {
-            $student_id = $this->input->post('student_id');
-            $payment_success = $this->stripe_model->pay($invoice_id);
-            if ($payment_success == true) {
-                $this->session->set_flashdata('flash_message', get_phrase('payment_successfull'));
-                redirect(site_url('parents/invoice/'. $student_id));
-            } else {
-                $this->session->set_flashdata('error_message', get_phrase('payment_failed'));
-                redirect(site_url('parents/invoice/'. $student_id));
-            }
-        }
-        else if ($gateway == 'paypal') {
-            $this->paypal_model->pay($invoice_id);
-            $this->session->set_flashdata('flash_message', get_phrase('package_changed_successfully'));
-        }
-      $this->session->set_flashdata('flash_message', get_phrase('payment_successfull'));
-    }
-    /**********MANAGE LIBRARY / BOOKS********************/
     function book($param1 = '', $param2 = '', $param3 = '')
     {
         if ($this->session->userdata('parent_login') != 1)
@@ -859,19 +783,6 @@ class Parents extends CI_Controller
         $this->load->view('backend/main', $page_data);
     }
 
-    function pay_with_payumoney($param1 = "", $param2 = ""){
-        $page_data['page_name']  = 'pay_with_payumoney';
-        $page_data['page_title'] = get_phrase('pay_with_payumoney');
-        $page_data['student_id'] = $param1;
-        $page_data['invoice_id'] = $param2;
-        
-
-            $page_data['account_type'] = $this->session->userdata('login_type');
-                     $page_data['account_type'] = $this->session->userdata('login_type');
-        $this->load->view('backend/main', $page_data);
-    }
-
-    // Attendance report view
   function attendance_report($student_id = ""){
     if ($student_id != "") {
       $student_name = $this->db->get_where('student', array('student_id' => $student_id))->row()->name;

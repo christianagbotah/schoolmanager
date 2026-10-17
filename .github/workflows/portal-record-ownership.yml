@@ -1,0 +1,57 @@
+name: Portal Record Ownership
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/controllers/Parents.php'
+      - 'application/controllers/Student.php'
+      - 'application/controllers/Payumoney.php'
+      - 'application/views/backend/parent/**'
+      - 'application/views/backend/student/**'
+      - 'application/views/backend/paypal_checkout.php'
+      - 'application/views/backend/stripe_checkout.php'
+      - 'application/views/backend/success.php'
+      - 'application/views/backend/failure.php'
+      - 'tests/portal-record-ownership.test.js'
+      - '.github/workflows/portal-record-ownership.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Parents.php'
+      - 'application/controllers/Student.php'
+      - 'application/controllers/Payumoney.php'
+      - 'application/views/backend/parent/**'
+      - 'application/views/backend/student/**'
+      - 'application/views/backend/paypal_checkout.php'
+      - 'application/views/backend/stripe_checkout.php'
+      - 'application/views/backend/success.php'
+      - 'application/views/backend/failure.php'
+      - 'tests/portal-record-ownership.test.js'
+      - '.github/workflows/portal-record-ownership.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  portal-record-ownership:
+    name: Parent/student record ownership contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: PHP syntax
+        run: |
+          php -l application/controllers/Parents.php
+          php -l application/controllers/Student.php
+          php -l application/views/backend/student/invoice.php
+          php -l application/views/backend/parent/navigation.php
+          php -l application/views/backend/student/navigation.php
+      - name: Run portal ownership contract
+        run: node --test tests/portal-record-ownership.test.js

@@ -102,30 +102,7 @@
                         <span data-toggle="tooltip" title="Mobile Money"><i class="fa fa-money" id="cont1" aria-hidden="true" style="color: #fff;" ></i> <?php echo $mo_button; ?></span>
                     </a>
                   </div>
-                
-                <!--          
-                  <div class="col-md-4" style="text-align: center;">
-                    <?php echo form_open(site_url('student/paypal_checkout/'.$row['student_id']));?>
-                    	<input type="hidden" name="invoice_id" value="<?php echo $row['invoice_id'];?>" />
-                    		<button type="submit" class="btn btn-info" <?php if($row['due'] == 0 || $paypal_activity == 0):?> disabled="disabled"<?php endif;?>>
-                          <span data-toggle="tooltip" title="Paypal"><i class="fa fa-paypal" aria-hidden="true" style="color: #fff;"></i> Paypal</span>
-                        </button>
-                    </form>
-                  </div>
-                  
-                  <div class="col-md-4" style="text-align: center;">
-                    <?php echo form_open(site_url('student/stripe_checkout/'.$row['student_id']));?>
-                    	<input type="hidden" name="invoice_id" value="<?php echo $row['invoice_id'];?>" />
-                    		<button type="submit" class="btn btn-default" <?php if($row['due'] == 0 || $stripe_activity == 0):?> disabled="disabled"<?php endif;?>>
-                                <span data-toggle="tooltip" title="Stripe"><i class="fa fa-cc-stripe" aria-hidden="true" style="color: #fff;"></i> Stripe</span>
-                            </button>
-                    </form>
-                  </div>
-                  <div class="col-md-4" style="text-align: center;">
-                    <a href="<?php echo site_url('student/pay_with_payumoney/'.$row['student_id'].'/'.$row['invoice_id']);?>" type="button" class="btn btn-success" <?php if($row['due'] == 0):?> disabled="disabled"<?php endif;?>> <span data-toggle="tooltip" title="PayUMoney"><i class="fa fa-dollar" aria-hidden="true" style="color: #fff;"></i> PayUMoney</span> </a>
-                  </div>
-                  --//end of payment options-->
-                </div>
+</div>
         			</td>
                     <td><a href="#" class="btn btn-primary btn-block" onclick="invoice_view_modal('<?php echo $row2['invoice_code'];?>')"><i class="entypo-credit-card"></i>&nbsp; <?php echo get_phrase('view_invoice');?></a></td>
 

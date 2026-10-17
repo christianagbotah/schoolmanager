@@ -157,7 +157,7 @@
         </li>
 
         <!-- PAYMENT -->
-        <li class="<?php if ($page_name == 'invoice' || $page_name == 'pay_with_payumoney') echo 'active'; ?> ">
+        <li class="<?php if ($page_name == 'invoice') echo 'active'; ?> ">
             <a href="<?php echo site_url($account_type.'/invoice'); ?>">
                 <i class="entypo-credit-card"></i>
                 <span><?php echo get_phrase('payment'); ?></span>
