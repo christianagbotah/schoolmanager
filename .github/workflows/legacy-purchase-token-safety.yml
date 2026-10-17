@@ -1,0 +1,38 @@
+name: Legacy Purchase Token Safety
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/models/Crud_model.php'
+      - 'tests/legacy-purchase-token-safety.test.js'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/legacy-purchase-token-safety.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/models/Crud_model.php'
+      - 'tests/legacy-purchase-token-safety.test.js'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/legacy-purchase-token-safety.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  token-safety:
+    name: Legacy purchase credential contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: PHP syntax
+        run: php -l application/models/Crud_model.php
+      - name: Run purchase credential safety contract
+        run: node --test tests/legacy-purchase-token-safety.test.js
