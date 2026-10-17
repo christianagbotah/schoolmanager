@@ -37,6 +37,23 @@ class Expenditure extends CI_Controller {
         $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         $this->output->set_header('Pragma: no-cache');
 
+        if ($this->session->userdata('admin_login') != 1) {
+            if ($this->input->is_ajax_request()) {
+                $this->output
+                    ->set_status_header(401)
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode(array(
+                        'status' => 'error',
+                        'message' => 'Authentication required.'
+                    )));
+                $this->output->_display();
+                exit;
+            }
+
+            redirect(site_url('login'), 'location', 302);
+            exit;
+        }
+
         //email control
         $this->load->helper('email');
         // $this->load->config('email');
@@ -55,10 +72,6 @@ class Expenditure extends CI_Controller {
 
     //add expenditure
     function add_expenditure() {
-        if ($this->session->userdata('admin_login') != 1) {
-            redirect(site_url('login'), 'refresh');
-        }
-
         //declare some arrays to handle the data
         $errors = array();
         $ajax_data = array();
@@ -145,10 +158,6 @@ class Expenditure extends CI_Controller {
 
     //Edit expenditure
     function edit_expenditure($expenditure_id) {
-        if ($this->session->userdata('admin_login') != 1) {
-            redirect(site_url('login'), 'refresh');
-        }
-
         //declare some arrays to handle the data
         $errors = array();
         $ajax_data = array();
@@ -234,10 +243,6 @@ class Expenditure extends CI_Controller {
 
     //delete Expenditure
     function delete_expenditure($expenditure_id) {
-        if ($this->session->userdata('admin_login') != 1) {
-            redirect(site_url('login'), 'refresh');
-        }
-
         $result = $this->expenditure_model->delete_expenditure($expenditure_id);
 
         if($result == true) {
