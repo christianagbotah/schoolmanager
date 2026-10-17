@@ -7,6 +7,24 @@ class Invoice_email extends CI_Controller {
         parent::__construct();
         $this->load->database();
         $this->load->library('email');
+        $this->load->library('session');
+
+        if ($this->session->userdata('admin_login') != 1) {
+            if ($this->input->is_ajax_request()) {
+                $this->output
+                    ->set_status_header(401)
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode([
+                        'status' => 'error',
+                        'message' => 'Authentication required.'
+                    ]));
+                $this->output->_display();
+                exit;
+            }
+
+            redirect(site_url('login'), 'location', 302);
+            exit;
+        }
     }
 
     public function send($invoice_code) {
