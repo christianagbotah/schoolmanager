@@ -232,57 +232,62 @@
 
     <script>
         console.log('Transaction Recovery page loaded');
-        
+
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Document ready');
-            
+
             const startBtn = document.getElementById('startRecovery');
             const refreshBtn = document.getElementById('refreshStats');
             const output = document.getElementById('output');
             const progressContainer = document.getElementById('progressContainer');
             const progressBar = document.getElementById('progressBar');
-            
+            const csrfTokenName = <?php echo json_encode($csrf_token_name); ?>;
+            const csrfTokenHash = <?php echo json_encode($csrf_token_hash); ?>;
+
             console.log('Button found:', startBtn);
-            
+
             if (startBtn) {
                 startBtn.addEventListener('click', function() {
                     console.log('Button clicked!');
-                    
+
                     // Disable button
                     startBtn.disabled = true;
                     startBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Processing...';
-                    
+
                     // Show output and progress
                     output.classList.add('active');
                     output.textContent = 'Initializing recovery process...\n\n';
                     progressContainer.classList.add('active');
-                    
+
                     console.log('Starting AJAX request...');
-                    
-                    // Start recovery via AJAX with streaming
+
+                    // Start recovery via a CSRF-protected POST while preserving streaming output.
                     const xhr = new XMLHttpRequest();
+                    const formData = new FormData();
                     let lastLength = 0;
-                    
-                    xhr.open('GET', '<?php echo base_url(); ?>transaction_recovery/process', true);
-                    
+
+                    formData.append(csrfTokenName, csrfTokenHash);
+                    xhr.open('POST', '<?php echo base_url(); ?>transaction_recovery/process', true);
+                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
                     xhr.onprogress = function() {
                         const newData = xhr.responseText.substring(lastLength);
                         lastLength = xhr.responseText.length;
-                        
+
                         if (newData) {
                             output.textContent += newData;
                             output.scrollTop = output.scrollHeight;
-                            
+
                             // Update progress bar (estimate based on output length)
                             const progress = Math.min(95, (lastLength / 10000) * 100);
                             progressBar.style.width = progress + '%';
                             progressBar.textContent = Math.round(progress) + '%';
                         }
                     };
-                    
+
                     xhr.onload = function() {
                         console.log('AJAX completed with status:', xhr.status);
-                        
+
                         if (xhr.status === 200) {
                             progressBar.style.width = '100%';
                             progressBar.textContent = '100%';
@@ -290,37 +295,40 @@
                             output.textContent += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
                             output.textContent += 'Click "Refresh Statistics" to see updated numbers.\n';
                             output.scrollTop = output.scrollHeight;
-                            
+
                             // Show refresh button
                             refreshBtn.style.display = 'inline-block';
-                            
+
                             // Keep progress bar visible
                             setTimeout(function() {
                                 progressContainer.classList.remove('active');
                             }, 2000);
-                            
+
                             // Re-enable button but change text
                             startBtn.disabled = false;
                             startBtn.innerHTML = '<i class="fa fa-repeat"></i> Run Recovery Again';
                         } else {
-                            output.textContent += '\n\n❌ Error: ' + xhr.statusText + '\n';
+                            output.textContent += '\n\n❌ Error: ' + xhr.status + ' ' + xhr.statusText + '\n';
+                            if (xhr.responseText) {
+                                output.textContent += xhr.responseText + '\n';
+                            }
                             startBtn.disabled = false;
                             startBtn.innerHTML = '<i class="fa fa-play"></i> Start Recovery Process';
                         }
                     };
-                    
+
                     xhr.onerror = function() {
                         console.log('AJAX error occurred');
                         output.textContent += '\n\n❌ Network error occurred\n';
                         startBtn.disabled = false;
                         startBtn.innerHTML = '<i class="fa fa-play"></i> Start Recovery Process';
                     };
-                    
-                    xhr.send();
+
+                    xhr.send(formData);
                     console.log('AJAX request sent');
                 });
             }
-            
+
             if (refreshBtn) {
                 refreshBtn.addEventListener('click', function() {
                     console.log('Refresh button clicked');
