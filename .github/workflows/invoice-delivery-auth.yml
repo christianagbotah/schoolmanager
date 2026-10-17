@@ -1,0 +1,31 @@
+name: Invoice Delivery Auth Boundary
+
+on:
+  pull_request:
+    paths:
+      - 'application/controllers/Invoice_email.php'
+      - 'application/controllers/Invoice_sms.php'
+      - 'tests/invoice-delivery-auth-boundary.test.js'
+      - '.github/workflows/invoice-delivery-auth.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Invoice_email.php'
+      - 'application/controllers/Invoice_sms.php'
+      - 'tests/invoice-delivery-auth-boundary.test.js'
+      - '.github/workflows/invoice-delivery-auth.yml'
+
+jobs:
+  auth-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Invoice delivery auth contract
+        run: node --test tests/invoice-delivery-auth-boundary.test.js
+      - name: PHP syntax - email
+        run: php -l application/controllers/Invoice_email.php
+      - name: PHP syntax - SMS
+        run: php -l application/controllers/Invoice_sms.php
