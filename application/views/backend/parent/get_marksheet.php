@@ -431,7 +431,7 @@
                             ?>
                         <div class="row" style="display: <?= $display; ?>">
                             <div class="col-lg-12 col-md-12">
-                                <?php echo form_open(site_url('admin/conducts_update'), array('id' => 'c_form'));?>
+                                <?php echo form_open('', array('id' => 'c_form'));?>
                                     <div class="table table-responsive">
                                         <table class="table table-bordered table-striped" id="conducts" style="width:100%; border-collapse:collapse;border: 1px solid #ccc; margin-top: 10px;" border="1">
                                             <caption align="center">CONDUCTS OF <b><?php echo strtoupper($this->db->get_where('student' , array('student_id' => $student_id3))->row()->name);?></b></caption>

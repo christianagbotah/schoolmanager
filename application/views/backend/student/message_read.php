@@ -81,13 +81,6 @@ foreach ($messages as $row):
         //show confirm box
         showCustomConfirm('Do you really want to delete this message?', function() {
             $('#' + message_id).css('display', 'none');
-
-            $.ajax({
-                url: '<?php echo site_url('admin/deleted_messages_id/') ?>' + message_id,
-                success: function (response) {
-                   // alert(response);
-                }
-            })
         });
     }
 </script>

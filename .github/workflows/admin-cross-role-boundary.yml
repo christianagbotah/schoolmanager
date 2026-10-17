@@ -1,0 +1,42 @@
+name: Admin Cross-Role Boundary
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/controllers/Admin.php'
+      - 'application/views/backend/parent/**'
+      - 'application/views/backend/student/**'
+      - 'application/views/backend/teacher/**'
+      - 'tests/admin-cross-role-boundary.test.js'
+      - '.github/workflows/admin-cross-role-boundary.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Admin.php'
+      - 'application/views/backend/parent/**'
+      - 'application/views/backend/student/**'
+      - 'application/views/backend/teacher/**'
+      - 'tests/admin-cross-role-boundary.test.js'
+      - '.github/workflows/admin-cross-role-boundary.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  admin-cross-role-boundary:
+    name: Admin cross-role route contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: PHP syntax
+        run: php -l application/controllers/Admin.php
+      - name: Run Admin cross-role contract
+        run: node --test tests/admin-cross-role-boundary.test.js

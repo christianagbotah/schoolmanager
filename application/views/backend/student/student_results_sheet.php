@@ -439,7 +439,7 @@ foreach ($student_info as $row1):
                      <!--Conducts-->
                         <div class="row">
                             <div class="col-lg-12 col-md-12">
-                                <?php echo form_open(site_url('admin/conducts_update'), array('id' => 'conducts_form'));?>
+                                <?php echo form_open('', array('id' => 'conducts_form'));?>
                                     <div class="table table-responsive">
                                         <table class="table table-bordered table-striped" id="conducts" style="width:100%; border-collapse:collapse;border: 1px solid #ccc; margin-top: 10px;" border="1">
                                             <caption>CONDUCTS OF <b><?php echo strtoupper($this->db->get_where('student' , array('student_id' => $student_id))->row()->name);?></b></caption>
@@ -538,7 +538,7 @@ foreach ($student_info as $row1):
 
                                        <!--======No more editing of results since they have been issued already===== -->
                                        <div id="submit_con">
-                                           <input type="submit" name="save_conducts" class="btn btn-primary btn-lg btn-md btn-sm" value="<?php echo get_phrase('save_conducts_&_remarks');?>" style="position: relative; float: right; bottom: 20px; right: 10px; margin-top: 30px;">
+                                           <input type="button" name="save_conducts" class="btn btn-primary btn-lg btn-md btn-sm" value="<?php echo get_phrase('save_conducts_&_remarks');?>" disabled style="position: relative; float: right; bottom: 20px; right: 10px; margin-top: 30px;">
                                        <!-- --//Cannot edit results here-->
                                        </div>
                                         
@@ -1157,7 +1157,7 @@ foreach ($student_info as $row1):
                      <!--Conducts-->
                         <div class="row">
                             <div class="col-lg-12 col-md-12">
-                                <?php echo form_open(site_url('admin/conducts_update'), array('id' => 'conducts_form'));?>
+                                <?php echo form_open('', array('id' => 'conducts_form'));?>
                                     <div class="table table-responsive">
                                         <table class="table table-bordered table-striped" id="conducts" style="width:100%; border-collapse:collapse;border: 1px solid #ccc; margin-top: 10px;" border="1">
                                             <caption>CONDUCTS OF <b><?php echo strtoupper($this->db->get_where('student' , array('student_id' => $student_id))->row()->name);?></b></caption>
@@ -1256,7 +1256,7 @@ foreach ($student_info as $row1):
 
                                        <!--======No more editing of results since they have been issued already===== -->
                                        <div id="submit_con">
-                                           <input type="submit" name="save_conducts" id="submit_c" class="btn btn-primary btn-lg btn-md btn-sm" value="<?php echo get_phrase('save_conducts_&_remarks');?>" style="position: relative; float: right; bottom: 20px; right: 10px; margin-top: 30px;">
+                                           <input type="button" name="save_conducts" id="submit_c" class="btn btn-primary btn-lg btn-md btn-sm" value="<?php echo get_phrase('save_conducts_&_remarks');?>" disabled style="position: relative; float: right; bottom: 20px; right: 10px; margin-top: 30px;">
                                        <!-- --//Cannot edit results here-->
                                        </div>
                                         

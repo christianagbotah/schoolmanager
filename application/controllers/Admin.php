@@ -65,8 +65,47 @@ class Admin extends MY_Controller {
 
 		if($this->session->userdata('login_type') == '') {
 	        redirect(site_url('login'), 'refresh');
+	        return;
 	    }
+
+		$this->enforce_cross_role_route_boundary();
     }
+
+	/**
+	 * Keep the legacy Admin controller closed to other authenticated roles by default.
+	 * Only explicitly shared legacy routes remain reachable while they are migrated
+	 * into role-specific controllers. Administrators retain normal access.
+	 */
+	private function enforce_cross_role_route_boundary() {
+		if ($this->session->userdata('admin_login') == 1) {
+			return;
+		}
+
+		$role = '';
+		if ($this->session->userdata('teacher_login') == 1) {
+			$role = 'teacher';
+		} elseif ($this->session->userdata('parent_login') == 1) {
+			$role = 'parent';
+		} elseif ($this->session->userdata('student_login') == 1) {
+			$role = 'student';
+		}
+
+		$method = isset($this->router) ? (string) $this->router->fetch_method() : '';
+		$allowlist = $this->shared_admin_route_allowlist();
+		if ($role === '' || !isset($allowlist[$role]) || !in_array($method, $allowlist[$role], true)) {
+			$this->output->set_status_header(403);
+			show_error('You are not authorised to access this administrative action.', 403);
+			return;
+		}
+	}
+
+	private function shared_admin_route_allowlist() {
+		return [
+			'parent' => ['get_class_name', 'get_exam_type', 'get_exam_type_sem', 'get_invoice_term', 'student_marksheet', 'student_marksheet_print_view', 'student_marksheet_print_view_creche', 'student_results_sheet', 'student_results_sheet_creche', 'student_results_sheet_print_view', 'tabulation_sheet', 'tabulation_sheet_print_view'],
+			'student' => ['get_class_name', 'get_exam_type', 'get_exam_type_sem', 'get_invoice_term', 'student_marksheet', 'student_marksheet_print_view', 'student_marksheet_print_view_creche', 'student_results_sheet', 'student_results_sheet_creche', 'student_results_sheet_print_view', 'tabulation_sheet', 'tabulation_sheet_print_view'],
+			'teacher' => ['attendance_report_print_view', 'attendance_report_selector', 'attendance_selector', 'attendance_update', 'beneficiary_checker', 'bulk_cummulative_reports', 'class_routine', 'classes_fee_paid', 'classes_owe_updator', 'classes_owe_updator_is_present', 'conduct_items', 'conducts_update', 'conducts_update_2', 'create_barcode', 'cummulative_reports', 'delete_question_from_online_exam', 'fare_owe_updator', 'fare_paid', 'feeding_fee_paid', 'feeding_owe_updator', 'feeding_owe_updator_is_present', 'get_class_name', 'get_class_name_numeric', 'get_class_section_subject', 'get_class_students', 'get_class_subject', 'get_exam_type', 'get_exam_type_sem', 'get_multi_select_students', 'get_section', 'get_students_to_promote', 'grade', 'head_teacher_remarks', 'interest_items', 'manage_attendance', 'manage_attendance_view', 'manage_multiple_choices_options', 'marks_get_subject', 'marks_manage', 'marks_selector', 'marks_selector_creche', 'marks_update', 'marks_update_creche', 'payslip_preview', 'portfolio_assessment_manage', 'portfolio_assessment_selector', 'portfolio_assessment_update', 'student_information_print', 'student_marksheet', 'student_marksheet_bulk_print_view', 'student_marksheet_bulk_print_view_creche', 'student_marksheet_creche', 'student_marksheet_print_view', 'student_marksheet_print_view_creche', 'student_profile', 'student_results_sheet', 'student_results_sheet_creche', 'student_results_sheet_preview_creche', 'student_results_sheet_print_view', 'student_results_sheet_print_view_creche', 'students_att', 'tabulation_sheet', 'tabulation_sheet_print_view', 'update_online_exam_question', 'verify_check_in'],
+		];
+	}
 
 	/***default function, redirects to login page if no admin logged in yet***/
 	public function index() {
@@ -23629,26 +23668,6 @@ function parents_gender_report() {
 		//clear the cached database
 		$this->db->cache_delete();
 
-	}
-
-	function deleted_messages_id($message_id) {
-		/** $file_name = '_al01i/v_l02i/backend/admin/deleted_messages_id.php';**/
-		$message_id = $message_id;
-
-
-		if(file_exists($file_name)) {
-		file_put_contents($file_name, $message_id, FILE_APPEND);
-		}else {
-		file_put_contents($file_name, $message_id);
-		}
-	}
-
-	function get_deleted_messages_id() {
-		$file_name = '_al01i/v_l02i/backend/admin/deleted_messages_id.php';
-		$ids = file_get_contents($file_name);
-		$ids_explode = explode(',', $ids);
-
-		echo $ids;
 	}
 
 	function auth_update() {

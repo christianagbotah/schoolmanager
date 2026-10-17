@@ -92,7 +92,7 @@
 		   
 		   //send via ajax
 		   $.ajax({
-		      url: '<?php echo site_url('admin/update_subjects_creche/'); ?>' + cat_id + '/' + class_id,
+		      url: '<?php echo site_url('teacher/update_subjects_creche/'); ?>' + cat_id + '/' + class_id,
 		      success: function(response) {
 		          $('#subject_id').html(response);
 		      }
