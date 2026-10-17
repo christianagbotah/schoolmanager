@@ -1438,7 +1438,11 @@ $metrics = $sync_status['metrics'] ?? [];
 
 <!-- Define base_url for JavaScript -->
 <script>
-    var base_url = '<?php echo base_url(); ?>';
+    var base_url = <?php echo json_encode(base_url()); ?>;
+    window.iEduProSyncCsrf = {
+        name: <?php echo json_encode($this->security->get_csrf_token_name()); ?>,
+        hash: <?php echo json_encode($this->security->get_csrf_hash()); ?>
+    };
     console.log('base_url defined:', base_url);
 </script>
 
