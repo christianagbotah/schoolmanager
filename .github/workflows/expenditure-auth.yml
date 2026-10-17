@@ -1,0 +1,27 @@
+name: Expenditure Auth Boundary
+
+on:
+  pull_request:
+    paths:
+      - 'application/controllers/Expenditure.php'
+      - 'tests/expenditure-auth-boundary.test.js'
+      - '.github/workflows/expenditure-auth.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Expenditure.php'
+      - 'tests/expenditure-auth-boundary.test.js'
+      - '.github/workflows/expenditure-auth.yml'
+
+jobs:
+  auth-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Expenditure auth contract
+        run: node --test tests/expenditure-auth-boundary.test.js
+      - name: PHP syntax
+        run: php -l application/controllers/Expenditure.php
