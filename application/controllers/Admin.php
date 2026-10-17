@@ -19774,40 +19774,6 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		$this->load->view('backend/admin/noticeboard');
 	}
 	/* private messaging */
-	private function prepareMessageAttachment($field, $subdirectory, $max_size = 4097152) {
-		if (empty($_FILES[$field]) || empty($_FILES[$field]['name']) || (int)$_FILES[$field]['error'] === UPLOAD_ERR_NO_FILE) {
-			return ['ok' => true, 'name' => ''];
-		}
-		$file = $_FILES[$field];
-		if ((int)$file['error'] !== UPLOAD_ERR_OK) return ['ok' => false, 'message' => 'Attachment upload failed.'];
-		if ((int)$file['size'] > $max_size) return ['ok' => false, 'message' => get_phrase('file_size_can_not_be_larger_that_4_Megabyte')];
-		if (!is_uploaded_file($file['tmp_name'])) return ['ok' => false, 'message' => 'Invalid attachment upload.'];
-
-		$extension = strtolower(pathinfo(basename($file['name']), PATHINFO_EXTENSION));
-		$allowed_extensions = ['pdf','doc','docx','jpg','jpeg','png'];
-		if (!in_array($extension, $allowed_extensions, true)) return ['ok' => false, 'message' => 'Unsupported attachment type.'];
-
-		if (function_exists('finfo_open')) {
-			$finfo = finfo_open(FILEINFO_MIME_TYPE);
-			$mime = $finfo ? finfo_file($finfo, $file['tmp_name']) : '';
-			if ($finfo) finfo_close($finfo);
-			$allowed_mimes = [
-				'application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-				'application/zip','image/jpeg','image/png'
-			];
-			if ($mime && !in_array($mime, $allowed_mimes, true)) return ['ok' => false, 'message' => 'Attachment content does not match an allowed file type.'];
-		}
-
-		$directory = FCPATH . 'uploads/' . trim($subdirectory, '/') . '/';
-		if (!is_dir($directory) && !@mkdir($directory, 0755, true)) return ['ok' => false, 'message' => 'Attachment directory is unavailable.'];
-		$stem = preg_replace('/[^A-Za-z0-9_-]+/', '_', pathinfo(basename($file['name']), PATHINFO_FILENAME));
-		$stem = trim(substr($stem ?: 'attachment', 0, 60), '_');
-		$file_name = 'msg_' . date('YmdHis') . '_' . bin2hex(random_bytes(4)) . '_' . $stem . '.' . $extension;
-		if (!move_uploaded_file($file['tmp_name'], $directory . $file_name)) return ['ok' => false, 'message' => 'Attachment could not be saved.'];
-		$_FILES[$field]['name'] = $file_name;
-		return ['ok' => true, 'name' => $file_name];
-	}
-
 	private function appendSmsRecipients(&$phones, &$names, $raw_phone, $name = '') {
 		foreach (preg_split('/[,\/;]+/', (string)$raw_phone) as $part) {
 			$number = preg_replace('/[^0-9+]/', '', trim($part));
@@ -19837,12 +19803,6 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		redirect($redirect_url);
 	}
 
-	private function removeMessageAttachment($file_name, $subdirectory = 'private_messaging_attached_file') {
-		if (empty($file_name)) return;
-		$path = FCPATH . 'uploads/' . trim($subdirectory, '/') . '/' . basename($file_name);
-		if (is_file($path)) @unlink($path);
-	}
-
 	function message($param1 = 'message_home', $param2 = '', $param3 = '') {
 		if ($this->session->userdata('admin_login') != 1)
 			redirect(site_url('login'));
@@ -19859,15 +19819,14 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$this->messageRequestFailed('Select a valid recipient and enter a message.', site_url('admin/message/message_new'));
 				return;
 			}
-			$attachment = $this->prepareMessageAttachment('attached_file_on_messaging', 'private_messaging_attached_file', $max_size);
-			if (!$attachment['ok']) {
+			$attachment = $this->crud_model->upload_private_message_attachment();
+			if (empty($attachment['status'])) {
 				$this->messageRequestFailed($attachment['message'], site_url('admin/message/message_new'));
 				return;
 			}
 
-			$message_thread_code = $this->crud_model->send_new_private_message();
+			$message_thread_code = $this->crud_model->send_new_private_message($attachment);
 			if (!$message_thread_code) {
-				$this->removeMessageAttachment($attachment['name']);
 				$this->messageRequestFailed('Message could not be sent.', site_url('admin/message/message_new'), 500);
 				return;
 			}
@@ -19886,13 +19845,12 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$this->messageRequestFailed('Message cannot be empty.', $reply_url);
 				return;
 			}
-			$attachment = $this->prepareMessageAttachment('attached_file_on_messaging', 'private_messaging_attached_file', $max_size);
-			if (!$attachment['ok']) {
+			$attachment = $this->crud_model->upload_private_message_attachment();
+			if (empty($attachment['status'])) {
 				$this->messageRequestFailed($attachment['message'], $reply_url);
 				return;
 			}
-			if (!$this->crud_model->send_reply_message($param2)) {
-				$this->removeMessageAttachment($attachment['name']);
+			if (!$this->crud_model->send_reply_message($param2, $attachment)) {
 				$this->messageRequestFailed('Reply could not be sent.', $reply_url, 500);
 				return;
 			}
@@ -19912,20 +19870,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 		}
 
 		if ($param1 == 'delete') {
-			if (!$this->crud_model->is_message_thread_participant($param2, $current_user)) {
-				$this->output->set_status_header(403);
-				echo json_encode(['message' => 'failed', 'error' => 'Access denied', 'route' => 'message']);
-				return;
-			}
-			$attachment_rows = $this->db->select('attached_file_name')->get_where('message', ['message_thread_code' => $param2])->result_array();
-			$this->db->trans_start();
-			$this->db->where('message_thread_code', $param2)->delete('message');
-			$this->db->where('message_thread_code', $param2)->delete('message_thread');
-			$this->db->trans_complete();
-			$queryExecuted = $this->db->trans_status();
-			if ($queryExecuted) {
-				foreach ($attachment_rows as $attachment_row) $this->removeMessageAttachment($attachment_row['attached_file_name']);
-			}
+			$queryExecuted = $this->crud_model->delete_private_message_thread($param2);
 			$this->db->cache_delete();
 			if ($queryExecuted) $this->session->set_flashdata('flash_message', get_phrase('data_deleted'));
 			echo json_encode(['message' => $queryExecuted ? 'done' : 'failed', 'route' => 'message']);
@@ -20066,11 +20011,7 @@ private function recalculate_subsequent_owings($student_id, $table_name, $update
 				$this->session->set_flashdata('error_message', $upload['message']);
 				redirect(site_url($base_url.'/group_message_read/'.$param2)); return;
 			}
-			if (!$this->crud_model->send_reply_group_message($param2, $upload['file_name'])) {
-				if (!empty($upload['file_name'])) {
-					$path = FCPATH.'uploads/group_messaging_attached_file/'.basename($upload['file_name']);
-					if (is_file($path)) @unlink($path);
-				}
+			if (!$this->crud_model->send_reply_group_message($param2, $upload)) {
 				$this->session->set_flashdata('error_message', 'Message could not be sent.');
 			} else {
 				$this->session->set_flashdata('flash_message', get_phrase('message_sent!'));

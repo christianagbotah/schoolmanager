@@ -628,62 +628,58 @@ class Parents extends CI_Controller
     function message($param1 = 'message_home', $param2 = '', $param3 = '') {
         if ($this->session->userdata('parent_login') != 1)
             redirect(base_url());
-
-        $max_size = 4097152;
         if ($param1 == 'send_new') {
-
-            //folder creation
-            if (!file_exists('uploads/private_messaging_attached_file/')) {
-              $oldmask = umask(0);  // helpful when used in linux server
-              mkdir ('uploads/private_messaging_attached_file/', 0777);
+            $attachment = $this->crud_model->upload_private_message_attachment();
+            if (empty($attachment['status'])) {
+                $this->session->set_flashdata('error_message', $attachment['message']);
+                redirect(site_url('parents/message/message_new'));
+                return;
             }
-            if ($_FILES['attached_file_on_messaging']['name'] != "") {
-              if($_FILES['attached_file_on_messaging']['size'] > $max_size){
-                $this->session->set_flashdata('error_message' , get_phrase('file_size_can_not_be_larger_that_4_Megabyte'));
-                redirect(site_url('parents/message/message_new/'));
-              }
-              else{
-                $file_path = 'uploads/private_messaging_attached_file/'.$_FILES['attached_file_on_messaging']['name'];
-                move_uploaded_file($_FILES['attached_file_on_messaging']['tmp_name'], $file_path);
-              }
+            $message_thread_code = $this->crud_model->send_new_private_message($attachment);
+            if (!$message_thread_code) {
+                $this->session->set_flashdata('error_message', 'Message could not be sent.');
+                redirect(site_url('parents/message/message_new'));
+                return;
             }
-
-            $message_thread_code = $this->crud_model->send_new_private_message();
             $this->session->set_flashdata('flash_message', get_phrase('message_sent!'));
             redirect(site_url('parents/message/message_read/'. $message_thread_code));
         }
 
         if ($param1 == 'send_reply') {
-
-            //folder creation
-            if (!file_exists('uploads/private_messaging_attached_file/')) {
-              $oldmask = umask(0);  // helpful when used in linux server
-              mkdir ('uploads/private_messaging_attached_file/', 0777);
+            if (!$this->crud_model->is_message_thread_participant($param2)) {
+                show_error('Message thread not found or access denied.', 403);
+                return;
             }
-            if ($_FILES['attached_file_on_messaging']['name'] != "") {
-              if($_FILES['attached_file_on_messaging']['size'] > $max_size){
-                $this->session->set_flashdata('error_message' , get_phrase('file_size_can_not_be_larger_that_4_Megabyte'));
-                  redirect(site_url('parents/message/message_read/'. $param2));
-              }
-              else{
-                $file_path = 'uploads/private_messaging_attached_file/'.$_FILES['attached_file_on_messaging']['name'];
-                move_uploaded_file($_FILES['attached_file_on_messaging']['tmp_name'], $file_path);
-              }
+            $attachment = $this->crud_model->upload_private_message_attachment();
+            if (empty($attachment['status'])) {
+                $this->session->set_flashdata('error_message', $attachment['message']);
+                redirect(site_url('parents/message/message_read/' . $param2));
+                return;
             }
-
-            $this->crud_model->send_reply_message($param2);  //$param2 = message_thread_code
+            $sent = $this->crud_model->send_reply_message($param2, $attachment);
+            if (!$sent) {
+                $this->session->set_flashdata('error_message', 'Message could not be sent.');
+                redirect(site_url('parents/message/message_read/' . $param2));
+                return;
+            }  //$param2 = message_thread_code
             $this->session->set_flashdata('flash_message', get_phrase('message_sent!'));
             redirect(site_url('parents/message/message_read/'. $param2));
         }
 
         if ($param1 == 'message_read') {
-            $page_data['current_message_thread_code'] = $param2;  // $param2 = message_thread_code
+            if (!$this->crud_model->is_message_thread_participant($param2)) {
+                show_error('Message thread not found or access denied.', 403);
+                return;
+            }
+            $page_data['current_message_thread_code'] = $param2;
             $this->crud_model->mark_thread_messages_read($param2);
         }
 
          if ($param1 == 'delete') {
-            $this->db->where('message_thread_code', $param2);
-            $this->db->delete('message_thread');
+            if (!$this->crud_model->delete_private_message_thread($param2)) {
+                show_error('Message thread not found or access denied.', 403);
+                return;
+            }
             $this->session->set_flashdata('flash_message' , get_phrase('data_deleted'));
             redirect(site_url('parents/message'));
         }
@@ -721,11 +717,7 @@ class Parents extends CI_Controller
             if (empty($upload['status'])) {
                 $this->session->set_flashdata('error_message', $upload['message']); redirect(site_url($base_url.'/group_message_read/'.$param2)); return;
             }
-            $ok = $this->crud_model->send_reply_group_message($param2, $upload['file_name']);
-            if (!$ok && !empty($upload['file_name'])) {
-                $path = FCPATH.'uploads/group_messaging_attached_file/'.basename($upload['file_name']);
-                if (is_file($path)) @unlink($path);
-            }
+            $ok = $this->crud_model->send_reply_group_message($param2, $upload);
             $this->session->set_flashdata($ok ? 'flash_message' : 'error_message', $ok ? get_phrase('message_sent!') : 'Message could not be sent.'); redirect(site_url($base_url.'/group_message_read/'.$param2)); return;
         }
         if ($param1 === 'delete' || $param1 === 'leave') {

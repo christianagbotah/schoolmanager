@@ -1507,13 +1507,16 @@ class Crud_model extends MY_Model {
         return $profiles;
     }
 
-    function upload_group_message_attachment($field = 'attached_file_on_messaging') {
-        if (empty($_FILES[$field]['name'])) return array('status' => true, 'file_name' => '');
+    private function upload_message_attachment_to_private_storage($field, $bucket) {
+        if (empty($_FILES[$field]['name']) || (isset($_FILES[$field]['error']) && (int) $_FILES[$field]['error'] === UPLOAD_ERR_NO_FILE)) {
+            return array('status' => true, 'file_name' => '', 'storage_key' => '');
+        }
+
         $file = $_FILES[$field];
-        if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) {
+        if (!isset($file['error'], $file['size'], $file['tmp_name']) || (int) $file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) {
             return array('status' => false, 'message' => 'The attachment could not be uploaded.');
         }
-        if ((int)$file['size'] <= 0 || (int)$file['size'] > 4 * 1024 * 1024) {
+        if ((int) $file['size'] <= 0 || (int) $file['size'] > 4 * 1024 * 1024) {
             return array('status' => false, 'message' => 'Attachment size must be 4 MB or less.');
         }
 
@@ -1527,36 +1530,42 @@ class Crud_model extends MY_Model {
         if (function_exists('finfo_open')) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             if ($finfo) {
-                $mime = (string)finfo_file($finfo, $file['tmp_name']);
+                $mime = (string) finfo_file($finfo, $file['tmp_name']);
                 finfo_close($finfo);
             }
         }
         if (in_array($extension, array('jpg', 'jpeg', 'png'), true) && @getimagesize($file['tmp_name']) === false) {
             return array('status' => false, 'message' => 'The selected image attachment is invalid.');
         }
-        $blocked_mimes = array('text/x-php', 'application/x-httpd-php', 'application/x-executable', 'application/x-sharedlib');
-        if ($mime !== '' && in_array($mime, $blocked_mimes, true)) {
-            return array('status' => false, 'message' => 'The attachment type is not allowed.');
+        $allowed_mimes = array(
+            'application/pdf', 'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/zip', 'image/jpeg', 'image/png'
+        );
+        if ($mime !== '' && !in_array($mime, $allowed_mimes, true)) {
+            return array('status' => false, 'message' => 'Attachment content does not match an allowed file type.');
         }
 
-        $upload_dir = FCPATH . 'uploads/group_messaging_attached_file/';
-        if (!is_dir($upload_dir) && !@mkdir($upload_dir, 0755, true)) {
-            return array('status' => false, 'message' => 'The attachment storage directory is unavailable.');
-        }
-
-        $stem = preg_replace('/[^A-Za-z0-9_-]+/', '_', pathinfo(basename($file['name']), PATHINFO_FILENAME));
-        $stem = trim(substr($stem, 0, 60), '_');
-        if ($stem === '') $stem = 'attachment';
         try {
-            $suffix = bin2hex(random_bytes(6));
+            $this->load->library('Private_file_storage', null, 'private_files');
+            $stored = $this->private_files->store_uploaded_file($file, $bucket);
+            return array(
+                'status' => true,
+                'file_name' => $stored['original_name'],
+                'storage_key' => $stored['storage_key']
+            );
         } catch (Exception $e) {
-            $suffix = substr(sha1(uniqid('', true)), 0, 12);
+            log_message('error', 'Private message attachment storage failed: ' . $e->getMessage());
+            return array('status' => false, 'message' => 'The attachment could not be stored securely.');
         }
-        $stored_name = $stem . '_' . $suffix . '.' . $extension;
-        if (!move_uploaded_file($file['tmp_name'], $upload_dir . $stored_name)) {
-            return array('status' => false, 'message' => 'The attachment could not be saved.');
-        }
-        return array('status' => true, 'file_name' => $stored_name);
+    }
+
+    function upload_private_message_attachment($field = 'attached_file_on_messaging') {
+        return $this->upload_message_attachment_to_private_storage($field, 'message_attachments');
+    }
+
+    function upload_group_message_attachment($field = 'attached_file_on_messaging') {
+        return $this->upload_message_attachment_to_private_storage($field, 'group_message_attachments');
     }
 
     function is_message_thread_participant($message_thread_code, $user_key = null) {
@@ -1569,13 +1578,21 @@ class Crud_model extends MY_Model {
         return $thread && ($thread['sender'] === $user_key || $thread['reciever'] === $user_key);
     }
 
-    function send_new_private_message() {
+    function send_new_private_message($attachment = null) {
         $message = trim((string)$this->input->post('message'));
         $timestamp = time();
         $reciever = trim((string)$this->input->post('reciever'));
         $sender = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
+        if ($attachment === null) {
+            $attachment = $this->upload_private_message_attachment();
+        }
+        $storage_key = !empty($attachment['storage_key']) ? (string)$attachment['storage_key'] : '';
 
         if ($message === '' || !$this->is_valid_message_user_key($sender) || !$this->is_valid_message_user_key($reciever) || $sender === $reciever) {
+            $this->delete_private_attachment_key($storage_key);
+            return false;
+        }
+        if (empty($attachment['status'])) {
             return false;
         }
 
@@ -1584,7 +1601,6 @@ class Crud_model extends MY_Model {
         if (!$thread) {
             $thread = $this->db->where('sender', $reciever)->where('reciever', $sender)->get('message_thread')->row_array();
         }
-
         if ($thread) {
             $message_thread_code = $thread['message_thread_code'];
         } else {
@@ -1604,21 +1620,34 @@ class Crud_model extends MY_Model {
             'timestamp' => $timestamp,
             'read_status' => 0
         );
-        if (!empty($_FILES['attached_file_on_messaging']['name'])) {
-            $data_message['attached_file_name'] = basename($_FILES['attached_file_on_messaging']['name']);
+        if (!empty($attachment['storage_key'])) {
+            $data_message['attached_file_name'] = basename((string)$attachment['file_name']);
+            $data_message['attached_file_storage_key'] = (string)$attachment['storage_key'];
         }
         $this->db->insert('message', $data_message);
         $this->db->where('message_thread_code', $message_thread_code)->update('message_thread', array('last_message_timestamp' => $timestamp));
         $this->db->trans_complete();
 
-        return $this->db->trans_status() ? $message_thread_code : false;
+        if (!$this->db->trans_status()) {
+            $this->delete_private_attachment_key(isset($attachment['storage_key']) ? $attachment['storage_key'] : '');
+            return false;
+        }
+        return $message_thread_code;
     }
 
-    function send_reply_message($message_thread_code) {
+    function send_reply_message($message_thread_code, $attachment = null) {
         $message = trim((string)$this->input->post('message'));
         $timestamp = time();
         $sender = $this->session->userdata('login_type') . '-' . $this->session->userdata('login_user_id');
+        if ($attachment === null) {
+            $attachment = $this->upload_private_message_attachment();
+        }
+        $storage_key = !empty($attachment['storage_key']) ? (string)$attachment['storage_key'] : '';
         if ($message === '' || !$this->is_message_thread_participant($message_thread_code, $sender)) {
+            $this->delete_private_attachment_key($storage_key);
+            return false;
+        }
+        if (empty($attachment['status'])) {
             return false;
         }
 
@@ -1629,26 +1658,38 @@ class Crud_model extends MY_Model {
             'timestamp' => $timestamp,
             'read_status' => 0
         );
-        if (!empty($_FILES['attached_file_on_messaging']['name'])) {
-            $data_message['attached_file_name'] = basename($_FILES['attached_file_on_messaging']['name']);
+        if (!empty($attachment['storage_key'])) {
+            $data_message['attached_file_name'] = basename((string)$attachment['file_name']);
+            $data_message['attached_file_storage_key'] = (string)$attachment['storage_key'];
         }
 
         $this->db->trans_start();
         $this->db->insert('message', $data_message);
         $this->db->where('message_thread_code', $message_thread_code)->update('message_thread', array('last_message_timestamp' => $timestamp));
         $this->db->trans_complete();
-        return $this->db->trans_status();
+        if (!$this->db->trans_status()) {
+            $this->delete_private_attachment_key(isset($attachment['storage_key']) ? $attachment['storage_key'] : '');
+            return false;
+        }
+        return true;
     }
 
-    function send_reply_group_message($message_thread_code, $attached_file_name = '') {
-        if (!$this->is_group_thread_participant($message_thread_code)) return false;
+    function send_reply_group_message($message_thread_code, $attachment = array()) {
         $message = trim((string)$this->input->post('message'));
-        $attached_file_name = basename((string)$attached_file_name);
-        if ($message === '' && $attached_file_name === '') return false;
+        $attached_file_name = !empty($attachment['file_name']) ? basename((string)$attachment['file_name']) : '';
+        $storage_key = !empty($attachment['storage_key']) ? (string)$attachment['storage_key'] : '';
+        if (!$this->is_group_thread_participant($message_thread_code)) {
+            $this->delete_private_attachment_key($storage_key);
+            return false;
+        }
+        if ($message === '' && $storage_key === '') return false;
 
         $timestamp = time();
         $sender = $this->current_group_user_key();
-        if (!$sender) return false;
+        if (!$sender) {
+            $this->delete_private_attachment_key($storage_key);
+            return false;
+        }
 
         $data_message = array(
             'group_message_thread_code' => trim((string)$message_thread_code),
@@ -1656,14 +1697,19 @@ class Crud_model extends MY_Model {
             'sender' => $sender,
             'timestamp' => $timestamp,
             'read_status' => 0,
-            'attached_file_name' => $attached_file_name
+            'attached_file_name' => $attached_file_name,
+            'attached_file_storage_key' => $storage_key
         );
         $this->db->trans_start();
         $this->db->insert('group_message', $data_message);
         $this->db->where('group_message_thread_code', trim((string)$message_thread_code))
             ->update('group_message_thread', array('last_message_timestamp' => $timestamp));
         $this->db->trans_complete();
-        return $this->db->trans_status();
+        if (!$this->db->trans_status()) {
+            $this->delete_private_attachment_key($storage_key);
+            return false;
+        }
+        return true;
     }
 
     function mark_thread_messages_read($message_thread_code) {
@@ -1944,9 +1990,36 @@ class Crud_model extends MY_Model {
             ->update('group_message_thread', array('members' => json_encode($members)));
     }
 
+    private function delete_private_attachment_key($storage_key) {
+        $storage_key = trim((string)$storage_key);
+        if (strpos($storage_key, 'private://') !== 0) return false;
+        $this->load->library('Private_file_storage', null, 'private_files');
+        return $this->private_files->delete($storage_key);
+    }
+
+    function delete_private_message_thread($thread_code) {
+        $thread_code = trim((string)$thread_code);
+        if (!$this->is_message_thread_participant($thread_code)) return false;
+        $messages = $this->db->select('attached_file_storage_key')
+            ->get_where('message', array('message_thread_code' => $thread_code))->result_array();
+
+        $this->db->trans_start();
+        $this->db->where('message_thread_code', $thread_code)->delete('message');
+        $this->db->where('message_thread_code', $thread_code)->delete('message_thread');
+        $this->db->trans_complete();
+        if (!$this->db->trans_status()) return false;
+
+        foreach ($messages as $message) {
+            if (!empty($message['attached_file_storage_key'])) {
+                $this->delete_private_attachment_key($message['attached_file_storage_key']);
+            }
+        }
+        return true;
+    }
+
     function delete_group_thread($thread_code) {
         if (!$this->is_group_thread_participant($thread_code)) return false;
-        $messages = $this->db->select('attached_file_name')
+        $messages = $this->db->select('attached_file_storage_key')
             ->get_where('group_message', array('group_message_thread_code' => trim((string)$thread_code)))->result_array();
 
         $this->db->trans_start();
@@ -1955,11 +2028,10 @@ class Crud_model extends MY_Model {
         $this->db->trans_complete();
         if (!$this->db->trans_status()) return false;
 
-        $upload_dir = FCPATH . 'uploads/group_messaging_attached_file/';
         foreach ($messages as $message) {
-            if (empty($message['attached_file_name'])) continue;
-            $path = $upload_dir . basename($message['attached_file_name']);
-            if (is_file($path)) @unlink($path);
+            if (!empty($message['attached_file_storage_key'])) {
+                $this->delete_private_attachment_key($message['attached_file_storage_key']);
+            }
         }
         return true;
     }

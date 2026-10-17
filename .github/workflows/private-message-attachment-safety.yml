@@ -1,0 +1,72 @@
+name: Private Message Attachment Safety
+
+on:
+  push:
+    paths:
+      - 'application/controllers/Message_attachment.php'
+      - 'application/controllers/Admin.php'
+      - 'application/controllers/Parents.php'
+      - 'application/controllers/Student.php'
+      - 'application/controllers/Teacher.php'
+      - 'application/models/Crud_model.php'
+      - 'application/libraries/Private_file_storage.php'
+      - 'application/migrations/20261017_private_message_attachment_storage.sql'
+      - 'application/views/backend/admin/message_read.php'
+      - 'application/views/backend/parent/message_read.php'
+      - 'application/views/backend/student/message_read.php'
+      - 'application/views/backend/teacher/message_read.php'
+      - 'application/views/backend/shared/group_message_read.php'
+      - 'schema/schoolmanager_schema_redacted.sql'
+      - 'tests/private-message-attachment-safety.test.js'
+      - '.github/workflows/private-message-attachment-safety.yml'
+  pull_request:
+    paths:
+      - 'application/controllers/Message_attachment.php'
+      - 'application/controllers/Admin.php'
+      - 'application/controllers/Parents.php'
+      - 'application/controllers/Student.php'
+      - 'application/controllers/Teacher.php'
+      - 'application/models/Crud_model.php'
+      - 'application/libraries/Private_file_storage.php'
+      - 'application/migrations/20261017_private_message_attachment_storage.sql'
+      - 'application/views/backend/admin/message_read.php'
+      - 'application/views/backend/parent/message_read.php'
+      - 'application/views/backend/student/message_read.php'
+      - 'application/views/backend/teacher/message_read.php'
+      - 'application/views/backend/shared/group_message_read.php'
+      - 'schema/schoolmanager_schema_redacted.sql'
+      - 'tests/private-message-attachment-safety.test.js'
+      - '.github/workflows/private-message-attachment-safety.yml'
+
+jobs:
+  private-message-attachment-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: PHP syntax
+        run: |
+          php -l application/controllers/Message_attachment.php
+          php -l application/controllers/Admin.php
+          php -l application/controllers/Parents.php
+          php -l application/controllers/Student.php
+          php -l application/controllers/Teacher.php
+          php -l application/models/Crud_model.php
+          php -l application/views/backend/admin/message_read.php
+          php -l application/views/backend/parent/message_read.php
+          php -l application/views/backend/student/message_read.php
+          php -l application/views/backend/teacher/message_read.php
+          php -l application/views/backend/shared/group_message_read.php
+      - name: Run private message attachment contract
+        run: node --test tests/private-message-attachment-safety.test.js
+      - name: Reject public message attachment paths
+        run: |
+          if grep -R -n -E 'uploads/(private_messaging_attached_file|group_messaging_attached_file)' application; then
+            echo '::error::Public message attachment path found'
+            exit 1
+          fi

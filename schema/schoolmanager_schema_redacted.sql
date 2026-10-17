@@ -2997,6 +2997,7 @@ CREATE TABLE `group_message` (
   `timestamp` longtext COLLATE utf8mb4_unicode_520_ci,
   `read_status` int DEFAULT NULL,
   `attached_file_name` longtext COLLATE utf8mb4_unicode_520_ci,
+  `attached_file_storage_key` longtext COLLATE utf8mb4_unicode_520_ci,
   `sync` enum('yes','no') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'no'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
@@ -4220,6 +4221,7 @@ CREATE TABLE `message` (
   `timestamp` longtext COLLATE utf8mb4_unicode_520_ci,
   `read_status` int DEFAULT NULL,
   `attached_file_name` longtext COLLATE utf8mb4_unicode_520_ci,
+  `attached_file_storage_key` longtext COLLATE utf8mb4_unicode_520_ci,
   `sync` enum('yes','no') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'no'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
