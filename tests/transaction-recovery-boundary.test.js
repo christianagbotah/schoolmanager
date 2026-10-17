@@ -40,13 +40,16 @@ test('recovery mutation is POST-only', () => {
   assert.match(process, /set_status_header\s*\(\s*405\s*\)/, 'non-POST recovery attempts must return HTTP 405');
 });
 
-test('recovery UI invokes the mutation with POST and sends the configured CSRF token', () => {
+test('recovery page passes a current CSRF token into a POST-only UI request', () => {
+  const index = methodBody('index');
+  assert.match(index, /get_csrf_token_name\s*\(\s*\)/, 'controller must pass the configured CSRF token name to the view');
+  assert.match(index, /get_csrf_hash\s*\(\s*\)/, 'controller must pass the current CSRF hash to the view');
   assert.match(view, /xhr\.open\(\s*['\"]POST['\"]/);
   assert.doesNotMatch(view, /xhr\.open\(\s*['\"]GET['\"]\s*,\s*['\"][^'\"]*transaction_recovery\/process/);
-  assert.match(view, /get_csrf_token_name\s*\(\s*\)/, 'view must use CodeIgniter CSRF token name');
-  assert.match(view, /get_csrf_hash\s*\(\s*\)/, 'view must use the current CodeIgniter CSRF hash');
+  assert.match(view, /csrfTokenName/);
+  assert.match(view, /csrfTokenHash/);
   assert.match(view, /new\s+FormData\s*\(/, 'POST request should carry form data');
-  assert.match(view, /\.append\s*\(/, 'CSRF token must be appended to the POST body');
+  assert.match(view, /\.append\s*\(\s*csrfTokenName\s*,\s*csrfTokenHash\s*\)/, 'CSRF token must be appended to the POST body');
 });
 
 test('all public recovery surfaces remain behind the constructor boundary', () => {
