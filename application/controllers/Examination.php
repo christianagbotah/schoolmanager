@@ -216,26 +216,6 @@ class Examination extends CI_Controller {
         echo json_encode(['status' => 'success', 'data' => $subjects]);
     }
     
-    public function debug_data() {
-        $running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
-        $running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-        
-        // Get all exams
-        $all_exams = $this->db->select('*')->get('exam')->result_array();
-        
-        // Get settings
-        $settings = $this->db->where_in('type', ['running_year', 'running_term'])->get('settings')->result_array();
-        
-        echo json_encode([
-            'current_settings' => [
-                'year' => $running_year,
-                'term' => $running_term
-            ],
-            'all_settings' => $settings,
-            'all_exams' => $all_exams,
-            'exam_count' => count($all_exams)
-        ]);
-    }
     
     public function analytics($exam_id = null) {
         if(!$exam_id) {
