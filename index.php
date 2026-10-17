@@ -56,6 +56,26 @@
 	date_default_timezone_set('Africa/Accra');
 	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'production');
 
+
+/*
+ * Browser security headers that are safe across HTML, JSON, and downloads.
+ * HSTS is emitted only when the incoming request is HTTPS.
+ */
+if (PHP_SAPI !== 'cli')
+{
+    header('X-Content-Type-Options: nosniff');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+
+    $is_https_request = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
+        || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower(trim(explode(',', $_SERVER['HTTP_X_FORWARDED_PROTO'])[0])) === 'https')
+        || (!empty($_SERVER['HTTP_FRONT_END_HTTPS']) && strtolower($_SERVER['HTTP_FRONT_END_HTTPS']) !== 'off');
+
+    if ($is_https_request)
+    {
+        header('Strict-Transport-Security: max-age=31536000');
+    }
+}
+
 /*
  *---------------------------------------------------------------
  * ERROR REPORTING
