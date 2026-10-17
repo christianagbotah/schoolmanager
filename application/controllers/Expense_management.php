@@ -23,7 +23,7 @@ class Expense_management extends CI_Controller {
                 exit;
             }
 
-            redirect(site_url('login'), 'refresh');
+            redirect(site_url('login'), 'location', 302);
             exit;
         }
     }
