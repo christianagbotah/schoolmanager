@@ -42,7 +42,7 @@ if($running_term != '3'): ?>
         </blockquote>
     </div>
 </div>
-<?php echo form_open(site_url('admin/student_promotion/promote'), array('id' => 'promotion_form'));?>
+<?php echo form_open(site_url('teacher/student_promotion/promote'), array('id' => 'promotion_form'));?>
 <div class="row">
 <?php 
     //Calculate the years
@@ -252,7 +252,7 @@ $('#promotion_form').submit(function(event) {
 
 
     $.ajax({
-      url: '<?php echo site_url('admin/student_promotion/promote'); ?>',
+      url: '<?php echo site_url('teacher/student_promotion/promote'); ?>',
       type: 'POST',
       dataType: 'html',
       data: new FormData(this),

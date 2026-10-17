@@ -121,7 +121,7 @@ if(isset($_GET['msg'])) {
                     </div>
 
                     <div class="col-md-2 col-lg-2 col-sm-2 col-xs-6">
-                        <a href="#" onclick="navigation('<?php echo site_url('admin/student_add');?>')"
+                        <a href="#" onclick="navigation('<?php echo '#';?>')"
                         class="btn rounded-lg btn-primary h-16 text-xl font-bold content-center">
                             <span class="hidden-xs hidden-sm"><i class="entypo-plus-circled"></i>
                             <?php echo 'Admit Student';?></span>
@@ -289,7 +289,7 @@ if(isset($_GET['msg'])) {
             <hr>
 
             <div class="tab-pane active" id="home">
-                <?php echo form_open(site_url('admin/bulk_students_delete/'. $class_id), array('class' => 'form-horizontal form-groups-bordered validate', 'id' => 'checkboxes_form', 'enctype' => 'multipart/form-data'));?>
+                <?php echo form_open('', array('class' => 'form-horizontal form-groups-bordered validate', 'id' => 'checkboxes_form', 'enctype' => 'multipart/form-data'));?>
 
                 <table class="w-full text-xl text-left text-gray-500 dark:text-gray-400 datatable" id="">
                   <thead class="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -467,7 +467,7 @@ if(isset($_GET['msg'])) {
                                 <div class="flex gap-4 mt-12 p-5">
                                    <a href="#" id="move_student" class="btn rounded-lg btn-info h-14 text-xl font-bold text-gray-600">Move Students</a>
 
-                                   <input type="submit" name="submit_delete" id="submit_delete" class="btn rounded-lg btn-danger h-14 text-xl font-bold text-gray-600" value="Delete Selected Students">
+                                   <button type="button" id="submit_delete" class="btn rounded-lg btn-default h-14 text-xl font-bold text-gray-500" disabled title="Student deletion is restricted to administrators">Delete Restricted</button>
                                 </div>
                             </td>
                         </tr>

@@ -843,7 +843,7 @@ if($running_term == 3) {
                             ?>
                         <div class="row">
                             <div class="col-lg-12 col-md-12">
-                                <?php echo form_open(site_url('admin/conducts_update'));?>
+                                <?php echo form_open('');?>
                                 <div class="table table-responsive">
                                     <table class="table table-striped" id="conducts" style="width:100%; border-collapse:collapse;border: 0px solid #000; margin-top: 10px;" border="0">
                                         <tbody>

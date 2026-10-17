@@ -758,7 +758,7 @@
                             ?>
                         <div class="row">
                             <div class="col-lg-12 col-md-12">
-                                <?php echo form_open(site_url('admin/conducts_update'));?>
+                                <?php echo form_open('');?>
                                 <div class="table table-responsive">
                                     <table class="table table-striped" id="conducts" style="width:100%; border-collapse:collapse;border: 0px solid #000; margin-top: 10px;" border="0">
                                         <caption><u><em>Conducts of <strong><?php echo ucwords(strtolower(($this->db->get_where('student' , array('student_id' => $student_id))->row()->name)));?></strong></em></u></caption>
