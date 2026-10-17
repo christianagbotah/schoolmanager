@@ -9,12 +9,26 @@ class Bank_reconciliation extends CI_Controller {
         $this->load->library('session');
         $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         $this->output->set_header('Pragma: no-cache');
+
+        if ($this->session->userdata('admin_login') != 1) {
+            if ($this->input->is_ajax_request()) {
+                $this->output
+                    ->set_status_header(401)
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode(array(
+                        'status' => 'error',
+                        'message' => 'Authentication required.'
+                    )));
+                $this->output->_display();
+                exit;
+            }
+
+            redirect(site_url('login'), 'location', 302);
+            exit;
+        }
     }
 
     public function index() {
-        if ($this->session->userdata('admin_login') != 1)
-            redirect(base_url(), 'refresh');
-            
         $page_data['page_name'] = 'bank_reconciliation';
         $page_data['page_title'] = get_phrase('bank_reconciliation');
         $this->load->view('backend/main', $page_data);

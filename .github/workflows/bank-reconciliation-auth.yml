@@ -1,0 +1,27 @@
+name: Bank Reconciliation Auth Boundary
+
+on:
+  pull_request:
+    paths:
+      - 'application/controllers/Bank_reconciliation.php'
+      - 'tests/bank-reconciliation-auth-boundary.test.js'
+      - '.github/workflows/bank-reconciliation-auth.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Bank_reconciliation.php'
+      - 'tests/bank-reconciliation-auth-boundary.test.js'
+      - '.github/workflows/bank-reconciliation-auth.yml'
+
+jobs:
+  auth-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Bank reconciliation auth contract
+        run: node --test tests/bank-reconciliation-auth-boundary.test.js
+      - name: PHP syntax
+        run: php -l application/controllers/Bank_reconciliation.php
