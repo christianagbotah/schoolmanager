@@ -100,7 +100,7 @@
                                         endif;
                                     ?>
 
-                                <a href="#" class="btn btn-<?php echo $btn_color; ?>"  onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_mobile_money_payment/'.$row2['invoice_code'].'/'.$row2['student_id']); ?>')" <?php echo $disabled; ?>>
+                                <a href="<?php echo intval($row2['due']) > 0 ? site_url('payment_gateway/pay_invoice/'.$row2['invoice_code']).'?student_id='.intval($row2['student_id']) : '#'; ?>" class="btn btn-<?php echo $btn_color; ?>" <?php echo $disabled; ?>>
                                     <span data-toggle="tooltip" title="Mobile Money"><i class="fa fa-money" id="cont1" aria-hidden="true" style="color: #fff;" ></i> <?php echo $mo_button; ?></span>
                                 </a>
               

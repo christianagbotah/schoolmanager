@@ -1653,40 +1653,6 @@ class Student extends CI_Controller
     }
 
     //mobile money checkout
-    function mobile_money_checkout($student_id){
-      if ($this->session->userdata('student_login') != 1)
-          redirect('login');
-
-          $data['invoice_id'] = $this->input->post('invoice_id');
-          $data['student_id'] = $student_id;
-
-          //validate form
-          $this->form_validation->set_rules('t_id', 'Transaction ID', 'required|trim|max_length[10]|min_length[10]');
-          $this->form_validation->set_rules('mo_a_paid', 'Amount Paid', 'required|trim');
-          if($this->form_validation->run() === FALSE) {
-
-           $this->session->set_flashdata('error_message', get_phrase('make_sure_all_input_fields_are_filled.'));
-           redirect(site_url('student/invoice/'.$student_id));
-
-          }
-
-          $data['invoice_code'] = $this->db->get_where('invoice', array('invoice_id' => $data['invoice_id'], 'student_id' => $student_id))->row()->invoice_code;
-          $data['t_id'] = $this->input->post('t_id');
-          $data['mo_a_paid'] = $this->input->post('mo_a_paid');
-          $data['date_time'] = $this->input->post('mo_timestamp');
-          $data['timestamp'] = strtotime($this->input->post('mo_timestamp'));
-          $data['method'] = 4;
-          $data['description'] = $this->input->post('description');
-          $data['title'] = $this->input->post('title');
-          $data['year']         =   $this->db->get_where('settings' , array('type' => 'running_year'))->row()->description;
-          $data['term']         =   $this->db->get_where('settings' , array('type' => 'running_term'))->row()->description;
-          $data['payment_type'] =   'income';
-
-            $this->db->insert('mobile_money_payment', $data);
-
-            $this->session->set_flashdata('flash_message', get_phrase('payment_submitted_successfully_and_currently_pending_for_approval.'));
-            redirect(site_url('student/invoice/'.$student_id));
-    }
 
     /**
      * Student Lesson Notes

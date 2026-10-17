@@ -175,26 +175,6 @@
 			var datatable = $("#table_export").dataTable();
 		}
 
-		//update payment alert for admin
-		/**setInterval(function() {
-			 mobile_money_payment_alert_show();
-		}, 800);
-
-		function mobile_money_payment_alert_rows() {
-			$.ajax({
-				url: '<?php //echo site_url('admin/mobile_money_payment_alert_rows'); ?>',
-				success: function(num_rows) {
-					if(num_rows > 0) {
-						$('#badge1').text(num_rows);
-						$('#badge1').css('display', 'inline-flex');
-						$('#bell').css({'color': '#ffffff', 'font-weight': 'bold'});
-					}else{
-						$('#badge1').css('display', 'none');
-						$('#bell').css({'color': '#1325ab'});
-					}
-				}
-			});
-		} **/
 	});
 
 
