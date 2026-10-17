@@ -44,7 +44,7 @@ class Student extends CI_Controller
         //load encryption library
         $this->load->library('encryption');
 
-        if($this->session->userdata('login_type') == '') {
+        if ($this->session->userdata('student_login') != 1) {
             redirect(site_url('login'), 'refresh');
         }
     }

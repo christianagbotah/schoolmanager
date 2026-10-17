@@ -37,9 +37,6 @@ class Parents extends CI_Controller
         $this->load->model(array('Ajaxdataload_model' => 'ajaxload'));
         /*cache control*/
 
-        // Allow requests from any origin
-        $this->output->set_header('Access-Control-Allow-Origin: *');
-        
         $this->output->set_header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT');
         $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         $this->output->set_header('Pragma: no-cache');
@@ -52,7 +49,7 @@ class Parents extends CI_Controller
         //load encryption library
         $this->load->library('encryption');
 
-        if($this->session->userdata('login_type') == '') {
+        if ($this->session->userdata('parent_login') != 1) {
             redirect(site_url('login'), 'refresh');
         }
     }

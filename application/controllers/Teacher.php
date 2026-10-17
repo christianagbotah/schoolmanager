@@ -46,7 +46,7 @@ class Teacher extends CI_Controller
         //email control
         $this->load->helper('email');
 
-        if($this->session->userdata('login_type') == '') {
+        if ($this->session->userdata('teacher_login') != 1) {
             redirect(site_url('login'), 'refresh');
         }
     }

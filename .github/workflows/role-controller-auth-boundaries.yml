@@ -1,0 +1,49 @@
+name: Role Controller Auth Boundaries
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/controllers/Parents.php'
+      - 'application/controllers/Student.php'
+      - 'application/controllers/Teacher.php'
+      - 'application/controllers/Accountant.php'
+      - 'application/controllers/Librarian.php'
+      - 'tests/role-controller-auth-boundaries.test.js'
+      - '.github/workflows/role-controller-auth-boundaries.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Parents.php'
+      - 'application/controllers/Student.php'
+      - 'application/controllers/Teacher.php'
+      - 'application/controllers/Accountant.php'
+      - 'application/controllers/Librarian.php'
+      - 'tests/role-controller-auth-boundaries.test.js'
+      - '.github/workflows/role-controller-auth-boundaries.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  role-boundaries:
+    name: Role portal boundary contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: PHP syntax
+        run: |
+          php -l application/controllers/Parents.php
+          php -l application/controllers/Student.php
+          php -l application/controllers/Teacher.php
+          php -l application/controllers/Accountant.php
+          php -l application/controllers/Librarian.php
+      - name: Run role boundary contract
+        run: node --test tests/role-controller-auth-boundaries.test.js
