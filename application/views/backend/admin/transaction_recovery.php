@@ -241,8 +241,8 @@
             const output = document.getElementById('output');
             const progressContainer = document.getElementById('progressContainer');
             const progressBar = document.getElementById('progressBar');
-            const csrfTokenName = <?php echo json_encode($this->security->get_csrf_token_name()); ?>;
-            const csrfTokenHash = <?php echo json_encode($this->security->get_csrf_hash()); ?>;
+            const csrfTokenName = <?php echo json_encode($csrf_token_name); ?>;
+            const csrfTokenHash = <?php echo json_encode($csrf_token_hash); ?>;
 
             console.log('Button found:', startBtn);
 
