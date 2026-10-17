@@ -39,6 +39,10 @@ class Librarian extends CI_Controller
         //load encryption library
         $this->load->library('encryption');
 
+        if ($this->session->userdata('librarian_login') != 1) {
+            redirect(site_url('login'), 'refresh');
+        }
+
     }
 
     public function index()

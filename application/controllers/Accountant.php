@@ -39,6 +39,10 @@ class Accountant extends CI_Controller
 
         //load encryption library
         $this->load->library('encryption');
+
+        if ($this->session->userdata('accountant_login') != 1) {
+            redirect(site_url('login'), 'refresh');
+        }
 		
     }
     
