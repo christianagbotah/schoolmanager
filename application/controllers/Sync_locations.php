@@ -3,325 +3,314 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
  * Sync Locations Controller
- * 
- * Manages location registry for multi-location sync support.
- * Provides CRUD operations for location management.
- * 
- * @package    School Manager
- * @subpackage Controllers
- * @category   Sync
+ *
+ * Privileged administration of the multi-location sync registry.
  */
 class Sync_locations extends CI_Controller {
-    
+
     public function __construct() {
         parent::__construct();
-        
-        // Check authentication
+        $this->load->database();
+        $this->load->library('session');
+
         if ($this->session->userdata('admin_login') != 1) {
-            redirect(site_url('login'), 'refresh');
+            if ($this->input->is_ajax_request()) {
+                $this->output
+                    ->set_status_header(401)
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode([
+                        'status' => 'error',
+                        'message' => 'Authentication required.'
+                    ]));
+                $this->output->_display();
+                exit;
+            }
+
+            redirect(site_url('login'), 'location', 302);
+            exit;
         }
-        
-        // Check if sync module is enabled
+
+        $admin_id = (int) $this->session->userdata('admin_id');
+        $admin = $this->db
+            ->select('level')
+            ->from('admin')
+            ->where('admin_id', $admin_id)
+            ->get()
+            ->row();
+
+        if (!$admin || (int) $admin->level !== 1) {
+            if ($this->input->is_ajax_request()) {
+                $this->output
+                    ->set_status_header(403)
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode([
+                        'status' => 'error',
+                        'message' => 'Super administrator permission required.'
+                    ]));
+                $this->output->_display();
+                exit;
+            }
+
+            $this->session->set_flashdata('error_message', 'Super administrator permission required.');
+            redirect(site_url('admin/dashboard'), 'location', 302);
+            exit;
+        }
+
         $this->check_sync_enabled();
-        
-        // Load model
         $this->load->model('Location_registry_model');
     }
-    
-    /**
-     * Check if sync module is enabled
-     * 
-     * Redirects to dashboard with error message if sync is disabled.
-     */
+
     private function check_sync_enabled() {
-        // Load sync configuration
         $this->config->load('sync', TRUE);
-        
-        // Check database setting first
         $setting = $this->db->get_where('settings', ['type' => 'offline_online_mode'])->row();
-        
+
         if ($setting) {
             $sync_enabled = ($setting->description === '1' || $setting->description === 1);
         } else {
-            // Fall back to config file
             $sync_enabled = $this->config->item('sync_enabled', 'sync') ?? TRUE;
         }
-        
+
         if (!$sync_enabled) {
-            // Sync module is disabled
             $this->session->set_flashdata('error_message', get_phrase('sync_module_disabled'));
-            redirect(site_url('admin/dashboard'), 'refresh');
+            redirect(site_url('admin/dashboard'), 'location', 302);
+            exit;
         }
     }
-    
+
+    private function require_post() {
+        if ($this->input->method(true) !== 'POST') {
+            $this->output
+                ->set_status_header(405)
+                ->set_header('Allow: POST')
+                ->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'status' => 'error',
+                    'message' => 'POST required.'
+                ]));
+            $this->output->_display();
+            exit;
+        }
+    }
+
     /**
-     * Location list/index page
+     * Validate a location API endpoint before it is stored or requested.
+     * Only public HTTPS endpoints are allowed. Resolving the host here also
+     * allows the connection test to pin curl to the validated public address.
      */
+    private function validate_api_endpoint($endpoint, &$normalized = null, &$resolved_ips = [], &$error = null) {
+        $endpoint = trim((string) $endpoint);
+        $normalized = $endpoint;
+        $resolved_ips = [];
+        $error = null;
+
+        if ($endpoint === '') {
+            return true;
+        }
+
+        if (!filter_var($endpoint, FILTER_VALIDATE_URL)) {
+            $error = 'API endpoint must be a valid URL.';
+            return false;
+        }
+
+        $parts = parse_url($endpoint);
+        if (!$parts || strtolower($parts['scheme'] ?? '') !== 'https' || empty($parts['host'])) {
+            $error = 'API endpoint must use HTTPS.';
+            return false;
+        }
+
+        if (isset($parts['user']) || isset($parts['pass']) || isset($parts['fragment'])) {
+            $error = 'API endpoint must not contain credentials or a URL fragment.';
+            return false;
+        }
+
+        $host = strtolower($parts['host']);
+        if ($host === 'localhost' || substr($host, -6) === '.local') {
+            $error = 'API endpoint must resolve to a public network address.';
+            return false;
+        }
+
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            $resolved_ips = [$host];
+        } else {
+            $resolved_ips = gethostbynamel($host) ?: [];
+        }
+
+        if (empty($resolved_ips)) {
+            $error = 'API endpoint hostname could not be resolved.';
+            return false;
+        }
+
+        foreach ($resolved_ips as $ip) {
+            if (!filter_var(
+                $ip,
+                FILTER_VALIDATE_IP,
+                FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+            )) {
+                $error = 'API endpoint must resolve only to public network addresses.';
+                return false;
+            }
+        }
+
+        $normalized = rtrim($endpoint, '/');
+        return true;
+    }
+
     public function index() {
-        // Get all locations
         $locations = $this->db->order_by('priority', 'DESC')
                              ->order_by('created_at', 'DESC')
                              ->get('location_registry')
                              ->result_array();
-        
-        // Get statistics
-        $stats = $this->Location_registry_model->get_location_stats();
-        
+
         $page_data['locations'] = $locations;
-        $page_data['stats'] = $stats;
+        $page_data['stats'] = $this->Location_registry_model->get_location_stats();
+        $page_data['csrf_token_name'] = $this->security->get_csrf_token_name();
+        $page_data['csrf_token_hash'] = $this->security->get_csrf_hash();
         $page_data['page_name'] = 'sync_locations';
         $page_data['page_title'] = get_phrase('sync_locations');
-        
+
         $this->load->view('backend/main', $page_data);
     }
-    
-    /**
-     * Add new location (modal view)
-     */
+
     public function add() {
         $this->load->view('backend/admin/modal_sync_location_add');
     }
-    
-    /**
-     * Modal popup for adding location
-     */
+
     public function modal_add() {
         $this->load->view('backend/admin/modal_sync_location_add');
     }
-    
-    /**
-     * Create new location (POST handler)
-     */
+
     public function create() {
-        // Load form validation library
+        $this->require_post();
         $this->load->library('form_validation');
-        
-        // Validate input
+
         $this->form_validation->set_rules('location_name', 'Location Name', 'required|trim');
         $this->form_validation->set_rules('device_id', 'Device ID', 'required|trim|is_unique[location_registry.device_id]');
         $this->form_validation->set_rules('status', 'Status', 'required|in_list[active,inactive,suspended]');
         $this->form_validation->set_rules('priority', 'Priority', 'required|integer|greater_than[0]|less_than_equal_to[100]');
         $this->form_validation->set_rules('sync_enabled', 'Sync Enabled', 'required|in_list[0,1]');
-        
+
         if ($this->form_validation->run() == FALSE) {
-            // Check if it's an AJAX request
-            if ($this->input->is_ajax_request()) {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => validation_errors()
-                ]);
-                return;
-            }
-            
-            $this->session->set_flashdata('error_message', validation_errors());
-            redirect(site_url('admin/sync_locations'), 'refresh');
-            return;
+            return $this->respond_error(validation_errors(), 'admin/sync_locations');
         }
-        
-        // Prepare data
+
+        $endpoint = $this->input->post('api_endpoint', TRUE);
+        $normalized_endpoint = '';
+        $resolved_ips = [];
+        $endpoint_error = null;
+        if (!$this->validate_api_endpoint($endpoint, $normalized_endpoint, $resolved_ips, $endpoint_error)) {
+            return $this->respond_error($endpoint_error, 'admin/sync_locations');
+        }
+
         $data = [
             'location_name' => $this->input->post('location_name', TRUE),
             'device_id' => $this->input->post('device_id', TRUE),
             'description' => $this->input->post('description', TRUE),
-            'api_endpoint' => $this->input->post('api_endpoint', TRUE),
+            'api_endpoint' => $normalized_endpoint,
             'status' => $this->input->post('status', TRUE),
-            'priority' => (int)$this->input->post('priority', TRUE),
-            'sync_enabled' => (int)$this->input->post('sync_enabled', TRUE),
-            'sync_interval' => $this->input->post('sync_interval', TRUE) ? (int)$this->input->post('sync_interval', TRUE) : 15,
+            'priority' => (int) $this->input->post('priority', TRUE),
+            'sync_enabled' => (int) $this->input->post('sync_enabled', TRUE),
+            'sync_interval' => $this->input->post('sync_interval', TRUE) ? (int) $this->input->post('sync_interval', TRUE) : 15,
             'contact_email' => $this->input->post('contact_email', TRUE),
             'contact_phone' => $this->input->post('contact_phone', TRUE),
             'timezone' => $this->input->post('timezone', TRUE) ?: 'UTC',
             'created_at' => date('Y-m-d H:i:s')
         ];
-        
-        // Insert location
+
         $result = $this->Location_registry_model->insert($data);
-        
-        // Check if it's an AJAX request
-        if ($this->input->is_ajax_request()) {
-            if ($result) {
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Location added successfully'
-                ]);
-            } else {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Failed to add location. Please try again.'
-                ]);
-            }
-            return;
-        }
-        
-        // Regular form submission
-        if ($result) {
-            $this->session->set_flashdata('flash_message', 'Location added successfully');
-        } else {
-            $this->session->set_flashdata('error_message', 'Failed to add location. Please try again.');
-        }
-        
-        redirect(site_url('admin/sync_locations'), 'refresh');
+        return $this->respond_result($result, 'Location added successfully', 'Failed to add location. Please try again.');
     }
-    
-    /**
-     * Edit location
-     */
+
     public function edit($location_id = null) {
         if (!$location_id) {
-            $this->session->set_flashdata('error_message', 'Invalid location ID');
-            redirect(site_url('admin/sync_locations'), 'refresh');
-            return;
+            return $this->redirect_error('Invalid location ID');
         }
-        
-        // Get location
+
         $location = $this->Location_registry_model->get_location($location_id);
-        
         if (!$location) {
-            $this->session->set_flashdata('error_message', 'Location not found');
-            redirect(site_url('admin/sync_locations'), 'refresh');
-            return;
+            return $this->redirect_error('Location not found');
         }
-        
+
         $page_data['location'] = $location;
         $page_data['page_name'] = 'sync_location_edit';
         $page_data['page_title'] = get_phrase('edit_location');
-        
         $this->load->view('backend/main', $page_data);
     }
-    
-    /**
-     * Modal popup for editing location
-     */
+
     public function modal_edit($location_id = null) {
         if (!$location_id) {
             echo '<div class="alert alert-danger">Invalid location ID</div>';
             return;
         }
-        
-        // Get location
+
         $location = $this->Location_registry_model->get_location($location_id);
-        
         if (!$location) {
             echo '<div class="alert alert-danger">Location not found</div>';
             return;
         }
-        
+
         $data['location'] = $location;
         $this->load->view('backend/admin/modal_sync_location_edit', $data);
     }
-    
-    /**
-     * Update location (POST handler)
-     */
+
     public function update($location_id = null) {
+        $this->require_post();
         if (!$location_id) {
-            // Check if it's an AJAX request
-            if ($this->input->is_ajax_request()) {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Invalid location ID'
-                ]);
-                return;
-            }
-            
-            $this->session->set_flashdata('error_message', 'Invalid location ID');
-            redirect(site_url('admin/sync_locations'), 'refresh');
-            return;
+            return $this->respond_error('Invalid location ID', 'admin/sync_locations');
         }
-        
-        // Validate input
+
         $this->load->library('form_validation');
         $this->form_validation->set_rules('location_name', 'Location Name', 'required|trim');
-        
         if ($this->form_validation->run() == FALSE) {
-            // Check if it's an AJAX request
-            if ($this->input->is_ajax_request()) {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => validation_errors()
-                ]);
-                return;
-            }
-            
-            $this->session->set_flashdata('error_message', validation_errors());
-            redirect(site_url('admin/sync_locations/edit/' . $location_id), 'refresh');
-            return;
+            return $this->respond_error(validation_errors(), 'admin/sync_locations/edit/' . $location_id);
         }
-        
-        // Prepare data
+
+        $endpoint = $this->input->post('api_endpoint', TRUE);
+        $normalized_endpoint = '';
+        $resolved_ips = [];
+        $endpoint_error = null;
+        if (!$this->validate_api_endpoint($endpoint, $normalized_endpoint, $resolved_ips, $endpoint_error)) {
+            return $this->respond_error($endpoint_error, 'admin/sync_locations/edit/' . $location_id);
+        }
+
         $data = [
-            'location_name' => $this->input->post('location_name'),
-            'api_endpoint' => $this->input->post('api_endpoint'),
+            'location_name' => $this->input->post('location_name', TRUE),
+            'api_endpoint' => $normalized_endpoint,
             'status' => $this->input->post('status', TRUE),
-            'priority' => $this->input->post('priority', TRUE),
-            'contact_email' => $this->input->post('contact_email'),
-            'contact_phone' => $this->input->post('contact_phone'),
-            'timezone' => $this->input->post('timezone'),
+            'priority' => (int) $this->input->post('priority', TRUE),
+            'contact_email' => $this->input->post('contact_email', TRUE),
+            'contact_phone' => $this->input->post('contact_phone', TRUE),
+            'timezone' => $this->input->post('timezone', TRUE),
             'sync_enabled' => $this->input->post('sync_enabled') ? 1 : 0,
-            'sync_interval' => $this->input->post('sync_interval', TRUE) ? (int)$this->input->post('sync_interval', TRUE) : 15,
-            'description' => $this->input->post('description')
+            'sync_interval' => $this->input->post('sync_interval', TRUE) ? (int) $this->input->post('sync_interval', TRUE) : 15,
+            'description' => $this->input->post('description', TRUE)
         ];
-        
-        // Update location
+
         $result = $this->Location_registry_model->update($location_id, $data);
-        
-        // Check if it's an AJAX request
-        if ($this->input->is_ajax_request()) {
-            if ($result) {
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Location updated successfully'
-                ]);
-            } else {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Failed to update location'
-                ]);
-            }
-            return;
-        }
-        
-        // Regular form submission
-        if ($result) {
-            $this->session->set_flashdata('flash_message', 'Location updated successfully');
-        } else {
-            $this->session->set_flashdata('error_message', 'Failed to update location');
-        }
-        
-        redirect(site_url('admin/sync_locations'), 'refresh');
+        return $this->respond_result($result, 'Location updated successfully', 'Failed to update location');
     }
-    
-    /**
-     * View location details
-     */
+
     public function view($location_id = null) {
         if (!$location_id) {
-            $this->session->set_flashdata('error_message', 'Invalid location ID');
-            redirect(site_url('admin/sync_locations'), 'refresh');
-            return;
+            return $this->redirect_error('Invalid location ID');
         }
-        
-        // Get location
+
         $location = $this->Location_registry_model->get_location($location_id);
-        
         if (!$location) {
-            $this->session->set_flashdata('error_message', 'Location not found');
-            redirect(site_url('admin/sync_locations'), 'refresh');
-            return;
+            return $this->redirect_error('Location not found');
         }
-        
-        // Get sync metrics for this location (using device_id)
+
         $sync_history = [];
         if (!empty($location->device_id)) {
-            $sync_history = $this->db->where('source_device_id', $location->device_id)
+            $sync_history = $this->db->group_start()
+                                     ->where('source_device_id', $location->device_id)
                                      ->or_where('target_device_id', $location->device_id)
+                                     ->group_end()
                                      ->order_by('synced_at', 'DESC')
                                      ->limit(50)
                                      ->get('sync_audit_log')
                                      ->result_array();
         }
-        
-        // Get conflicts for this location (if location_id column exists)
+
         $conflicts = [];
         if ($this->db->field_exists('location_id', 'sync_conflicts')) {
             $conflicts = $this->db->where('location_id', $location_id)
@@ -330,132 +319,145 @@ class Sync_locations extends CI_Controller {
                                  ->get('sync_conflicts')
                                  ->result_array();
         }
-        
+
         $page_data['location'] = $location;
         $page_data['sync_history'] = $sync_history;
         $page_data['conflicts'] = $conflicts;
         $page_data['page_name'] = 'sync_location_view';
         $page_data['page_title'] = $location->location_name;
-        
         $this->load->view('backend/main', $page_data);
     }
-    
-    /**
-     * Delete location
-     */
+
     public function delete($location_id = null) {
+        $this->require_post();
         if (!$location_id) {
-            $this->session->set_flashdata('error_message', 'Invalid location ID');
-            redirect(site_url('admin/sync_locations'), 'refresh');
-            return;
+            return $this->respond_error('Invalid location ID', 'admin/sync_locations');
         }
-        
-        // Check if this is the current location
+
         $current_location = $this->Location_registry_model->get_current_location();
         if ($current_location && $current_location->id == $location_id) {
-            $this->session->set_flashdata('error_message', 'Cannot delete the current location');
-            redirect(site_url('admin/sync_locations'), 'refresh');
-            return;
+            return $this->respond_error('Cannot delete the current location', 'admin/sync_locations');
         }
-        
-        // Delete location
+
         $result = $this->db->where('id', $location_id)->delete('location_registry');
-        
-        if ($result) {
-            $this->session->set_flashdata('flash_message', 'Location deleted successfully');
-        } else {
-            $this->session->set_flashdata('error_message', 'Failed to delete location');
-        }
-        
-        redirect(site_url('admin/sync_locations'), 'refresh');
+        return $this->respond_result($result, 'Location deleted successfully', 'Failed to delete location');
     }
-    
-    /**
-     * Activate location
-     */
+
     public function activate($location_id = null) {
+        $this->require_post();
         if (!$location_id) {
-            $this->session->set_flashdata('error_message', 'Invalid location ID');
-            redirect(site_url('admin/sync_locations'), 'refresh');
-            return;
+            return $this->respond_error('Invalid location ID', 'admin/sync_locations');
         }
-        
+
         $result = $this->Location_registry_model->activate_location($location_id);
-        
-        if ($result) {
-            $this->session->set_flashdata('flash_message', 'Location activated successfully');
-        } else {
-            $this->session->set_flashdata('error_message', 'Failed to activate location');
-        }
-        
-        redirect(site_url('admin/sync_locations'), 'refresh');
+        return $this->respond_result($result, 'Location activated successfully', 'Failed to activate location');
     }
-    
-    /**
-     * Deactivate location
-     */
+
     public function deactivate($location_id = null) {
+        $this->require_post();
         if (!$location_id) {
-            $this->session->set_flashdata('error_message', 'Invalid location ID');
-            redirect(site_url('admin/sync_locations'), 'refresh');
-            return;
+            return $this->respond_error('Invalid location ID', 'admin/sync_locations');
         }
-        
-        // Check if this is the current location
+
         $current_location = $this->Location_registry_model->get_current_location();
         if ($current_location && $current_location->id == $location_id) {
-            $this->session->set_flashdata('error_message', 'Cannot deactivate the current location');
-            redirect(site_url('admin/sync_locations'), 'refresh');
-            return;
+            return $this->respond_error('Cannot deactivate the current location', 'admin/sync_locations');
         }
-        
+
         $result = $this->Location_registry_model->deactivate_location($location_id);
-        
-        if ($result) {
-            $this->session->set_flashdata('flash_message', 'Location deactivated successfully');
-        } else {
-            $this->session->set_flashdata('error_message', 'Failed to deactivate location');
-        }
-        
-        redirect(site_url('admin/sync_locations'), 'refresh');
+        return $this->respond_result($result, 'Location deactivated successfully', 'Failed to deactivate location');
     }
-    
-    /**
-     * Test connection to location
-     */
+
     public function test_connection($location_id = null) {
+        $this->require_post();
+        $this->output->set_content_type('application/json');
+
         if (!$location_id) {
-            echo json_encode(['success' => false, 'message' => 'Invalid location ID']);
-            return;
+            return $this->output->set_output(json_encode(['success' => false, 'message' => 'Invalid location ID']));
         }
-        
+
         $location = $this->Location_registry_model->get_location($location_id);
-        
         if (!$location) {
-            echo json_encode(['success' => false, 'message' => 'Location not found']);
-            return;
+            return $this->output->set_output(json_encode(['success' => false, 'message' => 'Location not found']));
         }
-        
+
         if (empty($location->api_endpoint)) {
-            echo json_encode(['success' => false, 'message' => 'No API endpoint configured']);
-            return;
+            return $this->output->set_output(json_encode(['success' => false, 'message' => 'No API endpoint configured']));
         }
-        
-        // Test connection
+
+        $endpoint = '';
+        $resolved_ips = [];
+        $endpoint_error = null;
+        if (!$this->validate_api_endpoint($location->api_endpoint, $endpoint, $resolved_ips, $endpoint_error)) {
+            return $this->output
+                ->set_status_header(422)
+                ->set_output(json_encode(['success' => false, 'message' => $endpoint_error]));
+        }
+
+        $parts = parse_url($endpoint);
+        $host = $parts['host'];
+        $port = isset($parts['port']) ? (int) $parts['port'] : 443;
+        $health_url = $endpoint . '/sync_server/health_check';
+        $resolve_entry = $host . ':' . $port . ':' . $resolved_ips[0];
+
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $location->api_endpoint . '/sync_server/health_check');
+        curl_setopt($ch, CURLOPT_URL, $health_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_RESOLVE, [$resolve_entry]);
+
         $response = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($ch);
         curl_close($ch);
-        
-        if ($http_code == 200) {
-            echo json_encode(['success' => true, 'message' => 'Connection successful', 'response' => $response]);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Connection failed (HTTP ' . $http_code . ')']);
+
+        if ($response !== false && $http_code == 200) {
+            return $this->output->set_output(json_encode([
+                'success' => true,
+                'message' => 'Connection successful'
+            ]));
         }
+
+        log_message('warning', '[Sync Locations] Connection test failed for location ' . $location_id . ': ' . $curl_error . ' HTTP ' . $http_code);
+        return $this->output->set_output(json_encode([
+            'success' => false,
+            'message' => 'Connection failed (HTTP ' . $http_code . ')'
+        ]));
+    }
+
+    private function respond_result($result, $success_message, $error_message) {
+        if ($this->input->is_ajax_request()) {
+            $this->output->set_content_type('application/json');
+            return $this->output->set_output(json_encode([
+                'status' => $result ? 'success' : 'error',
+                'message' => $result ? $success_message : $error_message
+            ]));
+        }
+
+        $this->session->set_flashdata($result ? 'flash_message' : 'error_message', $result ? $success_message : $error_message);
+        redirect(site_url('admin/sync_locations'), 'location', 302);
+    }
+
+    private function respond_error($message, $redirect_path) {
+        if ($this->input->is_ajax_request()) {
+            $this->output->set_content_type('application/json');
+            return $this->output->set_output(json_encode([
+                'status' => 'error',
+                'message' => $message
+            ]));
+        }
+
+        $this->session->set_flashdata('error_message', $message);
+        redirect(site_url($redirect_path), 'location', 302);
+    }
+
+    private function redirect_error($message) {
+        $this->session->set_flashdata('error_message', $message);
+        redirect(site_url('admin/sync_locations'), 'location', 302);
     }
 }
