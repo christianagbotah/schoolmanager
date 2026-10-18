@@ -1,0 +1,29 @@
+name: Sync Locations Security Boundary
+
+on:
+  pull_request:
+    paths:
+      - 'application/controllers/Sync_locations.php'
+      - 'application/views/backend/admin/sync_locations.php'
+      - 'tests/sync-locations-security-boundary.test.js'
+      - '.github/workflows/sync-locations-security.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Sync_locations.php'
+      - 'application/views/backend/admin/sync_locations.php'
+      - 'tests/sync-locations-security-boundary.test.js'
+      - '.github/workflows/sync-locations-security.yml'
+
+jobs:
+  security-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Sync locations security contract
+        run: node --test tests/sync-locations-security-boundary.test.js
+      - name: PHP syntax
+        run: php -l application/controllers/Sync_locations.php
