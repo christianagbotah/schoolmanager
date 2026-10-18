@@ -1,0 +1,34 @@
+name: Cashier Workspace Contract
+
+on:
+  pull_request:
+    paths:
+      - 'application/controllers/Cashier.php'
+      - 'application/views/backend/cashier/**'
+      - 'tests/cashier-workspace-contract.test.js'
+      - '.github/workflows/cashier-workspace-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Cashier.php'
+      - 'application/views/backend/cashier/**'
+      - 'tests/cashier-workspace-contract.test.js'
+      - '.github/workflows/cashier-workspace-contract.yml'
+
+jobs:
+  cashier-workspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run cashier workspace contract
+        run: node --test tests/cashier-workspace-contract.test.js
+      - name: Lint cashier controller
+        run: php -l application/controllers/Cashier.php
+      - name: Lint cashier views
+        run: |
+          for file in application/views/backend/cashier/*.php; do
+            php -l "$file"
+          done
