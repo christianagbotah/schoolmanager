@@ -39,14 +39,15 @@ test('cashier money UI uses Ghana cedi symbol instead of GHS text', () => {
   }
 });
 
-test('wallet endpoint returns rates and preferences needed by POS', () => {
+test('cashier controller exposes wallet totals and recent payment history to POS', () => {
   const bodyStart = controller.indexOf('function get_student_wallet_details');
   assert.ok(bodyStart >= 0, 'missing get_student_wallet_details');
   const body = controller.slice(bodyStart, controller.indexOf('/**', bodyStart + 20));
-  assert.match(body, /get_class_rates/);
-  assert.match(body, /get_student_preferences/);
-  assert.match(body, /['\"]rates['\"]\s*=>/);
-  assert.match(body, /['\"]preferences['\"]\s*=>/);
+  assert.match(body, /get_student_outstanding/);
+  assert.match(body, /get_payment_history/);
+  assert.match(body, /['\"]total_balance['\"]\s*=>/);
+  assert.match(body, /['\"]total_arrears['\"]\s*=>/);
+  assert.match(body, /['\"]payment_history['\"]\s*=>/);
 });
 
 test('payment success offers a printable cashier receipt', () => {
