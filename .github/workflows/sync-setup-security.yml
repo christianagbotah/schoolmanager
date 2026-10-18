@@ -1,0 +1,29 @@
+name: Sync Setup Security Boundary
+
+on:
+  pull_request:
+    paths:
+      - 'application/controllers/Sync_setup.php'
+      - 'application/views/backend/admin/sync_setup.php'
+      - 'tests/sync-setup-security-boundary.test.js'
+      - '.github/workflows/sync-setup-security.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Sync_setup.php'
+      - 'application/views/backend/admin/sync_setup.php'
+      - 'tests/sync-setup-security-boundary.test.js'
+      - '.github/workflows/sync-setup-security.yml'
+
+jobs:
+  security-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Sync setup security contract
+        run: node --test tests/sync-setup-security-boundary.test.js
+      - name: PHP syntax
+        run: php -l application/controllers/Sync_setup.php

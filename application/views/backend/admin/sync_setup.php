@@ -1,7 +1,7 @@
 <?php
-$setup_status = $this->setup_status ?? [];
-$config = $this->config ?? [];
-$tables_status = $this->tables_status ?? [];
+$setup_status = $setup_status ?? [];
+$config = $config ?? [];
+$tables_status = $tables_status ?? [];
 ?>
 
 <style>
@@ -64,13 +64,11 @@ $tables_status = $this->tables_status ?? [];
 </style>
 
 <div class="sync-setup">
-    <!-- Header -->
     <div class="setup-header">
         <h1><i class="fa fa-cogs"></i> Sync Setup Wizard</h1>
         <p>Configure your multi-location bidirectional sync system</p>
     </div>
 
-    <!-- Progress Steps -->
     <div class="setup-progress">
         <div class="progress-step <?php echo $setup_status['database_tables'] ? 'completed' : 'error'; ?>">
             <div class="step-icon"><i class="fa fa-database"></i></div>
@@ -106,10 +104,9 @@ $tables_status = $this->tables_status ?? [];
     </div>
     <?php endif; ?>
 
-    <!-- API Key Configuration -->
     <div class="setup-card">
         <div class="card-title"><i class="fa fa-key"></i> API Key Configuration</div>
-        
+
         <?php if (!empty($config['sync_api_key'])): ?>
         <div class="form-group">
             <label class="form-label">Current API Key</label>
@@ -120,16 +117,15 @@ $tables_status = $this->tables_status ?? [];
             <small style="color: #6b7280;">Use this key in the X-Sync-API-Key header for API requests</small>
         </div>
         <?php endif; ?>
-        
+
         <button class="btn btn-warning" onclick="generateApiKey()">
             <i class="fa fa-refresh"></i> <?php echo !empty($config['sync_api_key']) ? 'Regenerate API Key' : 'Generate API Key'; ?>
         </button>
     </div>
 
-    <!-- Remote Server Configuration -->
     <div class="setup-card">
         <div class="card-title"><i class="fa fa-server"></i> Remote Server Configuration</div>
-        
+
         <form id="remote-config-form">
             <div class="form-row">
                 <div class="form-group">
@@ -161,7 +157,7 @@ $tables_status = $this->tables_status ?? [];
                     <input type="number" class="form-control" name="sync_frequency" value="<?php echo htmlspecialchars($config['sync_frequency_hours'] ?? '2'); ?>" min="1" max="24">
                 </div>
             </div>
-            
+
             <div style="display: flex; gap: 12px;">
                 <button type="button" class="btn btn-secondary" onclick="testConnection()">
                     <i class="fa fa-plug"></i> Test Connection
@@ -171,14 +167,13 @@ $tables_status = $this->tables_status ?? [];
                 </button>
             </div>
         </form>
-        
+
         <div id="connection-result" style="margin-top: 20px;"></div>
     </div>
 
-    <!-- Device Configuration -->
     <div class="setup-card">
         <div class="card-title"><i class="fa fa-desktop"></i> Device Configuration</div>
-        
+
         <form id="device-config-form">
             <div class="form-row">
                 <div class="form-group">
@@ -191,21 +186,20 @@ $tables_status = $this->tables_status ?? [];
                     <input type="text" class="form-control" name="device_name" value="<?php echo htmlspecialchars($config['device_name'] ?? 'Main School Server'); ?>" placeholder="Main School Server">
                 </div>
             </div>
-            
+
             <div class="form-group">
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <input type="checkbox" name="sync_enabled" <?php echo ($config['sync_enabled'] ?? '1') === '1' ? 'checked' : ''; ?>>
                     <span>Enable automatic sync</span>
                 </label>
             </div>
-            
+
             <button type="button" class="btn btn-primary" onclick="saveDeviceConfig()">
                 <i class="fa fa-save"></i> Save Device Settings
             </button>
         </form>
     </div>
 
-    <!-- Initialize Sync Metadata -->
     <?php if (!$setup_status['sync_metadata']): ?>
     <div class="setup-card">
         <div class="card-title"><i class="fa fa-list-alt"></i> Initialize Sync Tables</div>
@@ -216,7 +210,6 @@ $tables_status = $this->tables_status ?? [];
     </div>
     <?php endif; ?>
 
-    <!-- Tables Status -->
     <?php if (!empty($tables_status)): ?>
     <div class="setup-card">
         <div class="card-title"><i class="fa fa-table"></i> Sync Tables Status (<?php echo count($tables_status); ?> tables)</div>
@@ -228,7 +221,7 @@ $tables_status = $this->tables_status ?? [];
                     <span class="badge <?php echo $table['sync_enabled'] ? 'badge-success' : 'badge-warning'; ?>">
                         <?php echo $table['sync_enabled'] ? 'Enabled' : 'Disabled'; ?>
                     </span>
-                    <span class="badge badge-info"><?php echo $table['conflict_strategy']; ?></span>
+                    <span class="badge badge-info"><?php echo htmlspecialchars($table['conflict_strategy']); ?></span>
                     <?php if ($table['real_time_sync']): ?>
                     <span class="badge badge-success">Real-time</span>
                     <?php endif; ?>
@@ -239,7 +232,6 @@ $tables_status = $this->tables_status ?? [];
     </div>
     <?php endif; ?>
 
-    <!-- Maintenance -->
     <div class="setup-card">
         <div class="card-title"><i class="fa fa-wrench"></i> Maintenance</div>
         <p style="color: #6b7280; margin-bottom: 20px;">Run cleanup procedures to remove old sync data.</p>
@@ -250,6 +242,10 @@ $tables_status = $this->tables_status ?? [];
 </div>
 
 <script>
+const csrfTokenName = <?php echo json_encode($csrf_token_name); ?>;
+const csrfTokenHash = <?php echo json_encode($csrf_token_hash); ?>;
+const ajaxHeaders = { 'X-Requested-With': 'XMLHttpRequest' };
+
 function copyApiKey() {
     const key = document.getElementById('api-key-value').textContent;
     navigator.clipboard.writeText(key).then(() => {
@@ -261,10 +257,14 @@ function generateApiKey() {
     if (!confirm('This will generate a new API key. The old key will stop working. Continue?')) {
         return;
     }
-    
+
+    const formData = new FormData();
+    formData.append(csrfTokenName, csrfTokenHash);
+
     fetch('<?php echo site_url("sync_setup/generate_api_key"); ?>', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: ajaxHeaders,
+        body: formData
     })
     .then(r => r.json())
     .then(data => {
@@ -281,20 +281,22 @@ function generateApiKey() {
 function testConnection() {
     const form = document.getElementById('remote-config-form');
     const formData = new FormData(form);
+    formData.append(csrfTokenName, csrfTokenHash);
     const resultDiv = document.getElementById('connection-result');
-    
+
     resultDiv.innerHTML = '<div class="alert alert-warning"><i class="fa fa-spinner fa-spin"></i> Testing connection...</div>';
-    
+
     fetch('<?php echo site_url("sync_setup/test_connection"); ?>', {
         method: 'POST',
+        headers: ajaxHeaders,
         body: formData
     })
     .then(r => r.json())
     .then(data => {
-        const alertClass = data.status === 'success' ? 'alert-success' : 
+        const alertClass = data.status === 'success' ? 'alert-success' :
                           data.status === 'warning' ? 'alert-warning' : 'alert-error';
-        resultDiv.innerHTML = '<div class="alert ' + alertClass + '"><i class="fa fa-' + 
-            (data.status === 'success' ? 'check-circle' : 'exclamation-triangle') + 
+        resultDiv.innerHTML = '<div class="alert ' + alertClass + '"><i class="fa fa-' +
+            (data.status === 'success' ? 'check-circle' : 'exclamation-triangle') +
             '"></i> ' + data.message + '</div>';
     })
     .catch(err => {
@@ -305,9 +307,11 @@ function testConnection() {
 function saveConfig() {
     const form = document.getElementById('remote-config-form');
     const formData = new FormData(form);
-    
+    formData.append(csrfTokenName, csrfTokenHash);
+
     fetch('<?php echo site_url("sync_setup/save_config"); ?>', {
         method: 'POST',
+        headers: ajaxHeaders,
         body: formData
     })
     .then(r => r.json())
@@ -323,9 +327,13 @@ function saveConfig() {
 function saveDeviceConfig() {
     const form = document.getElementById('device-config-form');
     const formData = new FormData(form);
-    
+    const syncEnabled = form.querySelector('[name="sync_enabled"]').checked ? '1' : '0';
+    formData.set('sync_enabled', syncEnabled);
+    formData.append(csrfTokenName, csrfTokenHash);
+
     fetch('<?php echo site_url("sync_setup/save_config"); ?>', {
         method: 'POST',
+        headers: ajaxHeaders,
         body: formData
     })
     .then(r => r.json())
@@ -342,9 +350,14 @@ function initializeMetadata() {
     if (!confirm('This will initialize the sync_metadata table with all sync-enabled tables. Continue?')) {
         return;
     }
-    
+
+    const formData = new FormData();
+    formData.append(csrfTokenName, csrfTokenHash);
+
     fetch('<?php echo site_url("sync_setup/initialize_metadata"); ?>', {
-        method: 'POST'
+        method: 'POST',
+        headers: ajaxHeaders,
+        body: formData
     })
     .then(r => r.json())
     .then(data => {
@@ -360,14 +373,19 @@ function runMaintenance() {
     if (!confirm('This will clean up old sync data (synced items older than 7 days, logs older than 90 days). Continue?')) {
         return;
     }
-    
+
+    const formData = new FormData();
+    formData.append(csrfTokenName, csrfTokenHash);
+
     fetch('<?php echo site_url("sync_setup/run_maintenance"); ?>', {
-        method: 'POST'
+        method: 'POST',
+        headers: ajaxHeaders,
+        body: formData
     })
     .then(r => r.json())
     .then(data => {
         let msg = data.message + '\n\n';
-        for (const [key, value] of Object.entries(data.results)) {
+        for (const [key, value] of Object.entries(data.results || {})) {
             msg += key + ': ' + value + ' rows deleted\n';
         }
         alert(msg);
