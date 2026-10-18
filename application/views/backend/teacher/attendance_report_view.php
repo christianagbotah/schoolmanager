@@ -4,14 +4,14 @@
 .form-control { width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; height: 46px; transition: all 0.3s; }
 .form-control:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
 .btn-enterprise { padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; height: 46px; font-size: 15px; }
-.btn-primary { background: #764ba2; color: white; }
+.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
-.btn-print { background: #059669; color: white; }
+.btn-print { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
 .btn-print:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
 label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px; }
 .select2-container--default .select2-selection--multiple { border: 2px solid #e5e7eb !important; border-radius: 8px !important; min-height: 46px !important; padding: 4px 8px !important; }
 .select2-container--default.select2-container--focus .select2-selection--multiple { border-color: #667eea !important; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important; }
-.select2-container--default .select2-selection--multiple .select2-selection__choice { background: #764ba2 !important; border: none !important; color: white !important; border-radius: 6px !important; padding: 4px 10px !important; margin: 4px 4px 0 0 !important; }
+.select2-container--default .select2-selection--multiple .select2-selection__choice { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; border: none !important; color: white !important; border-radius: 6px !important; padding: 4px 10px !important; margin: 4px 4px 0 0 !important; }
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: white !important; margin-right: 6px !important; }
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover { color: #fecaca !important; }
 @media print { .filter-card, .btn-enterprise { display: none !important; } }
@@ -29,15 +29,15 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
             <label><?php echo get_phrase('class'); ?></label>
             <select class="form-control" name="class_id" id="class_id" onchange="select_section(this.value)" required>
                 <option value=""><?php echo get_phrase('select_class'); ?></option>
-                <?php 
+                <?php
                 $teacher_id = $this->session->userdata('teacher_id');
-                getFullClassList($teacher_id, $class_id); 
+                getFullClassList($teacher_id, $class_id);
                 ?>
             </select>
         </div>
-        
+
         <input type="hidden" name="section_id" id="section_id" value="<?php echo $section_id; ?>">
-        
+
         <div style="flex: 1; min-width: 120px;">
             <label><?php echo get_phrase('month'); ?></label>
             <select name="month" class="form-control" id="month" required>
@@ -97,7 +97,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
                     <?php echo get_phrase('attendance_sheet'); ?>
                 </h3>
                 <p style="margin: 0; color: #6b7280; font-size: 14px;">
-                    <?php 
+                    <?php
                     $class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
                     $class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
                     $months = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -105,7 +105,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
                     ?>
                 </p>
             </div>
-            <a href="<?php echo site_url('admin/attendance_report_print_view/' . $class_id . '/' . $section_id . '/' . $month . '/' . $sessional_year . '/' . ($class_name == 'JHSS' ? $sem : $term)); ?>" 
+            <a href="<?php echo site_url('admin/attendance_report_print_view/' . $class_id . '/' . $section_id . '/' . $month . '/' . $sessional_year . '/' . ($class_name == 'JHSS' ? $sem : $term)); ?>"
                class="btn-enterprise btn-print" target="_blank">
                 <i class="fa fa-print"></i> <?php echo get_phrase('print_report'); ?>
             </a>
@@ -141,7 +141,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
     <?php
 
     $days = cal_days_in_month(CAL_GREGORIAN, $month, explode('-', $sessional_year)[1]);
-    
+
     if($term == 1) {
         $days = cal_days_in_month(CAL_GREGORIAN, $month, explode('-', $sessional_year)[0]);
     }
@@ -208,7 +208,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
             endforeach;
             ?>
         <td style="text-align: center;">
-           <?php 
+           <?php
             echo '<strong>'.$status.'</strong>';
             $status = '-';
             ?>
@@ -271,7 +271,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
             endforeach;
             ?>
         <td style="text-align: center;">
-           <?php 
+           <?php
             echo '<strong>'.$status.'</strong>';
             $status = '-';
             ?>
@@ -299,7 +299,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
                                                 </td>
                                             </tr>
                                         <?php
-    }   
+    }
         $students_array = $students->result_array();
 
         foreach ($students_array as $row):
@@ -334,7 +334,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
             endforeach;
             ?>
         <td style="text-align: center;">
-           <?php 
+           <?php
             echo '<strong>'.$status.'</strong>';
             $status = '-';
             ?>
@@ -373,9 +373,9 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
         get_class_students(class_id);//call this as soon as the page loads
 
         // SelectBoxIt Dropdown replacement
-        if($.isFunction($.fn.selectBoxIt))
+        if (typeof $.fn.select2 !== "undefined")
         {
-            $("select.selectboxit").each(function(i, el)
+            $("select.select2").each(function(i, el)
             {
                 var $this = $(el),
                     opts = {
@@ -385,7 +385,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
                     };
 
                 $this.addClass('visible');
-                $this.selectBoxIt(opts);
+                $this.select2({ placeholder: "Select an option", allowClear: true, width: "100%" });
             });
         }
     });
@@ -396,7 +396,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
 
 function select_section(class_id) {
     if(!class_id) return;
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_section/'); ?>' + class_id,
         success: function (response) {
@@ -405,7 +405,7 @@ function select_section(class_id) {
             $('#section_id').val(sectionId);
         }
     });
-    
+
     get_class_students(class_id);
 }
 
@@ -464,13 +464,13 @@ function get_class_students(class_id) {
 
     $('#attendance_report_form').submit(function(ev) {
         const class_id = $('#class_id').val();
-        
+
         if(!class_id) {
             ev.preventDefault();
             showAjaxModal_alert('<?php echo get_phrase('please_select_class_first'); ?>', 'error');
             return false;
         }
-        
+
         showAjaxModal_alert('<?php echo get_phrase('generating_report'); ?>...', 'loading');
     });
 

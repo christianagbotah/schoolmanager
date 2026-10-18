@@ -1,13 +1,13 @@
 <div class="row" style="margin-top: 25px; max-width: 100%; overflow-x: hidden;">
     <div class="col-md-12" style="max-width: 100%; overflow-x: hidden;">
         <div class="panel panel-primary" style="border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: none; max-width: 100%; overflow-x: hidden;">
-            <div class="panel-heading" style="background: #2563eb; border-radius: 10px 10px 0 0; padding: 20px;">
+            <div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px 10px 0 0; padding: 20px;">
                 <div class="panel-title" style="font-size: 18px; font-weight: 600; color: white; word-wrap: break-word;">
                     <i class="fa fa-file-invoice" style="margin-right: 8px;"></i> Terminal Bills Report
                 </div>
             </div>
             <div class="panel-body" style="padding: 30px; max-width: 100%; overflow-x: hidden;">
-                
+
                 <!-- Instructions -->
                 <div style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); padding: 16px 20px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #2196f3; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                     <div style="display: flex; align-items: flex-start;">
@@ -22,7 +22,7 @@
                 </div>
 
                 <?php echo form_open('admin/terminal_bills_report', array('id' => 'terminal_bills_form', 'target' => '_blank')); ?>
-                    
+
                     <!-- Filters Section - All in One Row -->
                     <div class="filters-container" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e9ecef; max-width: 100%; overflow-x: hidden;">
                         <div class="row" style="max-width: 100%; margin: 0;">
@@ -63,13 +63,13 @@
                                         <?php
                                         // Get running year and calculate the next academic year
                                         $running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
-                                        
+
                                         // Parse the running year (format: YYYY-YYYY)
                                         $year_parts = explode('-', $running_year);
                                         if(count($year_parts) == 2) {
                                             $start_year = intval($year_parts[0]);
                                             $end_year = intval($year_parts[1]);
-                                            
+
                                             // Generate current and next academic year options (limit to one level above) - DESCENDING ORDER
                                             $current_year = $start_year . '-' . $end_year;
                                             $next_year_option = ($start_year + 1) . '-' . ($end_year + 1);
@@ -101,7 +101,7 @@
                                     </select>
                                 </div>
                             </div>
-                            
+
                             <!-- Orientation -->
                             <div class="col-lg-3 col-md-6 col-sm-12">
                                 <div class="form-group" style="margin-bottom: 15px;">
@@ -126,13 +126,13 @@
                                     <i class="fa fa-users" style="color: #667eea; margin-right: 8px;"></i> Select Students
                                 </div>
                                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                    <button type="button" id="select_all_btn" class="btn btn-sm" style="background: #059669; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); transition: all 0.2s; white-space: nowrap;">
+                                    <button type="button" id="select_all_btn" class="btn btn-sm" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); transition: all 0.2s; white-space: nowrap;">
                                         <i class="fa fa-check-double" style="margin-right: 5px;"></i> Select All
                                     </button>
                                     <button type="button" id="deselect_all_btn" class="btn btn-sm" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3); transition: all 0.2s; white-space: nowrap;">
                                         <i class="fa fa-times" style="margin-right: 5px;"></i> Deselect All
                                     </button>
-                                    <button type="submit" class="btn btn-sm" style="background: #2563eb; color: white; border: none; padding: 8px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4); transition: all 0.2s; white-space: nowrap;">
+                                    <button type="submit" class="btn btn-sm" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 8px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4); transition: all 0.2s; white-space: nowrap;">
                                         <i class="fa fa-file-pdf" style="margin-right: 5px;"></i> Generate Report
                                     </button>
                                 </div>
@@ -157,18 +157,18 @@
                             <!-- Pagination Controls -->
                             <div id="pagination_controls" style="display: none; margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                                    <button type="button" id="prev_page_btn" class="btn btn-sm" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: all 0.2s; white-space: nowrap;" disabled>
+                                    <button type="button" id="prev_page_btn" class="btn btn-sm" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: all 0.2s; white-space: nowrap;" disabled>
                                         <i class="fa fa-chevron-left" style="margin-right: 5px;"></i> Previous
                                     </button>
-                                    
+
                                     <div style="font-weight: 600; color: #374151; font-size: 14px; text-align: center;">
                                         Page <span id="current_page">1</span> of <span id="total_pages">1</span>
                                         <span style="color: #6b7280; font-size: 12px; display: block; margin-top: 2px;">
                                             (Showing <span id="showing_count">0</span> of <span id="total_count">0</span> students)
                                         </span>
                                     </div>
-                                    
-                                    <button type="button" id="next_page_btn" class="btn btn-sm" style="background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: all 0.2s; white-space: nowrap;">
+
+                                    <button type="button" id="next_page_btn" class="btn btn-sm" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: all 0.2s; white-space: nowrap;">
                                         Next <i class="fa fa-chevron-right" style="margin-left: 5px;"></i>
                                     </button>
                                 </div>
@@ -217,7 +217,7 @@ body {
     .filters-container {
         padding: 15px !important;
     }
-    
+
     #student_selection_section > div {
         padding: 15px !important;
     }
@@ -373,12 +373,12 @@ button[type="submit"]:hover {
         flex-direction: column;
         align-items: flex-start !important;
     }
-    
+
     #student_selection_section > div > div:first-child > div:last-child {
         width: 100%;
         justify-content: flex-start;
     }
-    
+
     #student_selection_section button {
         flex: 1;
         min-width: 0;
@@ -394,7 +394,7 @@ $(document).ready(function() {
     const studentsPerPage = 10; // Show 10 students per page
     let selectedStudentIds = new Set(); // Track selected students across pages
 
-    
+
 
     // Load students when class is selected
     $('#class_id').change(function() {
@@ -500,7 +500,7 @@ $(document).ready(function() {
     $('#student_search').on('keyup', function() {
         const searchTerm = $(this).val().toLowerCase();
         filteredStudents = studentsData.filter(function(student) {
-            return student.name.toLowerCase().includes(searchTerm) || 
+            return student.name.toLowerCase().includes(searchTerm) ||
                    student.student_code.toLowerCase().includes(searchTerm);
         });
         currentPage = 1; // Reset to first page on search

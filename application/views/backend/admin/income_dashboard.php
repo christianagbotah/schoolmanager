@@ -41,71 +41,6 @@ body { background:#f0fdf4; font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-ser
 .btn-success { background:#10b981; color:white; }
 .btn-success:hover { background:#059669; }
 @media (max-width: 1024px) { .chart-grid { grid-template-columns:1fr; } }
-
-/* ---- family design-language alignment (presentation only) ---- */
-body { background: #f9fafb; }
-.dashboard-container { padding: 16px; }
-@media (min-width: 768px) { .dashboard-container { padding: 24px; } }
-
-/* Hero - family shape (accent colour preserved for domain semantics) */
-.page-header {
-    border-radius: 16px;
-    box-shadow: 0 12px 32px rgba(16, 185, 129, 0.25);
-    padding: 28px;
-    position: relative;
-    overflow: hidden;
-}
-.page-header::before {
-    content: ''; position: absolute; top: -70px; right: -70px;
-    width: 240px; height: 240px; background: rgba(255,255,255,0.06); border-radius: 50%;
-}
-.page-header::after {
-    content: ''; position: absolute; bottom: -50px; left: -50px;
-    width: 180px; height: 180px; background: rgba(255,255,255,0.05); border-radius: 50%;
-}
-.page-title { font-size: 30px; }
-
-/* Cards - family elevation and radius */
-.stat-card {
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-    transition: transform .18s ease, box-shadow .18s ease;
-}
-.stat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(16, 24, 40, 0.10); }
-.stat-card::before { width: 5px; }
-.stat-value { font-weight: 800; }
-.chart-card {
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-}
-
-/* Quick actions - family tile treatment */
-.action-btn { border: 1.5px solid #e5e7eb; border-radius: 14px; }
-.action-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(16, 24, 40, 0.12); }
-.action-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4); }
-
-/* Controls - family shape */
-.filter-select { border-radius: 10px; }
-.filter-bar .filter-select { height: 42px; }
-.btn { border-radius: 10px; }
-.btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4); }
-
-/* 400px hardening tier */
-@media (max-width: 400px) {
-    .dashboard-container { padding: 12px; }
-    .stat-card { padding: 15px; border-radius: 14px; }
-    .chart-card { padding: 18px; border-radius: 14px; }
-    .page-header { padding: 20px 15px; }
-    .page-title { font-size: 24px; }
-    .stat-value { font-size: 28px; }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    .stat-card, .action-btn { transition: none; }
-}
 </style>
 
 <div class="dashboard-container">
@@ -211,11 +146,11 @@ body { background: #f9fafb; }
             <span>Receivables</span>
         </a>
     </div>
-    
+
     <!-- Filter Bar -->
     <div style="background:white; border-radius:12px; padding:20px; margin-bottom:24px; box-shadow:0 2px 12px rgba(0,0,0,0.08);">
         <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-            <label for="yearFilter" style="font-weight:600; color:#374151;">Academic Year:</label>
+            <label style="font-weight:600; color:#374151;">Academic Year:</label>
             <select id="yearFilter" class="filter-select" onchange="loadDashboard()">
                 <?php
                 $years = $this->db->distinct()->select('year')->from('invoice')->order_by('year', 'desc')->get()->result_array();
@@ -225,9 +160,9 @@ body { background: #f9fafb; }
                 }
                 ?>
             </select>
-            <label for="startDate" style="font-weight:600; color:#374151; margin-left:16px;">From:</label>
+            <label style="font-weight:600; color:#374151; margin-left:16px;">From:</label>
             <input type="date" id="startDate" class="filter-select" onchange="loadDashboard()">
-            <label for="endDate" style="font-weight:600; color:#374151;">To:</label>
+            <label style="font-weight:600; color:#374151;">To:</label>
             <input type="date" id="endDate" class="filter-select" onchange="loadDashboard()">
             <button class="btn btn-success" onclick="loadDashboard()"><i class="fa fa-sync"></i> Refresh</button>
         </div>
@@ -241,7 +176,7 @@ body { background: #f9fafb; }
             </div>
             <div id="revenueSourcesDisplay" style="padding:20px;"></div>
         </div>
-        
+
         <div class="chart-card">
             <div class="chart-title">
                 <span><i class="fa fa-list"></i> Revenue Summary</span>
@@ -281,7 +216,7 @@ function loadDashboardData() {
     const end_date = $('#endDate').val();
     const month = $('#monthFilter').val();
     const academic_year = $('#academicYearFilter').val();
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_income_stats'); ?>',
         type: 'POST',
@@ -309,7 +244,7 @@ function loadRevenueSourcesDisplay() {
     const year = $('#yearFilter').val();
     const start_date = $('#startDate').val();
     const end_date = $('#endDate').val();
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_revenue_sources'); ?>',
         type: 'POST',
@@ -317,17 +252,17 @@ function loadRevenueSourcesDisplay() {
         dataType: 'json',
         success: function(response) {
             const currency = '<?php echo $this->db->get_where('settings', array('type' => 'currency'))->row()->description; ?>';
-            
+
             // Update summary cards
             $('#invoiceAmount').text(currency + ' ' + formatNumber(response.values[0]));
             $('#dailyAmount').text(currency + ' ' + formatNumber(response.values[1]));
             $('#inventoryAmount').text(currency + ' ' + formatNumber(response.values[2]));
-            
+
             // Create simple bar display
             const total = response.values[0] + response.values[1] + response.values[2];
             let html = '';
             const colors = ['#10b981', '#3b82f6', '#8b5cf6'];
-            
+
             response.labels.forEach((label, i) => {
                 const value = response.values[i];
                 const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
@@ -341,7 +276,7 @@ function loadRevenueSourcesDisplay() {
                 html += '</div>';
                 html += '</div>';
             });
-            
+
             $('#revenueSourcesDisplay').html(html);
         }
     });

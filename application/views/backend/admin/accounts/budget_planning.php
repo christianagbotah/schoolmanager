@@ -2,7 +2,7 @@
 @import url('<?php echo base_url(); ?>assets/cdn/fonts/inter.css');
 * { font-family: 'Inter', sans-serif; }
 .modern-container { max-width: 1600px; margin: 0 auto; padding: 24px; }
-.page-header { background: #0891b2; border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 10px 40px rgba(6, 182, 212, 0.2); }
+.page-header { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 10px 40px rgba(6, 182, 212, 0.2); }
 .page-title { font-size: 32px; font-weight: 700; color: white; margin: 0 0 8px 0; letter-spacing: -0.5px; }
 .page-subtitle { font-size: 16px; color: rgba(255,255,255,0.9); margin: 0; }
 .budget-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #f3f4f6; margin-bottom: 20px; transition: all 0.3s; }
@@ -26,11 +26,11 @@
 .budget-line-progress { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
 .budget-line-progress-fill { height: 100%; background: #3b82f6; transition: width 0.3s; }
 .btn-modern { padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-.btn-primary { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+.btn-primary { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); }
-.btn-success { background: #059669; color: white; }
-.btn-warning { background: #d97706; color: white; }
-.btn-danger { background: #dc2626; color: white; }
+.btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+.btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+.btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
 .status-badge { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
 .status-draft { background: #e5e7eb; color: #374151; }
 .status-active { background: #d1fae5; color: #065f46; }
@@ -103,7 +103,7 @@
                                 <label>Fiscal Year *</label>
                                 <select name="fiscal_year" class="form-control" required>
                                     <option value="">Select Year</option>
-                                    <?php 
+                                    <?php
                                     $current_year = date('Y');
                                     for($i = $current_year - 1; $i <= $current_year + 2; $i++) {
                                         echo "<option value='$i'>$i</option>";
@@ -131,7 +131,7 @@
                         <label>Description</label>
                         <textarea name="description" class="form-control" rows="2"></textarea>
                     </div>
-                    
+
                     <h5 class="mt-4 mb-3">Budget Lines</h5>
                     <div id="budgetLinesContainer">
                         <div class="budget-line-item mb-3">
@@ -205,10 +205,10 @@ function renderBudgets(budgets) {
     budgets.forEach(function(budget) {
         let percentage = (budget.utilized / budget.total_amount * 100).toFixed(1);
         let progressClass = percentage > 90 ? 'danger' : (percentage > 75 ? 'warning' : '');
-        let statusClass = budget.status === 'active' ? 'status-active' : 
-                         budget.status === 'completed' ? 'status-completed' : 
+        let statusClass = budget.status === 'active' ? 'status-active' :
+                         budget.status === 'completed' ? 'status-completed' :
                          budget.status === 'exceeded' ? 'status-exceeded' : 'status-draft';
-        
+
         html += `
             <div class="budget-card">
                 <div class="budget-header">
@@ -218,7 +218,7 @@ function renderBudgets(budgets) {
                     </div>
                     <span class="status-badge ${statusClass}">${budget.status.toUpperCase()}</span>
                 </div>
-                
+
                 <div class="budget-progress-container">
                     <div class="budget-progress-bar">
                         <div class="budget-progress-fill ${progressClass}" style="width: ${Math.min(percentage, 100)}%">
@@ -226,7 +226,7 @@ function renderBudgets(budgets) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="budget-stats">
                     <div class="budget-stat">
                         <div class="budget-stat-label">Allocated</div>
@@ -241,12 +241,12 @@ function renderBudgets(budgets) {
                         <div class="budget-stat-value">GHS ${parseFloat(budget.remaining).toFixed(2)}</div>
                     </div>
                 </div>
-                
+
                 <div class="mt-3">
                     <h6>Budget Lines:</h6>
                     ${renderBudgetLines(budget.lines)}
                 </div>
-                
+
                 <div class="mt-3">
                     <button onclick="viewBudgetDetails(${budget.id})" class="btn-modern btn-primary">
                         <i class="fa fa-eye"></i> View Details
@@ -321,7 +321,7 @@ $('#createBudgetForm').submit(function(e) {
     e.preventDefault();
     $('.close')[0].click();
     showAjaxModal_alert('Creating...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url("admin/budget_planning/create"); ?>',
         type: 'POST',

@@ -410,252 +410,12 @@
     .compliance-header h1 {
         font-size: 24px;
     }
-    
+
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .filter-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* SchoolManager direct UX refinement — Lesson Note Compliance */
-body { background: #f8fafc; }
-.compliance-container {
-    max-width: 1600px;
-    padding: 24px 28px 40px;
-}
-.compliance-header {
-    margin-bottom: 18px;
-    padding: 20px 24px;
-    border: 1px solid #1e293b;
-    border-radius: 14px;
-    background: #0f172a;
-    box-shadow: 0 8px 22px rgba(15,23,42,.16);
-}
-.compliance-header h1 {
-    margin-bottom: 5px;
-    font-size: 28px;
-    line-height: 1.2;
-    font-weight: 800;
-    letter-spacing: -.02em;
-}
-.compliance-header p {
-    font-size: 14px;
-    line-height: 1.5;
-    color: #cbd5e1 !important;
-}
-
-.modern-filters {
-    margin-bottom: 16px;
-    padding: 16px 18px;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.04);
-}
-.filter-row {
-    gap: 12px;
-    margin-bottom: 12px;
-}
-.filter-group label {
-    margin-bottom: 7px;
-    font-size: 14px;
-    font-weight: 700;
-    color: #334155;
-}
-.filter-group select {
-    min-height: 44px;
-    height: 44px;
-    padding: 8px 11px;
-    border-color: #cbd5e1;
-    border-radius: 8px;
-    font-size: 14px;
-    color: #0f172a;
-}
-.filter-group select:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.12);
-}
-.filter-actions {
-    gap: 8px;
-}
-.modern-btn {
-    min-height: 40px;
-    padding: 8px 13px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 700;
-}
-.modern-btn-primary {
-    background: #2563eb;
-}
-.modern-btn-success {
-    background: #059669;
-}
-.modern-btn-primary:hover,
-.modern-btn-success:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(15,23,42,.12);
-}
-
-.stats-grid {
-    gap: 14px;
-    margin-bottom: 18px;
-}
-.stat-card {
-    padding: 17px 18px;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-}
-.stat-card:hover {
-    transform: none;
-    box-shadow: 0 4px 12px rgba(15,23,42,.06);
-}
-.stat-icon {
-    width: 42px;
-    height: 42px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    font-size: 20px;
-}
-.stat-value {
-    margin-bottom: 2px;
-    font-size: 28px;
-    line-height: 1.2;
-    font-weight: 800;
-}
-.stat-label {
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.modern-card {
-    margin-bottom: 18px;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-}
-.modern-card-header {
-    padding: 15px 18px;
-}
-.modern-card-title {
-    font-size: 17px;
-    font-weight: 800;
-}
-.modern-card-body {
-    padding: 16px 18px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-.modern-table {
-    min-width: 900px;
-}
-.modern-table thead th {
-    padding: 12px 13px;
-    background: #f8fafc;
-    color: #475569;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: .035em;
-    border-bottom-width: 1px;
-}
-.modern-table tbody td {
-    padding: 12px 13px;
-    color: #334155;
-    font-size: 14px;
-    line-height: 1.45;
-}
-.status-badge {
-    min-height: 28px;
-    padding: 5px 10px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-}
-.progress-modern {
-    min-height: 28px;
-    border-radius: 999px;
-    overflow: hidden;
-    background: #e2e8f0;
-}
-.progress-bar-modern {
-    min-height: 28px;
-    padding: 4px 9px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 800;
-}
-.modern-table .modern-btn[style*="padding: 6px 12px"] {
-    min-height: 36px !important;
-    padding: 7px 11px !important;
-    font-size: 13px !important;
-}
-
-.dataTables_wrapper .dataTables_length,
-.dataTables_wrapper .dataTables_filter,
-.dataTables_wrapper .dataTables_info,
-.dataTables_wrapper .dataTables_paginate {
-    font-size: 14px;
-    color: #475569;
-}
-.dataTables_wrapper .dataTables_length select,
-.dataTables_wrapper .dataTables_filter input {
-    min-height: 40px;
-    padding: 8px 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 14px;
-}
-.dropdown-menu {
-    border: 1px solid #e2e8f0;
-    border-radius: 9px;
-    box-shadow: 0 8px 24px rgba(15,23,42,.12);
-}
-.dropdown-menu > li > a {
-    min-height: 36px;
-    padding: 8px 12px;
-    font-size: 14px;
-}
-
-@media (max-width: 768px) {
-    .compliance-container {
-        padding: 16px 14px 32px;
-    }
-    .compliance-header {
-        padding: 18px;
-    }
-    .compliance-header h1 {
-        font-size: 24px;
-    }
-    .stats-grid {
-        grid-template-columns: repeat(2, minmax(0,1fr));
-        gap: 10px;
-    }
-    .stat-card {
-        padding: 14px;
-    }
-    .filter-row {
-        grid-template-columns: 1fr;
-    }
-    .filter-actions {
-        align-items: stretch;
-        flex-direction: column;
-    }
-    .filter-actions .modern-btn,
-    .filter-actions .btn-group {
-        width: 100%;
-    }
-}
-@media (max-width: 400px) {
-    .stats-grid {
         grid-template-columns: 1fr;
     }
 }
@@ -724,7 +484,7 @@ body { background: #f8fafc; }
                     <i class="entypo-search"></i>
                     <?php echo get_phrase('filter'); ?>
                 </button>
-                
+
                 <div class="btn-group">
                     <button type="button" class="modern-btn modern-btn-success dropdown-toggle" data-toggle="dropdown">
                         <i class="entypo-export"></i>
@@ -777,7 +537,7 @@ body { background: #f8fafc; }
     </div>
 
     <!-- Main Content -->
-    
+
     <!-- Compliance by Teacher -->
     <div class="modern-card">
         <div class="modern-card-header">
@@ -812,7 +572,7 @@ body { background: #f8fafc; }
                                 <td><?php echo $data->declined_notes; ?></td>
                                 <td>
                                     <div class="progress-modern">
-                                        <div class="progress-bar-modern <?php echo ($data->compliance_rate >= 80) ? 'success' : (($data->compliance_rate >= 50) ? 'warning' : 'danger'); ?>" 
+                                        <div class="progress-bar-modern <?php echo ($data->compliance_rate >= 80) ? 'success' : (($data->compliance_rate >= 50) ? 'warning' : 'danger'); ?>"
                                              style="width: <?php echo min($data->compliance_rate, 100); ?>%;">
                                             <?php echo number_format($data->compliance_rate, 1); ?>%
                                         </div>
@@ -865,7 +625,7 @@ body { background: #f8fafc; }
                                 <td><strong><?php echo $teacher->name; ?></strong></td>
                                 <td><?php echo $teacher->subjects_count; ?></td>
                                 <td>
-                                    <a href="<?php echo site_url('admin/lesson_notes_pending?teacher_id=' . $teacher->teacher_id); ?>" 
+                                    <a href="<?php echo site_url('admin/lesson_notes_pending?teacher_id=' . $teacher->teacher_id); ?>"
                                        class="modern-btn modern-btn-primary" style="padding: 6px 12px; font-size: 13px;">
                                         <?php echo get_phrase('view_details'); ?>
                                     </a>
@@ -906,7 +666,7 @@ body { background: #f8fafc; }
                                 <td><?php echo $teacher->declined_notes; ?></td>
                                 <td><?php echo number_format($teacher->decline_rate, 1); ?>%</td>
                                 <td>
-                                    <a href="<?php echo site_url('admin/lesson_notes_pending?teacher_id=' . $teacher->teacher_id . '&status=declined'); ?>" 
+                                    <a href="<?php echo site_url('admin/lesson_notes_pending?teacher_id=' . $teacher->teacher_id . '&status=declined'); ?>"
                                        class="modern-btn modern-btn-primary" style="padding: 6px 12px; font-size: 13px;">
                                         <?php echo get_phrase('view_declined_notes'); ?>
                                     </a>
@@ -966,7 +726,7 @@ body { background: #f8fafc; }
                             <td><?php echo $week->declined; ?></td>
                             <td>
                                 <div class="progress-modern">
-                                    <div class="progress-bar-modern <?php echo ($week->compliance_rate >= 80) ? 'success' : (($week->compliance_rate >= 50) ? 'warning' : 'danger'); ?>" 
+                                    <div class="progress-bar-modern <?php echo ($week->compliance_rate >= 80) ? 'success' : (($week->compliance_rate >= 50) ? 'warning' : 'danger'); ?>"
                                          style="width: <?php echo min($week->compliance_rate, 100); ?>%;">
                                         <?php echo number_format($week->compliance_rate, 1); ?>%
                                     </div>
@@ -1011,12 +771,12 @@ $(document).ready(function() {
     $('#filter_class_id').on('change', function() {
         var classId = $(this).val();
         var subjectDropdown = $('#filter_subject_id');
-        
+
         if (classId) {
             // Show loading state
             subjectDropdown.html('<option value=""><?php echo get_phrase('loading'); ?>...</option>');
             subjectDropdown.prop('disabled', true);
-            
+
             // Fetch subjects for selected class
             $.ajax({
                 url: '<?php echo site_url('admin/get_subjects_by_class'); ?>',
@@ -1025,7 +785,7 @@ $(document).ready(function() {
                 dataType: 'json',
                 success: function(response) {
                     subjectDropdown.html('<option value=""><?php echo get_phrase('all'); ?></option>');
-                    
+
                     if (response.success && response.subjects.length > 0) {
                         $.each(response.subjects, function(index, subject) {
                             subjectDropdown.append(
@@ -1037,7 +797,7 @@ $(document).ready(function() {
                     } else {
                         subjectDropdown.append('<option value=""><?php echo get_phrase('no_subjects_for_class'); ?></option>');
                     }
-                    
+
                     subjectDropdown.prop('disabled', false);
                 },
                 error: function() {
@@ -1083,12 +843,12 @@ $(document).ready(function() {
 
 function initTrendChart() {
     var ctx = document.getElementById('compliance-trend-chart').getContext('2d');
-    
+
     var trendData = <?php echo json_encode($trend_data ?? []); ?>;
     var labels = [];
     var complianceRates = [];
     var submissionCounts = [];
-    
+
     if (trendData && trendData.length > 0) {
         trendData.forEach(function(item) {
             labels.push('<?php echo get_phrase('term'); ?> ' + item.term);
@@ -1101,7 +861,7 @@ function initTrendChart() {
         complianceRates = [0, 0, 0];
         submissionCounts = [0, 0, 0];
     }
-    
+
     var chart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -1165,7 +925,7 @@ function loadTeacherDrillDown(teacherId, teacherName) {
     $('#drillDownModalTitle').text('<?php echo get_phrase('teacher_details'); ?>: ' + teacherName);
     $('#drillDownModalBody').html('<div class="text-center"><i class="entypo-spin entypo-cog"></i> <?php echo get_phrase('loading'); ?>...</div>');
     $('#drillDownModal').modal('show');
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/lesson_notes_compliance_drilldown'); ?>',
         type: 'GET',

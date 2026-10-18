@@ -1,22 +1,12 @@
-<style>
-.permissions-workspace { margin: 0 !important; padding: 0 0 32px; }
-.permissions-workspace > .col-md-12 { padding: 0 !important; }
-.permissions-workspace > .col-md-12 > div:first-of-type { padding: 18px 20px !important; margin-bottom: 16px !important; border-radius: 14px !important; background: #0f172a !important; box-shadow: 0 1px 2px rgba(15,23,42,.10) !important; }
-.permissions-workspace > .col-md-12 > div:first-of-type h2 { font-size: 24px !important; line-height: 1.2; font-weight: 800 !important; }
-.permissions-workspace > .col-md-12 > div:first-of-type p { font-size: 14px !important; line-height: 1.45; }
-.permissions-workspace .modern-btn { min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 14px !important; border-radius: 9px !important; font-size: 14px !important; font-weight: 700 !important; }
-.permissions-workspace #search-users { min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 11px !important; font-size: 14px !important; }
-@media (max-width: 767px) { .permissions-workspace { padding-bottom: 28px; } .permissions-workspace > .col-md-12 > div:first-of-type { padding: 16px !important; } .permissions-workspace > .col-md-12 > div:first-of-type h2 { font-size: 22px !important; } }
-</style>
 <!-- Manage User Permissions -->
-<div class="row permissions-workspace">
+<div class="row">
     <div class="col-md-12">
-        
+
         <!-- Page Header -->
-        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:18px 20px;border-radius:14px;margin-bottom:16px;box-shadow:0 10px 40px rgba(102,126,234,0.3);">
+        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:32px;border-radius:16px;margin-bottom:24px;box-shadow:0 10px 40px rgba(102,126,234,0.3);">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
                 <div style="flex:1;">
-                    <h2 style="color:#fff;margin:0 0 8px 0;font-size:24px;font-weight:800;display:flex;align-items:center;gap:12px;">
+                    <h2 style="color:#fff;margin:0 0 8px 0;font-size:28px;font-weight:700;display:flex;align-items:center;gap:12px;">
                         <i class="entypo-lock"></i>
                         <?php echo get_phrase('manage_permissions_for'); ?>: <?php echo htmlspecialchars($user_info['name']); ?>
                     </h2>
@@ -45,13 +35,13 @@
                 </h4>
                 <div id="save-status" style="display:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;"></div>
             </div>
-            
+
             <div class="table-responsive">
                 <table class="table" style="margin:0;">
                     <thead style="background:#f9fafb;">
                         <tr>
                             <th style="padding:16px;font-weight:600;color:#374151;font-size:14px;min-width:250px;"><?php echo get_phrase('module'); ?></th>
-                            <?php 
+                            <?php
                                 // Get all possible permissions
                                 $all_perms = [];
                                 foreach ($modules as $module) {
@@ -92,7 +82,7 @@
                                 </td>
                                 <?php foreach ($all_perms as $perm): ?>
                                     <td class="text-center" style="padding:16px;vertical-align:middle;">
-                                        <?php 
+                                        <?php
                                             $available_perms = explode(',', $module['available_permissions']);
                                             $available_perms = array_map('trim', $available_perms);
                                             $is_available = in_array($perm, $available_perms);
@@ -100,7 +90,7 @@
                                         ?>
                                         <?php if ($is_available): ?>
                                             <label class="checkbox-wrapper" style="display:inline-block;cursor:pointer;">
-                                                <input type="checkbox" 
+                                                <input type="checkbox"
                                                        class="permission-checkbox"
                                                        data-module="<?php echo $module_name; ?>"
                                                        data-permission="<?php echo $perm; ?>"
@@ -113,13 +103,13 @@
                                     </td>
                                 <?php endforeach; ?>
                                 <td class="text-center" style="padding:16px;vertical-align:middle;">
-                                    <button class="grant-all-btn" 
+                                    <button class="grant-all-btn"
                                             data-module="<?php echo $module_name; ?>"
                                             title="<?php echo get_phrase('grant_all'); ?>"
                                             style="padding:8px 12px;border:none;border-radius:6px;background:#d1fae5;color:#065f46;cursor:pointer;transition:all 0.2s;font-size:12px;font-weight:600;margin-right:4px;">
                                         <i class="entypo-check"></i> <?php echo get_phrase('all'); ?>
                                     </button>
-                                    <button class="revoke-all-btn" 
+                                    <button class="revoke-all-btn"
                                             data-module="<?php echo $module_name; ?>"
                                             title="<?php echo get_phrase('revoke_all'); ?>"
                                             style="padding:8px 12px;border:none;border-radius:6px;background:#fee2e2;color:#991b1b;cursor:pointer;transition:all 0.2s;font-size:12px;font-weight:600;">
@@ -140,11 +130,11 @@
                     <i class="entypo-list"></i> <?php echo get_phrase('current_permissions_summary'); ?>
                 </h4>
             </div>
-            
+
             <div style="padding:24px;">
                 <div id="permissions-summary" class="row">
                     <?php if (!empty($user_permissions)): ?>
-                        <?php 
+                        <?php
                             $grouped = [];
                             foreach ($user_permissions as $perm) {
                                 $grouped[$perm['module_name']][] = $perm;
@@ -183,27 +173,27 @@
 $(document).ready(function() {
     var userId = <?php echo $user_id; ?>;
     var userType = '<?php echo $user_type; ?>';
-    
+
     // Handle individual permission checkbox changes
     $('.permission-checkbox').on('change', function() {
         var $checkbox = $(this);
         var module = $checkbox.data('module');
         var permission = $checkbox.data('permission');
         var isChecked = $checkbox.is(':checked');
-        
+
         if (isChecked) {
             grantPermission(userId, userType, module, permission, $checkbox);
         } else {
             revokePermission(userId, userType, module, permission, $checkbox);
         }
     });
-    
+
     // Grant all permissions for a module
     $('.grant-all-btn').on('click', function() {
         var $btn = $(this);
         var module = $btn.data('module');
         var moduleName = $('tr[data-module="' + module + '"]').find('td:first').text().trim().split('\n')[0].trim();
-        
+
         // Use custom confirm modal
         showConfirmModal(
             '<?php echo get_phrase('grant_all_permissions'); ?>',
@@ -212,7 +202,7 @@ $(document).ready(function() {
                 // User confirmed - proceed with grant
                 $btn.prop('disabled', true);
                 showStatus('<?php echo get_phrase('granting_all_permissions'); ?>...', 'info');
-                
+
                 $.ajax({
                     url: '<?php echo site_url('user_permissions/grant_all_module_permissions'); ?>',
                     method: 'POST',
@@ -227,7 +217,7 @@ $(document).ready(function() {
                             showStatus(response.message, 'success');
                             // Check all checkboxes for this module
                             $('tr[data-module="' + module + '"]').find('.permission-checkbox').prop('checked', true);
-                            
+
                             // Show success alert modal
                             showAjaxModal_alert(response.message || '<?php echo get_phrase('all_permissions_granted_successfully'); ?>', 'success', true, true);
                         } else {
@@ -247,13 +237,13 @@ $(document).ready(function() {
             'info'
         );
     });
-    
+
     // Revoke all permissions for a module
     $('.revoke-all-btn').on('click', function() {
         var $btn = $(this);
         var module = $btn.data('module');
         var moduleName = $('tr[data-module="' + module + '"]').find('td:first').text().trim().split('\n')[0].trim();
-        
+
         // Use custom confirm modal
         showConfirmModal(
             '<?php echo get_phrase('revoke_all_permissions'); ?>',
@@ -262,7 +252,7 @@ $(document).ready(function() {
                 // User confirmed - proceed with revoke
                 $btn.prop('disabled', true);
                 showStatus('<?php echo get_phrase('revoking_all_permissions'); ?>...', 'info');
-                
+
                 $.ajax({
                     url: '<?php echo site_url('user_permissions/revoke_all_module_permissions'); ?>',
                     method: 'POST',
@@ -277,7 +267,7 @@ $(document).ready(function() {
                             showStatus(response.message, 'success');
                             // Uncheck all checkboxes for this module
                             $('tr[data-module="' + module + '"]').find('.permission-checkbox').prop('checked', false);
-                            
+
                             // Show success alert modal
                             showAjaxModal_alert(response.message || '<?php echo get_phrase('all_permissions_revoked_successfully'); ?>', 'success', true, true);
                         } else {
@@ -297,10 +287,10 @@ $(document).ready(function() {
             'danger'
         );
     });
-    
+
     function grantPermission(userId, userType, module, permission, $checkbox) {
         showStatus('<?php echo get_phrase('granting_permission'); ?>...', 'info');
-        
+
         $.ajax({
             url: '<?php echo site_url('user_permissions/grant_permission'); ?>',
             method: 'POST',
@@ -332,10 +322,10 @@ $(document).ready(function() {
             }
         });
     }
-    
+
     function revokePermission(userId, userType, module, permission, $checkbox) {
         showStatus('<?php echo get_phrase('revoking_permission'); ?>...', 'info');
-        
+
         $.ajax({
             url: '<?php echo site_url('user_permissions/revoke_permission'); ?>',
             method: 'POST',
@@ -367,7 +357,7 @@ $(document).ready(function() {
             }
         });
     }
-    
+
     function showStatus(message, type) {
         var $status = $('#save-status');
         var colors = {
@@ -375,7 +365,7 @@ $(document).ready(function() {
             error: {bg: '#fee2e2', text: '#991b1b'},
             info: {bg: '#dbeafe', text: '#1e40af'}
         };
-        
+
         $status.css({
             'background': colors[type].bg,
             'color': colors[type].text,
@@ -386,39 +376,37 @@ $(document).ready(function() {
 </script>
 
 <style>
-    .permissions-workspace .modern-btn {
+    .modern-btn {
         display:inline-flex;
         align-items:center;
         gap:8px;
-        min-height:var(--sm-ui-control-height,42px);
-        height:var(--sm-ui-control-height,42px);
-        padding:9px 14px;
-        border-radius:9px;
+        padding:12px 24px;
+        border-radius:8px;
         font-weight:600;
         font-size:14px;
         border:none;
         cursor:pointer;
         transition:all 0.2s;
     }
-    
-    .permissions-workspace .modern-btn:hover {
+
+    .modern-btn:hover {
         transform:translateY(-2px);
         box-shadow:0 4px 12px rgba(0,0,0,0.2);
     }
-    
+
     .grant-all-btn:hover,
     .revoke-all-btn:hover {
         transform:translateY(-2px);
         box-shadow:0 2px 8px rgba(0,0,0,0.15);
     }
-    
+
     .grant-all-btn:disabled,
     .revoke-all-btn:disabled {
         opacity:0.5;
         cursor:not-allowed;
     }
-    
-    .permissions-workspace tbody tr:hover {
+
+    tbody tr:hover {
         background:#f9fafb;
     }
 </style>

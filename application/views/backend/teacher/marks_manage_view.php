@@ -18,296 +18,14 @@
 	.form-inline .form-control {
 		width: 60px !important;
 	}
-	@media 
+	@media
 only screen and (min-width: 1530px),
   {
-  	.lgt {
-  		margin-bottom: 10px;
-  	}
+    .lgt {
+        margin-bottom: 10px;
+    }
   }
 
-
-/* Direct UX refinement — Teacher Marks Entry */
-body { background: #f8fafc; }
-
-#subject_loader_form {
-    margin-bottom: 16px;
-    padding: 18px;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    background: #fff;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-}
-#subject_loader_form > .grid {
-    gap: 14px !important;
-}
-#subject_loader_form > .grid > .flex {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
-    gap: 14px !important;
-}
-#subject_loader_form .form-group {
-    margin-bottom: 0 !important;
-}
-#subject_loader_form .control-label {
-    display: block;
-    margin-bottom: 7px !important;
-    color: #334155;
-    font-size: 14px !important;
-    line-height: 1.35;
-    font-weight: 700 !important;
-}
-#subject_loader_form select,
-#subject_loader_form .select2-container .select2-selection--single,
-#subject_loader_form .select2-container .select2-choice {
-    min-height: 46px !important;
-    height: 46px !important;
-    padding: 8px 11px !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 9px !important;
-    background: #fff !important;
-    color: #0f172a !important;
-    font-size: 15px !important;
-    line-height: 1.4 !important;
-    font-weight: 600 !important;
-}
-#subject_loader_form .select2-container {
-    width: 100% !important;
-}
-#subject_loader_form .select2-container .select2-selection__rendered,
-#subject_loader_form .select2-container .select2-choice > span:first-child {
-    line-height: 28px !important;
-    font-size: 15px !important;
-    color: #0f172a !important;
-    font-weight: 600 !important;
-}
-#subject_loader_form .select2-container .select2-selection__arrow {
-    height: 44px !important;
-}
-#subject_loader_form select:focus,
-#subject_loader_form .select2-container--focus .select2-selection--single {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
-    outline: none;
-}
-#subject_holder {
-    display: grid !important;
-    grid-template-columns: minmax(0,1fr) auto !important;
-    gap: 14px !important;
-    align-items: end !important;
-}
-#subject_holder > .w-full[style*="display: none"] {
-    display: none !important;
-}
-#subject_holder > .w-full[style*="padding-top"],
-#subject_holder > .w-full[style*="margin-top"] {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-}
-#subject_loader_form .btn,
-#subject_loader_form button,
-#subject_loader_form input[type="submit"] {
-    min-height: 46px !important;
-    height: 46px !important;
-    padding: 9px 16px !important;
-    border-radius: 9px !important;
-    font-size: 14px !important;
-    line-height: 1.35;
-    font-weight: 800 !important;
-}
-#subject_loader_form .text-xl,
-#subject_loader_form .text-2xl,
-#subject_loader_form .h-20 {
-    font-size: 15px !important;
-    height: 46px !important;
-    min-height: 46px !important;
-}
-
-.tile-stats.tile-gray {
-    margin: 0 auto 16px;
-    padding: 14px 18px;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    background: #fff !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-}
-.tile-stats.tile-gray .icon {
-    opacity: .12;
-}
-.tile-stats.tile-gray h4 {
-    margin: 4px 0;
-    color: #334155 !important;
-    font-size: 14px !important;
-    line-height: 1.45;
-    font-weight: 700;
-}
-
-#mark_sheet_wrapper {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 0 0 8px;
-}
-#mark_sheet {
-    min-width: 1320px;
-    width: 100% !important;
-    border-collapse: separate !important;
-    border-spacing: 0;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #fff;
-    font-size: 14px !important;
-}
-#mark_sheet thead {
-    background: #f8fafc !important;
-}
-#mark_sheet thead th {
-    padding: 11px 9px !important;
-    color: #475569 !important;
-    font-size: 13px !important;
-    line-height: 1.25;
-    font-weight: 800 !important;
-    letter-spacing: .025em;
-    border-bottom: 1px solid #e2e8f0 !important;
-    vertical-align: middle;
-}
-#mark_sheet tbody td {
-    padding: 8px 7px !important;
-    color: #334155 !important;
-    font-size: 14px !important;
-    line-height: 1.4;
-    vertical-align: middle;
-    border-bottom: 1px solid #eef2f7;
-}
-#mark_sheet tbody tr:hover td {
-    background: #f8fbff !important;
-}
-#mark_sheet tbody td.whitespace-nowrap {
-    font-weight: 700;
-    color: #0f172a !important;
-}
-#mark_sheet input[type="text"],
-#mark_sheet input[type="number"] {
-    width: 76px !important;
-    min-width: 76px;
-    min-height: 40px;
-    height: 40px;
-    padding: 7px 8px !important;
-    margin: 0 auto;
-    border: 1px solid #cbd5e1 !important;
-    border-top: 2px solid #22c55e !important;
-    border-radius: 7px !important;
-    background: #fff !important;
-    box-shadow: none !important;
-    color: #0f172a !important;
-    font-size: 14px !important;
-    line-height: 1.2;
-    font-weight: 700;
-    text-align: center;
-}
-#mark_sheet input[type="text"]:focus,
-#mark_sheet input[type="number"]:focus {
-    border-color: #2563eb !important;
-    border-top-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
-    outline: none;
-}
-#mark_sheet input[readonly] {
-    background: #f1f5f9 !important;
-    border-color: #cbd5e1 !important;
-    border-top-color: #94a3b8 !important;
-    color: #475569 !important;
-    cursor: default !important;
-}
-#mark_sheet .text-xl,
-#mark_sheet .text-lg {
-    font-size: 14px !important;
-}
-#mark_sheet .transf {
-    transform: none !important;
-    white-space: normal !important;
-    min-width: 74px;
-}
-#mark_sheet_length,
-#mark_sheet_filter,
-#mark_sheet_info,
-#mark_sheet_paginate {
-    font-size: 14px !important;
-    color: #475569;
-}
-#mark_sheet_length select,
-#mark_sheet_filter input {
-    min-height: 38px;
-    padding: 7px 9px;
-    border: 1px solid #cbd5e1;
-    border-radius: 7px;
-    font-size: 14px;
-}
-
-#save_button {
-    position: sticky !important;
-    bottom: 10px !important;
-    z-index: 30;
-    margin: 14px 0 0;
-    padding: 10px 12px !important;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    background: rgba(255,255,255,.96);
-    box-shadow: 0 8px 22px rgba(15,23,42,.12);
-    backdrop-filter: blur(8px);
-}
-#save_button #submit_button,
-#save_button button,
-#save_button input[type="submit"] {
-    min-height: 44px;
-    padding: 9px 18px !important;
-    border-radius: 9px !important;
-    font-size: 14px !important;
-    font-weight: 800 !important;
-}
-
-@media (max-width: 767px) {
-    #subject_loader_form {
-        padding: 14px;
-    }
-    #subject_loader_form > .grid > .flex,
-    #subject_holder {
-        grid-template-columns: 1fr !important;
-    }
-    #subject_loader_form select,
-    #subject_loader_form .select2-container .select2-selection--single {
-        font-size: 16px !important;
-    }
-    #mark_sheet {
-        min-width: 1180px;
-    }
-    #mark_sheet thead th {
-        font-size: 13px !important;
-        padding: 9px 7px !important;
-    }
-    #mark_sheet tbody td {
-        font-size: 14px !important;
-        padding: 7px 6px !important;
-    }
-    #mark_sheet input[type="text"],
-    #mark_sheet input[type="number"] {
-        width: 72px !important;
-        min-width: 72px;
-        min-height: 40px;
-        font-size: 16px !important;
-    }
-    #save_button {
-        left: 10px;
-        right: 10px;
-        bottom: 8px !important;
-    }
-    #save_button #submit_button,
-    #save_button button,
-    #save_button input[type="submit"] {
-        width: 100%;
-    }
-}
 </style>
 <hr />
 <?php echo form_open(site_url('admin/marks_selector'), array('id' => 'subject_loader_form'));?>
@@ -320,7 +38,7 @@ body { background: #f8fafc; }
 				<select name="exam_id" class="select2 visible bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-xl font-bold block w-full max-w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 uppercase" required>
 					<?php
 						$class_name = $this->crud_model->get_class_name($class_id);
-						
+
 						if($class_name == 'JHSS') {
 							$this->db->where('year', $running_year);
 							$this->db->where('category_id !=', '1');
@@ -351,15 +69,15 @@ body { background: #f8fafc; }
 								<?php
 								// Track added class IDs to prevent duplicates
 								$added_class_ids = array();
-								
+
 								// First, add classes where teacher is the class teacher (creche)
 								foreach($class_ids_creche as $subj):
 									// Skip if already added
 									if(in_array($subj['class_id'], $added_class_ids)) continue;
-									
+
 									$classes = $this->db->get_where('class', array('class_id' => $subj['class_id']))->result_array();
 									foreach($classes as $row):
-									 
+
 									 //add section A or B if the class has more than one section
 				                    $section_name = $this->db->get_where('section', array('class_id' => $row['class_id']))->row()->name;
 				                    $class_has_more_sections = $this->db->get_where('class', array('name' => $row['name'], 'name_numeric' => $row['name_numeric']))->num_rows();
@@ -369,21 +87,21 @@ body { background: #f8fafc; }
 				                    }
 								?>
 								<option value="<?php echo $row['class_id'];?>" <?php if($class_id == $row['class_id']) echo 'selected';?>><?php echo $row['name'].' '.$row['name_numeric'].$sec_name;?></option>
-								<?php 
+								<?php
 									// Mark this class as added
 									$added_class_ids[] = $subj['class_id'];
-									endforeach; 
-								endforeach; //FOR CRECHE ?> 
-				                
+									endforeach;
+								endforeach; //FOR CRECHE ?>
+
 				                <?php
 								// Second, add classes where teacher teaches subjects
 								foreach($class_ids as $subj):
 									// Skip if already added
 									if(in_array($subj['class_id'], $added_class_ids)) continue;
-									
+
 									$classes = $this->db->get_where('class', array('class_id' => $subj['class_id']))->result_array();
 									foreach($classes as $row):
-									
+
 									//add section A or B if the class has more than one section
 				                    $section_name = $this->db->get_where('section', array('class_id' => $row['class_id']))->row()->name;
 				                    $class_has_more_sections = $this->db->get_where('class', array('name' => $row['name'], 'name_numeric' => $row['name_numeric']))->num_rows();
@@ -393,10 +111,10 @@ body { background: #f8fafc; }
 				                    }
 								?>
 								<option value="<?php echo $row['class_id'];?>" <?php if($class_id == $row['class_id']) echo 'selected';?>><?php echo $row['name'].' '.$row['name_numeric'].$sec_name;?></option>
-								<?php 
+								<?php
 									// Mark this class as added
 									$added_class_ids[] = $subj['class_id'];
-									endforeach; 
+									endforeach;
 								endforeach; ?>
 							</select>
 						</div>
@@ -426,13 +144,13 @@ body { background: #f8fafc; }
 				<div class="form-group">
 				<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('section');?></label>
 					<select name="section_id" id="section_id" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-xl font-bold block w-full max-w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 uppercase">
-						<?php 
+						<?php
 							$sections = $this->db->get_where('section' , array(
-								'class_id' => $class_id 
+								'class_id' => $class_id
 							))->result_array();
 							foreach($sections as $row):
 						?>
-						<option value="<?php echo $row['section_id'];?>" 
+						<option value="<?php echo $row['section_id'];?>"
 							<?php if($section_id == $row['section_id']) echo 'selected';?>>
 								<?php echo $row['name'];?>
 						</option>
@@ -444,11 +162,11 @@ body { background: #f8fafc; }
 				<div class="form-group">
 				<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('subject');?></label>
 					<select name="subject_id" onchange="load_subjects()" id="subject_id" class="select2 visible bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-xl font-bold block w-full max-w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 uppercase">
-						<?php 
+						<?php
 
 							if($account_type == 'teacher') {
 
-								if($class_name == 'JHSS') { 
+								if($class_name == 'JHSS') {
 
 									//if this is a class master or class teacher, grant full access to all the subjects
 									if($class_teacher == $this->session->userdata('teacher_id')) {
@@ -475,7 +193,7 @@ body { background: #f8fafc; }
 
 							} else {
 
-								if($class_name == 'JHSS') { 
+								if($class_name == 'JHSS') {
 
 									$subjects = $this->db->get_where('subject' , array(
 									'class_id' => $class_id , 'year' => $this->db->get_where('settings' , array('type' => 'running_year'))->row()->description, 'sem' => $this->db->get_where('settings' , array('type' => 'running_sem'))->row()->description
@@ -488,7 +206,7 @@ body { background: #f8fafc; }
 
 								}
 							}
-							
+
 							foreach($subjects as $row):
 						?>
 						<option value="<?php echo $row['subject_id'];?>"
@@ -505,19 +223,19 @@ body { background: #f8fafc; }
 					echo get_button('submit', "Manage Marks", '', 'btn_marks')
 				?>
 			</div>
-			
+
 			<!-- View Marksheet Button - Only for class/form masters -->
 			<?php if($account_type == 'teacher'): ?>
 				<?php
 					// Check if current teacher is the class/form master
 					$class_info = $this->db->get_where('class', array('class_id' => $class_id))->row();
 					$is_class_master = ($class_info && $class_info->teacher_id == $this->session->userdata('teacher_id'));
-					
+
 					if($is_class_master):
 						// Get first enrolled student in this class for current academic session
 						$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 						$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-						
+
 						$first_student = $this->db->select('student_id')
 							->from('enroll')
 							->where('class_id', $class_id)
@@ -528,7 +246,7 @@ body { background: #f8fafc; }
 							->limit(1)
 							->get()
 							->row();
-						
+
 						if($first_student):
 							$marksheet_url = site_url('admin/student_marksheet/'.$first_student->student_id);
 				?>
@@ -537,9 +255,9 @@ body { background: #f8fafc; }
 						<i class="entypo-doc-text"></i> View Marksheet
 					</a>
 				</div>
-				<?php 
+				<?php
 						endif;
-					endif; 
+					endif;
 				?>
 			<?php else: ?>
 				<!-- Admin always sees the button -->
@@ -547,7 +265,7 @@ body { background: #f8fafc; }
 					// Get first enrolled student in this class for current academic session
 					$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 					$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-					
+
 					$first_student = $this->db->select('student_id')
 						->from('enroll')
 						->where('class_id', $class_id)
@@ -558,7 +276,7 @@ body { background: #f8fafc; }
 						->limit(1)
 						->get()
 						->row();
-					
+
 					if($first_student):
 						$marksheet_url = site_url('admin/student_marksheet/'.$first_student->student_id);
 				?>
@@ -582,11 +300,11 @@ body { background: #f8fafc; }
 			<div class="icon"><i class="entypo-chart-bar" style="color: #8082ec"></i></div>
 
 			<?php
-				
+
 
 			?>
-			
-			
+
+
 			<?php
 				if($class_name == 'JHSS') {
 					?>
@@ -606,8 +324,8 @@ body { background: #f8fafc; }
 				}
 			?>
 			<h4 style="color: #696969;">
-				<?php echo $this->db->get_where('class' , array('class_id' => $class_id))->row()->name.' '.$this->db->get_where('class' , array('class_id' => $class_id))->row()->name_numeric;?> : 
-				<?php echo get_phrase('section');?> <?php echo $this->db->get_where('section' , array('section_id' => $section_id))->row()->name;?> 
+				<?php echo $this->db->get_where('class' , array('class_id' => $class_id))->row()->name.' '.$this->db->get_where('class' , array('class_id' => $class_id))->row()->name_numeric;?> :
+				<?php echo get_phrase('section');?> <?php echo $this->db->get_where('section' , array('section_id' => $section_id))->row()->name;?>
 			</h4>
 
 			<?php
@@ -624,7 +342,7 @@ body { background: #f8fafc; }
 					</h4>
 					<?php
 				} ?>
-			
+
 		</div>
 	</div>
 	<div class="col-sm-4"></div>
@@ -640,14 +358,14 @@ body { background: #f8fafc; }
 						<th rowspan="2" class="hidden-xs hidden-sm"><?php echo get_phrase('id');?></th>
 						<th rowspan="2"><?php echo get_phrase('name');?></th>
 						<th colspan="4" style="text-align: center; padding-top: 20px;">TASKS</th>
-						
+
 						<th rowspan="2" style="text-align: center;"><div class="transf lgt">Sub Total<br>(60)</div></th>
 						<th rowspan="2" style="text-align: center;">50%<br>(A)</th>
 						<th rowspan="2" style="text-align: center; "><div class="transf lgt whitespace-nowrap">Term Exam</div></th>
 						<th rowspan="2" style="text-align: center;">50%<br>(B)</th>
 						<th rowspan="2" style="text-align: center;">Total<br>(A+B)</th>
 					</tr>
-					<tr>						
+					<tr>
 						<th style="text-align: center; "><div class="transf whitespace-pre-wrap">Class Test<br>(20)</div></th>
 						<th style="text-align: center; "><div class="transf lgt whitespace-pre-wrap">Group Work<br>(10)</div></th>
 						<th style="text-align: center; "><div class="transf">Test 2<br>(20)</div></th>
@@ -658,7 +376,7 @@ body { background: #f8fafc; }
 				<?php
 					$count = 1;
 					$marks_of_students = $this->db->get_where('mark' , array(
-						'class_id' => $class_id, 
+						'class_id' => $class_id,
 							'section_id' => $section_id ,
 								'year' => $running_year,
 									 'term' => $running_term,
@@ -679,8 +397,8 @@ body { background: #f8fafc; }
 							<?php echo $this->db->get_where('student' , array('student_id' => $row['student_id']))->row()->name;?>
 						</td>
 
-						
-							
+
+
 							<td style="text-align: center">
 								<input type="text" id="test1_<?php echo $row['student_id']; ?>" class="bg-gray-50 border border-gray-400 shadow-lg border-t-2 border-t-green-500 text-gray-900 rounded-lg focus:ring-primary-600 text-xl focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" name="test1_<?php echo $row['mark_id'];?>"
 								value="<?php echo $row['test1'];?>" max="20" onkeyup="update_sub_total()" onchange="update_sub_total()">
@@ -697,7 +415,7 @@ body { background: #f8fafc; }
 								<input type="text" id="project_<?php echo $row['student_id']; ?>" class="bg-gray-50 border border-gray-400 text-xl shadow-lg border-t-2 border-t-green-500 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" name="project_<?php echo $row['mark_id'];?>"
 								value="<?php echo $row['project'];?>" max="10" onkeyup="update_sub_total()" onchange="update_sub_total()">
 							</td>
-						
+
 
 						<td style="text-align: center">
 							<input type="text" id="sub_total_<?php echo $row['student_id']; ?>" class="bg-gray-300 border border-gray-400 shadow-lg border-t-2 border-t-gray-500 text-xl text-gray-600 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 cursor-not-allowed" name="sub_total_<?php echo $row['mark_id'];?>"
@@ -720,7 +438,7 @@ body { background: #f8fafc; }
 						</td>
 						<td style="text-align: center">
 							<span style="font-weight: bold";><input type="text" id="total_score_<?php echo $row['student_id']; ?>" class="bg-gray-300 border border-gray-400 shadow-lg border-t-2 border-t-gray-500 text-xl text-gray-600 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 cursor-not-allowed" name="marks_obtained_<?php echo $row['mark_id'];?>"
-								value="<?php echo $row['mark_obtained'];?>" readonly></span>	
+								value="<?php echo $row['mark_obtained'];?>" readonly></span>
 						</td>
 
 					</tr>
@@ -739,7 +457,7 @@ body { background: #f8fafc; }
 			?>
 		</div>
 		<?php echo form_close();?>
-		
+
 	</div>
 </div>
 
@@ -818,16 +536,16 @@ body { background: #f8fafc; }
             success: function(response)
             {
                 if(response.section == 'creche') {
-	            		jQuery('#subject_holder').html(response.subject);
-	            	} else {
+                        jQuery('#subject_holder').html(response.subject);
+                    } else {
 
-	            		$('#category_holder').slideUp('slow');
-            			$('#category_holder').css('display', 'none');
-            			$('#subject_holder2').removeClass('col-span-2');
-            			jQuery('#section_id').html(response.section);
+                        $('#category_holder').slideUp('slow');
+                        $('#category_holder').css('display', 'none');
+                        $('#subject_holder2').removeClass('col-span-2');
+                        jQuery('#section_id').html(response.section);
 	                jQuery('#subject_id').html(response.subject);
 	                $('#subject_id').select2();
-	            	}
+                    }
             }
         });
 	  }
@@ -836,9 +554,9 @@ body { background: #f8fafc; }
 
 	//update subtotal area on onkeydown event
 	function update_sub_total(){
-		
+
 		var max_student_id = <?php echo $this->crud_model->get_max_student_id($class_id, $subject_id); ?>;
-		
+
 
 		for(var i = 1; i <= max_student_id; i++){
 			var exam_score =  Number($("#exam_score_"+i).val());
@@ -856,24 +574,24 @@ body { background: #f8fafc; }
 			var class_score =  Number($("#class_score_"+i).val());
 			$("#total_score_" + i).val(class_score + exam_score);
 		}
-		
+
 	}
 
 
 	//update exam score area on onkeydown event
 	function update_exam_score(){
-		
+
 		var max_student_id = <?php echo $this->crud_model->get_max_student_id($class_id, $subject_id); ?>;
-		
+
 
 		for(var i = 1; i <= max_student_id; i++){
 			var class_score =  $("#class_score_"+i).val();
 			class_score = Number(class_score);
 
 			var term_exam = $("#term_exam_"+i).val();
-				
+
 				term_exam = Number(term_exam);
-			
+
 			$("#exam_score_" + i).val(term_exam / 2);
 
 			var exam_score =  $("#exam_score_"+i).val();
@@ -881,12 +599,12 @@ body { background: #f8fafc; }
 
 			$("#total_score_" + i).val(class_score + exam_score);
 		}
-		
+
 	}
 
 	//update total score area on onkeydown event
 	function update_total_score(){
-		
+
 		var max_student_id = <?php echo $this->crud_model->get_max_student_id($class_id, $subject_id); ?>;
 
 		for(var i = 1; i <= max_student_id; i++){
@@ -894,10 +612,10 @@ body { background: #f8fafc; }
 			var es = $("#exam_score_"+i).val();
 				cs = Number(cs);
 				es = Number(es);
-			
+
 			$("#total_score_" + i).val(cs + es);
 		}
-		
+
 	}
 
 	$('#submit_button').click(function() {
@@ -963,31 +681,31 @@ $('#subject_loader_form').submit(function(event) {
       processData: false
   })
   .done(function(data) {
-  	if(data == 'no subject') {
-  		showAjaxModal_alert('Please select subject for this class.', 'Error');
+    if(data == 'no subject') {
+        showAjaxModal_alert('Please select subject for this class.', 'Error');
 
 
-  		setTimeout(() => {
-  			navigation('<?php echo site_url('admin/marks_selector'); ?>')
-  		}, 5000);
-      
-  	} else if(data == 'no enrollment') {
-  		showAjaxModal_alert('Make sure students were enrolled before proceeding. Try marking attendance first and try again.', 'Error');
+        setTimeout(() => {
+            navigation('<?php echo site_url('admin/marks_selector'); ?>')
+        }, 5000);
 
-  		
+    } else if(data == 'no enrollment') {
+        showAjaxModal_alert('Make sure students were enrolled before proceeding. Try marking attendance first and try again.', 'Error');
 
-  		setTimeout(() => {
-  			navigation('<?php echo site_url('admin/marks_selector'); ?>')
-  		}, 5000);
-      
-  	} else {
-  		$('#main_page').empty();
-  		
-  		navigation(data);
-  	}
+
+
+        setTimeout(() => {
+            navigation('<?php echo site_url('admin/marks_selector'); ?>')
+        }, 5000);
+
+    } else {
+        $('#main_page').empty();
+
+        navigation(data);
+    }
   });
 });
-	
+
 </script>
 
 <style>
@@ -996,18 +714,18 @@ $('#subject_loader_form').submit(function(event) {
     .grid {
         grid-template-columns: 1fr !important;
     }
-    
+
     .flex.gap-4 {
         flex-direction: column !important;
     }
-    
+
     .w-full select {
         font-size: 16px !important;
         height: auto !important;
         min-height: 50px !important;
         padding: 12px !important;
     }
-    
+
     .form-group label {
         font-size: 14px !important;
     }

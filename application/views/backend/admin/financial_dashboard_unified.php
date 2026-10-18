@@ -4,62 +4,6 @@
 .shadow-3xl {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
-
-/* ============================================================
-   Family design-language alignment (SchoolManager dashboard system).
-   Presentation only - no structural or behavioural change.
-   !important is used where the Tailwind play CDN generates competing
-   rules at runtime; overrides are scoped to this page's classes.
-   ============================================================ */
-
-/* Flat family page canvas instead of the blue-tinted gradient */
-.from-slate-50.via-blue-50.to-indigo-50 {
-    background: #f9fafb !important;
-}
-
-/* Header title - family typography (solid ink, no gradient text) */
-h1.bg-gradient-to-r {
-    background-image: none !important;
-    -webkit-background-clip: initial !important;
-    background-clip: initial !important;
-    color: #1f2937 !important;
-    -webkit-text-fill-color: #1f2937 !important;
-}
-
-/* Cards - family elevation system (soft ambient + gentle lift) */
-.shadow-2xl {
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 24px rgba(16, 24, 40, 0.08) !important;
-}
-.shadow-3xl {
-    box-shadow: 0 10px 24px rgba(16, 24, 40, 0.10) !important;
-}
-.hover\:scale-105:hover,
-.hover\:shadow-3xl:hover {
-    transform: translateY(-2px) !important;
-}
-
-/* Focus visibility - family ring on interactive controls */
-#periodSelector:focus-visible,
-button:focus-visible {
-    outline: none !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4) !important;
-}
-
-/* 400px hardening tier */
-@media (max-width: 480px) {
-    .min-h-screen.p-6 { padding: 1rem !important; }
-}
-@media (max-width: 400px) {
-    .p-8 { padding: 1.25rem !important; }
-    h1.text-4xl { font-size: 1.6rem !important; line-height: 1.25 !important; }
-    .text-4xl { font-size: 1.75rem !important; }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    .animate-pulse { animation: none !important; }
-    * { transition-duration: 0.01ms !important; }
-}
 </style>
 <!-- Flowbite CDN -->
 <link href="<?php echo base_url(); ?>assets/cdn/css/flowbite.min.css" rel="stylesheet" />
@@ -70,7 +14,7 @@ button:focus-visible {
 <script src="<?php echo base_url(); ?>assets/cdn/js/apexcharts.min.js"></script>
 
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6 mt-8">
-    
+
     <!-- Header Section -->
     <div class="mb-8">
         <div class="flex items-center justify-between">
@@ -80,7 +24,7 @@ button:focus-visible {
                 </h1>
                 <p class="text-slate-600 mt-2">Real-time financial intelligence across all systems</p>
             </div>
-            
+
             <!-- Period Selector -->
             <div class="flex items-center gap-3">
                 <select id="periodSelector" class="px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -90,7 +34,7 @@ button:focus-visible {
                     <option value="quarter">This Quarter</option>
                     <option value="year">This Year</option>
                 </select>
-                
+
                 <button onclick="refreshDashboard()" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -127,7 +71,7 @@ button:focus-visible {
 
     <!-- Key Metrics Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-        
+
         <!-- Total Revenue -->
         <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-2xl hover:shadow-3xl p-8 text-white transform hover:scale-105 transition-all duration-300">
             <div class="flex items-center justify-between mb-6">
@@ -227,7 +171,7 @@ button:focus-visible {
 
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        
+
         <!-- Revenue Trends Chart -->
         <div class="lg:col-span-2 bg-white rounded-2xl shadow-2xl hover:shadow-3xl p-8 border border-slate-200 transition-shadow duration-300">
             <div class="flex items-center justify-between mb-6">
@@ -252,7 +196,7 @@ button:focus-visible {
 
     <!-- Revenue Breakdown -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        
+
         <!-- By Fee Type -->
         <div class="bg-white rounded-2xl shadow-2xl hover:shadow-3xl p-8 border border-slate-200 transition-shadow duration-300">
             <h2 class="text-xl font-bold text-slate-800 mb-6">Revenue by Fee Type</h2>
@@ -268,7 +212,7 @@ button:focus-visible {
 
     <!-- Journal Entries & Sync Status -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         <!-- Auto Journal Entries -->
         <div class="bg-white rounded-2xl shadow-2xl hover:shadow-3xl p-8 border border-slate-200 transition-shadow duration-300">
             <div class="flex items-center justify-between mb-6">
@@ -280,7 +224,7 @@ button:focus-visible {
                     Sync Now
                 </button>
             </div>
-            
+
             <div class="space-y-4">
                 <div class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
                     <div>
@@ -293,7 +237,7 @@ button:focus-visible {
                         </svg>
                     </div>
                 </div>
-                
+
                 <div class="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
                     <div>
                         <p class="text-sm text-slate-600">Synced Amount</p>
@@ -305,7 +249,7 @@ button:focus-visible {
                         </svg>
                     </div>
                 </div>
-                
+
                 <div class="flex items-center justify-between p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl">
                     <div>
                         <p class="text-sm text-slate-600">Pending Sync</p>
@@ -338,7 +282,7 @@ const currency = '<?php echo get_settings('currency'); ?>';
 // Initialize dashboard
 $(document).ready(function() {
     loadDashboard();
-    
+
     $('#periodSelector').change(function() {
         loadDashboard();
     });
@@ -346,7 +290,7 @@ $(document).ready(function() {
 
 function loadDashboard() {
     const period = $('#periodSelector').val();
-    
+
     $.ajax({
         url: '<?php echo base_url(); ?>financial_integration/get_financial_overview',
         type: 'GET',
@@ -372,12 +316,12 @@ function renderDashboard() {
         console.error('No dashboard data');
         return;
     }
-    
+
     const fee = dashboardData.fee_collection || {};
     const analytics = dashboardData.analytics || {};
     const accounts = dashboardData.accounts || {};
     const health = dashboardData.integration_status || {};
-    
+
     // Load expenditure data
     $.ajax({
         url: '<?php echo site_url('admin/get_expenditure_stats'); ?>',
@@ -387,35 +331,35 @@ function renderDashboard() {
             $('#totalExpenditure').text(currency + ' ' + formatNumber(expData.month || 0));
             $('#expTransactions').text((expData.month_count || 0) + ' transactions');
             $('#expGrowth').text(((expData.change_percent || 0) >= 0 ? '+' : '') + (expData.change_percent || 0) + '%');
-            
+
             // Calculate profit/loss
             const revenue = fee.grand_total || 0;
             const expenditure = expData.month || 0;
             const profit = revenue - expenditure;
             const margin = revenue > 0 ? ((profit / revenue) * 100).toFixed(1) : 0;
-            
+
             $('#netProfit').text(currency + ' ' + formatNumber(profit));
             $('#netProfit').css('color', profit >= 0 ? '#fff' : '#fee2e2');
             $('#profitMargin').text(margin + '%');
             $('#profitStatus').text(profit >= 0 ? 'Profit This Month' : 'Loss This Month');
         }
     });
-    
+
     // Update key metrics
     $('#totalRevenue').text(currency + ' ' + formatNumber(fee.grand_total || 0));
     $('#revenueTransactions').text((fee.total_transactions || 0) + ' transactions');
     $('#revenueGrowth').text(((analytics.growth_rate || 0) >= 0 ? '+' : '') + (analytics.growth_rate || 0) + '%');
-    
+
     $('#collectionRate').text((fee.collection_rate || 0).toFixed(1) + '%');
     $('#collectionBar').css('width', (fee.collection_rate || 0) + '%');
     $('#collectionDetails').text((fee.students_paid || 0) + ' students paid');
-    
+
     $('#outstandingArrears').text(currency + ' ' + formatNumber(fee.outstanding_arrears || 0));
     $('#arrearsCollected').text(currency + ' ' + formatNumber(fee.arrears_collected || 0) + ' collected');
-    
+
     $('#cashPosition').text(currency + ' ' + formatNumber(accounts.cash_position || 0));
     $('#prepaidBalance').text(currency + ' ' + formatNumber(fee.prepaid_balance || 0) + ' prepaid');
-    
+
     // Update integration status
     $('#accountsStatus').removeClass('bg-green-500 bg-amber-500 bg-red-500');
     if (health.fee_to_accounts) {
@@ -423,11 +367,11 @@ function renderDashboard() {
     } else {
         $('#accountsStatus').addClass('bg-amber-500');
     }
-    
+
     $('#autoEntries').text(accounts.auto_journal_entries || 0);
     $('#syncedAmount').text(currency + ' ' + formatNumber(accounts.auto_entries_amount || 0));
     $('#pendingSync').text(health.pending_entries || 0);
-    
+
     // Render charts
     renderRevenueTrends(analytics.trends || []);
     renderTopCollectors(analytics.top_collectors || []);
@@ -480,7 +424,7 @@ function renderRevenueTrends(trends) {
             }
         }
     };
-    
+
     if (charts.revenueTrends) {
         charts.revenueTrends.destroy();
     }
@@ -539,7 +483,7 @@ function renderFeeTypeChart(fee) {
             }
         }
     };
-    
+
     if (charts.feeType) {
         charts.feeType.destroy();
     }
@@ -576,7 +520,7 @@ function renderPaymentMethodChart(fee) {
         },
         legend: { show: false }
     };
-    
+
     if (charts.paymentMethod) {
         charts.paymentMethod.destroy();
     }

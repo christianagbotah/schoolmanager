@@ -1,6 +1,6 @@
 <script src="<?php echo base_url(); ?>assets/cdn/js/tailwindcss.js"></script>
 
-<div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl shadow-sm p-6 mb-6 routine-teacher-view-head">
+<div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl shadow-sm p-6 mb-6">
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-3xl font-bold text-gray-800 mb-2"><?php echo get_phrase('class_time_table');?></h2>
@@ -28,7 +28,7 @@ if($query->num_rows() > 0):
     <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4 flex items-center justify-between">
         <div class="text-white">
             <h3 class="text-xl font-bold">
-                <?php echo $this->db->get_where('class', array('class_id' => $class_id))->row()->name.' '.$this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;?> | 
+                <?php echo $this->db->get_where('class', array('class_id' => $class_id))->row()->name.' '.$this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;?> |
                 <?php echo get_phrase('section');?> - <?php echo $this->db->get_where('section', array('section_id' => $row['section_id']))->row()->name;?>
             </h3>
         </div>
@@ -41,7 +41,7 @@ if($query->num_rows() > 0):
     <div class="overflow-x-auto">
         <table class="w-full">
             <tbody class="divide-y divide-gray-200">
-                <?php 
+                <?php
                 $days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
                 $day_colors = [
                     'sunday' => 'from-red-500 to-orange-500',
@@ -52,7 +52,7 @@ if($query->num_rows() > 0):
                     'friday' => 'from-pink-500 to-rose-500',
                     'saturday' => 'from-indigo-500 to-blue-500'
                 ];
-                
+
                 foreach($days as $day):
                 ?>
                 <tr class="hover:bg-gray-50 transition-colors duration-150">
@@ -69,7 +69,7 @@ if($query->num_rows() > 0):
                             $this->db->where('day', $day);
                             $this->db->where('class_id', $class_id);
                             $this->db->where('section_id', $row['section_id']);
-                            
+
                             if($class_name == 'JHSS') {
                                 $this->db->where('sem', $running_sem);
                             } else {
@@ -77,7 +77,7 @@ if($query->num_rows() > 0):
                             }
                             $this->db->where('year', $running_year);
                             $routines = $this->db->get('class_routine')->result_array();
-                            
+
                             if(empty($routines)):
                             ?>
                                 <span class="text-gray-400 italic">No classes scheduled</span>
@@ -97,7 +97,7 @@ if($query->num_rows() > 0):
                                         </div>
                                         <div class="text-xs opacity-90">
                                             <?php
-                                            if ($row2['time_start_min'] == 0 && $row2['time_end_min'] == 0) 
+                                            if ($row2['time_start_min'] == 0 && $row2['time_end_min'] == 0)
                                                 echo $row2['time_start'].':00 - '.$row2['time_end'].':00';
                                             else
                                                 echo $row2['time_start'].':'.$row2['time_start_min'].' - '.$row2['time_end'].':'.$row2['time_end_min'];
@@ -111,7 +111,7 @@ if($query->num_rows() > 0):
                                     <?php endif; ?>
                                 </div>
                             </div>
-                            <?php 
+                            <?php
                                 endforeach;
                             endif;
                             ?>
@@ -124,7 +124,7 @@ if($query->num_rows() > 0):
     </div>
 </div>
 
-<?php 
+<?php
     endforeach;
 else:
 ?>
@@ -135,77 +135,9 @@ else:
     <h3 class="text-2xl font-bold text-gray-800 mb-2"><?php echo get_phrase('no_sections_found');?></h3>
     <p class="text-gray-600"><?php echo get_phrase('please_add_sections_to_this_class_first');?></p>
 </div>
-<?php 
+<?php
 endif;
 ?>
-
-<style>
-/* Direct UX refinement — Teacher Class Routine View */
-body { background: #f8fafc; }
-.routine-teacher-view-head {
-    margin: 0 0 18px !important; padding: 22px 24px !important;
-    border: 1px solid #e2e8f0; border-radius: 14px !important;
-    background-image: none !important; background-color: #fff !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-}
-.routine-teacher-view-head h2 {
-    margin-bottom: 4px !important; color: #0f172a !important;
-    font-size: 30px !important; line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em;
-}
-.routine-teacher-view-head p { color: #64748b !important; font-size: 15px !important; line-height: 1.5; }
-.routine-teacher-view-head a {
-    min-height: 42px; padding: 9px 16px !important; border-radius: 9px !important;
-    background-image: none !important; background-color: #2563eb !important;
-    font-size: 14px !important; font-weight: 800 !important; transform: none !important;
-}
-.routine-teacher-view-head a:hover { background-color: #1d4ed8 !important; transform: translateY(-1px) !important; }
-
-.routine-teacher-view-head ~ .bg-white.rounded-xl {
-    margin-bottom: 14px !important; border: 1px solid #e2e8f0; border-radius: 14px !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-}
-.routine-teacher-view-head ~ .bg-white.rounded-xl > .bg-gradient-to-r {
-    min-height: 52px; padding: 11px 16px !important;
-    background-image: none !important; background-color: #0f172a !important;
-}
-.routine-teacher-view-head ~ .bg-white.rounded-xl > .bg-gradient-to-r h3 {
-    font-size: 16px !important; line-height: 1.4; font-weight: 800 !important;
-}
-.routine-teacher-view-head ~ .bg-white.rounded-xl > .bg-gradient-to-r a {
-    min-height: 36px; padding: 7px 11px !important; border-radius: 8px !important;
-    font-size: 13px !important; font-weight: 800 !important; color: #1e3a8a !important;
-}
-.routine-teacher-view-head ~ .bg-white.rounded-xl .overflow-x-auto { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.routine-teacher-view-head ~ .bg-white.rounded-xl table { min-width: 820px; }
-.routine-teacher-view-head ~ .bg-white.rounded-xl table td {
-    padding: 12px 13px !important; font-size: 14px !important; line-height: 1.45;
-}
-.routine-teacher-view-head ~ .bg-white.rounded-xl table td:first-child { width: 130px !important; }
-.routine-teacher-view-head ~ .bg-white.rounded-xl table td:first-child > div {
-    min-height: 34px; padding: 7px 10px !important; border-radius: 8px !important;
-    background-image: none !important; background-color: #475569 !important;
-    font-size: 13px !important; box-shadow: none !important;
-}
-.routine-teacher-view-head ~ .bg-white.rounded-xl table .group > div {
-    min-height: 42px; padding: 8px 11px !important; border-radius: 8px !important;
-    background-image: none !important; box-shadow: none !important; transform: none !important;
-}
-.routine-teacher-view-head ~ .bg-white.rounded-xl table .group > div.bg-gradient-to-r.from-green-500 {
-    background-color: #059669 !important;
-}
-.routine-teacher-view-head ~ .bg-white.rounded-xl table .group > div.bg-gradient-to-r.from-gray-500 {
-    background-color: #64748b !important;
-}
-.routine-teacher-view-head ~ .bg-white.rounded-xl table .text-sm { font-size: 14px !important; line-height: 1.35 !important; }
-.routine-teacher-view-head ~ .bg-white.rounded-xl table .text-xs { font-size: 13px !important; line-height: 1.35 !important; }
-
-@media (max-width: 767px) {
-    .routine-teacher-view-head { padding: 18px 16px !important; }
-    .routine-teacher-view-head > .flex { align-items: flex-start !important; flex-direction: column !important; gap: 12px; }
-    .routine-teacher-view-head h2 { font-size: 26px !important; }
-    .routine-teacher-view-head a { width: 100%; justify-content: center; }
-}
-</style>
 
 <style>
 @keyframes fadeIn {

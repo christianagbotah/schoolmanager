@@ -1,6 +1,6 @@
 <script src="<?php echo base_url(); ?>assets/cdn/js/tailwindcss.js"></script>
 
-<div class="bg-blue-50 rounded-xl shadow-sm p-6 mb-6 teacher-subject-workspace-head">
+<div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm p-6 mb-6">
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-3xl font-bold text-gray-800 mb-2"><?php echo get_phrase('my_subjects');?></h2>
@@ -29,7 +29,7 @@
 <div class="bg-white rounded-xl shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
         <table class="w-full datatable" id="table_export">
-            <thead class="bg-indigo-600 text-white">
+            <thead class="bg-gradient-to-r from-indigo-500 to-blue-500 text-white">
                 <tr>
                     <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
                         <i class="entypo-book-open mr-2"></i><?php echo get_phrase('subject_name');?>
@@ -46,7 +46,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-                <?php 
+                <?php
                 $count = 1;
                 foreach($subjects as $row):
                     $class = $this->db->get_where('class', array('class_id' => $row['class_id']))->result_array();
@@ -61,7 +61,7 @@
                 <tr class="hover:bg-indigo-50 transition-colors duration-150">
                     <td class="px-6 py-4">
                         <div class="flex items-center">
-                            <div class="flex-shrink-0 h-10 w-10 bg-indigo-500 rounded-lg flex items-center justify-center text-white font-bold">
+                            <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-indigo-400 to-blue-500 rounded-lg flex items-center justify-center text-white font-bold">
                                 <?php echo substr($row['name'], 0, 1);?>
                             </div>
                             <div class="ml-4">
@@ -95,7 +95,7 @@
                         <?php endif; ?>
                     </td>
                 </tr>
-                <?php 
+                <?php
                     endforeach;
                 endforeach;
                 ?>
@@ -124,92 +124,12 @@ jQuery(document).ready(function($) {
             }
         });
     }
-    
+
     $(".dataTables_wrapper select").select2({
         minimumResultsForSearch: -1
     });
 });
 </script>
-
-<style>
-/* Teacher Subjects — unified enterprise scale */
-body { background: #f8fafc; }
-.teacher-subject-workspace-head {
-    margin: 0 0 18px !important; padding: 20px 24px !important;
-    border: 1px solid #e2e8f0; border-radius: 14px !important;
-    background: #fff !important; box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-}
-.teacher-subject-workspace-head > .flex { gap: 18px; }
-.teacher-subject-workspace-head h2 {
-    margin-bottom: 4px !important; color: #0f172a !important;
-    font-size: 28px !important; line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em;
-}
-.teacher-subject-workspace-head p { color: #64748b !important; font-size: 14px !important; line-height: 1.5; }
-.teacher-subject-workspace-head .bg-white {
-    min-width: 120px; padding: 12px 16px !important; border: 1px solid #e2e8f0;
-    box-shadow: none !important;
-}
-.teacher-subject-workspace-head .bg-white .text-sm { font-size: 13px !important; }
-.teacher-subject-workspace-head .bg-white .text-3xl { font-size: 24px !important; line-height: 1.2; }
-
-.teacher-subject-workspace-head + .bg-white,
-.teacher-subject-workspace-head ~ .bg-white.rounded-xl {
-    border: 1px solid #e2e8f0; border-radius: 14px !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-}
-.teacher-subject-workspace-head ~ .bg-white.rounded-xl .overflow-x-auto { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.teacher-subject-workspace-head ~ .bg-white.rounded-xl table { min-width: 820px; }
-.teacher-subject-workspace-head ~ .bg-white.rounded-xl thead {
-    background: #0f172a !important; color: #fff;
-}
-.teacher-subject-workspace-head ~ .bg-white.rounded-xl thead th {
-    padding: 12px 13px !important; font-size: 13px !important; font-weight: 800 !important; letter-spacing: .035em;
-}
-.teacher-subject-workspace-head ~ .bg-white.rounded-xl tbody td {
-    padding: 12px 13px !important; color: #334155; font-size: 14px !important; line-height: 1.45;
-}
-.teacher-subject-workspace-head ~ .bg-white.rounded-xl tbody tr:hover { background: #f8fbff !important; }
-.teacher-subject-workspace-head ~ .bg-white.rounded-xl tbody .h-10.w-10 {
-    width: 38px !important; height: 38px !important; border-radius: 9px !important;
-}
-.teacher-subject-workspace-head ~ .bg-white.rounded-xl tbody .text-sm { font-size: 14px !important; line-height: 1.4 !important; }
-.teacher-subject-workspace-head ~ .bg-white.rounded-xl tbody .text-xs { font-size: 13px !important; line-height: 1.35 !important; }
-.teacher-subject-workspace-head ~ .bg-white.rounded-xl tbody span.rounded-full {
-    min-height: 30px; padding: 6px 10px !important; display: inline-flex; align-items: center;
-    font-size: 13px !important; font-weight: 700 !important;
-}
-
-.dataTables_wrapper { padding: 14px; }
-.dataTables_wrapper .dataTables_filter,
-.dataTables_wrapper .dataTables_length,
-.dataTables_wrapper .dataTables_info,
-.dataTables_wrapper .dataTables_paginate { color: #475569; font-size: 14px; }
-.dataTables_wrapper .dataTables_filter input,
-.dataTables_wrapper .dataTables_length select {
-    min-height: 40px; border: 1px solid #cbd5e1 !important; border-radius: 8px !important;
-    padding: 8px 10px !important; font-size: 14px; background: #fff; color: #0f172a;
-}
-.dataTables_wrapper .dataTables_filter input:focus,
-.dataTables_wrapper .dataTables_length select:focus {
-    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
-}
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-    min-height: 36px; min-width: 36px; padding: 7px 10px !important; margin: 0 2px !important;
-    border-radius: 7px !important; border: 1px solid #e2e8f0 !important;
-    background: #fff !important; color: #475569 !important; font-size: 13px;
-}
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover,
-.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: #2563eb !important; color: #fff !important; border-color: #2563eb !important;
-}
-
-@media (max-width: 767px) {
-    .teacher-subject-workspace-head { padding: 18px 16px !important; }
-    .teacher-subject-workspace-head > .flex { align-items: flex-start !important; flex-direction: column !important; }
-    .teacher-subject-workspace-head h2 { font-size: 24px !important; }
-    .teacher-subject-workspace-head .bg-white { width: 100%; }
-}
-</style>
 
 <style>
 .dataTables_wrapper .dataTables_paginate .paginate_button {

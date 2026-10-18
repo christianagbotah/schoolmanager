@@ -65,7 +65,7 @@
                         <label for="field-ta" class="control-label"><?php echo get_phrase('class'); ?></label>
 
                         <div class="">
-                            <select name="class_id" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 selectboxit" id="class_id" onchange="return get_class_subject(this.value)" required="">
+                            <select name="class_id" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 select2" id="class_id" onchange="return get_class_subject(this.value)" required="">
                                 <option value=""><?php echo get_phrase('select_class'); ?></option>
                                 <?php getFullClassList();?>
                             </select>
@@ -97,7 +97,7 @@
                         <label for="field-ta" class="control-label"><?php echo get_phrase('file_type'); ?></label>
 
                         <div class="">
-                            <select name="file_type" class="form-control selectboxit">
+                            <select name="file_type" class="form-control select2">
                                 <option value=""><?php echo get_phrase('select_file_type'); ?></option>
                                 <option value="doc" selected><?php echo get_phrase('docx'); ?>/Ms Word</option>
                                 <option value="pdf"><?php echo get_phrase('pdf'); ?></option>
@@ -144,20 +144,20 @@
                 var class_id = '';
                 jQuery(document).ready(function($) {
                     $("#submit").attr('disabled', 'disabled');
-                    
+
                     // Initialize datepickers
                     $('.datepicker').datepicker({
                         format: 'dd M, yyyy',
                         autoclose: true,
                         todayHighlight: true
                     });
-                    
+
                     // AJAX form submission
                     $('form').submit(function(e) {
                         e.preventDefault();
-                        
+
                         var formData = new FormData(this);
-                        
+
                         $.ajax({
                             url: $(this).attr('action'),
                             type: 'POST',

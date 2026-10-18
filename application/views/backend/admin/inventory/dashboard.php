@@ -1,129 +1,11 @@
 <!-- Enterprise Inventory Dashboard -->
 <link href="<?php echo base_url('assets/css/inventory-readable.css'); ?>" rel="stylesheet">
-<style>
-/* Direct UI/UX normalization — Inventory Dashboard */
-.inventory-dashboard-workspace {
-    margin: 0 !important;
-    padding: 24px 28px 40px !important;
-    background: #f8fafc;
-    min-height: 100%;
-}
-.inventory-dashboard-head {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 18px;
-    margin-bottom: 18px;
-    padding-bottom: 18px;
-    border-bottom: 1px solid #e2e8f0;
-}
-.inventory-dashboard-eyebrow {
-    margin: 0 0 4px;
-    color: #2563eb;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-}
-.inventory-dashboard-head h1 {
-    margin: 0;
-    color: #0f172a;
-    font-size: 30px !important;
-    line-height: 1.2;
-    font-weight: 800;
-    letter-spacing: -.02em;
-}
-.inventory-dashboard-head p:last-child {
-    margin: 7px 0 0;
-    color: #64748b;
-    font-size: 15px !important;
-    line-height: 1.5;
-}
-.inventory-dashboard-action {
-    min-height: 44px;
-    padding: 10px 15px !important;
-    border-radius: 9px !important;
-    background: #2563eb !important;
-    border-color: #2563eb !important;
-    color: #fff !important;
-    font-size: 14px !important;
-    font-weight: 800 !important;
-}
-.inventory-dashboard-workspace > .grid.grid-cols-1.gap-8.sm\:grid-cols-2.lg\:grid-cols-3.xl\:grid-cols-6 {
-    gap: 12px !important;
-    margin-bottom: 18px !important;
-}
-.inventory-dashboard-workspace > .grid > a.block.bg-white {
-    min-height: 132px;
-    padding: 17px !important;
-    border: 1px solid #e2e8f0 !important;
-    border-left-width: 4px !important;
-    border-radius: 14px !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-    transform: none !important;
-}
-.inventory-dashboard-workspace > .grid > a.block.bg-white:hover {
-    box-shadow: 0 8px 20px rgba(15,23,42,.08) !important;
-    transform: none !important;
-}
-.inventory-dashboard-workspace > .grid > a .p-4 {
-    padding: 10px !important;
-    border-radius: 10px !important;
-}
-.inventory-dashboard-workspace > .grid > a svg { width: 28px !important; height: 28px !important; }
-.inventory-dashboard-workspace > .grid > a p[id],
-.inventory-dashboard-workspace #total_items,
-.inventory-dashboard-workspace #low_stock,
-.inventory-dashboard-workspace #recent_sales,
-.inventory-dashboard-workspace #returns_count,
-.inventory-dashboard-workspace #pending_po_count {
-    font-size: 28px !important;
-    line-height: 1.08;
-}
-.inventory-dashboard-workspace > .grid.grid-cols-1.gap-8.lg\:grid-cols-2 { gap: 14px !important; }
-.inventory-dashboard-workspace .bg-white.rounded-xl.shadow-lg {
-    border: 1px solid #e2e8f0;
-    border-radius: 14px !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-}
-.inventory-dashboard-workspace .px-8.py-6 {
-    padding: 15px 17px !important;
-    background: #f8fafc !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-}
-.inventory-dashboard-workspace .p-8 { padding: 16px !important; }
-.inventory-dashboard-workspace table th {
-    color: #475569 !important;
-    font-size: 13px !important;
-    font-weight: 800 !important;
-    letter-spacing: .035em;
-}
-.inventory-dashboard-workspace table td {
-    color: #334155;
-    font-size: 14px !important;
-    line-height: 1.45;
-}
-.inventory-dashboard-workspace table .py-5 { padding-top: 11px !important; padding-bottom: 11px !important; }
-@media (max-width: 767px) {
-    .inventory-dashboard-workspace { padding: 18px 14px 32px !important; }
-    .inventory-dashboard-head { display: block; }
-    .inventory-dashboard-head h1 { font-size: 26px !important; }
-    .inventory-dashboard-action { display: block; width: 100%; margin-top: 14px; text-align: center; }
-}
-</style>
 
-
-<div class="inventory-dashboard-workspace">
+<div class="p-8 sm:p-10 lg:p-12" style="margin-top: 70px;">
     <!-- Page Header -->
-    <div class="inventory-dashboard-head">
-        <div>
-            <p class="inventory-dashboard-eyebrow">Operations</p>
-            <h1>Inventory Dashboard</h1>
-            <p>Monitor stock, sales, returns, purchase orders and recent movements from one operational view.</p>
-        </div>
-        <a href="<?php echo site_url('inventory/pos'); ?>" class="btn btn-primary inventory-dashboard-action">
-            <i class="fa fa-shopping-cart"></i> Open Point of Sale
-        </a>
+    <div class="mb-12">
+        <h1 style="font-size: 3.5rem !important;" class="font-bold text-gray-900 tracking-tight leading-tight">Inventory Dashboard</h1>
+        <p style="font-size: 1.25rem !important;" class="mt-4 text-gray-600 leading-relaxed">Real-time stock levels and movement tracking</p>
     </div>
 
     <!-- KPI Cards -->
@@ -132,8 +14,8 @@
         <a href="<?php echo site_url('inventory/products'); ?>" class="block bg-white border-l-4 border-blue-500 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer">
             <div class="flex items-center justify-between">
                 <div class="flex-1">
-                    <p style="font-size: 12px !important;" class="font-semibold text-gray-600 uppercase tracking-wider mb-3">Total Products</p>
-                    <p style="font-size: 31px !important;" class="font-bold text-gray-900" id="total_items">0</p>
+                    <p style="font-size: 0.875rem !important;" class="font-semibold text-gray-600 uppercase tracking-wider mb-3">Total Products</p>
+                    <p style="font-size: 3rem !important;" class="font-bold text-gray-900" id="total_items">0</p>
                 </div>
                 <div class="p-4 bg-blue-50 rounded-xl">
                     <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,8 +29,8 @@
         <a href="<?php echo site_url('inventory/products'); ?>" class="block bg-white border-l-4 border-orange-500 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer">
             <div class="flex items-center justify-between">
                 <div class="flex-1">
-                    <p style="font-size: 12px !important;" class="font-semibold text-gray-600 uppercase tracking-wider mb-3">Low Stock Alerts</p>
-                    <p style="font-size: 31px !important;" class="font-bold text-orange-600" id="low_stock">0</p>
+                    <p style="font-size: 0.875rem !important;" class="font-semibold text-gray-600 uppercase tracking-wider mb-3">Low Stock Alerts</p>
+                    <p style="font-size: 3rem !important;" class="font-bold text-orange-600" id="low_stock">0</p>
                 </div>
                 <div class="p-4 bg-orange-50 rounded-xl">
                     <svg class="w-12 h-12 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,8 +44,8 @@
         <a href="<?php echo site_url('inventory/products'); ?>" class="block bg-white border-l-4 border-green-500 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer">
             <div class="flex items-center justify-between">
                 <div class="flex-1">
-                    <p style="font-size: 12px !important;" class="font-semibold text-gray-600 uppercase tracking-wider mb-3">Stock Value</p>
-                    <p style="font-size: 26px !important;" class="font-bold text-gray-900" id="stock_value"><sup style="font-size: 0.6em; vertical-align: super;"><?php echo $currency; ?></sup> 0</p>
+                    <p style="font-size: 0.875rem !important;" class="font-semibold text-gray-600 uppercase tracking-wider mb-3">Stock Value</p>
+                    <p style="font-size: 2rem !important;" class="font-bold text-gray-900" id="stock_value"><sup style="font-size: 0.6em; vertical-align: super;"><?php echo $currency; ?></sup> 0</p>
                 </div>
                 <div class="p-4 bg-green-50 rounded-xl">
                     <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,8 +59,8 @@
         <a href="<?php echo site_url('inventory/sales'); ?>" class="block bg-white border-l-4 border-purple-500 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer">
             <div class="flex items-center justify-between">
                 <div class="flex-1">
-                    <p style="font-size: 12px !important;" class="font-semibold text-gray-600 uppercase tracking-wider mb-3">Sales (30 Days)</p>
-                    <p style="font-size: 31px !important;" class="font-bold text-gray-900" id="recent_sales">0</p>
+                    <p style="font-size: 0.875rem !important;" class="font-semibold text-gray-600 uppercase tracking-wider mb-3">Sales (30 Days)</p>
+                    <p style="font-size: 3rem !important;" class="font-bold text-gray-900" id="recent_sales">0</p>
                 </div>
                 <div class="p-4 bg-purple-50 rounded-xl">
                     <svg class="w-12 h-12 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,9 +74,9 @@
         <a href="<?php echo site_url('inventory/returns'); ?>" class="block bg-white border-l-4 border-red-500 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer">
             <div class="flex items-center justify-between">
                 <div class="flex-1">
-                    <p style="font-size: 12px !important;" class="font-semibold text-gray-600 uppercase tracking-wider mb-3">Returns (30 Days)</p>
-                    <p style="font-size: 31px !important;" class="font-bold text-gray-900" id="returns_count">0</p>
-                    <p style="font-size: 13px !important;" class="text-gray-600 mt-2">Refunded: <span id="returns_amount" class="font-semibold">0</span></p>
+                    <p style="font-size: 0.875rem !important;" class="font-semibold text-gray-600 uppercase tracking-wider mb-3">Returns (30 Days)</p>
+                    <p style="font-size: 3rem !important;" class="font-bold text-gray-900" id="returns_count">0</p>
+                    <p style="font-size: 1rem !important;" class="text-gray-600 mt-2">Refunded: <span id="returns_amount" class="font-semibold">0</span></p>
                 </div>
                 <div class="p-4 bg-red-50 rounded-xl">
                     <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,9 +90,9 @@
         <a href="<?php echo site_url('inventory/purchase_orders'); ?>" class="block bg-white border-l-4 border-indigo-500 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer">
             <div class="flex items-center justify-between">
                 <div class="flex-1">
-                    <p style="font-size: 12px !important;" class="font-semibold text-gray-600 uppercase tracking-wider mb-3">Pending Orders</p>
-                    <p style="font-size: 31px !important;" class="font-bold text-gray-900" id="pending_po_count">0</p>
-                    <p style="font-size: 13px !important;" class="text-gray-600 mt-2">Value: <span id="pending_po_value" class="font-semibold">0</span></p>
+                    <p style="font-size: 0.875rem !important;" class="font-semibold text-gray-600 uppercase tracking-wider mb-3">Pending Orders</p>
+                    <p style="font-size: 3rem !important;" class="font-bold text-gray-900" id="pending_po_count">0</p>
+                    <p style="font-size: 1rem !important;" class="text-gray-600 mt-2">Value: <span id="pending_po_value" class="font-semibold">0</span></p>
                 </div>
                 <div class="p-4 bg-indigo-50 rounded-xl">
                     <svg class="w-12 h-12 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,19 +108,19 @@
         <!-- Low Stock Alerts -->
         <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow">
             <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-orange-100">
-                <h2 style="font-size: 18px !important;" class="font-bold text-gray-900">Low Stock Alerts</h2>
+                <h2 style="font-size: 1.75rem !important;" class="font-bold text-gray-900">Low Stock Alerts</h2>
             </div>
             <div class="p-8">
                 <div class="overflow-hidden">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead>
                             <tr>
-                                <th style="font-size: 14px !important;" class="text-left font-bold text-gray-700 uppercase tracking-wider pb-5">Product</th>
-                                <th style="font-size: 14px !important;" class="text-right font-bold text-gray-700 uppercase tracking-wider pb-5">Stock</th>
+                                <th style="font-size: 1.125rem !important;" class="text-left font-bold text-gray-700 uppercase tracking-wider pb-5">Product</th>
+                                <th style="font-size: 1.125rem !important;" class="text-right font-bold text-gray-700 uppercase tracking-wider pb-5">Stock</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100" id="low_stock_list">
-                            <tr><td colspan="2" style="font-size: 14px !important;" class="py-8 text-center text-gray-500">Loading...</td></tr>
+                            <tr><td colspan="2" style="font-size: 1.125rem !important;" class="py-8 text-center text-gray-500">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -248,19 +130,19 @@
         <!-- Recent Movements -->
         <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow">
             <div class="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
-                <h2 style="font-size: 18px !important;" class="font-bold text-gray-900">Recent Stock Movements</h2>
+                <h2 style="font-size: 1.75rem !important;" class="font-bold text-gray-900">Recent Stock Movements</h2>
             </div>
             <div class="p-8">
                 <div class="overflow-hidden">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead>
                             <tr>
-                                <th style="font-size: 14px !important;" class="text-left font-bold text-gray-700 uppercase tracking-wider pb-5">Product</th>
-                                <th style="font-size: 14px !important;" class="text-right font-bold text-gray-700 uppercase tracking-wider pb-5">Change</th>
+                                <th style="font-size: 1.125rem !important;" class="text-left font-bold text-gray-700 uppercase tracking-wider pb-5">Product</th>
+                                <th style="font-size: 1.125rem !important;" class="text-right font-bold text-gray-700 uppercase tracking-wider pb-5">Change</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100" id="recent_movements">
-                            <tr><td colspan="2" style="font-size: 14px !important;" class="py-8 text-center text-gray-500">Loading...</td></tr>
+                            <tr><td colspan="2" style="font-size: 1.125rem !important;" class="py-8 text-center text-gray-500">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -304,14 +186,14 @@ function loadLowStockItems() {
             let html = '';
 
             if(items.length === 0) {
-                html = '<tr><td colspan="2" style="font-size: 14px !important;" class="py-8 text-center text-gray-500">All stocked up - No items below reorder level</td></tr>';
+                html = '<tr><td colspan="2" style="font-size: 1.125rem !important;" class="py-8 text-center text-gray-500">All stocked up - No items below reorder level</td></tr>';
             } else {
                 items.slice(0, 5).forEach(item => {
                     html += `
                         <tr class="hover:bg-blue-50 transition-colors">
                             <td class="py-5">
-                                <p style="font-size: 14px !important;" class="font-semibold text-gray-900 leading-relaxed">${item.name}</p>
-                                <p style="font-size: 13px !important;" class="text-gray-600 mt-1">${item.category_name || 'Uncategorized'}</p>
+                                <p style="font-size: 1.125rem !important;" class="font-semibold text-gray-900 leading-relaxed">${item.name}</p>
+                                <p style="font-size: 1rem !important;" class="text-gray-600 mt-1">${item.category_name || 'Uncategorized'}</p>
                             </td>
                             <td class="py-5 text-right">
                                 ${getStockIndicator(item.quantity, item.reorder_level)}
@@ -335,7 +217,7 @@ function loadRecentMovements() {
             let html = '';
 
             if(movements.length === 0) {
-                html = '<tr><td colspan="2" style="font-size: 14px !important;" class="py-8 text-center text-gray-500">No movements yet - Stock movements will appear here</td></tr>';
+                html = '<tr><td colspan="2" style="font-size: 1.125rem !important;" class="py-8 text-center text-gray-500">No movements yet - Stock movements will appear here</td></tr>';
             } else {
                 // Group movements by product, movement_type, and date to avoid duplicates
                 const groupedMovements = {};
@@ -379,17 +261,17 @@ function loadRecentMovements() {
                     const sign = isPositive ? '+' : '-';
 
                     // Show notes if available to clarify the movement
-                    const notesText = mov.notes ? `<p style="font-size: 12px !important;" class="text-gray-500 mt-1">${mov.notes}</p>` : '';
+                    const notesText = mov.notes ? `<p style="font-size: 0.875rem !important;" class="text-gray-500 mt-1">${mov.notes}</p>` : '';
 
                     html += `
                         <tr class="hover:bg-blue-50 transition-colors">
                             <td class="py-5">
-                                <p style="font-size: 14px !important;" class="font-semibold text-gray-900 leading-relaxed">${mov.product_name}</p>
-                                <p style="font-size: 13px !important;" class="text-gray-600 mt-1">${mov.dateKey}</p>
+                                <p style="font-size: 1.125rem !important;" class="font-semibold text-gray-900 leading-relaxed">${mov.product_name}</p>
+                                <p style="font-size: 1rem !important;" class="text-gray-600 mt-1">${mov.dateKey}</p>
                                 ${notesText}
                             </td>
                             <td class="py-5 text-right">
-                                <span style="font-size: 13px !important;" class="inline-flex items-center px-3 py-1.5 rounded-full font-semibold ${badgeClass}">
+                                <span style="font-size: 1rem !important;" class="inline-flex items-center px-3 py-1.5 rounded-full font-semibold ${badgeClass}">
                                     ${sign}${mov.quantity}
                                 </span>
                             </td>

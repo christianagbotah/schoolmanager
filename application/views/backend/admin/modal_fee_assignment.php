@@ -27,7 +27,7 @@ $selected_class_id = !empty($assignment) ? $assignment['class_id'] : '';
     overflow: hidden;
 }
 .modal-header {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 24px 32px;
     border-bottom: none;
@@ -75,8 +75,8 @@ $selected_class_id = !empty($assignment) ? $assignment['class_id'] : '';
     min-height: 48px;
 }
 .form-control:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
 }
 select.form-control {
     height: 48px;
@@ -104,14 +104,14 @@ select.form-control {
     background: #f8fafc;
 }
 .fee-checkbox.checked {
-    border-color: #059669;
+    border-color: #10b981;
     background: #f0fdf4;
 }
 .fee-checkbox input {
     width: 18px;
     height: 18px;
     margin-right: 10px;
-    accent-color: #059669;
+    accent-color: #10b981;
 }
 .fee-checkbox span {
     font-size: 14px;
@@ -129,11 +129,11 @@ select.form-control {
     color: white;
     font-size: 14px;
 }
-.icon-feeding { background: #d97706; }
-.icon-classes { background: #0284c7; }
-.icon-transport { background: #059669; }
-.icon-breakfast { background: #db2777; }
-.icon-water { background: #0891b2; }
+.icon-feeding { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.icon-classes { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.icon-transport { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+.icon-breakfast { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.icon-water { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
 
 .btn-modal {
     padding: 14px 32px;
@@ -145,13 +145,13 @@ select.form-control {
     border: none;
 }
 .btn-modal-primary {
-    background: #2563eb;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 .btn-modal-primary:hover {
-    background: #1d4ed8;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
 }
 .btn-modal-default {
     background: white;
@@ -162,20 +162,12 @@ select.form-control {
     background: #f8fafc;
     border-color: #cbd5e1;
 }
-
-.btn-modal:focus-visible {
-    outline: 2px solid #2563eb;
-    outline-offset: 2px;
-}
-@media (prefers-reduced-motion: reduce) {
-    .form-control, .fee-checkbox, .btn-modal { transition: none; }
-}
 </style>
 
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
     <h4 class="modal-title">
-        <i class="fa fa-user-plus"></i> 
+        <i class="fa fa-user-plus"></i>
         <span id="modal_fee_assignment_title"><?php echo !empty($assignment) ? 'Edit Teacher Assignment' : 'Add Teacher Assignment'; ?></span>
     </h4>
 </div>
@@ -185,12 +177,12 @@ select.form-control {
         <input type="hidden" name="assignment_id" id="fee_assignment_id" value="<?php echo !empty($assignment) ? $assignment['id'] : ''; ?>">
         <input type="hidden" name="year" value="<?php echo $running_year; ?>">
         <input type="hidden" name="term" value="<?php echo $running_term; ?>">
-        
+
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="fee_assignment_teacher_id">
-                        <i class="fa fa-user" style="color: #2563eb;"></i> Select Teacher
+                        <i class="fa fa-user" style="color: #667eea;"></i> Select Teacher
                     </label>
                     <select name="teacher_id" id="fee_assignment_teacher_id" class="form-control" required style="width: 100%;">
                         <option value="">-- Choose a Teacher --</option>
@@ -205,7 +197,7 @@ select.form-control {
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="fee_assignment_class_id">
-                        <i class="fa fa-chalkboard" style="color: #2563eb;"></i> Select Class
+                        <i class="fa fa-chalkboard" style="color: #667eea;"></i> Select Class
                     </label>
                     <select name="class_id" id="fee_assignment_class_id" class="form-control" required style="width: 100%;">
                         <option value="">-- Choose a Class --</option>
@@ -214,38 +206,38 @@ select.form-control {
                 </div>
             </div>
         </div>
-        
+
         <div class="form-group">
             <label>
-                <i class="fa fa-money-bill-wave" style="color: #2563eb;"></i> Fee Collection Permissions
+                <i class="fa fa-money-bill-wave" style="color: #667eea;"></i> Fee Collection Permissions
             </label>
             <p style="font-size: 14px; color: #64748b; margin-bottom: 12px;">Select which fee types this teacher can collect for the selected class.</p>
-            
+
             <div class="fee-checkboxes">
                 <label class="fee-checkbox <?php echo (!empty($assignment) && $assignment['can_collect_feeding']) ? 'checked' : ''; ?>">
                     <input type="checkbox" name="can_collect_feeding" value="1" <?php echo (!empty($assignment) && $assignment['can_collect_feeding']) ? 'checked' : ''; ?> onchange="updateCheckboxStyle(this)">
                     <div class="fee-icon icon-feeding"><i class="fa fa-utensils"></i></div>
                     <span>Feeding</span>
                 </label>
-                
+
                 <label class="fee-checkbox <?php echo (!empty($assignment) && $assignment['can_collect_breakfast']) ? 'checked' : ''; ?>">
                     <input type="checkbox" name="can_collect_breakfast" value="1" <?php echo (!empty($assignment) && $assignment['can_collect_breakfast']) ? 'checked' : ''; ?> onchange="updateCheckboxStyle(this)">
                     <div class="fee-icon icon-breakfast"><i class="fa fa-coffee"></i></div>
                     <span>Breakfast</span>
                 </label>
-                
+
                 <label class="fee-checkbox <?php echo (!empty($assignment) && $assignment['can_collect_classes']) ? 'checked' : ''; ?>">
                     <input type="checkbox" name="can_collect_classes" value="1" <?php echo (!empty($assignment) && $assignment['can_collect_classes']) ? 'checked' : ''; ?> onchange="updateCheckboxStyle(this)">
                     <div class="fee-icon icon-classes"><i class="fa fa-book"></i></div>
                     <span>Classes</span>
                 </label>
-                
+
                 <label class="fee-checkbox <?php echo (!empty($assignment) && $assignment['can_collect_water']) ? 'checked' : ''; ?>">
                     <input type="checkbox" name="can_collect_water" value="1" <?php echo (!empty($assignment) && $assignment['can_collect_water']) ? 'checked' : ''; ?> onchange="updateCheckboxStyle(this)">
                     <div class="fee-icon icon-water"><i class="fa fa-tint"></i></div>
                     <span>Water</span>
                 </label>
-                
+
                 <label class="fee-checkbox <?php echo (!empty($assignment) && $assignment['can_collect_transport']) ? 'checked' : ''; ?>">
                     <input type="checkbox" name="can_collect_transport" value="1" <?php echo (!empty($assignment) && $assignment['can_collect_transport']) ? 'checked' : ''; ?> onchange="updateCheckboxStyle(this)">
                     <div class="fee-icon icon-transport"><i class="fa fa-bus"></i></div>
@@ -273,7 +265,7 @@ function updateCheckboxStyle(checkbox) {
 function saveFeeAssignment() {
     var teacherId = $('#fee_assignment_teacher_id').val();
     var classId = $('#fee_assignment_class_id').val();
-    
+
     if (!teacherId) {
         showAjaxModal_alert('Please select a teacher', 'error');
         return;
@@ -282,9 +274,9 @@ function saveFeeAssignment() {
         showAjaxModal_alert('Please select a class', 'error');
         return;
     }
-    
+
     showAjaxModal_alert('Saving assignment...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url("admin/save_fee_assignment"); ?>',
         type: 'POST',
@@ -315,7 +307,7 @@ setTimeout(function() {
     if ($('#fee_assignment_class_id').data('select2')) {
         $('#fee_assignment_class_id').select2('destroy');
     }
-    
+
     // Reinitialize with proper settings
     $('#fee_assignment_teacher_id').select2({
         theme: 'classic',

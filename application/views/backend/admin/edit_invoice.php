@@ -2,33 +2,6 @@
 $currency = $this->db->get_where('settings', array('type' => 'system_currency'))->row()->description;
 ?>
 
-<style type="text/css">
-/* ---- family design-language alignment (presentation only) ---- */
-.input-group-addon {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-    color: #64748b;
-    border-radius: 8px 0 0 8px;
-    font-size: 12.5px;
-    min-width: 44px;
-}
-.input-group .form-control { border-radius: 0 8px 8px 0; }
-.bg-blue-50 {
-    background: #f8faff;
-    border: 1px solid #e5e7eb;
-    border-left: 3px solid #3b82f6;
-    border-radius: 12px;
-}
-.bg-blue-50 h3 { color: #111827; font-size: 16px; }
-.delete-item.btn-danger { border-radius: 8px; }
-tfoot.bg-gray-100 td { background: #f9fafb; border-top: 2px solid #e5e7eb; }
-@media (max-width: 640px) {
-    .panel-body { padding: 12px; }
-    .btn-lg { width: 100%; margin-bottom: .5rem; }
-    .bg-blue-50 { padding: 12px; }
-}
-</style>
-
 <div class="row">
   <div class="col-md-12">
     <div class="panel panel-primary" data-collapsed="0">
@@ -38,7 +11,7 @@ tfoot.bg-gray-100 td { background: #f9fafb; border-top: 2px solid #e5e7eb; }
         </div>
       </div>
       <div class="panel-body">
-        
+
         <!-- Student Information -->
         <div class="bg-blue-50 p-4 rounded-lg mb-6">
           <h3 class="text-xl font-bold mb-3"><i class="fa fa-user"></i> <?php echo get_phrase('student_information'); ?></h3>
@@ -61,7 +34,7 @@ tfoot.bg-gray-100 td { background: #f9fafb; border-top: 2px solid #e5e7eb; }
         <input type="hidden" name="invoice_code" value="<?php echo $invoice_code; ?>">
         <input type="hidden" name="year" value="<?php echo $year; ?>">
         <input type="hidden" name="term" value="<?php echo $term; ?>">
-        
+
         <div class="table-responsive">
           <table class="table table-bordered table-striped">
             <thead class="bg-primary text-white">
@@ -75,13 +48,13 @@ tfoot.bg-gray-100 td { background: #f9fafb; border-top: 2px solid #e5e7eb; }
               </tr>
             </thead>
             <tbody>
-              <?php 
+              <?php
               $count = 1;
               $total_amount = 0;
               $total_paid = 0;
               $total_due = 0;
-              
-              foreach($invoice_items as $item): 
+
+              foreach($invoice_items as $item):
                 $total_amount += $item['amount'];
                 $total_paid += $item['amount_paid'];
                 $total_due += $item['due'];
@@ -95,21 +68,21 @@ tfoot.bg-gray-100 td { background: #f9fafb; border-top: 2px solid #e5e7eb; }
                 <td>
                   <div class="input-group">
                     <span class="input-group-addon"><?php echo $currency; ?></span>
-                    <input type="number" step="0.01" name="<?php echo $item['invoice_id']; ?>_amount" value="<?php echo $item['amount']; ?>" 
+                    <input type="number" step="0.01" name="<?php echo $item['invoice_id']; ?>_amount" value="<?php echo $item['amount']; ?>"
                            class="form-control amount-input" data-row="<?php echo $count-2; ?>" data-id="<?php echo $item['invoice_id']; ?>" required>
                   </div>
                 </td>
                 <td>
                   <div class="input-group">
                     <span class="input-group-addon"><?php echo $currency; ?></span>
-                    <input type="number" step="0.01" name="amount_paid[]" value="<?php echo $item['amount_paid']; ?>" 
+                    <input type="number" step="0.01" name="amount_paid[]" value="<?php echo $item['amount_paid']; ?>"
                            class="form-control paid-input" data-row="<?php echo $count-2; ?>" readonly>
                   </div>
                 </td>
                 <td>
                   <div class="input-group">
                     <span class="input-group-addon"><?php echo $currency; ?></span>
-                    <input type="number" step="0.01" name="due[]" value="<?php echo $item['due']; ?>" 
+                    <input type="number" step="0.01" name="due[]" value="<?php echo $item['due']; ?>"
                            class="form-control due-input" data-row="<?php echo $count-2; ?>" readonly>
                   </div>
                 </td>
@@ -174,7 +147,7 @@ tfoot.bg-gray-100 td { background: #f9fafb; border-top: 2px solid #e5e7eb; }
 
 <script>
 $(document).ready(function() {
-  
+
   // Calculate due when amount changes
   $('.amount-input').on('input', function() {
     const row = $(this).data('row');
@@ -212,7 +185,7 @@ $(document).ready(function() {
   $('.delete-item').on('click', function() {
     const invoiceId = $(this).data('id');
     const row = $(this).closest('tr');
-    
+
     showConfirmModal(
       '<?php echo get_phrase('confirm_delete'); ?>',
       '<?php echo get_phrase('are_you_sure_delete_invoice_item'); ?>',
@@ -230,21 +203,21 @@ $(document).ready(function() {
   // Form submission
   $('#edit_invoice_form').on('submit', function(e) {
     e.preventDefault();
-    
+
     showAjaxModal_alert('<?php echo get_phrase('updating_invoice'); ?>...', 'loading');
-    
+
     // Build the serialized IDs string
     let ids = [];
     $('.amount-input').each(function() {
       ids.push($(this).data('id') + '_' + Date.now());
     });
-    
-    let formData = $(this).serialize() + '&serialized_ids=' + ids.join('-') + 
+
+    let formData = $(this).serialize() + '&serialized_ids=' + ids.join('-') +
                    '&student_id=<?php echo $student_id; ?>' +
                    '&invoice_code=<?php echo $invoice_code; ?>' +
                    '&year=<?php echo $year; ?>' +
                    '&term=<?php echo $term; ?>';
-    
+
     $.ajax({
       url: '<?php echo site_url('admin/mass_invoice_create/update/'); ?><?php echo $student_id; ?>/<?php echo $invoice_code; ?>/<?php echo $year; ?>/<?php echo $term; ?>',
       type: 'POST',

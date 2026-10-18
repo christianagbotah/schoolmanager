@@ -24,14 +24,14 @@
 .search-box input { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 15px; }
 .filter-select { padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 15px; min-width: 180px; }
 .btn-enterprise { padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 15px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-.btn-primary { background: #2563eb; color: white; }
+.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 .btn-danger { background: #ef4444; color: white; }
 .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
 .btn-success { background: #10b981; color: white; }
 .btn-success:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
 .btn-secondary { background: #6b7280; color: white; }
-.modern-modal-header { background: #2563eb; color: white; padding: 20px; border-radius: 12px 12px 0 0; }
+.modern-modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; }
 .data-table { background: white; border-radius: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 .table { width: 100%; border-collapse: collapse; min-width: 1000px; }
 .table thead { background: #f9fafb; }
@@ -50,10 +50,10 @@
 .modern-switch-wrapper { display: inline-flex; align-items: center; justify-content: center; }
 .modern-switch { position: relative; display: inline-block; width: 56px; height: 28px; cursor: pointer; }
 .modern-switch input { opacity: 0; width: 0; height: 0; }
-.modern-slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #9ca3af; border-radius: 34px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+.modern-slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%); border-radius: 34px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
 .modern-slider-button { position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 .modern-slider-button::before { content: "✕"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; color: #e74c3c; font-weight: bold; opacity: 1; transition: opacity 0.3s; }
-.modern-switch input:checked + .modern-slider { background: #059669; box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+.modern-switch input:checked + .modern-slider { background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
 .modern-switch input:checked + .modern-slider .modern-slider-button { transform: translateX(28px); }
 .modern-switch input:checked + .modern-slider .modern-slider-button::before { content: "✓"; color: #10b981; opacity: 1; }
 .modern-switch:hover .modern-slider { box-shadow: 0 0 8px rgba(0,0,0,0.2); }
@@ -100,150 +100,6 @@
     .stat-label { font-size: 12px; }
 }
 </style>
-
-<style>
-@media screen {
-  .enterprise-container {
-    padding: 24px 28px 40px; background: #f8fafc;
-  }
-  .enterprise-header {
-    padding: 18px 20px; margin-bottom: 16px;
-    border: 1px solid #e2e8f0; border-left: 4px solid #2563eb;
-    border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,.05); background: #fff;
-  }
-  .enterprise-header h1 {
-    margin-bottom: 5px; color: #0f172a; font-size: 28px; line-height: 1.2;
-    font-weight: 800; letter-spacing: -.02em;
-  }
-  .enterprise-header p { color: #64748b; font-size: 14px; line-height: 1.5; }
-  .header-flex { gap: 12px; }
-  .view-toggle {
-    padding: 3px; border: 1px solid #dbeafe; border-radius: 9px; background: #eff6ff;
-  }
-  .toggle-btn {
-    width: 38px; min-height: 36px; padding: 7px 9px;
-    border-radius: 7px; color: #2563eb; font-size: 14px;
-  }
-  .toggle-btn:hover { background: #dbeafe; }
-  .toggle-btn.active { background: #2563eb; color: #fff; box-shadow: none; }
-
-  .stats-grid { gap: 12px; margin-bottom: 16px; }
-  .stat-card {
-    min-height: 98px; padding: 14px 16px;
-    border: 1px solid #e2e8f0; border-left-width: 4px;
-    border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  .stat-value {
-    margin: 4px 0 0; color: #0f172a; font-size: 28px; line-height: 1.2; font-weight: 800;
-  }
-  .stat-label {
-    color: #64748b; font-size: 13px; line-height: 1.35; font-weight: 800; letter-spacing: .04em;
-  }
-
-  .toolbar {
-    padding: 14px; margin-bottom: 14px;
-    border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  .toolbar-row { gap: 8px; }
-  .search-box { min-width: 240px; }
-  .search-box input, .filter-select {
-    min-height: 42px; height: 42px; padding: 8px 10px;
-    border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; font-size: 14px; background: #fff;
-  }
-  .search-box input:focus, .filter-select:focus {
-    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
-  }
-  .filter-select { min-width: 150px; }
-  .btn-enterprise {
-    min-height: 42px; padding: 8px 12px;
-    border-radius: 8px; font-size: 13px; font-weight: 700; gap: 6px;
-  }
-  .btn-enterprise:hover { transform: none; box-shadow: 0 3px 8px rgba(15,23,42,.12); }
-
-  .data-table {
-    border: 1px solid #e2e8f0; border-radius: 11px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  .table { min-width: 1000px; }
-  .table th {
-    padding: 11px 12px; color: #475569; font-size: 13px;
-    line-height: 1.35; font-weight: 800; letter-spacing: .03em;
-    border-bottom: 1px solid #e2e8f0;
-  }
-  .table td {
-    padding: 11px 12px; color: #334155; font-size: 14px; line-height: 1.45;
-    vertical-align: middle;
-  }
-  .table tbody tr:hover { background: #f8fbff; }
-  .badge {
-    padding: 4px 8px; border-radius: 999px; font-size: 12.5px; font-weight: 700;
-  }
-  .action-btn {
-    min-height: 34px; padding: 6px 9px; border-radius: 7px;
-    font-size: 13px; font-weight: 700;
-  }
-  .action-btn:hover { transform: none; box-shadow: 0 2px 6px rgba(15,23,42,.10); }
-  .checkbox-cell input { width: 18px; height: 18px; accent-color: #2563eb; }
-
-  .modern-switch { transform: scale(.9); transform-origin: center; }
-
-  .assignments-grid {
-    grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
-    gap: 12px;
-  }
-  .assignment-card {
-    padding: 14px 15px; border: 1px solid #e2e8f0; border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  .assignment-card:hover {
-    transform: none; border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(15,23,42,.07);
-  }
-  .card-header {
-    margin-bottom: 11px; padding-bottom: 10px; border-bottom: 1px solid #eef2f7;
-  }
-  .card-student-name { color: #0f172a; font-size: 15px; line-height: 1.35; font-weight: 800; }
-  .card-student-code { font-size: 13px; }
-  .card-body { margin-bottom: 11px; }
-  .card-info-item {
-    margin-bottom: 8px; color: #475569; font-size: 13.5px; line-height: 1.4;
-  }
-  .card-info-item i { width: 18px; margin-right: 7px; font-size: 13px; }
-  .card-actions { gap: 7px; padding-top: 10px; border-top: 1px solid #eef2f7; }
-  .card-btn {
-    min-height: 36px; padding: 7px 9px; border-radius: 7px;
-    font-size: 13px; font-weight: 700;
-  }
-  .card-btn:hover { transform: none; box-shadow: 0 2px 6px rgba(15,23,42,.10); }
-
-  .empty-state { padding: 36px 18px; color: #94a3b8; }
-  .empty-state i { margin-bottom: 10px; font-size: 38px; }
-
-  .modern-modal-header {
-    padding: 14px 18px; border-radius: 12px 12px 0 0; background: #2563eb;
-  }
-
-  @media (max-width: 900px) {
-    .enterprise-container { padding: 18px 14px 32px; }
-    .toolbar-row { display: grid; grid-template-columns: 1fr 1fr; }
-    .search-box { grid-column: 1 / -1; min-width: 0; }
-    .filter-select, .btn-enterprise { width: 100%; }
-  }
-  @media (max-width: 560px) {
-    .enterprise-container { padding: 12px 10px 28px; }
-    .enterprise-header { padding: 16px; }
-    .enterprise-header h1 { font-size: 24px; }
-    .header-flex { align-items: flex-start; flex-direction: column; }
-    .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-    .toolbar-row { grid-template-columns: 1fr; }
-    .search-box { grid-column: auto; }
-    .assignments-grid { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 400px) {
-    .stats-grid { grid-template-columns: 1fr; }
-  }
-}
-</style>
-
 
 <div class="enterprise-container">
     <div class="enterprise-header">
@@ -296,7 +152,7 @@
                 <?php if(isset($profiles) && is_array($profiles)):
                     foreach($profiles as $profile): ?>
                     <option value="<?php echo $profile['profile_name']; ?>"><?php echo $profile['profile_name']; ?></option>
-                <?php 
+                <?php
                     endforeach;
                 endif;
                 ?>
@@ -342,7 +198,7 @@
             </tbody>
         </table>
     </div>
-    
+
     <div id="gridView" style="display: none;">
         <div class="assignments-grid" id="gridContainer">
             <div class="empty-state">
@@ -379,16 +235,16 @@ $(document).ready(function() {
     if (!$('body').hasClass('sidebar-collapse')) {
         $('body').addClass('sidebar-collapse');
     }
-    
+
     loadData();
-    
+
     $('#searchInput').on('input', filterData);
     $('#filterClass, #filterProfile, #filterStatus').on('change', filterData);
-    
+
     $('#selectAll').on('change', function() {
         $('.row-checkbox').prop('checked', $(this).prop('checked'));
     });
-    
+
     // Load saved view preference
     const savedView = localStorage.getItem('assignmentsView') || 'table';
     switchView(savedView);
@@ -426,7 +282,7 @@ function updateStats() {
     const active = allData.filter(d => d.is_active == 1).length;
     const inactive = total - active;
     const uniqueStudents = [...new Set(allData.map(d => d.student_id))].length;
-    
+
     $('#stat-total').text(total);
     $('#stat-active').text(active);
     $('#stat-inactive').text(inactive);
@@ -438,19 +294,19 @@ function filterData() {
     const classFilter = $('#filterClass').val();
     const profileFilter = $('#filterProfile').val();
     const statusFilter = $('#filterStatus').val();
-    
+
     filteredData = allData.filter(item => {
-        const matchSearch = !search || 
+        const matchSearch = !search ||
             item.student_name.toLowerCase().includes(search) ||
             item.student_code.toLowerCase().includes(search) ||
             item.profile_name.toLowerCase().includes(search);
         const matchClass = !classFilter || item.class_name.includes(classFilter);
         const matchProfile = !profileFilter || item.profile_name === profileFilter;
         const matchStatus = statusFilter === '' || item.is_active == statusFilter;
-        
+
         return matchSearch && matchClass && matchProfile && matchStatus;
     });
-    
+
     renderTable();
     if($('#gridView').is(':visible')) {
         renderGrid();
@@ -459,7 +315,7 @@ function filterData() {
 
 function renderTable() {
     $('#selectAll').prop('checked', false);
-    
+
     if(filteredData.length === 0) {
         $('#tableBody').html(`
             <tr>
@@ -471,19 +327,19 @@ function renderTable() {
         `);
         return;
     }
-    
+
     let html = '';
     filteredData.forEach(item => {
-        const statusBadge = item.is_active == 1 
+        const statusBadge = item.is_active == 1
             ? '<span class="badge badge-success"><i class="fa fa-check-circle"></i> Active</span>'
             : '<span class="badge badge-danger"><i class="fa fa-times-circle"></i> Inactive</span>';
-        
-        const approvalBadge = item.status === 'approved' 
+
+        const approvalBadge = item.status === 'approved'
             ? '<span class="badge badge-success"><i class="fa fa-check"></i> Approved</span>'
             : item.status === 'pending'
             ? '<span class="badge badge-warning"><i class="fa fa-clock-o"></i> Pending</span>'
             : '<span class="badge badge-danger"><i class="fa fa-times"></i> Rejected</span>';
-        
+
         const checked = item.is_active == 1 ? 'checked' : '';
         const toggleSwitch = `
             <div class="modern-switch-wrapper">
@@ -495,7 +351,7 @@ function renderTable() {
                 </label>
             </div>
         `;
-        
+
         const actionButtons = `
             <button class="action-btn" style="background: #667eea; color: white; margin-right: 4px;" onclick="editAssignment(${item.assignment_id})">
                 <i class="fa fa-edit"></i>
@@ -504,7 +360,7 @@ function renderTable() {
                 <i class="fa fa-trash"></i>
             </button>
         `;
-        
+
         html += `
             <tr>
                 <td class="checkbox-cell"><input type="checkbox" class="row-checkbox" value="${item.assignment_id}"></td>
@@ -547,20 +403,20 @@ function renderGrid() {
         `);
         return;
     }
-    
+
     let html = '';
     filteredData.forEach(item => {
         const checked = item.is_active == 1 ? 'checked' : '';
-        const statusBadge = item.is_active == 1 
+        const statusBadge = item.is_active == 1
             ? '<span class="badge badge-success"><i class="fa fa-check-circle"></i> Active</span>'
             : '<span class="badge badge-danger"><i class="fa fa-times-circle"></i> Inactive</span>';
-        
-        const approvalBadge = item.status === 'approved' 
+
+        const approvalBadge = item.status === 'approved'
             ? '<span class="badge badge-success"><i class="fa fa-check"></i> Approved</span>'
             : item.status === 'pending'
             ? '<span class="badge badge-warning"><i class="fa fa-clock-o"></i> Pending</span>'
             : '<span class="badge badge-danger"><i class="fa fa-times"></i> Rejected</span>';
-        
+
         html += `
             <div class="assignment-card">
                 <div class="card-header">
@@ -620,7 +476,7 @@ function renderGrid() {
 
 function switchView(view) {
     localStorage.setItem('assignmentsView', view);
-    
+
     if(view === 'table') {
         $('#tableView').show();
         $('#gridView').hide();
@@ -689,7 +545,7 @@ function bulkToggle() {
         showAjaxModal_alert('Please select at least one assignment', 'error');
         return;
     }
-    
+
     showAjaxModal_alert('Processing...', 'loading');
     $.ajax({
         url: '<?php echo site_url('admin/manage_discount_assignments/bulk_toggle'); ?>',

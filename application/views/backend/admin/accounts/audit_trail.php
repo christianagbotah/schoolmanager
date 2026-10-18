@@ -1,5 +1,5 @@
 <style>
-.audit-header { background: #1e293b; padding: 32px; border-radius: 16px; color: white; margin-bottom: 24px; }
+.audit-header { background: linear-gradient(135deg, #434343 0%, #000000 100%); padding: 32px; border-radius: 16px; color: white; margin-bottom: 24px; }
 .action-create { color: #10b981; font-weight: 600; }
 .action-update { color: #3b82f6; font-weight: 600; }
 .action-delete { color: #ef4444; font-weight: 600; }
@@ -98,7 +98,7 @@ $(document).ready(function() {
             { data: 'module' },
             { data: 'description' },
             { data: 'ip_address' },
-            { 
+            {
                 data: null,
                 orderable: false,
                 render: function(data, type, row) {
@@ -116,7 +116,7 @@ $(document).ready(function() {
 
 function viewDetails(id) {
     showAjaxModal_alert('<?php echo get_phrase("loading"); ?>...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url("accounts/audit_trail/details/"); ?>' + id,
         type: 'GET',
@@ -125,7 +125,7 @@ function viewDetails(id) {
         if(response.status === 'success') {
             var html = '<table class="table table-bordered">';
             html += '<tr><th width="30%"><?php echo get_phrase("field"); ?></th><th><?php echo get_phrase("old_value"); ?></th><th><?php echo get_phrase("new_value"); ?></th></tr>';
-            
+
             if(response.changes) {
                 $.each(response.changes, function(field, values) {
                     html += '<tr>';
@@ -135,7 +135,7 @@ function viewDetails(id) {
                     html += '</tr>';
                 });
             }
-            
+
             html += '</table>';
             $('#auditDetailsContent').html(html);
             $('.close').click();

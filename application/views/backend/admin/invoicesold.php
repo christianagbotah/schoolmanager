@@ -7,7 +7,7 @@
                     <input type="text" class="form-control" id="class_filter" placeholder="Filter By Class" name="amount" value="" required/>
                 </div>
                 <div class="col-sm-4">
-                    <select class="form-control selectboxit" name="term_filer" id="term_filer" onchange="return get_invoices_by_term(this.value)">
+                    <select class="form-control select2" name="term_filer" id="term_filer" onchange="return get_invoices_by_term(this.value)">
                         <option value="">Filter By Term</option>
                         <?php
                             for($i = 1; $i <= 3; $i++) {
@@ -25,7 +25,7 @@
         </form>
     </div>
 </div>-->
-<?php 
+<?php
     $invoice_code_f       = $this->db->get_where('settings', array('type'=>'invoice_number_format'))->row()->description;
     $inv_number_len = strlen($invoice_code_f);
 
@@ -55,11 +55,11 @@
                         <th><div><?php echo get_phrase('status');?></div></th>
                         <th><div><?php echo get_phrase('date_created');?></div></th>
                         <th><div><?php echo get_phrase('options');?></div></th>
-                        
+
                     </tr>
                 </thead>
                 <tbody>
-                    <?php 
+                    <?php
 
               $query = $this
                 ->db
@@ -69,7 +69,7 @@
                // ->limit($limit)
                 //->order_by('invoice_code', 'desc')
                 ->get('invoice');
-    
+
         if($query->num_rows() > 0) {
             $invoices = $query->result();
             foreach ($invoices as $row) {
@@ -119,7 +119,7 @@
 
                 //invoice_id
                 $invoice_id = $this->db->get_where('invoice', array('invoice_code' => $row->invoice_code))->row()->invoice_id;
-                
+
 
                 if ($a_due == 0) {
                     $status = '<button class="btn btn-success btn-xs">'.get_phrase('paid').'</button>';
@@ -129,7 +129,7 @@
                     //$payment_text = 'View Receipts';
                 } else {
                     $status = '<button class="btn btn-danger btn-xs">'.get_phrase('unpaid').'</button>';
-                    
+
                     //$payment_text = 'Take Payment';
                 }
 
@@ -137,10 +137,10 @@
 
                 $bulk_invoice_sel = '
                         <input type="checkbox" class="checkbox" onclick="boxChecked2()" name="invoices_sel[]" value="'.$row->invoice_code.'">
-                        
+
                         ';
-                    
-                
+
+
                 $options = '<div class="btn-group">'.get_action_button().'<ul class="dropdown-menu dropdown-default pull-right" role="menu">'.$payment_option.'<li><a href="#" onclick="invoice_view_modal(\''.$in_code.'\')" style="color: blue;"><i class="entypo-credit-card"></i>&nbsp;'.get_phrase('view_invoice').'</a></li><li class="divider"></li><li><a href="#" onclick="invoice_edit_modal(\''.$in_code.'\')" style="color: green;"><i class="entypo-pencil"></i>&nbsp;'.get_phrase('edit').'</a></li><li class="divider"></li><li><a href="#" onclick="invoice_delete_confirm(\''.$in_code.'\')" style="color: red;"><i class="entypo-trash"></i>&nbsp;'.get_phrase('delete').'</a></li></ul></div>';
 
                 echo '<tr>
@@ -204,8 +204,8 @@
 
          let admin_level = <?php echo $admin_level; ?>;
 
-        r = confirm('Are You Sure You Want To Delete The Selected Invoices? This Action Is Irreversible!!!');    
-           
+        r = confirm('Are You Sure You Want To Delete The Selected Invoices? This Action Is Irreversible!!!');
+
             if(r == 0) {
                 event.preventDefault();
                 return false;
@@ -226,13 +226,13 @@
         } else {
             return true;
         } **/
-    }); 
+    });
 
     function load_table() {
         $.ajax({
             url: '<?php echo site_url('admin/invoice_student_search/'); ?>',
             success: function(response) {
-                
+
             }
         });
     }
@@ -266,10 +266,10 @@
         $.ajax({
             url: '<?php echo site_url('admin/get_invoice_term/'); ?>'+ invoice_code,
             success: function(response) {
-              showAjaxModal('<?php echo site_url('modal/popup/modal_view_invoice/');?>' + invoice_code + '/' + response);   
+              showAjaxModal('<?php echo site_url('modal/popup/modal_view_invoice/');?>' + invoice_code + '/' + response);
             }
         });
-        
+
     }
 
     function invoice_edit_modal(invoice_code) {
@@ -298,6 +298,6 @@
     }
 
 
-    
+
 </script>
 

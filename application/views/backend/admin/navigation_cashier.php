@@ -16,14 +16,14 @@ $name = $this->db->get_where($this->session->userdata('login_type'), array($this
 
 @media (max-width: 768px) {
     .sidebar-mobile-menu { display: block !important; visibility: visible !important; }
-    .sidebar-menu { position: fixed !important; left: -100% !important; top: 0 !important; width: 280px !important; height: 100vh !important; z-index: 99999 !important; transition: left 0.3s ease !important; overflow-y: auto !important; display: flex !important; flex-direction: column !important; }
+    .sidebar-menu { position: fixed !important; left: -100% !important; top: 0 !important; width: 280px !important; height: 100vh !important; z-index: 1000 !important; transition: left 0.3s ease !important; overflow-y: auto !important; display: flex !important; flex-direction: column !important; }
     .sidebar-menu.mobile-open { left: 0 !important; }
     .sidebar-menu .logo-env { display: flex !important; justify-content: flex-start !important; }
     .sidebar-menu.mobile-open .logo-env { justify-content: flex-end !important; }
     .sidebar-menu .logo-env .logo a { background: #ffffff !important; padding: 12px !important; border-radius: 9999px !important; display: inline-block !important; }
-    .sidebar-menu #main-menu { flex: 1 !important; overflow-y: auto !important; }
-    .sidebar-menu #main-menu #search { position: sticky !important; top: 0 !important; z-index: 100000 !important; background: #c62828 !important; }
-    .sidebar-menu .logo-env { position: sticky !important; top: 0 !important; z-index: 100000 !important; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
+    .sidebar-menu #main-menu { flex: 1 !important; overflow-y: auto !important; display: block !important; visibility: visible !important; }
+    .sidebar-menu #main-menu #search { position: sticky !important; top: 0 !important; z-index: 101 !important; background: #c62828 !important; }
+    .sidebar-menu .logo-env { position: sticky !important; top: 0 !important; z-index: 101 !important; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
     .page-container { margin-left: 0 !important; }
     .main-content { margin-left: 0 !important; width: 100% !important; }
 }
@@ -75,7 +75,7 @@ $name = $this->db->get_where($this->session->userdata('login_type'), array($this
         </li>
 
         <div class="nav-section-header text-slate-400 text-xs font-bold uppercase tracking-wider px-6">Cashier Portal</div>
-        
+
         <!-- Dashboard -->
         <li class="<?php if ($page_name == 'dashboard') echo 'active'; ?>">
             <a href="#" onclick="navigation('<?php echo site_url('admin/dashboard/ajax'); ?>')">
@@ -205,9 +205,9 @@ $name = $this->db->get_where($this->session->userdata('login_type'), array($this
 
         <!-- Profile -->
         <li class="<?php if ($page_name == 'staff_details' || $page_name == 'manage_profile') echo 'active'; ?>">
-            <a href="#" onclick="navigation('<?php 
+            <a href="#" onclick="navigation('<?php
                 $current_admin_id = $this->session->userdata('admin_id');
-                echo site_url('admin/admin_details/'.$current_admin_id); 
+                echo site_url('admin/admin_details/'.$current_admin_id);
             ?>')">
                 <i class="fa fa-user-circle"></i>
                 <span><?php echo get_phrase('my_profile'); ?></span>
@@ -228,10 +228,10 @@ $name = $this->db->get_where($this->session->userdata('login_type'), array($this
 $(function() {
     $('#main-menu li a').addClass('list-group-item');
     $('.list-group-item').css('background-color', 'inherit');
-    
+
     // Collapse all menus except the one containing active item
     $('#main-menu li.has-sub').not(':has(li.active)').removeClass('opened');
-    
+
     // Scroll to active menu item only on mobile
     var $activeItem = $('#main-menu li.active');
     if ($activeItem.length && window.matchMedia('(max-width: 768px)').matches) {
@@ -241,12 +241,12 @@ $(function() {
             }, 500);
         }, 300);
     }
-    
+
     // Mobile drawer toggle
     $('.sidebar-mobile-menu a').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         if ($('.sidebar-menu').hasClass('mobile-open')) {
             $('.sidebar-menu').removeClass('mobile-open');
             $('.mobile-backdrop').remove();
@@ -254,16 +254,16 @@ $(function() {
         } else {
             // Clean up any existing backdrop first
             $('.mobile-backdrop').remove();
-            
+
             $('body').addClass('sidebar-open');
-            $('body').append('<div class="mobile-backdrop" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99998;"></div>');
+            $('body').append('<div class="mobile-backdrop" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10;"></div>');
             setTimeout(function() {
                 $('.sidebar-menu').addClass('mobile-open');
-                $('#main-menu').show();
+                $('#main-menu').css({'display': 'block', 'visibility': 'visible'}).show();
             }, 10);
         }
     });
-    
+
     // Close drawer on backdrop click
     $(document).on('click', '.mobile-backdrop', function() {
         $('.sidebar-menu').removeClass('mobile-open');
@@ -273,12 +273,13 @@ $(function() {
 });
 
 function navigation(url, type) {
-    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        $('#main-menu').css('display', 'none');
-    }
-    const isMobile = window.matchMedia("only screen and (max-width: 766px)").matches;
+    // Close mobile sidebar when navigating
+    const isMobile = window.matchMedia("only screen and (max-width: 768px)").matches;
     if (isMobile) {
-        $('#main-menu').css('display', 'none');
+        $('.sidebar-menu').removeClass('mobile-open');
+        $('.mobile-backdrop').remove();
+        $('body').removeClass('sidebar-open');
+        // Don't hide the menu - just close the sidebar
     }
     ajaxFunction(url, type);
 }

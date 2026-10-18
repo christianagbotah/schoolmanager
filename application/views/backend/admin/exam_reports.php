@@ -1,9 +1,9 @@
 <style>
 .exam-reports-container {
-    margin-top: 0;
+    margin-top: 25px;
 }
 .modern-panel {
-    background: #059669;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     border: none;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -16,22 +16,22 @@
 }
 .modern-panel-body {
     background: white;
-    padding: 18px;
+    padding: 30px;
     border-radius: 0 0 12px 12px;
 }
 .modern-label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 8px;
     display: block;
 }
 .modern-select {
-    height: var(--sm-ui-control-height, 42px);
-    font-size: 14px;
+    height: 45px;
+    font-size: 15px;
     border: 2px solid #e2e8f0;
     border-radius: 8px;
-    padding: 0 11px;
+    padding: 0 15px;
     transition: all 0.3s;
 }
 .modern-select:focus {
@@ -44,13 +44,13 @@
     cursor: not-allowed;
 }
 .modern-btn {
-    height: var(--sm-ui-control-height, 42px);
-    padding: 0 14px;
-    font-size: 14px;
+    height: 45px;
+    padding: 0 30px;
+    font-size: 15px;
     font-weight: 600;
     border: none;
     border-radius: 8px;
-    background: #059669;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
     transition: all 0.3s;
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
@@ -61,7 +61,7 @@
     color: white;
 }
 .modern-btn:disabled {
-    background: #a0aec0;
+    background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
     cursor: not-allowed;
     box-shadow: none;
 }
@@ -69,17 +69,17 @@
     margin-right: 8px;
 }
 .select2-container--default .select2-selection--single {
-    height: var(--sm-ui-control-height, 42px);
+    height: 45px;
     border: 2px solid #e2e8f0;
     border-radius: 8px;
 }
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 40px;
-    padding-left: 11px;
-    font-size: 14px;
+    line-height: 41px;
+    padding-left: 15px;
+    font-size: 15px;
 }
 .select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 40px;
+    height: 43px;
 }
 .select2-container--default.select2-container--focus .select2-selection--single {
     border-color: #10b981;
@@ -114,7 +114,7 @@
                         <?php echo get_phrase('generate_historical_marksheet_reports_from_any_past_exam'); ?>
                     </div>
                 </div>
-                
+
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
@@ -172,13 +172,13 @@ $(document).ready(function() {
         allowClear: true,
         width: '100%'
     });
-    
+
     $('#student_filter').select2({
         placeholder: '<?php echo get_phrase('select_students'); ?>',
         allowClear: true,
         width: '100%'
     });
-    
+
     $('#exam_filter').select2({
         placeholder: '<?php echo get_phrase('select_exam'); ?>',
         allowClear: true,
@@ -188,17 +188,17 @@ $(document).ready(function() {
 
 function loadStudentsAndExams() {
     var class_id = $('#class_filter').val();
-    
+
     if(!class_id) {
         $('#student_filter').html('<option value=""><?php echo get_phrase('select_class_first'); ?></option>').prop('disabled', true).trigger('change');
         $('#exam_filter').html('<option value=""><?php echo get_phrase('select_class_first'); ?></option>').prop('disabled', true).trigger('change');
         $('#generate_btn').prop('disabled', true);
         return;
     }
-    
+
     // Load students with "All Students" option
     $('#student_filter').html('<option value=""><?php echo get_phrase('loading'); ?>...</option>').prop('disabled', true).trigger('change');
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_students_by_class'); ?>',
         type: 'POST',
@@ -212,10 +212,10 @@ function loadStudentsAndExams() {
             $('#student_filter').html('<option value=""><?php echo get_phrase('error_loading_students'); ?></option>').trigger('change');
         }
     });
-    
+
     // Load exams for this class
     $('#exam_filter').html('<option value=""><?php echo get_phrase('loading'); ?>...</option>').prop('disabled', true).trigger('change');
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_exams_by_class'); ?>',
         type: 'POST',
@@ -227,7 +227,7 @@ function loadStudentsAndExams() {
             $('#exam_filter').html('<option value=""><?php echo get_phrase('error_loading_exams'); ?></option>').trigger('change');
         }
     });
-    
+
     $('#generate_btn').prop('disabled', true);
 }
 
@@ -235,7 +235,7 @@ function loadStudentsAndExams() {
 $('#student_filter, #exam_filter').on('change', function() {
     var student = $('#student_filter').val();
     var exam = $('#exam_filter').val();
-    
+
     if(student && exam) {
         $('#generate_btn').prop('disabled', false);
     } else {
@@ -247,17 +247,17 @@ function generateReport() {
     var student_id = $('#student_filter').val();
     var exam_id = $('#exam_filter').val();
     var class_id = $('#class_filter').val();
-    
+
     if(!student_id || !exam_id) {
         alert('<?php echo get_phrase('please_select_student_and_exam'); ?>');
         return;
     }
-    
+
     // Parse class_id to get section_id (format: classId_sectionId)
     var class_parts = class_id.split('_');
     var actual_class_id = class_parts[0];
     var section_id = class_parts[1] || actual_class_id;
-    
+
     // Check if class is CRECHE by making AJAX call
     $.ajax({
         url: '<?php echo site_url('admin/get_class_name_ajax'); ?>',
@@ -266,7 +266,7 @@ function generateReport() {
         async: false,
         success: function(class_name) {
             var isCreche = (class_name.trim() === 'CRECHE');
-            
+
             // Determine if generating for all students or single student
             if(student_id === 'all') {
                 // Generate bulk marksheet for all students

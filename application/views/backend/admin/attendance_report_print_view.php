@@ -58,22 +58,40 @@ if ($month == 1) {
             <div id="print">
                 <script src="<?php echo base_url('assets/js/jquery-1.11.0.min.js'); ?>"></script>
                 <style type="text/css">
+                    body {
+                        font-size: 11px;
+                    }
+
                     td {
-                        padding: 5px;
+                        padding: 3px 5px;
+                        font-size: 10px;
+                    }
+
+                    th {
+                        font-size: 10px;
+                        padding: 4px 5px;
+                    }
+
+                    h3 {
+                        font-size: 16px;
+                        margin: 5px 0;
+                    }
+
+                    table {
+                        font-size: 10px;
                     }
 
                      #term{
                             background-color: black;
-                            padding: 5px 15px 5px 15px;
-                            border-radius: 9px;
-                            -webkit-border-radius: 9px;
-                            -moz-border-radius: 9px;
-                            -o-border-radius: 9px;
-                            font-size: 24px;
-                            letter-spacing: 5px;
+                            padding: 4px 12px;
+                            border-radius: 6px;
+                            -webkit-border-radius: 6px;
+                            -moz-border-radius: 6px;
+                            -o-border-radius: 6px;
+                            font-size: 14px;
+                            letter-spacing: 3px;
                             color: #ffffff;
                             font-weight: bold;
-
                             }
 
 
@@ -90,25 +108,25 @@ if ($month == 1) {
                             }
                 </style>
 
-                
+
                 <div class="row" id="top_row">
                     <div class="col-md-12">
                         <center>
-                            <h3 style="font-weight: bold; font-size: 25px; letter-spacing: 2px;"><?php echo $system_name; ?></h3>
+                            <h3 style="font-weight: bold; font-size: 18px; letter-spacing: 1px; margin: 10px 0;"><?php echo $system_name; ?></h3>
                         </center>
                     </div>
-                    
+
                     <div class="col-md-12">
                         <div class="col-lg-3 col-md-3 col-sm-3">
-                           <img id="logo" src="<?php echo base_url(); ?>uploads/school_logo.png" style="max-height : 120px;"><br>
+                           <img id="logo" src="<?php echo base_url(); ?>uploads/school_logo.png" style="max-height: 80px;"><br>
                         </div>
-                        
+
                         <div class="col-lg-6 col-md-6 col-sm-6">
 
                             <center>
                                 <span align="center" id="term"><?php echo get_phrase('attendance_sheet'); ?></span>
-                                <h3 align="center"><?php echo $class_name . ' ' . $class_name_numeric . ' - ' . $section_name; ?><br></h3>
-                                <b align='center' style="font-size: 25px;"><?php echo $class_name == 'JHSS' ? get_phrase('semester') . ' ' . $sem : get_phrase('term') . ' ' . $term; ?> |</b> <b align='center' style="font-size: 25px;"><?php echo $m . ', ' . $sessional_year; ?></b> <br>
+                                <h3 align="center" style="font-size: 14px; margin: 8px 0;"><?php echo $class_name . ' ' . $class_name_numeric . ' - ' . $section_name; ?><br></h3>
+                                <b align='center' style="font-size: 13px;"><?php echo $class_name == 'JHSS' ? get_phrase('semester') . ' ' . $sem : get_phrase('term') . ' ' . $term; ?> |</b> <b align='center' style="font-size: 13px;"><?php echo $m . ', ' . $sessional_year; ?></b> <br>
 
                             </center>
                         </div>
@@ -122,7 +140,7 @@ if ($month == 1) {
                         <tbody>
                             <tr>
                                 <?php
-                                    for($a = 1; $a <= 5; $a++) {
+                                    for($a = 1; $a <= 6; $a++) {
 
                                         ?>
                                         <td align="center" valign="middle"><strong><?=getAttendanceStatusCode($a); ?> = <?=getAttendanceStatusPhrase($a); ?></strong></td>
@@ -144,7 +162,7 @@ if ($month == 1) {
                     <?php
 
                     $days = cal_days_in_month(CAL_GREGORIAN, $month, explode('-', $sessional_year)[1]);
-                    
+
                     if($term == 1) {
                         $days = cal_days_in_month(CAL_GREGORIAN, $month, explode('-', $sessional_year)[0]);
                     }
@@ -177,15 +195,15 @@ if ($month == 1) {
                             if($term == 1) {
                                 $timestamp = strtotime($i . '-' . $month . '-' . explode('-', $sessional_year)[0]);
                             }
-                        
+
                         //$this->db->group_by('timestamp');
                         $attendance = $this->db->get_where('attendance', array('section_id' => $section_id, 'class_id' => $class_id, 'year' => $sessional_year, 'term' => $term, 'timestamp' => $timestamp, 'student_id' => $row['student_id']))->result_array();
 
                         foreach ($attendance as $row1):
                         $month_dummy = date('d', $row1['timestamp']);
-                        
+
                         if ($i == $month_dummy) {
-                         
+
 
                             $status = getAttendanceStatusCode($row1['status']);
                         }
@@ -193,7 +211,7 @@ if ($month == 1) {
                             endforeach;
                             ?>
                         <td style="text-align: center;">
-                           <?php 
+                           <?php
                             echo '<strong>'.$status.'</strong>';
                             $status = '-';
                             ?>
@@ -207,7 +225,7 @@ if ($month == 1) {
                         <?php ?>
 
                     </tbody>
-                </table>    
+                </table>
 
             </div>
         </div>
@@ -246,7 +264,7 @@ if ($month == 1) {
             mywindow.print();
             mywindow.close();
         }
-        
+
     }
 
 
@@ -264,6 +282,6 @@ if ($month == 1) {
             setTimeout(() => {
               print_page();
             }, 1000);
-            
+
         });
 </script>

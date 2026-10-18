@@ -13,35 +13,35 @@ $running_year = get_settings('running_year');
 $running_term = get_settings('running_term');
 $running_sem = get_settings('running_sem');
 
-$student_id = $param2; 
-$bulk_mode = isset($param3) && $param3 === 'bulk_mode'; 
+$student_id = $param2;
+$bulk_mode = isset($param3) && $param3 === 'bulk_mode';
 
 // Only fetch student data if a valid student ID is provided
 if (!empty($student_id) && $student_id > 0) {
     $this->db->where('can_delete !=', 'trash');
     $edit_data_array = $this->db->get_where('invoice', array('student_id' => $student_id, 'due !=' => 0));
-    
+
     // Get the latest enrollment record for the student (highest enroll_id)
     $class_id_query = $this->db->query("
-        SELECT class_id 
-        FROM enroll 
-        WHERE student_id = ? 
-        AND year = ? 
+        SELECT class_id
+        FROM enroll
+        WHERE student_id = ?
+        AND year = ?
         AND mute = '0'
         AND enroll_id = (
-            SELECT MAX(enroll_id) 
-            FROM enroll 
-            WHERE student_id = ? 
-            AND year = ? 
+            SELECT MAX(enroll_id)
+            FROM enroll
+            WHERE student_id = ?
+            AND year = ?
             AND mute = '0'
         )
     ", array($student_id, $running_year, $student_id, $running_year));
-    
+
     // Check if enrollment exists
     $enrollment_row = $class_id_query->row();
     $class_id = $enrollment_row ? $enrollment_row->class_id : null;
     $edit_data = $edit_data_array->result_array();
-    
+
     $student_info = $this->crud_model->getStudentInfoById($student_id);
     $class_name = $class_id ? getFullClassName($class_id) : 'No Class Assigned';
     $total_fee_owes = $this->financial_report_model->getFeeOwedByStudentId($student_id);
@@ -57,144 +57,12 @@ if (!empty($student_id) && $student_id > 0) {
 }
 ?>
 
-<style>
-/* Direct UI/UX refinement — Take Payment modal */
-.take-payment-workspace { color: #334155; }
-.take-payment-workspace > section {
-    padding-left: 18px !important; padding-right: 18px !important;
-}
-.take-payment-workspace > section > .font-extrabold {
-    margin-bottom: 10px; color: #0f172a !important; font-size: 20px !important;
-    line-height: 1.3; font-weight: 800 !important; text-align: left !important;
-}
-.take-payment-workspace > section > .flex.flex-col {
-    padding: 0 !important; border: 1px solid #e2e8f0 !important; border-top: 4px solid #059669 !important;
-    border-radius: 14px !important; box-shadow: 0 10px 28px rgba(15,23,42,.10) !important; overflow: hidden;
-}
-.take-payment-workspace > section > .flex.flex-col > .flex.flex-col {
-    gap: 18px !important; padding: 20px !important;
-}
-
-.take-payment-workspace .font-mono { font-family: inherit !important; }
-.take-payment-workspace .text-xl { font-size: 14px !important; line-height: 1.4 !important; }
-.take-payment-workspace .text-2xl { font-size: 18px !important; line-height: 1.35 !important; }
-.take-payment-workspace .text-lg { font-size: 15px !important; line-height: 1.4 !important; }
-.take-payment-workspace .text-sm { font-size: 13px !important; line-height: 1.45 !important; }
-
-.take-payment-workspace .border-b.border-b-gray-300,
-.take-payment-workspace .border-b.border-b-gray-400 {
-    border-bottom-color: #e2e8f0 !important;
-}
-.take-payment-workspace .grid.grid-cols-1.gap-4.border-b {
-    gap: 10px !important; padding-bottom: 16px !important;
-}
-.take-payment-workspace .grid.grid-cols-1.gap-4.border-b > div:first-child {
-    color: #0f172a !important; font-size: 14px !important; font-weight: 800 !important;
-    letter-spacing: .03em;
-}
-#student_search_input {
-    min-height: 46px !important; height: 46px !important; padding: 9px 12px 9px 42px !important;
-    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
-    background: #fff !important; color: #0f172a !important; font-size: 15px !important; font-weight: 500;
-}
-#student_search_input:focus {
-    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important; outline: none;
-}
-.take-payment-workspace .fa-search.text-xl { font-size: 15px !important; }
-#student_search_results {
-    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
-    box-shadow: 0 10px 24px rgba(15,23,42,.12) !important; font-size: 14px;
-}
-
-.take-payment-workspace .grid.grid-cols-2.gap-4 {
-    gap: 10px 14px !important; padding: 14px 16px !important;
-    border: 1px solid #e2e8f0; border-radius: 11px; background: #f8fafc;
-}
-.take-payment-workspace .grid.grid-cols-2.gap-4 > .col-span-2 {
-    padding-bottom: 9px !important; color: #0f172a !important;
-    font-size: 14px !important; font-weight: 800 !important; letter-spacing: .03em;
-}
-.take-payment-workspace .grid.grid-cols-2.gap-4 > div:not(.col-span-2) {
-    font-size: 14px !important; line-height: 1.4;
-}
-.take-payment-workspace .grid.grid-cols-2.gap-4 > div:nth-child(even) {
-    color: #0f172a !important; font-weight: 700 !important;
-}
-
-.take-payment-workspace .bg-gradient-to-r.from-green-50 {
-    background-image: none !important; background-color: #f0fdf4 !important;
-    padding: 14px !important; border: 1px solid #bbf7d0 !important; border-left: 4px solid #22c55e !important;
-    border-radius: 10px !important; box-shadow: none !important;
-}
-.take-payment-workspace .bg-gradient-to-r.from-green-50 .bg-green-500 {
-    padding: 9px !important; border-radius: 10px !important;
-}
-.take-payment-workspace .bg-gradient-to-r.from-green-50 .fa-gift { font-size: 16px !important; }
-.take-payment-workspace .bg-gradient-to-r.from-green-50 button {
-    min-height: 38px; padding: 8px 12px !important; border-radius: 8px !important;
-    font-size: 13px !important; font-weight: 700 !important;
-}
-
-#payment_form { gap: 14px !important; }
-#payment_form > .flex.items-center.w-full {
-    display: grid !important; grid-template-columns: minmax(130px,.34fr) minmax(0,1fr) !important;
-    gap: 14px !important; align-items: center !important;
-}
-#payment_form label {
-    margin: 0 !important; color: #334155 !important; font-size: 14px !important;
-    line-height: 1.35; font-weight: 700 !important;
-}
-#payment_form select,
-#payment_form input:not([type="hidden"]):not([type="checkbox"]) {
-    min-height: 46px !important; height: 46px !important; max-height: 46px !important;
-    padding: 9px 12px !important; border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
-    background: #fff !important; color: #0f172a !important; font-size: 15px !important; line-height: 1.4 !important;
-}
-#payment_form select:focus,
-#payment_form input:not([type="hidden"]):not([type="checkbox"]):focus {
-    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important; outline: none;
-}
-#payment_form .mt-14 {
-    margin-top: 10px !important; padding-top: 16px; border-top: 1px solid #e2e8f0;
-    align-items: center !important;
-}
-#payment_form .mt-14 > .flex {
-    border-bottom: 0 !important; gap: 10px !important;
-}
-#payment_form .mt-14 > .flex > label {
-    width: auto !important; font-size: 14px !important; text-transform: none !important;
-}
-#payment_form button[type="submit"] {
-    min-height: 46px; padding: 10px 18px !important; border-radius: 9px !important;
-    font-size: 15px !important; font-weight: 800 !important; background: #059669 !important;
-    box-shadow: 0 2px 8px rgba(5,150,105,.2) !important;
-}
-#payment_form button[type="submit"]:hover { background: #047857 !important; }
-
-.take-payment-workspace .switch-button { transform: scale(.9); transform-origin: left center; }
-
-@media (max-width: 767px) {
-    .take-payment-workspace > section { padding-left: 8px !important; padding-right: 8px !important; }
-    .take-payment-workspace > section > .flex.flex-col > .flex.flex-col { padding: 16px !important; }
-    #payment_form > .flex.items-center.w-full { grid-template-columns: 1fr !important; gap: 7px !important; }
-    #payment_form select,
-    #payment_form input:not([type="hidden"]):not([type="checkbox"]) { font-size: 16px !important; }
-    #payment_form .mt-14 { align-items: stretch !important; flex-direction: column !important; gap: 12px !important; }
-    #payment_form button[type="submit"] { width: 100%; }
-}
-@media (max-width: 400px) {
-    .take-payment-workspace > section > .flex.flex-col > .flex.flex-col { padding: 13px !important; }
-    .take-payment-workspace .grid.grid-cols-2.gap-4 { grid-template-columns: 1fr !important; }
-    .take-payment-workspace .grid.grid-cols-2.gap-4 > .col-span-2 { grid-column: 1 !important; }
-}
-</style>
-
-<div class="grid grid-cols-1 take-payment-workspace">
+<div class="grid grid-cols-1">
     <section class="px-4 md:px-15">
         <div class="font-extrabold text-2xl text-gray-500 text-right">TAKE PAYMENT</div>
         <div class="flex flex-col p-5 w-full max-w-full border-t-8 bg-white shadow-md border border-t-green-500 rounded-xl">
             <div class="flex flex-col gap-6 w-full max-w-full p-4">
-                
+
                 <div class="grid grid-cols-1 gap-4 border-b border-b-gray-300 pb-4">
                     <div class="text-gray-600 font-mono font-bold text-xl">SELECT STUDENT</div>
                     <div class="flex items-center w-full relative">
@@ -202,20 +70,20 @@ if (!empty($student_id) && $student_id > 0) {
                             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                 <i class="fas fa-search text-gray-400 text-xl"></i>
                             </div>
-                            <input type="text" 
-                                   id="student_search_input" 
-                                   class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 text-xl focus:border-primary-500 block w-full h-16 pl-12 pr-4 py-2.5" 
+                            <input type="text"
+                                   id="student_search_input"
+                                   class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 text-xl focus:border-primary-500 block w-full h-16 pl-12 pr-4 py-2.5"
                                    placeholder="Type student name or code to search..."
                                    autocomplete="off">
                             <input type="hidden" id="selected_student_id" value="<?=$student_id;?>">
                         </div>
-                        <div id="student_search_results" 
-                             class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto z-50" 
+                        <div id="student_search_results"
+                             class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto z-50"
                              style="display: none;">
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2 text-gray-600 font-mono font-bold text-xl border-b border-b-gray-400 pb-3">STUDENT'S DETAILS</div>
                     <div class="text-xl font-semibold text-gray-400 dark:text-white">NAME:</div>
@@ -227,10 +95,10 @@ if (!empty($student_id) && $student_id > 0) {
                     <div class="text-xl font-semibold text-gray-500 dark:text-white">TOTAL PAYABLE:</div>
                     <div class="text-xl font-semibold text-gray-500 dark:text-white uppercase"><?=numfmt_format_currency($fmt, $total_fee_owes, $currency);?></div>
                 </div>
-                
+
                 <!-- ✅ Credit Widget -->
                 <?php if(!empty($student_id) && $student_id > 0): ?>
-                    <?php 
+                    <?php
                     // Load Credit_model with safety check
                     $total_credit = 0;
                     if (file_exists(APPPATH . 'models/Credit_model.php')) {
@@ -244,8 +112,8 @@ if (!empty($student_id) && $student_id > 0) {
                             $total_credit = 0;
                         }
                     }
-                    
-                    if($total_credit > 0): 
+
+                    if($total_credit > 0):
                     ?>
                     <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-4 rounded-lg shadow-sm">
                         <div class="flex items-center justify-between">
@@ -260,7 +128,7 @@ if (!empty($student_id) && $student_id > 0) {
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" 
+                            <button type="button"
                                     onclick="showCreditHistory(<?=$student_id;?>)"
                                     class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
                                 <i class="fa fa-history mr-2"></i>View History
@@ -274,13 +142,13 @@ if (!empty($student_id) && $student_id > 0) {
                     <?php endif; ?>
                 <?php endif; ?>
                 <!-- End Credit Widget -->
-                
+
                 <hr>
                 <div class="grid grid-cols-1 gap-4">
                     <?php echo form_open(site_url('admin/invoice/take_payment'), array('class' => 'validate flex flex-col gap-5', 'id' => 'payment_form')); ?>
                         <div class="flex items-center w-full">
                             <label for="payment_method" class="block mb-2 font-bold text-gray-700 dark:text-white w-full max-w-full">PAYMENT MODE</label>
-                           
+
                             <select id="payment_method" name="payment_method" data-validate="required" data-message-required="<?php echo get_phrase('field_required');?>" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 text-xl focus:border-primary-500 block w-full h-16 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="true" onchange="showMthodDetails($(this).val())">
                                 <!-- <option value="0">All Payment Methods</option> -->
                                 <?php
@@ -328,7 +196,7 @@ if (!empty($student_id) && $student_id > 0) {
                         <input type="hidden" name="class_id" value="<?=$class_id;?>">
                         <input type="hidden" name="total_fees_owe" value="<?=$total_fee_owes;?>">
                         <input type="hidden" name="bulk_mode" value="<?=$bulk_mode ? '1' : '0';?>">
-                        
+
 
                         <div class="flex gap-4 justify-between  mt-14">
                             <div class="flex gap-3 items-center text-left justify-start pull-left border-b border-b-blue-700">
@@ -345,7 +213,7 @@ if (!empty($student_id) && $student_id > 0) {
                         </div>
 
                     </form>
-                    
+
                 </div>
             </div>
         </div>
@@ -382,42 +250,42 @@ if (!empty($student_id) && $student_id > 0) {
 
         $('#student_search_input').on('input', function() {
             const searchTerm = $(this).val().trim();
-            
+
             // Clear previous timeout
             clearTimeout(searchTimeout);
-            
+
             // Hide results if search term is less than 2 characters
             if(searchTerm.length < 2) {
                 $('#student_search_results').hide().empty();
                 return;
             }
-            
+
             // Debounce search - wait 300ms after user stops typing
             searchTimeout = setTimeout(function() {
                 // Cancel previous request if still running
                 if(currentRequest) {
                     currentRequest.abort();
                 }
-                
+
                 // Show loading state
                 $('#student_search_results').show().html(
                     '<div class="p-4 text-center text-gray-500">' +
                     '<i class="fas fa-spinner fa-spin mr-2"></i>Searching...' +
                     '</div>'
                 );
-                
+
                 // Make AJAX request
                 currentRequest = $.ajax({
                     url: '<?php echo site_url('admin/search_student_for_fees'); ?>',
                     type: 'POST',
                     dataType: 'json',
-                    data: { 
+                    data: {
                         search_term: searchTerm,
                         <?php echo $this->security->get_csrf_token_name(); ?>: '<?php echo $this->security->get_csrf_hash(); ?>'
                     },
                     success: function(response) {
                         currentRequest = null;
-                        
+
                         if(response.success && response.students && response.students.length > 0) {
                             let html = '';
                             response.students.forEach(function(student) {
@@ -468,14 +336,14 @@ if (!empty($student_id) && $student_id > 0) {
         $(document).on('click', '.student-result-item', function() {
             const studentId = $(this).data('student-id');
             const studentName = $(this).data('student-name');
-            
+
             // Update hidden field and search input
             $('#selected_student_id').val(studentId);
             $('#student_search_input').val(studentName.toUpperCase());
-            
+
             // Hide search results
             $('#student_search_results').hide().empty();
-            
+
             // Reload modal with selected student
             showAjaxModal('<?php echo site_url('modal/popup/modal_take_payment/'); ?>' + studentId, 'take_payment');
         });
@@ -540,14 +408,14 @@ if (!empty($student_id) && $student_id > 0) {
     $('#payment_form').submit(function(event) {
 
         event.preventDefault();
-        
+
         // BUTTON LOCKING - Disable submit button immediately to prevent double submissions
         const $submitButton = $('#payment_form button[type="submit"]');
         const originalButtonHtml = $submitButton.html();
         $submitButton.prop('disabled', true)
                      .addClass('opacity-50 cursor-not-allowed bg-gray-400')
                      .html('<i class="fas fa-spinner fa-spin mr-2"></i>Processing...');
-        
+
         const isBulkMode = $('input[name="bulk_mode"]').val() === '1';
         const isStudentProfile = window.location.href.includes('student_profile');
 
@@ -566,21 +434,21 @@ if (!empty($student_id) && $student_id > 0) {
         if(data.message == 1) {
             //success
             let successMessage = 'Payment made successfully.';
-            
+
             // Check if credit was created
             if(data.credit_created && data.credit_amount > 0) {
-                successMessage += '<br><br><div style="background: #059669; color: white; padding: 15px; border-radius: 8px; margin-top: 10px;"><i class="fa fa-gift"></i> <strong>Credit Created!</strong><br>' + data.credit_message + '</div>';
+                successMessage += '<br><br><div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 15px; border-radius: 8px; margin-top: 10px;"><i class="fa fa-gift"></i> <strong>Credit Created!</strong><br>' + data.credit_message + '</div>';
             }
-            
+
             showAjaxModal_alert(successMessage, 'success', false);
 
             if(data.print_receipt == 1) { //wants to print receipt
                 setTimeout(() => {
                     window.open(data.url, '_blank');
-                    
+
                     setTimeout(() => {
                         $('#modal_alert').modal('hide');
-                        
+
                         if(isStudentProfile) {
                             location.reload();
                         } else if(isBulkMode) {
@@ -602,7 +470,7 @@ if (!empty($student_id) && $student_id > 0) {
                 setTimeout(() => {
                     $('#modal_alert').modal('hide');
                     $('.modal-backdrop').not(':last').remove();
-                    
+
                     if(isStudentProfile) {
                         location.reload();
                     } else if(isBulkMode) {
@@ -614,7 +482,7 @@ if (!empty($student_id) && $student_id > 0) {
                         showAjaxModal('<?php echo site_url('modal/popup/modal_take_payment/0'); ?>', 'take_payment');
                         setTimeout(() => {
                             $('#modal_ajax').modal({backdrop: 'static', keyboard: false});
-                            
+
                             if(typeof class_selected_load === 'function') {
                                 class_selected_load(<?=$class_id;?>); //load this class list
                             }
@@ -631,7 +499,7 @@ if (!empty($student_id) && $student_id > 0) {
             $submitButton.prop('disabled', false)
                          .removeClass('opacity-50 cursor-not-allowed bg-gray-400')
                          .html(originalButtonHtml);
-            
+
             $('#modal_alert').modal('hide');
             setTimeout(() => {
                 let errorList = '<ul id="list_err_payment_create">';
@@ -648,7 +516,7 @@ if (!empty($student_id) && $student_id > 0) {
         $submitButton.prop('disabled', false)
                      .removeClass('opacity-50 cursor-not-allowed bg-gray-400')
                      .html(originalButtonHtml);
-        
+
         $('#modal_alert').modal('hide');
         setTimeout(() => {
             showAjaxModal_alert(err.responseText, 'Error');
@@ -669,15 +537,15 @@ if (!empty($student_id) && $student_id > 0) {
         $('#yes_no').css('color', '#b3afaf');
        }
     }
-    
+
     // Show credit history modal
     function showCreditHistory(studentId) {
         $.get('<?=site_url("admin/get_student_credit_info")?>' + '/' + studentId, function(response) {
             const data = JSON.parse(response);
-            
+
             if(data.status === 'success') {
                 let historyHtml = '<div class="table-responsive"><table class="table table-striped table-bordered">' +
-                    '<thead style="background: #1e293b; color: white;">' +
+                    '<thead style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">' +
                     '<tr>' +
                     '<th>Date</th>' +
                     '<th>Source</th>' +
@@ -688,13 +556,13 @@ if (!empty($student_id) && $student_id > 0) {
                     '<th>Notes</th>' +
                     '</tr>' +
                     '</thead><tbody>';
-                
+
                 if(data.history && data.history.length > 0) {
                     data.history.forEach(function(item) {
-                        const statusBadge = item.status === 'active' ? 
-                            '<span class="badge badge-success">Active</span>' : 
+                        const statusBadge = item.status === 'active' ?
+                            '<span class="badge badge-success">Active</span>' :
                             '<span class="badge badge-secondary">Fully Applied</span>';
-                            
+
                         historyHtml += '<tr>' +
                             '<td>' + new Date(item.created_at).toLocaleDateString() + '</td>' +
                             '<td>' + (item.source_receipt_code || 'Manual') + '</td>' +
@@ -708,9 +576,9 @@ if (!empty($student_id) && $student_id > 0) {
                 } else {
                     historyHtml += '<tr><td colspan="7" class="text-center">No credit history found</td></tr>';
                 }
-                
+
                 historyHtml += '</tbody></table></div>';
-                
+
                 // Show in a modal
                 showAjaxModal_content('Credit History', historyHtml);
             } else {

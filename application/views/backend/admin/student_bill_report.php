@@ -10,15 +10,15 @@
             body { margin: 0; }
             .no-print { display: none !important; }
         }
-        
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f7fa;
             padding: 20px;
         }
-        
+
         .bill-container {
             max-width: 210mm;
             margin: 0 auto;
@@ -27,14 +27,14 @@
             border-radius: 8px;
             overflow: hidden;
         }
-        
+
         .bill-header {
-            background: #2563eb;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
             text-align: center;
         }
-        
+
         .school-logo {
             width: 80px;
             height: 80px;
@@ -46,27 +46,27 @@
             justify-content: center;
             overflow: hidden;
         }
-        
+
         .school-logo img {
             max-width: 100%;
             max-height: 100%;
         }
-        
+
         .school-name {
             font-size: 24px;
             font-weight: bold;
             margin-bottom: 5px;
         }
-        
+
         .bill-title {
             font-size: 18px;
             opacity: 0.9;
         }
-        
+
         .bill-body {
             padding: 30px;
         }
-        
+
         .student-info {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -76,12 +76,12 @@
             background: #f8f9fa;
             border-radius: 8px;
         }
-        
+
         .info-item {
             display: flex;
             flex-direction: column;
         }
-        
+
         .info-label {
             font-size: 12px;
             color: #6c757d;
@@ -89,17 +89,17 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
+
         .info-value {
             font-size: 16px;
             font-weight: 600;
             color: #2d3748;
         }
-        
+
         .bill-section {
             margin-bottom: 30px;
         }
-        
+
         .section-title {
             font-size: 16px;
             font-weight: bold;
@@ -108,13 +108,13 @@
             padding-bottom: 10px;
             border-bottom: 2px solid #667eea;
         }
-        
+
         .bill-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
-        
+
         .bill-table th {
             background: #f8f9fa;
             padding: 12px;
@@ -124,61 +124,61 @@
             font-weight: 600;
             border-bottom: 2px solid #dee2e6;
         }
-        
+
         .bill-table td {
             padding: 12px;
             border-bottom: 1px solid #e9ecef;
             font-size: 14px;
         }
-        
+
         .bill-table tr:hover {
             background: #f8f9fa;
         }
-        
+
         .amount {
             text-align: right;
             font-weight: 600;
         }
-        
+
         .amount.credit {
             color: #28a745;
         }
-        
+
         .amount.debit {
             color: #dc3545;
         }
-        
+
         .summary-box {
-            background: #2563eb;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 20px;
             border-radius: 8px;
             margin-top: 20px;
         }
-        
+
         .summary-row {
             display: flex;
             justify-content: space-between;
             padding: 10px 0;
             border-bottom: 1px solid rgba(255,255,255,0.2);
         }
-        
+
         .summary-row:last-child {
             border-bottom: none;
             font-size: 18px;
             font-weight: bold;
             padding-top: 15px;
         }
-        
+
         .summary-label {
             font-size: 14px;
         }
-        
+
         .summary-value {
             font-size: 16px;
             font-weight: 600;
         }
-        
+
         .bill-footer {
             padding: 20px 30px;
             background: #f8f9fa;
@@ -186,12 +186,12 @@
             font-size: 12px;
             color: #6c757d;
         }
-        
+
         .print-button {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: #2563eb;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             padding: 15px 30px;
@@ -202,12 +202,12 @@
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             transition: all 0.3s ease;
         }
-        
+
         .print-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
-        
+
         .status-badge {
             display: inline-block;
             padding: 5px 15px;
@@ -215,17 +215,17 @@
             font-size: 12px;
             font-weight: 600;
         }
-        
+
         .status-badge.paid {
             background: #d4edda;
             color: #155724;
         }
-        
+
         .status-badge.owing {
             background: #f8d7da;
             color: #721c24;
         }
-        
+
         .status-badge.credit {
             background: #d1ecf1;
             color: #0c5460;
@@ -249,7 +249,7 @@
                 Generated: <?php echo date('d M Y, h:i A'); ?>
             </div>
         </div>
-        
+
         <!-- Body -->
         <div class="bill-body">
             <!-- Student Information -->
@@ -271,7 +271,7 @@
                     <span class="info-value"><?php echo $running_year; ?></span>
                 </div>
             </div>
-            
+
             <!-- Invoice Items -->
             <?php if(!empty($invoices)): ?>
             <div class="bill-section">
@@ -287,10 +287,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php 
+                        <?php
                         $total_invoice = 0;
                         $total_paid = 0;
-                        foreach($invoices as $invoice): 
+                        foreach($invoices as $invoice):
                             $balance = $invoice['total_amount'] - $invoice['paid_amount'];
                             $total_invoice += $invoice['total_amount'];
                             $total_paid += $invoice['paid_amount'];
@@ -315,7 +315,7 @@
                 </table>
             </div>
             <?php endif; ?>
-            
+
             <!-- Daily Fees -->
             <?php if(!empty($daily_fees)): ?>
             <div class="bill-section">
@@ -330,10 +330,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php 
+                        <?php
                         $total_prepaid = 0;
                         $total_arrears = 0;
-                        foreach($daily_fees as $fee): 
+                        foreach($daily_fees as $fee):
                             $total_prepaid += max(0, $fee['balance']);
                             $total_arrears += max(0, -$fee['balance']);
                         ?>
@@ -360,7 +360,7 @@
                 </table>
             </div>
             <?php endif; ?>
-            
+
             <!-- Summary -->
             <div class="summary-box">
                 <div class="summary-row">
@@ -387,14 +387,14 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Footer -->
         <div class="bill-footer">
             <p>This is a computer-generated bill report. For inquiries, please contact the school office.</p>
             <p style="margin-top: 10px;">© <?php echo date('Y'); ?> <?php echo $school_name; ?>. All rights reserved.</p>
         </div>
     </div>
-    
+
     <!-- Print Button -->
     <button class="print-button no-print" onclick="window.print()">
         🖨️ Print Bill

@@ -19,101 +19,9 @@ $cashiers = $this->db->get_where('admin', ['level' => 4])->result_array();
     .filter-card { padding: 15px; }
     .btn-modern { width: 100%; justify-content: center; }
 }
-
-/* ---- family design-language alignment (presentation only) ---- */
-.btn-primary-modern {
-    background: #2563eb;
-    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35);
-}
-.btn-primary-modern:hover {
-    background: #1d4ed8;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
-}
-.btn-modern:focus-visible, .form-control:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-#dashboard-container .fee-card:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-@media (max-width: 400px) {
-    .filter-card { padding: 12px; border-radius: 14px; }
-}
 </style>
 
-<style>
-@media screen {
-  .cashier-dashboard-admin { padding: 24px 28px 40px !important; background: #f8fafc; }
-  .cashier-dashboard-admin .filter-card {
-    padding: 18px 20px; margin-bottom: 16px; border: 1px solid #e2e8f0;
-    border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,.05); background: #fff;
-  }
-  .cashier-dashboard-admin .filter-card h2 {
-    margin-bottom: 16px !important; color: #0f172a !important;
-    font-size: 20px !important; line-height: 1.3; font-weight: 800 !important;
-  }
-  .cashier-dashboard-admin .filter-card .row {
-    display: grid; grid-template-columns: minmax(180px,1.3fr) repeat(2,minmax(150px,1fr)) minmax(120px,.65fr);
-    gap: 12px; margin: 0;
-  }
-  .cashier-dashboard-admin .filter-card .row > div { width: auto; padding: 0; }
-  .cashier-dashboard-admin .form-label {
-    margin-bottom: 7px; color: #334155; font-size: 14px; font-weight: 700;
-  }
-  .cashier-dashboard-admin .form-control {
-    min-height: 44px; height: 44px; padding: 9px 11px;
-    border: 1px solid #cbd5e1; border-radius: 9px; font-size: 15px; color: #0f172a; background: #fff;
-  }
-  .cashier-dashboard-admin .form-control:focus {
-    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
-  }
-  .cashier-dashboard-admin .btn-modern {
-    min-height: 44px; height: 44px; padding: 9px 15px;
-    border-radius: 9px; font-size: 14px; font-weight: 800;
-  }
-  .cashier-dashboard-admin .btn-primary-modern {
-    background: #2563eb; box-shadow: 0 1px 2px rgba(37,99,235,.25);
-  }
-  .cashier-dashboard-admin .btn-primary-modern:hover {
-    background: #1d4ed8; transform: none; box-shadow: 0 3px 9px rgba(37,99,235,.18);
-  }
-  #dashboard-container { min-height: 320px; }
-  #dashboard-container > div[style*="text-align: center"] { padding: 54px 20px !important; }
-  #dashboard-container > div[style*="text-align: center"] > div:first-child {
-    width: 76px !important; height: 76px !important; margin-bottom: 18px !important;
-    border-radius: 18px !important; background: #eef2ff !important; box-shadow: none !important;
-  }
-  #dashboard-container > div[style*="text-align: center"] > div:first-child i {
-    color: #4f46e5 !important; font-size: 34px !important;
-  }
-  #dashboard-container > div[style*="text-align: center"] h3 {
-    margin-bottom: 8px !important; color: #0f172a !important; font-size: 20px !important; font-weight: 800 !important;
-  }
-  #dashboard-container > div[style*="text-align: center"] > p {
-    margin-bottom: 20px !important; color: #64748b !important; font-size: 14px !important; line-height: 1.5;
-  }
-  #dashboard-container > div[style*="text-align: center"] > div:last-child {
-    gap: 12px !important; margin-top: 24px !important;
-  }
-  #dashboard-container > div[style*="text-align: center"] > div:last-child > div p {
-    font-size: 13px !important; font-weight: 700 !important;
-  }
-  @media (max-width: 991px) {
-    .cashier-dashboard-admin .filter-card .row { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  }
-  @media (max-width: 640px) {
-    .cashier-dashboard-admin { padding: 16px 14px 32px !important; }
-    .cashier-dashboard-admin .filter-card { padding: 14px; }
-    .cashier-dashboard-admin .filter-card .row { grid-template-columns: 1fr; }
-    #dashboard-container > div[style*="text-align: center"] > div:last-child { flex-wrap: wrap; }
-  }
-}
-</style>
-
-
-<div class="p-4 cashier-dashboard-admin">
+<div class="p-4">
     <!-- Filter Card -->
     <div class="filter-card">
         <h2 style="margin-bottom: 25px; color: #1f2937; font-size: 20px; font-weight: 700;">
@@ -121,7 +29,7 @@ $cashiers = $this->db->get_where('admin', ['level' => 4])->result_array();
         </h2>
         <div class="row">
             <div class="col-lg-4 col-md-6 col-12">
-                <label class="form-label" for="cashier_filter"><i class="fa fa-user" aria-hidden="true"></i> Cashier</label>
+                <label class="form-label"><i class="fa fa-user"></i> Cashier</label>
                 <select id="cashier_filter" class="form-control">
                     <option value="all">All Cashiers</option>
                     <?php foreach ($cashiers as $cashier): ?>
@@ -130,11 +38,11 @@ $cashiers = $this->db->get_where('admin', ['level' => 4])->result_array();
                 </select>
             </div>
             <div class="col-lg-3 col-md-6 col-12">
-                <label class="form-label" for="date_from"><i class="fa fa-calendar" aria-hidden="true"></i> Date From</label>
+                <label class="form-label"><i class="fa fa-calendar"></i> Date From</label>
                 <input type="text" id="date_from" class="form-control air-datepicker" placeholder="Select start date" data-position="bottom left" value="<?php echo date('M j, Y'); ?>">
             </div>
             <div class="col-lg-3 col-md-6 col-12">
-                <label class="form-label" for="date_to"><i class="fa fa-calendar" aria-hidden="true"></i> Date To</label>
+                <label class="form-label"><i class="fa fa-calendar"></i> Date To</label>
                 <input type="text" id="date_to" class="form-control air-datepicker" placeholder="Select end date" data-position="bottom left" value="<?php echo date('M j, Y'); ?>">
             </div>
             <div class="col-lg-2 col-md-6 col-12">
@@ -149,7 +57,7 @@ $cashiers = $this->db->get_where('admin', ['level' => 4])->result_array();
     <!-- Dashboard Container -->
     <div id="dashboard-container">
         <div style="text-align: center; padding: 80px 20px;">
-            <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); width: 120px; height: 120px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(79, 70, 229, 0.25);">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 120px; height: 120px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);">
                 <i class="fa fa-chart-bar" style="font-size: 60px; color: white;"></i>
             </div>
             <h3 style="color: #2d3748; font-weight: 700; margin-bottom: 15px; font-size: 24px;">Cashier Performance Dashboard</h3>
@@ -183,7 +91,7 @@ function loadDashboard() {
     const cashierId = $('#cashier_filter').val();
     const dateFrom = $('#date_from').val();
     const dateTo = $('#date_to').val();
-    
+
     if (cashierId === 'all') {
         loadAllCashiersDashboard(dateFrom, dateTo);
     } else {
@@ -192,27 +100,38 @@ function loadDashboard() {
 }
 
 function loadSingleCashierDashboard(cashierId, dateFrom, dateTo) {
+    console.log('Loading single cashier dashboard...');
+    console.log('Cashier ID:', cashierId);
+    console.log('Date From:', dateFrom);
+    console.log('Date To:', dateTo);
+
     $('#dashboard-container').html('<center><div style="padding: 60px;"><i class="fa fa-spinner fa-spin fa-3x" style="color: #3b82f6;"></i><p style="margin-top: 20px; color: #718096; font-weight: 600;">Loading dashboard...</p></div></center>');
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_cashier_dashboard_data'); ?>',
         type: 'POST',
         data: { cashier_id: cashierId, date_from: dateFrom, date_to: dateTo },
         dataType: 'json'
     }).done(function(response) {
+        console.log('Response received:', response);
+        if (response.debug) {
+            console.log('Debug info:', response.debug);
+        }
         if (response.status === 'success') {
             $('#dashboard-container').html(response.html);
         } else {
             showAjaxModal_alert(response.message || 'Failed to load dashboard', 'error');
         }
     }).fail(function(xhr, status, error) {
+        console.error('AJAX failed:', status, error);
+        console.error('Response text:', xhr.responseText);
         showAjaxModal_alert('An error occurred while loading dashboard', 'error');
     });
 }
 
 function loadAllCashiersDashboard(dateFrom, dateTo) {
     $('#dashboard-container').html('<center><div style="padding: 60px;"><i class="fa fa-spinner fa-spin fa-3x" style="color: #3b82f6;"></i><p style="margin-top: 20px; color: #718096; font-weight: 600;">Loading combined dashboard...</p></div></center>');
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_all_cashiers_dashboard'); ?>',
         type: 'POST',
@@ -237,29 +156,21 @@ $(document).ready(function() {
         autoclose: true,
         todayHighlight: true
     });
-    
+
     // Select "All Cashiers" option and load dashboard
     $('#cashier_filter').val('all');
     loadDashboard();
-});
-
-// Keyboard activation for delegated fee-card tiles (a11y, mirrors click delegation)
-$(document).on('keydown', '.fee-card', function(e) {
-    if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        $(this).trigger('click');
-    }
 });
 
 // Use event delegation to prevent double-click issues
 $(document).on('click', '.fee-card', function(e) {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const feeType = $(this).data('fee-type');
     const category = $(this).data('category');
     const cashierId = $(this).data('cashier-id');
-    
+
     if (cashierId === 'all') {
         if (category === 'arrears') {
             showAllCashiersArrearsDetails(feeType);
@@ -274,7 +185,7 @@ $(document).on('click', '.fee-card', function(e) {
 // Global functions for fee details modals
 function showFeeDetails(feeType, category, cashierId) {
     showAjaxModal_alert('Loading details...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_fee_details'); ?>',
         type: 'POST',
@@ -300,7 +211,7 @@ function showFeeDetails(feeType, category, cashierId) {
 
 function showAllCashiersFeeDetails(feeType) {
     showAjaxModal_alert('Loading combined details...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_fee_details'); ?>',
         type: 'POST',
@@ -326,7 +237,7 @@ function showAllCashiersFeeDetails(feeType) {
 
 function showAllCashiersArrearsDetails(feeType) {
     showAjaxModal_alert('Loading arrears details...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_fee_details'); ?>',
         type: 'POST',

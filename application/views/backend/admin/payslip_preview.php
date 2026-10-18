@@ -45,7 +45,7 @@
     $staffQualification = $staffRow->designation ?? '';
     $staffAccountNumber = $staffRow->account_number ?? '';
     $staffAccountDetails = $staffRow->account_details ?? '';
-    
+
     // Set staff category based on employment category
     $staffCategory = 'Staff';
     if($employmentCategory == 'teacher') {
@@ -60,28 +60,32 @@
     $currency = get_settings('currency') ?: 'GH₵';
 
     /*Helper function for conditional display - hides zero/null values*/
-    function shouldDisplayLine($value) {
-        // Handle NULL values by treating as zero
-        $numericValue = $value ?? 0;
-        
-        // Check if value > 0
-        return floatval($numericValue) > 0;
+    if (!function_exists('shouldDisplayLine')) {
+        function shouldDisplayLine($value) {
+            // Handle NULL values by treating as zero
+            $numericValue = $value ?? 0;
+
+            // Check if value > 0
+            return floatval($numericValue) > 0;
+        }
     }
 
     /*Helper function for currency formatting*/
-    function formatCurrency($amount, $currencySymbol = null) {
-        // Retrieve currency symbol from system settings
-        if ($currencySymbol === null) {
-            $currencySymbol = get_settings('currency');
+    if (!function_exists('formatCurrency')) {
+        function formatCurrency($amount, $currencySymbol = null) {
+            // Retrieve currency symbol from system settings
+            if ($currencySymbol === null) {
+                $currencySymbol = get_settings('currency');
+            }
+
+            // Apply fallback to 'GH₵' if currency setting is missing
+            if (empty($currencySymbol)) {
+                $currencySymbol = 'GH₵';
+            }
+
+            // Format amounts with 2 decimal places and thousand separators
+            return $currencySymbol . ' ' . number_format($amount, 2, '.', ',');
         }
-        
-        // Apply fallback to 'GH₵' if currency setting is missing
-        if (empty($currencySymbol)) {
-            $currencySymbol = 'GH₵';
-        }
-        
-        // Format amounts with 2 decimal places and thousand separators
-        return $currencySymbol . ' ' . number_format($amount, 2, '.', ',');
     }
 ?>
 <html lang="en">
@@ -89,10 +93,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=210mm, initial-scale=1.0">
     <title><?= ucfirst($schoolName) ?> - <?= $staffName;?> - Payslip <?= $payMonth. ' '. $payYear;?></title>
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="<?php echo base_url('assets/fontawesome/6.7.2/css/all.min.css');?>">
-    
+
     <!-- jQuery -->
     <script src="<?php echo base_url('assets/js/jquery-3.4.1.js');?>" type="text/javascript"></script>
 
@@ -459,11 +463,11 @@
             echo '</div></div></body></html>';
             exit;
         }
-        
+
         foreach($staffPayrollData as $row):
             // Use saved rates if available (for historical accuracy), otherwise use current rates
             $use_saved_rates = isset($row->rate_ssnit_tier1_employer) && $row->rate_ssnit_tier1_employer !== null;
-            
+
             if ($use_saved_rates) {
                 // Use rates that were saved when this payroll was created
                 $ssnit_tier1_employer_rate = $row->rate_ssnit_tier1_employer;
@@ -479,7 +483,7 @@
                 $getfund_rate = isset($statutory_rates['getfund']['value']) ? $statutory_rates['getfund']['value'] : 2.5;
                 $nhil_rate = isset($statutory_rates['nhil']['value']) ? $statutory_rates['nhil']['value'] : 2.5;
             }
-            
+
             // Prepare earnings array (only non-zero values)
             $earnings = [];
             if (shouldDisplayLine($row->basic_salary)) $earnings[] = ['label' => 'Basic Salary', 'value' => $row->basic_salary];
@@ -496,15 +500,15 @@
             if (shouldDisplayLine($row->ssnit)) {
                 $employer_contributions[] = ['label' => 'SSNIT Tier 1 - Employer Contribution (' . number_format($ssnit_tier1_employer_rate, 1) . '%)', 'value' => $row->ssnit];
             }
-            
+
             // Prepare employee deductions array (deducted from employee earnings)
             $deductions = [];
-            
+
             // SSNIT Tier 2 - Fetch tier2 provider name and show tier2 amount
             // Check all possible field names for backward compatibility
             $tier2Amount = 0;
             $tier2Field = null;
-            
+
             // Priority order: tier2_contribution (new), petra (legacy), tier2_pension (alternate)
             if (isset($row->tier2_contribution) && $row->tier2_contribution !== null) {
                 $tier2Amount = $row->tier2_contribution;
@@ -516,14 +520,14 @@
                 $tier2Amount = $row->tier2_pension;
                 $tier2Field = 'tier2_pension';
             }
-            
+
             // DEBUG: Temporarily show what fields exist and their values (remove after verification)
             // echo "<!-- DEBUG Tier2: Field={$tier2Field}, Amount={$tier2Amount}, Provider ID=" . ($row->tier2_provider_id ?? 'NULL') . " -->";
-            
+
             if (shouldDisplayLine($tier2Amount)) {
                 $tier2Label = 'TIER 2 PENSION';
                 $tier2Sublabel = 'SSNIT Tier 2 (' . number_format($ssnit_tier2_rate, 1) . '%)';
-                
+
                 // Fetch provider company name from database
                 if (isset($row->tier2_provider_id) && !empty($row->tier2_provider_id)) {
                     $providerQuery = $this->db->where('provider_id', $row->tier2_provider_id)->get('pension_tier2_providers');
@@ -534,10 +538,10 @@
                         }
                     }
                 }
-                
+
                 $deductions[] = ['label' => $tier2Label, 'value' => $tier2Amount, 'sublabel' => $tier2Sublabel];
             }
-            
+
             if (shouldDisplayLine($row->income_tax)) $deductions[] = ['label' => 'Income Tax (PAYE)', 'value' => $row->income_tax];
             if (shouldDisplayLine($row->get_fund)) $deductions[] = ['label' => 'GETFund (' . number_format($getfund_rate, 1) . '%)', 'value' => $row->get_fund];
             if (shouldDisplayLine($row->nhil)) $deductions[] = ['label' => 'NHIL (' . number_format($nhil_rate, 1) . '%)', 'value' => $row->nhil];
@@ -548,7 +552,8 @@
             if (shouldDisplayLine($row->other_deductions)) $deductions[] = ['label' => 'Other Deductions', 'value' => $row->other_deductions];
     ?>
 
-    <!-- Print Button (Only visible on screen) -->
+    <!-- Print Button (Only visible on screen and not in bulk print mode) -->
+    <?php if (!isset($is_bulk_print) || !$is_bulk_print): ?>
     <div class="no-print print-button-container">
         <button onclick="window.print()" class="print-btn">
             <i class="fas fa-print"></i>Print Payslip
@@ -557,6 +562,7 @@
             <i class="fas fa-info-circle"></i> If content extends to next page, use <strong>Scale/Zoom</strong> in print dialog (try 90-95%)
         </div>
     </div>
+    <?php endif; ?>
 
     <!-- Payslip Container -->
     <div class="payslip-container">
@@ -627,20 +633,20 @@
                             <span class="item-value"><?= formatCurrency($item['value'], $currency); ?></span>
                         </div>
                     <?php endforeach; ?>
-                    
+
                     <?php if (empty($earnings)): ?>
                         <div class="line-item">
                             <span class="item-label">No earnings recorded</span>
                             <span class="item-value">-</span>
                         </div>
                     <?php endif; ?>
-                    
+
                     <div class="total-line earnings-total">
                         <span>TOTAL EARNINGS</span>
                         <span><?= formatCurrency($row->gross_salary, $currency); ?></span>
                     </div>
                 </div>
-                
+
                 <!-- Net Pay Card (Inside Earnings Column) -->
                 <div style="margin-top: 15px; border: 3px solid #000; border-radius: 8px; padding: 12px 15px; background: #f9fafb;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -676,7 +682,7 @@
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                        
+
                         <!-- Separator Line -->
                         <div style="border-bottom: 2px solid #000; margin: 12px 0; position: relative;">
                             <span style="position: absolute; top: -10px; right: 0; background: white; padding: 0 8px; font-size: 0.75em; color: #000; font-weight: 700;">
@@ -684,7 +690,7 @@
                             </span>
                         </div>
                     <?php endif; ?>
-                    
+
                     <!-- Employee Deductions (Below the separator line) -->
                     <?php foreach ($deductions as $item): ?>
                         <div class="line-item <?= isset($item['css_class']) ? $item['css_class'] : ''; ?>">
@@ -697,14 +703,14 @@
                             <span class="item-value"><?= formatCurrency($item['value'], $currency); ?></span>
                         </div>
                     <?php endforeach; ?>
-                    
+
                     <?php if (empty($deductions)): ?>
                         <div class="line-item">
                             <span class="item-label">No deductions applied</span>
                             <span class="item-value">-</span>
                         </div>
                     <?php endif; ?>
-                    
+
                     <div class="total-line deductions-total">
                         <span>TOTAL DEDUCTIONS</span>
                         <span><?= formatCurrency($row->total_deductions, $currency); ?></span>

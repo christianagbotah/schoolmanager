@@ -1,6 +1,6 @@
 <hr />
 <?php
-	if(isset($_GET['error']) && $_GET['error'] == 1) { 
+	if(isset($_GET['error']) && $_GET['error'] == 1) {
 		if(isset($_GET['term'])) {
 		?>
 		<div class="alert alert-danger alert-dismissable" role="alert" aria-label="alert" style="text-align: center;">
@@ -33,84 +33,38 @@
  ?>
 <?php echo form_open(site_url('admin/marks_selector'), array('id' => 'marks_selector_form'));?>
 
-
 <style>
-@media screen {
+/* Mobile-responsive fixes for marks management filters */
+@media (max-width: 640px) {
+    .form-group label {
+        font-size: 14px !important;
+    }
 
-  body { background: #f8fafc; }
+    .form-group select {
+        font-size: 16px !important;
+        height: auto !important;
+        min-height: 50px !important;
+        padding: 12px !important;
+    }
 
-  #marks_selector_form {
-    margin: 0 auto 18px; padding: 18px 20px;
-    border: 1px solid #e2e8f0; border-radius: 14px;
-    background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  #marks_selector_form > .grid {
-    display: grid !important; grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-  #marks_selector_form > .grid > .flex {
-    display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)) !important;
-    gap: 12px !important;
-  }
-  #marks_selector_form .form-group { margin-bottom: 0 !important; }
-  #marks_selector_form .control-label {
-    display: block; margin-bottom: 7px !important;
-    color: #334155; font-size: 13px !important; line-height: 1.35; font-weight: 700 !important;
-  }
-  #marks_selector_form select,
-  #marks_selector_form .select2-container .select2-selection--single,
-  #marks_selector_form .select2-container .select2-choice {
-    min-height: var(--sm-ui-control-height, 42px) !important; height: var(--sm-ui-control-height, 42px) !important; max-height: var(--sm-ui-control-height, 42px) !important;
-    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
-    background: #fff !important; color: #0f172a !important;
-    font-size: 14px !important; line-height: 1.4 !important; font-weight: 600 !important;
-  }
-  #marks_selector_form select {
-    padding: 9px 11px !important;
-  }
-  #marks_selector_form .select2-container .select2-selection__rendered,
-  #marks_selector_form .select2-container .select2-choice > span:first-child {
-    line-height: 40px !important; min-height: 40px !important;
-    font-size: 14px !important; color: #0f172a !important; font-weight: 600 !important;
-  }
-  #marks_selector_form select:focus,
-  #marks_selector_form .select2-container--focus .select2-selection--single {
-    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important; outline: none;
-  }
+    #subject_holder {
+        margin-top: 0 !important;
+    }
 
-  #subject_holder {
-    display: grid !important; grid-template-columns: minmax(0,1fr) auto !important;
-    align-items: end; gap: 12px !important;
-  }
-  #subject_holder > .w-full[style*="display: none"] { display: none !important; }
-  #subject_holder > .w-full[style*="padding-top"] {
-    margin-top: 0 !important; padding-top: 0 !important; min-width: 150px;
-  }
-  #marks_selector_form button[type="submit"],
-  #marks_selector_form input[type="submit"],
-  #marks_selector_form .btn {
-    min-height: var(--sm-ui-control-height, 42px) !important; height: var(--sm-ui-control-height, 42px) !important;
-    padding: 9px 16px !important; border-radius: 9px !important;
-    font-size: 14px !important; line-height: 1.35; font-weight: 800 !important;
-  }
+    #submit {
+        width: 100% !important;
+        padding: 15px !important;
+        font-size: 16px !important;
+    }
+}
 
-  .alert.alert-danger {
-    margin-bottom: 12px; padding: 12px 15px; border-radius: 10px;
-    font-size: 14px; line-height: 1.45;
-  }
-
-  @media (max-width: 767px) {
-    #marks_selector_form { padding: 14px; }
-    #marks_selector_form > .grid > .flex { grid-template-columns: 1fr !important; }
-    #subject_holder { grid-template-columns: 1fr !important; }
-    #subject_holder > .w-full[style*="padding-top"] { width: 100%; min-width: 0; }
-    #marks_selector_form select,
-    #marks_selector_form .select2-container .select2-selection--single { font-size: 16px !important; }
-  }
-
+@media (min-width: 641px) and (max-width: 768px) {
+    .form-group select {
+        font-size: 18px !important;
+        height: 60px !important;
+    }
 }
 </style>
-
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
@@ -161,15 +115,15 @@
 								<?php
 								// Track added class IDs to prevent duplicates
 								$added_class_ids = array();
-								
+
 								// First, add classes where teacher is the class teacher (creche)
 								foreach($class_ids_creche as $subj):
 									// Skip if already added
 									if(in_array($subj['class_id'], $added_class_ids)) continue;
-									
+
 									$classes = $this->db->get_where('class', array('class_id' => $subj['class_id']))->result_array();
 									foreach($classes as $row):
-									 
+
 									 //add section A or B if the class has more than one section
 				                    $section_name = $this->db->get_where('section', array('class_id' => $row['class_id']))->row()->name;
 				                    $class_has_more_sections = $this->db->get_where('class', array('name' => $row['name'], 'name_numeric' => $row['name_numeric']))->num_rows();
@@ -179,21 +133,21 @@
 				                    }
 								?>
 								<option value="<?php echo $row['class_id'];?>"><?php echo $row['name'].' '.$row['name_numeric'].$sec_name;?></option>
-								<?php 
+								<?php
 									// Mark this class as added
 									$added_class_ids[] = $subj['class_id'];
-									endforeach; 
-								endforeach; //FOR CRECHE ?> 
-				                
+									endforeach;
+								endforeach; //FOR CRECHE ?>
+
 				                <?php
 								// Second, add classes where teacher teaches subjects
 								foreach($class_ids as $subj):
 									// Skip if already added
 									if(in_array($subj['class_id'], $added_class_ids)) continue;
-									
+
 									$classes = $this->db->get_where('class', array('class_id' => $subj['class_id']))->result_array();
 									foreach($classes as $row):
-									
+
 									//add section A or B if the class has more than one section
 				                    $section_name = $this->db->get_where('section', array('class_id' => $row['class_id']))->row()->name;
 				                    $class_has_more_sections = $this->db->get_where('class', array('name' => $row['name'], 'name_numeric' => $row['name_numeric']))->num_rows();
@@ -203,10 +157,10 @@
 				                    }
 								?>
 								<option value="<?php echo $row['class_id'];?>"><?php echo $row['name'].' '.$row['name_numeric'].$sec_name;?></option>
-								<?php 
+								<?php
 									// Mark this class as added
 									$added_class_ids[] = $subj['class_id'];
-									endforeach; 
+									endforeach;
 								endforeach; ?>
 							</select>
 						</div>
@@ -230,7 +184,7 @@
 			}
 		?>
 	</div>
-	
+
 
 	<div id="subject_holder" class="w-full flex flex-col sm:flex-row gap-4">
 		<!-- Hidden section selector - value still submitted but not visible -->
@@ -238,7 +192,7 @@
 			<div class="form-group">
 			<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('section');?></label>
 				<select name="section_id" id="section_id" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-xl font-bold block w-full max-w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 uppercase">
-					<option value=""><?php echo get_phrase('select_class_first');?></option>		
+					<option value=""><?php echo get_phrase('select_class_first');?></option>
 				</select>
 			</div>
 		</div>
@@ -246,7 +200,7 @@
 			<div class="form-group">
 			<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('subject');?></label>
 				<select name="subject_id" id="subject_id" class="select2 visible bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-xl font-bold block w-full max-w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 uppercase">
-					<option value=""><?php echo get_phrase('select_class_first');?></option>		
+					<option value=""><?php echo get_phrase('select_class_first');?></option>
 				</select>
 			</div>
 		</div>
@@ -270,7 +224,7 @@ jQuery(document).ready(function($) {
 
 	$("#submit").attr('disabled', 'disabled');
 });
-	
+
 	function get_class_subject(class_id) {
 
 
@@ -296,7 +250,7 @@ jQuery(document).ready(function($) {
 	                $('#subject_id').select2();
 	                $('#marks_selector_form').attr('action', '<?php echo site_url('admin/marks_selector');?>');
             	}
-                
+
             }
         });
         $('#submit').removeAttr('disabled');
@@ -335,18 +289,18 @@ $('#marks_selector_form').submit(function(event) {
   		setTimeout(() => {
   			navigation('<?php echo site_url('admin/marks_manage'); ?>')
   		}, 5000);
-      
+
   	} else if(data == 'no enrollment') {
   		showAjaxModal_alert('Make sure students were enrolled before proceeding. Try marking attendance first and try again.', 'Error');
 
-  		
+
   		setTimeout(() => {
   			navigation('<?php echo site_url('admin/marks_manage'); ?>')
   		}, 5000);
-      
+
   	} else {
   		$('#main_page').empty();
-  		
+
   		navigation(data);
   	}
   });

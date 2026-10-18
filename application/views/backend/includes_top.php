@@ -36,10 +36,10 @@
 
 <?php endif;?>
 
-<?php 
+<?php
     $text_align_row = $this->db->get_where('settings', array('type' => 'text_align'))->row();
     $text_align = $text_align_row ? $text_align_row->description : 'left-to-right';
-    if ($text_align == 'right-to-left') : 
+    if ($text_align == 'right-to-left') :
 ?>
     <link rel="stylesheet" href="<?php echo base_url('assets/css/neon-rtl.css');?>">
 <?php endif; ?>
@@ -56,12 +56,6 @@
 
 <!-- DataTables Layout Fix - Global Override -->
 <link rel="stylesheet" type="text/css" href="<?php echo base_url('assets/css/datatables-layout-fix.css');?>?v=<?php echo time(); ?>"/>
-
-<!-- Wave 1 shell modernization: design tokens + reskin layer (loaded last by design) -->
-<link rel="stylesheet" href="<?php echo base_url('assets/css/design-system.css');?>?v=<?php echo time(); ?>"/>
-<link rel="stylesheet" href="<?php echo base_url('assets/css/shell-modern.css');?>?v=<?php echo time(); ?>"/>
-<!-- Global UI consistency contract: typography, spacing, control heights -->
-<link rel="stylesheet" href="<?php echo base_url('assets/css/ui-consistency.css');?>?v=<?php echo time(); ?>"/>
 
 
 
@@ -89,7 +83,7 @@ if ($current_page !== 'fee_collection_portal'):
 <?php endif; ?>
 
 <!--Amcharts - Conditional loading for dashboard/reports only (MAIN PERFORMANCE OPTIMIZATION) -->
-<?php 
+<?php
 $chart_pages = ['dashboard', 'income_expenditure', 'monthly_collection_report', 'student_attendance_report'];
 $needs_charts = in_array($current_page, $chart_pages);
 if ($needs_charts):
@@ -120,6 +114,8 @@ if ($needs_charts):
 <!--jQuery-->
 <script src="<?php echo base_url('assets/js/jquery-3.4.1.js');?>" type="text/javascript"></script>
 
+<!-- CSRF Helper for AJAX requests -->
+<script src="<?php echo base_url('assets/js/csrf-helper.js');?>" type="text/javascript"></script>
 
 <!-- Include html2canvas and jsPDF libraries -->
 <script src="<?php echo base_url('assets/js/pdf-plugins/html2canvas.min.js');?>"></script>
@@ -127,16 +123,16 @@ if ($needs_charts):
 
 <style type="text/css">
     /* .sidebar-menu a i{
-        border: 1px solid #0275d8 !important; 
+        border: 1px solid #0275d8 !important;
         padding: 5px !important;
     } */
-    
+
     /* Modern slim scrollbars are now handled by modern-scrollbar.css */
 </style>
 
 <script type="text/javascript">
 
-    
+
     function checkDelete()
     {
         showCustomConfirm("Are You Sure You Want To Delete This?", function() {

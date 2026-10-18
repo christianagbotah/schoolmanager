@@ -1,26 +1,16 @@
-<style>
-.permissions-workspace { margin: 0 !important; padding: 0 0 32px; }
-.permissions-workspace > .col-md-12 { padding: 0 !important; }
-.permissions-workspace > .col-md-12 > div:first-of-type { padding: 18px 20px !important; margin-bottom: 16px !important; border-radius: 14px !important; background: #0f172a !important; box-shadow: 0 1px 2px rgba(15,23,42,.10) !important; }
-.permissions-workspace > .col-md-12 > div:first-of-type h2 { font-size: 24px !important; line-height: 1.2; font-weight: 800 !important; }
-.permissions-workspace > .col-md-12 > div:first-of-type p { font-size: 14px !important; line-height: 1.45; }
-.permissions-workspace .modern-btn { min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 14px !important; border-radius: 9px !important; font-size: 14px !important; font-weight: 700 !important; }
-.permissions-workspace #search-users { min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 11px !important; font-size: 14px !important; }
-@media (max-width: 767px) { .permissions-workspace { padding-bottom: 28px; } .permissions-workspace > .col-md-12 > div:first-of-type { padding: 16px !important; } .permissions-workspace > .col-md-12 > div:first-of-type h2 { font-size: 22px !important; } }
-</style>
 <!-- User Permissions List -->
-<div class="row permissions-workspace">
+<div class="row">
     <div class="col-md-12">
-        
+
         <!-- Page Header -->
-        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:18px 20px;border-radius:14px;margin-bottom:16px;box-shadow:0 10px 40px rgba(102,126,234,0.3);">
+        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:32px;border-radius:16px;margin-bottom:24px;box-shadow:0 10px 40px rgba(102,126,234,0.3);">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
                 <div>
-                    <h2 style="color:#fff;margin:0;font-size:24px;font-weight:800;display:flex;align-items:center;gap:12px;">
+                    <h2 style="color:#fff;margin:0;font-size:28px;font-weight:700;display:flex;align-items:center;gap:12px;">
                         <i class="entypo-users"></i>
                         <?php echo get_phrase(ucfirst($selected_user_type) . 's'); ?> <?php echo get_phrase('permissions'); ?>
                     </h2>
-                    <p style="color:rgba(255,255,255,0.9);margin:8px 0 0 0;font-size:14px;">
+                    <p style="color:rgba(255,255,255,0.9);margin:8px 0 0 0;font-size:15px;">
                         <?php echo get_phrase('manage_permissions_for'); ?> <?php echo get_phrase($selected_user_type . 's'); ?>
                     </p>
                 </div>
@@ -35,17 +25,17 @@
         <!-- User Type Selector -->
         <div style="background:#fff;padding:16px 24px;border-radius:12px;margin-bottom:24px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
             <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                <a href="<?php echo site_url('user_permissions/list_users/teacher'); ?>" 
+                <a href="<?php echo site_url('user_permissions/list_users/teacher'); ?>"
                    class="user-type-btn <?php echo $selected_user_type == 'teacher' ? 'active' : ''; ?>"
                    style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;transition:all 0.2s;<?php echo $selected_user_type == 'teacher' ? 'background:#667eea;color:#fff;' : 'background:#f3f4f6;color:#6b7280;'; ?>">
                     <i class="entypo-users"></i> <?php echo get_phrase('teachers'); ?>
                 </a>
-                <a href="<?php echo site_url('user_permissions/list_users/admin'); ?>" 
+                <a href="<?php echo site_url('user_permissions/list_users/admin'); ?>"
                    class="user-type-btn <?php echo $selected_user_type == 'admin' ? 'active' : ''; ?>"
                    style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;transition:all 0.2s;<?php echo $selected_user_type == 'admin' ? 'background:#667eea;color:#fff;' : 'background:#f3f4f6;color:#6b7280;'; ?>">
                     <i class="entypo-user"></i> <?php echo get_phrase('admins'); ?>
                 </a>
-                <a href="<?php echo site_url('user_permissions/list_users/accountant'); ?>" 
+                <a href="<?php echo site_url('user_permissions/list_users/accountant'); ?>"
                    class="user-type-btn <?php echo $selected_user_type == 'accountant' ? 'active' : ''; ?>"
                    style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;transition:all 0.2s;<?php echo $selected_user_type == 'accountant' ? 'background:#667eea;color:#fff;' : 'background:#f3f4f6;color:#6b7280;'; ?>">
                     <i class="entypo-calculator"></i> <?php echo get_phrase('accountants'); ?>
@@ -61,12 +51,12 @@
                         <i class="entypo-list"></i> <?php echo get_phrase('users_list'); ?>
                     </h4>
                     <div style="display:flex;gap:8px;">
-                        <input type="text" id="search-users" placeholder="<?php echo get_phrase('search_users'); ?>..." 
+                        <input type="text" id="search-users" placeholder="<?php echo get_phrase('search_users'); ?>..."
                                style="padding:10px 16px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;width:250px;">
                     </div>
                 </div>
             </div>
-            
+
             <div class="table-responsive">
                 <table class="table table-hover" id="users-table" style="margin:0;">
                     <thead style="background:#f9fafb;">
@@ -104,7 +94,7 @@
                                     </td>
                                     <?php if ($selected_user_type == 'admin'): ?>
                                         <td style="padding:16px;vertical-align:middle;">
-                                            <?php 
+                                            <?php
                                                 $level_labels = [1 => 'Super Admin', 2 => 'Admin', 3 => 'Assistant', 4 => 'Cashier'];
                                                 $level = isset($user['level']) ? $user['level'] : 0;
                                             ?>
@@ -121,7 +111,7 @@
                                     <td style="padding:16px;vertical-align:middle;">
                                         <?php if (!empty($user['modules'])): ?>
                                             <div style="display:flex;flex-wrap:wrap;gap:4px;">
-                                                <?php 
+                                                <?php
                                                     $display_limit = 3;
                                                     $total_modules = count($user['modules']);
                                                     $displayed = 0;
@@ -147,8 +137,8 @@
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-center" style="padding:16px;vertical-align:middle;">
-                                        <a href="<?php echo site_url('user_permissions/manage_user/' . $selected_user_type . '/' . $user['user_id']); ?>" 
-                                           class="action-btn" 
+                                        <a href="<?php echo site_url('user_permissions/manage_user/' . $selected_user_type . '/' . $user['user_id']); ?>"
+                                           class="action-btn"
                                            title="<?php echo get_phrase('manage_permissions'); ?>"
                                            style="display:inline-block;padding:10px 16px;border:none;border-radius:8px;background:#667eea;color:#fff;cursor:pointer;transition:all 0.2s;font-size:14px;text-decoration:none;font-weight:600;">
                                             <i class="entypo-lock"></i> <?php echo get_phrase('manage'); ?>
@@ -183,7 +173,7 @@ $(document).ready(function() {
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
         });
     });
-    
+
     // Hover effects
     $('.user-type-btn:not(.active)').hover(
         function() {
@@ -197,27 +187,25 @@ $(document).ready(function() {
 </script>
 
 <style>
-    .permissions-workspace .action-btn:hover {
+    .action-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(102,126,234,0.4);
     }
-    
-    .permissions-workspace .modern-btn {
+
+    .modern-btn {
         display:inline-flex;
         align-items:center;
         gap:8px;
-        min-height:var(--sm-ui-control-height,42px);
-        height:var(--sm-ui-control-height,42px);
-        padding:9px 14px;
-        border-radius:9px;
+        padding:12px 24px;
+        border-radius:8px;
         font-weight:600;
         font-size:14px;
         border:none;
         cursor:pointer;
         transition:all 0.2s;
     }
-    
-    .permissions-workspace .modern-btn:hover {
+
+    .modern-btn:hover {
         transform:translateY(-2px);
         box-shadow:0 4px 12px rgba(0,0,0,0.2);
     }

@@ -1,150 +1,42 @@
-<?php 
+<?php
     $raw_score = $this->db->get_where('settings', array('type' => 'raw_score'))->row()->description;
 ?>
 
 <style type="text/css">
-/* Subject Management — unified enterprise scale */
-body { background: #f8fafc; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-.validate-has-error { color: #dc2626; }
+    /* Base Typography */
+    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .validate-has-error { color: red; }
+    label { font-size: 1.125rem !important; font-weight: 700 !important; color: #1f2937 !important; }
+    input, select, textarea { font-size: 1.125rem !important; font-weight: 500 !important; color: #111827 !important; }
+    h3 { font-size: 1.5rem !important; font-weight: 800 !important; color: #111827 !important; }
+    h4 { font-size: 1.25rem !important; font-weight: 800 !important; color: #111827 !important; }
+    p { font-size: 1.0625rem !important; line-height: 1.7 !important; font-weight: 500 !important; color: #374151 !important; }
 
-.subject-workspace {
-    max-width: 1480px !important; margin: 0 auto; padding: 24px 28px 40px !important;
-}
-.subject-workspace > .bg-indigo-700 {
-    margin-bottom: 18px !important; padding: 20px 24px !important;
-    border: 1px solid #e2e8f0; border-radius: 14px !important;
-    background: #0f172a !important; box-shadow: 0 8px 22px rgba(15,23,42,.16) !important;
-}
-.subject-workspace > .bg-indigo-700 h2 {
-    margin: 0; font-size: 28px !important; line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em;
-}
-.subject-workspace > .bg-indigo-700 svg { width: 24px !important; height: 24px !important; }
+    /* Select2 Fix */
+    .select2-container { width: 100% !important; }
+    .select2-container .select2-selection--single { height: 48px !important; padding: 10px 14px !important; font-size: 1.125rem !important; font-weight: 600 !important; }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 28px !important; font-size: 1.125rem !important; font-weight: 600 !important; color: #111827 !important; }
+    .select2-container--default .select2-selection--single .select2-selection__arrow { height: 46px !important; }
 
-.subject-workspace > .bg-white.rounded-lg {
-    border: 1px solid #e2e8f0; border-radius: 14px !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-}
-.subject-workspace > .bg-white.rounded-lg > ul {
-    display: inline-flex !important; gap: 5px; width: auto !important; margin: 12px 12px 0 !important;
-    padding: 5px !important; border: 1px solid #e2e8f0 !important; border-radius: 12px;
-    background: #f8fafc;
-}
-.subject-workspace > .bg-white.rounded-lg > ul > li { flex: 0 0 auto !important; }
-.subject-workspace > .bg-white.rounded-lg > ul a {
-    min-height: 40px; padding: 9px 14px !important; border-radius: 8px;
-    font-size: 14px !important; line-height: 1.35; font-weight: 700 !important;
-}
-.subject-workspace > .bg-white.rounded-lg > ul a.active,
-.subject-workspace > .bg-white.rounded-lg > ul li.active a {
-    background: #2563eb !important; color: #fff !important;
-}
+    /* Uniform Button Size */
+    .btn-uniform { min-height: 52px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-size: 1.125rem !important; font-weight: 700 !important; letter-spacing: 0.025em !important; }
 
-.subject-workspace label {
-    font-size: 14px !important; line-height: 1.35; font-weight: 700 !important; color: #334155 !important;
-}
-.subject-workspace input,
-.subject-workspace select,
-.subject-workspace textarea {
-    min-height: 46px; padding: 9px 12px; border: 1px solid #cbd5e1;
-    border-radius: 9px; font-size: 15px !important; line-height: 1.4;
-    font-weight: 500 !important; color: #0f172a !important; background: #fff;
-}
-.subject-workspace textarea { min-height: 96px; }
-.subject-workspace input:focus,
-.subject-workspace select:focus,
-.subject-workspace textarea:focus {
-    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important; outline: none;
-}
-.subject-workspace h3 { font-size: 18px !important; font-weight: 800 !important; color: #0f172a !important; }
-.subject-workspace h4 { font-size: 16px !important; font-weight: 800 !important; color: #0f172a !important; }
-.subject-workspace p { font-size: 14px !important; line-height: 1.55 !important; font-weight: 500 !important; color: #475569 !important; }
+    /* Fix label button height and text color */
+    label.btn-uniform { height: 52px !important; padding: 0 1.5rem !important; box-sizing: border-box !important; color: white !important; }
 
-.subject-workspace .select2-container { width: 100% !important; }
-.subject-workspace .select2-container .select2-selection--single {
-    min-height: 46px !important; height: 46px !important; padding: 7px 10px !important;
-    border: 1px solid #cbd5e1 !important; border-radius: 9px !important; font-size: 15px !important;
-}
-.subject-workspace .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 30px !important; font-size: 15px !important; font-weight: 600 !important; color: #0f172a !important;
-}
-.subject-workspace .select2-container--default .select2-selection--single .select2-selection__arrow { height: 44px !important; }
+    /* Table Readability */
+    .datatable tbody td { font-size: 1.125rem !important; padding: 1rem 1.5rem !important; font-weight: 600 !important; color: #111827 !important; }
+    .datatable thead th { font-size: 1.0625rem !important; padding: 1rem 1.5rem !important; letter-spacing: 0.05em !important; font-weight: 700 !important; color: #374151 !important; }
 
-.subject-workspace .btn-uniform {
-    min-height: 44px !important; padding: 9px 16px !important;
-    display: inline-flex !important; align-items: center !important; justify-content: center !important;
-    border-radius: 9px !important; font-size: 14px !important; font-weight: 800 !important;
-    letter-spacing: 0 !important; transform: none !important; box-shadow: none !important;
-}
-.subject-workspace label.btn-uniform {
-    height: 44px !important; box-sizing: border-box !important; color: #fff !important;
-}
-.subject-workspace .btn-uniform:hover { transform: translateY(-1px) !important; }
-
-.subject-workspace .tab-content > .tab-pane > .p-6,
-.subject-workspace .tab-content > .tab-pane > .p-8 { padding: 18px !important; }
-.subject-workspace .datatable {
-    min-width: 880px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;
-}
-.subject-workspace .datatable tbody td {
-    padding: 12px 13px !important; color: #334155 !important;
-    font-size: 14px !important; line-height: 1.45; font-weight: 500 !important;
-}
-.subject-workspace .datatable thead th {
-    padding: 12px 13px !important; background: #f8fafc !important; color: #475569 !important;
-    font-size: 13px !important; line-height: 1.35; letter-spacing: .035em !important; font-weight: 800 !important;
-}
-.subject-workspace .datatable tbody tr:hover td { background: #f8fbff; }
-.subject-workspace .dropdown-menu { font-size: 14px; border-radius: 9px; }
-
-.subject-workspace .grid.grid-cols-1.md\:grid-cols-2.gap-8.mt-10 {
-    gap: 14px !important; margin-top: 18px !important;
-}
-.subject-workspace .grid.grid-cols-1.md\:grid-cols-2.gap-8.mt-10 > div {
-    padding: 17px !important; border-radius: 11px !important;
-}
-.subject-workspace .bg-purple-50.border-l-4 {
-    padding: 17px !important; margin-bottom: 18px !important; border-radius: 11px !important;
-}
-.subject-workspace .bg-purple-50.border-l-4 .grid { gap: 12px !important; }
-
-.subject-workspace .bg-white.border.border-gray-200.rounded-lg.p-8 {
-    padding: 18px !important; border-radius: 12px !important;
-}
-#subjects_table { min-width: 720px; }
-#subjects_table th {
-    padding: 11px 12px !important; background: #f8fafc; color: #475569;
-    font-size: 13px !important; font-weight: 800 !important;
-}
-#subjects_table td { padding: 9px 10px !important; vertical-align: middle; }
-#subjects_table input,
-#subjects_table select {
-    min-height: 40px; padding: 7px 9px; border: 1px solid #cbd5e1 !important;
-    border-radius: 7px; font-size: 14px !important;
-}
-#subjects_table button[type="button"] { min-height: 36px; min-width: 36px; }
-
-.subject-workspace .text-gray-700 { color: #334155 !important; font-weight: 600 !important; }
-.subject-workspace .text-gray-800 { color: #1e293b !important; font-weight: 700 !important; }
-.subject-workspace .text-gray-900 { color: #0f172a !important; font-weight: 700 !important; }
-
-@media (max-width: 767px) {
-    .subject-workspace { padding: 18px 14px 32px !important; }
-    .subject-workspace > .bg-indigo-700 { padding: 18px !important; }
-    .subject-workspace > .bg-indigo-700 h2 { font-size: 24px !important; }
-    .subject-workspace > .bg-white.rounded-lg > ul {
-        display: grid !important; grid-template-columns: 1fr; width: calc(100% - 24px) !important;
-    }
-    .subject-workspace > .bg-white.rounded-lg > ul a { width: 100%; justify-content: flex-start; }
-    .subject-workspace input,
-    .subject-workspace select,
-    .subject-workspace textarea { font-size: 16px !important; }
-    .subject-workspace .grid.grid-cols-1.md\:grid-cols-2.gap-8.mt-10 { grid-template-columns: 1fr !important; }
-}
+    /* Enhanced Text Contrast */
+    .text-gray-700 { color: #1f2937 !important; font-weight: 600 !important; }
+    .text-gray-800 { color: #111827 !important; font-weight: 700 !important; }
+    .text-gray-900 { color: #000000 !important; font-weight: 700 !important; }
 </style>
 
-<div class="max-w-7xl mx-auto p-6 subject-workspace">
+<div class="max-w-7xl mx-auto p-6">
     <!-- Header -->
-    <div class="bg-indigo-700 rounded-lg shadow-lg p-6 mb-6">
+    <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-lg shadow-lg p-6 mb-6">
         <h2 class="text-3xl font-bold text-white flex items-center gap-3">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
@@ -235,7 +127,7 @@ body { background: #f8fafc; -webkit-font-smoothing: antialiased; -moz-osx-font-s
                             <h4 class="text-xl font-bold text-blue-900 mb-4">Import All Subjects (Academic Year)</h4>
                             <p class="text-base text-blue-800 mb-6 leading-relaxed">Import all subjects from the previous academic year for all classes</p>
                             <?php echo form_open(site_url('admin/subject/import'), array('id' => 'subj_import_form_mass'));?>
-                                <button type="submit" class="btn-uniform bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 w-full">
+                                <button type="submit" class="btn-uniform bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 w-full">
                                     <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                                     </svg>
@@ -255,7 +147,7 @@ body { background: #f8fafc; -webkit-font-smoothing: antialiased; -moz-osx-font-s
                                         <option value="">Select Class</option>
                                         <?php getFullClassList(); ?>
                                     </select>
-                                    <button type="submit" class="btn-uniform bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all whitespace-nowrap">
+                                    <button type="submit" class="btn-uniform bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all whitespace-nowrap">
                                         Add Subjects
                                     </button>
                                 </div>
@@ -279,24 +171,24 @@ body { background: #f8fafc; -webkit-font-smoothing: antialiased; -moz-osx-font-s
                             Bulk Import from Excel
                         </h4>
                         <p class="text-base text-purple-800 mb-6 leading-relaxed">Upload an Excel file with multiple subjects at once</p>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <button type="button" onclick="downloadTemplate()" class="btn-uniform bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 w-full">
+                            <button type="button" onclick="downloadTemplate()" class="btn-uniform bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 w-full">
                                 <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
                                 Download Template
                             </button>
-                            
-                            <label class="btn-uniform bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 cursor-pointer text-center w-full">
+
+                            <label class="btn-uniform bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 cursor-pointer text-center w-full">
                                 <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                                 </svg>
                                 <span id="excel_file_label">Choose Excel File</span>
                                 <input type="file" id="excel_file" class="hidden" accept=".xlsx,.xls" onchange="updateFileName()">
                             </label>
-                            
-                            <button type="button" onclick="uploadExcel()" id="upload_excel_btn" class="btn-uniform bg-purple-700 hover:bg-purple-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 w-full" disabled>
+
+                            <button type="button" onclick="uploadExcel()" id="upload_excel_btn" class="btn-uniform bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all transform hover:scale-105 w-full" disabled>
                                 <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                                 </svg>
@@ -315,13 +207,13 @@ body { background: #f8fafc; -webkit-font-smoothing: antialiased; -moz-osx-font-s
                             </svg>
                             Add Subject(s)
                         </h4>
-                        
+
                         <form id="subject_form" <?php echo form_open('admin/subject/create_bulk'); ?>
                             <input type="hidden" name="class_id" value="<?php echo $class_id; ?>">
                             <input type="hidden" name="year" value="<?php echo $year; ?>">
                             <input type="hidden" name="term" value="<?php echo $term; ?>">
                             <input type="hidden" name="semester" value="<?php echo $sem; ?>">
-                            
+
                             <div class="overflow-x-auto">
                                 <table class="w-full border border-gray-300" id="subjects_table">
                                     <thead class="bg-gray-50">
@@ -358,16 +250,16 @@ body { background: #f8fafc; -webkit-font-smoothing: antialiased; -moz-osx-font-s
                                     </tbody>
                                 </table>
                             </div>
-                            
+
                             <div class="mt-6 flex justify-between">
-                                <button type="button" onclick="addRow()" class="btn-uniform bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all">
+                                <button type="button" onclick="addRow()" class="btn-uniform bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all">
                                     <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                     </svg>
                                     Add Row
                                 </button>
-                                
-                                <button type="submit" class="btn-uniform bg-indigo-700 text-white font-bold py-4 px-10 rounded-lg shadow-lg transition-all">
+
+                                <button type="submit" class="btn-uniform bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold py-4 px-10 rounded-lg shadow-lg transition-all">
                                     <svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"></path>
                                     </svg>
@@ -409,7 +301,7 @@ jQuery(document).ready(function($) {
     $(document).on('submit', '#mass_subject_form', function(e) {
         e.preventDefault();
         showAjaxModal_alert('Saving subjects...', 'loading');
-        
+
         $.ajax({
             url: $(this).attr('action'),
             type: 'POST',
@@ -431,7 +323,7 @@ jQuery(document).ready(function($) {
     $(document).on('submit', '#subject_form', function(e) {
         e.preventDefault();
         showAjaxModal_alert('Saving subjects...', 'loading');
-        
+
         $.ajax({
             url: '<?php echo site_url('admin/subject/create_bulk'); ?>',
             type: 'POST',
@@ -454,7 +346,7 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         $('.close')[0].click();
         showAjaxModal_alert('Updating...', 'loading');
-        
+
         $.ajax({
             url: $(this).attr('action'),
             type: 'POST',
@@ -542,7 +434,7 @@ let rowIndex = 1;
 function addRow() {
     const tbody = document.getElementById('subjects_tbody');
     const newRow = document.createElement('tr');
-    
+
     newRow.innerHTML = `
         <td class="border border-gray-300 px-4 py-3">
             <input type="text" name="subjects[${rowIndex}][name]" class="w-full border-0 focus:ring-0" placeholder="Enter subject name" required>
@@ -563,7 +455,7 @@ function addRow() {
             </button>
         </td>
     `;
-    
+
     tbody.appendChild(newRow);
     rowIndex++;
 }
@@ -646,7 +538,7 @@ function deleteSubject(subject_id, class_id) {
                 if(response.status === 'success') {
                     // Show success modal without auto-reload
                     showAjaxModal_alert(response.message || 'Subject Deleted Successfully', 'success', false);
-                    
+
                     // Reload page after 2 seconds to show the updated list
                     setTimeout(function() {
                         window.location.reload();

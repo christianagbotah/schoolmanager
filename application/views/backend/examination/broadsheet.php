@@ -1,19 +1,19 @@
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-primary">
-            <div class="panel-heading" style="background: #764ba2; border: none;">
+            <div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
                 <h3 class="panel-title" style="color: white;">
                     <i class="fa fa-table"></i> Examination Broadsheet
                 </h3>
             </div>
             <div class="panel-body">
-                
+
                 <!-- Exam Info -->
                 <div class="row mb-4">
                     <div class="col-md-8">
                         <h4><?php echo $exam['exam_name']; ?></h4>
-                        <p>Class: <strong><?php echo $exam['class_name']; ?></strong> | 
-                           Year: <strong><?php echo $exam['year']; ?></strong> | 
+                        <p>Class: <strong><?php echo $exam['class_name']; ?></strong> |
+                           Year: <strong><?php echo $exam['year']; ?></strong> |
                            Term: <strong><?php echo $exam['term']; ?></strong></p>
                     </div>
                     <div class="col-md-4 text-right">
@@ -42,16 +42,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php 
+                            <?php
                             $position = 1;
-                            foreach($students as $student): 
+                            foreach($students as $student):
                             ?>
                             <tr>
                                 <td class="text-center"><?php echo $position++; ?></td>
                                 <td><?php echo $student['name']; ?></td>
                                 <?php foreach($subjects as $subject): ?>
                                 <td class="text-center">
-                                    <?php 
+                                    <?php
                                     $mark = isset($student['marks'][$subject['subject_id']]) ? $student['marks'][$subject['subject_id']] : '-';
                                     echo $mark;
                                     ?>

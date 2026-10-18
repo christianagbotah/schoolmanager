@@ -16,7 +16,7 @@
 	}
 
 	.filters-card {
-		background: #f5f7fa;
+		background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 		border-radius: 12px;
 		padding: 30px;
 		box-shadow: 0 4px 15px rgba(0,0,0,0.15);
@@ -85,7 +85,7 @@
 		font-size: 16px;
 		font-weight: 600;
 		border-radius: 8px;
-		background: #764ba2;
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 		border: none;
 		box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
 		transition: all 0.3s ease;
@@ -118,7 +118,7 @@
 	.exam-info-card .icon-wrapper {
 		width: 60px;
 		height: 60px;
-		background: #764ba2;
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 		border-radius: 12px;
 		display: flex;
 		align-items: center;
@@ -181,7 +181,7 @@
 	}
 
 	#mark_sheet thead {
-		background: #764ba2;
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 		box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
 	}
 
@@ -209,7 +209,7 @@
 	}
 
 	#mark_sheet tbody tr:hover {
-		background: #f8f9ff;
+		background: linear-gradient(to right, #f8f9ff 0%, #f0f4ff 100%);
 		transform: translateX(3px);
 		box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
 	}
@@ -301,7 +301,7 @@
 	}
 
 	.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-		background: #764ba2;
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 		color: white !important;
 		border-color: #667eea;
 		box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
@@ -326,7 +326,7 @@
 		font-size: 16px;
 		font-weight: 600;
 		border-radius: 8px;
-		background: #27ae60;
+		background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
 		border: none;
 		color: white;
 		box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4);
@@ -385,14 +385,14 @@
 				</select>
 			</div>
 		</div>
-		
+
 		<div class="col-md-3 col-sm-6">
 			<div class="form-group">
 				<label class="control-label"><?php echo get_phrase('subject_category');?></label>
 				<select name="category_id" id="category_id" class="form-control select2-filter">
 					<option value="">SELECT CATEGORY</option>
 					<option value="0">SUBJECTS WITH NO CATEGORY</option>
-					<?php 
+					<?php
 					    $category_id2 = '';
 						$categories = $this->db->get('subject_category_creche')->result_array();
 						foreach($categories as $row):
@@ -409,7 +409,7 @@
 			<div class="form-group">
 				<label class="control-label"><?php echo get_phrase('subject');?></label>
 				<select name="subject_id" onchange="load_subjects()" id="subject_id" class="form-control select2-filter">
-					<?php 
+					<?php
 						$subjects = $this->db->get_where('subject_creche' , array(
 							'class_id' => $class_id, 'category_id' => $category_id, 'year' => $this->db->get_where('settings' , array('type' => 'running_year'))->row()->description, 'term' => $this->db->get_where('settings' , array('type' => 'running_term'))->row()->description
 						))->result_array();
@@ -426,19 +426,19 @@
 		</div>
 
 		<div class="col-md-2 col-sm-6">
-			
+
 			<button type="submit" class="btn btn-primary btn-manage-marks md:mt-3" id="btn_marks">
 				<i class="entypo-check"></i> <?php echo get_phrase('manage_marks');?>
 			</button>
 		</div>
-		
+
 		<!-- View Marksheet Button -->
 		<div class="col-md-2 col-sm-6">
 			<?php
 				// Get first enrolled student in this class for current academic session
 				$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 				$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-				
+
 				$first_student = $this->db->select('student_id')
 					->from('enroll')
 					->where('class_id', $class_id)
@@ -449,7 +449,7 @@
 					->limit(1)
 					->get()
 					->row();
-				
+
 				if($first_student):
 					$marksheet_url = site_url('admin/student_marksheet_creche/'.$first_student->student_id);
 			?>
@@ -458,12 +458,12 @@
 			</a>
 			<?php endif; ?>
 		</div>
-		
+
 	</div>
 
 	<!-- Hidden field to store section_id -->
 	<input type="hidden" name="section_id" id="section_id" value="<?php echo $section_id;?>">
-	
+
 	<?php echo form_close();?>
 </div>
 
@@ -484,7 +484,7 @@
 				<?php echo get_phrase('subject');?>: <?php echo $this->db->get_where('subject_creche' , array('subject_id' => $subject_id, 'category_id' => $category_id, 'year' => $running_year, 'term' => $running_term))->row()->name;?>
 			</p>
 			<p class="class-section-text" style="text-align: center;">
-				<?php echo $this->db->get_where('class' , array('class_id' => $class_id))->row()->name.' '.$this->db->get_where('class' , array('class_id' => $class_id))->row()->name_numeric;?> : 
+				<?php echo $this->db->get_where('class' , array('class_id' => $class_id))->row()->name.' '.$this->db->get_where('class' , array('class_id' => $class_id))->row()->name_numeric;?> :
 				<?php echo get_phrase('section');?> <?php echo $this->db->get_where('section' , array('section_id' => $section_id))->row()->name;?>
 			</p>
 		</div>
@@ -495,13 +495,13 @@
 	<div class="col-md-12">
 		<div class="table-card">
 
-		<?php 
+		<?php
 
 		$students_ids = [];
 		$this->db->select('student_id');
 		$this->db->distinct();
 		$students_ids_array = $this->db->get_where('mark' , array(
-						'class_id' => $class_id, 
+						'class_id' => $class_id,
 							'section_id' => $section_id ,
 								'year' => $running_year,
 									 'term' => $running_term,
@@ -538,13 +538,13 @@
 						<th><?php echo get_phrase('student_name');?></th>
 						<th>Assessment</th>
 					</tr>
-					
+
 				</thead>
 				<tbody>
 				<?php
 					$count = 1;
 					$marks_of_students = $this->db->get_where('mark' , array(
-						'class_id' => $class_id, 
+						'class_id' => $class_id,
 							'section_id' => $section_id ,
 								'year' => $running_year,
 									 'term' => $running_term,
@@ -566,7 +566,7 @@
 						<td>
 							<?php echo $this->db->get_where('student' , array('student_id' => $row['student_id']))->row()->name;?>
 						</td>
-						
+
 						<td style="text-align: center">
 							<select name="assess_<?php echo $row['mark_id'];?>" id="assess_<?php echo $row['student_id']; ?>" class="form-control select2" style="width: 100%;">
 								<option value=""><?php echo get_phrase('select_assessment');?></option>
@@ -582,13 +582,13 @@
 					</tr>
 					<?php
 
-						$all_students_id[$id_counter] = $row['student_id']; 
+						$all_students_id[$id_counter] = $row['student_id'];
 						$id_counter++;
 						$students_counter++;
 					?>
 				<?php endforeach;?>
 
-				<?php 
+				<?php
 					//converting it into json before sending it to javascript
 					$array_js = json_encode($all_students_id);
 				?>
@@ -601,7 +601,7 @@
 				</button>
 			</div>
 		<?php echo form_close();?>
-		
+
 		</div>
 	</div>
 </div>
@@ -623,7 +623,7 @@
 		});
 
 		set_val();
-		
+
 	});
 
 	// Function to initialize Select2 on filter dropdowns
@@ -695,18 +695,18 @@
       .done(function() {
 
           showAjaxModal_alert('Assessment updated successfully.', 'Success');
-          
+
 
           setTimeout(() => {
-              $('.close').click();  
-              $('#subject_loader_form').submit();           
+              $('.close').click();
+              $('#subject_loader_form').submit();
               //window.location.reload();
           }, 3000);
       })
       .fail(function(err) {
           showAjaxModal_alert(err.responseText, 'Error');
       });
-			
+
 	});
 
 	function load_subjects() {
@@ -754,7 +754,7 @@
 			if($('#assess_'+ student_ids[i]).val() == null || $('#assess_'+ student_ids[i]).val() == '') {
 
 				counter++;
-			} 
+			}
 
 		}
 
@@ -769,16 +769,16 @@
 			showAjaxModal_alert('Assessment cannot be empty. Fill at least one before submitting your form.', 'Error');
 			return false;
 		}
-		
+
 	});
-	
+
 		//update subjects if category field changes
 		$('#category_id').on("change", function() {
 		    $('#error_note').hide();//clear error if there was any
 		    $('#error_notec').hide();//clear error if there was any
 		   let cat_id = $('#category_id').val();
 		   const class_id = $('#class_id').val();
-		   
+
 		   //send via ajax
 		   $.ajax({
 		      url: '<?php echo site_url('admin/update_subjects_creche/'); ?>' + cat_id + '/' + class_id,
@@ -793,7 +793,7 @@
 		      }
 		   });
 		});
-		
+
 		//check if subject is selected
 		$('#btn_marks').on("click", function() {
 		   if($('#subject_id').val() == '' || $('#subject_id').val() == null) {
@@ -842,11 +842,11 @@ $('#subject_loader_form').submit(function(event) {
   	if(data == 'no subject') {
   		showAjaxModal_alert('Please select subject for this class.', 'Error');
 
-  		
+
   		setTimeout(() => {
   			navigation(formUrl);
   		}, 5000);
-      
+
   	} else if(data == 'no enrollment') {
   		showAjaxModal_alert('Make sure students were enrolled before proceeding. Try marking attendance first and try again.', 'Error');
 
@@ -854,13 +854,13 @@ $('#subject_loader_form').submit(function(event) {
   			navigation(formUrl);
   		}, 5000);
 
-      
+
   	} else {
   		$('#main_page').empty();
-  		
+
   		navigation(data);
   	}
   });
 });
-	
+
 </script>

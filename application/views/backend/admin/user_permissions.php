@@ -1,26 +1,16 @@
-<style>
-.permissions-workspace { margin: 0 !important; padding: 0 0 32px; }
-.permissions-workspace > .col-md-12 { padding: 0 !important; }
-.permissions-workspace > .col-md-12 > div:first-of-type { padding: 18px 20px !important; margin-bottom: 16px !important; border-radius: 14px !important; background: #0f172a !important; box-shadow: 0 1px 2px rgba(15,23,42,.10) !important; }
-.permissions-workspace > .col-md-12 > div:first-of-type h2 { font-size: 24px !important; line-height: 1.2; font-weight: 800 !important; }
-.permissions-workspace > .col-md-12 > div:first-of-type p { font-size: 14px !important; line-height: 1.45; }
-.permissions-workspace .modern-btn { min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 14px !important; border-radius: 9px !important; font-size: 14px !important; font-weight: 700 !important; }
-.permissions-workspace #search-users { min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 11px !important; font-size: 14px !important; }
-@media (max-width: 767px) { .permissions-workspace { padding-bottom: 28px; } .permissions-workspace > .col-md-12 > div:first-of-type { padding: 16px !important; } .permissions-workspace > .col-md-12 > div:first-of-type h2 { font-size: 22px !important; } }
-</style>
 <!-- User Permissions Management - Dashboard -->
-<div class="row permissions-workspace">
+<div class="row">
     <div class="col-md-12">
-        
+
         <!-- Page Header -->
-        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:18px 20px;border-radius:14px;margin-bottom:16px;box-shadow:0 10px 40px rgba(102,126,234,0.3);">
+        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:32px;border-radius:16px;margin-bottom:24px;box-shadow:0 10px 40px rgba(102,126,234,0.3);">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
                 <div>
-                    <h2 style="color:#fff;margin:0;font-size:24px;font-weight:800;display:flex;align-items:center;gap:12px;">
+                    <h2 style="color:#fff;margin:0;font-size:28px;font-weight:700;display:flex;align-items:center;gap:12px;">
                         <i class="entypo-lock"></i>
                         <?php echo get_phrase('user_permissions_management'); ?>
                     </h2>
-                    <p style="color:rgba(255,255,255,0.9);margin:8px 0 0 0;font-size:14px;">
+                    <p style="color:rgba(255,255,255,0.9);margin:8px 0 0 0;font-size:15px;">
                         <?php echo get_phrase('grant_and_manage_user_permissions_across_modules'); ?>
                     </p>
                 </div>
@@ -116,7 +106,7 @@
                             <i class="entypo-folder"></i> <?php echo get_phrase('available_modules'); ?>
                         </h4>
                     </div>
-                    
+
                     <div class="table-responsive">
                         <table class="table table-hover" style="margin:0;">
                             <thead style="background:#f9fafb;">
@@ -129,7 +119,7 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($modules as $module): ?>
-                                    <?php 
+                                    <?php
                                         $module_users_count = 0;
                                         foreach ($statistics['by_module'] as $stat) {
                                             if ($stat['module_name'] == $module['module_name']) {
@@ -150,9 +140,9 @@
                                             </div>
                                         </td>
                                         <td style="padding:16px;vertical-align:middle;">
-                                            <?php 
+                                            <?php
                                                 $perms = explode(',', $module['available_permissions']);
-                                                foreach ($perms as $perm): 
+                                                foreach ($perms as $perm):
                                             ?>
                                                 <span style="display:inline-block;background:#e5e7eb;color:#374151;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600;margin:2px;">
                                                     <?php echo trim($perm); ?>
@@ -165,8 +155,8 @@
                                             </span>
                                         </td>
                                         <td class="text-center" style="padding:16px;vertical-align:middle;">
-                                            <a href="<?php echo site_url('user_permissions/module_overview/' . $module['module_name']); ?>" 
-                                               class="action-btn" 
+                                            <a href="<?php echo site_url('user_permissions/module_overview/' . $module['module_name']); ?>"
+                                               class="action-btn"
                                                title="<?php echo get_phrase('view_details'); ?>"
                                                style="display:inline-block;padding:10px 14px;border:none;border-radius:8px;background:#dbeafe;color:#1e40af;cursor:pointer;transition:all 0.2s;font-size:15px;text-decoration:none;">
                                                 <i class="entypo-eye"></i>
@@ -188,7 +178,7 @@
                             <i class="entypo-clock"></i> <?php echo get_phrase('recent_activity'); ?>
                         </h4>
                     </div>
-                    
+
                     <div style="padding:16px;max-height:500px;overflow-y:auto;">
                         <?php if (!empty($recent_activity)): ?>
                             <?php foreach ($recent_activity as $activity): ?>
@@ -202,7 +192,7 @@
                                                 <?php echo htmlspecialchars($activity['user_name']); ?>
                                             </div>
                                             <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">
-                                                <?php echo $activity['status'] == 'active' ? get_phrase('granted') : get_phrase('revoked'); ?>: 
+                                                <?php echo $activity['status'] == 'active' ? get_phrase('granted') : get_phrase('revoked'); ?>:
                                                 <strong><?php echo $activity['permission_type']; ?></strong> on
                                                 <strong><?php echo htmlspecialchars($activity['module_display_name']); ?></strong>
                                             </div>
@@ -229,9 +219,9 @@
                             <i class="entypo-flash"></i> <?php echo get_phrase('quick_actions'); ?>
                         </h4>
                     </div>
-                    
+
                     <div style="padding:16px;">
-                        <a href="<?php echo site_url('user_permissions/list_users/teacher'); ?>" 
+                        <a href="<?php echo site_url('user_permissions/list_users/teacher'); ?>"
                            style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;background:#f9fafb;margin-bottom:8px;text-decoration:none;transition:all 0.2s;border:1px solid #e5e7eb;">
                             <div style="width:36px;height:36px;background:#dbeafe;border-radius:8px;display:flex;align-items:center;justify-content:center;">
                                 <i class="entypo-users" style="color:#3b82f6;font-size:18px;"></i>
@@ -243,7 +233,7 @@
                             <i class="entypo-right-open-big" style="color:#9ca3af;"></i>
                         </a>
 
-                        <a href="<?php echo site_url('user_permissions/list_users/admin'); ?>" 
+                        <a href="<?php echo site_url('user_permissions/list_users/admin'); ?>"
                            style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;background:#f9fafb;margin-bottom:8px;text-decoration:none;transition:all 0.2s;border:1px solid #e5e7eb;">
                             <div style="width:36px;height:36px;background:#fef3c7;border-radius:8px;display:flex;align-items:center;justify-content:center;">
                                 <i class="entypo-user" style="color:#f59e0b;font-size:18px;"></i>
@@ -255,7 +245,7 @@
                             <i class="entypo-right-open-big" style="color:#9ca3af;"></i>
                         </a>
 
-                        <a href="<?php echo site_url('user_permissions/list_users/accountant'); ?>" 
+                        <a href="<?php echo site_url('user_permissions/list_users/accountant'); ?>"
                            style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;background:#f9fafb;text-decoration:none;transition:all 0.2s;border:1px solid #e5e7eb;">
                             <div style="width:36px;height:36px;background:#d1fae5;border-radius:8px;display:flex;align-items:center;justify-content:center;">
                                 <i class="entypo-calculator" style="color:#10b981;font-size:18px;"></i>
@@ -275,19 +265,17 @@
 </div>
 
 <style>
-    .permissions-workspace .action-btn:hover {
+    .action-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-    
-    .permissions-workspace .modern-btn {
+
+    .modern-btn {
         display:inline-flex;
         align-items:center;
         gap:8px;
-        min-height:var(--sm-ui-control-height,42px);
-        height:var(--sm-ui-control-height,42px);
-        padding:9px 14px;
-        border-radius:9px;
+        padding:12px 24px;
+        border-radius:8px;
         font-weight:600;
         font-size:14px;
         border:none;
@@ -295,8 +283,8 @@
         transition:all 0.2s;
         text-decoration:none;
     }
-    
-    .permissions-workspace .modern-btn:hover {
+
+    .modern-btn:hover {
         transform:translateY(-2px);
         box-shadow:0 4px 12px rgba(0,0,0,0.2);
     }

@@ -119,7 +119,7 @@
       <div class="form-group">
         <label class="col-sm-3 control-label"><?php echo get_phrase('show_on_website'); ?></label>
         <div class="col-sm-4">
-          <select class="form-control selectboxit" name="show_on_website">
+          <select class="form-control select2" name="show_on_website">
             <option value="0"><?php echo get_phrase('no'); ?></option>
             <option value="1"><?php echo get_phrase('yes'); ?></option>
           </select>

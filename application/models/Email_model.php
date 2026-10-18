@@ -16,13 +16,13 @@ class Email_model extends CI_Model {
 		$email_msg		.=	"Your login username: ". $email .",<br />";
 		$email_msg		.=	"Your login password: ". $password .",<br />";
 		$email_msg		.=	"Your authentication Key: ". $auth_key .",<br />";
-		
+
 		if($id != '' || $id != null) {
 		    if($account_type == 'student') {
 		       $email_msg		.=	"Your login username: ". $username .",<br />";
-		       $email_msg .= "Your Student ID: ". $id .",<br />"; 
+		       $email_msg .= "Your Student ID: ". $id .",<br />";
 		    } else if($account_type == 'teacher') {
-		       $email_msg .= "Your Staff ID: ". $id .",<br />"; 
+		       $email_msg .= "Your Staff ID: ". $id .",<br />";
 		    }
 		}
 
@@ -97,7 +97,7 @@ class Email_model extends CI_Model {
         $config['protocol']		= "sendmail";
         $config['smtp_host']	= "lightworldtech.com";
         $config['smtp_user']    =  $from;
-        $config['smtp_pass']    = getenv('MAIL_PASSWORD') ?: '';
+        $config['smtp_pass']    = "~Myjesus4me2018";
         $config['smtp_port']	=  465;
         $config['smtp_crypto'] = 'ssl';
         $config['smtp_timeout']	= "";
@@ -118,7 +118,7 @@ class Email_model extends CI_Model {
 		$this->email->from($from, $system_name);
 		$this->email->to($to);
 		$this->email->subject($sub);
-		
+
 		$login_ad = '<h5>For more details, please login '.anchor(site_url('login'), '<u>here</u>') .'.</h5>';
 
 		$msg	=	$msg."<center><hr>". $login_ad."<a href=\"https://www.lightworldtech.com\"> Powered By: Lightworldtech</a></center>";

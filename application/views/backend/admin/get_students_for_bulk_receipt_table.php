@@ -14,19 +14,19 @@
 
 	// Get students who have any fee payment on this date
 	$student_ids = [];
-	
+
 	// Check feeding_fee_payment
 	$feeding = $this->db->select('student_id')->distinct()->where(['class_id' => $class_id, 'day_timestamp' => $date, 'can_delete !=' => 'trash'])->get('feeding_fee_payment')->result_array();
 	foreach($feeding as $f) $student_ids[$f['student_id']] = true;
-	
+
 	// Check classes_fee_payment
 	$classes = $this->db->select('student_id')->distinct()->where(['class_id' => $class_id, 'day_timestamp' => $date, 'can_delete !=' => 'trash'])->get('classes_fee_payment')->result_array();
 	foreach($classes as $c) $student_ids[$c['student_id']] = true;
-	
+
 	// Check transport_fare_payment
 	$transport = $this->db->select('student_id')->distinct()->where(['class_id' => $class_id, 'day_timestamp' => $date, 'can_delete !=' => 'trash'])->get('transport_fare_payment')->result_array();
 	foreach($transport as $t) $student_ids[$t['student_id']] = true;
-	
+
 	$class_ids = [];
 	foreach(array_keys($student_ids) as $sid) {
 		$class_ids[] = ['student_id' => $sid];
@@ -65,7 +65,7 @@
 	<div class="col-sm-8">
 		<div class="tile-stats tile-gray">
 			<div class="icon"><i class="entypo-users"></i></div>
-			
+
 			<h3 style="color: #696969;"><?php echo get_phrase('students_of');?> <?php echo $class; ?></h3>
 			<h1 id="count_ch"></h1>
 		</div>
@@ -88,7 +88,7 @@
 				</tr>
 			</thead>
 			<tbody>
-			<?php 
+			<?php
 
 			if($class_ids_data->num_rows() < 1) { ?>
 				<tr>
@@ -101,7 +101,7 @@
 			$array_pos = 0;
 					foreach($class_ids as $cl_id):
 			?>
-			
+
 				<tr>
 					<td><?php echo $i; ?></td>
 					<td><?php echo $this->db->get_where('student', array('student_id' => $cl_id['student_id']))->row()->student_code; ?></td>
@@ -110,9 +110,9 @@
 						<input type="checkbox" name="bulk_ids[]" value="<?php echo $cl_id['student_id'];?>" id="bulk_ids_<?php echo $cl_id['student_id']; ?>" class="form-control">
 					</td>
 				</tr>
-			
-			
-		<?php 
+
+
+		<?php
 		//push ids into the array
 		$data_ids[$array_pos] = $cl_id['student_id'];
 		$array_pos++;
@@ -144,9 +144,9 @@
 			$('#submit').attr('disabled', 'disabled');
 		}
 
-        if($.isFunction($.fn.selectBoxIt))
+        if (typeof $.fn.select2 !== "undefined")
 		{
-			$("select.selectboxit").each(function(i, el)
+			$("select.select2").each(function(i, el)
 			{
 				var $this = $(el),
 					opts = {
@@ -154,16 +154,16 @@
 						'native': attrDefault($this, 'native', false),
 						defaultText: attrDefault($this, 'text', ''),
 					};
-					
+
 				$this.addClass('visible');
-				$this.selectBoxIt(opts);
+				$this.select2({ placeholder: "Select an option", allowClear: true, width: "100%" });
 			});
 		}
     });
 
     //$('#id_table').dataTable();
 
-    
+
 </script>
 
 <script type="text/javascript">
@@ -218,7 +218,7 @@
 
 				//disable the remaining checkboxes
 				$('input:not(:checked)').attr('disabled', 'disabled');
-					
+
 					$('#count_ch').css({'color': 'red', 'font-size': '16px'});
 				$('#count_ch').text('<?php echo get_phrase("you_have_reached_the_maximum_selection_of_six_(6)_students._please_print_these_before_you_proceed.") ?>');
 				toastr.error('<?php echo get_phrase("you_have_reached_the_maximum_selection_of_six_(6)_students._please_print_these_before_you_proceed.") ?>')
@@ -229,8 +229,8 @@
 			} **/
 		});
 
-		
-		
+
+
 	});
 
 	function select_all() {
@@ -238,24 +238,24 @@
         var button_text = $('#select_toggle').text();
 
         if(button_text == 'Select All') {
-        	$('#select_toggle').text('Deselect All');
-        	$('#select_toggle').removeClass('btn-success');
-        	$('#select_toggle').addClass('btn-danger');
+            $('#select_toggle').text('Deselect All');
+            $('#select_toggle').removeClass('btn-success');
+            $('#select_toggle').addClass('btn-danger');
 
-        	for(var i = 0; i < st_id_array.length; i++) {
-            	$('#bulk_ids_' + st_id_array[i]).click();
-        	}	
+            for(var i = 0; i < st_id_array.length; i++) {
+                $('#bulk_ids_' + st_id_array[i]).click();
+            }
 
         } else if(button_text == 'Deselect All') {
-        	$('#select_toggle').text('Select All');
-        	$('#select_toggle').removeClass('btn-danger');
-        	$('#select_toggle').addClass('btn-success');
-        	
-        	for(var i = 0; i < st_id_array.length; i++) {
-            	$('#bulk_ids_' + st_id_array[i]).click();
-        	}
+            $('#select_toggle').text('Select All');
+            $('#select_toggle').removeClass('btn-danger');
+            $('#select_toggle').addClass('btn-success');
+
+            for(var i = 0; i < st_id_array.length; i++) {
+                $('#bulk_ids_' + st_id_array[i]).click();
+            }
         }
-        
+
     }
 
 </script>

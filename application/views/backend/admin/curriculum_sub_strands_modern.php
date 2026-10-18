@@ -14,7 +14,7 @@
 }
 
 .sub-strands-header {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 16px;
     padding: 32px;
     margin-bottom: 32px;
@@ -78,19 +78,19 @@
 }
 
 .stat-card.purple::before {
-    background: #764ba2;
+    background: linear-gradient(90deg, #667eea, #764ba2);
 }
 
 .stat-card.blue::before {
-    background: #2563eb;
+    background: linear-gradient(90deg, #3b82f6, #2563eb);
 }
 
 .stat-card.green::before {
-    background: #059669;
+    background: linear-gradient(90deg, #10b981, #059669);
 }
 
 .stat-card.orange::before {
-    background: #d97706;
+    background: linear-gradient(90deg, #f59e0b, #d97706);
 }
 
 .stat-card:hover {
@@ -110,22 +110,22 @@
 }
 
 .stat-icon.purple {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
 }
 
 .stat-icon.blue {
-    background: #2563eb;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: #fff;
 }
 
 .stat-icon.green {
-    background: #059669;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: #fff;
 }
 
 .stat-icon.orange {
-    background: #d97706;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     color: #fff;
 }
 
@@ -198,7 +198,7 @@
 }
 
 .modern-btn-primary {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
 }
 
@@ -209,12 +209,12 @@
 }
 
 .modern-btn-info {
-    background: #1d4ed8;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     color: #fff;
 }
 
 .modern-btn-danger {
-    background: #b91c1c;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
     color: #fff;
 }
 
@@ -321,7 +321,7 @@
 }
 
 .modern-modal-header {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
     padding: 24px 30px;
     border-radius: 16px 16px 0 0;
@@ -392,11 +392,11 @@
     .sub-strands-header h1 {
         font-size: 24px;
     }
-    
+
     .filter-row {
         flex-direction: column;
     }
-    
+
     .action-buttons {
         flex-direction: column;
     }
@@ -564,7 +564,7 @@ function confirmDeleteSubStrand(subStrandId) {
         '<?php echo get_phrase('are_you_sure_delete_sub_strand'); ?><br><small><?php echo get_phrase('this_will_also_delete_related_content_standards'); ?></small>',
         function() {
             showAjaxModal_alert('<?php echo get_phrase('deleting'); ?>...', 'Loading');
-            
+
             $.ajax({
                 url: '<?php echo site_url('admin/curriculum_sub_strands/delete/'); ?>' + subStrandId,
                 type: 'POST',

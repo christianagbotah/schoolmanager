@@ -4,88 +4,13 @@
 .form-control { width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; height: 46px; transition: all 0.3s; }
 .form-control:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
 .btn-enterprise { padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; height: 46px; font-size: 15px; }
-.btn-primary { background: #764ba2; color: white; }
+.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
-.btn-print { background: #059669; color: white; }
+.btn-print { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
 .btn-print:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
 label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px; }
 @media print { .filter-card, .btn-enterprise { display: none !important; } }
 </style>
-
-<style>
-@media screen {
-  body { background: #f8fafc; }
-  .filter-card {
-    padding: 16px 18px; margin-bottom: 16px !important;
-    border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  #attendance_report_form .filter-card > div {
-    display: grid !important; grid-template-columns: minmax(170px,1.4fr) repeat(3,minmax(130px,1fr)) auto;
-    gap: 12px !important; align-items: end !important;
-  }
-  #attendance_report_form label { margin-bottom: 7px; font-size: 14px; font-weight: 700; color: #334155; }
-  #attendance_report_form .form-control {
-    min-height: 44px; height: 44px; padding: 9px 11px;
-    border: 1px solid #cbd5e1; border-radius: 9px; font-size: 14px; color: #0f172a; background: #fff;
-  }
-  #attendance_report_form .form-control:focus {
-    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
-  }
-  #attendance_report_form .btn-enterprise {
-    min-height: 44px; height: 44px; padding: 9px 16px;
-    border-radius: 9px; background: #2563eb; font-size: 14px; font-weight: 800;
-  }
-  #attendance_report_form .btn-enterprise:hover { background: #1d4ed8; transform: none; box-shadow: 0 3px 9px rgba(37,99,235,.18); }
-
-  #attendance_report_form + .filter-card h3 { font-size: 18px !important; font-weight: 800 !important; color: #0f172a !important; }
-  #attendance_report_form + .filter-card p { font-size: 14px !important; color: #64748b !important; }
-  .btn-print {
-    min-height: 42px; height: 42px; padding: 9px 15px; border-radius: 9px;
-    background: #059669; font-size: 14px; font-weight: 700;
-  }
-  .btn-print:hover { background: #047857; transform: none; box-shadow: 0 3px 9px rgba(5,150,105,.16); }
-
-  #listing {
-    margin-bottom: 12px; border: 1px solid #e2e8f0; background: #fff;
-  }
-  #listing td {
-    padding: 9px 10px; color: #475569; font-size: 13px; line-height: 1.35;
-    background: #f8fafc; border-color: #e2e8f0 !important;
-  }
-
-  #my_table {
-    min-width: 1150px; width: max-content !important; background: #fff;
-    border-collapse: separate !important; border-spacing: 0;
-  }
-  #my_table th {
-    padding: 10px 8px !important; background: #f8fafc; color: #475569;
-    font-size: 12px; line-height: 1.25; font-weight: 800; white-space: nowrap;
-    border-color: #e2e8f0 !important;
-  }
-  #my_table td {
-    padding: 10px 8px !important; color: #334155; font-size: 13px; line-height: 1.35;
-    white-space: nowrap; border-color: #eef2f7 !important;
-  }
-  #my_table tbody tr:hover td { background: #f8fbff; }
-  .row > .col-md-12:has(#my_table) {
-    overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px;
-  }
-
-  @media (max-width: 1100px) {
-    #attendance_report_form .filter-card > div { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  }
-  @media (max-width: 767px) {
-    hr { margin: 12px 0; }
-    #attendance_report_form .filter-card > div { grid-template-columns: 1fr; }
-    #attendance_report_form .btn-enterprise { width: 100%; justify-content: center; }
-    #attendance_report_form + .filter-card > div {
-      align-items: flex-start !important; flex-direction: column !important; gap: 12px !important;
-    }
-    #attendance_report_form + .filter-card .btn-print { width: 100%; justify-content: center; }
-  }
-}
-</style>
-
 
 <hr />
 
@@ -99,9 +24,9 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
                 <?php getFullClassList('', $class_id); ?>
             </select>
         </div>
-        
+
         <input type="hidden" name="section_id" id="section_id" value="<?php echo $section_id; ?>">
-        
+
         <div style="flex: 1; min-width: 120px;">
             <label><?php echo get_phrase('month'); ?></label>
             <select name="month" class="form-control" id="month" required>
@@ -161,7 +86,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
                     <?php echo get_phrase('attendance_sheet'); ?>
                 </h3>
                 <p style="margin: 0; color: #6b7280; font-size: 14px;">
-                    <?php 
+                    <?php
                     $class_name = $this->db->get_where('class', array('class_id' => $class_id))->row()->name;
                     $class_name_numeric = $this->db->get_where('class', array('class_id' => $class_id))->row()->name_numeric;
                     $months = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -169,7 +94,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
                     ?>
                 </p>
             </div>
-            <a href="<?php echo site_url('admin/attendance_report_print_view/' . $class_id . '/' . $section_id . '/' . $month . '/' . $sessional_year . '/' . ($class_name == 'JHSS' ? $sem : $term)); ?>" 
+            <a href="<?php echo site_url('admin/attendance_report_print_view/' . $class_id . '/' . $section_id . '/' . $month . '/' . $sessional_year . '/' . ($class_name == 'JHSS' ? $sem : $term)); ?>"
                class="btn-enterprise btn-print" target="_blank">
                 <i class="fa fa-print"></i> <?php echo get_phrase('print_report'); ?>
             </a>
@@ -182,7 +107,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
                 <tbody>
                     <tr>
                         <?php
-                            for($a = 1; $a <= 5; $a++) {
+                            for($a = 1; $a <= 6; $a++) {
 
                                 ?>
                                 <td align="center" valign="middle"><strong><?=getAttendanceStatusCode($a); ?> = <?=getAttendanceStatusPhrase($a); ?></strong></td>
@@ -270,7 +195,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
             endforeach;
             ?>
         <td style="text-align: center;">
-           <?php 
+           <?php
             echo '<strong>'.$status.'</strong>';
             $status = '-';
             ?>
@@ -332,7 +257,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
             endforeach;
             ?>
         <td style="text-align: center;">
-           <?php 
+           <?php
             echo '<strong>'.$status.'</strong>';
             $status = '-';
             ?>
@@ -360,7 +285,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
                                                 </td>
                                             </tr>
                                         <?php
-    }   
+    }
         $students_array = $students->result_array();
 
         foreach ($students_array as $row):
@@ -394,7 +319,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
             endforeach;
             ?>
         <td style="text-align: center;">
-           <?php 
+           <?php
             echo '<strong>'.$status.'</strong>';
             $status = '-';
             ?>
@@ -433,9 +358,9 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
         get_class_students(class_id);//call this as soon as the page loads
 
         // SelectBoxIt Dropdown replacement
-        if($.isFunction($.fn.selectBoxIt))
+        if (typeof $.fn.select2 !== "undefined")
         {
-            $("select.selectboxit").each(function(i, el)
+            $("select.select2").each(function(i, el)
             {
                 var $this = $(el),
                     opts = {
@@ -445,7 +370,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
                     };
 
                 $this.addClass('visible');
-                $this.selectBoxIt(opts);
+                $this.select2({ placeholder: "Select an option", allowClear: true, width: "100%" });
             });
         }
     });
@@ -456,7 +381,7 @@ label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; fo
 
 function select_section(class_id) {
     if(!class_id) return;
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_section/'); ?>' + class_id,
         success: function (response) {
@@ -465,7 +390,7 @@ function select_section(class_id) {
             $('#section_id').val(sectionId);
         }
     });
-    
+
     get_class_students(class_id);
 }
 
@@ -524,13 +449,13 @@ function get_class_students(class_id) {
 
     $('#attendance_report_form').submit(function(ev) {
         const class_id = $('#class_id').val();
-        
+
         if(!class_id) {
             ev.preventDefault();
             showAjaxModal_alert('<?php echo get_phrase('please_select_class_first'); ?>', 'error');
             return false;
         }
-        
+
         showAjaxModal_alert('<?php echo get_phrase('generating_report'); ?>...', 'loading');
     });
 

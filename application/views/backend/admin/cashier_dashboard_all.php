@@ -28,7 +28,7 @@ if ($date_to) {
 
 // Get total collections
 $total_collections = $this->db->query("
-    SELECT 
+    SELECT
         SUM(feeding_amount) as feeding,
         SUM(breakfast_amount) as breakfast,
         SUM(classes_amount) as classes,
@@ -44,7 +44,7 @@ $grand_total = ($total_collections->feeding ?? 0) + ($total_collections->breakfa
 
 // Get per-collector breakdown (includes cashiers and non-cashiers)
 $collector_query = "
-    SELECT 
+    SELECT
         t.collected_by,
         a.name as collector_name,
         a.level as collector_level,
@@ -71,130 +71,9 @@ $collector_data = $this->db->query($collector_query, $params)->result_array();
 .cashier-table th { background: #f7fafc; padding: 15px; text-align: left; font-weight: 600; color: #4a5568; border-bottom: 2px solid #e2e8f0; font-size: 13px; }
 .cashier-table td { padding: 15px; border-bottom: 1px solid #e2e8f0; }
 .cashier-table tr:hover { background: #f7fafc; }
-
-/* ---- family design-language alignment (presentation only) ---- */
-.stat-card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-left: 5px solid #4f46e5;
-    border-radius: 16px;
-    color: #111827;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-    transition: transform .18s ease, box-shadow .18s ease;
-}
-.stat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(16, 24, 40, 0.10); }
-.stat-card.green  { border-left-color: #10b981; }
-.stat-card.purple { border-left-color: #8b5cf6; }
-.stat-card.orange { border-left-color: #f59e0b; }
-.stat-card .stat-value { color: #111827; }
-.stat-card .stat-label { color: #374151; opacity: 1; }
-.fee-card {
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-}
-.fee-card:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(16, 24, 40, 0.10); border-color: #cbd5e1; }
-.fee-card:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4); }
-.cashier-table { border: 1px solid #e5e7eb; border-radius: 14px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); }
-.cashier-table th { background: #f9fafb; color: #374151; border-bottom: 1px solid #e5e7eb; }
-.cashier-table td { border-bottom: 1px solid #f3f4f6; }
-@media (max-width: 400px) {
-    .stat-card { padding: 16px; }
-    .fee-card { padding: 15px; }
-}
-@media (prefers-reduced-motion: reduce) {
-    .stat-card, .fee-card { transition: none; }
-}
 </style>
 
-<style>
-@media screen {
-  .cashier-dashboard-all { padding: 0 !important; color: #334155; }
-  .cashier-dashboard-all > .mb-4 {
-    margin: 0 0 14px !important; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;
-  }
-  .cashier-dashboard-all > .mb-4 h3 {
-    margin: 0 0 4px; color: #0f172a !important; font-size: 20px !important; line-height: 1.3; font-weight: 800 !important;
-  }
-  .cashier-dashboard-all > .mb-4 p { margin: 0; color: #64748b !important; font-size: 14px !important; line-height: 1.45; }
-
-  .cashier-dashboard-all .stat-card {
-    min-height: 112px !important; margin-bottom: 14px; padding: 16px 18px !important;
-    border: 1px solid #e2e8f0; border-left: 4px solid #4f46e5;
-    border-radius: 12px; background: #fff !important; color: #0f172a !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-    justify-content: center;
-  }
-  .cashier-dashboard-all .stat-card.green { border-left-color: #059669; }
-  .cashier-dashboard-all .stat-card.purple { border-left-color: #7c3aed; }
-  .cashier-dashboard-all .stat-card.orange { border-left-color: #d97706; }
-  .cashier-dashboard-all .stat-card:hover { transform: none; box-shadow: 0 4px 12px rgba(15,23,42,.07) !important; }
-  .cashier-dashboard-all .stat-label {
-    color: #64748b !important; font-size: 13px !important; font-weight: 800 !important;
-    letter-spacing: .045em !important; opacity: 1 !important;
-  }
-  .cashier-dashboard-all .stat-value {
-    margin: 5px 0 0 !important; color: #0f172a !important;
-    font-size: 30px !important; line-height: 1.2; font-weight: 800 !important;
-  }
-  .cashier-dashboard-all .stat-value sup { font-size: 14px !important; color: #64748b; }
-
-  .cashier-dashboard-all h4 {
-    margin-bottom: 14px !important; color: #0f172a !important; font-size: 17px !important; font-weight: 800 !important;
-  }
-  .cashier-dashboard-all h5 {
-    margin-bottom: 10px !important; padding-bottom: 8px !important;
-    font-size: 14px !important; font-weight: 800 !important; border-bottom-width: 1px !important;
-  }
-  .cashier-dashboard-all .fee-card {
-    min-height: 72px !important; margin-bottom: 9px; padding: 11px 13px !important;
-    border: 1px solid #e2e8f0 !important; border-radius: 11px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.04) !important;
-  }
-  .cashier-dashboard-all .fee-card:hover {
-    transform: none; border-color: #cbd5e1 !important; box-shadow: 0 4px 10px rgba(15,23,42,.06) !important;
-  }
-  .cashier-dashboard-all .fee-icon {
-    width: 42px; height: 42px; border-radius: 9px; font-size: 18px;
-  }
-  .cashier-dashboard-all .fee-card > div:first-child > div:last-child > div:first-child {
-    color: #0f172a !important; font-size: 14px; font-weight: 800 !important;
-  }
-  .cashier-dashboard-all .fee-card > div:first-child > div:last-child > div:last-child {
-    color: #64748b !important; font-size: 13px !important; line-height: 1.35;
-  }
-  .cashier-dashboard-all .fee-card > div:last-child {
-    font-size: 20px !important; line-height: 1.25; font-weight: 800 !important;
-  }
-  .cashier-dashboard-all .fee-card > div:last-child sup { font-size: 12px !important; }
-
-  .cashier-dashboard-all .cashier-table {
-    width: 100%; border: 1px solid #e2e8f0; border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05); overflow: hidden;
-  }
-  .cashier-dashboard-all .cashier-table th {
-    padding: 11px 12px; background: #f8fafc; color: #475569;
-    font-size: 13px; line-height: 1.35; font-weight: 800; border-bottom: 1px solid #e2e8f0;
-  }
-  .cashier-dashboard-all .cashier-table td {
-    padding: 11px 12px; color: #334155; font-size: 14px; line-height: 1.45;
-    border-bottom: 1px solid #eef2f7;
-  }
-  .cashier-dashboard-all .cashier-table td span { font-size: 13px !important; }
-  .cashier-dashboard-all .cashier-table td sup { font-size: 11px !important; }
-  .cashier-dashboard-all .cashier-table tr:hover { background: #f8fbff; }
-
-  @media (max-width: 767px) {
-    .cashier-dashboard-all .stat-card { min-height: 96px !important; padding: 14px !important; }
-    .cashier-dashboard-all .stat-value { font-size: 26px !important; }
-    .cashier-dashboard-all .fee-card { min-height: 66px !important; }
-    .cashier-dashboard-all .cashier-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  }
-}
-</style>
-
-
-<div class="p-4 cashier-dashboard-all">
+<div class="p-4">
     <div class="mb-4">
         <h3 style="color: #2d3748; font-weight: 700;">All Cashiers Combined Dashboard</h3>
         <p style="color: #718096;">
@@ -238,7 +117,7 @@ $collector_data = $this->db->query($collector_query, $params)->result_array();
         <div class="col-lg-6 col-12">
             <h5 style="color: #22543d; font-weight: 600; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #c6f6d5;"><i class="fa fa-check-circle"></i> Collected</h5>
             <?php if($feeding_enabled): ?>
-            <div class="fee-card" role="button" tabindex="0" data-fee-type="feeding" data-category="collected" data-cashier-id="all">
+            <div class="fee-card" data-fee-type="feeding" data-category="collected" data-cashier-id="all">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div class="fee-icon" style="background: #fed7d7; color: #c53030;"><i class="fa fa-utensils"></i></div>
                     <div><div style="font-weight: 600; color: #2d3748;">Feeding</div><div style="font-size: 12px; color: #718096;">Daily meals</div></div>
@@ -247,7 +126,7 @@ $collector_data = $this->db->query($collector_query, $params)->result_array();
             </div>
             <?php endif; ?>
             <?php if($breakfast_enabled): ?>
-            <div class="fee-card" role="button" tabindex="0" data-fee-type="breakfast" data-category="collected" data-cashier-id="all">
+            <div class="fee-card" data-fee-type="breakfast" data-category="collected" data-cashier-id="all">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div class="fee-icon" style="background: #feebc8; color: #c05621;"><i class="fa fa-coffee"></i></div>
                     <div><div style="font-weight: 600; color: #2d3748;">Breakfast</div><div style="font-size: 12px; color: #718096;">Morning meals</div></div>
@@ -256,7 +135,7 @@ $collector_data = $this->db->query($collector_query, $params)->result_array();
             </div>
             <?php endif; ?>
             <?php if($classes_enabled): ?>
-            <div class="fee-card" role="button" tabindex="0" data-fee-type="classes" data-category="collected" data-cashier-id="all">
+            <div class="fee-card" data-fee-type="classes" data-category="collected" data-cashier-id="all">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div class="fee-icon" style="background: #e9d8fd; color: #6b46c1;"><i class="fa fa-book"></i></div>
                     <div><div style="font-weight: 600; color: #2d3748;">Classes</div><div style="font-size: 12px; color: #718096;">Class fees</div></div>
@@ -265,7 +144,7 @@ $collector_data = $this->db->query($collector_query, $params)->result_array();
             </div>
             <?php endif; ?>
             <?php if($water_enabled): ?>
-            <div class="fee-card" role="button" tabindex="0" data-fee-type="water" data-category="collected" data-cashier-id="all">
+            <div class="fee-card" data-fee-type="water" data-category="collected" data-cashier-id="all">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div class="fee-icon" style="background: #bee3f8; color: #2c5282;"><i class="fa fa-tint"></i></div>
                     <div><div style="font-weight: 600; color: #2d3748;">Water</div><div style="font-size: 12px; color: #718096;">Water fees</div></div>
@@ -274,7 +153,7 @@ $collector_data = $this->db->query($collector_query, $params)->result_array();
             </div>
             <?php endif; ?>
             <?php if($transport_enabled): ?>
-            <div class="fee-card" role="button" tabindex="0" data-fee-type="transport" data-category="collected" data-cashier-id="all">
+            <div class="fee-card" data-fee-type="transport" data-category="collected" data-cashier-id="all">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div class="fee-icon" style="background: #c6f6d5; color: #22543d;"><i class="fa fa-bus"></i></div>
                     <div><div style="font-weight: 600; color: #2d3748;">Transport</div><div style="font-size: 12px; color: #718096;">Transport fees</div></div>
@@ -288,22 +167,22 @@ $collector_data = $this->db->query($collector_query, $params)->result_array();
             <?php
             // Get arrears for active students only (mute = 0) across all terms/years
             $arrears_breakdown = $this->db->query("
-                SELECT 
+                SELECT
                     SUM(w.feeding_arrears) as feeding,
                     SUM(w.breakfast_arrears) as breakfast,
                     SUM(w.classes_arrears) as classes,
                     SUM(w.water_arrears) as water,
                     SUM(w.transport_arrears) as transport
                 FROM daily_fee_wallet w
-                INNER JOIN enroll e ON w.student_id = e.student_id 
-                    AND w.year = e.year 
+                INNER JOIN enroll e ON w.student_id = e.student_id
+                    AND w.year = e.year
                     AND w.term = e.term
                 WHERE e.mute = '0'
                   AND (w.feeding_arrears > 0 OR w.breakfast_arrears > 0 OR w.classes_arrears > 0 OR w.water_arrears > 0 OR w.transport_arrears > 0)
             ")->row();
             ?>
             <?php if($feeding_enabled): ?>
-            <div class="fee-card" role="button" tabindex="0" style="background: #fff5f5;" data-fee-type="feeding" data-category="arrears" data-cashier-id="all">
+            <div class="fee-card" style="background: #fff5f5;" data-fee-type="feeding" data-category="arrears" data-cashier-id="all">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div class="fee-icon" style="background: #fed7d7; color: #c53030;"><i class="fa fa-utensils"></i></div>
                     <div><div style="font-weight: 600; color: #2d3748;">Feeding</div><div style="font-size: 12px; color: #718096;">Unpaid feeding</div></div>
@@ -312,7 +191,7 @@ $collector_data = $this->db->query($collector_query, $params)->result_array();
             </div>
             <?php endif; ?>
             <?php if($breakfast_enabled): ?>
-            <div class="fee-card" role="button" tabindex="0" style="background: #fffaf0;" data-fee-type="breakfast" data-category="arrears" data-cashier-id="all">
+            <div class="fee-card" style="background: #fffaf0;" data-fee-type="breakfast" data-category="arrears" data-cashier-id="all">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div class="fee-icon" style="background: #feebc8; color: #c05621;"><i class="fa fa-coffee"></i></div>
                     <div><div style="font-weight: 600; color: #2d3748;">Breakfast</div><div style="font-size: 12px; color: #718096;">Unpaid breakfast</div></div>
@@ -321,7 +200,7 @@ $collector_data = $this->db->query($collector_query, $params)->result_array();
             </div>
             <?php endif; ?>
             <?php if($classes_enabled): ?>
-            <div class="fee-card" role="button" tabindex="0" style="background: #faf5ff;" data-fee-type="classes" data-category="arrears" data-cashier-id="all">
+            <div class="fee-card" style="background: #faf5ff;" data-fee-type="classes" data-category="arrears" data-cashier-id="all">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div class="fee-icon" style="background: #e9d8fd; color: #6b46c1;"><i class="fa fa-book"></i></div>
                     <div><div style="font-weight: 600; color: #2d3748;">Classes</div><div style="font-size: 12px; color: #718096;">Unpaid classes</div></div>
@@ -330,7 +209,7 @@ $collector_data = $this->db->query($collector_query, $params)->result_array();
             </div>
             <?php endif; ?>
             <?php if($water_enabled): ?>
-            <div class="fee-card" role="button" tabindex="0" style="background: #f0f9ff;" data-fee-type="water" data-category="arrears" data-cashier-id="all">
+            <div class="fee-card" style="background: #f0f9ff;" data-fee-type="water" data-category="arrears" data-cashier-id="all">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div class="fee-icon" style="background: #bee3f8; color: #2c5282;"><i class="fa fa-tint"></i></div>
                     <div><div style="font-weight: 600; color: #2d3748;">Water</div><div style="font-size: 12px; color: #718096;">Unpaid water</div></div>
@@ -339,7 +218,7 @@ $collector_data = $this->db->query($collector_query, $params)->result_array();
             </div>
             <?php endif; ?>
             <?php if($transport_enabled): ?>
-            <div class="fee-card" role="button" tabindex="0" style="background: #f0fff4;" data-fee-type="transport" data-category="arrears" data-cashier-id="all">
+            <div class="fee-card" style="background: #f0fff4;" data-fee-type="transport" data-category="arrears" data-cashier-id="all">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div class="fee-icon" style="background: #c6f6d5; color: #22543d;"><i class="fa fa-bus"></i></div>
                     <div><div style="font-weight: 600; color: #2d3748;">Transport</div><div style="font-size: 12px; color: #718096;">Unpaid transport</div></div>
@@ -364,7 +243,7 @@ $collector_data = $this->db->query($collector_query, $params)->result_array();
                     </tr>
                 </thead>
                 <tbody>
-                    <?php 
+                    <?php
                     // Define role names
                     $role_names = [
                         1 => 'Super Admin',
@@ -374,8 +253,8 @@ $collector_data = $this->db->query($collector_query, $params)->result_array();
                         5 => 'Accountant',
                         6 => 'Librarian'
                     ];
-                    
-                    foreach ($collector_data as $data): 
+
+                    foreach ($collector_data as $data):
                         $percentage = $grand_total > 0 ? ($data['total'] / $grand_total) * 100 : 0;
                         $role_name = isset($role_names[$data['collector_level']]) ? $role_names[$data['collector_level']] : 'Unknown';
                         $is_cashier = ($data['collector_level'] == 4);

@@ -32,149 +32,11 @@
 .profile-body { padding: 20px; }
 .photo-upload { flex-direction: column; text-align: center; }
 }
-
-/* Direct UI/UX refinement — Manage Profile */
-body { background: #f8fafc; }
-.profile-container {
-    max-width: 1100px !important;
-    margin: 0 auto !important;
-    padding: 24px 28px 40px !important;
-}
-.profile-card {
-    margin-bottom: 16px !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 14px !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-}
-.profile-header {
-    padding: 20px 22px !important;
-    background: #0f172a !important;
-    text-align: left !important;
-}
-.profile-photo {
-    width: 82px !important;
-    height: 82px !important;
-    margin: 0 0 12px !important;
-    border: 3px solid rgba(255,255,255,.92) !important;
-    box-shadow: 0 3px 10px rgba(15,23,42,.18) !important;
-}
-.profile-name {
-    margin-bottom: 3px !important;
-    font-size: 23px !important;
-    line-height: 1.25;
-    font-weight: 800 !important;
-}
-.profile-role {
-    color: #cbd5e1 !important;
-    font-size: 14px !important;
-    opacity: 1 !important;
-}
-.profile-body {
-    padding: 18px 20px !important;
-}
-.section-title {
-    margin-bottom: 16px !important;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eef2f7;
-    color: #0f172a !important;
-    font-size: 17px !important;
-    line-height: 1.35;
-    font-weight: 800 !important;
-}
-.section-title i {
-    color: #2563eb !important;
-    font-size: 15px !important;
-}
-.form-grid {
-    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
-    gap: 14px !important;
-}
-.field-group {
-    margin-bottom: 14px !important;
-}
-.field-label {
-    margin-bottom: 7px !important;
-    color: #334155 !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-}
-.field-input {
-    min-height: 46px !important;
-    padding: 9px 11px !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 9px !important;
-    background: #fff !important;
-    color: #0f172a !important;
-    font-size: 15px !important;
-    transition: border-color .15s ease, box-shadow .15s ease !important;
-}
-.field-input:focus {
-    border-color: #2563eb !important;
-    background: #fff !important;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
-}
-.password-field .field-input {
-    padding-right: 44px !important;
-}
-.password-toggle {
-    right: 14px !important;
-    top: 13px !important;
-    color: #64748b !important;
-    font-size: 15px !important;
-}
-.upload-section {
-    padding: 14px !important;
-    border: 1px dashed #cbd5e1 !important;
-    border-radius: 10px !important;
-    background: #f8fafc !important;
-}
-.upload-label {
-    min-height: 40px;
-    padding: 8px 13px !important;
-    border-radius: 8px !important;
-    background: #2563eb !important;
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    transition: background-color .15s ease !important;
-}
-.upload-label:hover {
-    background: #1d4ed8 !important;
-    transform: none !important;
-}
-.upload-section p[style*="font-size: 13px"] {
-    color: #64748b !important;
-    font-size: 13px !important;
-}
-.btn-update {
-    min-height: 46px;
-    padding: 10px 18px !important;
-    border-radius: 9px !important;
-    background: #2563eb !important;
-    color: #fff !important;
-    font-size: 15px !important;
-    font-weight: 800 !important;
-    box-shadow: 0 2px 8px rgba(37,99,235,.18) !important;
-    transition: background-color .15s ease, box-shadow .15s ease !important;
-}
-.btn-update:hover {
-    background: #1d4ed8 !important;
-    transform: none !important;
-    box-shadow: 0 4px 12px rgba(37,99,235,.20) !important;
-}
-@media (max-width: 767px) {
-    .profile-container { padding: 18px 14px 32px !important; }
-    .profile-header { padding: 18px !important; }
-    .profile-name { font-size: 21px !important; }
-    .profile-body { padding: 15px !important; }
-    .form-grid { grid-template-columns: 1fr !important; }
-    .field-input { font-size: 16px !important; }
-    .btn-update { width: 100%; }
-}
 </style>
 
 <div class="profile-container">
     <?php foreach($edit_data as $row): ?>
-    
+
     <!-- Profile Information Card -->
     <div class="profile-card">
         <div class="profile-header">
@@ -182,13 +44,13 @@ body { background: #f8fafc; }
             <div class="profile-name"><?php echo $row['name'];?></div>
             <div class="profile-role">Administrator</div>
         </div>
-        
+
         <div class="profile-body">
             <div class="section-title">
                 <i class="fas fa-user-circle"></i>
                 <?php echo get_phrase('personal_information');?>
             </div>
-            
+
             <?php echo form_open_multipart(site_url('admin/manage_profile/update_profile_info/'.$row['admin_id']), array('id' => 'profile_form'));?>
                 <div class="form-row">
                     <div class="form-field">
@@ -200,7 +62,7 @@ body { background: #f8fafc; }
                         <input type="email" class="field-input" name="email" value="<?php echo $row['email'];?>" required>
                     </div>
                 </div>
-                
+
                 <div class="form-field" style="margin-bottom: 24px;">
                     <label class="field-label"><?php echo get_phrase('photo');?></label>
                     <div class="photo-upload">
@@ -214,14 +76,14 @@ body { background: #f8fafc; }
                         </div>
                     </div>
                 </div>
-                
+
                 <button type="submit" class="btn-update">
                     <i class="fas fa-save"></i> <?php echo get_phrase('update_profile');?>
                 </button>
             </form>
         </div>
     </div>
-    
+
     <!-- Change Password Card -->
     <div class="profile-card">
         <div class="profile-body">
@@ -229,7 +91,7 @@ body { background: #f8fafc; }
                 <i class="fas fa-lock"></i>
                 <?php echo get_phrase('change_password');?>
             </div>
-            
+
             <?php echo form_open(site_url('admin/manage_profile/change_password'), array('id' => 'password_form'));?>
                 <div class="form-row-3">
                     <div class="form-field">
@@ -254,14 +116,14 @@ body { background: #f8fafc; }
                         </div>
                     </div>
                 </div>
-                
+
                 <button type="submit" class="btn-update">
                     <i class="fas fa-key"></i> <?php echo get_phrase('update_password');?>
                 </button>
             </form>
         </div>
     </div>
-    
+
     <?php endforeach; ?>
 </div>
 

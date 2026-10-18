@@ -1,5 +1,5 @@
 
-<?php 
+<?php
     $invoice_code_f       = $this->db->get_where('settings', array('type'=>'invoice_number_format'))->row()->description;
     $inv_number_len = strlen($invoice_code_f);
 
@@ -7,7 +7,7 @@
     $user_id = $this->session->userdata('login_user_id');
     $admin_level = $this->db->get_where('admin', array('admin_id' => $user_id))->row()->level;
 
-    
+
     //currency
     $currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
     $fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
@@ -19,39 +19,10 @@
     $class_name = $this->crud_model->get_class_name($class_id);
 
 ?>
-<style type="text/css">
-/* ---- family design-language alignment (presentation only) ---- */
-#tinvoices { font-size: 13px; }
-#tinvoices thead th { font-size: 12px; letter-spacing: .3px; }
-#tinvoices th, #tinvoices td { padding: .6rem .75rem; }
-#tinvoices td { color: #374151; }
-#tinvoices tbody tr { border-color: #f3f4f6; }
-#tinvoices tbody tr:hover td { background: #f8fafc; }
-#tinvoices th:nth-child(6), #tinvoices th:nth-child(7), #tinvoices th:nth-child(8) { text-align: right; }
-#tinvoices td:nth-child(6), #tinvoices td:nth-child(7), #tinvoices td:nth-child(8) { text-align: right; white-space: nowrap; }
-#tinvoices td:nth-child(9) { text-align: center; }
-#tinvoices td:nth-child(10) { white-space: nowrap; }
-#tinvoices tfoot td { background: #f9fafb; border-top: 2px solid #e5e7eb; }
-#tinvoices .dropdown-menu {
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(16, 24, 40, .12);
-    padding: .25rem 0;
-    min-width: 190px;
-}
-#tinvoices .dropdown-menu > li > a { font-size: 13.5px; padding: 6px 14px; color: #374151; }
-#tinvoices .dropdown-menu > li > a:hover { background: #f3f4f6; color: #111827; }
-#tinvoices .dropdown-menu > li > a i { width: 18px; }
-#tinvoices .dropdown-menu > .divider { background: #f3f4f6; height: 1px; }
-@media (max-width: 640px) {
-    #tinvoices th, #tinvoices td { padding: .45rem .55rem; font-size: 12.5px; }
-    #tinvoices thead th { font-size: 11px; }
-}
-</style>
 <div class="row">
     <!-- Global Search Filter -->
     <div class="col-md-12 mb-4">
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 1px 2px rgba(16,24,40,0.1);">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <h4 style="color: white; margin-bottom: 1rem;"><i class="fa fa-search"></i> <?php echo get_phrase('global_search'); ?></h4>
             <div class="row">
                 <div class="col-md-5">
@@ -73,13 +44,13 @@
 
     <div class="col-md-12" id="table_holder">
         <?php echo form_open(site_url('admin/bulk_invoice_delete/invoices_show/true'), array('class' => 'form-horizontal form-groups-bordered validate', 'id' => 'checkboxes_form',  'enctype' => 'multipart/form-data'));?>
-                    
+
 
                     <table class="w-full text-xl text-left text-gray-500 dark:text-gray-400 datatable normal_table" id="tinvoices">
                       <thead class="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                           <tr>
                               <th scope="col" class="p-4">
-                                  
+
                               </th>
                               <th scope="col" class="px-4 py-3 text-left"><?php echo get_phrase('invoice_#');?></th>
                               <th scope="col" class="px-4 py-3"><?php echo get_phrase('student');?></th>
@@ -94,7 +65,7 @@
                           </tr>
                       </thead>
                       <tbody>
-                    <?php                    
+                    <?php
 
                     foreach ($invoices as $row) {
 
@@ -131,7 +102,7 @@
                     $invoice_class_id = $this->db->get_where('invoice', array('invoice_code' => $row->invoice_code))->row()->class_id;
 
                     //current_class id
-                    
+
                     $class_name = $this->db->get_where('class', array('class_id' => $invoice_class_id))->row()->name;
                     $class_name_numeric = $this->db->get_where('class', array('class_id' => $invoice_class_id))->row()->name_numeric;
 
@@ -146,7 +117,7 @@
 
                     //invoice_id
                     $invoice_id = $this->db->get_where('invoice', array('invoice_code' => $row->invoice_code))->row()->invoice_id;
-                    
+
 
                     if ($a_due == 0) {
                         $status = '<span class="btn btn-success btn-xs">'.get_phrase('paid').'</span>';
@@ -159,15 +130,15 @@
                         //$payment_text = 'View Receipts';
                     } else if($amount_paid == 0) {
                         $status = '<span class="btn btn-danger btn-xs">'.get_phrase('unpaid').'</span>';
-                        
+
                         //$payment_text = 'Take Payment';
                     }
 
                     $invoice_can_delete_status = $this->financial_report_model->getInvoiceCanDeleteStatus($row->invoice_code);
 
-                    $payment_option = '<li><a href="#" onclick="invoice_pay_modal('.$student_id.')" style="color: #2563eb;"><i class="entypo-bookmarks"></i>&nbsp;'.get_phrase('take_payment').'</a></li><li class="divider"></li><li><a href="#" onclick="view_receipts_modal('.$student_id.')" style="color: #0e7490;"><i class="entypo-eye"></i>&nbsp;'.get_phrase('view_receipts').'</a></li><li class="divider"></li>';
-                    
-                    
+                    $payment_option = '<li><a href="#" onclick="invoice_pay_modal('.$student_id.')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;'.get_phrase('take_payment').'</a></li><li class="divider"></li><li><a href="#" onclick="view_receipts_modal('.$student_id.')" style="color: #0891b2;"><i class="entypo-eye"></i>&nbsp;'.get_phrase('view_receipts').'</a></li><li class="divider"></li>';
+
+
 
                     $approvedCounter = 0;
 
@@ -187,7 +158,7 @@
                             </div>';
 
                         } else if($invoice_can_delete_status == 'approved') { //invoice approved
-                            
+
                             $whoSentRequest = $row->delete_request_issuer_id; //is it the same person who sent the request that is viewing this page now?
 
                             if($current_user == $whoSentRequest): //yes
@@ -209,7 +180,7 @@
 
                             $bulk_invoice_sel = '
                             <input type="checkbox" class="checkbox" onclick="boxChecked('.$approvedCounter.')" name="invoices_sel[]" value="'.$row->invoice_code.'">
-                            
+
                             ';
                         }
 
@@ -220,12 +191,12 @@
                                 <span class="text-sm font-semibold">'.$invoice_can_delete_status.'</span>
                             </div>';
                     endif;
-                    
-                    $options = '<div class="btn-group">'.get_action_button().'<ul class="dropdown-menu dropdown-default pull-right" role="menu">'.$payment_option.'<li><a href="#" onclick="invoice_view_modal(\''.$in_code.'\')" style="color: #2563eb;"><i class="entypo-credit-card"></i>&nbsp;'.get_phrase('view_invoice').'</a></li><li class="divider"></li>
 
-                                        <li><a href="#" onclick="bulk_invoice_view_modal('.$student_id.')" style="color: #111827;"><i class="entypo-credit-card"></i>&nbsp;'.get_phrase('view_bulk_invoice').'</a></li><li class="divider"></li>
+                    $options = '<div class="btn-group">'.get_action_button().'<ul class="dropdown-menu dropdown-default pull-right" role="menu">'.$payment_option.'<li><a href="#" onclick="invoice_view_modal(\''.$in_code.'\')" style="color: blue;"><i class="entypo-credit-card"></i>&nbsp;'.get_phrase('view_invoice').'</a></li><li class="divider"></li>
 
-                                        <li><a href="#" onclick="loadModalContent(\'createModal\', \''.site_url('admin/invoice_modification_modal/').'\' + \''.$in_code.'\', \'<i class=\"fa fa-edit\"></i> Modify Invoice\')" style="color: #059669;"><i class="entypo-pencil"></i>&nbsp;' . get_phrase('modify_invoice') . '</a></li><li class="divider"></li>
+                                        <li><a href="#" onclick="bulk_invoice_view_modal('.$student_id.')" style="color: black;"><i class="entypo-credit-card"></i>&nbsp;'.get_phrase('view_bulk_invoice').'</a></li><li class="divider"></li>
+
+                                        <li><a href="#" onclick="loadModalContent(\'createModal\', \''.site_url('admin/invoice_modification_modal/').'\' + \''.$in_code.'\', \'<i class=\"fa fa-edit\"></i> Modify Invoice\')" style="color: green;"><i class="entypo-pencil"></i>&nbsp;' . get_phrase('modify_invoice') . '</a></li><li class="divider"></li>
 
                                         </ul></div>';
                     $nchecked      = $bulk_invoice_sel;
@@ -265,19 +236,19 @@
                     <tfoot id="tfooter" style="display: none">
                         <tr>
                             <td colspan="10" align="center">
-                              
+
 
                                <?php
                                     if($admin_level == 1) {?>
 
                                          <input type="submit" name="submit_delete" id="submit_delete" class="btn btn-danger rounded-lg font-bold uppercase" value="Delete Selected Invoices">
-                                         <?php     
+                                         <?php
                                     } else {
 
                                         ?>
 
                                          <input type="submit" name="submit_delete_request" id="submit_delete_request" class="btn btn-danger rounded-lg font-bold uppercase" value="Request to delete selected invoices">
-                                         <?php  
+                                         <?php
                                     }
                                 ?>
                             </td>
@@ -297,7 +268,7 @@
 
             boxChecked(approvedCounter, true); //we only display the button if this other user is the one who made the request
         }
-        
+
     });
 
 
@@ -308,7 +279,7 @@
         let approvedCounter = Number(<?=$approvedCounter;?>);
 
         if(admin_level == 1) {
-                    
+
             confirm_modal('<?php echo site_url('admin/bulk_invoice_delete'); ?>', 'modal_invoice_delete', 'checkboxes_form', <?=$class_id;?>);
 
         } else {
@@ -325,8 +296,8 @@
                 return false;
             }
 
-            
-            
+
+
         }
     });
 
@@ -376,7 +347,7 @@
                 { "data": "status" },
                 { "data": "date" },
                 { "data": "options" },
-                
+
             ],
             "columnDefs": [
                 {

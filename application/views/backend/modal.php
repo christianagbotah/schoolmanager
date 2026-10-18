@@ -184,7 +184,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
 
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    
+
                 </div>
 
                 <div class="modal-body"></div>
@@ -225,7 +225,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
 
                 <div class="modal-body"></div>
 
-                <div class="modal-footer" style="border-top:1px solid #ecf0f1;padding:20px 30px;background:#f8f9fa;text-align:center;">   
+                <div class="modal-footer" style="border-top:1px solid #ecf0f1;padding:20px 30px;background:#f8f9fa;text-align:center;">
                     <div class="col-sm-12 col-md-12 col-xs-12" style="text-align: center;">
                         <button type="button" class="btn modern-btn modern-btn-success btn-lg" data-dismiss="modal" style="font-size:15px;font-weight:600;">Login here</button>
                     </div>
@@ -245,7 +245,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
 
                 <div class="modal-body"></div>
 
-                <div class="modal-footer" style="border-top:1px solid #ecf0f1;padding:20px 30px;background:#f8f9fa;text-align:center;">   
+                <div class="modal-footer" style="border-top:1px solid #ecf0f1;padding:20px 30px;background:#f8f9fa;text-align:center;">
                     <div class="col-sm-12 col-md-12 col-xs-12" style="text-align: center;">
                         <button type="button" class="btn modern-btn modern-btn-danger btn-lg" data-dismiss="modal" style="font-size:15px;font-weight:600;">Close</button>
                     </div>
@@ -263,7 +263,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
             document.getElementById('update_link').setAttribute('href' , delete_url);
         } else if(modal_type === 'modal_block') {
             $('#modal_block').modal('show', {backdrop: 'static'});
-            
+
             $('#block_link').click(function(e) {
 
                 $('.modal').removeClass('modal-backdrop');
@@ -283,7 +283,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                     //========start
                     showAjaxModal_alert('Account Blocked Successfully', 'Success');
 
-                    
+
 
                     setTimeout(() => {
                         navigation('<?php echo site_url('admin/'); ?>' + type + '/' + class_id);
@@ -297,14 +297,14 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                 .fail(function(err) {
                     showAjaxModal_alert('Error: ' + err.responseText, 'Error');
                 });
-                
+
             })
 
-            
+
 
         } else if(modal_type === 'modal_unblock') {
             $('#modal_unblock').modal('show', {backdrop: 'static'});
-            
+
              $('#unblock_link').click(function(e) {
 
                 $('.modal').removeClass('modal-backdrop');
@@ -324,7 +324,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                     //========start
                     showAjaxModal_alert('Account Unblocked Successfully', 'Success');
 
-                    
+
 
                     setTimeout(() => {
                         navigation('<?php echo site_url('admin/'); ?>' + type + '/' + class_id);
@@ -338,7 +338,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                 .fail(function(err) {
                     showAjaxModal_alert('Error: ' + err.responseText, 'Error');
                 });
-                
+
             })
 
         } else if(modal_type === 'modal_mute') {
@@ -363,7 +363,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                     //========start
                     showAjaxModal_alert('Student Muted Successfully', 'Success');
 
-                    
+
 
                     setTimeout(() => {
                         navigation('<?php echo site_url('admin/'); ?>' + type + '/' + class_id);
@@ -377,7 +377,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                 .fail(function(err) {
                     showAjaxModal_alert('Error: ' + err.responseText, 'Error');
                 });
-                
+
             })
 
         } else if(modal_type === 'modal_unmute') {
@@ -414,7 +414,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                     //========start
                     showAjaxModal_alert('Student Unmuted Successfully', 'Success');
 
-                    
+
 
                     setTimeout(() => {
                         navigation('<?php echo site_url('admin/'); ?>' + type + '/' + class_id);
@@ -428,7 +428,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                 .fail(function(err) {
                     showAjaxModal_alert('Error: ' + err.responseText, 'Error');
                 });
-                
+
             })
 
         } else if(modal_type === 'modal_exam_delete') {
@@ -448,7 +448,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                           })
                           .done(function() {
                               showAjaxModal_alert('Exam deleted successfully.', 'Success');
-                              
+
 
                               setTimeout(() => {
                                   $('.close').click();
@@ -464,7 +464,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                 );
             });
 
-            
+
         } else if(modal_type === 'modal_invoice_delete') {
             $('#modal_invoice_delete').modal('show', {backdrop: 'static'});
 
@@ -484,8 +484,8 @@ $gradient_dark = adjustBrightness($theme_color, -30);
             });
 
         } else if(modal_type === 'modal_invoice_warning') {
-          
-            
+
+
         } else{
             $('#modal-4').modal('show', {backdrop: 'static'});
             //document.getElementById('delete_link').setAttribute('href' , delete_url);
@@ -501,9 +501,9 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                   })
                   .done(function(response) {
                       if(response.message == 'done') {
-                        
+
                         showAjaxModal_alert('Data deleted successfully.', 'Success');
-                      
+
 
                           setTimeout(() => {
                               $('.close').click();
@@ -512,9 +512,9 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                               } else {
                                 navigation('<?php echo site_url('admin/'); ?>' + response.route);
                               }
-                              
+
                               //window.location.reload();
-                          }, 3000); 
+                          }, 3000);
                       } else {
                         showAjaxModal_alert('Data not deleted!<br><br>' + response.hasRecords, 'Error');
                         $('.close').click(function(e) {
@@ -529,7 +529,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
 
 
         }
-       
+
     }
     </script>
 
@@ -551,7 +551,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
             </div>
         </div>
     </div>
-    
+
     <!-- (Exam Delete Modal)-->
     <div class="modal fade" id="modal_exam_delete">
         <div class="modal-dialog">
@@ -688,7 +688,7 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                         <div class="col-md-6">
                             <div class="form-group">
                             <label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('Select class for enrollment');?></label>
-                                <select name="class_id_enrollment" id="class_id_enrollment" class="form-control selectboxit">
+                                <select name="class_id_enrollment" id="class_id_enrollment" class="form-control select2">
                                     <option value=""><?php echo get_phrase('select_class');?></option>
                                     <?php
                                       getFullClassList();
@@ -788,7 +788,7 @@ function showAjaxModal(url, $param = '') {
     if(url.includes('/modal_student_edit') || url.includes('modal_student_edit') || $param === 'student_edit') {
         return showAjaxModal_student_edit(url);
     }
-    
+
     if($param == 'xlarge' || $param == 'modal_student_edit') {
         $('#modal_ajax .modal-dialog').removeClass('modal-lg').addClass('modal-xl');
     } else if($param == 'modal_unpaid_invoices' || $param == 'modal_outstanding_debt' || $param == 'modal_bad_debt' || $param == 'make_refund' || $param == 'big') {
@@ -796,10 +796,10 @@ function showAjaxModal(url, $param = '') {
     } else {
         $('#modal_ajax .modal-dialog').removeClass('modal-lg modal-xl');
     }
-    
+
     $('#modal_ajax .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
     $('#modal_ajax').modal('show', {backdrop: 'true'});
-    
+
     $.ajax({
         url: url,
         cache: false,
@@ -815,7 +815,7 @@ function showAjaxModal(url, $param = '') {
 function showAjaxModalLarge(url, $param = '') {
     $('#static-modal .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
     $('#static-modal').modal('show', {backdrop: 'true'});
-    
+
     $.ajax({
         url: url,
         cache: false,
@@ -836,7 +836,7 @@ function showAjaxModalDisplay(data = '') {
 function showAjaxModalDisplayLarge(url) {
     $('#modal_display .modal-dialog').addClass('modal-lg');
     $('#modal_display').modal('show', {backdrop: 'true'});
-    
+
     $.ajax({
         url: url,
         cache: false,
@@ -849,10 +849,10 @@ function showAjaxModalDisplayLarge(url) {
 function showAjaxModal_move_student(url, param = []) {
     $('.select2').select2('destroy');
     param = param.join('-');
-    
+
     $('#modal_move_student .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
     $('#modal_move_student').modal('show', {backdrop: 'true'});
-    
+
     $.ajax({
         url: url + param,
         cache: false,
@@ -865,10 +865,10 @@ function showAjaxModal_move_student(url, param = []) {
 function showAjaxModal_residence_status(url, param = []) {
     $('.select2').select2('destroy');
     param = param.join('-');
-    
+
     $('#modal_change_residence_status .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
     $('#modal_change_residence_status').modal('show', {backdrop: 'true'});
-    
+
     $.ajax({
         url: url + param,
         cache: false,
@@ -881,7 +881,7 @@ function showAjaxModal_residence_status(url, param = []) {
 function showAjaxModal_invoice(url, $param = '') {
     $('#modal_ajax .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
     $('#modal_ajax').modal('show', {backdrop: 'true'});
-    
+
     $.ajax({
         url: url,
         success: function(response) {
@@ -893,7 +893,7 @@ function showAjaxModal_invoice(url, $param = '') {
 function showAjaxModal_receipt(url, $param = '') {
     $('#modal_ajax_receipt .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
     $('#modal_ajax_receipt').modal('show', {backdrop: 'true'});
-    
+
     $.ajax({
         url: url,
         cache: false,
@@ -909,7 +909,7 @@ function showAjaxModal_receipt(url, $param = '') {
 function showAjaxModal_student_edit(url) {
     $('#modal_student_edit .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
     $('#modal_student_edit').modal('show', {backdrop: 'true'});
-    
+
     $.ajax({
         url: url,
         cache: false,
@@ -924,7 +924,7 @@ function showAjaxModal_student_edit(url) {
 
 function showAjaxModal_selection(url, $param = '') {
     $('#selection').modal('show', {backdrop: 'true'});
-    
+
     $.ajax({
         url: url,
         success: function(response) {
@@ -936,7 +936,7 @@ function showAjaxModal_selection(url, $param = '') {
 function showAjaxModal_confirm(url) {
     $('#modal_confirm .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
     $('#modal_confirm').modal({backdrop: 'static', keyboard: false});
-    
+
     $.ajax({
         url: url,
         success: function(response) {
@@ -953,7 +953,7 @@ function showAjaxModal_confirm2(message, type) {
         $('#modal_confirm2 .modal-header').removeClass('modern-modal-header-success').addClass('modern-modal-header-danger');
         $('#modal_confirm2 .modal-body').removeClass('modern-modal-header-success').addClass('modern-modal-header-danger');
     }
-    
+
     $('#modal_confirm2').modal({backdrop: 'static', keyboard: false});
     $('#modal_confirm2 .modal-body h3').html(message);
     $('#modal_confirm2 .modal-title').html(type);
@@ -974,18 +974,18 @@ function showAjaxModal_alert(message, type, reloadOnSuccess, autoClose) {
         console.error('Modal #modal_alert not found');
         return;
     }
-    
+
     // Default reloadOnSuccess to true if not specified
     if(reloadOnSuccess === undefined) reloadOnSuccess = true;
-    
+
     // Default autoClose to true if not specified
     if(autoClose === undefined) autoClose = true;
-    
+
     var iconHtml = '';
     var footerHtml = '';
-    
+
     var baseUrl = '<?php echo base_url(); ?>';
-    
+
     if(type == 'success' || type == 'Success' || type == 'Logged Out') {
         iconHtml = '<div style="width:80px;height:80px;margin:0 auto 20px;background:linear-gradient(135deg,#11998e15 0%,#38ef7d15 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;"><img src="' + baseUrl + 'assets/icons/icon-success.png" width="50px" height="50px"/></div>';
         $('#modal_alert .modal-header button').css('display','block');
@@ -1006,7 +1006,7 @@ function showAjaxModal_alert(message, type, reloadOnSuccess, autoClose) {
         iconHtml = '<div class="loader-spinner" style="margin: 10px auto;"></div>';
         $('#modal_alert .modal-header button').css('display','none');
     }
-    
+
     // Update modal content
     if($('#modal_alert .modal-body center').length > 0) {
         $('#modal_alert .modal-body center').html(iconHtml);
@@ -1014,18 +1014,18 @@ function showAjaxModal_alert(message, type, reloadOnSuccess, autoClose) {
     if($('#modal_alert .modal-body h3').length > 0) {
         $('#modal_alert .modal-body h3').html(message);
     }
-    
+
     // Remove existing footer first
     $('#modal_alert .modal-footer').remove();
-    
+
     // Add footer if needed
     if(footerHtml) {
         $('#modal_alert .modal-content').append(footerHtml);
     }
-    
+
     // Show modal
     $('#modal_alert').modal({backdrop: 'static', keyboard: false});
-    
+
     // Auto-close success messages after 2 seconds (only if autoClose is true)
     if((type == 'success' || type == 'Success' || type == 'Logged Out') && autoClose === true) {
         setTimeout(function() {
@@ -1043,7 +1043,7 @@ function showAjaxModal_alert(message, type, reloadOnSuccess, autoClose) {
 function showAjaxModal_confirm_staff(url) {
     $('#modal_confirm_staff .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
     $('#modal_confirm_staff').modal({backdrop: 'static', keyboard: false});
-    
+
     $.ajax({
         url: url,
         success: function(response) {
@@ -1055,7 +1055,7 @@ function showAjaxModal_confirm_staff(url) {
 function showAjaxModal_idle_user(url) {
     $('#modal_idle_user .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
     $('#modal_idle_user').modal({backdrop: 'static', keyboard: false});
-    
+
     $.ajax({
         url: url,
         success: function(response) {
@@ -1067,7 +1067,7 @@ function showAjaxModal_idle_user(url) {
 function showAjaxModal_user_blocked(url) {
     $('#modal_user_blocked .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
     $('#modal_user_blocked').modal({backdrop: 'static', keyboard: false});
-    
+
     $.ajax({
         url: url,
         success: function(response) {
@@ -1079,7 +1079,7 @@ function showAjaxModal_user_blocked(url) {
 function showAjaxModal_payroll_edit(url) {
     $('#modal_payroll_edit .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#059669;font-weight:600;">Loading payroll data...</p></div>');
     $('#modal_payroll_edit').modal({backdrop: 'static', keyboard: false});
-    
+
     $.ajax({
         url: url,
         cache: false,
@@ -1103,11 +1103,11 @@ function showCustomConfirm(message, onConfirm, onCancel) {
     // Update modal title and message
     $('#modal_confirm .modal-title').html('Confirm Action');
     $('#modal_confirm .modal-body').html('<p style="text-align:center;font-size:16px;color:#2c3e50;padding:20px 0;">' + message + '</p>');
-    
+
     // Remove any existing click handlers to prevent multiple bindings
     $('#modal_yes').off('click');
     $('#modal_no').off('click');
-    
+
     // Bind Yes button
     $('#modal_yes').on('click', function() {
         $('#modal_confirm').modal('hide');
@@ -1118,7 +1118,7 @@ function showCustomConfirm(message, onConfirm, onCancel) {
             }, 100);
         }
     });
-    
+
     // Bind No button
     $('#modal_no').on('click', function() {
         $('#modal_confirm').modal('hide');
@@ -1128,7 +1128,7 @@ function showCustomConfirm(message, onConfirm, onCancel) {
             }, 100);
         }
     });
-    
+
     // Show modal
     $('#modal_confirm').modal({backdrop: 'static', keyboard: false});
 }
@@ -1295,7 +1295,7 @@ function showCustomConfirm(message, onConfirm, onCancel) {
             <?php echo form_open('admin/save_fee_assignment', array('id' => 'assignment_form')); ?>
                 <div class="modal-body" style="padding:30px;">
                     <input type="hidden" name="assignment_id" id="assignment_id">
-                    
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -1796,7 +1796,7 @@ function showModalWithContent(modalId, title, content) {
 function loadModalContent(modalId, url, title) {
     if(title) $('#' + modalId + ' .modal-title').html(title);
     $('#' + modalId + ' .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
-    
+
     // Safe modal show - check if Bootstrap modal is available
     var $modal = $('#' + modalId);
     if (typeof $modal.modal === 'function') {
@@ -1809,7 +1809,7 @@ function loadModalContent(modalId, url, title) {
             $('body').append('<div class="modal-backdrop fade in"></div>');
         }
     }
-    
+
     $.ajax({
         url: url,
         cache: false,
@@ -1850,7 +1850,7 @@ function loadModalContent(modalId, url, title) {
                                 <label><?php echo get_phrase('class_level'); ?><span class="required">*</span></label>
                                 <select name="class_level" id="class_level" class="modern-form-control" required>
                                     <option value=""><?php echo get_phrase('select_class'); ?></option>
-                                    <?php 
+                                    <?php
                                     // Use getFullClassList helper to populate classes
                                     if (function_exists('getFullClassList')) {
                                         getFullClassList();
@@ -1902,10 +1902,10 @@ $(document).ready(function() {
     $(document).on('change', '#class_level', function() {
         var classId = $(this).val();
         var subjectDropdown = $('#subject_id');
-        
+
         // Clear current options
         subjectDropdown.html('<option value=""><?php echo get_phrase('loading'); ?>...</option>');
-        
+
         if (classId) {
             // Fetch subjects for selected class
             $.ajax({
@@ -1915,7 +1915,7 @@ $(document).ready(function() {
                 dataType: 'json',
                 success: function(response) {
                     subjectDropdown.html('<option value=""><?php echo get_phrase('select_subject'); ?></option>');
-                    
+
                     if (response.success && response.subjects.length > 0) {
                         $.each(response.subjects, function(index, subject) {
                             subjectDropdown.append(
@@ -1936,23 +1936,23 @@ $(document).ready(function() {
             subjectDropdown.html('<option value=""><?php echo get_phrase('select_class_first'); ?></option>');
         }
     });
-    
+
     // Handle strand form submission via AJAX
     $(document).on('submit', '#strandForm', function(e) {
         e.preventDefault();
-        
+
         var form = $(this);
         var formData = form.serialize();
         var actionUrl = form.attr('action');
         var submitBtn = form.find('button[type="submit"]');
         var originalBtnText = submitBtn.html();
-        
+
         // Disable submit button and show loading
         submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> <?php echo get_phrase('saving'); ?>...');
-        
+
         // Show loading modal
         showAjaxModal_alert('<?php echo get_phrase('saving'); ?>...', 'Loading');
-        
+
         $.ajax({
             url: actionUrl,
             type: 'POST',
@@ -1963,16 +1963,16 @@ $(document).ready(function() {
                     // Show success in both modal and toast
                     showAjaxModal_alert(response.message || '<?php echo get_phrase('strand_saved_successfully'); ?>', 'Success', true);
                     showNotification('success', response.message || '<?php echo get_phrase('strand_saved_successfully'); ?>');
-                    
+
                     // Close strand modal
                     $('#strandModal').modal('hide');
-                    
+
                     // Page will reload automatically from showAjaxModal_alert
                 } else {
                     // Show error in both modal and toast
                     showAjaxModal_alert(response.message || '<?php echo get_phrase('failed_to_save_strand'); ?>', 'Error');
                     showNotification('error', response.message || '<?php echo get_phrase('failed_to_save_strand'); ?>');
-                    
+
                     // Re-enable submit button
                     submitBtn.prop('disabled', false).html(originalBtnText);
                 }
@@ -1982,7 +1982,7 @@ $(document).ready(function() {
                 var errorMsg = '<?php echo get_phrase('error_occurred'); ?>: ' + error;
                 showAjaxModal_alert(errorMsg, 'Error');
                 showNotification('error', errorMsg);
-                
+
                 // Re-enable submit button
                 submitBtn.prop('disabled', false).html(originalBtnText);
             }
@@ -1994,7 +1994,7 @@ $(document).ready(function() {
 function showNotification(type, message) {
     var bgColor = type === 'success' ? '#10b981' : '#ef4444';
     var icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-    
+
     // Create notification element
     var notification = $('<div>')
         .css({
@@ -2014,10 +2014,10 @@ function showNotification(type, message) {
             'animation': 'slideInRight 0.3s ease'
         })
         .html('<i class="fa ' + icon + '" style="font-size: 20px;"></i><span>' + message + '</span>');
-    
+
     // Add to body
     $('body').append(notification);
-    
+
     // Remove after 3 seconds
     setTimeout(function() {
         notification.fadeOut(300, function() {

@@ -22,11 +22,11 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
 }
 
 .stats-header {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 16px;
     padding: 32px;
     margin-bottom: 30px;
-    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
     color: white;
 }
 
@@ -40,7 +40,8 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
 }
 
 .kpi-card:hover {
-    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
 }
 
 .kpi-icon {
@@ -93,26 +94,27 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
 }
 
 .filter-card .form-control:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     outline: none;
 }
 
 .filter-card .btn-primary {
-    background: #2563eb;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
     border-radius: 10px;
     padding: 10px 20px;
     font-weight: 600;
     font-size: 14px;
     height: 42px;
-    transition: background-color .2s ease, box-shadow .2s ease;
-    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .filter-card .btn-primary:hover {
-    background: #1d4ed8;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    transform: translateY(-2px);
 }
 
 .stats-header .btn {
@@ -125,22 +127,24 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
 
 .stats-header .btn-light {
     background: white;
-    color: #0f172a;
+    color: #667eea;
     border: 2px solid white;
 }
 
 .stats-header .btn-light:hover {
     background: rgba(255,255,255,0.9);
+    transform: translateY(-2px);
 }
 
 .stats-header .btn-success {
-    background: #059669;
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     border: none;
-    box-shadow: 0 1px 2px rgba(5, 150, 105, 0.3);
+    box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);
 }
 
 .stats-header .btn-success:hover {
-    background: #047857;
+    background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
+    transform: translateY(-2px);
 }
 
 .chart-card {
@@ -171,150 +175,6 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
 .badge-arrears { background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; }
 .badge-advance { background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; }
 .badge-mixed { background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-
-/* Direct UI/UX refinement — Fee Collection Statistics (screen only) */
-@media screen {
-    body { background: #f8fafc; }
-    .stats-header {
-        margin-bottom: 18px !important;
-        padding: 18px 20px !important;
-        border-radius: 14px !important;
-        background: #0f172a !important;
-        box-shadow: 0 1px 2px rgba(15,23,42,.10) !important;
-    }
-    .stats-header > .row { margin: 0 !important; }
-    .stats-header > .row > [class*="col-"] { padding: 0 !important; }
-    .stats-header [style*="display: flex"] { gap: 12px !important; }
-    .stats-header [style*="width: 64px"] {
-        width: 44px !important; height: 44px !important; border-radius: 11px !important;
-        background: rgba(255,255,255,.10) !important;
-    }
-    .stats-header [style*="font-size: 32px"] { font-size: 19px !important; }
-    .stats-header h2 {
-        font-size: 24px !important; line-height: 1.25; font-weight: 800 !important;
-        letter-spacing: -.015em;
-    }
-    .stats-header h2 + p { font-size: 14px !important; line-height: 1.45; color: #cbd5e1 !important; opacity: 1 !important; }
-
-    .filter-card {
-        margin-bottom: 16px !important; padding: 16px 18px !important;
-        border: 1px solid #e2e8f0 !important; border-radius: 14px !important;
-        box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-    }
-    .filter-card > .row {
-        display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 12px; margin: 0 !important;
-    }
-    .filter-card > .row > [class*="col-"] { width: 100% !important; padding: 0 !important; }
-    .filter-card label {
-        margin-bottom: 7px !important; color: #334155 !important;
-        font-size: 13px !important; font-weight: 700 !important;
-    }
-    .filter-card .form-control {
-        min-height: var(--sm-ui-control-height, 42px) !important; height: var(--sm-ui-control-height, 42px) !important;
-        padding: 9px 11px !important; border: 1px solid #cbd5e1 !important;
-        border-radius: 9px !important; background: #fff !important;
-        color: #0f172a !important; font-size: 14px !important;
-    }
-    .filter-card .form-control:focus {
-        border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
-    }
-    .filter-card .btn-primary {
-        min-height: var(--sm-ui-control-height, 42px) !important; height: var(--sm-ui-control-height, 42px) !important; padding: 9px 14px !important;
-        border-radius: 9px !important; font-size: 14px !important; font-weight: 800 !important;
-        box-shadow: none !important;
-    }
-
-    .kpi-card {
-        min-height: 160px; padding: 16px !important;
-        border: 1px solid #e2e8f0 !important; border-radius: 12px !important;
-        box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-        transition: border-color .15s ease, box-shadow .15s ease !important;
-    }
-    .kpi-card:hover { box-shadow: 0 4px 12px rgba(15,23,42,.06) !important; }
-    .kpi-icon {
-        width: 40px !important; height: 40px !important; margin-bottom: 10px !important;
-        border-radius: 10px !important; font-size: 17px !important;
-    }
-    .kpi-label {
-        margin-bottom: 3px; color: #64748b !important;
-        font-size: 13px !important; line-height: 1.35; font-weight: 700 !important;
-    }
-    .kpi-value {
-        margin: 3px 0 5px !important; color: #0f172a !important;
-        font-size: 23px !important; line-height: 1.25; font-weight: 800 !important;
-    }
-    .kpi-card [style*="font-size: 12px"] {
-        font-size: 13px !important; line-height: 1.4;
-    }
-
-    .chart-card {
-        margin-bottom: 16px !important; padding: 17px 18px !important;
-        border: 1px solid #e2e8f0 !important; border-radius: 14px !important;
-        box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-    }
-    .chart-card h4 {
-        margin-bottom: 14px !important; color: #0f172a !important;
-        font-size: 16px !important; line-height: 1.35; font-weight: 800 !important;
-    }
-    .progress-fill { background: #2563eb !important; }
-
-    .badge-arrears,
-    .badge-advance,
-    .badge-mixed {
-        padding: 5px 9px !important; border-radius: 999px !important;
-        font-size: 12.5px !important; line-height: 1.25; font-weight: 700 !important;
-    }
-
-    .chart-card > div[style*="justify-content: space-between"] {
-        gap: 12px; margin-bottom: 14px !important;
-    }
-    #transaction_search {
-        width: 250px !important; min-height: 40px; height: 40px;
-        padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px;
-        font-size: 14px;
-    }
-    .chart-card .btn-light,
-    .chart-card .btn-success {
-        min-height: 40px; height: 40px !important; padding: 8px 12px;
-        border-radius: 8px; font-size: 13px; font-weight: 700;
-    }
-    .chart-card .table-responsive {
-        border: 1px solid #e2e8f0; border-radius: 11px; overflow-x: auto;
-    }
-    #transactions_table { min-width: 1050px; margin: 0 !important; }
-    #transactions_table thead th {
-        padding: 11px 12px !important; background: #f8fafc !important;
-        color: #475569 !important; font-size: 13px !important; line-height: 1.35;
-        font-weight: 800 !important; letter-spacing: .025em; border-bottom: 1px solid #e2e8f0 !important;
-    }
-    #transactions_table tbody td {
-        padding: 11px 12px !important; color: #334155 !important;
-        font-size: 14px !important; line-height: 1.45; vertical-align: middle;
-        border-bottom: 1px solid #eef2f7 !important;
-    }
-    #transactions_table tbody tr:hover td { background: #f8fbff !important; }
-    #transactions_table [style*="font-size: 11px"] { font-size: 13px !important; }
-    #transactions_table [style*="font-size: 13px"] { font-size: 14px !important; }
-
-    @media (max-width: 1199px) {
-        .filter-card > .row { grid-template-columns: repeat(3,minmax(0,1fr)); }
-    }
-    @media (max-width: 767px) {
-        .stats-header { padding: 18px !important; }
-        .stats-header h2 { font-size: 21px !important; }
-        .filter-card { padding: 14px !important; }
-        .filter-card > .row { grid-template-columns: 1fr; }
-        .chart-card { padding: 14px !important; }
-        .chart-card > div[style*="justify-content: space-between"] {
-            align-items: stretch !important; flex-direction: column !important;
-        }
-        #transaction_search { width: 100% !important; }
-        .chart-card > div[style*="justify-content: space-between"] > div {
-            width: 100%; display: flex; flex-wrap: wrap;
-        }
-        .chart-card > div[style*="justify-content: space-between"] .btn { flex: 1 1 auto; }
-    }
-}
 </style>
 
 <div class="row">
@@ -328,8 +188,8 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
                             <i class="fa fa-bar-chart" style="font-size: 32px;"></i>
                         </div>
                         <div>
-                            <h2 style="margin: 0; font-weight: 700; font-size: 24px; color: white;">Fee Collection Statistics</h2>
-                            <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px; color: white;">Comprehensive analytics and reports</p>
+                            <h2 style="margin: 0; font-weight: 700; font-size: 28px; color: white;">Fee Collection Statistics</h2>
+                            <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 15px; color: white;">Comprehensive analytics and reports</p>
                         </div>
                     </div>
                 </div>
@@ -396,7 +256,7 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
         <div class="row">
             <div class="col-md-3">
                 <div class="kpi-card">
-                    <div class="kpi-icon" style="background: #2563eb; color: white;">
+                    <div class="kpi-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                         <i class="fa fa-dollar"></i>
                     </div>
                     <div class="kpi-label">Total Collected</div>
@@ -408,7 +268,7 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
             </div>
             <div class="col-md-3">
                 <div class="kpi-card">
-                    <div class="kpi-icon" style="background: #059669; color: white;">
+                    <div class="kpi-icon" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white;">
                         <i class="fa fa-line-chart"></i>
                     </div>
                     <div class="kpi-label">Collection Rate</div>
@@ -418,7 +278,7 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
             </div>
             <div class="col-md-3">
                 <div class="kpi-card">
-                    <div class="kpi-icon" style="background: #db2777; color: white;">
+                    <div class="kpi-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
                         <i class="fa fa-exclamation-triangle"></i>
                     </div>
                     <div class="kpi-label">Outstanding Arrears</div>
@@ -428,7 +288,7 @@ $collectors = $this->db->where_in('level', [1,2,3])->order_by('name')->get('admi
             </div>
             <div class="col-md-3">
                 <div class="kpi-card">
-                    <div class="kpi-icon" style="background: #d97706; color: white;">
+                    <div class="kpi-icon" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white;">
                         <i class="fa fa-users"></i>
                     </div>
                     <div class="kpi-label">Students Paid</div>
@@ -525,15 +385,15 @@ $(document).ready(function() {
 function loadStatistics() {
     if(isLoading) return;
     isLoading = true;
-    
+
     const dateFrom = $('#date_from').val();
     const dateTo = $('#date_to').val();
     const classId = $('#class_filter').val();
     const collectorId = $('#collector_filter').val();
     const paymentMethod = $('#payment_method_filter').val();
-    
+
     showAjaxModal_alert('Loading statistics...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url('fee_collection/get_statistics_data'); ?>',
         data: { date_from: dateFrom, date_to: dateTo, class_id: classId, collector_id: collectorId, payment_method: paymentMethod },
@@ -566,9 +426,9 @@ function updateKPIs(summary) {
     $('#kpi_students').text(summary.kpis.students_paid);
     $('#kpi_transactions').text(summary.transaction_count + ' transactions');
     $('#kpi_arrears_cleared').text(currency + ' ' + parseFloat(summary.arrears_cleared).toLocaleString('en-GH', {minimumFractionDigits: 0}) + ' arrears cleared');
-    
+
     const growth = summary.kpis.growth_rate;
-    const growthHtml = growth >= 0 
+    const growthHtml = growth >= 0
         ? `<i class="fa fa-arrow-up"></i> ${growth.toFixed(1)}% vs previous`
         : `<i class="fa fa-arrow-down"></i> ${Math.abs(growth).toFixed(1)}% vs previous`;
     $('#kpi_growth').html(growthHtml).css('color', growth >= 0 ? '#27ae60' : '#e74c3c');
@@ -584,7 +444,7 @@ function updateCharts(summary) {
         paymentChart.destroy();
         paymentChart = null;
     }
-    
+
     // Small delay to ensure canvas is cleared
     setTimeout(function() {
         // Fee Breakdown Chart
@@ -623,7 +483,7 @@ function updateCharts(summary) {
                 }
             });
         }
-        
+
         // Payment Type Chart
         const paymentCanvas = document.getElementById('paymentTypeChart');
         if(paymentCanvas) {
@@ -685,7 +545,7 @@ function updateBreakdowns(summary) {
         `;
     });
     $('#class_breakdown').html(classHtml || '<p style="text-align: center; color: #7f8c8d; padding: 40px 0;">No data available</p>');
-    
+
     // By Collector
     let collectorHtml = '';
     const sortedCollectors = Object.entries(summary.by_collector).sort((a, b) => b[1] - a[1]);
@@ -716,7 +576,7 @@ function updateTransactionsTable(transactions) {
             'advance': '<span class="badge badge-advance">Advance</span>',
             'mixed': '<span class="badge badge-mixed">Mixed</span>'
         };
-        
+
         html += `
             <tr class="transaction-row">
                 <td>${new Date(t.payment_date * 1000).toLocaleDateString()}</td>
@@ -740,15 +600,15 @@ function updateTransactionsTable(transactions) {
 
 function exportTableToExcel() {
     const wb = XLSX.utils.book_new();
-    
+
     // Get table data
     const table = document.getElementById('transactions_table');
     const rows = [];
-    
+
     // Add headers
     const headers = ['Date', 'Student Code', 'Student Name', 'Class', 'Type', 'Feeding', 'Classes', 'Transport', 'Total', 'Method', 'Collector'];
     rows.push(headers);
-    
+
     // Add data rows
     const tbody = table.querySelector('tbody');
     const trs = tbody.querySelectorAll('tr');
@@ -773,15 +633,15 @@ function exportTableToExcel() {
             }
         }
     });
-    
+
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    
+
     // Set column widths
     ws['!cols'] = [
         {wch: 12}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 10},
         {wch: 10}, {wch: 10}, {wch: 12}, {wch: 12}, {wch: 15}, {wch: 20}
     ];
-    
+
     XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
     XLSX.writeFile(wb, `fee_collection_statistics_${$('#date_from').val()}_to_${$('#date_to').val()}.xlsx`);
 }
@@ -805,7 +665,7 @@ function printTable() {
             ${$('#transactions_table').prop('outerHTML')}
         </div>
     `;
-    
+
     const printWindow = window.open('', '', 'height=600,width=800');
     printWindow.document.write('<html><head><title>Fee Collection Report</title>');
     printWindow.document.write('<style>body{font-family:Arial,sans-serif;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ddd;padding:8px;text-align:left;} th{background:#f4f4f4;} .text-right{text-align:right;} .badge{display:inline-block;padding:4px 8px;border-radius:4px;font-size:11px;} .badge-arrears{background:#fee2e2;color:#991b1b;} .badge-advance{background:#d1fae5;color:#065f46;} .badge-mixed{background:#fef3c7;color:#92400e;}</style>');

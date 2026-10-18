@@ -1,152 +1,92 @@
 <style>
-/* Direct UI/UX rebuild — Transport Assignment */
 .assign-transport-page {
-    margin: 0 !important;
-    padding: 0 0 32px;
-    background: #f8fafc;
-    min-height: 100%;
+    background: #f5f7fa;
+    min-height: 100vh;
+    padding: 20px;
 }
-.assign-transport-page > div:first-of-type {
-    margin: 0 0 18px !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-}
-.assign-header {
-    padding: 0 0 18px !important;
-    border-bottom: 1px solid #e2e8f0;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-}
-.assign-header h2 {
-    margin: 0;
-    color: #0f172a !important;
-    font-size: 24px;
-    line-height: 1.2;
-    font-weight: 800;
-    letter-spacing: -.02em;
-}
-.assign-header h2 i { margin-right: 7px; color: #2563eb; }
 .sticky-wrapper {
     position: sticky;
-    top: calc(var(--sm-topbar-height-dynamic, 72px) + 8px);
-    z-index: 50;
-    margin: 0 0 16px;
-    padding: 14px;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    background: rgba(255,255,255,.97);
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-    backdrop-filter: blur(8px);
+    top: 0;
+    z-index: 1000;
+    background: white;
+    padding: 20px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin: 0 0 20px 0;
 }
-.sticky-wrapper.scrolled { box-shadow: 0 8px 22px rgba(15,23,42,.1); }
+.sticky-wrapper.scrolled {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.assign-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    border-radius: 12px 12px 0 0;
+    padding: 24px 32px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.assign-header h2 {
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+}
 .assign-controls {
-    display: grid;
-    grid-template-columns: minmax(220px,.8fr) minmax(280px,1.35fr) auto;
-    gap: 10px;
-    align-items: end;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
-.assign-controls select,
-#student_search {
-    width: 100%;
-    min-width: 0 !important;
-    height: var(--sm-ui-control-height, 42px);
-    padding: 9px 11px !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 9px !important;
-    background: #fff;
-    color: #0f172a;
-    font-size: 14px !important;
-    line-height: 1.35;
-    transition: border-color .2s ease, box-shadow .2s ease;
+.assign-controls select {
+    font-size: 15px;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    min-width: 250px;
+    transition: all 0.3s;
 }
-.assign-controls select:focus,
-#student_search:focus {
-    border-color: #2563eb !important;
-    outline: 0;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+.assign-controls select:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
 }
 .action-button {
-    min-height: var(--sm-ui-control-height, 42px);
-    padding: 9px 15px !important;
-    border: 1px solid #2563eb !important;
-    border-radius: 9px;
-    background: #2563eb !important;
-    color: #fff !important;
-    box-shadow: none !important;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
     font-size: 14px;
-    line-height: 1.35;
-    font-weight: 800;
-    white-space: nowrap;
+    transition: all 0.3s;
+    border: none;
     cursor: pointer;
 }
-.action-button:hover { background: #1d4ed8 !important; transform: none; box-shadow: none !important; }
-.action-button:disabled { opacity: .5; cursor: not-allowed; }
-.assign-transport-page > div[style*="background: white"][style*="padding: 20px"] {
-    overflow-x: auto;
-    margin-top: 0 !important;
-    padding: 0 !important;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px !important;
-    background: #fff !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-}
-#assign_transport_table {
-    width: 100% !important;
-    min-width: 900px;
-    margin: 0 !important;
-    border: 0 !important;
+.action-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 #assign_transport_table thead th {
-    padding: 12px 13px !important;
-    border: 0 !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    background: #f8fafc !important;
-    color: #475569 !important;
-    font-size: 13px !important;
-    line-height: 1.35;
-    font-weight: 800 !important;
-    letter-spacing: .035em;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    color: #1e293b;
+    font-weight: 700;
+    font-size: 13px;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 16px;
+    border: none;
 }
 #assign_transport_table tbody td {
-    padding: 12px 13px !important;
-    border-bottom: 1px solid #eef2f7 !important;
-    color: #334155 !important;
-    font-size: 14px !important;
-    line-height: 1.45;
+    padding: 10px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+    color: #374151;
     vertical-align: middle;
 }
-#assign_transport_table tbody tr { background: #fff; cursor: pointer; }
-#assign_transport_table tbody tr:hover { background: #f8fbff !important; box-shadow: none; }
-#assign_transport_table tbody tr.selected { background: #eff6ff !important; }
-#assign_transport_table input[type="checkbox"] { accent-color: #2563eb; }
-.assign-transport-page .dataTables_wrapper { min-width: 900px; padding: 14px; }
-.assign-transport-page .dataTables_filter { display: none; }
-.assign-transport-page .dataTables_length,
-.assign-transport-page .dataTables_info,
-.assign-transport-page .dataTables_paginate { color: #475569; font-size: 14px; }
-.assign-transport-page .dataTables_length select {
-    min-height: 40px;
-    padding: 7px 9px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    background: #fff;
-    font-size: 14px;
+#assign_transport_table tbody tr {
+    background: white;
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
-@media (max-width: 900px) {
-    .assign-controls { grid-template-columns: 1fr 1fr; }
-    .assign-controls .action-button { grid-column: 1 / -1; }
+#assign_transport_table tbody tr:hover {
+    background: #f8fafc !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
-@media (max-width: 767px) {
-    .assign-transport-page { padding: 0 0 28px; }
-    .assign-header h2 { font-size: 22px; }
-    .sticky-wrapper { position: static; padding: 12px; }
-    .assign-controls { grid-template-columns: 1fr; }
-    .assign-controls .action-button { grid-column: auto; width: 100%; }
-    #student_search, .assign-controls select { font-size: 16px !important; }
+#assign_transport_table tbody tr.selected {
+    background: #dbeafe !important;
 }
 </style>
 
@@ -156,7 +96,7 @@
             <h2><i class="fa fa-user-plus"></i> <?php echo get_phrase('assign_transport_to_students'); ?></h2>
         </div>
     </div>
-    
+
     <!-- Sticky Controls Bar -->
     <div class="sticky-wrapper">
         <?php echo form_open('', array('id' => 'bulk_assign_form')); ?>
@@ -170,16 +110,16 @@
                 </option>
                 <?php endforeach; ?>
             </select>
-            
-            <input type="text" id="student_search" placeholder="<?php echo get_phrase('search_student_name_or_code'); ?>">
-            
+
+            <input type="text" id="student_search" placeholder="<?php echo get_phrase('search_student_name_or_code'); ?>" style="font-size: 15px; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; min-width: 300px; transition: all 0.3s;">
+
             <button type="submit" id="bulk_assign_btn" disabled class="action-button" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
                 <i class="fa fa-check"></i> <?php echo get_phrase('assign_selected'); ?>
             </button>
         </div>
         <?php echo form_close(); ?>
     </div>
-    
+
     <!-- Table container -->
     <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; margin-top: 20px;">
         <table id="assign_transport_table" class="table table-bordered" style="width:100%; margin-bottom: 0;">
@@ -203,7 +143,7 @@
 $(document).ready(function() {
     // Store selected student IDs across pagination
     var selectedStudents = new Set();
-    
+
     // Add scroll effect for sticky controls
     $(window).on('scroll', function() {
         if ($(window).scrollTop() > 100) {
@@ -212,7 +152,7 @@ $(document).ready(function() {
             $('.sticky-wrapper').removeClass('scrolled');
         }
     });
-    
+
     var table = $('#assign_transport_table').DataTable({
         ajax: {
             url: '<?php echo site_url("admin/get_assign_transport_students"); ?>',
@@ -291,7 +231,7 @@ $(document).ready(function() {
     $('#student_search').on('keyup', function() {
         table.search(this.value).draw();
     });
-    
+
     // Add focus style to search input
     $('#student_search').on('focus', function() {
         $(this).css({
@@ -309,15 +249,15 @@ $(document).ready(function() {
     $('#assign_transport_table').on('change', '.student_checkbox', function() {
         var studentId = parseInt($(this).val());
         var isChecked = this.checked;
-        
+
         $(this).closest('tr').toggleClass('selected', isChecked);
-        
+
         if (isChecked) {
             selectedStudents.add(studentId);
         } else {
             selectedStudents.delete(studentId);
         }
-        
+
         updateSelectAllCheckbox();
         updateBulkButton();
     });
@@ -349,7 +289,7 @@ $(document).ready(function() {
 
     $('#bulk_assign_form').on('submit', function(e) {
         e.preventDefault();
-        
+
         if (selectedStudents.size === 0) {
             showAjaxModal_alert('<?php echo get_phrase('please_select_at_least_one_student'); ?>', 'error');
             return false;
@@ -359,26 +299,26 @@ $(document).ready(function() {
             showAjaxModal_alert('<?php echo get_phrase('please_select_transport_route'); ?>', 'error');
             return false;
         }
-        
+
         showAjaxModal_alert('<?php echo get_phrase('assigning_transport_please_wait'); ?>...', 'loading');
-        
+
         // Build form data with CSRF token
         var formData = new FormData();
-        
+
         // Add CSRF token (CodeIgniter csrf token)
         var csrfName = '<?php echo $this->security->get_csrf_token_name(); ?>';
         var csrfHash = '<?php echo $this->security->get_csrf_hash(); ?>';
         formData.append(csrfName, csrfHash);
-        
+
         // Add student IDs
         var studentIdsArray = Array.from(selectedStudents);
         studentIdsArray.forEach(function(id) {
             formData.append('student_ids[]', id);
         });
-        
+
         // Add transport ID
         formData.append('transport_id', transport);
-        
+
         $.ajax({
             url: '<?php echo site_url("admin/assign_transport/create"); ?>',
             type: 'POST',

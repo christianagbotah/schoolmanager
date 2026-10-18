@@ -26,7 +26,7 @@
   <div class="form-group">
     <label class="col-sm-3 control-label"><?php echo get_phrase('status'); ?></label>
     <div class="col-sm-4">
-      <select class="form-control selectboxit" name="status">
+      <select class="form-control select2" name="status">
         <option value="0" <?php if ($row['status'] == 0) echo 'selected';?>><?php echo get_phrase('inactive'); ?></option>
         <option value="1" <?php if ($row['status'] == 1) echo 'selected';?>><?php echo get_phrase('active'); ?></option>
       </select>

@@ -1,4 +1,4 @@
-<?php 
+<?php
     $active_sms_service = $this->db->get_where('settings' , array('type' => 'active_sms_service'))->row()->description;
 ?>
 <hr />
@@ -16,14 +16,14 @@
            </tr>
        </thead>
 		<tbody>
-            
+
             <?php echo form_open(site_url('admin/attendance_selector') , array('class' => 'form'));?>
 
             	<tr class="gradeA">
                     <td>
-                    	<select name="date" class="form-control selectboxit">
+                        <select name="date" class="form-control select2">
                         	<?php for($i=1;$i<=31;$i++):?>
-                            	<option value="<?php echo $i;?>" 
+                                <option value="<?php echo $i;?>"
                                 	<?php if(isset($date) && $date==$i)echo 'selected="selected"';?>>
 										<?php echo $i;?>
                                         	</option>
@@ -31,8 +31,8 @@
                         </select>
                     </td>
                     <td>
-                    	<select name="month" class="form-control selectboxit">
-                        	<?php 
+                        <select name="month" class="form-control select2">
+                            <?php
 							for($i=1;$i<=12;$i++):
 								if($i==1)$m='january';
 								else if($i==2)$m='february';
@@ -51,14 +51,14 @@
                                 	<?php if($month==$i)echo 'selected="selected"';?>>
 										<?php echo $m;?>
                                         	</option>
-                            <?php 
+                            <?php
 							endfor;
 							?>
                         </select>
                     </td>
                     <td>
-                    	<select name="year" class="form-control selectboxit">
-                            <?php 
+                        <select name="year" class="form-control select2">
+                            <?php
                                 $years = explode('-', $running_year);
                             ?>
                         	<option value="<?php echo $years[0];?>"><?php echo $years[0];?></option>
@@ -66,9 +66,9 @@
                         </select>
                     </td>
                     <td>
-                    	<select name="class_id" class="form-control selectboxit">
+                        <select name="class_id" class="form-control select2">
                         	<option value="">Select a class</option>
-                        	<?php 
+                            <?php
 							$classes	=	$this->db->get('class')->result_array();
 							foreach($classes as $row):?>
                         	<option value="<?php echo $row['class_id'];?>"
@@ -80,9 +80,9 @@
 
                     </td>
                     <td>
-                        <select name="section_id" class="form-control selectboxit">
+                        <select name="section_id" class="form-control select2">
                             <option value="">Select section</option>
-                            <?php 
+                            <?php
                             $classes    =   $this->db->get('class')->result_array();
                             foreach($classes as $row):?>
                             <optgroup label="<?php echo $row['name'];?>">
@@ -115,7 +115,7 @@
 <center>
     <div class="row">
         <div class="col-sm-offset-4 col-sm-4">
-        
+
             <div class="tile-stats tile-white-gray">
                 <div class="icon"><i class="entypo-suitcase"></i></div>
                 <?php
@@ -124,11 +124,11 @@
                     $day        = strtolower(date('l', $timestamp));
                  ?>
                 <h2><?php echo ucwords($day);?></h2>
-                
+
                 <h3>Attendance of class <?php echo ($class_id);?></h3>
                 <p><?php echo $date.'-'.$month.'-'.$year;?></p>
             </div>
-            <a href="#" id="update_attendance_button" onclick="return update_attendance()" 
+            <a href="#" id="update_attendance_button" onclick="return update_attendance()"
                 class="btn btn-info">
                     Update Attendance
             </a>
@@ -150,7 +150,7 @@
             </thead>
             <tbody>
 
-                <?php 
+                <?php
                     $students   =   $this->db->get_where('enroll' , array(
                             'class_id'=>$class_id , 'mute' => '0', 'year' => $running_year , 'section_id' => $section_id))->result_array();
                         foreach($students as $row):?>
@@ -159,29 +159,29 @@
                             <td>
                                 <?php echo $this->db->get_where('student' , array('student_id' => $row['student_id']))->row()->name;?>
                             </td>
-                            <?php 
+                            <?php
                                 //inserting blank data for students attendance if unavailable
                                 $verify_data    =   array(  'student_id' => $row['student_id'],
                                                             'date' => $full_date ,
-                                                            'class_id' => $class_id , 
+                                                            'class_id' => $class_id ,
                                                             'section_id' => $section_id ,
                                                             'year' => $running_year);
                                 $query = $this->db->get_where('attendance' , $verify_data);
                                 if($query->num_rows() < 1)
                                 $this->db->insert('attendance' , $verify_data);
-                                
+
                                 //showing the attendance status editing option
                                 $attendance = $this->db->get_where('attendance' , $verify_data)->row();
                                 $status     = $attendance->status;
                             ?>
                         <?php if ($status == 1):?>
                             <td align="center">
-                              <span class="badge badge-success"><?php echo get_phrase('present');?></span>  
+                              <span class="badge badge-success"><?php echo get_phrase('present');?></span>
                             </td>
                         <?php endif;?>
                         <?php if ($status == 2):?>
                             <td align="center">
-                              <span class="badge badge-danger"><?php echo get_phrase('absent');?></span>  
+                              <span class="badge badge-danger"><?php echo get_phrase('absent');?></span>
                             </td>
                         <?php endif;?>
                         <?php if ($status == 0):?>
@@ -200,7 +200,7 @@
 <div class="row" id="update_attendance">
 
 <!-- STUDENT's attendance submission form here -->
-<form method="post" 
+<form method="post"
     action="<?php echo site_url('admin/manage_attendance/'.$date.'/'.$month.'/'.$year.'/'.$class_id.'/'.$section_id.'/'.$session);?>">
     <div class="col-sm-offset-3 col-md-6">
         <table  class="table table-bordered">
@@ -212,8 +212,8 @@
     			</tr>
             </thead>
             <tbody>
-            		
-            	<?php 
+
+                <?php
     			//STUDENTS ATTENDANCE
     			$this->db->where('class_id' , $class_id);
                 if($section_id != '') {
@@ -227,32 +227,32 @@
     				<tr class="gradeA">
     					<td><?php echo $row['roll'];?></td>
     					<td>
-                            <?php echo $this->db->get_where('student' , array('student_id' => $row['student_id']))->row()->name;?>               
+                            <?php echo $this->db->get_where('student' , array('student_id' => $row['student_id']))->row()->name;?>
                         </td>
     					<td align="center">
-    						<?php 
+                            <?php
     						//inserting blank data for students attendance if unavailable
     						$verify_data	=	array(	'student_id' => $row['student_id'],
     													'date' => $full_date,
-                                                        'class_id' => $class_id , 
+                                                        'class_id' => $class_id ,
                                                         'section_id' => $section_id,
                                                         'year' => $session);
-    						
+
     						//showing the attendance status editing option
     						$attendance = $this->db->get_where('attendance' , $verify_data)->row();
     						$status		= $attendance->status;
                         	?>
-                            
-                            
+
+
                                 <select name="status_<?php echo $row['student_id'];?>" class="form-control" style="width:100px; float:left;">
                                     <option value="0" <?php if($status == 0)echo 'selected="selected"';?>></option>
                                     <option value="1" <?php if($status == 1)echo 'selected="selected"';?>>Present</option>
                                     <option value="2" <?php if($status == 2)echo 'selected="selected"';?>>Absent</option>
                                 </select>
-                            
+
                         </td>
     				</tr>
-    				<?php 
+                    <?php
     			}
     			?>
             </tbody>
@@ -263,12 +263,12 @@
         </center>
     </div>
 </form>
-    
+
 </div>
 
 <br>
 
-<?php 
+<?php
         if ($active_sms_service == ''):
     ?>
     <div class="row">
@@ -276,12 +276,12 @@
         <div class="col-md-4">
            <div class="alert alert-danger">
                 SMS <?php echo get_phrase('service_is_not_selected');?>
-           </div> 
+           </div>
         </div>
         <div class="col-md-4"></div>
     </div>
     <?php endif;?>
-    <?php 
+    <?php
         if ($active_sms_service == 'disabled'):
     ?>
     <div class="row">
@@ -294,7 +294,7 @@
         <div class="col-md-4"></div>
     </div>
     <?php endif;?>
-    <?php 
+    <?php
         if ($active_sms_service == 'clickatell'):
     ?>
     <div class="row">
@@ -307,7 +307,7 @@
         <div class="col-md-4"></div>
     </div>
     <?php endif;?>
-    <?php 
+    <?php
         if ($active_sms_service == 'twilio'):
     ?>
     <div class="row">

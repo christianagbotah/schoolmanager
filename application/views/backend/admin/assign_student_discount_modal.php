@@ -7,13 +7,13 @@
 .modern-input { width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s; background: #ffffff; color: #1a202c; font-weight: 500; }
 .modern-input:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); background: #f7fafc; }
 .modern-input::placeholder { color: #a0aec0; font-weight: 400; }
-.modern-btn { padding: 16px 32px; border-radius: 10px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #2563eb; color: white; }
+.modern-btn { padding: 16px 32px; border-radius: 10px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
 .modern-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 .modern-btn i { margin-right: 0; }
 </style>
 
 <?php echo form_open('admin/assign_student_discount/create', array('id' => 'assign_form_modal')); ?>
-    
+
     <div class="modern-form-group">
         <label class="modern-label"><i class="fa fa-users"></i><?php echo get_phrase('search_students'); ?></label>
         <div style="position: relative;">
@@ -48,14 +48,14 @@
     $(document).off('click.assignDiscountSuggestion');
     $(document).off('click.assignDiscountProfile');
     $(document).off('click.assignDiscountModal');
-    
+
     let allStudentsModal = [];
     let selectedStudentsModal = [];
     // Filter profiles based on user role - cashiers only see daily_fees profiles
-    let allProfilesModal = <?php 
+    let allProfilesModal = <?php
         $user_level = $this->session->userdata('user_type'); // Correct session key is 'user_type'
         $is_cashier = ($user_level == 4);
-        
+
         if($is_cashier) {
             // Filter to only daily_fees category for cashiers
             $filtered_profiles = array_filter($profiles, function($profile) {
@@ -81,7 +81,7 @@
         $('#profile_suggestions_modal').hide().empty();
         updateSelectedDisplayModal();
         updateProfileDisplayModal();
-        
+
         if(allStudentsModal.length === 0) {
             $.ajax({
                 url: '<?php echo site_url('admin/get_students_for_discount'); ?>',
@@ -101,16 +101,16 @@
         $('#student_search_modal').off('input').on('input', function() {
             const searchTerm = $(this).val().trim();
             clearTimeout(studentSearchTimeout);
-            
+
             if(searchTerm.length < 2) {
                 $('#student_suggestions_modal').hide().empty();
                 return;
             }
-            
+
             studentSearchTimeout = setTimeout(() => {
-                const filtered = allStudentsModal.filter(s => 
-                    !selectedStudentsModal.includes(String(s.student_id)) && 
-                    (s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                const filtered = allStudentsModal.filter(s =>
+                    !selectedStudentsModal.includes(String(s.student_id)) &&
+                    (s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                      s.student_code.toLowerCase().includes(searchTerm.toLowerCase()))
                 );
                 displaySuggestionsModal(filtered);
@@ -126,16 +126,16 @@
         $('#profile_search_modal').on('input', function() {
             const searchTerm = $(this).val().trim();
             clearTimeout(profileSearchTimeout);
-            
+
             if(searchTerm.length < 1) {
                 const filtered = allProfilesModal.filter(p => !selectedProfilesModal.includes(String(p.profile_id)));
                 displayProfileSuggestionsModal(filtered);
                 return;
             }
-            
+
             profileSearchTimeout = setTimeout(() => {
-                const filtered = allProfilesModal.filter(p => 
-                    !selectedProfilesModal.includes(String(p.profile_id)) && 
+                const filtered = allProfilesModal.filter(p =>
+                    !selectedProfilesModal.includes(String(p.profile_id)) &&
                     p.profile_name.toLowerCase().includes(searchTerm.toLowerCase())
                 );
                 displayProfileSuggestionsModal(filtered);
@@ -155,7 +155,7 @@
         const studentId = String($(this).data('id'));
         if(!selectedStudentsModal.includes(studentId)) {
             selectedStudentsModal.push(studentId);
-            
+
             // Check for existing assignments
             $.ajax({
                 url: '<?php echo site_url('admin/get_student_assigned_profiles'); ?>',
@@ -172,7 +172,7 @@
                     updateProfileDisplayModal();
                 }
             });
-            
+
             $('#student_search_modal').val('');
             $('#student_suggestions_modal').hide();
         }
@@ -188,13 +188,13 @@
             $('#selected_students_display_modal').html('<div style="color: #94a3b8; text-align: center; width: 100%; padding: 6px; font-size: 13px;"><i class="fa fa-info-circle"></i> No students selected yet</div>');
             return;
         }
-        
+
         let html = '';
         selectedStudentsModal.forEach(id => {
             const student = allStudentsModal.find(s => String(s.student_id) === String(id));
             if(student) {
                 html += `
-                    <div style="background: #2563eb; color: white; padding: 6px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(102, 126, 234, 0.25);">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(102, 126, 234, 0.25);">
                         <div>
                             <div style="font-size: 12px;">${student.name}</div>
                             <div style="font-size: 10px; opacity: 0.9;">${student.student_code} • ${student.class_name}</div>
@@ -212,11 +212,11 @@
             $('#student_suggestions_modal').html('<div style="padding: 12px; text-align: center; color: #94a3b8; font-size: 13px;">No students found</div>').show();
             return;
         }
-        
+
         let html = '';
         data.forEach(student => {
             html += `
-                <div class="suggestion-item-modal" data-id="${student.student_id}" data-name="${student.name}" data-code="${student.student_code}" data-class="${student.class_name}" style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'; this.style.color='white'; this.querySelector('.suggestion-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.suggestion-meta').style.color='#718096';">
+                <div class="suggestion-item-modal" data-id="${student.student_id}" data-name="${student.name}" data-code="${student.student_code}" data-class="${student.class_name}" style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; this.style.color='white'; this.querySelector('.suggestion-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.suggestion-meta').style.color='#718096';">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="flex: 1;">
                             <div style="font-weight: 600; font-size: 13px; margin-bottom: 2px;">
@@ -242,21 +242,21 @@
             assignedProfileIds = assignedProfileIds.concat(studentAssignedProfiles[studentId]);
         }
     });
-    
+
     const filteredData = data.filter(p => !assignedProfileIds.includes(String(p.profile_id)));
-    
+
     if(filteredData.length === 0) {
         $('#profile_suggestions_modal').html('<div style="padding: 12px; text-align: center; color: #94a3b8; font-size: 13px;">No available profiles (already assigned)</div>').show();
         return;
     }
-    
+
     let html = '';
     filteredData.forEach(profile => {
         const discountValue = profile.discount_value ? parseFloat(profile.discount_value).toFixed(2) : '0.00';
         const discountMethod = profile.discount_method || 'percentage';
         const valueDisplay = discountMethod === 'percentage' ? discountValue + '%' : 'GHS ' + discountValue;
         const categoryBadge = profile.discount_category === 'invoice' ? '📄 Invoice' : '📅 Daily Fees';
-        
+
         let typeDisplay = 'N/A';
         if(profile.discount_category === 'invoice') {
             if(profile.bill_item_ids === '*') {
@@ -271,9 +271,9 @@
         } else if(profile.discount_category === 'daily_fees' && profile.discount_type) {
             typeDisplay = profile.discount_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         }
-        
+
         html += `
-            <div class="profile-item-modal" data-id="${profile.profile_id}" data-name="${profile.profile_name}" style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'; this.style.color='white'; this.querySelector('.profile-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.profile-meta').style.color='#718096';">
+            <div class="profile-item-modal" data-id="${profile.profile_id}" data-name="${profile.profile_name}" style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; this.style.color='white'; this.querySelector('.profile-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.profile-meta').style.color='#718096';">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="flex: 1;">
                         <div style="font-weight: 600; font-size: 13px; margin-bottom: 2px;">
@@ -313,7 +313,7 @@
         $('#selected_profiles_display_modal').html('<div style="color: #94a3b8; text-align: center; width: 100%; padding: 6px; font-size: 13px;"><i class="fa fa-info-circle"></i> No profiles selected yet</div>');
         return;
     }
-    
+
     let html = '';
     selectedProfilesModal.forEach(id => {
         const profile = allProfilesModal.find(p => String(p.profile_id) === String(id));
@@ -322,7 +322,7 @@
             const discountMethod = profile.discount_method || 'percentage';
             const valueDisplay = discountMethod === 'percentage' ? discountValue + '%' : 'GHS ' + discountValue;
             const categoryBadge = profile.discount_category === 'invoice' ? '📄' : '📅';
-            
+
             let typeDisplay = 'N/A';
             if(profile.discount_category === 'invoice') {
                 if(profile.bill_item_ids === '*') {
@@ -337,9 +337,9 @@
             } else if(profile.discount_category === 'daily_fees' && profile.discount_type) {
                 typeDisplay = profile.discount_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             }
-            
+
             html += `
-                <div style="background: #ec4899; color: white; padding: 6px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(245, 87, 108, 0.25);">
+                <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 6px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(245, 87, 108, 0.25);">
                     <div>
                         <div style="font-size: 12px;">${categoryBadge} ${profile.profile_name}</div>
                         <div style="font-size: 10px; opacity: 0.9;">${typeDisplay} • ${valueDisplay}</div>
@@ -365,20 +365,20 @@
 
     $('#assign_form_modal').submit(function(e) {
     e.preventDefault();
-    
+
     if(selectedStudentsModal.length === 0) {
         showAjaxModal_alert('<?php echo get_phrase("please_select_students"); ?>', 'error');
         return;
     }
-    
+
     if(selectedProfilesModal.length === 0) {
         showAjaxModal_alert('<?php echo get_phrase("please_select_profiles"); ?>', 'error');
         return;
     }
-    
+
     $('.close').click();
     showAjaxModal_alert('<?php echo get_phrase("assigning_discount"); ?>...', 'loading');
-    
+
     let postData = $(this).serialize();
     selectedStudentsModal.forEach(id => {
         postData += '&student_id[]=' + encodeURIComponent(id);
@@ -386,7 +386,7 @@
     selectedProfilesModal.forEach(id => {
         postData += '&profile_id[]=' + encodeURIComponent(id);
     });
-    
+
     $.ajax({
         url: $(this).attr('action'),
         type: 'POST',

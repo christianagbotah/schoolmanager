@@ -155,7 +155,7 @@ input[type="checkbox"]:checked::after {
 }
 
 .select2-results__option--highlighted {
-    background: #2563eb !important;
+    background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%) !important;
 }
 
 .select2-search--dropdown .select2-search__field {
@@ -195,25 +195,25 @@ input[type="checkbox"]:checked::after {
     .portal-container {
         padding: 12px !important;
     }
-    
+
     /* Fixed Header - Stack on tablet */
     .bg-white\/98.backdrop-blur-lg .flex.items-center.justify-between {
         flex-direction: column !important;
         align-items: flex-start !important;
         gap: 12px !important;
     }
-    
+
     .bg-white\/98.backdrop-blur-lg .flex.items-center.gap-4 {
         width: 100% !important;
         flex-wrap: wrap !important;
         justify-content: space-between !important;
     }
-    
+
     /* Dashboard Cards - 2 columns on tablet */
     #dashboardCards {
         grid-template-columns: repeat(2, 1fr) !important;
     }
-    
+
     /* Main Grid - Single column on tablet */
     .grid.grid-cols-1.md\:grid-cols-7 {
         grid-template-columns: 1fr !important;
@@ -228,7 +228,7 @@ input[type="checkbox"]:checked::after {
         overflow-x: hidden !important;
         max-width: 100vw !important;
     }
-    
+
     .portal-container {
         padding: 8px !important;
         padding-top: 8px !important;
@@ -237,11 +237,11 @@ input[type="checkbox"]:checked::after {
         box-sizing: border-box !important;
         min-height: auto !important;
     }
-    
+
     .portal-container * {
         box-sizing: border-box !important;
     }
-    
+
     /* Fix for AJAX loaded content truncation */
     #collectionForm,
     #collectionForm *,
@@ -250,7 +250,7 @@ input[type="checkbox"]:checked::after {
         max-width: 100% !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Ensure all grid and flex containers respect mobile width */
     .grid,
     .flex {
@@ -258,31 +258,31 @@ input[type="checkbox"]:checked::after {
         margin-left: 0 !important;
         margin-right: 0 !important;
     }
-    
+
     /* Remove all max-height constraints on mobile */
     .max-h-\[calc\(100vh-12rem\)\] {
         max-height: none !important;
         overflow-y: visible !important;
     }
-    
+
     /* ===== FIXED HEADER ===== */
     .bg-white\/98.backdrop-blur-lg {
         padding: 12px !important;
         margin: -8px -8px 12px -8px !important;
         border-radius: 0 0 16px 16px !important;
     }
-    
+
     .bg-white\/98.backdrop-blur-lg h1 {
         font-size: 20px !important;
         line-height: 1.2 !important;
     }
-    
+
     .bg-white\/98.backdrop-blur-lg .flex.items-center.justify-between {
         flex-direction: column !important;
         align-items: stretch !important;
         gap: 12px !important;
     }
-    
+
     /* Header Buttons and Info */
     .bg-white\/98.backdrop-blur-lg .flex.items-center.gap-4 {
         flex-direction: row !important;
@@ -291,7 +291,7 @@ input[type="checkbox"]:checked::after {
         width: 100% !important;
         justify-content: space-between !important;
     }
-    
+
     .bg-white\/98.backdrop-blur-lg button {
         width: 100% !important;
         justify-content: center !important;
@@ -299,7 +299,7 @@ input[type="checkbox"]:checked::after {
         font-size: 14px !important;
         margin-bottom: 8px !important;
     }
-    
+
     .bg-white\/98.backdrop-blur-lg .text-base.text-gray-600 {
         font-size: 12px !important;
         flex-wrap: nowrap !important;
@@ -309,19 +309,19 @@ input[type="checkbox"]:checked::after {
         display: flex !important;
         flex-direction: row !important;
     }
-    
+
     /* ===== DASHBOARD CARDS ===== */
     .sticky.top-16 {
         position: relative !important;
         top: 0 !important;
         margin-top: 0 !important;
     }
-    
+
     /* Remove sticky from header */
     .bg-white\/98.backdrop-blur-lg {
         position: relative !important;
     }
-    
+
     #dashboardCards {
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 10px !important;
@@ -329,42 +329,42 @@ input[type="checkbox"]:checked::after {
         margin-bottom: 12px !important;
         border-radius: 12px !important;
     }
-    
+
     #dashboardCards > div {
         padding: 10px !important;
     }
-    
+
     #dashboardCards .text-3xl {
         font-size: 24px !important;
         margin-bottom: 6px !important;
     }
-    
+
     #dashboardCards .text-2xl {
         font-size: 18px !important;
     }
-    
+
     #dashboardCards .text-lg {
         font-size: 16px !important;
     }
-    
+
     #dashboardCards .text-base {
         font-size: 13px !important;
     }
-    
+
     #dashboardCards .text-sm {
         font-size: 11px !important;
     }
-    
+
     #dashboardCards .text-xs {
         font-size: 10px !important;
     }
-    
+
     /* ===== MAIN GRID ===== */
     .sticky.top-44 {
         position: relative !important;
         top: 0 !important;
     }
-    
+
     .grid.grid-cols-1.md\:grid-cols-7 {
         grid-template-columns: 1fr !important;
         gap: 12px !important;
@@ -375,7 +375,7 @@ input[type="checkbox"]:checked::after {
         padding-left: 0 !important;
         padding-right: 0 !important;
     }
-    
+
     /* Left Column - Student Selection */
     .md\:col-span-2 {
         width: 100% !important;
@@ -383,55 +383,55 @@ input[type="checkbox"]:checked::after {
         margin-left: 0 !important;
         margin-right: 0 !important;
     }
-    
+
     .md\:col-span-2 .bg-white\/95 {
         max-height: none !important;
         margin-bottom: 12px !important;
         overflow-y: visible !important;
     }
-    
+
     .md\:col-span-2 h3 {
         font-size: 16px !important;
         margin-bottom: 12px !important;
     }
-    
+
     /* Remove flex-col height constraints */
     .md\:col-span-2 .flex.flex-col {
         max-height: none !important;
         overflow-y: visible !important;
     }
-    
+
     /* Student Search Input */
     .student-search {
         margin-bottom: 12px !important;
     }
-    
+
     #student_search {
         font-size: 16px !important;
         height: 52px !important;
         padding: 12px 12px 12px 48px !important;
     }
-    
+
     .student-search::before {
         left: 14px !important;
         font-size: 18px !important;
     }
-    
+
     /* Wallet Info Cards */
     #walletInfo .grid.grid-cols-2 {
         grid-template-columns: 1fr !important;
         gap: 10px !important;
     }
-    
+
     #walletInfo .bg-emerald-50,
     #walletInfo .bg-rose-50 {
         padding: 12px !important;
     }
-    
+
     #walletInfo .text-lg {
         font-size: 14px !important;
     }
-    
+
     /* ===== RIGHT COLUMN - Fee Cards (AJAX LOADED CONTENT) ===== */
     .md\:col-span-5,
     div.md\:col-span-5 {
@@ -442,7 +442,7 @@ input[type="checkbox"]:checked::after {
         padding: 0 !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Prevent horizontal scroll on AJAX container - MORE SPECIFIC */
     .md\:col-span-5 > .rounded-2xl.p-5.shadow-xl,
     .md\:col-span-5 > div.rounded-2xl {
@@ -455,7 +455,7 @@ input[type="checkbox"]:checked::after {
         margin: 0 !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Collect Fees Header */
     .rounded-2xl > .flex.justify-between.items-center,
     .rounded-2xl .flex.justify-between.items-center:first-child {
@@ -465,25 +465,25 @@ input[type="checkbox"]:checked::after {
         margin-bottom: 12px !important;
         padding: 0 !important;
     }
-    
+
     .rounded-2xl > .flex.justify-between h3 {
         font-size: 18px !important;
         margin: 0 !important;
     }
-    
+
     .rounded-2xl > .flex.justify-between button,
     .rounded-2xl button[onclick*="toggleHeldPanel"] {
         width: 100% !important;
         padding: 10px !important;
         font-size: 14px !important;
     }
-    
+
     /* Remove height constraints */
     .max-h-\[calc\(100vh-12rem\)\].overflow-y-auto {
         max-height: none !important;
         overflow-y: visible !important;
     }
-    
+
     /* Fee Selection Grid - 2 COLUMNS */
     #fee_cards_grid,
     .grid.grid-cols-1.md\:grid-cols-3.lg\:grid-cols-6 {
@@ -494,7 +494,7 @@ input[type="checkbox"]:checked::after {
         margin: 0 !important;
         padding: 0 !important;
     }
-    
+
     .fee-card {
         padding: 10px !important;
         min-height: auto !important;
@@ -506,25 +506,25 @@ input[type="checkbox"]:checked::after {
         margin: 0 !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Fee Card Icon */
     .fee-card .text-6xl {
         font-size: 28px !important;
         margin-bottom: 6px !important;
     }
-    
+
     /* Fee Card Title */
     .fee-card .text-xl.opacity-90 {
         font-size: 12px !important;
         margin-bottom: 4px !important;
     }
-    
+
     /* Fee Card Amount */
     .fee-card .text-3xl.font-extrabold {
         font-size: 16px !important;
         margin-bottom: 8px !important;
     }
-    
+
     /* Fee Card Badge */
     .fee-card .absolute.top-2.right-2 {
         font-size: 8px !important;
@@ -532,18 +532,18 @@ input[type="checkbox"]:checked::after {
         top: 4px !important;
         right: 4px !important;
     }
-    
+
     /* Fee Card Checkbox Label */
     .fee-card label {
         padding: 6px 10px !important;
         margin-bottom: 6px !important;
         width: 100% !important;
     }
-    
+
     .fee-card label span {
         font-size: 12px !important;
     }
-    
+
     /* Fee Card Input */
     .fee-card input[type="number"] {
         padding: 8px !important;
@@ -551,7 +551,7 @@ input[type="checkbox"]:checked::after {
         height: 38px !important;
         width: 100% !important;
     }
-    
+
     /* Checkbox in Fee Cards */
     input[type="checkbox"] {
         width: 20px !important;
@@ -559,7 +559,7 @@ input[type="checkbox"]:checked::after {
         min-width: 20px !important;
         min-height: 20px !important;
     }
-    
+
     /* ===== STUDENT DETAILS & WALLET CARDS ===== */
     #studentDetailsCard {
         width: 100% !important;
@@ -571,13 +571,13 @@ input[type="checkbox"]:checked::after {
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         padding: 15px !important;
     }
-    
+
     #studentDetailsCard .grid.grid-cols-2 {
         grid-template-columns: 1fr !important;
         gap: 10px !important;
         width: 100% !important;
     }
-    
+
     #studentDetailsCard .bg-emerald-50,
     #studentDetailsCard .bg-rose-50,
     #studentDetailsCard .bg-indigo-50 {
@@ -586,20 +586,20 @@ input[type="checkbox"]:checked::after {
         box-sizing: border-box !important;
         margin: 0 !important;
     }
-    
+
     #studentDetailsCard .flex.justify-between {
         flex-direction: row !important;
         justify-content: space-between !important;
         align-items: center !important;
     }
-    
+
     #studentDetailsCard .text-lg,
     #studentDetailsCard .text-sm {
         font-size: 13px !important;
     }
-    
+
     /* ===== PAYMENT SECTION - RESPONSIVE ON MOBILE ===== */
-    
+
     /* Transaction Section - Make responsive */
     #transaction_section {
         padding: 15px !important;
@@ -607,7 +607,7 @@ input[type="checkbox"]:checked::after {
         width: 100% !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Transaction Grid - Stack vertically on mobile */
     #transaction_grid {
         display: flex !important;
@@ -616,7 +616,7 @@ input[type="checkbox"]:checked::after {
         width: 100% !important;
         grid-template-columns: none !important; /* Override inline style */
     }
-    
+
     /* All transaction grid items full width */
     #transaction_grid > div {
         width: 100% !important;
@@ -624,7 +624,7 @@ input[type="checkbox"]:checked::after {
         margin: 0 !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Payment Labels */
     #transaction_grid label {
         font-size: 14px !important;
@@ -632,7 +632,7 @@ input[type="checkbox"]:checked::after {
         display: block !important;
         width: 100% !important;
     }
-    
+
     /* Payment Date Input */
     #payment_date {
         font-size: 16px !important;
@@ -641,14 +641,14 @@ input[type="checkbox"]:checked::after {
         width: 100% !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Backdated Warning */
     #backdated_warning {
         font-size: 12px !important;
         padding: 8px !important;
         margin-top: 6px !important;
     }
-    
+
     /* Payment Method Select */
     select[name="payment_method"] {
         font-size: 16px !important;
@@ -657,7 +657,7 @@ input[type="checkbox"]:checked::after {
         width: 100% !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Total Amount Display Container */
     #transaction_grid .bg-gradient-to-br.from-pink-50 {
         display: flex !important;
@@ -668,14 +668,14 @@ input[type="checkbox"]:checked::after {
         padding: 12px !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Total Display */
     #total_display {
         font-size: 20px !important;
         width: 100% !important;
         text-align: center !important;
     }
-    
+
     /* Amount Tendered Input */
     #amount_tendered {
         font-size: 18px !important;
@@ -686,7 +686,7 @@ input[type="checkbox"]:checked::after {
         height: 48px !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Change Display Container */
     #transaction_grid .bg-gradient-to-br.from-emerald-50 {
         display: flex !important;
@@ -699,14 +699,14 @@ input[type="checkbox"]:checked::after {
         margin-top: 0 !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Change Display */
     #change_display {
         font-size: 20px !important;
         text-align: center !important;
         font-weight: bold !important;
     }
-    
+
     /* OLD PAYMENT SECTION CSS (Keep for backwards compatibility) */
     .bg-gradient-to-br.from-indigo-50 {
         padding: 10px !important;
@@ -716,7 +716,7 @@ input[type="checkbox"]:checked::after {
         margin: 12px 0 !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Payment Grid - SINGLE COLUMN, SEPARATE ROWS */
     .bg-gradient-to-br.from-indigo-50 > .grid {
         display: flex !important;
@@ -724,7 +724,7 @@ input[type="checkbox"]:checked::after {
         gap: 10px !important;
         width: 100% !important;
     }
-    
+
     /* All grid items full width in separate rows */
     .bg-gradient-to-br.from-indigo-50 > .grid > div {
         width: 100% !important;
@@ -732,7 +732,7 @@ input[type="checkbox"]:checked::after {
         margin: 0 !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Payment Labels */
     .bg-gradient-to-br.from-indigo-50 label {
         font-size: 13px !important;
@@ -740,7 +740,7 @@ input[type="checkbox"]:checked::after {
         display: block !important;
         width: 100% !important;
     }
-    
+
     /* Payment Date Input */
     .bg-gradient-to-br.from-indigo-50 input[type="date"] {
         font-size: 14px !important;
@@ -749,7 +749,7 @@ input[type="checkbox"]:checked::after {
         width: 100% !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Payment Method Select */
     .bg-gradient-to-br.from-indigo-50 select[name="payment_method"] {
         font-size: 14px !important;
@@ -758,7 +758,7 @@ input[type="checkbox"]:checked::after {
         width: 100% !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Total Amount Display Container */
     .bg-gradient-to-br.from-indigo-50 .bg-gradient-to-br.from-pink-50 {
         display: flex !important;
@@ -768,13 +768,13 @@ input[type="checkbox"]:checked::after {
         padding: 10px !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Total Display */
     #total_display {
         font-size: 16px !important;
         width: 100% !important;
     }
-    
+
     /* Amount Tendered Input */
     #amount_tendered {
         font-size: 16px !important;
@@ -784,7 +784,7 @@ input[type="checkbox"]:checked::after {
         height: 42px !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Change Display Container */
     .bg-gradient-to-br.from-indigo-50 .bg-gradient-to-br.from-emerald-50 {
         width: 100% !important;
@@ -792,12 +792,12 @@ input[type="checkbox"]:checked::after {
         margin-top: 8px !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Change Display */
     #change_display {
         font-size: 16px !important;
     }
-    
+
     /* ===== ACTION BUTTONS - REMOVE STICKY ===== */
     .flex.justify-center.gap-4.mt-6 {
         flex-direction: column !important;
@@ -807,29 +807,29 @@ input[type="checkbox"]:checked::after {
         bottom: auto !important;
         opacity: 1 !important;
     }
-    
+
     .flex.justify-center.gap-4.mt-6.sticky {
         position: relative !important;
     }
-    
+
     .flex.justify-center.gap-4.mt-6 label {
         width: 100% !important;
         justify-content: center !important;
         padding: 12px !important;
     }
-    
+
     .flex.justify-center.gap-4.mt-6 button {
         width: 100% !important;
         padding: 14px !important;
         font-size: 16px !important;
     }
-    
+
     /* Transaction Buttons */
     .grid.grid-cols-2.gap-3 {
         grid-template-columns: 1fr !important;
         gap: 10px !important;
     }
-    
+
     .grid.grid-cols-2.gap-3 button {
         font-size: 13px !important;
         padding: 12px 10px !important;
@@ -837,32 +837,32 @@ input[type="checkbox"]:checked::after {
         line-height: 1.3 !important;
         min-height: 48px !important;
     }
-    
+
     /* Modals */
     .modal-dialog {
         margin: 10px !important;
         max-width: calc(100% - 20px) !important;
     }
-    
+
     .modal-content {
         border-radius: 12px !important;
     }
-    
+
     .modal-body {
         padding: 16px !important;
     }
-    
+
     /* Select2 Dropdown */
     .select2-container--default .select2-selection--single {
         height: 52px !important;
     }
-    
+
     .select2-container--default .select2-selection--single .select2-selection__rendered {
         line-height: 48px !important;
         padding-left: 48px !important;
         font-size: 15px !important;
     }
-    
+
     .select2-container--default .select2-selection--single .select2-selection__arrow {
         height: 48px !important;
     }
@@ -874,30 +874,30 @@ input[type="checkbox"]:checked::after {
     html {
         overflow-x: hidden !important;
     }
-    
+
     .portal-container {
         padding: 6px !important;
         overflow-x: hidden !important;
     }
-    
+
     /* Header */
     .bg-white\/98.backdrop-blur-lg h1 {
         font-size: 18px !important;
     }
-    
+
     .bg-white\/98.backdrop-blur-lg h1 i {
         font-size: 18px !important;
     }
-    
+
     .bg-white\/98.backdrop-blur-lg button {
         font-size: 13px !important;
         padding: 10px !important;
     }
-    
+
     .bg-white\/98.backdrop-blur-lg .text-base.text-gray-600 {
         font-size: 11px !important;
     }
-    
+
     /* Dashboard Cards - 2 COLUMNS, last card full width if odd */
     #dashboardCards {
         grid-template-columns: repeat(2, 1fr) !important;
@@ -906,68 +906,68 @@ input[type="checkbox"]:checked::after {
         margin-bottom: 12px !important;
         border-radius: 12px !important;
     }
-    
+
     /* Last card (Total) takes full width */
     #dashboardCards > div:last-child {
         grid-column: 1 / -1 !important;
     }
-    
+
     /* Fee Cards - Single Column on very small screens */
     #fee_cards_grid,
     .grid.grid-cols-1.md\:grid-cols-3.lg\:grid-cols-6 {
         grid-template-columns: 1fr !important;
         gap: 10px !important;
     }
-    
+
     .fee-card {
         padding: 14px !important;
         flex-direction: column !important;
         align-items: center !important;
         text-align: center !important;
     }
-    
+
     .fee-card .text-6xl {
         font-size: 36px !important;
     }
-    
+
     .fee-card .text-xl.opacity-90 {
         font-size: 15px !important;
     }
-    
+
     .fee-card .text-3xl.font-extrabold {
         font-size: 20px !important;
     }
-    
+
     /* Action Buttons - Full Width Stack */
     .flex.justify-center.gap-4.mt-6 {
         flex-direction: column !important;
         gap: 10px !important;
         padding: 12px !important;
     }
-    
+
     .flex.justify-center.gap-4.mt-6 label {
         width: 100% !important;
         padding: 12px !important;
         font-size: 14px !important;
     }
-    
+
     .flex.justify-center.gap-4.mt-6 button {
         width: 100% !important;
         padding: 14px !important;
         font-size: 15px !important;
     }
-    
+
     .flex.justify-center.gap-4.mt-6 button.text-2xl {
         font-size: 16px !important;
         padding: 16px !important;
     }
-    
+
     /* Transaction Buttons - Stack Vertically */
     .grid.grid-cols-2.gap-3 {
         grid-template-columns: 1fr !important;
         gap: 10px !important;
     }
-    
+
     .grid.grid-cols-2.gap-3 button {
         width: 100% !important;
         font-size: 14px !important;
@@ -981,17 +981,17 @@ input[type="checkbox"]:checked::after {
     .portal-container {
         padding: 8px !important;
     }
-    
+
     .sticky.top-16,
     .sticky.top-44 {
         position: relative !important;
         top: 0 !important;
     }
-    
+
     #dashboardCards {
         grid-template-columns: repeat(3, 1fr) !important;
     }
-    
+
     .md\:col-span-2,
     .md\:col-span-5 {
         max-height: none !important;
@@ -1029,47 +1029,47 @@ input[type="checkbox"]:checked::after {
             <div class="text-sm text-gray-500 mt-1" id="feeding_count">0 students</div>
         </div>
         <?php endif; ?>
-        
+
         <?php if($breakfast_enabled): ?>
         <div class="bg-white/95 rounded-xl p-3 text-center shadow-lg border-l-4 border-pink-500 cursor-pointer hover:shadow-xl transition" onclick="showFeeReport('breakfast')">
             <div class="text-3xl text-pink-500 mb-1"><i class="fa fa-coffee"></i></div>
-            <div class="text-lg font-bold my-1" id="dash_breakfast"><?php echo $currency; ?> 0.00</div>
-            <div class="text-sm text-gray-600"><?php echo get_phrase('breakfast_today'); ?></div>
-            <div class="text-xs text-gray-500 mt-1" id="breakfast_count">0 students</div>
+            <div class="text-2xl font-bold my-1" id="dash_breakfast"><?php echo $currency; ?> 0.00</div>
+            <div class="text-base text-gray-600"><?php echo get_phrase('breakfast_today'); ?></div>
+            <div class="text-sm text-gray-500 mt-1" id="breakfast_count">0 students</div>
         </div>
         <?php endif; ?>
-        
+
         <?php if($classes_enabled): ?>
         <div class="bg-white/95 rounded-xl p-3 text-center shadow-lg border-l-4 border-cyan-400 cursor-pointer hover:shadow-xl transition" onclick="showFeeReport('classes')">
             <div class="text-3xl text-cyan-400 mb-1"><i class="fa fa-book"></i></div>
-            <div class="text-lg font-bold my-1" id="dash_classes"><?php echo $currency; ?> 0.00</div>
-            <div class="text-sm text-gray-600"><?php echo get_phrase('classes_today'); ?></div>
-            <div class="text-xs text-gray-500 mt-1" id="classes_count">0 students</div>
+            <div class="text-2xl font-bold my-1" id="dash_classes"><?php echo $currency; ?> 0.00</div>
+            <div class="text-base text-gray-600"><?php echo get_phrase('classes_today'); ?></div>
+            <div class="text-sm text-gray-500 mt-1" id="classes_count">0 students</div>
         </div>
         <?php endif; ?>
-        
+
         <?php if($water_enabled): ?>
         <div class="bg-white/95 rounded-xl p-3 text-center shadow-lg border-l-4 border-teal-300 cursor-pointer hover:shadow-xl transition" onclick="showWaterReport()">
             <div class="text-3xl text-teal-300 mb-1"><i class="fa fa-tint"></i></div>
-            <div class="text-lg font-bold my-1" id="dash_water"><?php echo $currency; ?> 0.00</div>
-            <div class="text-sm text-gray-600"><?php echo get_phrase('water_today'); ?></div>
-            <div class="text-xs text-gray-500 mt-1" id="water_weekly">0/0 this week</div>
+            <div class="text-2xl font-bold my-1" id="dash_water"><?php echo $currency; ?> 0.00</div>
+            <div class="text-base text-gray-600"><?php echo get_phrase('water_today'); ?></div>
+            <div class="text-sm text-gray-500 mt-1" id="water_weekly">0/0 this week</div>
         </div>
         <?php endif; ?>
-        
+
         <?php if($transport_enabled): ?>
         <div class="bg-white/95 rounded-xl p-3 text-center shadow-lg border-l-4 border-indigo-500 cursor-pointer hover:shadow-xl transition" onclick="showFeeReport('transport')">
             <div class="text-3xl text-indigo-500 mb-1"><i class="fa fa-bus"></i></div>
-            <div class="text-lg font-bold my-1" id="dash_transport"><?php echo $currency; ?> 0.00</div>
-            <div class="text-sm text-gray-600"><?php echo get_phrase('transport_today'); ?></div>
-            <div class="text-xs text-gray-500 mt-1" id="transport_count">0 students</div>
+            <div class="text-2xl font-bold my-1" id="dash_transport"><?php echo $currency; ?> 0.00</div>
+            <div class="text-base text-gray-600"><?php echo get_phrase('transport_today'); ?></div>
+            <div class="text-sm text-gray-500 mt-1" id="transport_count">0 students</div>
         </div>
         <?php endif; ?>
-        
+
         <div class="bg-white/95 rounded-xl p-3 text-center shadow-lg border-l-4 border-green-400">
             <div class="text-3xl text-green-400 mb-1"><i class="fa fa-money-bill-wave"></i></div>
-            <div class="text-lg font-bold my-1" id="dash_total"><?php echo $currency; ?> 0.00</div>
-            <div class="text-sm text-gray-600"><?php echo get_phrase('total_collected'); ?></div>
+            <div class="text-2xl font-bold my-1" id="dash_total"><?php echo $currency; ?> 0.00</div>
+            <div class="text-base text-gray-600"><?php echo get_phrase('total_collected'); ?></div>
         </div>
     </div>
 
@@ -1081,7 +1081,7 @@ input[type="checkbox"]:checked::after {
                 <h3 class="text-xl font-bold text-indigo-600 mb-4 flex items-center gap-2">
                     <i class="fa fa-user-circle"></i> <?php echo get_phrase('student_selection'); ?>
                 </h3>
-            
+
             <div class="student-search relative">
                 <div class="absolute left-5 top-1/2 transform -translate-y-1/2 text-indigo-500 text-xl z-10 pointer-events-none">
                     <i class="fa fa-search"></i>
@@ -1090,9 +1090,9 @@ input[type="checkbox"]:checked::after {
                 <input type="hidden" id="student_id" name="student_id">
                 <div id="student_dropdown" class="hidden absolute w-full bg-white border-2 border-gray-200 rounded-xl shadow-xl mt-2 max-h-80 overflow-y-auto z-50"></div>
             </div>
-            
+
             <!-- Student Wallet Info -->
-                
+
                 <!-- Wallet Info -->
                 <div id="walletInfo" class="hidden mt-4">
                     <div class="grid grid-cols-2 gap-3 mb-4">
@@ -1115,7 +1115,7 @@ input[type="checkbox"]:checked::after {
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Payment History -->
                 <div class="mt-5">
                     <h3 class="text-xl font-bold text-indigo-600 mb-3 flex items-center gap-2">
@@ -1127,10 +1127,10 @@ input[type="checkbox"]:checked::after {
                 </div>
             </div>
         </div>
-        
+
         <!-- RIGHT COLUMN: Fee Items & Transaction View -->
         <div class="md:col-span-5">
-            <div class="rounded-2xl p-5 shadow-xl max-h-[calc(100vh-12rem)] overflow-y-auto" style="background: #f0fdf4; scrollbar-width: thin; scrollbar-color: #10b981 #d1fae5;">
+            <div class="rounded-2xl p-5 shadow-xl max-h-[calc(100vh-12rem)] overflow-y-auto" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%); scrollbar-width: thin; scrollbar-color: #10b981 #d1fae5;">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-2xl font-bold text-indigo-600 flex items-center gap-2">
                         <i class="fa fa-hand-holding-usd"></i> <?php echo get_phrase('collect_fees'); ?>
@@ -1139,7 +1139,7 @@ input[type="checkbox"]:checked::after {
                         <i class="fa fa-pause-circle"></i> Held (<span id="held_count">0</span>)
                     </button>
                 </div>
-                
+
                 <!-- Held Transactions Panel -->
                 <div id="heldPanel" class="hidden bg-yellow-50 rounded-xl p-4 mb-4 max-h-48 overflow-y-auto">
                     <div class="font-semibold mb-2 text-yellow-800">
@@ -1147,11 +1147,11 @@ input[type="checkbox"]:checked::after {
                     </div>
                     <div id="heldTransactions"></div>
                 </div>
-            
+
             <?php echo form_open('fee_collection/collect', ['id' => 'collectionForm', 'class' => 'hidden']); ?>
             <input type="hidden" name="student_id" id="form_student_id">
             <input type="hidden" name="class_id" id="form_class_id">
-            
+
             <!-- Edit Mode Indicator -->
             <div id="editModeIndicator" class="hidden mb-4 bg-yellow-50 border-2 border-yellow-400 rounded-xl p-4">
                 <div class="flex items-center gap-3">
@@ -1162,7 +1162,7 @@ input[type="checkbox"]:checked::after {
                     </div>
                 </div>
             </div>
-            
+
             <!-- Student Details & Wallet Info -->
             <div id="studentDetailsCard" class="hidden mb-4">
                 <div class="grid grid-cols-2 gap-4">
@@ -1192,12 +1192,12 @@ input[type="checkbox"]:checked::after {
                     </div>
                 </div>
             </div>
-            
+
             <!-- Fee Cards Grid - Full Width Row -->
             <div class="grid gap-4 mb-4" id="fee_cards_grid" style="grid-template-columns: repeat(5, 1fr);">
                 <?php if($feeding_enabled): ?>
                 <!-- Feeding -->
-                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" style="background: #ec4899;">
+                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                     <div class="absolute top-2 right-2 bg-white/20 text-white text-xs px-2 py-1 rounded-full font-semibold">Daily • Required</div>
                     <div class="text-6xl mb-3"><i class="fa fa-utensils"></i></div>
                     <div class="text-xl opacity-90 mb-2 font-semibold"><?php echo get_phrase('feeding'); ?></div>
@@ -1213,9 +1213,9 @@ input[type="checkbox"]:checked::after {
 
                 <?php if($breakfast_enabled): ?>
                 <!-- Breakfast -->
-                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" style="background: #f59e0b; opacity: 0.5;">
+                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); opacity: 0.5;">
                     <div class="absolute top-2 left-2 bg-white/20 text-white text-sm px-2 py-1 rounded-full font-semibold">Daily • Optional</div>
-                    
+
                     <div class="text-6xl mb-3"><i class="fa fa-coffee"></i></div>
                     <div class="text-xl opacity-90 mb-2 font-semibold"><?php echo get_phrase('breakfast'); ?></div>
                     <div class="text-3xl font-extrabold mb-4" id="breakfast_display"><sup style="font-size: 14px;">₵</sup> 0.00</div>
@@ -1229,7 +1229,7 @@ input[type="checkbox"]:checked::after {
                     <div class="relative top-6">
                         <label class="relative inline-block w-14 h-7 cursor-pointer">
                             <input type="checkbox" id="breakfast_enabled" onchange="toggleBreakfastCard()" class="sr-only peer" value="1">
-                            <span class="absolute inset-0 rounded-full transition-all duration-300 shadow-inner" style="background: #9ca3af;"></span>
+                            <span class="absolute inset-0 rounded-full transition-all duration-300 shadow-inner" style="background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);"></span>
                             <span class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 shadow-md" style="transform: translateX(0);"></span>
                         </label>
                     </div>
@@ -1238,7 +1238,7 @@ input[type="checkbox"]:checked::after {
 
                 <?php if($classes_enabled): ?>
                 <!-- Classes -->
-                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" style="background: #0891b2;">
+                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
                     <div class="absolute top-2 right-2 bg-white/20 text-white text-sm px-2 py-1 rounded-full font-semibold">Daily • Required</div>
                     <div class="text-6xl mb-3"><i class="fa fa-book"></i></div>
                     <div class="text-xl opacity-90 mb-2 font-semibold"><?php echo get_phrase('classes'); ?></div>
@@ -1254,10 +1254,10 @@ input[type="checkbox"]:checked::after {
 
                 <?php if($water_enabled): ?>
                 <!-- Water -->
-                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" id="water_fee_card" style="background: #0891b2; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center" id="water_fee_card" style="background: linear-gradient(135deg, #06b6d4 0%, #ec4899 100%); text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
                     <div class="absolute top-2 left-2 bg-white/20 text-white text-sm px-2 py-1 rounded-full font-semibold">Weekly • Required</div>
                     <!-- Water paid badge will be inserted here dynamically -->
-                    
+
                     <div class="text-6xl mb-3"><i class="fa fa-tint"></i></div>
                     <div class="text-xl opacity-90 mb-2 font-semibold"><?php echo get_phrase('water'); ?></div>
                     <div class="text-3xl font-extrabold mb-4" id="water_display"><sup style="font-size: 14px;">₵</sup> 0.00</div>
@@ -1271,7 +1271,7 @@ input[type="checkbox"]:checked::after {
                     <div class="relative top-6">
                         <label class="relative inline-block w-14 h-7 cursor-pointer">
                             <input type="checkbox" id="water_enabled" onchange="toggleWaterCard()" class="sr-only peer" value="1" checked>
-                            <span class="absolute inset-0 rounded-full transition-all duration-300 shadow-inner" style="background: #059669;"></span>
+                            <span class="absolute inset-0 rounded-full transition-all duration-300 shadow-inner" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"></span>
                             <span class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 shadow-md" style="transform: translateX(24px);"></span>
                         </label>
                     </div>
@@ -1280,7 +1280,7 @@ input[type="checkbox"]:checked::after {
 
                 <?php if($transport_enabled): ?>
                 <!-- Transport -->
-                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center hidden" id="transport_card" style="background: #2563eb;">
+                <div class="fee-card rounded-xl p-5 text-white relative overflow-hidden flex flex-col items-center hidden" id="transport_card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                     <div class="absolute top-2 right-2 bg-white/20 text-white text-sm px-2 py-1 rounded-full font-semibold">Daily • Optional</div>
                     <div class="text-6xl mb-3"><i class="fa fa-bus"></i></div>
                     <div class="text-xl opacity-90 mb-2 font-semibold"><?php echo get_phrase('transport'); ?></div>
@@ -1304,7 +1304,7 @@ input[type="checkbox"]:checked::after {
                 </div>
                 <?php endif; ?>
             </div>
-            
+
             <!-- Transaction Section - Second Row -->
             <div class="bg-white rounded-2xl shadow-xl p-6 mt-4" id="transaction_section">
                 <div class="grid gap-6" id="transaction_grid" style="grid-template-columns: repeat(5, 1fr);">
@@ -1318,7 +1318,7 @@ input[type="checkbox"]:checked::after {
                             <i class="fa fa-exclamation-triangle"></i> <strong>Backdated:</strong> Wallet will be recalculated from this date forward
                         </div>
                     </div>
-                    
+
                     <!-- Payment Method -->
                     <div>
                         <label class="block text-xl font-semibold text-gray-700 mb-2">
@@ -1333,7 +1333,7 @@ input[type="checkbox"]:checked::after {
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    
+
                     <!-- Total Amount -->
                     <div>
                         <label class="block text-xl font-semibold text-gray-700 mb-2">
@@ -1343,7 +1343,7 @@ input[type="checkbox"]:checked::after {
                             <div class="text-2xl font-bold text-pink-600" id="total_display"><sup style="font-size: 12px;">₵</sup> 0.00</div>
                         </div>
                     </div>
-                    
+
                     <!-- Amount Tendered -->
                     <div>
                         <label class="block text-xl font-semibold text-gray-700 mb-2">
@@ -1353,14 +1353,14 @@ input[type="checkbox"]:checked::after {
                     </div>
 
                     <!-- Change -->
-                     
+
                     <div class="mt-2 px-3 py-2 bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg flex flex-col justify-between items-center">
                         <div class="text-lg text-emerald-700 font-medium"><?php echo get_phrase('change'); ?></div>
                         <div class="text-xl font-bold text-emerald-600 p-2" id="change_display"><sup style="font-size: 11px;">₵</sup> 0.00</div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Action Buttons - Third Row -->
             <div class="flex justify-center gap-4 mt-6 sticky bottom-0 bg-inherit opacity-95">
                 <!-- Mark Present Toggle -->
@@ -1368,13 +1368,13 @@ input[type="checkbox"]:checked::after {
                     <input type="checkbox" id="mark_present" value="1" checked class="w-5 h-5" style="border: 3px solid #059669 !important;">
                     <span class="font-bold text-green-700" style="font-weight: 700;"><i class="fa fa-check-circle"></i> Mark Present</span>
                 </label>
-                
+
                 <!-- Print Receipt Toggle -->
                 <label class="flex items-center gap-2 bg-gray-100 px-6 py-4 rounded-xl cursor-pointer hover:bg-gray-200 transition">
                     <input type="checkbox" id="auto_print_receipt" value="1" class="w-5 h-5">
                     <span class="font-semibold text-gray-700"><i class="fa fa-print"></i> Receipt</span>
                 </label>
-                
+
                 <button type="button" onclick="holdTransaction()" class="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold px-8 py-4 rounded-xl transition shadow-lg hover:shadow-xl text-xl" accesskey="h">
                     <i class="fa fa-pause"></i> Hold
                 </button>
@@ -1400,17 +1400,17 @@ var currency = '₵'; // Ghana Cedis symbol
 $(document).ready(function() {
     console.log('Document ready, jQuery version:', $.fn.jquery);
     console.log('Student search field exists:', $('#student_search').length);
-    
+
     // Initialize breakfast disabled (unchecked) and water enabled (checked) on page load
     $('#breakfast_enabled').prop('checked', false);
     $('#water_enabled').prop('checked', true);
-    
+
     // CRITICAL: Check mark present by default on page load
     $('#mark_present').prop('checked', true);
-    
+
     // SPEED OPTIMIZATION: Auto-focus search on page load
     $('#student_search').focus();
-    
+
     // SPEED: Keyboard shortcut: Ctrl+F or F3 or ESC to focus search (quick reset)
     $(document).on('keydown', function(e) {
         if ((e.ctrlKey && e.key === 'f') || e.key === 'F3' || e.key === 'Escape') {
@@ -1418,21 +1418,21 @@ $(document).ready(function() {
             $('#student_search').val('').focus();
             $('#student_dropdown').addClass('hidden');
         }
-        
+
         // SPEED: Enter on search = select first result
         if (e.key === 'Enter' && $('#student_search').is(':focus')) {
             e.preventDefault();
             $('.student-item:first').click();
         }
     });
-    
+
     // Monitor payment date changes - check for existing transaction on selected date
     $('#payment_date').on('change', function() {
         var selectedDate = new Date($(this).val());
         var today = new Date();
         today.setHours(0, 0, 0, 0);
         selectedDate.setHours(0, 0, 0, 0);
-        
+
         // Show backdated warning
         if (selectedDate < today) {
             $('#backdated_warning').removeClass('hidden');
@@ -1441,32 +1441,32 @@ $(document).ready(function() {
             $('#backdated_warning').addClass('hidden');
             $(this).removeClass('border-yellow-400');
         }
-        
+
         // Check if student is selected and if transaction exists for this date
         var studentId = $('#student_id').val();
         if (studentId) {
             checkTransactionForDate(studentId, $(this).val());
         }
     });
-    
+
     // Student search input
     $('#student_search').on('input', function() {
         clearTimeout(searchTimeout);
         const query = $(this).val().trim();
         console.log('Search query:', query);
-        
+
         // SPEED: Search after just 1 character (not 2)
         if (query.length < 1) {
             $('#student_dropdown').addClass('hidden').html('');
             return;
         }
-        
+
         // SPEED: Reduced timeout to 150ms for faster response
         searchTimeout = setTimeout(() => {
             console.log('Searching for:', query);
             $.get('<?php echo site_url('fee_collection/search_students'); ?>', { q: query }, function(response) {
                 const data = typeof response === 'string' ? JSON.parse(response) : response;
-                
+
                 if (data.results && data.results.length > 0) {
                     let html = '';
                     data.results.forEach(student => {
@@ -1479,7 +1479,7 @@ $(document).ready(function() {
             });
         }, 150); // SPEED: Reduced from 300ms
     });
-    
+
     // Select student from dropdown
     $(document).on('click', '.student-item', function() {
         const studentId = $(this).data('id');
@@ -1488,14 +1488,14 @@ $(document).ready(function() {
         $('#student_search').val(studentText);
         $('#student_dropdown').addClass('hidden');
     });
-    
+
     // Hide dropdown when clicking outside
     $(document).on('click', function(e) {
         if (!$(e.target).closest('.student-search').length) {
             $('#student_dropdown').addClass('hidden');
         }
     });
-    
+
     // Student selection handler
     $('#student_id').on('change', function() {
         var studentId = $(this).val();
@@ -1506,20 +1506,20 @@ $(document).ready(function() {
             $('#walletInfoRight').addClass('hidden');
             return;
         }
-        
+
         $('#form_student_id').val(studentId);
         // Note: form_class_id will be set by loadStudentData() after AJAX completes
-        
+
         // Check for transaction on selected date (not just today)
         var selectedDate = $('#payment_date').val();
         checkTransactionForDate(studentId, selectedDate);
     });
-    
+
     // SPEED: Function to check if transaction exists for student on specific date
     window.checkTransactionForDate = function(studentId, dateStr) {
         // SPEED: Show loading indicator immediately
         $('#collectionForm').removeClass('hidden');
-        
+
         $.get('<?php echo site_url('fee_collection/get_student_info/'); ?>' + studentId + '?date=' + dateStr, function(response) {
             var data = typeof response === 'string' ? JSON.parse(response) : response;
             if (data.status === 'success') {
@@ -1527,7 +1527,7 @@ $(document).ready(function() {
                 if (data.existing_transaction) {
                     var existingTotal = parseFloat(data.existing_transaction.total_amount || 0);
                     var dateDisplay = moment(dateStr).format('MMM D, YYYY');
-                    
+
                     // ALWAYS show confirmation to prevent mistakes
                     showConfirmModal(
                         'Update Existing Transaction?',
@@ -1542,7 +1542,7 @@ $(document).ready(function() {
                     );
                     return;
                 }
-                
+
                 loadStudentData(data, false);
                 $('#editModeIndicator').addClass('hidden');
             } else {
@@ -1561,24 +1561,24 @@ $(document).ready(function() {
             showAjaxModal_alert('Connection error', 'error');
         });
     };
-    
+
     function loadStudentData(data, isEditing) {
                 currentStudent = data.student;
-                
+
                 // Set form fields for student_id and class_id
                 $('#form_student_id').val(data.student.student_id);
                 $('#form_class_id').val(data.student.class_id);
-                
+
                 rates = data.rates;
                 var discount = data.discount || {};
                 var existingTxn = data.existing_transaction || {};
-                
+
                 // Check if no rates are set for this class
                 var hasAnyRate = false;
                 if (rates.feeding_rate > 0 || rates.breakfast_rate > 0 || rates.classes_rate > 0 || rates.water_rate > 0) {
                     hasAnyRate = true;
                 }
-                
+
                 // Display alert if no rates are set
                 if (!hasAnyRate) {
                     var noRatesHtml = '<div class="bg-gradient-to-br from-red-50 to-rose-50 border-2 border-red-400 rounded-xl p-6 mb-4" style="box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2);">';
@@ -1592,26 +1592,26 @@ $(document).ready(function() {
                     noRatesHtml += '<i class="fa fa-cog"></i> Go to Daily Fee Rates Settings';
                     noRatesHtml += '</a>';
                     noRatesHtml += '</div></div></div>';
-                    
+
                     // Insert or update the alert
                     if ($('#noRatesAlert').length === 0) {
                         $('#collectionForm').before('<div id="noRatesAlert">' + noRatesHtml + '</div>');
                     } else {
                         $('#noRatesAlert').html(noRatesHtml);
                     }
-                    
+
                     // Hide fee cards and payment sections
                     $('#fee_cards_grid').hide();
                     $('#transaction_section').hide();
                     $('#studentDetailsCard').hide();
                     $('.flex.justify-center.gap-4.mt-6').hide();
-                    
+
                     return; // Stop here, don't load fee cards
                 }
-                
+
                 // Remove no rates alert if it exists (rates are now set)
                 $('#noRatesAlert').remove();
-                
+
                 // Check if student has 100% discount on all daily fees
                 if (data.has_full_discount_all_fees) {
                     // Hide ALL fee-related sections including wallet info and action buttons
@@ -1621,7 +1621,7 @@ $(document).ready(function() {
                     $('#studentDetailsCard').hide(); // Hide right side wallet info as well
                     $('.flex.justify-center.gap-4.mt-6').hide(); // Hide action buttons (Mark Present, Receipt, Hold, Collect Payment)
                     $('#collectionForm').removeClass('hidden');
-                    
+
                     // Show 100% discount message with student info (no wallet)
                     var fullDiscountHtml = '<div class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 rounded-xl p-8 text-center mb-6" style="box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);">';
                     fullDiscountHtml += '<div class="text-6xl text-green-600 mb-4"><i class="fa fa-gift"></i></div>';
@@ -1638,47 +1638,47 @@ $(document).ready(function() {
                     fullDiscountHtml += '<i class="fa fa-graduation-cap text-indigo-600"></i> ' + data.student.class_name + (data.student.name_numeric ? ' ' + data.student.name_numeric : '') + (data.student.section_name ? ' - ' + data.student.section_name : '');
                     fullDiscountHtml += '</div></div></div></div>';
                     fullDiscountHtml += '</div>';
-                    
+
                     // Insert the full discount message before the form
                     if ($('#fullDiscountMessage').length === 0) {
                         $('#collectionForm').before('<div id="fullDiscountMessage">' + fullDiscountHtml + '</div>');
                     } else {
                         $('#fullDiscountMessage').html(fullDiscountHtml);
                     }
-                    
+
                     return; // Stop here, don't load fee cards or wallet info
                 }
-                
+
                 // Remove full discount message if it exists (student doesn't have full discount)
                 $('#fullDiscountMessage').remove();
                 $('#fee_cards_grid').show();
                 $('#transaction_section').show();
                 $('#walletInfo').show(); // Show wallet info for normal students
                 $('.flex.justify-center.gap-4.mt-6').show(); // Show action buttons for normal students
-                
+
                 // SPEED: Clear search field immediately after loading
                 $('#student_search').val('');
-                
-                var totalBalance = parseFloat(data.wallet.feeding_balance || 0) + 
-                                 parseFloat(data.wallet.breakfast_balance || 0) + 
-                                 parseFloat(data.wallet.classes_balance || 0) + 
-                                 parseFloat(data.wallet.water_balance || 0) + 
+
+                var totalBalance = parseFloat(data.wallet.feeding_balance || 0) +
+                                 parseFloat(data.wallet.breakfast_balance || 0) +
+                                 parseFloat(data.wallet.classes_balance || 0) +
+                                 parseFloat(data.wallet.water_balance || 0) +
                                  parseFloat(data.wallet.transport_balance || 0);
-                
-                var totalArrears = parseFloat(data.wallet.feeding_arrears || 0) + 
-                                 parseFloat(data.wallet.breakfast_arrears || 0) + 
-                                 parseFloat(data.wallet.classes_arrears || 0) + 
-                                 parseFloat(data.wallet.water_arrears || 0) + 
+
+                var totalArrears = parseFloat(data.wallet.feeding_arrears || 0) +
+                                 parseFloat(data.wallet.breakfast_arrears || 0) +
+                                 parseFloat(data.wallet.classes_arrears || 0) +
+                                 parseFloat(data.wallet.water_arrears || 0) +
                                  parseFloat(data.wallet.transport_arrears || 0);
-                
+
                 // Store wallet data globally for tooltip breakdown
                 window.currentWalletData = data.wallet;
-                
+
                 $('#wallet_balance').html('<sup style="font-size: 9px;">' + currency + '</sup> ' + totalBalance.toFixed(2));
                 $('#wallet_arrears').html('<sup style="font-size: 9px;">' + currency + '</sup> ' + totalArrears.toFixed(2));
                 $('#wallet_balance_right').html('<sup style="font-size: 9px;">' + currency + '</sup> ' + totalBalance.toFixed(2));
                 $('#wallet_arrears_right').html('<sup style="font-size: 9px;">' + currency + '</sup> ' + totalArrears.toFixed(2));
-                
+
                 // Show transport wallet only if student has route
                 if (data.student.transport_id && data.student.transport_id != null) {
                     $('#transport_wallet_balance').html('<sup style="font-size: 9px;">' + currency + '</sup> ' + parseFloat(data.wallet.transport_balance || 0).toFixed(2));
@@ -1686,7 +1686,7 @@ $(document).ready(function() {
                 } else {
                     $('#transportWalletSection').addClass('hidden');
                 }
-                
+
                 // SPEED: Simplified student details (remove discount details for speed)
                 var studentDetailsHtml = '<div class="flex items-center gap-3 mb-2">';
                 studentDetailsHtml += '<i class="fa fa-user-circle text-indigo-600 text-2xl"></i>';
@@ -1697,7 +1697,7 @@ $(document).ready(function() {
                 studentDetailsHtml += '<div class="text-sm text-gray-700 mt-2">';
                 studentDetailsHtml += '<i class="fa fa-graduation-cap text-indigo-600"></i> ' + data.student.class_name + (data.student.name_numeric ? ' ' + data.student.name_numeric : '') + (data.student.section_name ? ' - ' + data.student.section_name : '');
                 studentDetailsHtml += '</div>';
-                
+
                 // SPEED: Show discount badge only (no details)
                 var hasDiscount = discount.has_discount || (discount.feeding_discount > 0 || discount.classes_discount > 0 || discount.breakfast_discount > 0 || discount.water_discount > 0);
                 if (hasDiscount) {
@@ -1705,23 +1705,23 @@ $(document).ready(function() {
                     studentDetailsHtml += '<span class="text-sm font-bold text-green-800"><i class="fa fa-tag"></i> DISCOUNT APPLIED</span>';
                     studentDetailsHtml += '</div>';
                 }
-                
+
                 $('#studentDetailsCard .bg-indigo-50').html(studentDetailsHtml);
-                
+
                 $('#walletInfo').removeClass('hidden');
                 $('#studentDetailsCard').removeClass('hidden');
-                
+
                 console.log('Student details card should now be visible');
                 console.log('studentDetailsCard hidden class:', $('#studentDetailsCard').hasClass('hidden'));
-                
+
                 // Payment type is now auto-determined by backend
-                
+
                 // Apply discounts to rates and hide cards with 100% discount
                 var feedingRate = (discount.feeding_discount > 0) ? (rates.feeding_rate - discount.feeding_discount) : rates.feeding_rate;
                 var breakfastRate = (discount.breakfast_discount > 0) ? (rates.breakfast_rate - discount.breakfast_discount) : rates.breakfast_rate;
                 var classesRate = (discount.classes_discount > 0) ? (rates.classes_rate - discount.classes_discount) : rates.classes_rate;
                 var waterRate = (discount.water_discount > 0) ? (rates.water_rate - discount.water_discount) : rates.water_rate;
-                
+
                 // Hide feeding card if 100% discount
                 if (discount.feeding_discount >= rates.feeding_rate) {
                     $('.fee-card').has('#collect_feeding').hide();
@@ -1731,7 +1731,7 @@ $(document).ready(function() {
                     $('#feeding_rate').val(feedingRate || 0);
                     $('#feeding_amount').val(0);
                 }
-                
+
                 // Hide breakfast card if 100% discount
                 if (discount.breakfast_discount >= rates.breakfast_rate) {
                     $('.fee-card').has('#collect_breakfast').hide();
@@ -1741,7 +1741,7 @@ $(document).ready(function() {
                     $('#breakfast_rate').val(breakfastRate || 0);
                     $('#breakfast_amount').val(0);
                 }
-                
+
                 // Hide classes card if 100% discount
                 if (discount.classes_discount >= rates.classes_rate) {
                     $('.fee-card').has('#collect_classes').hide();
@@ -1751,7 +1751,7 @@ $(document).ready(function() {
                     $('#classes_rate').val(classesRate || 0);
                     $('#classes_amount').val(0);
                 }
-                
+
                 // Hide water card if 100% discount
                 if (discount.water_discount >= rates.water_rate) {
                     $('.fee-card').has('#collect_water').hide();
@@ -1761,13 +1761,13 @@ $(document).ready(function() {
                     $('#water_rate').val(waterRate || 0);
                     $('#water_amount').val(0);
                 }
-                
+
                 // Auto-disable water if already paid this week
                 console.log('Water paid this week check:', data.water_paid_this_week);
                 console.log('Water rate:', rates.water_rate);
                 console.log('Water discount:', discount.water_discount);
                 console.log('Student has prepaid water balance:', data.wallet.water_balance);
-                
+
                 if (data.water_paid_this_week) {
                     console.log('Water was paid this week - disabling card');
                     $('#water_enabled').prop('checked', false).prop('disabled', true);
@@ -1782,7 +1782,7 @@ $(document).ready(function() {
                     console.log('Water NOT paid this week - enabling card');
                     $('#water_enabled').prop('checked', true).prop('disabled', false);
                 }
-                
+
                 if (data.student.route_fare) {
                     routeFare = parseFloat(data.student.route_fare);
                     $('#route_fare').val(routeFare);
@@ -1791,20 +1791,20 @@ $(document).ready(function() {
                 } else {
                     $('#transport_card').addClass('hidden');
                 }
-                
+
                 // Dynamically adjust grid columns based on visible cards
                 updateGridColumns();
-                
+
                 // SPEED: Auto-check common fees and set amounts immediately
                 // Reset all checkboxes first
                 $('input[type=checkbox]').prop('checked', false);
                 $('.fee-card').removeClass('active');
                 $('#transport_direction').val('none');
                 $('#transport_amount').val(0);
-                
+
                 // CRITICAL: Always check mark present by default
                 $('#mark_present').prop('checked', true);
-                
+
                 // SPEED: If editing, load breakfast/water toggle states from transaction data
                 if (isEditing && existingTxn) {
                     // Load breakfast toggle from transaction
@@ -1815,7 +1815,7 @@ $(document).ready(function() {
                     } else {
                         $('#breakfast_enabled').prop('checked', false);
                     }
-                    
+
                     // Load water toggle from transaction (if water was opted for that day)
                     // BUT respect the weekly water check - don't override if water was paid this week
                     if (!data.water_paid_this_week) {
@@ -1835,10 +1835,10 @@ $(document).ready(function() {
                     }
                     // If water_paid_this_week is true, the earlier code already disabled it
                 }
-                
+
                 toggleBreakfastCard();
                 toggleWaterCard();
-                
+
                 // SPEED: If editing, pre-populate everything instantly
                 if (isEditing && existingTxn) {
                     if (parseFloat(existingTxn.feeding_amount || 0) > 0) {
@@ -1871,8 +1871,13 @@ $(document).ready(function() {
                         if (existingTxn.transport_direction) {
                             $('#transport_direction').val(existingTxn.transport_direction);
                         }
+
+                        // Update transport fare display based on existing transaction amount
+                        // This ensures the rate display shows the actual charged amount (8 for "both", 4 for "in"/"out")
+                        var transportAmount = parseFloat(existingTxn.transport_amount).toFixed(2);
+                        $('#transport_display').html('<sup style="font-size: 14px;">' + currency + '</sup> ' + transportAmount);
                     }
-                    
+
                     // Populate from bus_attendance if exists
                     if (data.bus_attendance) {
                         if (data.bus_attendance.transport_direction) {
@@ -1886,18 +1891,18 @@ $(document).ready(function() {
                     // SPEED: For new transactions, check if student already marked present OR has bus attendance
                     var attendanceMarked = data.attendance_marked || false;
                     var hasBusAttendance = data.bus_attendance && (data.bus_attendance.boarded_in == 1 || data.bus_attendance.boarded_out == 1);
-                    
+
                     // Show alert if student already processed
                     if (attendanceMarked || hasBusAttendance) {
                         // Format the date for display
                         var selectedDate = data.check_date || moment().format('YYYY-MM-DD');
                         var isToday = selectedDate === moment().format('YYYY-MM-DD');
                         var dateWord = isToday ? 'today' : 'on ' + moment(selectedDate).format('MMM D, YYYY');
-                        
+
                         showAjaxModal_alert('This student was already processed ' + dateWord + '. You can still make changes if needed.', 'warning', false);
                         // Note: Modal will stay open until user manually closes it (no auto-close)
                     }
-                    
+
                     if (attendanceMarked) {
                         // Student already marked present - fees already charged/deducted
                         // Leave all non-transport checkboxes unchecked and readonly
@@ -1905,7 +1910,7 @@ $(document).ready(function() {
                         $('#collect_breakfast').prop('checked', false);
                         $('#collect_classes').prop('checked', false);
                         $('#collect_water').prop('checked', false);
-                        
+
                         // Make them all readonly by calling toggleFee
                         toggleFee('feeding');
                         toggleFee('breakfast');
@@ -1913,7 +1918,7 @@ $(document).ready(function() {
                         toggleFee('water');
                     } else {
                         // No attendance yet - check prepaid balances to determine if payment needed
-                        
+
                         // SPEED: For new transactions, check feeding based on prepaid balance
                         var feedingRate = (discount.feeding_discount > 0) ? (rates.feeding_rate - discount.feeding_discount) : rates.feeding_rate;
                         if (feedingRate > 0) {
@@ -1930,7 +1935,7 @@ $(document).ready(function() {
                                 console.log('Feeding: UNCHECKED (has prepaid)');
                             }
                         }
-                        
+
                         // Auto-check breakfast if enabled and no prepaid coverage
                         if ($('#breakfast_enabled').prop('checked')) {
                             var breakfastRate = (discount.breakfast_discount > 0) ? (rates.breakfast_rate - discount.breakfast_discount) : rates.breakfast_rate;
@@ -1945,7 +1950,7 @@ $(document).ready(function() {
                                 }
                             }
                         }
-                        
+
                         // Auto-check classes based on prepaid balance
                         var classesRate = (discount.classes_discount > 0) ? (rates.classes_rate - discount.classes_discount) : rates.classes_rate;
                         if (classesRate > 0) {
@@ -1961,7 +1966,7 @@ $(document).ready(function() {
                                 console.log('Classes: UNCHECKED (has prepaid)');
                             }
                         }
-                        
+
                         // Auto-check water if enabled and no prepaid coverage
                         if ($('#water_enabled').prop('checked')) {
                             var waterRate = (discount.water_discount > 0) ? (rates.water_rate - discount.water_discount) : rates.water_rate;
@@ -1977,15 +1982,15 @@ $(document).ready(function() {
                             }
                         }
                     }
-                    
+
                     // Handle transport - ALWAYS process this regardless of attendance status
                     if (data.student.transport_id) {
                         var transportRate = parseFloat(rates.transport_rate || 0);
-                        
+
                         // Check if bus attendance already exists for this date
                         if (hasBusAttendance) {
                             console.log('Bus attendance found:', data.bus_attendance);
-                            
+
                             // Populate transport direction from existing bus attendance
                             var existingDirection = 'none';
                             if (data.bus_attendance.boarded_in == 1 && data.bus_attendance.boarded_out == 1) {
@@ -1995,13 +2000,13 @@ $(document).ready(function() {
                             } else if (data.bus_attendance.boarded_out == 1) {
                                 existingDirection = 'out';
                             }
-                            
+
                             console.log('Setting direction to:', existingDirection);
                             $('#transport_direction').val(existingDirection);
                             $('#already_boarded').prop('checked', true);
-                            
+
                             var transportBalance = parseFloat(data.wallet.transport_available_for_date || data.wallet.transport_balance || 0);
-                            
+
                             // If prepaid insufficient, check transport checkbox
                             if (transportRate > 0 && transportBalance < transportRate) {
                                 $('#collect_transport').prop('checked', true);
@@ -2015,10 +2020,10 @@ $(document).ready(function() {
                             console.log('No bus attendance found');
                             $('#transport_direction').val('none');
                             $('#already_boarded').prop('checked', false);
-                            
+
                             if (transportRate > 0) {
                                 var transportBalance = parseFloat(data.wallet.transport_available_for_date || data.wallet.transport_balance || 0);
-                                
+
                                 if (!attendanceMarked) {
                                     // Attendance not marked, check transport
                                     $('#collect_transport').prop('checked', true);
@@ -2036,18 +2041,18 @@ $(document).ready(function() {
                         }
                     }
                 }
-                
+
                 calculateTotal();
-                
+
                 // SPEED: Auto-focus amount tendered for quick cash entry
                 setTimeout(function() {
                     $('#amount_tendered').focus().select();
                 }, 100);
-                
+
                 $('#amount_tendered').val('');
                 $('#change_display').html('<sup style="font-size: 11px;">' + currency + '</sup> 0.00');
                 $('#collectionForm').removeClass('hidden');
-                
+
                 // VERIFICATION: Log final state
                 console.log('=== FINAL STATE VERIFICATION ===');
                 console.log('studentDetailsCard is hidden:', $('#studentDetailsCard').hasClass('hidden'));
@@ -2056,7 +2061,7 @@ $(document).ready(function() {
                 console.log('Water card opacity:', $('#water_fee_card').css('opacity'));
                 console.log('Water paid badge exists:', $('#water_fee_card').find('.bg-green-500').length > 0);
     }
-    
+
     loadDashboard();
     setInterval(loadDashboard, 30000);
     loadHeldTransactions();
@@ -2068,7 +2073,7 @@ function showBalanceBreakdown() {
         showAjaxModal_alert('Please select a student first', 'error');
         return;
     }
-    
+
     const wallet = window.currentWalletData;
     const feeTypes = [
         { name: 'Feeding', key: 'feeding_balance', icon: 'fa-utensils', color: '#f5576c' },
@@ -2077,11 +2082,11 @@ function showBalanceBreakdown() {
         { name: 'Water', key: 'water_balance', icon: 'fa-tint', color: '#06b6d4' },
         { name: 'Transport', key: 'transport_balance', icon: 'fa-bus', color: '#764ba2' }
     ];
-    
+
     let html = '<div style="padding: 20px;">';
     html += '<h4 style="margin-bottom: 20px; color: #10b981; font-weight: 700; text-align: center;"><i class="fa fa-wallet"></i> Prepaid Balance Breakdown</h4>';
     html += '<div style="background: #f0fdf4; border-radius: 12px; padding: 15px;">';
-    
+
     let hasBalance = false;
     feeTypes.forEach(function(fee) {
         const amount = parseFloat(wallet[fee.key] || 0);
@@ -2096,13 +2101,13 @@ function showBalanceBreakdown() {
             html += '</div>';
         }
     });
-    
+
     if (!hasBalance) {
         html += '<div style="text-align: center; padding: 20px; color: #6b7280;">No prepaid balance available</div>';
     }
-    
+
     html += '</div></div>';
-    
+
     // Use Bootstrap modal
     $('#modal_ajax .modal-title').html('<i class="fa fa-wallet"></i> Prepaid Balance');
     $('#modal_ajax .modal-body').html(html);
@@ -2114,7 +2119,7 @@ function showArrearsBreakdown() {
         showAjaxModal_alert('Please select a student first', 'error');
         return;
     }
-    
+
     const wallet = window.currentWalletData;
     const feeTypes = [
         { name: 'Feeding', key: 'feeding_arrears', icon: 'fa-utensils', color: '#f5576c' },
@@ -2123,11 +2128,11 @@ function showArrearsBreakdown() {
         { name: 'Water', key: 'water_arrears', icon: 'fa-tint', color: '#06b6d4' },
         { name: 'Transport', key: 'transport_arrears', icon: 'fa-bus', color: '#764ba2' }
     ];
-    
+
     let html = '<div style="padding: 20px;">';
     html += '<h4 style="margin-bottom: 20px; color: #ef4444; font-weight: 700; text-align: center;"><i class="fa fa-exclamation-triangle"></i> Arrears Breakdown</h4>';
     html += '<div style="background: #fef2f2; border-radius: 12px; padding: 15px;">';
-    
+
     let hasArrears = false;
     feeTypes.forEach(function(fee) {
         const amount = parseFloat(wallet[fee.key] || 0);
@@ -2142,13 +2147,13 @@ function showArrearsBreakdown() {
             html += '</div>';
         }
     });
-    
+
     if (!hasArrears) {
         html += '<div style="text-align: center; padding: 20px; color: #6b7280;">No arrears</div>';
     }
-    
+
     html += '</div></div>';
-    
+
     // Use Bootstrap modal
     $('#modal_ajax .modal-title').html('<i class="fa fa-exclamation-triangle"></i> Outstanding Arrears');
     $('#modal_ajax .modal-body').html(html);
@@ -2166,12 +2171,12 @@ function holdTransaction() {
         showAjaxModal_alert('No fees selected', 'error');
         return;
     }
-    
+
     if (!currentStudent) {
         showAjaxModal_alert('No student selected', 'error');
         return;
     }
-    
+
     var transaction = {
         id: Date.now(),
         student: currentStudent,
@@ -2181,18 +2186,18 @@ function holdTransaction() {
         breakfast_enabled: $('#breakfast_enabled').prop('checked'),
         water_enabled: $('#water_enabled').prop('checked')
     };
-    
+
     heldTransactions.push(transaction);
     localStorage.setItem('heldTransactions', JSON.stringify(heldTransactions));
     displayHeldTransactions();
-    
+
     // Reset form
     $('#student_id').val('');
     $('#student_search').val('').focus();
     $('#collectionForm').addClass('hidden');
     $('#walletInfo').addClass('hidden');
     $('#studentDetailsCard').addClass('hidden');
-    
+
     showAjaxModal_alert('Transaction held successfully', 'success', false);
     setTimeout(() => {
         $('#modal_alert').modal('hide');
@@ -2204,18 +2209,18 @@ function holdTransaction() {
 function loadHeldTransaction(id) {
     var transaction = heldTransactions.find(t => t.id === id);
     if (!transaction) return;
-    
+
     // Remove from held list first
     heldTransactions = heldTransactions.filter(t => t.id !== id);
     localStorage.setItem('heldTransactions', JSON.stringify(heldTransactions));
     displayHeldTransactions();
-    
+
     // Load student
     currentStudent = transaction.student;
     $('#student_id').val(transaction.student.student_id);
     $('#student_search').val(transaction.student.student_code + ' - ' + transaction.student.name);
     $('#student_id').trigger('change');
-    
+
     // Wait for student data to load, then restore form
     setTimeout(() => {
         // Restore toggle states
@@ -2227,7 +2232,7 @@ function loadHeldTransaction(id) {
             $('#water_enabled').prop('checked', transaction.water_enabled);
             toggleWaterCard();
         }
-        
+
         // Restore form data
         transaction.formData.forEach(item => {
             if (item.name.includes('collect_')) {
@@ -2243,7 +2248,7 @@ function loadHeldTransaction(id) {
                 $('[name="' + item.name + '"]').val(item.value);
             }
         });
-        
+
         calculateTotal();
         $('#amount_tendered').focus();
     }, 800);
@@ -2265,12 +2270,12 @@ function loadHeldTransactions() {
 
 function displayHeldTransactions() {
     $('#held_count').text(heldTransactions.length);
-    
+
     if (heldTransactions.length === 0) {
         $('#heldTransactions').html('<p class="text-center text-yellow-700 py-2">No held transactions</p>');
         return;
     }
-    
+
     var html = '';
     heldTransactions.forEach(function(t) {
         html += '<div class="bg-white rounded-lg p-3 mb-2 flex justify-between items-center hover:bg-gray-50 transition cursor-pointer" onclick="loadHeldTransaction(' + t.id + ')">';
@@ -2283,7 +2288,7 @@ function displayHeldTransactions() {
         html += '<i class="fa fa-times"></i>';
         html += '</button></div>';
     });
-    
+
     $('#heldTransactions').html(html);
 }
 
@@ -2297,22 +2302,22 @@ function loadDashboard() {
             $('#dash_water').text(currency + ' ' + parseFloat(data.collections.water || 0).toFixed(2));
             $('#dash_transport').text(currency + ' ' + parseFloat(data.collections.transport || 0).toFixed(2));
             $('#dash_total').text(currency + ' ' + parseFloat(data.collections.total || 0).toFixed(2));
-            
+
             // Update student counts
             if (data.feeding_count) $('#feeding_count').text(data.feeding_count + ' students');
             if (data.breakfast_count) $('#breakfast_count').text(data.breakfast_count + ' students');
             if (data.classes_count) $('#classes_count').text(data.classes_count + ' students');
             if (data.transport_count) $('#transport_count').text(data.transport_count + ' students');
-            
+
             // Update water weekly stats
             if (data.water_weekly) {
                 $('#water_weekly').text(data.water_weekly.paid + '/' + data.water_weekly.total + ' this week');
             }
-            
+
             // Recent transactions
             var allTransactions = data.recent || [];
             window.todayTransactions = allTransactions; // Store globally for filtering
-            
+
             renderTransactions(allTransactions);
         }
     });
@@ -2324,7 +2329,7 @@ function renderTransactions(transactions) {
     if (transactions && transactions.length > 0) {
         transactions.forEach(function(t) {
             var classDisplay = (t.class_name || '') + (t.name_numeric ? ' ' + t.name_numeric : '') + (t.section_name ? ' - ' + t.section_name : '');
-            
+
             html += '<div class="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all border-l-4 border-indigo-500 mb-2">';
             html += '<div class="flex justify-between items-start mb-2">';
             html += '<div class="flex-1">';
@@ -2356,22 +2361,22 @@ function renderTransactions(transactions) {
 // Filter transactions
 $('#transaction_filter').on('keyup', function() {
     var filterText = $(this).val().toLowerCase();
-    
+
     if (!filterText) {
         // Show all if filter is empty
         renderTransactions(window.todayTransactions || []);
         return;
     }
-    
+
     // Filter transactions
     var filtered = (window.todayTransactions || []).filter(function(t) {
         var name = (t.student_name || '').toLowerCase();
         var code = (t.student_code || '').toLowerCase();
         var classDisplay = ((t.class_name || '') + (t.name_numeric ? ' ' + t.name_numeric : '') + (t.section_name ? ' - ' + t.section_name : '')).toLowerCase();
-        
+
         return name.includes(filterText) || code.includes(filterText) || classDisplay.includes(filterText);
     });
-    
+
     renderTransactions(filtered);
 });
 
@@ -2381,19 +2386,19 @@ function editTransaction(studentId, paymentDate) {
     $('#student_search').val('');
     $('#student_id').val('');
     $('#student_dropdown').addClass('hidden').html('');
-    
+
     // Convert payment_date timestamp to date string (Y-m-d format)
     var dateObj = new Date(paymentDate * 1000);
-    var dateStr = dateObj.getFullYear() + '-' + 
-                  String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+    var dateStr = dateObj.getFullYear() + '-' +
+                  String(dateObj.getMonth() + 1).padStart(2, '0') + '-' +
                   String(dateObj.getDate()).padStart(2, '0');
-    
+
     // Set the payment date
     $('#payment_date').val(dateStr);
-    
+
     // Set student ID
     $('#form_student_id').val(studentId);
-    
+
     // Load the transaction using the existing checkTransactionForDate function
     checkTransactionForDate(studentId, dateStr);
 }
@@ -2406,7 +2411,7 @@ function deleteTransaction(transactionId, studentId, studentName) {
         function() {
             // Show loading
             showAjaxModal_alert('Deleting transaction...', 'loading');
-            
+
             $.ajax({
                 url: '<?php echo site_url('fee_collection/delete_transaction'); ?>',
                 type: 'POST',
@@ -2417,13 +2422,13 @@ function deleteTransaction(transactionId, studentId, studentName) {
                 dataType: 'json',
                 success: function(response) {
                     //$('#modal_alert').modal('hide');
-                    
+
                     if (response.status === 'success') {
                         showAjaxModal_alert(response.message || 'Transaction deleted successfully', 'success', false, true);
-                        
+
                         // Refresh dashboard and recent transactions
                         loadDashboard();
-                        
+
                         // Clear form if this student was loaded
                         if ($('#form_student_id').val() == studentId) {
                             $('#collectionForm').addClass('hidden');
@@ -2448,14 +2453,14 @@ function deleteTransaction(transactionId, studentId, studentName) {
 
 function showWaterReport() {
     showAjaxModal_alert('Loading water report...', 'loading');
-    
+
     $.get('<?php echo site_url('fee_collection/water_weekly_report'); ?>', function(response) {
         var data = typeof response === 'string' ? JSON.parse(response) : response;
-        
+
         $('#modal_alert').modal('hide');
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open').css('padding-right', '');
-        
+
         if (data.status === 'success') {
             setTimeout(function() {
                 var html = '<div class="p-4">';
@@ -2465,7 +2470,7 @@ function showWaterReport() {
                 html += '<div class="bg-red-50 p-3 rounded-lg text-center"><div class="text-2xl font-bold text-red-600">' + data.unpaid + '</div><div class="text-sm text-gray-600">Unpaid</div></div>';
                 html += '<div class="bg-blue-50 p-3 rounded-lg text-center"><div class="text-2xl font-bold text-blue-600">GHS ' + parseFloat(data.expected).toFixed(2) + '</div><div class="text-sm text-gray-600">Expected</div></div>';
                 html += '</div>';
-                
+
                 if (data.unpaid_students && data.unpaid_students.length > 0) {
                     html += '<h4 class="font-bold text-gray-700 mb-2">Students Not Yet Paid:</h4>';
                     html += '<div class="max-h-64 overflow-y-auto">';
@@ -2477,7 +2482,7 @@ function showWaterReport() {
                     html += '</tbody></table></div>';
                 }
                 html += '</div>';
-                
+
                 showModalWithContent('detailsModal', '<i class="fa fa-tint"></i> Water Report', html);
             }, 300);
         } else {
@@ -2497,14 +2502,14 @@ function showWaterReport() {
 
 function showFeeReport(feeType) {
     showAjaxModal_alert('Loading report...', 'loading');
-    
+
     $.get('<?php echo site_url('fee_collection/daily_fee_report'); ?>/' + feeType, function(response) {
         var data = typeof response === 'string' ? JSON.parse(response) : response;
-        
+
         $('#modal_alert').modal('hide');
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open').css('padding-right', '');
-        
+
         if (data.status === 'success') {
             setTimeout(function() {
                 var icons = {feeding: 'utensils', breakfast: 'coffee', classes: 'book', transport: 'bus'};
@@ -2515,7 +2520,7 @@ function showFeeReport(feeType) {
                 html += '<div class="bg-green-50 p-3 rounded-lg text-center"><div class="text-2xl font-bold text-green-600">GHS ' + parseFloat(data.total).toFixed(2) + '</div><div class="text-sm text-gray-600">Collected</div></div>';
                 html += '<div class="bg-purple-50 p-3 rounded-lg text-center"><div class="text-2xl font-bold text-purple-600">GHS ' + parseFloat(data.average).toFixed(2) + '</div><div class="text-sm text-gray-600">Average</div></div>';
                 html += '</div>';
-                
+
                 if (data.students && data.students.length > 0) {
                     html += '<h4 class="font-bold text-gray-700 mb-2">Students Who Paid:</h4>';
                     html += '<div class="max-h-64 overflow-y-auto">';
@@ -2527,7 +2532,7 @@ function showFeeReport(feeType) {
                     html += '</tbody></table></div>';
                 }
                 html += '</div>';
-                
+
                 showModalWithContent('detailsModal', '<i class="fa fa-' + icons[feeType] + '"></i> ' + feeType.charAt(0).toUpperCase() + feeType.slice(1) + ' Report', html);
             }, 300);
         } else {
@@ -2561,10 +2566,10 @@ function toggleBreakfastCard() {
     var card = $('.fee-card').has('#breakfast_enabled');
     var bg = checkbox.next('span');
     var slider = bg.next('span');
-    
+
     if (!enabled) {
         card.css('opacity', '0.5');
-        bg.css('background', '#9ca3af');
+        bg.css('background', 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)');
         slider.css('transform', 'translateX(0)');
         $('#collect_breakfast').prop('checked', false).prop('disabled', true);
         $('#breakfast_amount').val(0).prop('disabled', true);
@@ -2572,7 +2577,7 @@ function toggleBreakfastCard() {
         calculateTotal();
     } else {
         card.css('opacity', '1');
-        bg.css('background', '#059669');
+        bg.css('background', 'linear-gradient(135deg, #10b981 0%, #059669 100%)');
         slider.css('transform', 'translateX(24px)');
         $('#collect_breakfast').prop('disabled', false);
         $('#breakfast_amount').prop('disabled', false);
@@ -2585,10 +2590,10 @@ function toggleWaterCard() {
     var card = $('.fee-card').has('#water_enabled');
     var bg = checkbox.next('span');
     var slider = bg.next('span');
-    
+
     if (!enabled) {
         card.css('opacity', '0.5');
-        bg.css('background', '#9ca3af');
+        bg.css('background', 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)');
         slider.css('transform', 'translateX(0)');
         $('#collect_water').prop('checked', false).prop('disabled', true);
         $('#water_amount').val(0).prop('disabled', true);
@@ -2596,7 +2601,7 @@ function toggleWaterCard() {
         calculateTotal();
     } else {
         card.css('opacity', '1');
-        bg.css('background', '#059669');
+        bg.css('background', 'linear-gradient(135deg, #10b981 0%, #059669 100%)');
         slider.css('transform', 'translateX(24px)');
         $('#collect_water').prop('disabled', false);
         $('#water_amount').prop('disabled', false);
@@ -2607,10 +2612,10 @@ function toggleFee(type) {
     var checkbox = $('#collect_' + type);
     var amountInput = $('#' + type + '_amount');
     var rate = parseFloat($('#' + type + '_rate').val() || 0);
-    
+
     if (checkbox.prop('checked')) {
         checkbox.closest('.fee-card').addClass('active');
-        
+
         // For transport, calculate based on direction
         if (type === 'transport') {
             updateTransportFare();
@@ -2625,7 +2630,7 @@ function toggleFee(type) {
         amountInput.val(0);
         amountInput.prop('disabled', true);
     }
-    
+
     calculateTotal();
 }
 
@@ -2634,19 +2639,19 @@ $('#already_boarded').on('change', function() {
     var studentId = $('#form_student_id').val();
     var direction = $('#transport_direction').val();
     var isChecked = $(this).prop('checked');
-    
+
     if (!studentId) {
         $(this).prop('checked', false);
         showAjaxModal_alert('Please select a student first', 'error');
         return;
     }
-    
+
     if (direction == 'none') {
         $(this).prop('checked', false);
         showAjaxModal_alert('Please select transport direction first', 'error');
         return;
     }
-    
+
     // Just update the hidden field - will be submitted with the main form
     if (isChecked) {
         $('#collect_transport').prop('checked', true);
@@ -2657,32 +2662,32 @@ $('#already_boarded').on('change', function() {
 function updateTransportFare() {
     var direction = $('#transport_direction').val();
     var transportAmount = 0;
-    
+
     if (direction == 'in' || direction == 'out') {
         transportAmount = routeFare;
     } else if (direction == 'both') {
         transportAmount = routeFare * 2;
     }
-    
+
     $('#transport_display').html('<sup style="font-size: 14px;">' + currency + '</sup> ' + transportAmount.toFixed(2));
-    
+
     if ($('#collect_transport').prop('checked')) {
         $('#transport_amount').val(transportAmount.toFixed(2));
     }
-    
+
     // Auto-check "Already Boarded" when direction is selected (not 'none')
     if (direction !== 'none' && direction !== '') {
         $('#already_boarded').prop('checked', true);
     } else {
         $('#already_boarded').prop('checked', false);
     }
-    
+
     calculateTotal();
 }
 
 function calculateTotal() {
     var total = 0;
-    
+
     if ($('#collect_feeding').prop('checked')) {
         total += parseFloat($('#feeding_amount').val() || 0);
     }
@@ -2698,7 +2703,7 @@ function calculateTotal() {
     if ($('#collect_transport').prop('checked')) {
         total += parseFloat($('#transport_amount').val() || 0);
     }
-    
+
     $('#total_display').html('<sup style="font-size: 12px;">' + currency + '</sup> ' + total.toFixed(2));
     calculateChange();
 }
@@ -2708,7 +2713,7 @@ function calculateChange() {
     var total = parseFloat(totalText.replace(currency, '').trim() || 0);
     var tendered = parseFloat($('#amount_tendered').val() || 0);
     var change = tendered - total;
-    
+
     if (change < 0) {
         $('#change_display').html('<sup style="font-size: 11px;">' + currency + '</sup> 0.00').css('background', 'rgba(245,87,108,0.3)');
     } else {
@@ -2722,43 +2727,43 @@ function showTransportTopUp() {
         showAjaxModal_alert('Please select a student first', 'error');
         return;
     }
-    
+
     // Show custom modal instead of prompt
     var modalHtml = `
         <div id="transport_topup_modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;">
             <div class="bg-white rounded-lg p-6 w-full max-w-md" style="background: white; border-radius: 12px; padding: 32px; width: 90%; max-width: 450px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
                 <div class="flex items-center gap-3 mb-6" style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
-                    <div style="width: 48px; height: 48px; background: #2563eb; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
                         <svg style="width: 28px; height: 28px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
                         </svg>
                     </div>
                     <h3 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; margin: 0;">Top Up Transport Wallet</h3>
                 </div>
-                
+
                 <div style="margin-bottom: 24px;">
                     <label style="display: block; font-size: 0.95rem; font-weight: 600; color: #374151; margin-bottom: 8px;">Amount (GH₵)</label>
                     <div style="position: relative;">
                         <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 1.25rem; font-weight: 600; color: #6b7280;">₵</span>
-                        <input type="number" id="topup_amount" step="0.01" min="0.01" placeholder="0.00" 
+                        <input type="number" id="topup_amount" step="0.01" min="0.01" placeholder="0.00"
                                style="width: 100%; padding: 14px 14px 14px 44px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1.25rem; font-weight: 600; color: #111827; transition: all 0.2s;"
                                onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)';"
                                onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none';">
                     </div>
                     <p style="margin-top: 8px; font-size: 0.875rem; color: #6b7280;">Enter the amount to add to transport wallet</p>
                 </div>
-                
+
                 <div style="margin-bottom: 24px; background: #f3f4f6; padding: 16px; border-radius: 8px; border-left: 4px solid #667eea;">
                     <p style="font-size: 0.875rem; color: #374151; margin: 0;"><strong>Current Balance:</strong> <span id="current_transport_balance">₵ 0.00</span></p>
                 </div>
-                
+
                 <div style="display: flex; gap: 12px;">
                     <button onclick="$('#transport_topup_modal').remove();" style="flex: 1; padding: 14px 24px; background: #e5e7eb; color: #374151; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s;"
                             onmouseover="this.style.background='#d1d5db';" onmouseout="this.style.background='#e5e7eb';">
                         Cancel
                     </button>
-                    <button onclick="processTransportTopUp()" style="flex: 1; padding: 14px 24px; background: #2563eb; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35); transition: background-color .2s ease, box-shadow .2s ease;"
-                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.4)';" 
+                    <button onclick="processTransportTopUp()" style="flex: 1; padding: 14px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); transition: all 0.2s;"
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.4)';"
                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.3)';">
                         <svg style="width: 18px; height: 18px; display: inline-block; margin-right: 6px; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -2769,9 +2774,9 @@ function showTransportTopUp() {
             </div>
         </div>
     `;
-    
+
     $('body').append(modalHtml);
-    
+
     // Get and display current transport balance
     $.ajax({
         url: '<?php echo site_url('fee_collection/get_wallet_balance'); ?>',
@@ -2783,7 +2788,7 @@ function showTransportTopUp() {
             $('#current_transport_balance').text('₵ ' + parseFloat(response.transport_balance || 0).toFixed(2));
         }
     });
-    
+
     // Focus on input and allow Enter key
     setTimeout(() => {
         $('#topup_amount').focus();
@@ -2797,46 +2802,52 @@ function showTransportTopUp() {
 
 function processTransportTopUp() {
     var amount = $('#topup_amount').val();
-    var studentId = $('#student_id').val();
-    
+    var studentId = $('#student_id').val() || $('#form_student_id').val();
+
+    if (!studentId) {
+        showAjaxModal_alert('Student ID not found. Please reload the student.', 'error');
+        return;
+    }
+
     if (!amount || parseFloat(amount) <= 0) {
         showAjaxModal_alert('Please enter a valid amount', 'error');
         return;
     }
-    
+
     $('#transport_topup_modal').remove();
     showAjaxModal_alert('Processing top-up...', 'loading');
-    
+
     $.ajax({
-        url: '<?php echo site_url('fee_collection/collect'); ?>',
+        url: '<?php echo site_url('fee_collection/topup_transport_wallet'); ?>',
         type: 'POST',
         data: {
             student_id: studentId,
-            feeding_amount: 0,
-            breakfast_amount: 0,
-            classes_amount: 0,
-            water_amount: 0,
-            transport_amount: parseFloat(amount),
-            payment_type: 'advance',
-            payment_method: 1,
-            notes: 'Transport wallet top-up'
+            amount: parseFloat(amount)
         },
         dataType: 'json'
     }).done(function(response) {
         if (response.status === 'success') {
-            showAjaxModal_alert('Transport wallet topped up successfully', 'success', false);
+            showAjaxModal_alert('Transport wallet topped up successfully!', 'success', false);
+
+            // Update the transport wallet balance display with the new balance from response
+            $('#transport_wallet_balance').html('<sup style="font-size: 9px;">' + currency + '</sup> ' + parseFloat(response.new_balance || 0).toFixed(2));
+
             setTimeout(() => {
                 $('#modal_alert').modal('hide');
                 $('.modal-backdrop').remove();
                 $('body').removeClass('modal-open').css('padding-right', '');
-                $('#student_id').trigger('change');
-                loadDashboard();
+
+                // Reload student data to refresh prepaid/arrears sections in real-time
+                var studentId = $('#student_id').val() || $('#form_student_id').val();
+                if (studentId) {
+                    $('#student_id').trigger('change');
+                }
             }, 1000);
         } else {
             showAjaxModal_alert(response.message || 'Top-up failed', 'error');
         }
     }).fail(function() {
-        showAjaxModal_alert('An error occurred', 'error');
+        showAjaxModal_alert('An error occurred while topping up', 'error');
     });
 }
 
@@ -2850,9 +2861,9 @@ function updateGridColumns() {
 
 $('#collectionForm').submit(function(e) {
     e.preventDefault();
-    
+
     var total = parseFloat($('#total_display').text().replace(currency + ' ', ''));
-    
+
     // Check if at least one fee has sufficient prepaid balance (checkbox unchecked but card exists)
     var hasPrepaidCoverage = false;
     $('input[id^="collect_"]:not(#collect_transport)').each(function() {
@@ -2865,42 +2876,42 @@ $('#collectionForm').submit(function(e) {
             }
         }
     });
-    
+
     var transportDirection = $('#transport_direction').val();
     var hasTransport = transportDirection && transportDirection !== 'none';
-    
+
     // Allow submission if:
     // 1. Total > 0 (normal payment), OR
-    // 2. Has prepaid coverage for at least one fee, OR  
+    // 2. Has prepaid coverage for at least one fee, OR
     // 3. Transport direction selected (marking transport attendance)
     if (total <= 0 && !hasPrepaidCoverage && !hasTransport) {
         showAjaxModal_alert('<?php echo get_phrase('please_select_at_least_one_fee'); ?>', 'error');
         return;
     }
-    
+
     showAjaxModal_alert('<?php echo get_phrase('processing_payment'); ?>...', 'loading');
-    
+
     // Prepare form data with toggle states
     var formData = $(this).serializeArray();
-    
+
     // Add breakfast toggle state (1 if enabled, 0 if disabled)
     formData.push({
         name: 'breakfast_opted',
         value: $('#breakfast_enabled').prop('checked') ? 1 : 0
     });
-    
+
     // Add water toggle state (1 if enabled, 0 if disabled)
     formData.push({
         name: 'water_opted',
         value: $('#water_enabled').prop('checked') ? 1 : 0
     });
-    
+
     // Add mark present flag
     formData.push({
         name: 'mark_present',
         value: $('#mark_present').prop('checked') ? 1 : 0
     });
-    
+
     $.ajax({
         url: '<?php echo site_url('fee_collection/collect'); ?>',
         type: 'POST',
@@ -2908,27 +2919,31 @@ $('#collectionForm').submit(function(e) {
         dataType: 'json'
     }).done(function(response) {
         if (response.status === 'success') {
-            var successMsg = response.mode === 'updated' ? 
-                '✓ Transaction Updated Successfully' : 
-                '✓ Payment Collected Successfully';
-            successMsg += ' - GHS ' + total.toFixed(2);
-            
+            var successMsg;
+            if (response.mode === 'deleted') {
+                successMsg = '✓ Transaction Deleted Successfully';
+            } else if (response.mode === 'updated') {
+                successMsg = '✓ Transaction Updated Successfully - GHS ' + total.toFixed(2);
+            } else {
+                successMsg = '✓ Payment Collected Successfully - GHS ' + total.toFixed(2);
+            }
+
             showAjaxModal_alert(successMsg, 'success', false);
-            
-            // SPEED: Only open receipt if toggle is checked
-            if ($('#auto_print_receipt').prop('checked') && response.student_id && response.timestamp) {
+
+            // SPEED: Only open receipt if toggle is checked AND not deleted
+            if (response.mode !== 'deleted' && $('#auto_print_receipt').prop('checked') && response.student_id && response.timestamp) {
                 var receiptWindow = window.open('<?php echo site_url('admin/print_fee_receipt'); ?>/' + response.student_id + '/' + response.timestamp, '_blank');
                 if (receiptWindow) receiptWindow.blur();
                 window.focus(); // Keep focus on portal for next customer
             }
-            
+
             // Reset form immediately for next collection
             setTimeout(() => {
                 // Close modal
                 $('#modal_alert').modal('hide');
                 $('.modal-backdrop').remove();
                 $('body').removeClass('modal-open').css('padding-right', '');
-                
+
                 // Reset form
                 $('#collectionForm')[0].reset();
                 $('#student_id').val('');
@@ -2937,7 +2952,7 @@ $('#collectionForm').submit(function(e) {
                 $('#walletInfo').addClass('hidden');
                 $('#studentDetailsCard').addClass('hidden');
                 $('#editModeIndicator').addClass('hidden'); // Hide edit mode indicator
-                
+
                 // Reset all fee cards
                 $('input[type=checkbox]').prop('checked', false);
                 $('.fee-card').removeClass('active');
@@ -2948,11 +2963,11 @@ $('#collectionForm').submit(function(e) {
                 $('#payment_date').val('<?php echo date('Y-m-d'); ?>');
                 $('#backdated_warning').addClass('hidden');
                 $('#payment_date').removeClass('border-yellow-400');
-                
+
                 // Re-check mark present by default
                 $('#mark_present').prop('checked', true);
-                
-                // Refresh dashboard
+
+                // Refresh dashboard to update statistics and remove deleted transaction
                 loadDashboard();
             }, 1000);
         } else {
@@ -3008,14 +3023,14 @@ function generateCashierCoupon() {
     var date = $('#coupon_date').val();
     var classFilter = $('#coupon_class_filter').val();
     var feeType = $('#coupon_fee_type').val();
-    
+
     if(!date) {
         alert('Please select a date');
         return;
     }
-    
+
     closeCouponModal();
-    
+
     $.ajax({
         url: '<?php echo site_url("dining_coupon/generateCashierCoupon"); ?>',
         type: 'POST',

@@ -282,7 +282,6 @@ function handleRequest(requestId, status) {
             $.ajax({
                 url: '<?= site_url('admin/manageRequestApproval/manage/') ?>' + requestId + '/' + status,
                 type: 'POST',
-                data: <?= json_encode([$this->security->get_csrf_token_name() => $this->security->get_csrf_hash()]); ?>,
                 dataType: 'json'
             })
             .done(function(data) {

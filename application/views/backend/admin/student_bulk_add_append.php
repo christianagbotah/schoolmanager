@@ -9,7 +9,7 @@
 
 	<div class="col-md-2">
 		<div class="form_group">
-			<select name="parent_id[]" id="parent_id_<?php echo $total;?>" class="form-control selectboxit">
+			<select name="parent_id[]" id="parent_id_<?php echo $total;?>" class="form-control select2">
 				<option value=""><?php echo get_phrase('parent');?></option>
 				<?php
 					$parents = $this->db->get('parent')->result_array();
@@ -53,9 +53,9 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-        if($.isFunction($.fn.selectBoxIt))
+        if (typeof $.fn.select2 !== "undefined")
 		{
-			$("select.selectboxit").each(function(i, el)
+			$("select.select2").each(function(i, el)
 			{
 				var $this = $(el),
 					opts = {
@@ -63,11 +63,11 @@
 						'native': attrDefault($this, 'native', false),
 						defaultText: attrDefault($this, 'text', ''),
 					};
-					
+
 				$this.addClass('visible');
-				$this.selectBoxIt(opts);
+				$this.select2({ placeholder: "Select an option", allowClear: true, width: "100%" });
 			});
 		}
     });
-	
+
 </script>

@@ -173,7 +173,7 @@ class Install extends CI_Controller {
     session_start();
     $data_db = str_replace('schoolapp',	$_SESSION['dbname'],	$data_db);
     $data_db = str_replace('root',	$_SESSION['username'],	$data_db);
-    $data_db = str_replace('__DB_PASSWORD_PLACEHOLDER__',	$_SESSION['password'],	$data_db);
+    $data_db = str_replace('myjesus4mE',	$_SESSION['password'],	$data_db);
     $data_db = str_replace('localhost',	$_SESSION['hostname'],	$data_db);
     file_put_contents('./_al01i/config/database.php', $data_db);
   }

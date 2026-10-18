@@ -6,7 +6,7 @@
 
     $class_name = $this->crud_model->get_class_name($class_id);
 
-	if($query->num_rows() > 0): 
+	if($query->num_rows() > 0):
 		if($class_name == 'JHSS') {
 
 			$section_id = $this->db->get_where('class_routine' , array('class_routine_id' => $class_routine_id, 'year' => $running_year, 'sem' => $running_sem))->row()->section_id;
@@ -18,11 +18,11 @@
 			$sections   = $query->result_array();
 		 }
 ?>
-	
+
 	<div class="form-group">
 		<label class="col-sm-3 control-label"><?php echo get_phrase('section');?></label>
 		<div class="col-sm-5">
-			<select name="section_id" class="form-control selectboxit">
+			<select name="section_id" class="form-control select2">
 				<option value=""><?php echo get_phrase('select_section');?></option>
 				<?php foreach($sections as $section):?>
 				<option value="<?php echo $section['section_id'];?>"
@@ -47,15 +47,15 @@ if($class_name == 'JHSS') {
 
 		$subjects = $this->db->get_where('subject' , array('class_id' => $class_id, 'year' => $running_year, 'term' => $running_term))->result_array();
 	}
-	
+
 ?>
 <div class="form-group">
 		<label class="col-sm-3 control-label"><?php echo get_phrase('subject');?></label>
 		<div class="col-sm-5">
-			<select name="subject_id" class="form-control selectboxit">
+			<select name="subject_id" class="form-control select2">
 				<option value=""><?php echo get_phrase('select_subject');?></option>
-				<?php 
-					
+				<?php
+
 					foreach($subjects as $subject):
 				?>
 				<option value="<?php echo $subject['subject_id'];?>"
@@ -70,9 +70,9 @@ if($class_name == 'JHSS') {
 
 	<script type="text/javascript">
 	$(document).ready(function() {
-        if($.isFunction($.fn.selectBoxIt))
+        if (typeof $.fn.select2 !== "undefined")
 		{
-			$("select.selectboxit").each(function(i, el)
+			$("select.select2").each(function(i, el)
 			{
 				var $this = $(el),
 					opts = {
@@ -80,11 +80,11 @@ if($class_name == 'JHSS') {
 						'native': attrDefault($this, 'native', false),
 						defaultText: attrDefault($this, 'text', ''),
 					};
-					
+
 				$this.addClass('visible');
-				$this.selectBoxIt(opts);
+				$this.select2({ placeholder: "Select an option", allowClear: true, width: "100%" });
 			});
 		}
     });
-	
+
 </script>

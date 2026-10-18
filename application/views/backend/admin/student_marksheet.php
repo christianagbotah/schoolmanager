@@ -33,7 +33,7 @@
   }
 </style>
 
-<?php 
+<?php
 
     $year = $running_year;
     $term = $running_term;
@@ -47,13 +47,13 @@
     // Load models for database-driven items (used across all school levels)
     $this->load->model('Conduct_items_model');
     $conduct_items_from_db = $this->Conduct_items_model->get_active();
-    
+
     $this->load->model('Interest_items_model');
     $interest_items_from_db = $this->Interest_items_model->get_active();
-    
+
     $this->load->model('Teacher_remarks_templates_model');
     $teacher_remarks_templates = $this->Teacher_remarks_templates_model->get_active();
-    
+
     $this->load->model('Head_teacher_remarks_model');
 
     // Check terminal report style - hide conduct/interest for style_3
@@ -77,9 +77,9 @@
         <div class="col-md-2">
                 <div class="form-group">
                     <label class="control-label"><?php echo get_phrase('class');?></label>
-                    <select name="class_id" class="form-control selectboxit" id="class_id" onchange="showTermSem($(this).val())">
+                    <select name="class_id" class="form-control select2" id="class_id" onchange="showTermSem($(this).val())">
                         <option value=""><?php echo get_phrase('select_a_class');?></option>
-                        <?php 
+                        <?php
                         $this->db->select('class_id');
                         $this->db->distinct();
                         $this->db->where('student_id', $student_id);
@@ -111,7 +111,7 @@
             <div class="col-md-2" id="term_holder">
                 <div class="form-group">
                     <label  class="control-label"><?php echo get_phrase('selected_term');?></label>
-                      <select name="term" class="form-control selectboxit"  onchange="get_exam_type()" id="term">
+                      <select name="term" class="form-control select2"  onchange="get_exam_type()" id="term">
                       <option value="" disabled="true"><?php echo get_phrase('select_term');?></option>
                       <?php for($i = 1; $i <= 3; $i++):?>
                           <option value="<?php echo $i;?>"
@@ -126,7 +126,7 @@
             <div class="col-md-2" id="sem_holder">
                 <div class="form-group">
                     <label  class="control-label"><?php echo get_phrase('selected_semester');?></label>
-                      <select name="sem" class="form-control selectboxit"  onchange="get_exam_type_sem()" id="sem">
+                      <select name="sem" class="form-control select2"  onchange="get_exam_type_sem()" id="sem">
                       <option value="" disabled="true"><?php echo get_phrase('select_semester');?></option>
                       <?php for($i = 1; $i <= 2; $i++):?>
                           <option value="<?php echo $i;?>"
@@ -141,7 +141,7 @@
             <div class="col-md-2">
                 <div class="form-group">
                   <label  class="control-label"><?php echo get_phrase('selected_year');?></label>
-                      <select name="year" class="form-control selectboxit"  onchange="get_exam_type()" id="year">
+                      <select name="year" class="form-control select2"  onchange="get_exam_type()" id="year">
                       <option value="" disabled="true"><?php echo get_phrase('select_year');?></option>
                       <?php
                          // echo populate_academic_year();
@@ -154,7 +154,7 @@
                 <div class="form-group" id="exam_holder_g">
                 <label class="control-label"><?php echo get_phrase('exam');?></label>
                  <select name="exam_id" class="form-control" id="exam_id">
-                    <?php 
+                    <?php
                     $exams = $this->db->get_where('exam', array('term' => $term, 'year' => $year, 'category_id !=' => '1'));
                      $array_exams  = $exams->result_array();
 
@@ -181,7 +181,7 @@
                 <div class="form-group" id="exam_holder_jhs">
                 <label class="control-label"><?php echo get_phrase('exam');?></label>
                  <select name="exam_id" class="form-control" id="exam_id_sem">
-                    <?php 
+                    <?php
                     $exams = $this->db->get_where('exam', array('sem' => $sem, 'year' => $year, 'category_id !=' => '1'));
                      $array_exams  = $exams->result_array();
 
@@ -233,15 +233,15 @@
             </select>
         </div>
     </div>
-    
+
     <div class="col-md-12">
         <div class="panel panel-primary panel-shadow" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title"><?php echo $this->crud_model->get_exams_name($exam_id);?></div>
             </div>
             <div class="panel-body">
-                
-                
+
+
                <div class="col-md-12">
                    <table class="table table-bordered table-responsive table-striped table-hover table-active">
                        <thead>
@@ -259,7 +259,7 @@
                         <tbody>
                         <?php
                             $class_score_total = 0;
-                            $exam_score_total =0; 
+                            $exam_score_total =0;
                             $total_marks = 0;
                             $total_grade_point = 0;
                             $subjects = $this->db->get_where('subject' , array(
@@ -273,7 +273,7 @@
                                 <td style="text-align: center;"><?php echo $sn;?></td>
                                 <td><?php if(strlen($row3['name']) <= 4) {
                                     echo strtoupper($row3['name']);
-                                }else{ 
+                                }else{
                                     echo $row3['name'];
                                 };?></td>
                                  <td style="text-align: center;">
@@ -282,7 +282,7 @@
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $exam_id,
                                                             'class_id' => $class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'sem' => $running_sem));
                                         if ( $class_score_query->num_rows() > 0) {
@@ -303,7 +303,7 @@
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $exam_id,
                                                             'class_id' => $class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'sem' => $running_sem));
                                         if ( $exam_score_query->num_rows() > 0) {
@@ -324,7 +324,7 @@
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $exam_id,
                                                             'class_id' => $class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'sem' => $running_sem));
                                         if ( $obtained_mark_query->num_rows() > 0) {
@@ -345,7 +345,7 @@
                                     echo $highest_mark;
 
 
-        
+
                                     ?>
                                 </td>. //take highest mark column out-->
                                 <td style="text-align: center;">
@@ -380,12 +380,12 @@
                                  ?>
                                 </td>
                               <!--  <td style="text-align: center;">
-                                    <?php // if($obtained_mark_query->num_rows() > 0) 
+                                    <?php // if($obtained_mark_query->num_rows() > 0)
                                             //echo $row4['comment'];
                                     ?>
                                 </td>.//take comment column out-->
                             </tr>
-                        <?php 
+                        <?php
                        $sn++;
                         endforeach;?>
 
@@ -400,14 +400,14 @@
                    </table>
 
 <div class="row">
-    
+
 </div>
                    <hr />
 
                   <!-- <?php // echo get_phrase('total_marks');?> : <?php echo $total_marks;?>
                    <br>
-                   <?php //echo get_phrase('average_grade_point');?> : 
-                        <?php 
+                   <?php //echo get_phrase('average_grade_point');?> :
+                        <?php
                            /** $this->db->where('class_id' , $class_id);
                             $this->db->where('year' , $running_year);
                             $this->db->from('subject');
@@ -445,7 +445,7 @@
                             $class_id2 = $conduct['class_id'];
                             $sem2 = $conduct['sem'];
                             $year2 = $conduct['year'];
-                            
+
                             // Collect all selected conduct IDs from c1-c15 columns
                             for($i = 1; $i <= 15; $i++){
                                 if(!empty($conduct['c'.$i])) {
@@ -462,7 +462,7 @@
                                         }
                                     }
                                 }
-                            }   
+                            }
                         }
 
                         ?>
@@ -479,13 +479,13 @@
                                                 // Render dynamic conduct items in rows of 5
                                                 $items_per_row = 5;
                                                 $item_count = 0;
-                                                
+
                                                 foreach($conduct_items_from_db as $item):
                                                     if($item_count % $items_per_row == 0) {
                                                         if($item_count > 0) echo '</tr>';
                                                         echo '<tr>';
                                                     }
-                                                    
+
                                                     $checked = in_array($item->id, $selected_conduct_ids) ? 'checked' : '';
                                                     $item_id_safe = 'conduct_' . $item->id;
                                                 ?>
@@ -494,7 +494,7 @@
                                                 <?php
                                                     $item_count++;
                                                 endforeach;
-                                                
+
                                                 // Close last row if needed
                                                 if($item_count % $items_per_row != 0) {
                                                     // Fill remaining cells
@@ -522,12 +522,12 @@
                                           <tbody>
                                             <tr>
                                               <td><input type="number" size="20" value="<?php echo $days_opened; ?>" class="form-control" name="days_opened" id="days_opened" readonly style="background-color: #f3f4f6; cursor: not-allowed;" title="Auto-fetched from term settings"></td>
-                                            
+
                                               <td><input type="number" size="20" value="<?php echo $days_present; ?>" class="form-control" name="days_present" id="days_present" readonly style="background-color: #f3f4f6; cursor: not-allowed;" title="Auto-calculated from attendance records"></td>
-                                              
+
                                               <td><input type="number" size="20" value="<?php echo $days_opened - $days_present; ?>" class="form-control" name="days_absent" id="days_absent" readonly="readonly"></td>
                                             </tr>
-                              
+
                                           </tbody>
                                         </table>
                                         <!--add simple script here-->
@@ -537,17 +537,17 @@
                                             let days_present = Number($('#days_present').val());
                                             let days_absent = days_opened - days_present;
 
-                                            $('#days_absent').val(days_absent);  
+                                            $('#days_absent').val(days_absent);
                                           }
 
                                           // Conduct checkbox validation - Maximum 3 selections
                                           $(document).ready(function() {
                                             const MAX_CONDUCTS = 3;
                                             const conductCheckboxes = $('input[name="conduct_ids[]"]');
-                                            
+
                                             function updateConductCheckboxes() {
                                               const checkedCount = conductCheckboxes.filter(':checked').length;
-                                              
+
                                               if (checkedCount >= MAX_CONDUCTS) {
                                                 // Disable unchecked boxes
                                                 conductCheckboxes.not(':checked').prop('disabled', true).closest('td').css('opacity', '0.5');
@@ -555,7 +555,7 @@
                                                 // Enable all boxes
                                                 conductCheckboxes.prop('disabled', false).closest('td').css('opacity', '1');
                                               }
-                                              
+
                                               // Show/hide warning message
                                               if (checkedCount >= MAX_CONDUCTS) {
                                                 if ($('#conduct_limit_warning').length === 0) {
@@ -565,10 +565,10 @@
                                                 $('#conduct_limit_warning').remove();
                                               }
                                             }
-                                            
+
                                             // Initialize on page load
                                             updateConductCheckboxes();
-                                            
+
                                             // Update on checkbox change
                                             conductCheckboxes.on('change', updateConductCheckboxes);
                                           });
@@ -578,7 +578,7 @@
                                           // Get interest and remarks from aggregation table (JHS uses 'sem')
                                           $interest_row = $this->db->get_where('aggregation', array('student_id' => $row1['student_id'], 'class_id' => $class_id, 'exam_id' => $exam_id, 'sem' => $running_sem, 'year' => $running_year))->row();
                                           $interest = $interest_row ? $interest_row->interest : '';
-                                          
+
                                           // Get selected interest ID (single selection)
                                           $selected_interest_id = '';
                                           if($interest_row && !empty($interest_row->interest)) {
@@ -588,12 +588,12 @@
                                               }
                                               // Otherwise it's legacy text, keep $interest as-is for display
                                           }
-                                          
+
                                           // Calculate student percentage and get auto head teacher remark
                                           // Only count subjects where marks have been entered (N/A excluded)
                                           $subjects_with_marks = 0;
                                           $student_total_marks = 0;
-                                          
+
                                           foreach ($subjects as $subject) {
                                               $mark_query = $this->db->get_where('mark', array(
                                                   'subject_id' => $subject['subject_id'],
@@ -603,7 +603,7 @@
                                                   'year' => $running_year,
                                                   'sem' => $running_sem
                                               ));
-                                              
+
                                               if ($mark_query->num_rows() > 0) {
                                                   $mark_row = $mark_query->row();
                                                   // Only count if mark_obtained is set (not NULL/empty)
@@ -613,7 +613,7 @@
                                                   }
                                               }
                                           }
-                                          
+
                                           // Calculate percentage only from subjects with marks (handles missing exams correctly)
                                           $student_percentage = ($subjects_with_marks > 0) ? ($student_total_marks / ($subjects_with_marks * 100)) * 100 : 0;
                                           $student_percentage = round($student_percentage); // Round to nearest whole number
@@ -631,12 +631,12 @@
                                                         <label for="interest_id" class="form-control-label" style="margin:0; font-weight: bold;">INTEREST</label>
                                                     </th>
                                                     <?php endif; ?>
-                                                    
+
                                                     <!-- Column 2: CLASS TEACHER'S REMARKS -->
                                                     <th style="background-color: #520452; color: #fff; padding: 10px; width: <?php echo $hide_conduct_interest ? '50%' : '33%'; ?>; text-align: center; vertical-align: middle;">
                                                         <label for="teacher_remarks" class="form-control-label" style="margin:0; font-weight: bold;">CLASS TEACHER'S REMARKS</label>
                                                     </th>
-                                                    
+
                                                     <!-- Column 3: HEAD TEACHER'S REMARKS -->
                                                     <th style="background-color: #520452; color: #fff; padding: 10px; width: <?php echo $hide_conduct_interest ? '50%' : '34%'; ?>; text-align: center; vertical-align: middle;">
                                                         <label for="head_teacher_remark" class="form-control-label" style="margin:0; font-weight: bold;">HEAD TEACHER'S REMARKS</label>
@@ -660,11 +660,11 @@
                                                         <input type="hidden" name="interest" value="<?php echo htmlspecialchars($interest); ?>">
                                                     </td>
                                                     <?php endif; ?>
-                                                    
+
                                                     <!-- Teacher Remarks Input -->
                                                     <td style="padding: 10px; vertical-align: top;">
-                                                        <select class="form-control select2-teacher-remarks" name="teacher_remarks" 
-                                                                data-tags="true" data-placeholder="<?php echo get_phrase('select_or_type_remark'); ?>" 
+                                                        <select class="form-control select2-teacher-remarks" name="teacher_remarks"
+                                                                data-tags="true" data-placeholder="<?php echo get_phrase('select_or_type_remark'); ?>"
                                                                 style="width: 100%;">
                                                             <option value=""></option>
                                                             <?php foreach($teacher_remark_templates as $template): ?>
@@ -673,10 +673,10 @@
                                                                     <?php echo htmlspecialchars($template->remark_text); ?>
                                                                 </option>
                                                             <?php endforeach; ?>
-                                                            <?php 
+                                                            <?php
                                                             // Check if current remark is not in templates (custom remark)
                                                             $template_texts = array_map(function($t) { return $t->remark_text; }, $teacher_remark_templates);
-                                                            if($ret_remarks && !in_array($ret_remarks, $template_texts)): 
+                                                            if($ret_remarks && !in_array($ret_remarks, $template_texts)):
                                                             ?>
                                                                 <!-- Custom remark not in templates -->
                                                                 <option value="<?php echo htmlspecialchars($ret_remarks); ?>" selected>
@@ -685,10 +685,10 @@
                                                             <?php endif; ?>
                                                         </select>
                                                     </td>
-                                                    
+
                                                     <!-- Head Teacher Remarks Input (Auto-populated with Select2) -->
                                                     <td style="padding: 10px; vertical-align: top;">
-                                                        <select id="head_teacher_remarks" name="head_teacher_remarks" class="form-control select2-head-remark" 
+                                                        <select id="head_teacher_remarks" name="head_teacher_remarks" class="form-control select2-head-remark"
                                                                 style="width: 100%; background-color: #f3f4f6;" readonly>
                                                             <option value="<?php echo htmlspecialchars($head_teacher_remark_text); ?>" selected>
                                                                 <?php echo htmlspecialchars($head_teacher_remark_text); ?>
@@ -710,7 +710,7 @@
                                                 <strong>Please enter student's marks before proceeding with the conducts. Go to >>Examination >>Manage Exam Marks</strong>
                                             </div>
                                         </div>
-                                        <input type="submit" name="save_conducts" id="submit_c" class="btn btn-primary" value="<?php echo get_phrase('save_conducts_&_remarks');?>" style="float: right; margin-top: 12px;">
+                                        <input type="submit" name="save_conducts" id="submit_c" class="btn btn-primary btn-lg btn-md btn-sm" value="<?php echo get_phrase('save_conducts_&_remarks');?>" style="position: relative; float: right; bottom: 20px; right: 10px; margin-top: 30px;">
                                     </div>
                                 <?php echo form_close();?>
                             </div>
@@ -730,27 +730,27 @@
                                 "theme": "none",
                                 "type": "serial",
                                 "dataProvider": [
-                                        <?php 
+                                        <?php
                                             foreach ($subjects as $subject) :
                                         ?>
                                         {
                                             "subject": "<?php echo substr($subject['name'], 0, 3);?>",
-                                            "class_score": 
+                                            "class_score":
                                             <?php
                                                 $class_mark = $this->crud_model->get_class_score( $exam_id , $class_id , $subject['subject_id'] , $row1['student_id']);
                                                 echo $class_mark;
                                             ?>,
-                                            "exam_score": 
+                                            "exam_score":
                                             <?php
                                                 $exam_mark = $this->crud_model->get_exam_score( $exam_id , $class_id , $subject['subject_id'], $row1['student_id'] );
                                                 echo $exam_mark;
                                             ?>
                                         },
-                                        <?php 
+                                        <?php
                                             endforeach;
 
                                         ?>
-                                    
+
                                 ],
                                 "valueAxes": [{
                                     "stackType": "3d",
@@ -787,26 +787,26 @@
                                     "menuTop":"20px",
                                     "menuRight":"20px",
                                     "menuItems": [{
-                                        "format": 'png'   
-                                    }]  
+                                        "format": 'png'
+                                    }]
                                 }
                             });
-                      
+
                     </script>
-                    
-                    
+
+
                </div>
-                
+
                <div class="row">
                         <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
                             <table class="table" id="hint_table">
                                 <caption>Hints</caption>
                                 <tr>
-                                   <th><div id="circle1"></th> 
+                                   <th><div id="circle1"></th>
                                    <td><b><i>Class Score</i></b></td>
                                 </tr>
                                 <tr>
-                                   <th><div id="circle2"></th> 
+                                   <th><div id="circle2"></th>
                                    <td><b><i>Exam Score</i></b></td>
                                 </tr>
                             </table>
@@ -815,12 +815,12 @@
             </div>
 
             <br><br> <br><br>
-                <a href="<?php echo site_url('admin/student_marksheet_print_view/'.$student_id.'/'.$exam_id);?>" 
+                <a href="<?php echo site_url('admin/student_marksheet_print_view/'.$student_id.'/'.$exam_id);?>"
                         class="btn btn-primary" target="_blank" style="position: relative; float: right; bottom: 20px; right: 10px;">
                         <?php echo get_phrase('print_marksheet');?>
                     </a>
-            <br><br>        
-        </div>  
+            <br><br>
+        </div>
     </div>
 </div>
 <?php
@@ -840,9 +840,9 @@
         <div class="col-md-2">
                 <div class="form-group">
                     <label class="control-label"><?php echo get_phrase('class');?></label>
-                    <select name="class_id" class="form-control selectboxit" id="class_id" onchange="showTermSem($(this).val())">
+                    <select name="class_id" class="form-control select2" id="class_id" onchange="showTermSem($(this).val())">
                         <option value=""><?php echo get_phrase('select_a_class');?></option>
-                        <?php 
+                        <?php
                         $this->db->select('class_id');
                         $this->db->distinct();
                         $this->db->where('student_id', $student_id);
@@ -874,7 +874,7 @@
             <div class="col-md-2" id="term_holder">
                 <div class="form-group">
                     <label  class="control-label"><?php echo get_phrase('selected_term');?></label>
-                      <select name="term" class="form-control selectboxit"  onchange="get_exam_type()" id="term">
+                      <select name="term" class="form-control select2"  onchange="get_exam_type()" id="term">
                       <option value="" disabled="true"><?php echo get_phrase('select_term');?></option>
                       <?php for($i = 1; $i <= 3; $i++):?>
                           <option value="<?php echo $i;?>"
@@ -889,7 +889,7 @@
             <div class="col-md-2" id="sem_holder">
                 <div class="form-group">
                     <label  class="control-label"><?php echo get_phrase('selected_semester');?></label>
-                      <select name="sem" class="form-control selectboxit"  onchange="get_exam_type_sem()" id="sem">
+                      <select name="sem" class="form-control select2"  onchange="get_exam_type_sem()" id="sem">
                       <option value="" disabled="true"><?php echo get_phrase('select_semester');?></option>
                       <?php for($i = 1; $i <= 2; $i++):?>
                           <option value="<?php echo $i;?>"
@@ -904,7 +904,7 @@
             <div class="col-md-2">
                 <div class="form-group">
                   <label  class="control-label"><?php echo get_phrase('selected_year');?></label>
-                      <select name="year" class="form-control selectboxit"  onchange="get_exam_type()" id="year">
+                      <select name="year" class="form-control select2"  onchange="get_exam_type()" id="year">
                       <option value="" disabled="true"><?php echo get_phrase('select_year');?></option>
                       <?php
                           //echo populate_academic_year();
@@ -917,7 +917,7 @@
                 <div class="form-group" id="exam_holder_g">
                 <label class="control-label"><?php echo get_phrase('exam');?></label>
                  <select name="exam_id" class="form-control" id="exam_id">
-                    <?php 
+                    <?php
                     $exams = $this->db->get_where('exam', array('term' => $term, 'year' => $year, 'category_id !=' => '1'));
                      $array_exams  = $exams->result_array();
 
@@ -944,7 +944,7 @@
                 <div class="form-group" id="exam_holder_jhs">
                 <label class="control-label"><?php echo get_phrase('exam');?></label>
                  <select name="exam_id" class="form-control" id="exam_id_sem">
-                    <?php 
+                    <?php
                     $exams = $this->db->get_where('exam', array('sem' => $sem, 'year' => $year, 'category_id !=' => '1'));
                      $array_exams  = $exams->result_array();
 
@@ -1003,8 +1003,8 @@
                 <div class="panel-title"><?php echo $this->crud_model->get_exams_name($exam_id);?></div>
             </div>
             <div class="panel-body">
-                
-                
+
+
                <div class="col-md-12">
                    <table class="table table-bordered table-responsive table-striped table-hover table-active">
                        <thead>
@@ -1022,7 +1022,7 @@
                         <tbody>
                         <?php
                             $class_score_total = 0;
-                            $exam_score_total =0; 
+                            $exam_score_total =0;
                             $total_marks = 0;
                             $total_grade_point = 0;
                             $subjects = $this->db->get_where('subject' , array(
@@ -1036,7 +1036,7 @@
                                 <td style="text-align: center;"><?php echo $sn;?></td>
                                 <td><?php if(strlen($row3['name']) <= 4) {
                                     echo strtoupper($row3['name']);
-                                }else{ 
+                                }else{
                                     echo $row3['name'];
                                 };?></td>
                                  <td style="text-align: center;">
@@ -1045,7 +1045,7 @@
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $exam_id,
                                                             'class_id' => $class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $class_score_query->num_rows() > 0) {
@@ -1066,7 +1066,7 @@
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $exam_id,
                                                             'class_id' => $class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $exam_score_query->num_rows() > 0) {
@@ -1087,7 +1087,7 @@
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $exam_id,
                                                             'class_id' => $class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $obtained_mark_query->num_rows() > 0) {
@@ -1108,7 +1108,7 @@
                                     echo $highest_mark;
 
 
-        
+
                                     ?>
                                 </td>. //take highest mark column out-->
                                 <td style="text-align: center;">
@@ -1143,12 +1143,12 @@
                                  ?>
                                 </td>
                               <!--  <td style="text-align: center;">
-                                    <?php // if($obtained_mark_query->num_rows() > 0) 
+                                    <?php // if($obtained_mark_query->num_rows() > 0)
                                             //echo $row4['comment'];
                                     ?>
                                 </td>.//take comment column out-->
                             </tr>
-                        <?php 
+                        <?php
                        $sn++;
                         endforeach;?>
 
@@ -1163,14 +1163,14 @@
                    </table>
 
 <div class="row">
-    
+
 </div>
                    <hr />
 
                   <!-- <?php // echo get_phrase('total_marks');?> : <?php echo $total_marks;?>
                    <br>
-                   <?php //echo get_phrase('average_grade_point');?> : 
-                        <?php 
+                   <?php //echo get_phrase('average_grade_point');?> :
+                        <?php
                            /** $this->db->where('class_id' , $class_id);
                             $this->db->where('year' , $running_year);
                             $this->db->from('subject');
@@ -1209,7 +1209,7 @@
                             $class_id2 = $conduct['class_id'];
                             $term2 = $conduct['term'];
                             $year2 = $conduct['year'];
-                            
+
                             // Collect selected conduct IDs from c1-c15 columns
                             for($i = 1; $i <= 15; $i++){
                                 if(!empty($conduct['c'.$i])) {
@@ -1226,8 +1226,8 @@
                                         }
                                     }
                                 }
-                            }   
-                           
+                            }
+
                         }
 
                         ?>
@@ -1240,29 +1240,29 @@
                                         <table class="table table-bordered table-striped" id="conducts" style="width:100%; border-collapse:collapse;border: 1px solid #ccc; margin-top: 10px;" border="1">
                                             <caption>CONDUCTS OF <b><?php echo strtoupper($this->db->get_where('student' , array('student_id' => $student_id))->row()->name);?></b></caption>
                                             <tbody>
-                                                <?php 
+                                                <?php
                                                 // Generate conduct checkboxes dynamically in rows of 5 columns (checkbox + label pairs)
                                                 $conduct_count = 0;
                                                 $items_per_row = 5;
-                                                
-                                                foreach($conduct_items_from_db as $item): 
+
+                                                foreach($conduct_items_from_db as $item):
                                                     if($conduct_count % $items_per_row == 0):
                                                         if($conduct_count > 0) echo '</tr>';
                                                         echo '<tr>';
                                                     endif;
-                                                    
+
                                                     $is_checked = in_array($item->id, $selected_conduct_ids) ? 'checked' : '';
                                                     $checkbox_id = 'conduct_' . $item->id;
                                                 ?>
                                                     <td><input type="checkbox" id="<?php echo $checkbox_id; ?>" class="form-check conduct-checkbox" name="conduct_ids[]" value="<?php echo $item->id; ?>" <?php echo $is_checked; ?>></td>
                                                     <td><label for="<?php echo $checkbox_id; ?>" class="form-control-label"><?php echo htmlspecialchars($item->name); ?></label></td>
-                                                <?php 
+                                                <?php
                                                     $conduct_count++;
                                                 endforeach;
-                                                
+
                                                 // Close last row
                                                 if($conduct_count > 0) echo '</tr>';
-                                                
+
                                                 // If no items found, show message
                                                 if($conduct_count == 0):
                                                 ?>
@@ -1289,12 +1289,12 @@
                                           <tbody>
                                             <tr>
                                               <td><input type="number" size="20" value="<?php echo $days_opened; ?>" class="form-control" name="days_opened" id="days_opened" readonly style="background-color: #f3f4f6; cursor: not-allowed;" title="Auto-fetched from term settings"></td>
-                                            
+
                                               <td><input type="number" size="20" value="<?php echo $days_present; ?>" class="form-control" name="days_present" id="days_present" readonly style="background-color: #f3f4f6; cursor: not-allowed;" title="Auto-calculated from attendance records"></td>
-                                              
+
                                               <td><input type="number" size="20" value="<?php echo $days_opened - $days_present; ?>" class="form-control" name="days_absent" id="days_absent" readonly="readonly"></td>
                                             </tr>
-                              
+
                                           </tbody>
                                         </table>
                                         <!--add simple script here-->
@@ -1304,17 +1304,17 @@
                                             let days_present = Number($('#days_present').val());
                                             let days_absent = days_opened - days_present;
 
-                                            $('#days_absent').val(days_absent);  
+                                            $('#days_absent').val(days_absent);
                                           }
 
                                           // Conduct checkbox validation - Maximum 3 selections
                                           $(document).ready(function() {
                                             const MAX_CONDUCTS = 3;
                                             const conductCheckboxes = $('input[name="conduct_ids[]"]');
-                                            
+
                                             function updateConductCheckboxes() {
                                               const checkedCount = conductCheckboxes.filter(':checked').length;
-                                              
+
                                               if (checkedCount >= MAX_CONDUCTS) {
                                                 // Disable unchecked boxes
                                                 conductCheckboxes.not(':checked').prop('disabled', true).closest('td').css('opacity', '0.5');
@@ -1322,7 +1322,7 @@
                                                 // Enable all boxes
                                                 conductCheckboxes.prop('disabled', false).closest('td').css('opacity', '1');
                                               }
-                                              
+
                                               // Show/hide warning message
                                               if (checkedCount >= MAX_CONDUCTS) {
                                                 if ($('#conduct_limit_warning').length === 0) {
@@ -1332,10 +1332,10 @@
                                                 $('#conduct_limit_warning').remove();
                                               }
                                             }
-                                            
+
                                             // Initialize on page load
                                             updateConductCheckboxes();
-                                            
+
                                             // Update on checkbox change
                                             conductCheckboxes.on('change', updateConductCheckboxes);
                                           });
@@ -1345,7 +1345,7 @@
                                           // Get interest and remarks from aggregation table (non-JHS uses 'term')
                                           $interest_row = $this->db->get_where('aggregation', array('student_id' => $row1['student_id'], 'class_id' => $class_id, 'exam_id' => $exam_id, 'term' => $running_term, 'year' => $running_year))->row();
                                           $interest = $interest_row ? $interest_row->interest : '';
-                                          
+
                                           // Get selected interest ID (single selection)
                                           $selected_interest_id = '';
                                           if($interest_row && !empty($interest_row->interest)) {
@@ -1355,12 +1355,12 @@
                                               }
                                               // Otherwise it's legacy text
                                           }
-                                          
+
                                           // Calculate student percentage and get auto head teacher remark
                                           // Only count subjects where marks have been entered (N/A excluded)
                                           $subjects_with_marks = 0;
                                           $student_total_marks = 0;
-                                          
+
                                           foreach ($subjects as $subject) {
                                               $mark_query = $this->db->get_where('mark', array(
                                                   'subject_id' => $subject['subject_id'],
@@ -1370,7 +1370,7 @@
                                                   'year' => $running_year,
                                                   'sem' => $running_sem
                                               ));
-                                              
+
                                               if ($mark_query->num_rows() > 0) {
                                                   $mark_row = $mark_query->row();
                                                   // Only count if mark_obtained is set (not NULL/empty)
@@ -1380,7 +1380,7 @@
                                                   }
                                               }
                                           }
-                                          
+
                                           // Calculate percentage only from subjects with marks (handles missing exams correctly)
                                           $student_percentage = ($subjects_with_marks > 0) ? ($student_total_marks / ($subjects_with_marks * 100)) * 100 : 0;
                                           $student_percentage = round($student_percentage); // Round to nearest whole number
@@ -1398,12 +1398,12 @@
                                                         <label for="interest_id" class="form-control-label" style="margin:0; font-weight: bold;">INTEREST</label>
                                                     </th>
                                                     <?php endif; ?>
-                                                    
+
                                                     <!-- Column 2: CLASS TEACHER'S REMARKS -->
                                                     <th style="background-color: #520452; color: #fff; padding: 10px; width: <?php echo $hide_conduct_interest ? '50%' : '33%'; ?>; text-align: center; vertical-align: middle;">
                                                         <label for="teacher_remarks" class="form-control-label" style="margin:0; font-weight: bold;">CLASS TEACHER'S REMARKS</label>
                                                     </th>
-                                                    
+
                                                     <!-- Column 3: HEAD TEACHER'S REMARKS -->
                                                     <th style="background-color: #520452; color: #fff; padding: 10px; width: <?php echo $hide_conduct_interest ? '50%' : '34%'; ?>; text-align: center; vertical-align: middle;">
                                                         <label for="head_teacher_remark" class="form-control-label" style="margin:0; font-weight: bold;">HEAD TEACHER'S REMARKS</label>
@@ -1427,11 +1427,11 @@
                                                         <input type="hidden" name="interest" value="<?php echo htmlspecialchars($interest); ?>">
                                                     </td>
                                                     <?php endif; ?>
-                                                    
+
                                                     <!-- Teacher Remarks Input -->
                                                     <td style="padding: 10px; vertical-align: top;">
-                                                        <select class="form-control select2-teacher-remarks" name="teacher_remarks" 
-                                                                data-tags="true" data-placeholder="<?php echo get_phrase('select_or_type_remark'); ?>" 
+                                                        <select class="form-control select2-teacher-remarks" name="teacher_remarks"
+                                                                data-tags="true" data-placeholder="<?php echo get_phrase('select_or_type_remark'); ?>"
                                                                 style="width: 100%;">
                                                             <option value=""></option>
                                                             <?php foreach($teacher_remark_templates as $template): ?>
@@ -1440,10 +1440,10 @@
                                                                     <?php echo htmlspecialchars($template->remark_text); ?>
                                                                 </option>
                                                             <?php endforeach; ?>
-                                                            <?php 
+                                                            <?php
                                                             // Check if current remark is not in templates (custom remark)
                                                             $template_texts = array_map(function($t) { return $t->remark_text; }, $teacher_remark_templates);
-                                                            if($ret_remarks && !in_array($ret_remarks, $template_texts)): 
+                                                            if($ret_remarks && !in_array($ret_remarks, $template_texts)):
                                                             ?>
                                                                 <!-- Custom remark not in templates -->
                                                                 <option value="<?php echo htmlspecialchars($ret_remarks); ?>" selected>
@@ -1452,10 +1452,10 @@
                                                             <?php endif; ?>
                                                         </select>
                                                     </td>
-                                                    
+
                                                     <!-- Head Teacher Remarks Input (Auto-populated with Select2) -->
                                                     <td style="padding: 10px; vertical-align: top;">
-                                                        <select id="head_teacher_remarks" name="head_teacher_remarks" class="form-control select2-head-remark" 
+                                                        <select id="head_teacher_remarks" name="head_teacher_remarks" class="form-control select2-head-remark"
                                                                 style="width: 100%; background-color: #f3f4f6;" readonly>
                                                             <option value="<?php echo htmlspecialchars($head_teacher_remark_text); ?>" selected>
                                                                 <?php echo htmlspecialchars($head_teacher_remark_text); ?>
@@ -1477,7 +1477,7 @@
                                                 <strong>Please enter student's marks before proceeding with the conducts. Go to >>Examination >>Manage Exam Marks</strong>
                                             </div>
                                         </div>
-                                        <input type="submit" name="save_conducts" id="submit_c" class="btn btn-primary" value="<?php echo get_phrase('save_conducts_&_remarks');?>" style="float: right; margin-top: 12px;">
+                                        <input type="submit" name="save_conducts" id="submit_c" class="btn btn-primary btn-lg btn-md btn-sm" value="<?php echo get_phrase('save_conducts_&_remarks');?>" style="position: relative; float: right; bottom: 20px; right: 10px; margin-top: 30px;">
                                     </div>
                                 <?php echo form_close();?>
                             </div>
@@ -1497,27 +1497,27 @@
                                 "theme": "none",
                                 "type": "serial",
                                 "dataProvider": [
-                                        <?php 
+                                        <?php
                                             foreach ($subjects as $subject) :
                                         ?>
                                         {
                                             "subject": "<?php echo substr($subject['name'], 0, 3);?>",
-                                            "class_score": 
+                                            "class_score":
                                             <?php
                                                 $class_mark = $this->crud_model->get_class_score( $exam_id , $class_id , $subject['subject_id'] , $row1['student_id']);
                                                 echo $class_mark;
                                             ?>,
-                                            "exam_score": 
+                                            "exam_score":
                                             <?php
                                                 $exam_mark = $this->crud_model->get_exam_score( $exam_id , $class_id , $subject['subject_id'], $row1['student_id'] );
                                                 echo $exam_mark;
                                             ?>
                                         },
-                                        <?php 
+                                        <?php
                                             endforeach;
 
                                         ?>
-                                    
+
                                 ],
                                 "valueAxes": [{
                                     "stackType": "3d",
@@ -1554,26 +1554,26 @@
                                     "menuTop":"20px",
                                     "menuRight":"20px",
                                     "menuItems": [{
-                                        "format": 'png'   
-                                    }]  
+                                        "format": 'png'
+                                    }]
                                 }
                             });
-                      
+
                     </script>
-                    
-                    
+
+
                </div>
-                
+
                <div class="row">
                         <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
                             <table class="table" id="hint_table">
                                 <caption>Hints</caption>
                                 <tr>
-                                   <th><div id="circle1"></th> 
+                                   <th><div id="circle1"></th>
                                    <td><b><i>Class Score</i></b></td>
                                 </tr>
                                 <tr>
-                                   <th><div id="circle2"></th> 
+                                   <th><div id="circle2"></th>
                                    <td><b><i>Exam Score</i></b></td>
                                 </tr>
                             </table>
@@ -1582,12 +1582,12 @@
             </div>
 
             <br><br> <br><br>
-                <a href="<?php echo site_url('admin/student_marksheet_print_view/'.$student_id.'/'.$exam_id);?>" 
+                <a href="<?php echo site_url('admin/student_marksheet_print_view/'.$student_id.'/'.$exam_id);?>"
                         class="btn btn-primary" target="_blank" style="position: relative; float: right; bottom: 20px; right: 10px;">
                         <?php echo get_phrase('print_marksheet');?>
                     </a>
-            <br><br>        
-        </div>  
+            <br><br>
+        </div>
     </div>
 </div>
 <?php
@@ -1617,12 +1617,12 @@
         /* Act on the event */
         $('html, body').animate({
           scrollTop: ($('#top').offset().top )
-        }, 1000); 
+        }, 1000);
 
         const url = '<?php echo site_url('admin/student_marksheet/') ?>' + $(this).val();
 
         navigation(url);
-        
+
     });
 
     //when form is submitted
@@ -1632,7 +1632,7 @@
 
         let exam_id = '<?php echo $exam_id; ?>';
         let is_ajax_page = '<?php echo isset($ajax) ? $ajax : 'no'; ?>';
-        
+
         if(exam_id == '' || exam_id == null) {
 
             $('#alert_error').css('display', 'block');
@@ -1656,20 +1656,20 @@
           .done(function(data) {
             if(data == 'no mark') {
                 showAjaxModal_alert('<?=get_phrase('please_enter marks before proceeding with conducts.'); ?>', 'error');
-              
+
             } else if(data == 'no conduct') {
                 showAjaxModal_alert('<?=get_phrase('no_conduct_was_selected_for_this_student'); ?>', 'error');
-              
+
             } else {
-                
-                
+
+
                 // Check if on list page and reload marksheet
                 if(is_ajax_page == 'yes') {
                     showAjaxModal_alert('<?=get_phrase('records_updated_successfully.'); ?>', 'success', false);
                     setTimeout(function() {
                         var student_id = '<?php echo $student_id; ?>';
                         $('#marksheet_display').html('<div class="loading-spinner"><i class="fa fa-spinner"></i><br>Reloading...</div>');
-                        
+
                         $.ajax({
                             url: '<?php echo site_url('admin'); ?>/load_marksheet_content',
                             type: 'POST',
@@ -1767,7 +1767,7 @@
                 width: '100%'
             });
         }
-        
+
         // 2. Initialize Select2 for Teacher Remarks with template loading
         if ($('.select2-teacher-remarks').length > 0) {
             // Load templates first, then initialize Select2
@@ -1782,7 +1782,7 @@
                         'negative': {text: '<?php echo get_phrase('negative_remarks'); ?>', children: []},
                         'other': {text: '<?php echo get_phrase('other'); ?>', children: []}
                     };
-                    
+
                     templates.forEach(function(item) {
                         var cat = item.category || 'other';
                         if (categories[cat]) {
@@ -1792,13 +1792,13 @@
                             });
                         }
                     });
-                    
+
                     for (var key in categories) {
                         if (categories[key].children.length > 0) {
                             groupedData.push(categories[key]);
                         }
                     }
-                    
+
                     // Initialize Select2 with loaded data
                     $('.select2-teacher-remarks').select2({
                         data: groupedData,
@@ -1821,7 +1821,7 @@
                 }
             });
         }
-        
+
         // 3. Initialize Select2 for Head Teacher Remarks (readonly select - NOT editable)
         if ($('.select2-head-remark').length > 0) {
             $('.select2-head-remark').select2({

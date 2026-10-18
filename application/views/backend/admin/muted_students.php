@@ -219,105 +219,6 @@ $total_students = count($students);
     top: 14px;
     color: #7f8c8d;
 }
-
-<style>
-/* ---- family design-language alignment (presentation only) ---- */
-.form-control, select.form-control {
-    border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    height: 42px;
-    font-size: 14px;
-    transition: border-color .15s ease, box-shadow .15s ease;
-}
-.form-control:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-    outline: none;
-}
-.btn {
-    border-radius: 10px;
-    font-weight: 600;
-    transition: all .2s;
-}
-.btn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-.btn-primary { background: #2563eb; border-color: #2563eb; }
-.btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
-.btn-info { background: #0284c7; border-color: #0284c7; }
-.btn-info:hover { background: #0369a1; border-color: #0369a1; }
-.btn-success { background: #059669; border-color: #059669; }
-.btn-success:hover { background: #047857; border-color: #047857; }
-.panel {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-}
-.panel > .panel-body { padding: 18px; }
-.table-bordered, .table {
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    overflow: hidden;
-}
-.table > thead > tr > th, .table thead td {
-    background: #f9fafb;
-    color: #374151;
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    border-bottom: 1px solid #e5e7eb !important;
-    padding: 12px 10px;
-}
-.table tbody td {
-    border-bottom: 1px solid #f3f4f6;
-    color: #374151;
-}
-.tile-stats {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-left: 5px solid #4f46e5;
-    border-radius: 16px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-    color: #111827;
-    overflow: hidden;
-    padding: 22px;
-}
-.tile-stats h3 { color: #374151; font-weight: 600; }
-.tile-stats .icon { color: #4f46e5; opacity: 0.15; }
-.blockquote-blue {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-left: 5px solid #4f46e5;
-    border-radius: 14px;
-    padding: 20px 24px;
-    color: #374151;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-}
-@media (prefers-reduced-motion: reduce) {
-    .btn, .table tbody tr { transition: none; }
-}
-
-.muted-header {
-    background: linear-gradient(135deg, #475569 0%, #334155 100%);
-    border-radius: 16px;
-    padding: 28px;
-    box-shadow: 0 12px 32px rgba(51, 65, 85, 0.25);
-}
-.stat-card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-left: 5px solid #475569;
-    border-radius: 16px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-    color: #111827;
-    transition: transform .18s ease, box-shadow .18s ease;
-}
-.stat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(16, 24, 40, 0.10); }
-</style>
-
 </style>
 
 <div class="muted-header">
@@ -356,8 +257,8 @@ $total_students = count($students);
             <div class="row">
                 <div class="col-md-7">
                     <div style="display: flex; gap: 16px; align-items: center;">
-                        <img src="<?php echo $this->crud_model->get_image_url('student', $student['student_id'], $student['sex']); ?>" 
-                             class="student-avatar" 
+                        <img src="<?php echo $this->crud_model->get_image_url('student', $student['student_id'], $student['sex']); ?>"
+                             class="student-avatar"
                              alt="<?php echo $student['name']; ?>">
                         <div class="student-info">
                             <h4><?php echo $student['name']; ?></h4>
@@ -432,7 +333,7 @@ $(document).ready(function() {
     $('#searchInput').on('keyup', function() {
         var searchTerm = $(this).val().toLowerCase();
         var visibleCount = 0;
-        
+
         $('.student-card').each(function() {
             var searchData = $(this).data('search');
             if(searchData.indexOf(searchTerm) > -1) {
@@ -442,7 +343,7 @@ $(document).ready(function() {
                 $(this).hide();
             }
         });
-        
+
         if(visibleCount === 0 && searchTerm !== '') {
             $('#noResults').show();
         } else {
@@ -493,32 +394,32 @@ function showClassSelectionModal(student_id) {
                 showAjaxModal_alert('No classes available. Please create classes first.', 'error');
                 return;
             }
-            
+
             // Build class selection HTML
             var classOptions = '<div style="margin: 20px 0;">';
             classOptions += '<label style="display: block; margin-bottom: 12px; font-weight: 600; color: #2c3e50; font-size: 15px;">Select Class to Enroll Student:</label>';
             classOptions += '<select id="unmute_class_select" class="form-control" style="width: 100%; padding: 14px 12px; height: 50px; font-size: 15px; border-radius: 8px; border: 2px solid #e8e8e8;">';
             classOptions += '<option value="">-- Select a Class --</option>';
-            
+
             classes.forEach(function(cls) {
                 classOptions += '<option value="' + cls.class_id + '">' + cls.name + '</option>';
             });
-            
+
             classOptions += '</select>';
             classOptions += '</div>';
-            
+
             // Show modal with class selection
             showCustomModal(
                 'Select Class for Student',
                 classOptions,
                 function() {
                     var selected_class_id = $('#unmute_class_select').val();
-                    
+
                     if (!selected_class_id) {
                         showAjaxModal_alert('Please select a class', 'error');
                         return false;
                     }
-                    
+
                     // Proceed with unmute
                     performUnmute(student_id, selected_class_id);
                     return true;
@@ -545,10 +446,10 @@ function showCustomModal(title, content, onConfirm, confirmText, confirmType) {
     modalHtml += '</div>';
     modalHtml += '</div>';
     modalHtml += '</div>';
-    
+
     // Add to body
     $('body').append(modalHtml);
-    
+
     // Store callback
     window.customModalCallback = onConfirm;
 }

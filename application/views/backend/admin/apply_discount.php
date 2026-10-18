@@ -7,133 +7,124 @@ $currency = get_settings('currency');
 if(empty($student_id)) {
 ?>
 <style>
-.apply-discount-workspace .enterprise-card {
+.enterprise-card {
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
   overflow: hidden;
 }
-.apply-discount-workspace .enterprise-header {
-  background: #2563eb;
-  padding: 18px 20px;
+.enterprise-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 32px;
   color: white;
 }
-.apply-discount-workspace .enterprise-body {
-  padding: 18px;
+.enterprise-body {
+  padding: 32px;
 }
-.apply-discount-workspace .form-group-modern {
-  margin-bottom: 16px;
+.form-group-modern {
+  margin-bottom: 24px;
 }
-.apply-discount-workspace .form-group-modern label {
+.form-group-modern label {
   display: block;
-  font-weight: 700;
-  font-size: 13px;
+  font-weight: 600;
+  font-size: 14px;
   color: #374151;
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.apply-discount-workspace .form-control-modern {
-  height: var(--sm-ui-control-height, 42px) !important;
-  border: 1px solid #cbd5e1;
-  border-radius: 9px;
-  padding: 0 11px;
-  font-size: 14px;
+.form-control-modern {
+  height: 56px !important;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0 16px;
+  font-size: 15px;
   font-weight: 500;
   transition: all 0.3s;
   background: #f9fafb;
 }
-.apply-discount-workspace .form-control-modern:focus {
+.form-control-modern:focus {
   border-color: #667eea;
   background: white;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
   outline: none;
 }
-.apply-discount-workspace .form-control-modern:disabled {
+.form-control-modern:disabled {
   background: #f3f4f6;
   cursor: not-allowed;
   opacity: 0.6;
 }
-.apply-discount-workspace .select2-container--default .select2-selection--single {
-  height: var(--sm-ui-control-height, 42px) !important;
-  border: 1px solid #cbd5e1 !important;
-  border-radius: 9px !important;
+.select2-container--default .select2-selection--single {
+  height: 56px !important;
+  border: 2px solid #e5e7eb !important;
+  border-radius: 12px !important;
   background: #f9fafb !important;
 }
-.apply-discount-workspace .select2-container--default .select2-selection--single .select2-selection__rendered {
-  line-height: 40px !important;
-  padding-left: 11px !important;
-  font-size: 14px !important;
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 52px !important;
+  padding-left: 16px !important;
+  font-size: 15px !important;
   font-weight: 500 !important;
   color: #374151 !important;
 }
-.apply-discount-workspace .select2-container--default .select2-selection--single .select2-selection__arrow {
-  height: 40px !important;
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 52px !important;
   right: 12px !important;
 }
-.apply-discount-workspace .select2-container--default.select2-container--focus .select2-selection--single,
-.apply-discount-workspace .select2-container--default.select2-container--open .select2-selection--single {
+.select2-container--default.select2-container--focus .select2-selection--single,
+.select2-container--default.select2-container--open .select2-selection--single {
   border-color: #667eea !important;
   background: white !important;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
 }
-.apply-discount-workspace .btn-enterprise {
-  height: var(--sm-ui-control-height, 42px);
-  padding: 0 14px;
-  font-size: 14px;
+.btn-enterprise {
+  height: 56px;
+  padding: 0 32px;
+  font-size: 15px;
   font-weight: 700;
-  border-radius: 9px;
+  border-radius: 12px;
   border: none;
-  background: #2563eb;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   transition: all 0.3s;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.apply-discount-workspace .btn-enterprise:hover:not(:disabled) {
+.btn-enterprise:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
   color: white;
 }
-.apply-discount-workspace .btn-enterprise:disabled {
+.btn-enterprise:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
-.apply-discount-workspace .info-badge {
+.info-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  background: #f0f9ff;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   border-left: 4px solid #0ea5e9;
   border-radius: 8px;
   font-size: 14px;
   color: #0c4a6e;
   font-weight: 500;
 }
-
-.apply-discount-workspace { margin: 0; padding: 0 0 32px; }
-@media (max-width: 767px) {
-  .apply-discount-workspace { padding-bottom: 28px; }
-  .apply-discount-workspace .enterprise-header { padding: 16px; }
-  .apply-discount-workspace .enterprise-body { padding: 14px; }
-  .apply-discount-workspace .apply-discount-title { font-size: 22px !important; }
-}
 </style>
 
-<div class="apply-discount-workspace">
 <div class="row">
   <div class="col-md-12">
     <div class="enterprise-card">
       <div class="enterprise-header">
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <h2 class="apply-discount-title" style="margin: 0; font-size: 24px; font-weight: 700; color: white;">
+            <h2 style="margin: 0; font-size: 32px; font-weight: 700; color: white;">
               <i class="fa fa-tag"></i> <?php echo get_phrase('apply_discount'); ?>
             </h2>
-            <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 14px;">Select student and invoice to apply discount profile</p>
+            <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 16px;">Select student and invoice to apply discount profile</p>
           </div>
           <div class="info-badge" style="background: rgba(255,255,255,0.2); border: none; color: white;">
             <i class="fa fa-info-circle"></i>
@@ -184,7 +175,7 @@ if(empty($student_id)) {
           </div>
         </div>
 
-        <div class="row" style="margin-top: 16px;">
+        <div class="row" style="margin-top: 32px;">
           <div class="col-md-12">
             <div style="display: flex; justify-content: flex-end; align-items: center;">
               <div class="info-badge">
@@ -195,9 +186,9 @@ if(empty($student_id)) {
           </div>
         </div>
 
-        <div id="invoice_details_section" style="display: none; margin-top: 16px;">
+        <div id="invoice_details_section" style="display: none; margin-top: 30px;">
           <div class="enterprise-card">
-            <div class="enterprise-header" style="background: #059669;">
+            <div class="enterprise-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                   <h4 style="margin: 0; font-size: 24px; font-weight: 700; color: white;">
@@ -222,7 +213,7 @@ if(empty($student_id)) {
         </div>
 
         <!-- Discount Profile Section -->
-        <div id="discount-profile-section" style="display: none; margin-top: 16px; background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 12px; padding: 18px;">
+        <div id="discount-profile-section" style="display: none; margin-top: 30px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 16px; padding: 25px;">
           <h5 style="color: #0c4a6e; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
             <i class="fa fa-tag" style="color: #0ea5e9;"></i>
             <?php echo get_phrase('assign_discount_profile'); ?>
@@ -231,8 +222,8 @@ if(empty($student_id)) {
             <input type="hidden" name="student_id" id="profile_student_id">
             <input type="hidden" name="invoice_code" id="profile_invoice_code">
             <div class="form-group">
-              <label style="font-weight: 700; font-size: 13px; color: #334155; margin-bottom: 7px;"><?php echo get_phrase('select_discount_profile'); ?></label>
-              <select name="profile_id" id="discount_profile_select" class="form-control" style="height: 42px; border: 1px solid #3b82f6; border-radius: 9px; font-size: 14px; font-weight: 600;" required>
+              <label style="font-weight: 600; color: #374151; margin-bottom: 10px;"><?php echo get_phrase('select_discount_profile'); ?></label>
+              <select name="profile_id" id="discount_profile_select" class="form-control" style="height: 50px; border: 2px solid #3b82f6; border-radius: 10px; font-weight: 600;" required>
                 <option value=""><?php echo get_phrase('select_profile'); ?></option>
                 <?php
                 $profiles = $this->db->where('is_active', 1)->where('discount_category', 'invoice')->get('discount_profiles')->result_array();
@@ -248,7 +239,7 @@ if(empty($student_id)) {
               </select>
             </div>
             <div id="profile-preview" style="display: none; background: white; border-radius: 10px; padding: 20px; margin: 15px 0; border: 2px solid #10b981; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1);"></div>
-            <button type="submit" class="btn btn-primary" style="background: #2563eb; border: none; min-height: 42px; padding: 9px 14px; font-size: 14px; font-weight: 700; border-radius: 9px;">
+            <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 12px 30px; font-weight: 700; border-radius: 10px;">
               <i class="fa fa-check-circle"></i> <?php echo get_phrase('assign_profile'); ?>
             </button>
           <?php echo form_close(); ?>
@@ -256,7 +247,6 @@ if(empty($student_id)) {
       </div>
     </div>
   </div>
-</div>
 </div>
 
 <script>
@@ -371,7 +361,7 @@ $(document).ready(function() {
             success: function(discountData) {
               if(discountData.has_discount) {
                 var hasPending = discountData.details.some(d => d.status === 'pending');
-                var bgGradient = hasPending ? '#fffbeb' : '#d1fae5';
+                var bgGradient = hasPending ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' : 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)';
                 var borderColor = hasPending ? '#f59e0b' : '#10b981';
                 var iconColor = hasPending ? '#92400e' : '#065f46';
                 var titleColor = hasPending ? '#92400e' : '#065f46';
@@ -456,7 +446,7 @@ $(document).ready(function() {
                   : '<span style="font-size: 32px; font-weight: 800; color: #059669;"><?php echo $currency; ?> ' + parseFloat(response.profile.discount_value).toFixed(2) + '</span>';
 
                 var html = '<div style="display: flex; gap: 20px; align-items: start;">';
-                html += '<div style="flex: 0 0 200px; text-align: center; background: #d1fae5; padding: 20px; border-radius: 10px; border: 2px solid #10b981;">';
+                html += '<div style="flex: 0 0 200px; text-align: center; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 20px; border-radius: 10px; border: 2px solid #10b981;">';
                 html += '<div style="font-size: 12px; color: #065f46; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">' + methodText + '</div>';
                 html += valueText;
                 html += '</div>';
@@ -506,7 +496,7 @@ $(document).ready(function() {
           } else {
             showConfirmModal(
               'Replace Existing Profile?',
-              'Student already has "' + check.profile_name + '" assigned to this invoice. The current discount will remain unchanged until the replacement is safely approved. Continue?',
+              'Student already has "' + check.profile_name + '" assigned to this invoice. The old profile will be REMOVED and replaced with the new one. Continue?',
               function() {
                 processProfileAssignment(formData, 'replace');
               },
@@ -702,7 +692,7 @@ foreach($invoice_codes as &$inv) {
     </div>
 
     <!-- Discount Profile Section -->
-    <div id="discount-profile-section" style="display: none; margin-top: 16px; background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 12px; padding: 18px;">
+    <div id="discount-profile-section" style="display: none; margin-top: 30px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 16px; padding: 25px;">
       <h5 style="color: #0c4a6e; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
         <i class="fa fa-tag" style="color: #0ea5e9;"></i>
         <?php echo get_phrase('assign_discount_profile'); ?>
@@ -711,8 +701,8 @@ foreach($invoice_codes as &$inv) {
         <input type="hidden" name="student_id" id="profile_student_id" value="<?php echo $student_id; ?>">
         <input type="hidden" name="invoice_code" id="profile_invoice_code">
         <div class="form-group">
-          <label style="font-weight: 700; font-size: 13px; color: #334155; margin-bottom: 7px;"><?php echo get_phrase('select_discount_profile'); ?></label>
-          <select name="profile_id" id="discount_profile_select" class="form-control" style="height: 42px; border: 1px solid #3b82f6; border-radius: 9px; font-size: 14px; font-weight: 600;" required>
+          <label style="font-weight: 600; color: #374151; margin-bottom: 10px;"><?php echo get_phrase('select_discount_profile'); ?></label>
+          <select name="profile_id" id="discount_profile_select" class="form-control" style="height: 50px; border: 2px solid #3b82f6; border-radius: 10px; font-weight: 600;" required>
             <option value=""><?php echo get_phrase('select_profile'); ?></option>
             <?php
             $profiles = $this->db->where('is_active', 1)->where('discount_category', 'invoice')->get('discount_profiles')->result_array();
@@ -728,7 +718,7 @@ foreach($invoice_codes as &$inv) {
           </select>
         </div>
         <div id="profile-preview" style="display: none; background: white; border-radius: 10px; padding: 20px; margin: 15px 0; border: 2px solid #10b981; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1);"></div>
-        <button type="submit" class="btn btn-primary" style="background: #2563eb; border: none; min-height: 42px; padding: 9px 14px; font-size: 14px; font-weight: 700; border-radius: 9px;">
+        <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 12px 30px; font-weight: 700; border-radius: 10px;">
           <i class="fa fa-check-circle"></i> <?php echo get_phrase('assign_profile'); ?>
         </button>
       <?php echo form_close(); ?>
@@ -822,7 +812,7 @@ $(document).ready(function() {
             var html = '<div style="display: flex; gap: 20px; align-items: start;">';
 
             // Left side - Discount Value
-            html += '<div style="flex: 0 0 200px; text-align: center; background: #d1fae5; padding: 20px; border-radius: 10px; border: 2px solid #10b981;">';
+            html += '<div style="flex: 0 0 200px; text-align: center; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 20px; border-radius: 10px; border: 2px solid #10b981;">';
             html += '<div style="font-size: 12px; color: #065f46; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">' + methodText + '</div>';
             html += valueText;
             html += '</div>';
@@ -877,7 +867,7 @@ $(document).ready(function() {
           } else {
             showConfirmModal(
               'Replace Existing Profile?',
-              'Student already has "' + check.profile_name + '" assigned to this invoice. The current discount will remain unchanged until the replacement is safely approved. Continue?',
+              'Student already has "' + check.profile_name + '" assigned to this invoice. The old profile will be REMOVED and replaced with the new one. Continue?',
               function() {
                 processProfileAssignment(formData, 'replace');
               },

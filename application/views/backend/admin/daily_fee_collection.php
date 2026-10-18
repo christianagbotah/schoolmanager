@@ -7,49 +7,35 @@ $water_enabled = is_fee_module_enabled('water');
 $transport_enabled = is_fee_module_enabled('transport');
 ?>
 <style>
-.fee-card { background: #2563eb; border-radius: 15px; padding: 20px; color: white; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15); }
-.fee-card h3 { margin: 0 0 10px 0; font-size: 14px; opacity: 0.9; }
+.fee-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 20px; color: white; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.fee-card h3 { margin: 0 0 10px 0; font-size: 16px; opacity: 0.9; }
 .fee-card .amount { font-size: 32px; font-weight: bold; }
 .fee-toggle { background: rgba(255,255,255,0.2); border-radius: 10px; padding: 15px; margin: 10px 0; cursor: pointer; transition: all 0.3s; }
 .fee-toggle:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
 .fee-toggle.active { background: rgba(255,255,255,0.4); border: 2px solid white; }
-.fee-input { background: rgba(255,255,255,0.9); border: none; border-radius: 8px; min-height: var(--sm-ui-control-height, 42px); padding: 9px 11px; font-size: 14px; width: 100%; }
-.total-display { background: #1e293b; border-radius: 15px; padding: 25px; text-align: center; color: white; font-size: 36px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15); }
-.btn-collect { background: #059669; border: none; border-radius: 9px; min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 16px; font-size: 14px; font-weight: bold; color: white; width: 100%; box-shadow: 0 1px 2px rgba(5, 150, 105, 0.35); transition: background-color .2s ease; }
+.fee-input { background: rgba(255,255,255,0.9); border: none; border-radius: 8px; padding: 12px; font-size: 16px; width: 100%; }
+.total-display { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 15px; padding: 25px; text-align: center; color: white; font-size: 36px; font-weight: bold; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.btn-collect { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; border-radius: 12px; padding: 18px 40px; font-size: 18px; font-weight: bold; color: white; width: 100%; box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: all 0.3s; }
 .btn-collect:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
-.student-card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.student-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 .badge-custom { padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-
-.daily-fee-workspace { margin: 0 !important; padding: 0 0 32px; }
-.daily-fee-workspace > .col-md-12 { padding: 0 !important; }
-.daily-fee-workspace .panel { margin: 0; box-shadow: none !important; border: 1px solid #e2e8f0 !important; border-radius: 14px !important; overflow: hidden; }
-.daily-fee-workspace .panel-heading { padding: 18px 20px !important; border-radius: 0 !important; }
-.daily-fee-workspace .panel-heading h2 { margin: 0 !important; font-size: 24px !important; line-height: 1.2; font-weight: 800 !important; }
-.daily-fee-workspace .panel-heading p { font-size: 14px; line-height: 1.45; }
-.daily-fee-workspace .panel-body { padding: 18px !important; background: #f8fafc; }
-.daily-fee-workspace .student-card > label { display: block; margin-bottom: 7px !important; font-size: 13px !important; font-weight: 700 !important; color: #334155 !important; }
-.daily-fee-workspace #student_id { height: var(--sm-ui-control-height, 42px) !important; font-size: 14px !important; }
-.daily-fee-workspace .select2-container .select2-selection--single { min-height: var(--sm-ui-control-height, 42px) !important; height: var(--sm-ui-control-height, 42px) !important; border: 1px solid #cbd5e1; border-radius: 9px; }
-.daily-fee-workspace .select2-container .select2-selection__rendered { line-height: 40px !important; font-size: 14px !important; }
-.daily-fee-workspace .select2-container .select2-selection__arrow { height: 40px !important; }
-@media (max-width: 767px) { .daily-fee-workspace { padding-bottom: 28px; } .daily-fee-workspace .panel-heading h2 { font-size: 22px !important; } .daily-fee-workspace .panel-body { padding: 14px !important; } }
 </style>
 
-<div class="row daily-fee-workspace">
+<div class="row">
     <div class="col-md-12">
         <div class="panel" style="border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-radius: 15px;">
-            <div class="panel-heading" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border-radius: 15px 15px 0 0; padding: 25px;">
+            <div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px 15px 0 0; padding: 25px;">
                 <h2 style="margin: 0; font-weight: bold;"><i class="fa fa-cash-register"></i> <?php echo get_phrase('daily_fee_collection'); ?></h2>
                 <p style="margin: 5px 0 0 0; opacity: 0.9;"><?php echo date('l, d F Y'); ?></p>
             </div>
             <div class="panel-body" style="padding: 30px;">
-                
+
                 <!-- Student Selection -->
                 <div class="student-card">
-                    <label style="font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 7px;">
+                    <label style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 10px;">
                         <i class="fa fa-user-graduate"></i> <?php echo get_phrase('select_student'); ?>
                     </label>
-                    <select class="form-control select2" id="student_id" style="height: 42px; font-size: 14px;">
+                    <select class="form-control select2" id="student_id" style="height: 50px; font-size: 16px;">
                         <option value=""><?php echo get_phrase('search_student_by_name_or_code'); ?></option>
                         <?php
                         $students = $this->db->query("
@@ -61,10 +47,10 @@ $transport_enabled = is_fee_module_enabled('transport');
                             WHERE e.year = ? AND e.term = ? AND e.mute = 0
                             ORDER BY s.name
                         ", [get_settings('running_year'), get_settings('running_term')])->result_array();
-                        
+
                         foreach ($students as $student):
                         ?>
-                        <option value="<?php echo $student['student_id']; ?>" 
+                        <option value="<?php echo $student['student_id']; ?>"
                                 data-class="<?php echo $student['class_id']; ?>"
                                 data-route="<?php echo $student['transport_id']; ?>">
                             <?php echo $student['student_code'] . ' - ' . $student['name'] . ' (' . $student['class_name'] . ')'; ?>
@@ -78,12 +64,12 @@ $transport_enabled = is_fee_module_enabled('transport');
                     <form id="feeCollectionForm">
                         <input type="hidden" name="student_id" id="form_student_id">
                         <input type="hidden" name="collection_date" value="<?php echo date('Y-m-d'); ?>">
-                        
+
                         <div class="row">
                             <!-- Feeding -->
                             <?php if($feeding_enabled): ?>
                             <div class="col-md-6 col-lg-3">
-                                <div class="fee-card" style="background: #ec4899;">
+                                <div class="fee-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                                     <h3><i class="fa fa-utensils"></i> <?php echo get_phrase('feeding'); ?></h3>
                                     <div class="amount" id="feeding_amount">GHS 0.00</div>
                                     <div class="fee-toggle" onclick="toggleFee('feeding')">
@@ -98,7 +84,7 @@ $transport_enabled = is_fee_module_enabled('transport');
                             <!-- Breakfast -->
                             <?php if($breakfast_enabled): ?>
                             <div class="col-md-6 col-lg-3">
-                                <div class="fee-card" style="background: #f59e0b;">
+                                <div class="fee-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
                                     <h3><i class="fa fa-coffee"></i> <?php echo get_phrase('breakfast'); ?></h3>
                                     <div class="amount" id="breakfast_amount">GHS 0.00</div>
                                     <div class="fee-toggle" onclick="toggleFee('breakfast')">
@@ -113,7 +99,7 @@ $transport_enabled = is_fee_module_enabled('transport');
                             <!-- Classes -->
                             <?php if($classes_enabled): ?>
                             <div class="col-md-6 col-lg-3">
-                                <div class="fee-card" style="background: #0891b2;">
+                                <div class="fee-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
                                     <h3><i class="fa fa-book"></i> <?php echo get_phrase('classes'); ?></h3>
                                     <div class="amount" id="classes_amount">GHS 0.00</div>
                                     <div class="fee-toggle" onclick="toggleFee('classes')">
@@ -128,7 +114,7 @@ $transport_enabled = is_fee_module_enabled('transport');
                             <!-- Water -->
                             <?php if($water_enabled): ?>
                             <div class="col-md-6 col-lg-3">
-                                <div class="fee-card" style="background: #cffafe;">
+                                <div class="fee-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
                                     <h3><i class="fa fa-tint"></i> <?php echo get_phrase('water'); ?></h3>
                                     <div class="amount" id="water_amount">GHS 0.00</div>
                                     <div class="fee-toggle" onclick="toggleFee('water')">
@@ -144,7 +130,7 @@ $transport_enabled = is_fee_module_enabled('transport');
                         <!-- Transport Section -->
                         <?php if($transport_enabled): ?>
                         <div class="student-card" id="transport_section" style="display:none;">
-                            <h4 style="color: #2563eb; margin-bottom: 20px;"><i class="fa fa-bus"></i> <?php echo get_phrase('transport'); ?></h4>
+                            <h4 style="color: #667eea; margin-bottom: 20px;"><i class="fa fa-bus"></i> <?php echo get_phrase('transport'); ?></h4>
                             <div class="row">
                                 <div class="col-md-6">
                                     <label><?php echo get_phrase('route'); ?></label>
@@ -161,8 +147,8 @@ $transport_enabled = is_fee_module_enabled('transport');
                                 </div>
                             </div>
                             <div style="margin-top: 15px; padding: 15px; background: rgba(102,126,234,0.1); border-radius: 10px;">
-                                <strong><?php echo get_phrase('transport_fare'); ?>:</strong> 
-                                <span id="transport_amount" style="font-size: 20px; color: #2563eb; font-weight: bold;">GHS 0.00</span>
+                                <strong><?php echo get_phrase('transport_fare'); ?>:</strong>
+                                <span id="transport_amount" style="font-size: 20px; color: #667eea; font-weight: bold;">GHS 0.00</span>
                             </div>
                             <input type="hidden" name="transport_amount" id="transport_rate" value="0">
                             <input type="hidden" id="route_fare_base" value="0">
@@ -171,13 +157,13 @@ $transport_enabled = is_fee_module_enabled('transport');
 
                         <!-- Total Display -->
                         <div class="total-display">
-                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 5px;"><?php echo get_phrase('total_amount'); ?></div>
+                            <div style="font-size: 16px; opacity: 0.9; margin-bottom: 5px;"><?php echo get_phrase('total_amount'); ?></div>
                             <div id="total_amount">GHS 0.00</div>
                         </div>
 
                         <!-- Payment Method -->
                         <div class="student-card">
-                            <label style="font-size: 13px; font-weight: 700; color: #334155;"><?php echo get_phrase('payment_method'); ?></label>
+                            <label style="font-size: 16px; font-weight: 600; color: #333;"><?php echo get_phrase('payment_method'); ?></label>
                             <select class="fee-input" name="payment_method" required>
                                 <option value="1"><?php echo get_phrase('cash'); ?></option>
                                 <option value="3"><?php echo get_phrase('mobile_money'); ?></option>
@@ -208,36 +194,36 @@ $('#student_id').change(function() {
         $('#collection_form').hide();
         return;
     }
-    
+
     var classId = $(this).find(':selected').data('class');
     var routeId = $(this).find(':selected').data('route');
-    
+
     $('#form_student_id').val(studentId);
-    
+
     // Load fee rates
     $.get('<?php echo site_url('admin/get_class_rates/'); ?>' + classId, function(response) {
         var data = typeof response === 'string' ? JSON.parse(response) : response;
         rates = data;
-        
+
         $('#feeding_amount').text('GHS ' + parseFloat(data.feeding_rate || 0).toFixed(2));
         $('#feeding_rate').val(data.feeding_rate || 0);
-        
+
         $('#breakfast_amount').text('GHS ' + parseFloat(data.breakfast_rate || 0).toFixed(2));
         $('#breakfast_rate').val(data.breakfast_rate || 0);
-        
+
         $('#classes_amount').text('GHS ' + parseFloat(data.classes_rate || 0).toFixed(2));
         $('#classes_rate').val(data.classes_rate || 0);
-        
+
         $('#water_amount').text('GHS ' + parseFloat(data.water_rate || 0).toFixed(2));
         $('#water_rate').val(data.water_rate || 0);
-        
+
         // Reset checkboxes
         $('input[type=checkbox]').prop('checked', false);
         $('.fee-toggle').removeClass('active');
-        
+
         $('#collection_form').show();
     });
-    
+
     // Load transport info
     if (routeId) {
         $.get('<?php echo site_url('admin/get_route_info/'); ?>' + routeId, function(response) {
@@ -257,19 +243,19 @@ $('#student_id').change(function() {
 function toggleFee(type) {
     var checkbox = $('#collect_' + type);
     checkbox.prop('checked', !checkbox.prop('checked'));
-    
+
     if (checkbox.prop('checked')) {
         checkbox.closest('.fee-toggle').addClass('active');
     } else {
         checkbox.closest('.fee-toggle').removeClass('active');
     }
-    
+
     calculateTotal();
 }
 
 function calculateTotal() {
     var total = 0;
-    
+
     if ($('#collect_feeding').prop('checked')) {
         total += parseFloat($('#feeding_rate').val() || 0);
     }
@@ -282,7 +268,7 @@ function calculateTotal() {
     if ($('#collect_water').prop('checked')) {
         total += parseFloat($('#water_rate').val() || 0);
     }
-    
+
     // Transport
     var direction = $('#transport_direction').val();
     var transportAmount = 0;
@@ -291,25 +277,25 @@ function calculateTotal() {
     } else if (direction == 'both') {
         transportAmount = routeFare * 2;
     }
-    
+
     $('#transport_amount').text('GHS ' + transportAmount.toFixed(2));
     $('#transport_rate').val(transportAmount);
     total += transportAmount;
-    
+
     $('#total_amount').text('GHS ' + total.toFixed(2));
 }
 
 $('#feeCollectionForm').submit(function(e) {
     e.preventDefault();
-    
+
     var total = parseFloat($('#total_amount').text().replace('GHS ', ''));
     if (total <= 0) {
         showAjaxModal_alert('<?php echo get_phrase('please_select_at_least_one_fee'); ?>', 'error');
         return;
     }
-    
+
     showAjaxModal_alert('<?php echo get_phrase('processing_payment'); ?>...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/collect_daily_fees'); ?>',
         type: 'POST',

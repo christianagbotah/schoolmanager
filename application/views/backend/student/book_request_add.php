@@ -11,22 +11,22 @@
             </div>
 
             <div class="panel-body">
-                
+
                 <?php echo form_open(site_url('student/book_request/create') , array('class' => 'form-horizontal form-groups-bordered validate', 'enctype' => 'multipart/form-data'));?>
-    
+
                     <div class="form-group">
                         <label class="col-sm-3 control-label"><?php echo get_phrase('book'); ?></label>
                         <div class="col-sm-6">
-                            <select name="book_id" id = "book_id" class="form-control selectboxit" onchange="verify_book(this.value)">
+                            <select name="book_id" id = "book_id" class="form-control select2" onchange="verify_book(this.value)">
                                 <option value="" disabled="disabled"><?php echo get_phrase('select_a_book'); ?></option>
-                                <?php 
+                                <?php
                                 $books = $this->db->get('book')->result_array();
                                 foreach ($books as $row) { ?>
                                     <option value="<?php echo $row['book_id']; ?>">
                                         <?php echo $row['name'];?>
                                     </option>
                                 <?php } ?>
-                            </select> 
+                            </select>
                         </div>
                         <div class="col-sm-2" id="mark_it"></div>
                     </div>
@@ -46,7 +46,7 @@
                                 data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" value="" />
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <div class="col-sm-offset-3 col-sm-5">
                             <button type="submit" id = 'submit' class="btn btn-info"><?php echo get_phrase('submit');?></button>

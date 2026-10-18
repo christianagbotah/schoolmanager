@@ -1,47 +1,7 @@
 <style type="text/css">
 	.validate-has-error { color: red; }
-
-.staff-form-modal { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-.staff-form-modal > .bg-white { border: 1px solid #e2e8f0; border-radius: 14px !important; box-shadow: 0 14px 34px rgba(15,23,42,.12) !important; }
-.teacher-form-modal > .bg-white > .bg-gradient-to-r { background-image: none !important; background-color: #1e40af !important; }
-.staff-form-modal > .bg-white > div:first-child { padding: 16px 20px !important; }
-.staff-form-modal h2.text-2xl { font-size: 20px !important; line-height: 1.3 !important; }
-.staff-form-modal .p-6 { padding: 20px !important; }
-.staff-form-modal h3.text-lg {
-    font-size: 16px !important; font-weight: 800 !important; color: #0f172a !important;
-    margin-bottom: 14px !important; padding-bottom: 10px !important; border-bottom-width: 1px !important;
-}
-.staff-form-modal label.text-xl { margin-bottom: 7px !important; font-size: 14px !important; line-height: 1.35 !important; font-weight: 700 !important; color: #334155 !important; }
-.staff-form-modal input.text-2xl,
-.staff-form-modal select.text-2xl,
-.staff-form-modal textarea.text-2xl {
-    min-height: 46px !important; padding: 10px 12px !important; border-width: 1px !important;
-    border-color: #cbd5e1 !important; border-radius: 9px !important; font-size: 15px !important;
-    line-height: 1.4 !important; color: #0f172a !important;
-}
-.staff-form-modal textarea.text-2xl { min-height: 96px !important; resize: vertical; }
-.staff-form-modal input.text-2xl:focus,
-.staff-form-modal select.text-2xl:focus,
-.staff-form-modal textarea.text-2xl:focus { border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important; }
-.staff-form-modal #id_generator { min-height: 46px; padding: 10px 16px !important; border-radius: 9px !important; font-size: 14px !important; }
-.staff-form-modal .btn-file,
-.staff-form-modal a.fileinput-exists { min-height: 40px; padding: 8px 14px !important; font-size: 14px !important; border-radius: 8px !important; }
-.staff-form-modal small.text-base { font-size: 13px !important; line-height: 1.4 !important; }
-.staff-form-modal button[type="submit"].text-2xl {
-    min-height: 46px; padding: 10px 20px !important; border-radius: 9px !important;
-    font-size: 15px !important; font-weight: 800 !important; box-shadow: 0 2px 8px rgba(37,99,235,.22) !important;
-}
-.staff-form-modal .gap-5 { gap: 16px !important; }
-.staff-form-modal .mb-8 { margin-bottom: 22px !important; }
-.staff-form-modal .mb-6 { margin-bottom: 20px !important; }
-@media (max-width: 640px) {
-    .staff-form-modal .p-6 { padding: 14px !important; }
-    .staff-form-modal input.text-2xl,
-    .staff-form-modal select.text-2xl,
-    .staff-form-modal textarea.text-2xl { font-size: 16px !important; }
-}
 </style>
-<div class="max-w-7xl mx-auto staff-form-modal teacher-form-modal">
+<div class="max-w-7xl mx-auto">
 	<div class="bg-white rounded-lg shadow-lg overflow-hidden">
 		<div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5">
 			<h2 class="text-2xl font-bold text-white flex items-center gap-2">
@@ -76,7 +36,7 @@
 			<!-- Personal Information -->
 			<div class="mb-6">
 				<h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">Personal Information</h3>
-				
+
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
 					<div>
 						<label class="block mb-2.5 text-xl font-bold text-gray-700">
@@ -106,7 +66,7 @@
 							Staff ID <span class="text-red-600">*</span>
 						</label>
 						<div class="flex gap-2">
-							<?php 
+							<?php
 								$teacher_code_pref = $this->db->get_where('settings', array('type'=>'teacher_code_prefix'))->row()->description;
 								$teacher_code_f = $this->db->get_where('settings', array('type'=>'teacher_code_format'))->row()->description;
 								$id_length = strlen($teacher_code_pref.$teacher_code_f);
@@ -125,13 +85,13 @@
 										for($i=0; $i<strlen($t_id); $i++) {
 											if(is_numeric($t_id[$i])) {
 												$first_num = $t_id[$i];
-												break; 
+												break;
 											}
 										}
 										$position_of_first_num = strpos($t_id, $first_num);
 										$n_tid = substr($t_id, $position_of_first_num, strlen($t_id) - $i);
 										$teacher_code = $n_tid + 1;
-										
+
 										if($first_num == 0) {
 											$old_len = strlen($t_id);
 											$new_len = strlen($teacher_code);
@@ -191,7 +151,7 @@
 			<!-- Contact Information -->
 			<div class="mb-6">
 				<h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">Contact Information</h3>
-				
+
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
 					<div>
 						<label class="block mb-2.5 text-xl font-bold text-gray-700">
@@ -219,7 +179,7 @@
 			<!-- Identification -->
 			<div class="mb-6">
 				<h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">Identification</h3>
-				
+
 				<div class="grid grid-cols-1 gap-5 mb-4">
 					<div>
 						<label class="block mb-2.5 text-xl font-bold text-gray-700">
@@ -270,7 +230,7 @@
 			<!-- Social Links -->
 			<div class="mb-6">
 				<h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500"><?php echo get_phrase('social_links');?></h3>
-				
+
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
 					<div>
 						<label class="block mb-2.5 text-xl font-bold text-gray-700">Facebook</label>
@@ -307,7 +267,7 @@
 			<!-- Account Information -->
 			<div class="mb-6">
 				<h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">Account Information</h3>
-				
+
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
 					<div>
 						<label class="block mb-2.5 text-xl font-bold text-gray-700">
@@ -360,14 +320,14 @@
 
 	$('#teacher_add_form').submit(function(e) {
 		e.preventDefault();
-		
+
 		showConfirmModal(
 			'Confirm Add Teacher',
 			'Are you sure you want to add this teacher?',
 			function() {
 				$('#modal_ajax').modal('hide');
 				showAjaxModal_alert('Creating teacher...', 'loading');
-				
+
 				$.ajax({
 					url: $('#teacher_add_form').attr('action'),
 					type: 'POST',
@@ -380,7 +340,7 @@
 					// Handle backend's numeric response codes
 					let message = '';
 					let success = false;
-					
+
 					if(response == '1') {
 						message = 'Invalid email format';
 					} else if(response == '2') {
@@ -395,7 +355,7 @@
 						// Handle validation errors (HTML list)
 						message = response;
 					}
-					
+
 					showAjaxModal_alert(message, success ? 'success' : 'error');
 					if(success) {
 						setTimeout(() => location.reload(), 2000);

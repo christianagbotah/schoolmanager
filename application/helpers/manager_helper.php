@@ -40,11 +40,11 @@ if ( ! function_exists('get_settings'))
         $CI = &get_instance();
         $CI->load->database();
         $result = $CI->db->get_where('settings', array('type' => $type))->row();
-        
+
         if ($result && isset($result->description)) {
             return $result->description;
         }
-        
+
         return '';
     }
 }
@@ -79,11 +79,11 @@ if ( ! function_exists('populate_academic_year'))
         $CI->db->order_by('enroll_id');
         $CI->db->limit(1);
         $first_row = $CI->db->get('enroll')->first_row();
-        
+
         if (!$first_row || !isset($first_row->year)) {
             return;
         }
-        
+
         $first_year = $first_row->year;
 
         $explode_first_year = explode('-', $first_year);
@@ -92,22 +92,22 @@ if ( ! function_exists('populate_academic_year'))
         $this_year = date('Y', strtotime('now'));
         $diffr = $this_year - $base_year2;
 
-       
+
 
         if($isHeader == 'yes') {
-            
+
             $diffr = $diffr + 3;
         } else {
 
             //don't display the next year
              $diffr = $diffr + 2;
         }
-        
+
         // Build years array first
         $years = array();
         $year1 = $base_year1;
         $year2 = $base_year2;
-        
+
         for($i = 1; $i < $diffr; $i++) {
             $years[] = array(
                 'year1' => $year1,
@@ -117,10 +117,10 @@ if ( ! function_exists('populate_academic_year'))
             $year1 += 1;
             $year2 += 1;
         }
-        
+
         // Reverse array for descending order
         $years = array_reverse($years);
-        
+
         // Output options in descending order
         foreach($years as $y) {
             $selected = '';
@@ -133,7 +133,7 @@ if ( ! function_exists('populate_academic_year'))
                     $selected = 'selected';
                 }
             }
-            
+
             echo '<option value="'.$y['year1'].'-'.$y['year2'].'"'.$selected.'>'.$y['year1'].'-'.$y['year2'].'</option>';
         }
 
@@ -151,7 +151,7 @@ if ( ! function_exists('getFullClassName'))
 
         $class_name = $ci->crud_model->get_class_name($class_id);
         $class_name_numeric = $ci->crud_model->get_class_name_numeric($class_id);
-        
+
 
         //adding sections to class names
         //add section A or B if the class has more than one section
@@ -175,7 +175,7 @@ if ( ! function_exists('getFullClassName'))
         return $class;
     }
 
-    
+
 }
 
 
@@ -214,7 +214,7 @@ if ( ! function_exists('getAdminPermissions'))
             $adminPermissions = $ci->db->get_where('user_permission', ['user_type' => 'admin', 'user_level' => '2', 'permission_title' => $field])->row()->permission_status;
         }
 
-        
+
 
         return $adminPermissions;
 
@@ -250,28 +250,32 @@ if ( ! function_exists('cleanStrings'))
 /*FOR ATTENDANCE STATUS*/
 if(!function_exists('getAttendanceStatusCode')) {
     function getAttendanceStatusCode($num) {
-        
+
         switch($num) {
             case 1:
                 return 'P';
                 break;
-                
+
             case 2:
                 return 'A';
                 break;
-            
+
             case 3:
-                return 'B';
+                return 'L';
                 break;
-            
+
             case 4:
                 return 'S';
                 break;
-                
+
             case 5:
                 return 'C';
                 break;
-                
+
+            case 6:
+                return 'E';
+                break;
+
             default:
                 return '-';
                 break;
@@ -280,30 +284,34 @@ if(!function_exists('getAttendanceStatusCode')) {
 }
 
 if(!function_exists('getAttendanceStatusPhrase')) {
-    
+
     function getAttendanceStatusPhrase($num) {
-        
+
         switch($num) {
             case 1:
                 return 'Present';
                 break;
-                
+
             case 2:
                 return 'Absent';
                 break;
-            
+
             case 3:
-                return 'Busy';
+                return 'Late';
                 break;
-            
+
             case 4:
                 return 'Sick-Home';
                 break;
-                
+
             case 5:
                 return 'Sick-Clinic';
                 break;
-                
+
+            case 6:
+                return 'Excused';
+                break;
+
             default:
                 return '-';
                 break;
@@ -312,26 +320,26 @@ if(!function_exists('getAttendanceStatusPhrase')) {
 }
 
 if(!function_exists('getMonthInWords')) {
-    
+
     function getMonthInWords($num) {
-        
+
         switch($num) {
             case '01':
                 return 'January';
                 break;
-                
+
             case '02':
                 return 'February';
                 break;
-            
+
             case '03':
                 return 'March';
                 break;
-            
+
             case '04':
                 return 'April';
                 break;
-                
+
             case '05':
                 return 'May';
                 break;
@@ -363,7 +371,7 @@ if(!function_exists('getMonthInWords')) {
             case '12':
                 return 'December';
                 break;
-                
+
             default:
                 return '';
                 break;
@@ -375,24 +383,24 @@ if ( ! function_exists('getStudentAttendancePresentDays'))
 {
     function getStudentAttendancePresentDays($student_id, $term, $year) {
         $ci = &get_instance();
-        
+
         $ci->db->where('student_id', $student_id);
         $ci->db->where('term', $term);
         $ci->db->where('year', $year);
         $ci->db->where('status', '1');
         $count = $ci->db->count_all_results('attendance');
-        
+
         return $count;
     }
 }
 
 
-                                    
+
 
 /**
  * Get conduct item name by ID or return text if legacy
  * Supports backward compatibility for old text-based conducts
- * 
+ *
  * @param mixed $value - Can be numeric ID (new system) or text (legacy)
  * @return string - Conduct item name
  */
@@ -403,7 +411,7 @@ if ( ! function_exists('get_conduct_name'))
         if(empty($value)) {
             return '';
         }
-        
+
         // If numeric, it's an ID - lookup from database
         if(is_numeric($value)) {
             $CI = &get_instance();
@@ -411,7 +419,7 @@ if ( ! function_exists('get_conduct_name'))
             $name = $CI->Conduct_items_model->get_name_by_id($value);
             return $name ? $name : ''; // Return empty if ID not found (deleted item)
         }
-        
+
         // Otherwise it's legacy text - return as is
         return $value;
     }
@@ -423,7 +431,7 @@ if ( ! function_exists('get_conduct_display_value'))
      * Get conduct display value
      * If the value is numeric, fetch the name from conduct_items table
      * Otherwise, return the text as-is
-     * 
+     *
      * @param string $conduct_value The conduct value (could be ID or text)
      * @return string The display value
      */
@@ -433,26 +441,26 @@ if ( ! function_exists('get_conduct_display_value'))
         if ($conduct_value === null || $conduct_value === '' || $conduct_value === 'Null') {
             return '';
         }
-        
+
         // Trim the value
         $conduct_value = trim($conduct_value);
-        
+
         // Check if the value is numeric (is an ID)
         if (is_numeric($conduct_value)) {
             // Fetch the name from conduct_items table
             $CI = &get_instance();
             $CI->load->database();
-            
+
             $conduct_item = $CI->db->get_where('conduct_items', array('id' => $conduct_value))->row();
-            
+
             if ($conduct_item && isset($conduct_item->name)) {
                 return $conduct_item->name;
             }
-            
+
             // If ID not found, return empty
             return '';
         }
-        
+
         // If not numeric, return the text as-is
         return $conduct_value;
     }

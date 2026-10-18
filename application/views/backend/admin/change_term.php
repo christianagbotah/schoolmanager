@@ -1,60 +1,23 @@
-<style>
-/* Direct UI/UX refinement — academic term selector */
-#term_change {
-    margin: 0;
-    padding: 4px 0;
-}
-#term_change > li {
-    list-style: none;
-    margin: 0;
-}
-#term_change .form-group {
-    margin: 0;
-}
-#change_running_term {
-    width: 100% !important;
-    min-height: var(--sm-ui-control-height, 42px) !important;
-    height: var(--sm-ui-control-height, 42px) !important;
-    padding: 9px 11px !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 9px !important;
-    background: #fff !important;
-    color: #0f172a !important;
-    font-size: 14px !important;
-    line-height: 1.4 !important;
-    font-weight: 700 !important;
-    box-shadow: none !important;
-}
-#change_running_term:focus {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
-    outline: none;
-}
-@media (max-width: 767px) {
-    #change_running_term { font-size: 16px !important; }
-}
-</style>
-
 <?php echo form_open(site_url('admin/change_term') , array('id' => 'term_change'))
 ;
 $running_year = get_settings('running_year');
 ?>
 <li>
-	
+
 	<div class="form-group">
 		<select name="running_term" id="change_running_term" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-xl font-bold block w-full max-w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-		  	<?php $running_term = $this->db->get_where('settings' , array('type'=>'running_term'))->row()->description;?>
-		  	<option value="" disabled="disabled"><?php echo get_phrase('select_running_term');?></option>
-		  	<?php for($i = 1; $i <= 3; $i++):?>
-		      	<option value="<?php echo $i;?>"
+            <?php $running_term = $this->db->get_where('settings' , array('type'=>'running_term'))->row()->description;?>
+            <option value="" disabled="disabled"><?php echo get_phrase('select_running_term');?></option>
+            <?php for($i = 1; $i <= 3; $i++):?>
+                <option value="<?php echo $i;?>"
 		        <?php if($running_term == $i) echo 'selected';?>>
-		          	<?php echo $i;?>
-		      	</option>
+                    <?php echo $i;?>
+                </option>
 		  <?php endfor;?>
 		</select>
 	</div>
-	
-	
+
+
 </li>
 <?php echo form_close();?>
 
@@ -62,133 +25,133 @@ $running_year = get_settings('running_year');
 
 <script type="text/javascript">
     $('#change_running_term').change(function(evt) {
-    	evt.preventDefault();   	
+        evt.preventDefault();
 
-    	var url = '<?php echo site_url('admin/change_term') ?>';
-    	var formValue = $(this).val();
-    	var running_term = Number('<?php echo $running_term; ?>');
+        var url = '<?php echo site_url('admin/change_term') ?>';
+        var formValue = $(this).val();
+        var running_term = Number('<?php echo $running_term; ?>');
 
-    	if(formValue == 1) {
-    		url = '<?php echo site_url('admin/change_session/yes') ?>';
+        if(formValue == 1) {
+            url = '<?php echo site_url('admin/change_session/yes') ?>';
 
-    		showAjaxModal_prompt('Are you changing to a new academic year and term?\nIf you choose YES, we will attempt to update the year and do all the necessary updates such as:\nenrolling students and subjects, adding examination etc.');
+            showAjaxModal_prompt('Are you changing to a new academic year and term?\nIf you choose YES, we will attempt to update the year and do all the necessary updates such as:\nenrolling students and subjects, adding examination etc.');
 
-    		$('#prompt_yes').click(function(e) {
-    			$(this).attr('data-dismiss', 'modal');
-    			url = '<?php echo site_url('admin/change_session/yes/enroll') ?>';
-    			startWork(formValue, url);//do the work
-    		});
+            $('#prompt_yes').click(function(e) {
+                $(this).attr('data-dismiss', 'modal');
+                url = '<?php echo site_url('admin/change_session/yes/enroll') ?>';
+                startWork(formValue, url);//do the work
+            });
 
-    		$('#prompt_cancel').click(function(e) {
-    			url = '<?php echo site_url('admin/change_session/yes') ?>';
-    			startWork(formValue, url);//do the work
-    		});
-    	} else {
+            $('#prompt_cancel').click(function(e) {
+                url = '<?php echo site_url('admin/change_session/yes') ?>';
+                startWork(formValue, url);//do the work
+            });
+        } else {
 
-    		if(formValue > running_term) {
-    			//check if this term and year already exist
-    			$.ajax({
-    				url: '<?php echo site_url('admin/year_term_exist/'.$running_year.'/'); ?>' + formValue,
-    				type: 'post',
+            if(formValue > running_term) {
+                //check if this term and year already exist
+                $.ajax({
+                    url: '<?php echo site_url('admin/year_term_exist/'.$running_year.'/'); ?>' + formValue,
+                    type: 'post',
 
-    			})
-    			.done(function(r) {
-    				if(r > 0) {
-    					//no need asking user to confirm if enrolling to a new term or not
-    					startWork(formValue, url);//do the work
-    				} else {
+                })
+                .done(function(r) {
+                    if(r > 0) {
+                        //no need asking user to confirm if enrolling to a new term or not
+                        startWork(formValue, url);//do the work
+                    } else {
 
-    					//find out if user wants to effect new enrollment to another term
-		    			showAjaxModal_prompt('Are you changing to a new academic term?\nIf you choose YES, we will attempt to do all the necessary updates such as:\nenrolling students and subjects, adding examination etc.');
+                        //find out if user wants to effect new enrollment to another term
+                        showAjaxModal_prompt('Are you changing to a new academic term?\nIf you choose YES, we will attempt to do all the necessary updates such as:\nenrolling students and subjects, adding examination etc.');
 
-			    		$('#prompt_yes').click(function(e) {
-			    			$(this).attr('data-dismiss', 'modal');
-			    			url = '<?php echo site_url('admin/change_term/yes'); ?>';
-			    			startWork(formValue, url);//do the work
-			    		});
+                        $('#prompt_yes').click(function(e) {
+                            $(this).attr('data-dismiss', 'modal');
+                            url = '<?php echo site_url('admin/change_term/yes'); ?>';
+                            startWork(formValue, url);//do the work
+                        });
 
-			    		$('#prompt_cancel').click(function(e) {
-			    			url = '<?php echo site_url('admin/change_term'); ?>';
-			    			startWork(formValue, url);//do the work
-			    		});
-    				}
-    			});
+                        $('#prompt_cancel').click(function(e) {
+                            url = '<?php echo site_url('admin/change_term'); ?>';
+                            startWork(formValue, url);//do the work
+                        });
+                    }
+                });
 
-    		} else {
-    			startWork(formValue, url);//do the work
-    		}
-    		
-    	}
+            } else {
+                startWork(formValue, url);//do the work
+            }
+
+        }
     });
 
     function startWork(formValue, url) {
 
-    	var previousJsonResponseLength = false;
-    	var jsonParseResponse;
+        var previousJsonResponseLength = false;
+        var jsonParseResponse;
 
-    	$.ajax({
-    		url: url,
-  			type: 'post',
-  			data: {running_term: formValue},
-  			//contentType: false,
-  			//processData: false,
-  			cache: false,
-
-
-
-    		xhrFields: {
-    			onprogress: function(ev) {
-    				var response = ev.currentTarget.response;
-    				var jsonResponse;
-
-    				if(previousJsonResponseLength === false) {
-    					jsonResponse = response;
-    					previousJsonResponseLength = response.length;
-
-    				} else {
-    					jsonResponse = response.substring(previousJsonResponseLength);
-    					previousJsonResponseLength = response.length;
-    				}
-
-    				//process the response now
-    				jsonParseResponse = JSON.parse(jsonResponse);
-    				showAjaxModal_alert(jsonParseResponse.message + ' <i class="fa fa-spinner fa-pulse"></i>', 'Loading');
-    			}
-    		}
-    	})
-    	.done(function(data) {
-    		$('#modal_alert i .fa-spinner').css('display', 'none');
+        $.ajax({
+            url: url,
+            type: 'post',
+            data: {running_term: formValue},
+            //contentType: false,
+            //processData: false,
+            cache: false,
 
 
-    		if(jsonParseResponse.success == false) {
 
-    			$('#modal_alert .modal-header button span i').removeAttr('style');
-    			showAjaxModal_alert(jsonParseResponse.message, 'Error');
+            xhrFields: {
+                onprogress: function(ev) {
+                    var response = ev.currentTarget.response;
+                    var jsonResponse;
 
-    			$('.close').click(function() {
-    				location.reload();
-    			});
+                    if(previousJsonResponseLength === false) {
+                        jsonResponse = response;
+                        previousJsonResponseLength = response.length;
 
-    		} else if(jsonParseResponse.success == true) {
-    			showAjaxModal_alert(jsonParseResponse.message, 'Success');
+                    } else {
+                        jsonResponse = response.substring(previousJsonResponseLength);
+                        previousJsonResponseLength = response.length;
+                    }
 
-    			setTimeout(() => {
-	    				location.reload();
-	    				$('.close').click(); //close the alert
-	    			}, 5000);
+                    //process the response now
+                    jsonParseResponse = JSON.parse(jsonResponse);
+                    showAjaxModal_alert(jsonParseResponse.message + ' <i class="fa fa-spinner fa-pulse"></i>', 'Loading');
+                }
+            }
+        })
+        .done(function(data) {
+            $('#modal_alert i .fa-spinner').css('display', 'none');
 
-    		} else {
-    			$('#modal_alert .modal-header button span i').removeAttr('style');
-    			showAjaxModal_alert('We cannot identify the problem. Please try again later!', 'Error');
 
-    			$('.close').click(function() {
-    				location.reload();
-    			});
-    		}
-    	})
-    	.fail(function(err) {
-    		$('#modal_alert .modal-header button span i').removeAttr('style');
-    		showAjaxModal_alert('Error: ' + err.responseText, 'Error');
-    	});
+            if(jsonParseResponse.success == false) {
+
+                $('#modal_alert .modal-header button span i').removeAttr('style');
+                showAjaxModal_alert(jsonParseResponse.message, 'Error');
+
+                $('.close').click(function() {
+                    location.reload();
+                });
+
+            } else if(jsonParseResponse.success == true) {
+                showAjaxModal_alert(jsonParseResponse.message, 'Success');
+
+                setTimeout(() => {
+                        location.reload();
+                        $('.close').click(); //close the alert
+                    }, 5000);
+
+            } else {
+                $('#modal_alert .modal-header button span i').removeAttr('style');
+                showAjaxModal_alert('We cannot identify the problem. Please try again later!', 'Error');
+
+                $('.close').click(function() {
+                    location.reload();
+                });
+            }
+        })
+        .fail(function(err) {
+            $('#modal_alert .modal-header button span i').removeAttr('style');
+            showAjaxModal_alert('Error: ' + err.responseText, 'Error');
+        });
     }
 </script>

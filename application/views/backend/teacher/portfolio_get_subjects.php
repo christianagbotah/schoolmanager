@@ -1,6 +1,6 @@
 	<?php
 				$section = $this->db->get_where('section' , array(
-					'class_id' => $class_id 
+					'class_id' => $class_id
 				))->row()->section_id;
 				?>
 			<input type="hidden" name="section_id" id="section_id" value="<?php echo $section;?>">
@@ -19,8 +19,8 @@
 		<div class="col-md-3">
 			<div class="form-group">
 			<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('subject');?></label>
-				<select name="subject_id" id="subject_id" class="form-control selectboxit">
-					<?php 
+				<select name="subject_id" id="subject_id" class="form-control select2">
+					<?php
 						//grant access to all subjects if this teacher is a class teacher else just grant access to a particular subject
 						if($t_id == $this->session->userdata('teacher_id')) {
 							$subjects = $this->db->get_where('subject' , array(
@@ -37,14 +37,14 @@
 				</select>
 			</div>
 		</div>
-		<?php 
+		<?php
 		} else {
 			?>
 				<div class="col-md-3">
 					<div class="form-group">
 					<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('subject');?></label>
-						<select name="subject_id" id="subject_id" class="form-control selectboxit">
-							<?php 
+						<select name="subject_id" id="subject_id" class="form-control select2">
+							<?php
 								//grant access to all subjects if this teacher is a class teacher else just grant access to a particular subject
 								if($t_id == $this->session->userdata('teacher_id')) {
 									$subjects = $this->db->get_where('subject' , array(
@@ -69,8 +69,8 @@
 <div class="col-md-3">
 	<div class="form-group">
 	<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('subject');?></label>
-		<select name="subject_id" id="subject_id" class="form-control selectboxit">
-			<?php 
+		<select name="subject_id" id="subject_id" class="form-control select2">
+			<?php
 
 
 				if($class_name == 'JHSS') {
@@ -85,7 +85,7 @@
 				))->result_array();
 
 				}
-				
+
 				foreach($subjects as $row):
 			?>
 			<option value="<?php echo $row['subject_id'];?>"><?php echo $row['name'];?></option>
@@ -105,9 +105,9 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-        if($.isFunction($.fn.selectBoxIt))
+        if (typeof $.fn.select2 !== "undefined")
 		{
-			$("select.selectboxit").each(function(i, el)
+			$("select.select2").each(function(i, el)
 			{
 				var $this = $(el),
 					opts = {
@@ -115,11 +115,11 @@
 						'native': attrDefault($this, 'native', false),
 						defaultText: attrDefault($this, 'text', ''),
 					};
-					
+
 				$this.addClass('visible');
-				$this.selectBoxIt(opts);
+				$this.select2({ placeholder: "Select an option", allowClear: true, width: "100%" });
 			});
 		}
     });
-	
+
 </script>

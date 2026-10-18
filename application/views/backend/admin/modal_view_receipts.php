@@ -50,7 +50,7 @@ if($enroll) {
         <div style="flex: 1;">
             <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: white;"><?php echo $student_info->name; ?></h2>
             <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">
-                <i class="fa fa-id-card"></i> <?php echo $student_info->student_code; ?> 
+                <i class="fa fa-id-card"></i> <?php echo $student_info->student_code; ?>
                 <?php if($class_name): ?>
                     <span style="margin-left: 15px;"><i class="fa fa-school"></i> <?php echo $class_name; ?></span>
                 <?php endif; ?>
@@ -141,8 +141,8 @@ if($enroll) {
                                 ->result_array();
                             $invoice_codes_list = array_unique(array_column($invoice_codes, 'invoice_code'));
                             $total_amount = array_sum(array_column($invoice_codes, 'amount'));
-                            $invoice_display = count($invoice_codes_list) > 1 ? 
-                                '#' . implode(', #', array_slice($invoice_codes_list, 0, 2)) . (count($invoice_codes_list) > 2 ? '...' : '') : 
+                            $invoice_display = count($invoice_codes_list) > 1 ?
+                                '#' . implode(', #', array_slice($invoice_codes_list, 0, 2)) . (count($invoice_codes_list) > 2 ? '...' : '') :
                                 '#' . $invoice_codes_list[0];
                             $payment_method = '';
                             $method_icon = '';
@@ -196,14 +196,14 @@ if($enroll) {
                         <td style="padding: 15px;"><span style="font-weight: 600; color: #4a5568;"><?php echo $receipt['year'] . ' | ' . $receipt['term']; ?></span></td>
                         <td style="padding: 15px; text-align: center;">
                             <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                                <button onclick="viewReceiptDetails('<?php echo $receipt['receipt_code']; ?>', '<?php echo $student_id; ?>', '<?php echo $total_amount; ?>', '<?php echo $receipt['timestamp']; ?>')" 
+                                <button onclick="viewReceiptDetails('<?php echo $receipt['receipt_code']; ?>', '<?php echo $student_id; ?>', '<?php echo $total_amount; ?>', '<?php echo $receipt['timestamp']; ?>')"
                                         style="background: linear-gradient(135deg, <?php echo $gradient_light; ?> 0%, <?php echo $gradient_dark; ?> 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3); white-space: nowrap;"
                                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 10px rgba(102, 126, 234, 0.5)'"
                                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(102, 126, 234, 0.3)'">
                                     <i class="fa fa-eye"></i> View
                                 </button>
-                                <button onclick="requestModification(<?php echo $receipt['payment_id']; ?>)" 
-                                        style="background: #d97706; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: background-color .2s ease; box-shadow: 0 1px 2px rgba(217, 119, 6, 0.3); white-space: nowrap;"
+                                <button onclick="requestModification(<?php echo $receipt['payment_id']; ?>)"
+                                        style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3); white-space: nowrap;"
                                         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 10px rgba(245, 158, 11, 0.5)'"
                                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(245, 158, 11, 0.3)'">
                                     <i class="fa fa-edit"></i> Modify
@@ -211,7 +211,7 @@ if($enroll) {
                             </div>
                         </td>
                     </tr>
-                    <?php 
+                    <?php
                         endforeach;
                     else:
                     ?>
@@ -247,7 +247,7 @@ $(document).ready(function() {
         format: 'dd-mm-yyyy',
         autoclose: true
     });
-    
+
     <?php if($has_receipts): ?>
     var table = $('#student_receipts_table').DataTable({
         "order": [[4, "desc"]],
@@ -255,12 +255,12 @@ $(document).ready(function() {
     });
     $('#student_receipts_table colgroup').remove();
     <?php endif; ?>
-    
+
     // Filter receipts
     $('#filter_receipts_btn').click(function() {
         filterReceipts();
     });
-    
+
     $('#clear_receipt_filters_btn').click(function() {
         $('#receipt_start_date').val('');
         $('#receipt_end_date').val('');
@@ -276,7 +276,7 @@ function filterReceipts() {
     const end_date = $('#receipt_end_date').val();
     const year = $('#receipt_year').val();
     const term = $('#receipt_term').val();
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/filter_student_receipts'); ?>',
         type: 'POST',
@@ -309,8 +309,8 @@ function viewReceiptDetails(receipt_code, student_id, amount, timestamp) {
 }
 
 function requestModification(paymentId) {
-    loadModalContent('createModal', 
-        '<?php echo site_url("admin/receipt_modification_modal/"); ?>' + paymentId, 
+    loadModalContent('createModal',
+        '<?php echo site_url("admin/receipt_modification_modal/"); ?>' + paymentId,
         '<i class="fa fa-edit"></i> Request Receipt Modification');
 }
 </script>

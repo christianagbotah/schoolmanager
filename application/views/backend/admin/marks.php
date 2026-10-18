@@ -5,7 +5,7 @@
 	<div class="col-md-2">
 		<div class="form-group">
 		<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('exam');?></label>
-			<select name="exam_id" class="form-control selectboxit" required>
+			<select name="exam_id" class="form-control select2" required>
 				<option value=""><?php echo get_phrase('select_exam');?></option>
 				<?php
 					$exams = $this->db->get_where('exam' , array('year' => $running_year))->result_array();
@@ -20,7 +20,7 @@
 	<div class="col-md-2">
 		<div class="form-group">
 		<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('class');?></label>
-			<select name="class_id" class="form-control selectboxit" onchange="get_class_subject(this.value)">
+			<select name="class_id" class="form-control select2" onchange="get_class_subject(this.value)">
 				<option value=""><?php echo get_phrase('select_class');?></option>
 				<?php
 
@@ -40,7 +40,7 @@
 
 <script type="text/javascript">
 	function get_class_subject(class_id) {
-		
+
 		$.ajax({
             url: '<?php echo site_url('admin/marks_get_subject/');?>' + class_id ,
             success: function(response)

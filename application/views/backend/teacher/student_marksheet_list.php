@@ -3,7 +3,7 @@
     margin-top: 25px;
 }
 .modern-panel {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -50,7 +50,7 @@
     font-weight: 600;
     border: none;
     border-radius: 8px;
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     transition: all 0.3s;
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
@@ -61,7 +61,7 @@
     color: white;
 }
 .modern-btn:disabled {
-    background: #a0aec0;
+    background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
     cursor: not-allowed;
     box-shadow: none;
 }
@@ -120,7 +120,7 @@
                             </label>
                             <select class="form-control modern-select" id="class_filter" onchange="loadStudents()">
                                 <option value=""><?php echo get_phrase('select_class'); ?></option>
-                                <?php 
+                                <?php
                                 if($account_type == 'admin'):
                                     getFullClassList();
                                 else:
@@ -171,7 +171,7 @@ $(document).ready(function() {
         allowClear: true,
         width: '100%'
     });
-    
+
     // Initialize Select2 for student filter
     $('#student_filter').select2({
         placeholder: '<?php echo get_phrase('select_student'); ?>',
@@ -182,18 +182,18 @@ $(document).ready(function() {
 
 function loadStudents() {
     var class_id = $('#class_filter').val();
-    
+
     if(!class_id) {
         $('#student_filter').html('<option value=""><?php echo get_phrase('select_class_first'); ?></option>').prop('disabled', true).trigger('change');
         $('#view_btn').prop('disabled', true);
         $('#marksheet_content').hide();
         return;
     }
-    
+
     $('#student_filter').html('<option value=""><?php echo get_phrase('loading'); ?>...</option>').prop('disabled', true).trigger('change');
     $('#view_btn').prop('disabled', true);
     $('#marksheet_content').hide();
-    
+
     $.ajax({
         url: '<?php echo site_url($account_type.'/get_students_by_class'); ?>',
         type: 'POST',
@@ -218,21 +218,21 @@ $('#student_filter').on('change', function() {
 
 function viewMarksheet() {
     var student_id = $('#student_filter').val();
-    
+
     if(!student_id) {
         alert('<?php echo get_phrase('please_select_student'); ?>');
         return;
     }
-    
+
     // Show loading spinner
     $('#marksheet_content').show();
     $('#marksheet_display').html('<div class="loading-spinner"><i class="fa fa-spinner"></i><br><?php echo get_phrase('loading'); ?>...</div>');
-    
+
     // Scroll to content area
     $('html, body').animate({
         scrollTop: $('#marksheet_content').offset().top - 20
     }, 500);
-    
+
     // Load marksheet content via AJAX
     $.ajax({
         url: '<?php echo site_url($account_type.'/load_marksheet_content'); ?>',

@@ -104,7 +104,7 @@ $current_student = 0;
             border-bottom: 3px solid #667eea;
             padding-bottom: 15px;
             margin-bottom: 20px;
-            background: #2563eb;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 20px;
             border-radius: 6px 6px 0 0;
@@ -147,7 +147,7 @@ $current_student = 0;
             text-align: center;
             margin: 20px 0;
             padding: 12px;
-            background: #ec4899;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
             border-radius: 6px;
         }
@@ -247,7 +247,7 @@ $current_student = 0;
         }
 
         .invoice-table thead {
-            background: #2563eb;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
 
@@ -362,7 +362,7 @@ $current_student = 0;
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: #2563eb;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             padding: 15px 30px;
@@ -388,14 +388,14 @@ $current_student = 0;
         <i class="fa fa-print"></i> Print All Bills (<?php echo $total_students; ?> Students)
     </button>
 
-    <?php foreach($students as $student): 
+    <?php foreach($students as $student):
         $current_student++;
-        
+
         // Get student details
         $enroll = $this->db->get_where('enroll', array('student_id' => $student->student_id, 'year' => $running_year, 'term' => $running_term, 'mute' => '0'))->row();
         $class = $this->db->get_where('class', array('class_id' => $enroll->class_id))->row();
         $parent = $this->db->get_where('parent', array('parent_id' => $student->parent_id))->row();
-        
+
         // Get invoices (ONLY INVOICE ITEMS - NOT DAILY FEES)
         $invoices = $this->db->select('DISTINCT invoice_code')
             ->where('student_id', $student->student_id)
@@ -403,20 +403,20 @@ $current_student = 0;
             ->where('term', $running_term)
             ->get('invoice')
             ->result();
-        
+
         $total_billed = 0;
         $total_paid = 0;
         $total_due = 0;
         $credit_balance = 0;
         $invoice_items = array();
-        
+
         // Get invoice items only (excludes daily fees)
         foreach($invoices as $inv) {
             $items = $this->db->where('invoice_code', $inv->invoice_code)
                 ->where('student_id', $student->student_id)
                 ->get('invoice')
                 ->result_array();
-            
+
             foreach($items as $item) {
                 $invoice_items[] = $item;
                 $total_billed += $item['amount'];
@@ -424,17 +424,17 @@ $current_student = 0;
                 $total_due += $item['due'];
             }
         }
-        
+
         if($total_due < 0) {
             $credit_balance = abs($total_due);
             $total_due = 0;
         }
     ?>
-    
+
     <div class="bill-container">
         <div class="bill-page <?php echo ($current_student < $total_students) ? 'page-break' : ''; ?>">
             <div class="watermark"><?php echo strtoupper($system_name); ?></div>
-            
+
             <div class="content">
                 <div class="bill-header">
                     <div class="school-logo">
@@ -518,9 +518,9 @@ $current_student = 0;
                         </tr>
                     </thead>
                     <tbody>
-                        <?php 
+                        <?php
                         $counter = 1;
-                        foreach($invoice_items as $item): 
+                        foreach($invoice_items as $item):
                             $status = 'unpaid';
                             if($item['due'] == 0) $status = 'paid';
                             elseif($item['amount_paid'] > 0 && $item['due'] > 0) $status = 'partial';
@@ -592,7 +592,7 @@ $current_student = 0;
             </div>
         </div>
     </div>
-    
+
     <?php endforeach; ?>
 </body>
 </html>

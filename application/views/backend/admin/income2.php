@@ -1,6 +1,6 @@
 <hr />
 
-<?php            
+<?php
      $currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
  ?>
 <div class="row">
@@ -182,7 +182,7 @@
 
 							<div class="col-md-offset-4 col-md-3">
 								<div class="form-group">
-									<select name="student_id" class="form-control selectboxit">
+									<select name="student_id" class="form-control select2">
 										<option value="all" <?php if($student_id == 'all') echo 'selected'; ?>>
 											<?php echo get_phrase('all_students');?>
 										</option>

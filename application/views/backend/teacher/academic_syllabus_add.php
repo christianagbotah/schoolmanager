@@ -35,7 +35,7 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label"><?php echo get_phrase('class'); ?></label>
                     <div class="col-sm-6">
-                        <select class="form-control selectboxit" name="class_id" id="class_id" onchange="return get_class_subject(this.value)">
+                        <select class="form-control select2" name="class_id" id="class_id" onchange="return get_class_subject(this.value)">
                             <option value=""><?php echo get_phrase('select'); ?></option>
                             <?php
                             $class = $this->db->get_where('class', array('teacher_id' => $this->session->userdata('teacher_id')))->result_array();
@@ -69,7 +69,7 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label"><?php echo get_phrase('file'); ?></label>
                     <div class="col-sm-5">
-                        <input type="file" name="file_name" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-file'></i> Browse" 
+                        <input type="file" name="file_name" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-file'></i> Browse"
                                data-validate="required" data-message-required="<?php echo get_phrase('required'); ?>"/>
                     </div>
                 </div>

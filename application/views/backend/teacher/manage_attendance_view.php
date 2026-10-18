@@ -17,89 +17,13 @@
         margin-top: 45vh;
     }
 </style>
-<style type="text/css">
-    /* Family design-language alignment (attendance wave) — presentation only.
-       Scoped to this view's two forms; zero shell/global impact. */
-    #att_selector_form label.control-label {
-        font-size: 13px; font-weight: 600; color: #374151;
-        text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
-    }
-    #att_selector_form .form-group { margin-bottom: 18px; }
-    #att_selector_form .form-control,
-    #attendance_form .form-control {
-        border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 10px 14px;
-        font-size: 14px; height: 42px; box-shadow: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    #att_selector_form .form-control:focus,
-    #attendance_form .form-control:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none;
-    }
-    #att_selector_form .btn,
-    #attendance_form .btn {
-        border-radius: 10px; font-weight: 600; font-size: 14px;
-        border: none; padding: 10px 20px; transition: all 0.2s;
-    }
-    #att_selector_form .btn-info,
-    #attendance_form .btn-info { background: #2563eb; color: #fff; }
-    #att_selector_form .btn-success,
-    #attendance_form .btn-success { background: #059669; color: #fff; }
-    #att_selector_form .btn-danger,
-    #attendance_form .btn-danger { background: #dc2626; color: #fff; }
-    #att_selector_form .btn-primary,
-    #attendance_form .btn-primary { background: #7c3aed; color: #fff; }
-    #att_selector_form .btn:hover { transform: translateY(-1px); }
-    #att_selector_form .tile-stats {
-        background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px;
-        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); padding: 24px;
-        margin-bottom: 20px;
-    }
-    #att_selector_form .tile-stats h3 { font-size: 18px; }
-    #att_selector_form .tile-stats h4 { font-size: 15px; }
-    #attendance_form #export_table {
-        border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;
-    }
-    #attendance_form #export_table thead { background: #f9fafb; }
-    #attendance_form #export_table thead th {
-        padding: 14px 12px; font-size: 13px; font-weight: 600; color: #374151;
-        text-transform: uppercase; letter-spacing: 0.5px;
-        border-bottom: 2px solid #e5e7eb;
-    }
-    #attendance_form #export_table tbody td {
-        padding: 12px; font-size: 14px; vertical-align: middle;
-    }
-    #attendance_form #export_table tbody tr:hover { background: #f9fafb; }
-    #att_selector_form .btn:focus-visible,
-    #attendance_form .btn:focus-visible,
-    #att_selector_form .form-control:focus-visible,
-    #attendance_form .form-control:focus-visible {
-        outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-    }
-    @media (prefers-reduced-motion: reduce) {
-        #att_selector_form .btn, #att_selector_form .form-control,
-        #attendance_form .btn, #attendance_form .form-control,
-        #attendance_form #export_table tbody tr { transition: none; }
-        #att_selector_form .btn:hover { transform: none; }
-    }
-    @media (max-width: 768px) {
-        #att_selector_form .form-control,
-        #attendance_form .form-control { font-size: 16px; }
-        #attendance_form #export_table thead th,
-        #attendance_form #export_table tbody td { padding: 8px; font-size: 12px; }
-        #att_selector_form .btn { width: 100%; }
-    }
-    @media (max-width: 400px) {
-        #att_selector_form .tile-stats { padding: 15px; border-radius: 14px; }
-    }
-</style>
 
 <?php
-    
+
     $currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
     $fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
 
-    
+
     $_level = $this->db->get_where('admin', array('admin_id' => $this->session->userdata('admin_id')))->row()->level;
 
     $students_ids = explode('-', $student_id); //selected student(s)
@@ -109,7 +33,7 @@
 
     ?>
         <hr />
-<?php 
+<?php
 
 //total fees received today
 $this->db->select_sum('feeding_paid');
@@ -179,7 +103,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
             <div class="col-md-3">
                 <div class="form-group">
                     <label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('class'); ?></label>
-                    <select name="class_id" class="form-control selectboxit" onchange="select_section(this.value); select_students(this.value)"  id = "class_selection">
+                    <select name="class_id" class="form-control select2" onchange="select_section(this.value); select_students(this.value)"  id = "class_selection">
                         <option value=""><?php echo get_phrase('select_class'); ?></option>
                         <?php
 
@@ -194,7 +118,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
     <div class="col-md-3">
         <div class="form-group">
             <label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('class'); ?></label>
-            <select name="class_id" class="form-control selectboxit" onchange="select_section(this.value); select_students(this.value)"  id = "class_selection">
+            <select name="class_id" class="form-control select2" onchange="select_section(this.value); select_students(this.value)"  id = "class_selection">
                 <option value=""><?php echo get_phrase('select_class'); ?></option>
                 <?php
                     $teacher_id = '';
@@ -206,12 +130,12 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
 
 <?php } ?>
 <div id="section_holder">
-    
+
     <div class="col-md-3">
 
         <div class="form-group">
             <label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('section'); ?></label>
-            <select name="section_id" id="section_id" class="form-control selectboxit">
+            <select name="section_id" id="section_id" class="form-control select2">
                 <?php
                 $sections = $this->db->get_where('section', array(
                             'class_id' => $class_id
@@ -250,7 +174,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
 <div id="students_holder" style="display: none" class="col-md-6 col-lg-6 col-sm-12 col-xs-12"></div>
 
     <div class="col-md-6 col-lg-6 col-sm-12 col-xs-12">
-        
+
         <div class="row" style="text-align: center;">
             <div class="col-sm-12">
                 <div class="tile-stats tile-gray">
@@ -297,7 +221,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
         <!--
             <a class="btn btn-primary sel_btns"  onclick="mark_all_paid_transport()">
                 <i class="entypo-check"></i> <?php //echo get_phrase('mark_all_paid_transport_fare'); ?>
-            </a> 
+            </a>
         </center>
         </div><br>-->
             </center>
@@ -373,7 +297,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
                                 </div>';
                         }
                     }
-                    
+
         if($attendance_of_students->num_rows() > 0) {
 
                     foreach ($attendance_of_students_array as $row):
@@ -395,7 +319,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
 
                             $this->db->where('category_id', $studentBenCatIds[$i]);
                             $benefiary_query = $this->db->get('benefit_category')->row();
-                            
+
                             $catName = trim(strtolower($benefiary_query->name));
 
                             if($catName == 'classes fees only') {
@@ -416,7 +340,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
 
                             }
                         }
-                        
+
                         if($isBoth > 1) {
 
                             //meaning both
@@ -458,7 +382,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
 
 
 
-                        
+
 
                         $feeding_owe_now = $this->db->get_where('feeding_fee' , array(
             'class_id'=>$class_id, 'student_id'=> $row['student_id'], 'timestamp'=>$timestamp));
@@ -475,7 +399,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
 
                             $feeding_owe_now_after_payment = $feeding_owe_now->row()->due;
                                 $feeding_owe = $feeding_owe_now_after_payment;
-                            }   
+                            }
 
                             //for classes fee
                             if($feeding_owe_now->row()->cdue == 0) {
@@ -484,7 +408,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
 
                                 $classes_owe_now_after_payment = $feeding_owe_now->row()->cdue;
                                 $classes_owe = $classes_owe_now_after_payment;
-                            }                        
+                            }
                         } else {
                             //checking if the student is a beneficiary or not
                             if($benefit_status == 0) {
@@ -528,7 +452,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
 
                             $fare_owe_now_after_payment = $fare_owe_now->row()->due;
                                 $fare_owe = $fare_owe_now_after_payment;
-                            }                           
+                            }
                         } else {
                                 $fare_owe = $transport_fare_owe + $transport_fare_charged;
                         }*/
@@ -549,10 +473,10 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
                                 <select class="form-control" onchange="is_student_present('<?= $row['student_id']; ?>', '<?=$special_diet; ?>')" name="status_<?php echo $row['attendance_id']; ?>" id="status_<?php echo $row['student_id']; ?>">
 
                                     <option value="1" <?php if ($row['status'] == 1) echo 'selected'; ?>><?php echo get_phrase('present'); ?></option>
-                                    
+
                                     <option value="2" <?php if ($row['status'] == 2) echo 'selected'; ?>><?php echo get_phrase('absent'); ?></option>
 
-                                    
+
                                 </select>
                             </td>
                             <?php
@@ -580,7 +504,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
                                     } else {
 
 
-                                    
+
                                     if(getAdminPermissions($_level, 'Can receive feeding & classes fees') == 1):
                                 ?>
 
@@ -611,7 +535,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
                                         else:
                                             echo '<span class="text-muted">Not Allowed!</span>';
                                         endif;
-                                
+
                                     } else {
 
                                         if(getAdminPermissions($_level, 'Can receive feeding & classes fees') == 1):
@@ -639,7 +563,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
                     <?php
                     $st_id_array[$select_id] = $row['student_id'];
                     $select_id++;
-                    endforeach; 
+                    endforeach;
 
                 }
                     ?>
@@ -667,7 +591,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
                     <button type="button" class="close" data-dismiss="alert" aria-label="close">&times;</button>
                     <strong>Some Students' Attendance Status Is Unknown. Please Make Sure You Set The "Show Entries" Box At The Top Left Corner Of The Form To A Number More Than The Total Number Of Students In The Class, Then Mark Attendance Again. E.g. You Can Set It To 25, 50, 100 etc. <i>Note: The Default Entry is 10.</i></strong>
                 </div>
-                
+
             </div>
         </center>
         <?php echo form_close(); ?>
@@ -675,10 +599,10 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
     </div>
 
 </div>
-    
+
 
 <script type="text/javascript">
-    
+
     $(function() {
 
     //disable submit button on page load
@@ -687,7 +611,7 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
     $('#pre_notice').fadeOut('400', function() {
             $('#pre_notice').remove();
             $('#pre_notice').css('display', 'none');
-        }); 
+        });
 
     select_students(<?=$class_id ?>); //show class members
     is_student_present_onload();
@@ -707,10 +631,10 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
             $('#pre_notice').remove();
             $('#pre_notice').css('display', 'none');
         });
-    
+
     });
 
-    
+
 });
 
     //for firefox browser
@@ -721,13 +645,13 @@ echo form_open(site_url('admin/attendance_selector/'), array('id' => 'att_select
         $('#pre_notice').fadeOut('400', function() {
             $('#pre_notice').remove();
             $('#pre_notice').css('display', 'none');
-        }); 
+        });
     };
 
 //check if there's internet connectivity
 const checkOnlineStatus = async () => {
     try {
-        const response = await fetch('https://jsonplaceholder.typicode.com/posts?id=1', 
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts?id=1',
         );
         return response.status >= 200 && response.status < 300;
 
@@ -746,7 +670,7 @@ function verify_check_in() {
     //Scroll to the top
       $('html, body').animate({
           scrollTop: ($('#top').offset().top )
-      }, 1000); 
+      }, 1000);
 
       showAjaxModal_alert('Please wait, we are working on it <i class="fa fa-spinner fa-pulse"></i>', 'Loading');
 
@@ -773,11 +697,11 @@ function verify_check_in() {
             })
             .done(function(data) {
                 showAjaxModal_alert(data.message, 'Success');
-                
+
                 setTimeout(() => {
                     $('#att_selector_form').submit();
                     $('.close').click();
-                    
+
                     //window.location.reload();
                 }, 3000);
             })
@@ -789,7 +713,7 @@ function verify_check_in() {
     .fail(function() {
         showAjaxModal_alert('An error occurred while processing your request.', 'Error', false, true);
     });
-    
+
 }
 
 
@@ -854,15 +778,15 @@ function is_student_present(id, special_diet, counter) {
 
             $('#feeding_paid_' + id).attr('readonly', 'true');
             $('#feeding_paid_' + id).attr('placeholder', 'Not Available');
-            $('#feeding_paid_' + id).val(''); 
+            $('#feeding_paid_' + id).val('');
             $('#feeding_owe_' + id).attr('readonly', 'true');
             $('#feeding_owe_' + id).attr('placeholder', 'Not Available');
-            $('#feeding_owe_' + id).val(''); 
+            $('#feeding_owe_' + id).val('');
             $('#feeding_owe_' + id).removeAttr('style');
 
             $('#classes_paid_' + id).attr('readonly', 'true');
             $('#classes_paid_' + id).attr('placeholder', 'Not Available');
-            $('#classes_paid_' + id).val(''); 
+            $('#classes_paid_' + id).val('');
             $('#classes_owe_' + id).attr('readonly', 'true');
             $('#classes_owe_' + id).attr('placeholder', 'Not Available');
             $('#classes_owe_' + id).val('');
@@ -878,7 +802,7 @@ function is_student_present(id, special_diet, counter) {
 
         } else {
             $('#wrong_date_alert').css('display', 'none');
-        
+
 
 
             //let's see if this student is a beneficiary or not so we know which feeding and classes fee charges to use
@@ -887,7 +811,7 @@ function is_student_present(id, special_diet, counter) {
 
                 success: function(bf_response) {
                     if(bf_response == 'no') {
-                        //feeding ajax     
+                        //feeding ajax
 
                             $.ajax({
                                 url: '<?php echo site_url('admin/feeding_owe_updator_is_present/'); ?>' + id + '/' + class_id + '/' + previous_day_timestamp + '/' + timestamp + '/' + feeding_fee_charged,
@@ -901,8 +825,8 @@ function is_student_present(id, special_diet, counter) {
                                             if(feeding_owe == 0 || feeding_owe == '') {
                                                 $('#feeding_paid_' + id).attr('readonly', 'true');
                                                 $('#feeding_paid_' + id).attr('placeholder', 'Not Available');
-                                                $('#feeding_paid_' + id).val(''); 
-                                                $('#feeding_owe_' + id).val(Number(response));//show amount owe as at today 
+                                                $('#feeding_paid_' + id).val('');
+                                                $('#feeding_owe_' + id).val(Number(response));//show amount owe as at today
 
                                                 /*$('#transport_paid_' + id).attr('readonly', 'true');
                                                 $('#transport_paid_' + id).attr('placeholder', 'Not Available');
@@ -910,28 +834,28 @@ function is_student_present(id, special_diet, counter) {
                                                 //$('#transport_owe_' + id).val(Number(response));//show amount owe as at today
 
                                                 //enable the submit button
-                                                $('#submit_button').removeAttr('disabled'); 
+                                                $('#submit_button').removeAttr('disabled');
                                             } else {
 
 
                                                 $('#feeding_paid_' + id).attr('readonly', 'true');
                                                 $('#feeding_paid_' + id).attr('placeholder', 'Not Available');
-                                                $('#feeding_paid_' + id).val(''); 
+                                                $('#feeding_paid_' + id).val('');
 
                                                 if(feeding_owe < 0) { //if the student paid in advance but decides not to come to school, we still charge
                                                     //$('#feeding_owe_' + id).val(feeding_owe + feeding_fee_charged);//show amount owe as at today
 
                                                     //if the student paid in advance but decides not to come to school, we don't charge
-                                                    $('#feeding_owe_' + id).val(feeding_owe - feeding_fee_charged);//show amount owe as at today 
+                                                    $('#feeding_owe_' + id).val(feeding_owe - feeding_fee_charged);//show amount owe as at today
                                                     //enable the submit button
-                                                    $('#submit_button').removeAttr('disabled'); 
+                                                    $('#submit_button').removeAttr('disabled');
 
                                                 } else {
-                                                    $('#feeding_owe_' + id).val(feeding_owe - feeding_fee_charged);//show amount owe as at today 
+                                                    $('#feeding_owe_' + id).val(feeding_owe - feeding_fee_charged);//show amount owe as at today
                                                     //enable the submit button
-                                                    $('#submit_button').removeAttr('disabled'); 
+                                                    $('#submit_button').removeAttr('disabled');
                                                 }
-                                                
+
 
                                                 /*$('#transport_paid_' + id).attr('readonly', 'true');
                                                 $('#transport_paid_' + id).attr('placeholder', 'Not Available');
@@ -953,41 +877,41 @@ function is_student_present(id, special_diet, counter) {
                                                         $('#feeding_paid_' + id).removeAttr('placeholder');
 
                                                         if(fee_paid == 0 && response == 0) {
-                                                            $('#feeding_owe_' + id).val(Number(response) + feeding_fee_charged);//Add today's charge 
+                                                            $('#feeding_owe_' + id).val(Number(response) + feeding_fee_charged);//Add today's charge
 
                                                             //enable the submit button
-                                                            $('#submit_button').removeAttr('disabled'); 
+                                                            $('#submit_button').removeAttr('disabled');
                                                         } else {
-                                                            $('#feeding_owe_' + id).val(Number(response));//show the amount owe 
+                                                            $('#feeding_owe_' + id).val(Number(response));//show the amount owe
 
                                                             //enable the submit button
-                                                            $('#submit_button').removeAttr('disabled'); 
+                                                            $('#submit_button').removeAttr('disabled');
                                                         }
-                                                        
+
 
                                                        /* $('#transport_paid_' + id).removeAttr('readonly');
                                                         $('#transport_paid_' + id).removeAttr('placeholder');*/
- 
+
 
                                                     } else {
                                                         $('#feeding_paid_' + id).val(fee_paid);
                                                         $('#feeding_paid_' + id).removeAttr('readonly');
                                                         $('#feeding_paid_' + id).removeAttr('placeholder');
-                                                        $('#feeding_owe_' + id).val(Number(response));//show the amount owe 
+                                                        $('#feeding_owe_' + id).val(Number(response));//show the amount owe
 
                                                         /*$('#transport_paid_' + id).removeAttr('readonly');
                                                         $('#transport_paid_' + id).removeAttr('placeholder');*/
 
                                                         //enable the submit button
-                                                        $('#submit_button').removeAttr('disabled'); 
+                                                        $('#submit_button').removeAttr('disabled');
 
                                                     }
 
                                                 }
                                             });
 
-                                            
-                                        }  
+
+                                        }
                                     } else {
                                         //current timestamp does not exist
                                         if(att_status == '2') {
@@ -996,7 +920,7 @@ function is_student_present(id, special_diet, counter) {
 
                                             $('#feeding_paid_' + id).attr('readonly', 'true');
                                             $('#feeding_paid_' + id).attr('placeholder', 'Not Available');
-                                            $('#feeding_paid_' + id).val(''); 
+                                            $('#feeding_paid_' + id).val('');
                                             //$('#feeding_owe_' + id).val(0);
 
                                             if(f_owing < 0) { //if the student paid in advance but decides not to come to school, we still charge
@@ -1007,15 +931,15 @@ function is_student_present(id, special_diet, counter) {
                                                 $('#feeding_owe_' + id).val(Number(response) - feeding_fee_charged);//just show what the student owes as at today (commulative)
 
                                                 //enable the submit button
-                                                $('#submit_button').removeAttr('disabled'); 
+                                                $('#submit_button').removeAttr('disabled');
                                             } else {
                                                 $('#feeding_owe_' + id).val(Number(response) - feeding_fee_charged);//just show what the student owes as at today (commulative)
 
                                                 //enable the submit button
-                                                $('#submit_button').removeAttr('disabled'); 
+                                                $('#submit_button').removeAttr('disabled');
                                             }
 
-                                             
+
 
                                             /*$('#transport_paid_' + id).attr('readonly', 'true');
                                             $('#transport_paid_' + id).attr('placeholder', 'Not Available');
@@ -1028,21 +952,21 @@ function is_student_present(id, special_diet, counter) {
                                             $('#feeding_paid_' + id).removeAttr('readonly');
                                             $('#feeding_paid_' + id).removeAttr('placeholder');
                                            // $('#feeding_owe_' + id).val(0);
-                                            $('#feeding_owe_' + id).val(Number(response));//Add today's charge 
+                                            $('#feeding_owe_' + id).val(Number(response));//Add today's charge
 
                                             /*$('#transport_paid_' + id).removeAttr('readonly');
                                             $('#transport_paid_' + id).removeAttr('placeholder');*/
 
                                             //enable the submit button
-                                            $('#submit_button').removeAttr('disabled'); 
+                                            $('#submit_button').removeAttr('disabled');
 
-                                        }  
+                                        }
 
-                                    }                     
+                                    }
                                 }
                             });
-                    
-                    //classes ajax     
+
+                    //classes ajax
 
                             $.ajax({
                                 url: '<?php echo site_url('admin/classes_owe_updator_is_present/'); ?>' + id + '/' + class_id + '/' + previous_day_timestamp + '/' + timestamp + '/' + classes_fee_charged,
@@ -1056,12 +980,12 @@ function is_student_present(id, special_diet, counter) {
                                             if(classes_owe == 0 || classes_owe == '') {
                                                 $('#classes_paid_' + id).attr('readonly', 'true');
                                                 $('#classes_paid_' + id).attr('placeholder', 'Not Available');
-                                                $('#classes_paid_' + id).val(''); 
-                                                $('#classes_owe_' + id).val(Number(response));//show amount owe as at today 
+                                                $('#classes_paid_' + id).val('');
+                                                $('#classes_owe_' + id).val(Number(response));//show amount owe as at today
 
                                                 //enable the submit button
-                                                $('#submit_button').removeAttr('disabled'); 
-             
+                                                $('#submit_button').removeAttr('disabled');
+
                                             } else {
 
 
@@ -1076,16 +1000,16 @@ function is_student_present(id, special_diet, counter) {
                                                     $('#classes_owe_' + id).val(classes_owe - classes_fee_charged);//show amount owe as at today
 
                                                         //enable the submit button
-                                                        $('#submit_button').removeAttr('disabled'); 
+                                                        $('#submit_button').removeAttr('disabled');
                                                 } else {
                                                     $('#classes_owe_' + id).val(classes_owe - classes_fee_charged);//show amount owe as at today
 
                                                         //enable the submit button
-                                                        $('#submit_button').removeAttr('disabled'); 
+                                                        $('#submit_button').removeAttr('disabled');
                                                 }
 
-                                                 
-             
+
+
                                                 }
                                         } else if(att_status == '1') {
 
@@ -1101,32 +1025,32 @@ function is_student_present(id, special_diet, counter) {
                                                         $('#classes_paid_' + id).removeAttr('placeholder');
 
                                                         if(class_fee_paid == 0 && response == 0) {
-                                                            $('#classes_owe_' + id).val(Number(response) + classes_fee_charged);//Add today's charge 
+                                                            $('#classes_owe_' + id).val(Number(response) + classes_fee_charged);//Add today's charge
 
                                                             //enable the submit button
-                                                            $('#submit_button').removeAttr('disabled'); 
+                                                            $('#submit_button').removeAttr('disabled');
 
                                                         } else {
-                                                            $('#classes_owe_' + id).val(Number(response));//show the amount owe 
+                                                            $('#classes_owe_' + id).val(Number(response));//show the amount owe
 
                                                             //enable the submit button
-                                                            $('#submit_button').removeAttr('disabled'); 
+                                                            $('#submit_button').removeAttr('disabled');
                                                         }
-                                                        
+
                                                     } else {
                                                         $('#classes_paid_' + id).val(class_fee_paid);
                                                         $('#classes_paid_' + id).removeAttr('readonly');
                                                         $('#classes_paid_' + id).removeAttr('placeholder');
-                                                        $('#classes_owe_' + id).val(Number(response));//show the amount owe 
+                                                        $('#classes_owe_' + id).val(Number(response));//show the amount owe
 
                                                         //enable the submit button
-                                                        $('#submit_button').removeAttr('disabled'); 
+                                                        $('#submit_button').removeAttr('disabled');
                                                     }
 
                                                 }
                                             });
-                                            
-                                        }  
+
+                                        }
                                     } else {
                                         //current timestamp does not exist
                                         if(att_status == '2') {
@@ -1135,25 +1059,25 @@ function is_student_present(id, special_diet, counter) {
 
                                             $('#classes_paid_' + id).attr('readonly', 'true');
                                             $('#classes_paid_' + id).attr('placeholder', 'Not Available');
-                                            $('#classes_paid_' + id).val(''); 
+                                            $('#classes_paid_' + id).val('');
                                             //$('#feeding_owe_' + id).val(0);
 
                                             if(c_owing < 0) { //if the student paid in advance but decides not to come to school, we still charge
-                                               // $('#classes_owe_' + id).val(Number(response) + classes_fee_charged);//just show what the student owes as at today (commulative) 
+                                               // $('#classes_owe_' + id).val(Number(response) + classes_fee_charged);//just show what the student owes as at today (commulative)
 
                                                 //if the student paid in advance but decides not to come to school, we don't charge
-                                                $('#classes_owe_' + id).val(Number(response) - classes_fee_charged);//just show what the student owes as at today (commulative) 
+                                                $('#classes_owe_' + id).val(Number(response) - classes_fee_charged);//just show what the student owes as at today (commulative)
 
                                                 //enable the submit button
-                                                $('#submit_button').removeAttr('disabled'); 
+                                                $('#submit_button').removeAttr('disabled');
                                             } else {
-                                                $('#classes_owe_' + id).val(Number(response) - classes_fee_charged);//just show what the student owes as at today (commulative) 
+                                                $('#classes_owe_' + id).val(Number(response) - classes_fee_charged);//just show what the student owes as at today (commulative)
 
                                                 //enable the submit button
-                                                $('#submit_button').removeAttr('disabled'); 
+                                                $('#submit_button').removeAttr('disabled');
                                             }
 
-                                            
+
 
                                             } else if(att_status == '1') {
 
@@ -1161,13 +1085,13 @@ function is_student_present(id, special_diet, counter) {
                                             $('#classes_paid_' + id).removeAttr('readonly');
                                             $('#classes_paid_' + id).removeAttr('placeholder');
                                            // $('#feeding_owe_' + id).val(0);
-                                            $('#classes_owe_' + id).val(Number(response));//Add today's charge 
+                                            $('#classes_owe_' + id).val(Number(response));//Add today's charge
 
                                             //enable the submit button
-                                            $('#submit_button').removeAttr('disabled'); 
-                                        }  
+                                            $('#submit_button').removeAttr('disabled');
+                                        }
 
-                                    }                     
+                                    }
                                 }
                             });
                     } else {
@@ -1183,44 +1107,44 @@ function is_student_present(id, special_diet, counter) {
                                             if(feeding_owe == 0 || feeding_owe == '') {
                                                 $('#feeding_paid_' + id).attr('readonly', 'true');
                                                 $('#feeding_paid_' + id).attr('placeholder', 'Not Available');
-                                                $('#feeding_paid_' + id).val(''); 
-                                                $('#feeding_owe_' + id).val(Number(response));//show amount owe as at today 
+                                                $('#feeding_paid_' + id).val('');
+                                                $('#feeding_owe_' + id).val(Number(response));//show amount owe as at today
 
                                                 /*$('#transport_paid_' + id).attr('readonly', 'true');
                                                 $('#transport_paid_' + id).attr('placeholder', 'Not Available');
                                                 $('#transport_paid_' + id).val('');*/
-                                                //$('#transport_owe_' + id).val(Number(response));//show amount owe as at today 
+                                                //$('#transport_owe_' + id).val(Number(response));//show amount owe as at today
 
                                                 //enable the submit button
-                                                $('#submit_button').removeAttr('disabled'); 
+                                                $('#submit_button').removeAttr('disabled');
 
                                             } else {
                                                 $('#feeding_paid_' + id).attr('readonly', 'true');
                                                 $('#feeding_paid_' + id).attr('placeholder', 'Not Available');
-                                                $('#feeding_paid_' + id).val(''); 
+                                                $('#feeding_paid_' + id).val('');
 
                                                 if(feeding_owe < 0) { //if the student paid in advance but decides not to come to school, we still charge
-                                                   // $('#feeding_owe_' + id).val(feeding_owe + feeding_fee_charged_b);//show amount owe as at today 
+                                                   // $('#feeding_owe_' + id).val(feeding_owe + feeding_fee_charged_b);//show amount owe as at today
 
                                                    //if the student paid in advance but decides not to come to school, we don't charge
-                                                    $('#feeding_owe_' + id).val(feeding_owe - feeding_fee_charged_b);//show amount owe as at today 
+                                                    $('#feeding_owe_' + id).val(feeding_owe - feeding_fee_charged_b);//show amount owe as at today
 
                                                     //enable the submit button
-                                                    $('#submit_button').removeAttr('disabled'); 
+                                                    $('#submit_button').removeAttr('disabled');
 
                                                 } else {
-                                                    $('#feeding_owe_' + id).val(feeding_owe - feeding_fee_charged_b);//show amount owe as at today 
+                                                    $('#feeding_owe_' + id).val(feeding_owe - feeding_fee_charged_b);//show amount owe as at today
 
                                                     //enable the submit button
-                                                    $('#submit_button').removeAttr('disabled'); 
+                                                    $('#submit_button').removeAttr('disabled');
                                                 }
 
-                                                
+
 
                                                /* $('#transport_paid_' + id).attr('readonly', 'true');
                                                 $('#transport_paid_' + id).attr('placeholder', 'Not Available');
                                                 $('#transport_paid_' + id).val('');*/
-                                                //$('#transport_owe_' + id).val(Number(response));//show amount owe as at today 
+                                                //$('#transport_owe_' + id).val(Number(response));//show amount owe as at today
 
 
                                                 }
@@ -1238,16 +1162,16 @@ function is_student_present(id, special_diet, counter) {
                                                         $('#feeding_paid_' + id).removeAttr('placeholder');
 
                                                         if(fee_paid == 0 && response == 0) {
-                                                            $('#feeding_owe_' + id).val(Number(response) + feeding_fee_charged_b);//Add today's charge 
+                                                            $('#feeding_owe_' + id).val(Number(response) + feeding_fee_charged_b);//Add today's charge
 
                                                             //enable the submit button
-                                                            $('#submit_button').removeAttr('disabled'); 
+                                                            $('#submit_button').removeAttr('disabled');
                                                         } else {
-                                                            $('#feeding_owe_' + id).val(Number(response));//show the amount owe 
+                                                            $('#feeding_owe_' + id).val(Number(response));//show the amount owe
                                                             //enable the submit button
-                                                            $('#submit_button').removeAttr('disabled'); 
+                                                            $('#submit_button').removeAttr('disabled');
                                                         }
-                                                        
+
 
                                                        /* $('#transport_paid_' + id).removeAttr('readonly');
                                                         $('#transport_paid_' + id).removeAttr('placeholder');*/
@@ -1255,20 +1179,20 @@ function is_student_present(id, special_diet, counter) {
                                                         $('#feeding_paid_' + id).val(fee_paid);
                                                         $('#feeding_paid_' + id).removeAttr('readonly');
                                                         $('#feeding_paid_' + id).removeAttr('placeholder');
-                                                        $('#feeding_owe_' + id).val(Number(response));//show the amount owe 
+                                                        $('#feeding_owe_' + id).val(Number(response));//show the amount owe
 
                                                         /*$('#transport_paid_' + id).removeAttr('readonly');
                                                         $('#transport_paid_' + id).removeAttr('placeholder');*/
                                                         //enable the submit button
-                                                        $('#submit_button').removeAttr('disabled'); 
+                                                        $('#submit_button').removeAttr('disabled');
 
                                                     }
 
                                                 }
                                             });
 
-                                            
-                                        }  
+
+                                        }
                                     } else {
                                         //current timestamp does not exist
                                         if(att_status == '2') {
@@ -1277,7 +1201,7 @@ function is_student_present(id, special_diet, counter) {
 
                                             $('#feeding_paid_' + id).attr('readonly', 'true');
                                             $('#feeding_paid_' + id).attr('placeholder', 'Not Available');
-                                            $('#feeding_paid_' + id).val(''); 
+                                            $('#feeding_paid_' + id).val('');
                                             //$('#feeding_owe_' + id).val(0);
 
                                             if(f_owing < 0) { //if the student paid in advance but decides not to come to school, we still charge
@@ -1285,17 +1209,17 @@ function is_student_present(id, special_diet, counter) {
 
 
                                                 //if the student paid in advance but decides not to come to school, we still charge
-                                                $('#feeding_owe_' + id).val(Number(response) - feeding_fee_charged_b);//just show what the student owes as at today (commulative) 
+                                                $('#feeding_owe_' + id).val(Number(response) - feeding_fee_charged_b);//just show what the student owes as at today (commulative)
 
                                                 //enable the submit button
-                                                $('#submit_button').removeAttr('disabled'); 
+                                                $('#submit_button').removeAttr('disabled');
                                             } else {
-                                                $('#feeding_owe_' + id).val(Number(response) - feeding_fee_charged_b);//just show what the student owes as at today (commulative) 
+                                                $('#feeding_owe_' + id).val(Number(response) - feeding_fee_charged_b);//just show what the student owes as at today (commulative)
 
                                                 //enable the submit button
-                                                $('#submit_button').removeAttr('disabled'); 
+                                                $('#submit_button').removeAttr('disabled');
                                             }
-                                            
+
 
                                             /*$('#transport_paid_' + id).attr('readonly', 'true');
                                             $('#transport_paid_' + id).attr('placeholder', 'Not Available');
@@ -1307,20 +1231,20 @@ function is_student_present(id, special_diet, counter) {
                                             $('#feeding_paid_' + id).removeAttr('readonly');
                                             $('#feeding_paid_' + id).removeAttr('placeholder');
                                            // $('#feeding_owe_' + id).val(0);
-                                            $('#feeding_owe_' + id).val(Number(response));//Add today's charge 
+                                            $('#feeding_owe_' + id).val(Number(response));//Add today's charge
 
                                             /*$('#transport_paid_' + id).removeAttr('readonly');
                                             $('#transport_paid_' + id).removeAttr('placeholder');*/
 
                                             //enable the submit button
-                                            $('#submit_button').removeAttr('disabled'); 
-                                        }  
+                                            $('#submit_button').removeAttr('disabled');
+                                        }
 
-                                    }                     
+                                    }
                                 }
                             });
-                    
-                    //classes ajax     
+
+                    //classes ajax
 
                             $.ajax({
                                 url: '<?php echo site_url('admin/classes_owe_updator_is_present/'); ?>' + id + '/' + class_id + '/' + previous_day_timestamp + '/' + timestamp + '/' + classes_fee_charged_b,
@@ -1334,33 +1258,33 @@ function is_student_present(id, special_diet, counter) {
                                             if(classes_owe == 0 || classes_owe == '') {
                                                 $('#classes_paid_' + id).attr('readonly', 'true');
                                                 $('#classes_paid_' + id).attr('placeholder', 'Not Available');
-                                                $('#classes_paid_' + id).val(''); 
-                                                $('#classes_owe_' + id).val(Number(response));//show amount owe as at today 
+                                                $('#classes_paid_' + id).val('');
+                                                $('#classes_owe_' + id).val(Number(response));//show amount owe as at today
 
                                                 //enable the submit button
-                                                $('#submit_button').removeAttr('disabled'); 
-             
+                                                $('#submit_button').removeAttr('disabled');
+
                                             } else {
                                                 $('#classes_paid_' + id).attr('readonly', 'true');
                                                 $('#classes_paid_' + id).attr('placeholder', 'Not Available');
-                                                $('#classes_paid_' + id).val(''); 
+                                                $('#classes_paid_' + id).val('');
 
                                                 if(classes_owe < 0) { //if the student paid in advance but decides not to come to school, we still charge
                                                     //$('#classes_owe_' + id).val(classes_owe + classes_fee_charged_b);//show amount owe as at today
 
                                                     //if the student paid in advance but decides not to come to school, we don't charge
-                                                    $('#classes_owe_' + id).val(classes_owe - classes_fee_charged_b);//show amount owe as at today  
+                                                    $('#classes_owe_' + id).val(classes_owe - classes_fee_charged_b);//show amount owe as at today
 
                                                     //enable the submit button
-                                                    $('#submit_button').removeAttr('disabled'); 
+                                                    $('#submit_button').removeAttr('disabled');
                                                 } else {
-                                                    $('#classes_owe_' + id).val(classes_owe - classes_fee_charged_b);//show amount owe as at today 
+                                                    $('#classes_owe_' + id).val(classes_owe - classes_fee_charged_b);//show amount owe as at today
 
                                                     //enable the submit button
-                                                    $('#submit_button').removeAttr('disabled'); 
+                                                    $('#submit_button').removeAttr('disabled');
                                                 }
-                                                
-             
+
+
                                                 }
                                         } else if(att_status == '1') {
 
@@ -1376,31 +1300,31 @@ function is_student_present(id, special_diet, counter) {
                                                         $('#classes_paid_' + id).removeAttr('placeholder');
 
                                                         if(class_fee_paid == 0 && response == 0) {
-                                                            $('#classes_owe_' + id).val(Number(response) + classes_fee_charged_b);//Add today's charge 
+                                                            $('#classes_owe_' + id).val(Number(response) + classes_fee_charged_b);//Add today's charge
 
                                                             //enable the submit button
-                                                            $('#submit_button').removeAttr('disabled'); 
+                                                            $('#submit_button').removeAttr('disabled');
                                                         } else {
-                                                            $('#classes_owe_' + id).val(Number(response));//show the amount owe 
+                                                            $('#classes_owe_' + id).val(Number(response));//show the amount owe
 
                                                             //enable the submit button
-                                                            $('#submit_button').removeAttr('disabled'); 
+                                                            $('#submit_button').removeAttr('disabled');
                                                         }
-                                                        
+
                                                     } else {
                                                         $('#classes_paid_' + id).val(class_fee_paid);
                                                         $('#classes_paid_' + id).removeAttr('readonly');
                                                         $('#classes_paid_' + id).removeAttr('placeholder');
-                                                        $('#classes_owe_' + id).val(Number(response));//show the amount owe 
+                                                        $('#classes_owe_' + id).val(Number(response));//show the amount owe
 
                                                         //enable the submit button
-                                                        $('#submit_button').removeAttr('disabled'); 
+                                                        $('#submit_button').removeAttr('disabled');
                                                     }
 
                                                 }
                                             });
-                                            
-                                        }  
+
+                                        }
                                     } else {
                                         //current timestamp does not exist
                                         if(att_status == '2') {
@@ -1409,7 +1333,7 @@ function is_student_present(id, special_diet, counter) {
 
                                             $('#classes_paid_' + id).attr('readonly', 'true');
                                             $('#classes_paid_' + id).attr('placeholder', 'Not Available');
-                                            $('#classes_paid_' + id).val(''); 
+                                            $('#classes_paid_' + id).val('');
                                             //$('#feeding_owe_' + id).val(0);
 
                                             if(c_owing < 0) { //if the student paid in advance but decides not to come to school, we still charge
@@ -1417,18 +1341,18 @@ function is_student_present(id, special_diet, counter) {
 
 
                                                 //if the student paid in advance but decides not to come to school, we don't charge
-                                                $('#classes_owe_' + id).val(Number(response) - classes_fee_charged_b);//just show what the student owes as at today (commulative)  
+                                                $('#classes_owe_' + id).val(Number(response) - classes_fee_charged_b);//just show what the student owes as at today (commulative)
 
                                                 //enable the submit button
-                                                $('#submit_button').removeAttr('disabled'); 
+                                                $('#submit_button').removeAttr('disabled');
                                             } else {
-                                                $('#classes_owe_' + id).val(Number(response) - classes_fee_charged_b);//just show what the student owes as at today (commulative) 
+                                                $('#classes_owe_' + id).val(Number(response) - classes_fee_charged_b);//just show what the student owes as at today (commulative)
 
                                                 //enable the submit button
-                                                $('#submit_button').removeAttr('disabled'); 
+                                                $('#submit_button').removeAttr('disabled');
                                             }
 
-                                            
+
 
                                             } else if(att_status == '1') {
 
@@ -1436,19 +1360,19 @@ function is_student_present(id, special_diet, counter) {
                                             $('#classes_paid_' + id).removeAttr('readonly');
                                             $('#classes_paid_' + id).removeAttr('placeholder');
                                            // $('#feeding_owe_' + id).val(0);
-                                            $('#classes_owe_' + id).val(Number(response));//Add today's charge 
+                                            $('#classes_owe_' + id).val(Number(response));//Add today's charge
 
                                             //enable the submit button
-                                            $('#submit_button').removeAttr('disabled'); 
-                                        }  
+                                            $('#submit_button').removeAttr('disabled');
+                                        }
 
-                                    }                     
+                                    }
                                 }
                             });
                     }
                 }
             });
-       
+
 
         //transport ajax
              /**   $.ajax({
@@ -1460,9 +1384,9 @@ function is_student_present(id, special_diet, counter) {
                             if(att_status == '2' && fare_owe != 0) {
 
                                 if(fare_owe == 0 || fare_owe == '') {
-                                    $('#transport_owe_' + id).val(Number(response));//show amount owe as at today 
+                                    $('#transport_owe_' + id).val(Number(response));//show amount owe as at today
                                 } else {
-                                    $('#transport_owe_' + id).val(fare_owe - transport_fare_charged);//show amount owe as at today 
+                                    $('#transport_owe_' + id).val(fare_owe - transport_fare_charged);//show amount owe as at today
                                 }
 
                             } else if(att_status == '1') {
@@ -1473,34 +1397,34 @@ function is_student_present(id, special_diet, counter) {
                                     success: function(t_paid) {
 
 
-                                        if(fare_owe == 0 || fare_owe == '') { 
+                                        if(fare_owe == 0 || fare_owe == '') {
                                              $('#transport_paid_' + id).val(t_paid);
-                                             
+
                                              if(t_paid == 0 && response == 0) {
-                                                $('#transport_owe_' + id).val(Number(response) + transport_fare_charged);//add today's charge  
+                                                $('#transport_owe_' + id).val(Number(response) + transport_fare_charged);//add today's charge
                                             } else {
-                                                $('#transport_owe_' + id).val(Number(response));//show amount owe as at today  
+                                                $('#transport_owe_' + id).val(Number(response));//show amount owe as at today
                                             }
                                         } else {
                                              $('#transport_paid_' + id).val(t_paid);
-                                             $('#transport_owe_' + id).val(Number(response));//show amount owe as at today  
+                                             $('#transport_owe_' + id).val(Number(response));//show amount owe as at today
                                         }
                                     }
                                 });
-                            }  
+                            }
                         } else {
                             //current timestamp does not exist
                             if(att_status == '2') {
 
-                            $('#transport_owe_' + id).val(Number(response) - transport_fare_charged);//just show what the student owes as at today (commulative) 
+                            $('#transport_owe_' + id).val(Number(response) - transport_fare_charged);//just show what the student owes as at today (commulative)
 
                             } else if(att_status == '1') {
 
                                 $('#transport_paid_' + id).val(fare_paid);
-                                $('#transport_owe_' + id).val(Number(response));//Add today's charge 
-                            }  
+                                $('#transport_owe_' + id).val(Number(response));//Add today's charge
+                            }
                         }
-                                             
+
                     }
                 }); **/
             }
@@ -1516,14 +1440,14 @@ function is_student_present(id, special_diet, counter) {
    } else {
     $('#notifier').slideUp('slow');
    }
-    
+
 }
 
 //to check if a student is marked absent or undefined, if so, disable that student's payment fields
 function is_student_present_onload() {
     var count = <?php echo count($attendance_of_students_array); ?>;
-    var st_id_array = <?php echo json_encode($st_id_array); ?>;  
-    
+    var st_id_array = <?php echo json_encode($st_id_array); ?>;
+
     let first_day_timestamp = Number(<?php echo $first_day_timestamp_fc; ?>);
     let timestamp = Number(<?php echo $timestamp; ?>);
 
@@ -1579,13 +1503,13 @@ function is_student_present_onload() {
         if(att_status == '2') {
             $('#feeding_paid_' + st_id_array[i]).attr('readonly', 'true');
             $('#feeding_paid_' + st_id_array[i]).attr('placeholder', 'Not Available');
-            $('#feeding_paid_' + st_id_array[i]).val(''); 
-            $('#feeding_owe_' + st_id_array[i]).val(feeding_owe);//show today's charge 
+            $('#feeding_paid_' + st_id_array[i]).val('');
+            $('#feeding_owe_' + st_id_array[i]).val(feeding_owe);//show today's charge
 
             $('#classes_paid_' + st_id_array[i]).attr('readonly', 'true');
             $('#classes_paid_' + st_id_array[i]).attr('placeholder', 'Not Available');
-            $('#classes_paid_' + st_id_array[i]).val(''); 
-            $('#classes_owe_' + st_id_array[i]).val(classes_owe);//show today's charge 
+            $('#classes_paid_' + st_id_array[i]).val('');
+            $('#classes_owe_' + st_id_array[i]).val(classes_owe);//show today's charge
 
             /*$('#transport_paid_' + st_id_array[i]).attr('readonly', 'true');
             $('#transport_paid_' + st_id_array[i]).attr('placeholder', 'Not Available');
@@ -1597,19 +1521,19 @@ function is_student_present_onload() {
             $('#feeding_paid_' + st_id_array[i]).val(feeding_paid);
             $('#feeding_paid_' + st_id_array[i]).removeAttr('readonly');
             $('#feeding_paid_' + st_id_array[i]).removeAttr('placeholder');
-            $('#feeding_owe_' + st_id_array[i]).val(feeding_owe);//Add today's charge 
+            $('#feeding_owe_' + st_id_array[i]).val(feeding_owe);//Add today's charge
 
             $('#classes_paid_' + st_id_array[i]).val(classes_paid);
             $('#classes_paid_' + st_id_array[i]).removeAttr('readonly');
             $('#classes_paid_' + st_id_array[i]).removeAttr('placeholder');
-            $('#classes_owe_' + st_id_array[i]).val(classes_owe);//Add today's charge 
+            $('#classes_owe_' + st_id_array[i]).val(classes_owe);//Add today's charge
 
             /*$('#transport_paid_' + st_id_array[i]).val(fare_paid);
             $('#transport_paid_' + st_id_array[i]).removeAttr('readonly');
             $('#transport_paid_' + st_id_array[i]).removeAttr('placeholder');
             $('#transport_owe_' + st_id_array[i]).val(fare_owe);//Add today's charge */
 
-        }   
+        }
 
         if(first_day_timestamp > timestamp) { //disable all input fields if user selects a date less than the 1st date
 
@@ -1623,15 +1547,15 @@ function is_student_present_onload() {
 
             $('#feeding_paid_' + st_id_array[i]).attr('readonly', 'true');
             $('#feeding_paid_' + st_id_array[i]).attr('placeholder', 'Not Available');
-            $('#feeding_paid_' + st_id_array[i]).val(''); 
+            $('#feeding_paid_' + st_id_array[i]).val('');
             $('#feeding_owe_' + st_id_array[i]).attr('readonly', 'true');
             $('#feeding_owe_' + st_id_array[i]).attr('placeholder', 'Not Available');
-            $('#feeding_owe_' + st_id_array[i]).val(''); 
+            $('#feeding_owe_' + st_id_array[i]).val('');
             $('#feeding_owe_' + st_id_array[i]).removeAttr('style');
 
             $('#classes_paid_' + st_id_array[i]).attr('readonly', 'true');
             $('#classes_paid_' + st_id_array[i]).attr('placeholder', 'Not Available');
-            $('#classes_paid_' + st_id_array[i]).val(''); 
+            $('#classes_paid_' + st_id_array[i]).val('');
             $('#classes_owe_' + st_id_array[i]).attr('readonly', 'true');
             $('#classes_owe_' + st_id_array[i]).attr('placeholder', 'Not Available');
             $('#classes_owe_' + st_id_array[i]).val('');
@@ -1650,7 +1574,7 @@ function is_student_present_onload() {
             $('#wrong_date_alert').css('display', 'none');
         }
 
-        
+
         //let's see if this student is a beneficiary or not so we know which feeding and classes fee charges to use
         $.ajax({
             url: '<?php echo site_url('admin/beneficiary_checker/'); ?>' + st_id_array[i],
@@ -1687,7 +1611,7 @@ function is_student_present_onload() {
         /** if(transport_fare_charged == 0 || transport_fare_charged == '' || transport_fare_charged == null) {
                         $('#transport_paid_' + st_id_array[i]).attr('readonly', 'true');
             } //end**/
-        
+
     }
 
 }
@@ -1715,7 +1639,7 @@ async function student_paid_feeding(id, counter) {
     //disable submit button on page load and show notifier
     $('#submit_button').attr('disabled', 'disabled');
     $('#notifier').slideDown('slow');
-    
+
     var st_id_array = <?php echo json_encode($st_id_array); ?>;
      var timestamp = <?php echo $timestamp; ?>;
 
@@ -1761,7 +1685,7 @@ async function student_paid_feeding(id, counter) {
                                                     /*if(fee_paid == 0 || fee_paid == '') {
 
                                                         if(feeding_paid_now == 0 || feeding_paid_now == '') {
-                                                            
+
                                                             if(fee_paid == 0 && response == 0) { //if fee paid from the table is zero, add the fee owe from the table to the charge
                                                                 $('#feeding_owe_' + id).val(Number(response) + feeding_fee_charged);
                                                             } else {
@@ -1791,9 +1715,9 @@ async function student_paid_feeding(id, counter) {
                                                 } else if(att_status == 2) {
                                                     $('#feeding_paid_' + id).attr('readonly', 'true');
                                                     $('#feeding_paid_' + id).attr('placeholder', 'Not Available');
-                                                    $('#feeding_paid_' + id).val(''); 
+                                                    $('#feeding_paid_' + id).val('');
                                                     //$('#feeding_owe_' + id).val(0);
-                                                    $('#feeding_owe_' + id).val(Number(response));//subtract today's charge 
+                                                    $('#feeding_owe_' + id).val(Number(response));//subtract today's charge
 
                                                     /*$('#transport_paid_' + id).attr('readonly', 'true');
                                                     $('#transport_paid_' + id).attr('placeholder', 'Not Available');
@@ -1822,9 +1746,9 @@ async function student_paid_feeding(id, counter) {
                                         } else if(att_status == 2) {
                                             $('#feeding_paid_' + id).attr('readonly', 'true');
                                             $('#feeding_paid_' + id).attr('placeholder', 'Not Available');
-                                            $('#feeding_paid_' + id).val(''); 
+                                            $('#feeding_paid_' + id).val('');
                                             //$('#feeding_owe_' + id).val(0);
-                                            $('#feeding_owe_' + id).val(Number(response));//subtract today's charge 
+                                            $('#feeding_owe_' + id).val(Number(response));//subtract today's charge
 
                                             /*$('#transport_paid_' + id).attr('readonly', 'true');
                                             $('#transport_paid_' + id).attr('placeholder', 'Not Available');
@@ -1834,7 +1758,7 @@ async function student_paid_feeding(id, counter) {
                                             $('#submit_button').removeAttr('disabled');
                                         }
                                     }
-                                    
+
                                 }
                             });
                     } else {
@@ -1856,7 +1780,7 @@ async function student_paid_feeding(id, counter) {
                                                     /*if(fee_paid == 0 || fee_paid == '') {
 
                                                         if(feeding_paid_now == 0 || feeding_paid_now == '') {
-                                                            
+
                                                             if(fee_paid == 0 && response == 0) { //if fee paid from the table is zero, add the fee owe from the table to the charge
                                                                 $('#feeding_owe_' + id).val(Number(response) + feeding_fee_charged_b);
                                                             } else {
@@ -1886,9 +1810,9 @@ async function student_paid_feeding(id, counter) {
                                                 } else if(att_status == 2) {
                                                     $('#feeding_paid_' + id).attr('readonly', 'true');
                                                     $('#feeding_paid_' + id).attr('placeholder', 'Not Available');
-                                                    $('#feeding_paid_' + id).val(''); 
+                                                    $('#feeding_paid_' + id).val('');
                                                     //$('#feeding_owe_' + id).val(0);
-                                                    $('#feeding_owe_' + id).val(Number(response));//subtract today's charge 
+                                                    $('#feeding_owe_' + id).val(Number(response));//subtract today's charge
 
                                                     /*$('#transport_paid_' + id).attr('readonly', 'true');
                                                     $('#transport_paid_' + id).attr('placeholder', 'Not Available');
@@ -1916,9 +1840,9 @@ async function student_paid_feeding(id, counter) {
                                         } else if(att_status == 2) {
                                             $('#feeding_paid_' + id).attr('readonly', 'true');
                                             $('#feeding_paid_' + id).attr('placeholder', 'Not Available');
-                                            $('#feeding_paid_' + id).val(''); 
+                                            $('#feeding_paid_' + id).val('');
                                             //$('#feeding_owe_' + id).val(0);
-                                            $('#feeding_owe_' + id).val(Number(response));//subtract today's charge 
+                                            $('#feeding_owe_' + id).val(Number(response));//subtract today's charge
 
                                             /*$('#transport_paid_' + id).attr('readonly', 'true');
                                             $('#transport_paid_' + id).attr('placeholder', 'Not Available');
@@ -1928,7 +1852,7 @@ async function student_paid_feeding(id, counter) {
                                             $('#submit_button').removeAttr('disabled');
                                         }
                                     }
-                                    
+
                                 }
                             });
                     }
@@ -1969,7 +1893,7 @@ async function student_paid_classes(id, counter) {
     //disable submit button on page load and show notifier
     $('#submit_button').attr('disabled', 'disabled');
     $('#notifier').slideDown('slow');
-    
+
     var st_id_array = <?php echo json_encode($st_id_array); ?>;
      var timestamp = <?php echo $timestamp; ?>;
 
@@ -2016,7 +1940,7 @@ async function student_paid_classes(id, counter) {
                                                     /*if(class_fee_paid == 0 || class_fee_paid == '') {
 
                                                         if(classes_paid_now == 0 || classes_paid_now == '') {
-                                                            
+
                                                             if(class_fee_paid == 0 && response == 0) { //if fee paid from the table is zero, add the fee owe from the table to the charge
                                                                 $('#classes_owe_' + id).val(Number(response) + classes_fee_charged);
                                                             } else {
@@ -2031,7 +1955,7 @@ async function student_paid_classes(id, counter) {
                                                             }
                                                         }
 
-                                                        
+
 
                                                     } else {
                                                         if(classes_paid_now == 0 || classes_paid_now == '') {
@@ -2048,7 +1972,7 @@ async function student_paid_classes(id, counter) {
                                                 } else if(att_status == 2) {
                                                     $('#classes_paid_' + id).attr('readonly', 'true');
                                                     $('#classes_paid_' + id).attr('placeholder', 'Not Available');
-                                                    $('#classes_paid_' + id).val(''); 
+                                                    $('#classes_paid_' + id).val('');
                                                     //$('#feeding_owe_' + id).val(0);
                                                     $('#classes_owe_' + id).val(Number(response));
 
@@ -2075,15 +1999,15 @@ async function student_paid_classes(id, counter) {
                                         } else if(att_status == 2) {
                                             $('#classes_paid_' + id).attr('readonly', 'true');
                                             $('#classes_paid_' + id).attr('placeholder', 'Not Available');
-                                            $('#classes_paid_' + id).val(''); 
+                                            $('#classes_paid_' + id).val('');
                                             //$('#feeding_owe_' + id).val(0);
                                             $('#classes_owe_' + id).val(Number(response));
 
                                             //enable the submit button
-                                            $('#submit_button').removeAttr('disabled'); 
+                                            $('#submit_button').removeAttr('disabled');
                                         }
                                     }
-                                    
+
                                 }
                             });
                     } else {
@@ -2105,7 +2029,7 @@ async function student_paid_classes(id, counter) {
                                                     /*if(class_fee_paid == 0 || class_fee_paid == '') {
 
                                                         if(classes_paid_now == 0 || classes_paid_now == '') {
-                                                            
+
                                                             if(class_fee_paid == 0 && response == 0) { //if fee paid from the table is zero, add the fee owe from the table to the charge
                                                                 $('#classes_owe_' + id).val(Number(response) + classes_fee_charged_b);
                                                             } else {
@@ -2135,9 +2059,9 @@ async function student_paid_classes(id, counter) {
                                                 } else if(att_status == 2) {
                                                     $('#classes_paid_' + id).attr('readonly', 'true');
                                                     $('#classes_paid_' + id).attr('placeholder', 'Not Available');
-                                                    $('#classes_paid_' + id).val(''); 
+                                                    $('#classes_paid_' + id).val('');
                                                     //$('#feeding_owe_' + id).val(0);
-                                                    $('#classes_owe_' + id).val(Number(response));//subtract today's charge 
+                                                    $('#classes_owe_' + id).val(Number(response));//subtract today's charge
 
                                                     //enable the submit button
                                                     $('#submit_button').removeAttr('disabled');
@@ -2162,22 +2086,22 @@ async function student_paid_classes(id, counter) {
                                         } else if(att_status == 2) {
                                             $('#classes_paid_' + id).attr('readonly', 'true');
                                             $('#classes_paid_' + id).attr('placeholder', 'Not Available');
-                                            $('#classes_paid_' + id).val(''); 
+                                            $('#classes_paid_' + id).val('');
                                             //$('#feeding_owe_' + id).val(0);
-                                            $('#classes_owe_' + id).val(Number(response));//subtract today's charge 
+                                            $('#classes_owe_' + id).val(Number(response));//subtract today's charge
 
                                             //enable the submit button
                                             $('#submit_button').removeAttr('disabled');
 
                                         }
                                     }
-                                    
+
                                 }
                             });
                     }
                 }
             });
-        
+
         //hide notifier
        if(counter != undefined)  {
         if(counter == st_id_array.length -1) {
@@ -2198,7 +2122,7 @@ async function student_paid_classes(id, counter) {
     //enable submit button
     $('#submit_button').removeAttr('disabled');
 
-    
+
     var st_id_array = <?php //echo json_encode($st_id_array); ?>;
     var timestamp = <?php //echo $timestamp; ?>;
 
@@ -2232,7 +2156,7 @@ async function student_paid_classes(id, counter) {
                                         if(t_paid == 0 || t_paid == '') {
 
                                             if(fare_paid_now == 0 || fare_paid_now == '') {
-                                                
+
                                                 if(t_paid == 0 && response == 0) { //if fare paid from the table is zero, add the fee owe from the table to the charge
                                                     $('#transport_owe_' + id).val(Number(response) + transport_fare_charged);
                                                 } else {
@@ -2259,14 +2183,14 @@ async function student_paid_classes(id, counter) {
                                     } else if(att_status == 2) {
                                         $('#feeding_paid_' + id).attr('readonly', 'true');
                                         $('#feeding_paid_' + id).attr('placeholder', 'Not Available');
-                                        $('#feeding_paid_' + id).val(''); 
+                                        $('#feeding_paid_' + id).val('');
                                         //$('#feeding_owe_' + id).val(0);
-                                        
+
 
                                         $('#transport_paid_' + id).attr('readonly', 'true');
                                         $('#transport_paid_' + id).attr('placeholder', 'Not Available');
                                         $('#transport_paid_' + id).val('');
-                                        $('#transport_owe_' + id).val(Number(response));//subtract today's charge 
+                                        $('#transport_owe_' + id).val(Number(response));//subtract today's charge
                                     }
                                 }
                             });
@@ -2281,17 +2205,17 @@ async function student_paid_classes(id, counter) {
                             } else if(att_status == 2) {
                                 $('#feeding_paid_' + id).attr('readonly', 'true');
                                 $('#feeding_paid_' + id).attr('placeholder', 'Not Available');
-                                $('#feeding_paid_' + id).val(''); 
+                                $('#feeding_paid_' + id).val('');
                                 //$('#feeding_owe_' + id).val(0);
-                               
+
 
                                 $('#transport_paid_' + id).attr('readonly', 'true');
                                 $('#transport_paid_' + id).attr('placeholder', 'Not Available');
                                 $('#transport_paid_' + id).val('');
-                                $('#transport_owe_' + id).val(Number(response));//subtract today's charge 
+                                $('#transport_owe_' + id).val(Number(response));//subtract today's charge
                             }
                         }
-                        
+
                     }
                 });*
 
@@ -2299,7 +2223,7 @@ async function student_paid_classes(id, counter) {
 
                             $('.close').click();
 
-        
+
 }*/
 
 //check if attendance status field is empty
@@ -2324,7 +2248,7 @@ $('#attendance_form').submit(async function(event) {
     //Scroll to the top
       $('html, body').animate({
           scrollTop: ($('#top').offset().top )
-      }, 1000); 
+      }, 1000);
 
     var count = <?php echo count($attendance_of_students_array); ?>;
     var st_id_array = <?php echo json_encode($st_id_array); ?>;
@@ -2450,7 +2374,7 @@ function select_students(class_id) {
         $('#modal_alert').modal({
             backdrop: 'static',
             keyboard: false,
- 
+
         });
 
         showAjaxModal_alert('<center><div style="font-size: 20px; font-weight: bolder; ">Updating, please wait...<i class="fa fa-spinner fa-pulse"></i></div></center>', 'Loading');
@@ -2503,7 +2427,7 @@ function select_students(class_id) {
 
             $('.close').click();
 
-        
+
     }
 
     function mark_all_absent() {
@@ -2521,7 +2445,7 @@ function select_students(class_id) {
         $('#modal_alert').modal({
             backdrop: 'static',
             keyboard: false,
- 
+
         });
 
         showAjaxModal_alert('<center><div style="font-size: 20px; font-weight: bolder; ">Updating, please wait...<i class="fa fa-spinner fa-pulse"></i></div></center>', 'Loading');
@@ -2565,7 +2489,7 @@ function select_students(class_id) {
         $('#modal_alert').modal({
             backdrop: 'static',
             keyboard: false,
- 
+
         });
 
         showAjaxModal_alert('<center><div style="font-size: 20px; font-weight: bolder; ">Updating, please wait...<i class="fa fa-spinner fa-pulse"></i></div></center>', 'Loading');
@@ -2600,15 +2524,15 @@ function select_students(class_id) {
             });
 
 
-            
+
             var att_status = $('#status_' + st_id_array[i]).val();
             student_paid_feeding(st_id_array[i], i);
 
             if(att_status == '2') {
               is_student_present(st_id_array[i], '0', i);
             }
-           
-        }       
+
+        }
 
     }
 
@@ -2628,7 +2552,7 @@ function select_students(class_id) {
         $('#modal_alert').modal({
             backdrop: 'static',
             keyboard: false,
- 
+
         });
 
         showAjaxModal_alert('<center><div style="font-size: 20px; font-weight: bolder; ">Updating, please wait...<i class="fa fa-spinner fa-pulse"></i></div></center>', 'Loading');
@@ -2666,17 +2590,17 @@ function select_students(class_id) {
                 }
             });
 
-            
+
             var att_status = $('#status_' + st_id_array[i]).val();
             student_paid_classes(st_id_array[i], i);
 
             if(att_status == '2') {
               is_student_present(st_id_array[i], '0', i);
             }
-           
-        } 
 
-        //$('.close').click();      
+        }
+
+        //$('.close').click();
     }
 
      //feeding fee
@@ -2695,7 +2619,7 @@ function select_students(class_id) {
         $('#modal_alert').modal({
             backdrop: 'static',
             keyboard: false,
- 
+
         });
 
         showAjaxModal_alert('<center><div style="font-size: 20px; font-weight: bolder; ">Updating, please wait...<i class="fa fa-spinner fa-pulse"></i></div></center>', 'Loading');
@@ -2713,7 +2637,7 @@ function select_students(class_id) {
             if(att_status == '2') {
               is_student_present(st_id_array[i], '0', i);
             }
-        }        
+        }
     }*/
 
 function check_validation(){
@@ -2748,7 +2672,7 @@ $('#time_picker').change(function() {
         //Scroll to the top
           $('html, body').animate({
               scrollTop: ($('#top').offset().top )
-          }, 1000); 
+          }, 1000);
 
         showAjaxModal_alert('No student was selected!', 'Error');
         return false;
@@ -2788,12 +2712,12 @@ $('#att_selector_form').submit(function(event) {
         showAjaxModal_alert('Make sure students were promoted during the previous term. For further assistance, kindly contact the system administrator.', 'Error');
 
         navigation('<?php echo site_url('admin/manage_attendance'); ?>');
-      
+
     } else if(data == 'promotion error sem') {
         showAjaxModal_alert('Make sure students were promoted during the previous semester. For further assistance, kindly contact the system administrator.', 'Error');
 
         navigation('<?php echo site_url('admin/manage_attendance'); ?>')
-      
+
     } else {
         $('#main_page').empty();
 
@@ -2803,8 +2727,8 @@ $('#att_selector_form').submit(function(event) {
         $('#pre_notice').fadeOut('400', function() {
             $('#pre_notice').remove();
             $('#pre_notice').css('display', 'none');
-        }); 
-        
+        });
+
     }
   });
 });

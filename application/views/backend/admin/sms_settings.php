@@ -23,173 +23,6 @@
 input:checked + .toggle-slider { background-color: #10b981; }
 input:checked + .toggle-slider:before { transform: translateX(30px); }
 .divider { height: 1px; background: #e5e7eb; margin: 30px 0; }
-
-/* Direct UI/UX refinement — SMS Settings */
-body { background: #f8fafc; }
-.modern-card {
-    margin: 24px 28px 40px !important;
-    padding: 20px 22px !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 14px !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-}
-.modern-header {
-    margin-bottom: 18px !important;
-    color: #0f172a !important;
-    font-size: 22px !important;
-    line-height: 1.3;
-    font-weight: 800 !important;
-    gap: 10px !important;
-}
-.modern-header i {
-    width: 38px;
-    height: 38px;
-    border-radius: 9px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: #eff6ff;
-    color: #2563eb !important;
-    font-size: 16px !important;
-}
-.settings-grid {
-    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
-    gap: 14px !important;
-}
-.setting-card {
-    padding: 16px !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    background: #f8fafc !important;
-    box-shadow: none !important;
-    transition: border-color .15s ease, background-color .15s ease !important;
-}
-.setting-card:hover {
-    border-color: #cbd5e1 !important;
-    box-shadow: none !important;
-}
-.setting-card.active {
-    border-color: #86efac !important;
-    background: #f0fdf4 !important;
-}
-.setting-title {
-    margin-bottom: 5px !important;
-    color: #0f172a !important;
-    font-size: 15px !important;
-    line-height: 1.4;
-    font-weight: 800 !important;
-}
-.setting-title i { font-size: 14px !important; }
-.setting-desc {
-    margin-bottom: 13px !important;
-    color: #64748b !important;
-    font-size: 13px !important;
-    line-height: 1.5 !important;
-}
-.badge-active {
-    padding: 4px 8px !important;
-    border-radius: 999px !important;
-    font-size: 11.5px !important;
-    font-weight: 800 !important;
-}
-.form-modern { margin-top: 14px !important; }
-.form-modern label {
-    margin-bottom: 7px !important;
-    color: #334155 !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-}
-.form-modern input,
-.form-modern select,
-#active_service_select {
-    min-height: 46px !important;
-    height: 46px !important;
-    padding: 9px 11px !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 9px !important;
-    background: #fff !important;
-    color: #0f172a !important;
-    font-size: 15px !important;
-}
-.form-modern input:focus,
-.form-modern select:focus,
-#active_service_select:focus {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
-    outline: none;
-}
-.btn-modern {
-    min-height: 44px;
-    padding: 9px 16px !important;
-    border-radius: 9px !important;
-    font-size: 14px !important;
-    font-weight: 800 !important;
-}
-.btn-primary-modern {
-    background: #2563eb !important;
-    box-shadow: none !important;
-}
-.btn-primary-modern:hover {
-    background: #1d4ed8 !important;
-    transform: none !important;
-    box-shadow: none !important;
-}
-.toggle-switch {
-    width: 52px !important;
-    height: 28px !important;
-}
-.toggle-slider { border-radius: 28px !important; }
-.toggle-slider:before {
-    width: 20px !important;
-    height: 20px !important;
-    left: 4px !important;
-    bottom: 4px !important;
-}
-input:checked + .toggle-slider:before {
-    transform: translateX(24px) !important;
-}
-.divider {
-    margin: 20px 0 !important;
-    background: #e2e8f0 !important;
-}
-#hubtel_config .modern-header {
-    margin-bottom: 14px !important;
-    font-size: 17px !important;
-}
-#hubtel_config .modern-header i {
-    width: 34px;
-    height: 34px;
-    font-size: 14px !important;
-}
-#hubtel_form .row {
-    display: grid;
-    grid-template-columns: repeat(3,minmax(0,1fr));
-    gap: 14px;
-    margin: 0 !important;
-}
-#hubtel_form .row > [class*="col-"] {
-    width: 100%;
-    padding: 0 !important;
-}
-#hubtel_form > div[style*="margin-top"] {
-    margin-top: 14px !important;
-}
-@media (max-width: 900px) {
-    .settings-grid { grid-template-columns: 1fr !important; }
-    #hubtel_form .row { grid-template-columns: 1fr !important; }
-}
-@media (max-width: 767px) {
-    .modern-card {
-        margin: 18px 14px 32px !important;
-        padding: 16px !important;
-    }
-    .modern-header { font-size: 20px !important; }
-    .setting-card { padding: 14px !important; }
-    .form-modern input,
-    .form-modern select,
-    #active_service_select { font-size: 16px !important; }
-    .btn-modern { width: 100%; }
-}
 </style>
 
 <?php
@@ -202,7 +35,7 @@ $send_attendance_sms = $this->db->get_where('settings', ['type' => 'send_attenda
 		<i class="fa fa-comment"></i>
 		SMS Configuration
 	</div>
-	
+
 	<div class="settings-grid">
 		<!-- SMS Service Selection -->
 		<div class="setting-card <?php echo $active_sms_service != 'disabled' && $active_sms_service != '' ? 'active' : ''; ?>">
@@ -214,7 +47,7 @@ $send_attendance_sms = $this->db->get_where('settings', ['type' => 'send_attenda
 				<?php endif; ?>
 			</div>
 			<div class="setting-desc">Select and configure your SMS service provider for sending messages</div>
-			
+
 			<div class="form-modern">
 				<label>Active Service</label>
 				<select id="active_service_select" class="form-control">
@@ -223,7 +56,7 @@ $send_attendance_sms = $this->db->get_where('settings', ['type' => 'send_attenda
 				</select>
 			</div>
 		</div>
-		
+
 		<!-- Attendance SMS Toggle -->
 		<div class="setting-card <?php echo $send_attendance_sms == '1' ? 'active' : ''; ?>">
 			<div class="setting-title">
@@ -234,7 +67,7 @@ $send_attendance_sms = $this->db->get_where('settings', ['type' => 'send_attenda
 				<?php endif; ?>
 			</div>
 			<div class="setting-desc">Automatically send SMS to guardians when attendance is taken with payment details</div>
-			
+
 			<div style="margin-top: 20px;">
 				<label class="toggle-switch">
 					<input type="checkbox" id="attendance_sms_toggle" <?php echo $send_attendance_sms == '1' ? 'checked' : ''; ?>>
@@ -246,16 +79,16 @@ $send_attendance_sms = $this->db->get_where('settings', ['type' => 'send_attenda
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="divider"></div>
-	
+
 	<!-- Hubtel Configuration -->
 	<div id="hubtel_config" style="<?php echo $active_sms_service != 'hubtel' ? 'display:none;' : ''; ?>">
 		<div class="modern-header" style="font-size: 20px;">
 			<i class="fa fa-wrench"></i>
 			Hubtel Configuration
 		</div>
-		
+
 		<?php echo form_open(site_url('admin/sms_settings/hubtel-sms'), ['class' => 'form-modern', 'id' => 'hubtel_form']); ?>
 			<div class="row">
 				<div class="col-md-4">

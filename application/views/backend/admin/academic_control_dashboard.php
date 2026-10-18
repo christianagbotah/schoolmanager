@@ -1,215 +1,4 @@
-
-<style>
-/* ---- family design-language alignment (presentation only) ---- */
-#year, #term {
-    border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    height: 42px;
-    padding: 8px 12px;
-    font-size: 14px;
-    background: #fff;
-    transition: border-color .15s ease, box-shadow .15s ease;
-}
-#year:focus, #term:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-button:focus-visible, [onclick]:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-@media (max-width: 400px) {
-    .p-6 { padding: 15px !important; }
-}
-@media (prefers-reduced-motion: reduce) {
-    .animate-spin { animation: none; }
-}
-
-/* Direct UI/UX refinement — Academic Control Dashboard */
-body { background: #f8fafc; }
-.min-h-screen.bg-gray-50 {
-    padding: 24px 28px 40px !important;
-    background: #f8fafc !important;
-}
-.min-h-screen.bg-gray-50 > .mb-6 {
-    margin-bottom: 18px !important;
-    padding-bottom: 18px;
-    border-bottom: 1px solid #e2e8f0;
-}
-.min-h-screen.bg-gray-50 > .mb-6 h1 {
-    margin: 0;
-    color: #0f172a !important;
-    font-size: 30px !important;
-    line-height: 1.2;
-    font-weight: 800 !important;
-    letter-spacing: -.02em;
-}
-.min-h-screen.bg-gray-50 > .mb-6 p {
-    margin-top: 7px !important;
-    color: #64748b !important;
-    font-size: 15px !important;
-    line-height: 1.5;
-}
-.min-h-screen.bg-gray-50 > .bg-white.rounded-lg.shadow.p-4 {
-    margin-bottom: 16px !important;
-    padding: 16px 18px !important;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-}
-.min-h-screen.bg-gray-50 > .bg-white.rounded-lg.shadow.p-4 .grid {
-    gap: 14px !important;
-}
-.min-h-screen.bg-gray-50 label {
-    margin-bottom: 7px !important;
-    color: #334155 !important;
-    font-size: 14px !important;
-    line-height: 1.4;
-    font-weight: 700 !important;
-}
-#year, #term {
-    min-height: 46px !important;
-    height: 46px !important;
-    padding: 9px 11px !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 9px !important;
-    color: #0f172a !important;
-    font-size: 15px !important;
-    font-weight: 600 !important;
-}
-.min-h-screen.bg-gray-50 button[onclick="loadMetrics()"] {
-    min-height: 46px;
-    padding: 9px 16px !important;
-    border-radius: 9px !important;
-    font-size: 14px !important;
-    line-height: 1.35;
-    font-weight: 800 !important;
-    box-shadow: none !important;
-}
-
-#classGrid {
-    gap: 14px !important;
-}
-#classGrid > .bg-white {
-    padding: 16px !important;
-    border: 1px solid #e2e8f0 !important;
-    border-left-width: 4px !important;
-    border-radius: 12px !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-}
-#classGrid > .bg-white:hover {
-    box-shadow: 0 4px 12px rgba(15,23,42,.06) !important;
-}
-#classGrid h3 {
-    color: #0f172a !important;
-    font-size: 16px !important;
-    line-height: 1.35;
-    font-weight: 800 !important;
-}
-#classGrid span.rounded-full {
-    padding: 5px 9px !important;
-    border-radius: 999px !important;
-    font-size: 12px !important;
-    line-height: 1.25;
-    font-weight: 800 !important;
-}
-#classGrid .space-y-3 {
-    margin-bottom: 14px !important;
-}
-#classGrid .space-y-3 > div {
-    margin-top: 0 !important;
-    margin-bottom: 10px !important;
-}
-#classGrid .space-y-3 .text-sm {
-    font-size: 13px !important;
-    line-height: 1.4;
-}
-#classGrid .h-2 {
-    height: 7px !important;
-}
-#classGrid .flex.gap-2.flex-wrap {
-    gap: 7px !important;
-}
-#classGrid .flex.gap-2.flex-wrap button {
-    min-height: 38px;
-    padding: 8px 11px !important;
-    border-radius: 8px !important;
-    font-size: 13px !important;
-    line-height: 1.25;
-    font-weight: 700 !important;
-}
-#classGrid .col-span-full {
-    padding-top: 36px !important;
-    padding-bottom: 36px !important;
-}
-#classGrid .col-span-full .h-12 {
-    width: 34px !important;
-    height: 34px !important;
-}
-#classGrid .col-span-full p {
-    margin-top: 10px !important;
-    color: #64748b !important;
-    font-size: 14px !important;
-}
-
-#auditModal {
-    background: rgba(15,23,42,.55) !important;
-}
-#auditModal > .relative {
-    top: 8vh !important;
-    width: min(720px, calc(100% - 28px)) !important;
-    padding: 0 !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 14px !important;
-    background: #fff !important;
-    box-shadow: 0 20px 45px rgba(15,23,42,.20) !important;
-    overflow: hidden;
-}
-#auditModal > .relative > .flex.justify-between.items-center {
-    margin-bottom: 0 !important;
-    padding: 15px 18px;
-    border-bottom: 1px solid #e2e8f0;
-}
-#auditModal h3 {
-    color: #0f172a;
-    font-size: 17px !important;
-    line-height: 1.35;
-    font-weight: 800 !important;
-}
-#auditModal button[onclick="closeAuditModal()"] {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-#auditModal #auditContent {
-    max-height: 60vh !important;
-    padding: 15px 18px 18px;
-}
-#auditModal #auditContent .space-y-3 > div {
-    padding: 10px 0 10px 12px !important;
-}
-#auditModal #auditContent .font-semibold {
-    color: #0f172a;
-    font-size: 14px;
-}
-#auditModal #auditContent .text-sm {
-    font-size: 13px !important;
-    line-height: 1.45;
-}
-
-@media (max-width: 767px) {
-    .min-h-screen.bg-gray-50 { padding: 18px 14px 32px !important; }
-    .min-h-screen.bg-gray-50 > .mb-6 h1 { font-size: 26px !important; }
-    #year, #term { font-size: 16px !important; }
-    #classGrid { grid-template-columns: 1fr !important; }
-}
-</style>
-
-<div class="p-4 md:p-6 bg-gray-50 min-h-screen">
+<div class="p-6">
     <!-- Header -->
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Academic Control Dashboard</h1>
@@ -259,8 +48,8 @@ body { background: #f8fafc; }
     <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-lg bg-white">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-bold">Audit Trail</h3>
-            <button onclick="closeAuditModal()" aria-label="Close audit trail" class="text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <button onclick="closeAuditModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
@@ -279,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadMetrics() {
     currentYear = document.getElementById('year').value;
     currentTerm = document.getElementById('term').value;
-    
+
     $.post('<?php echo site_url('academic_control/get_class_metrics'); ?>', {
         year: currentYear,
         term: currentTerm
@@ -293,7 +82,7 @@ function loadMetrics() {
 function renderClassCards(data) {
     const grid = document.getElementById('classGrid');
     grid.innerHTML = '';
-    
+
     data.forEach(item => {
         const statusColors = {
             'draft': 'bg-yellow-100 text-yellow-800 border-yellow-300',
@@ -301,7 +90,7 @@ function renderClassCards(data) {
             'approved': 'bg-green-100 text-green-800 border-green-300',
             'locked': 'bg-red-100 text-red-800 border-red-300'
         };
-        
+
         const card = `
             <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 ${statusColors[item.status]}">
                 <div class="flex justify-between items-start mb-4">
@@ -310,7 +99,7 @@ function renderClassCards(data) {
                         ${item.status.toUpperCase()}
                     </span>
                 </div>
-                
+
                 <!-- Progress Bars -->
                 <div class="space-y-3 mb-4">
                     <div>
@@ -322,7 +111,7 @@ function renderClassCards(data) {
                             <div class="bg-purple-600 h-2 rounded-full" style="width: ${item.portfolio_completion}%"></div>
                         </div>
                     </div>
-                    
+
                     <div>
                         <div class="flex justify-between text-sm mb-1">
                             <span class="text-gray-600">SBA</span>
@@ -332,7 +121,7 @@ function renderClassCards(data) {
                             <div class="bg-blue-600 h-2 rounded-full" style="width: ${item.sba_completion}%"></div>
                         </div>
                     </div>
-                    
+
                     <div>
                         <div class="flex justify-between text-sm mb-1">
                             <span class="text-gray-600">Exams</span>
@@ -343,7 +132,7 @@ function renderClassCards(data) {
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Actions -->
                 <div class="flex gap-2 flex-wrap">
                     ${getActionButtons(item)}
@@ -356,25 +145,25 @@ function renderClassCards(data) {
 
 function getActionButtons(item) {
     let buttons = '';
-    
+
     if(item.status === 'draft') {
         buttons += `<button onclick="submitResults(${item.class_id})" class="flex-1 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Submit</button>`;
     }
-    
+
     if(item.status === 'submitted') {
         buttons += `<button onclick="approveResults(${item.class_id})" class="flex-1 bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Approve</button>`;
     }
-    
+
     if(item.status === 'approved') {
         buttons += `<button onclick="lockResults(${item.class_id})" class="flex-1 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">Lock</button>`;
     }
-    
+
     if(item.status === 'locked') {
         buttons += `<button onclick="unlockResults(${item.class_id})" class="flex-1 bg-orange-600 text-white px-3 py-1 rounded text-sm hover:bg-orange-700">Unlock</button>`;
     }
-    
+
     buttons += `<button onclick="viewAudit(${item.class_id})" class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700">Audit</button>`;
-    
+
     return buttons;
 }
 
@@ -455,7 +244,7 @@ function renderAuditTrail(data) {
         content.innerHTML = '<p class="text-gray-500 text-center py-4">No audit records found</p>';
         return;
     }
-    
+
     let html = '<div class="space-y-3">';
     data.forEach(item => {
         html += `
