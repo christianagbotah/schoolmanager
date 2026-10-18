@@ -1,0 +1,33 @@
+name: Sync Conflicts Security Boundary
+
+on:
+  pull_request:
+    paths:
+      - 'application/controllers/Sync_conflicts.php'
+      - 'application/views/backend/admin/sync_conflicts_list.php'
+      - 'application/views/backend/admin/sync_conflict_detail.php'
+      - 'application/views/backend/admin/sync_conflict_merge.php'
+      - 'tests/sync-conflicts-security-boundary.test.js'
+      - '.github/workflows/sync-conflicts-security.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Sync_conflicts.php'
+      - 'application/views/backend/admin/sync_conflicts_list.php'
+      - 'application/views/backend/admin/sync_conflict_detail.php'
+      - 'application/views/backend/admin/sync_conflict_merge.php'
+      - 'tests/sync-conflicts-security-boundary.test.js'
+      - '.github/workflows/sync-conflicts-security.yml'
+
+jobs:
+  security-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Sync conflicts security contract
+        run: node --test tests/sync-conflicts-security-boundary.test.js
+      - name: PHP syntax
+        run: php -l application/controllers/Sync_conflicts.php
