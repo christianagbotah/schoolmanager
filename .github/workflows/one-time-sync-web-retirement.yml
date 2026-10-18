@@ -1,0 +1,27 @@
+name: One-Time Sync Web Retirement
+
+on:
+  pull_request:
+    paths:
+      - 'application/controllers/One_time_sync.php'
+      - 'tests/one-time-sync-web-retirement.test.js'
+      - '.github/workflows/one-time-sync-web-retirement.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/One_time_sync.php'
+      - 'tests/one-time-sync-web-retirement.test.js'
+      - '.github/workflows/one-time-sync-web-retirement.yml'
+
+jobs:
+  retirement-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: One-time sync web retirement contract
+        run: node --test tests/one-time-sync-web-retirement.test.js
+      - name: PHP syntax
+        run: php -l application/controllers/One_time_sync.php
