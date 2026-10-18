@@ -1,5 +1,5 @@
 <?php
-	
+
 	/*GENERALLY CHECK FOR INTERNET CONNECTION BEFORE PROCEEDING WITH ANY REQUEST*/
     $hasInternetConnection = getInternetConnectionStatus();
 
@@ -17,12 +17,12 @@
 
 	$admin_row = $this->db->get_where('admin', array('admin_id' => $this->session->userdata('admin_id')))->row();
 	$admin_level = $admin_row ? $admin_row->level : '';
-	
 
-	
+
+
 	?>
 
-	<?php if($page_name == 'manage_attendance_view'): 
+	<?php if($page_name == 'manage_attendance_view'):
 		$display = 'none';
 	endif;
 		?>
@@ -40,6 +40,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta name="description" content="Lightworldtech School Management Software - Lightworld Technologies Ltd" />
 	<meta name="author" content="Lightworldtech" />
+
+	<!-- CSRF Token for AJAX requests -->
+	<meta name="csrf-name" content="<?php echo $this->security->get_csrf_token_name(); ?>">
+	<meta name="csrf-token" content="<?php echo $this->security->get_csrf_hash(); ?>">
+	<script type="text/javascript">
+		var csrf_token_name = '<?php echo $this->security->get_csrf_token_name(); ?>';
+		var csrf_token_value = '<?php echo $this->security->get_csrf_hash(); ?>';
+	</script>
 
 	<?php include 'css.php'; ?>
 
@@ -177,7 +185,7 @@
 
 	<script type="text/javascript">
 
-		
+
 		$(function() {
 
 			// Only initialize select2 if the library is loaded and elements exist
@@ -195,10 +203,10 @@
 			$('#main_div').css('cursor', 'wait');
 			$('#modal_confirm .modal-footer').html('');**/
 
-			
-			
+
+
 		})
-		
+
 	</script>
 
 	<div id="skeleton-loader" class="skeleton-loader">
@@ -209,7 +217,7 @@
 	</div>
 
 	<div id="main_div" class="page-container  <?php if ($text_align == 'right-to-left') echo 'right-sidebar';?>
-		<?php if($page_name == 'attendance_report_view' || $page_name == 'marks' || $page_name == 'marks_raw_score'  || $page_name == 'student_payment' || $page_name == 'marks_manage' || $page_name == 'marks_manage_view' || $page_name == 'marks_manage_view_creche' || $page_name == 'fct_owe_list' || $page_name == 'exam_marks_sms' || $page_name == 'students_daily_attendance' || $page_name == 'portfolio_assessment_manage_view' || $page_name == 'portfolio_assessment_manage' || $page_name == 'payslip_list' || $page_name == 'transport' || $page_name == 'transport_enhanced' || $page_name == 'fee_collection_portal' || $page_name == 'manage_discount_assignments' || $page_name == 'inventory' || $page_name == 'inventory/dashboard' || $page_name == 'inventory/products' || $page_name == 'inventory/pos' || $page_name == 'inventory/sales' || $page_name == 'inventory/returns' || $page_name == 'inventory/purchase_orders' || $page_name == 'expense' || ($page_name == 'dashboard' && isset($admin_level) && $admin_level < 4)) echo 'sidebar-collapsed';?>" >
+		<?php if($page_name == 'attendance_report_view' || $page_name == 'attendance/report' || $page_name == 'marks' || $page_name == 'marks_raw_score'  || $page_name == 'student_payment' || $page_name == 'marks_manage' || $page_name == 'marks_manage_view' || $page_name == 'marks_manage_view_creche' || $page_name == 'fct_owe_list' || $page_name == 'exam_marks_sms' || $page_name == 'students_daily_attendance' || $page_name == 'portfolio_assessment_manage_view' || $page_name == 'portfolio_assessment_manage' || $page_name == 'payslip_list' || $page_name == 'transport' || $page_name == 'transport_enhanced' || $page_name == 'fee_collection_portal' || $page_name == 'manage_discount_assignments' || $page_name == 'inventory' || $page_name == 'inventory/dashboard' || $page_name == 'inventory/products' || $page_name == 'inventory/pos' || $page_name == 'inventory/sales' || $page_name == 'inventory/returns' || $page_name == 'inventory/purchase_orders' || $page_name == 'expense' || $page_name == 'daily_fee_reconciliation' || ($page_name == 'dashboard' && isset($admin_level) && $admin_level < 4)) echo 'sidebar-collapsed';?>" >
 
 		<?php include $account_type.'/navigation.php';?>
 
@@ -221,9 +229,9 @@
 
 	     <!--main body/pages-->
 	     <div id= "main_page" class="p-10 pt-24">
-	     	<?php include 'include_main.php'; ?>
+            <?php include 'include_main.php'; ?>
 	     </div>
-	     
+
 
 	    </div>
 		<?php //include 'chat.php';?>
@@ -231,62 +239,62 @@
 		<?php //include 'footer.php';?>
 
 		 <!-- (Preloader Ajax Modal)-->
-		
+
 	    <?php include 'modal.php';?>
 
 	    <script type="text/javascript">
-	    	$(document).ready(function() {
-	    		// Cache settings in sessionStorage to reduce AJAX calls
-	    		var cachedRawScoreStatus = sessionStorage.getItem('raw_score_status');
-	    		var cacheTimestamp = sessionStorage.getItem('raw_score_status_time');
-	    		var now = new Date().getTime();
-	    		
-	    		// Cache for 5 minutes (300000ms)
-	    		if(cachedRawScoreStatus && cacheTimestamp && (now - cacheTimestamp < 300000)) {
-	    			if(cachedRawScoreStatus === 'Yes') {
-	    				$('#raw_nav').css('display', 'block');
-	    			} else {
-	    				$('#raw_nav').css('display', 'none');
-	    			}
-	    		} else {
-	    			$.ajax({
-	    				url: '<?php echo site_url('admin/get_raw_score_status'); ?>',
-	    				success: function(response) {
-	    					sessionStorage.setItem('raw_score_status', response);
-	    					sessionStorage.setItem('raw_score_status_time', now);
-	    					if(response == 'Yes') {
-	    						$('#raw_nav').css('display', 'block');
-	    					}else{
-	    						$('#raw_nav').css('display', 'none');
-	    					}
-	    				}
-	    			});
-	    		}
+            $(document).ready(function() {
+                // Cache settings in sessionStorage to reduce AJAX calls
+                var cachedRawScoreStatus = sessionStorage.getItem('raw_score_status');
+                var cacheTimestamp = sessionStorage.getItem('raw_score_status_time');
+                var now = new Date().getTime();
 
-	    		// Smart auto-update: only runs when year changes
-	    		check_and_update_student_code_format();
-	    	});
+                // Cache for 5 minutes (300000ms)
+                if(cachedRawScoreStatus && cacheTimestamp && (now - cacheTimestamp < 300000)) {
+                    if(cachedRawScoreStatus === 'Yes') {
+                        $('#raw_nav').css('display', 'block');
+                    } else {
+                        $('#raw_nav').css('display', 'none');
+                    }
+                } else {
+                    $.ajax({
+                        url: '<?php echo site_url('admin/get_raw_score_status'); ?>',
+                        success: function(response) {
+                            sessionStorage.setItem('raw_score_status', response);
+                            sessionStorage.setItem('raw_score_status_time', now);
+                            if(response == 'Yes') {
+                                $('#raw_nav').css('display', 'block');
+                            }else{
+                                $('#raw_nav').css('display', 'none');
+                            }
+                        }
+                    });
+                }
 
-	    	function check_and_update_student_code_format() {
-	    		var currentYear = new Date().getFullYear();
-	    		var lastUpdatedYear = localStorage.getItem('student_code_format_year');
-	    		
-	    		// Only update if year has changed or never been set
-	    		if(lastUpdatedYear != currentYear) {
-	    			$.ajax({
-	    				url: '<?php echo site_url('admin/update_student_code_format') ?>',
-	    				type: 'POST',
-	    				dataType: 'html',
-	    			})
-	    			.done(function(feedback) {
-	    				localStorage.setItem('student_code_format_year', currentYear);
-	    				console.log('Student code format updated for year ' + currentYear);
-	    			})
-	    			.fail(function() {
-	    				console.log('Failed to update student code format');
-	    			});
-	    		}
-	    	}
+                // Smart auto-update: only runs when year changes
+                check_and_update_student_code_format();
+            });
+
+            function check_and_update_student_code_format() {
+                var currentYear = new Date().getFullYear();
+                var lastUpdatedYear = localStorage.getItem('student_code_format_year');
+
+                // Only update if year has changed or never been set
+                if(lastUpdatedYear != currentYear) {
+                    $.ajax({
+                        url: '<?php echo site_url('admin/update_student_code_format') ?>',
+                        type: 'POST',
+                        dataType: 'html',
+                    })
+                    .done(function(feedback) {
+                        localStorage.setItem('student_code_format_year', currentYear);
+                        console.log('Student code format updated for year ' + currentYear);
+                    })
+                    .fail(function() {
+                        console.log('Failed to update student code format');
+                    });
+                }
+            }
 
 
 	    </script>
@@ -294,45 +302,45 @@
 	    <?php include 'includes_bottom.php';?>
 
 	    <script type="text/javascript">
-	    	$(document).ready(function() {
-	    		$(window).on("load", function() {
-	    			$('#skeleton-loader').fadeOut(300);
-	    			$('#modal_preloader').fadeOut('400', function() {
-	    				$('.modal-backdrop').removeClass('modal-backdrop');
-	    				$('#modal_preloader').modal('hidden');
-	    				$('#modal_preloader').remove();
-	    				$('#modal_preloader').css('display', 'none');
-	    			});
-	    			$('.modal-backdrop').remove();
-	    		});
-	    	});
+            $(document).ready(function() {
+                $(window).on("load", function() {
+                    $('#skeleton-loader').fadeOut(300);
+                    $('#modal_preloader').fadeOut('400', function() {
+                        $('.modal-backdrop').removeClass('modal-backdrop');
+                        $('#modal_preloader').modal('hidden');
+                        $('#modal_preloader').remove();
+                        $('#modal_preloader').css('display', 'none');
+                    });
+                    $('.modal-backdrop').remove();
+                });
+            });
 
-	    	window.onload = function() {
-	    		$('#skeleton-loader').fadeOut(300);
-	    		$('#modal_preloader').fadeOut('400', function() {
-	    			$('.modal-backdrop').removeClass('modal-backdrop');
-	    			$('#modal_preloader').modal('hidden');
-	    			$('#modal_preloader').remove();
-	    			$('#modal_preloader').css('display', 'none');
-	    		});
-	    		$('.modal-backdrop').remove();
-	    	};
+            window.onload = function() {
+                $('#skeleton-loader').fadeOut(300);
+                $('#modal_preloader').fadeOut('400', function() {
+                    $('.modal-backdrop').removeClass('modal-backdrop');
+                    $('#modal_preloader').modal('hidden');
+                    $('#modal_preloader').remove();
+                    $('#modal_preloader').css('display', 'none');
+                });
+                $('.modal-backdrop').remove();
+            };
 
 
-	    	// Scroll handler for header sizing
-	    	$(document).ready(function() {
-	    		$('.main-content').scroll(function(ev) {
-	    			if($(this).scrollTop() > 7) {
-	    				$('.sidebar-mobile-menu a i').removeClass('text-5xl');
-	    				$('.sidebar-mobile-menu a i').addClass('text-2xl');
-	    				$('.logo a img').css('max-height', '40px');
-	    			} else {
-	    				$('.sidebar-mobile-menu a i').removeClass('text-2xl');
-	    				$('.sidebar-mobile-menu a i').addClass('text-5xl');
-	    				$('.logo a img').css('max-height', '80px');
-	    			}
-	    		});
-	    	});
+            // Scroll handler for header sizing
+            $(document).ready(function() {
+                $('.main-content').scroll(function(ev) {
+                    if($(this).scrollTop() > 7) {
+                        $('.sidebar-mobile-menu a i').removeClass('text-5xl');
+                        $('.sidebar-mobile-menu a i').addClass('text-2xl');
+                        $('.logo a img').css('max-height', '40px');
+                    } else {
+                        $('.sidebar-mobile-menu a i').removeClass('text-2xl');
+                        $('.sidebar-mobile-menu a i').addClass('text-5xl');
+                        $('.logo a img').css('max-height', '80px');
+                    }
+                });
+            });
 	    </script>
 
 	    <!-- <script src="<?php //echo base_url(); ?>assets/cdn/js/flowbite.min.js"></script>

@@ -6,33 +6,17 @@ class Cron extends CI_Controller {
     function __construct() {
         parent::__construct();
         $this->load->database();
-        $this->load->model('Sms_model', 'sms_model');
-
-        if (php_sapi_name() !== 'cli' && !defined('STDIN')) {
-            $this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode([
-                'status' => 'error',
-                'message' => 'Cron execution is CLI-only.'
-            ]));
-            $this->output->_display();
-            exit;
-        }
     }
 
-    public function monthly_bill_reminders($force = '') {
+    // Run monthly bill reminders
+    public function monthly_bill_reminders() {
         $automation = $this->db->where('trigger_event', 'monthly_bill_reminder')
             ->where('is_active', 1)
-            ->order_by('id', 'ASC')
-            ->get('sms_automations')->row_array();
+            ->get('sms_automations')->row();
 
-        if (!$automation) return $this->respond(['status' => 'skipped', 'message' => 'No active monthly bill reminder automation found']);
-
-        if ($force !== 'force' && !empty($automation['last_run']) && date('Y-m', strtotime($automation['last_run'])) === date('Y-m')) {
-            return $this->respond(['status' => 'skipped', 'message' => 'Monthly bill reminder already ran this month']);
-        }
-
-        $active_sms_service = (string)get_settings('active_sms_service');
-        if ($active_sms_service === '' || $active_sms_service === 'disabled') {
-            return $this->respond(['status' => 'error', 'message' => 'SMS service is disabled or not configured'], 1);
+        if (!$automation) {
+            echo json_encode(['status' => 'error', 'message' => 'No active bill reminder automation found']);
+            return;
         }
 
         $running_year = get_settings('running_year');
@@ -52,86 +36,83 @@ class Cron extends CI_Controller {
             ->get()->result_array();
 
         foreach ($students as $student) {
-            $balance = $this->db->select('SUM(due) as total_due')->where('student_id', $student['student_id'])->where('due >', 0)->get('invoice')->row();
-            $owing = $balance ? (float)$balance->total_due : 0;
-            if ($owing <= 0) continue;
-            $parent_id = $student['parent_id'];
-            if (!isset($parents_data[$parent_id])) {
-                $parents_data[$parent_id] = ['phone'=>$student['phone'], 'parent_name'=>$student['parent_name'], 'students'=>[]];
+            $balance = $this->db->select('SUM(due) as total_due')
+                ->where('student_id', $student['student_id'])
+                ->where('due >', 0)
+                ->get('invoice')->row();
+
+            $owing = $balance ? floatval($balance->total_due) : 0;
+
+            if ($owing > 0) {
+                $parent_id = $student['parent_id'];
+                if (!isset($parents_data[$parent_id])) {
+                    $parents_data[$parent_id] = [
+                        'phone' => $student['phone'],
+                        'parent_name' => $student['parent_name'],
+                        'students' => []
+                    ];
+                }
+                $parents_data[$parent_id]['students'][] = [
+                    'name' => $student['name'],
+                    'owing' => $owing
+                ];
             }
-            $parents_data[$parent_id]['students'][] = ['name'=>$student['name'], 'owing'=>$owing];
         }
 
-        if (!$parents_data) return $this->respond(['status' => 'skipped', 'message' => 'No outstanding balances found']);
+        if (empty($parents_data)) {
+            echo json_encode(['status' => 'success', 'message' => 'No outstanding balances found']);
+            return;
+        }
 
-        $personalized = [];
-        $log_ids = [];
-        foreach ($parents_data as $data) {
-            $breakdown = [];
-            $student_names = [];
+        $personalizedRecipients = [];
+        foreach ($parents_data as $parent_id => $data) {
+            $child_word = count($data['students']) > 1 ? 'children' : 'child';
+            $bill_word = count($data['students']) > 1 ? 'bills' : 'bill';
+            $message = "Bill Reminder from " . $school_name . ". Dear cherished parent, kindly be reminded of your " . $child_word . "'s outstanding " . $bill_word . ": ";
+
+            $bills = [];
             $total_owing = 0;
             foreach ($data['students'] as $student) {
-                $student_names[] = $student['name'];
-                $breakdown[] = $student['name'] . ': ' . $currency . ' ' . number_format($student['owing'], 2);
+                $bills[] = $student['name'] . ": " . $currency . number_format($student['owing'], 2);
                 $total_owing += $student['owing'];
             }
-            $message = $this->replace_placeholders($automation['message_template'], [
-                'parent_name' => $data['parent_name'],
-                'student_name' => implode(', ', $student_names),
-                'amount' => $currency . ' ' . number_format($total_owing, 2),
-                'currency' => $currency,
-                'school_name' => $school_name,
-                'date' => date('d M Y'),
-                'breakdown' => implode(', ', $breakdown)
-            ]);
+            $message .= implode(", ", $bills) . ". Total: " . $currency . number_format($total_owing, 2) . ". Please settle outstanding fees. Thank you.";
 
-            $personalized[] = ['Recipient'=>$data['phone'], 'Content'=>$message];
+            $personalizedRecipients[] = [
+                'Recipient' => $data['phone'],
+                'Content' => $message
+            ];
+
+            // Log each message
             $this->db->insert('sms_automation_logs', [
-                'automation_id' => $automation['id'],
+                'automation_id' => $automation->id,
                 'recipient_phone' => $data['phone'],
                 'recipient_name' => $data['parent_name'],
                 'message' => $message,
                 'status' => 'pending',
                 'sent_at' => date('Y-m-d H:i:s')
             ]);
-            $log_ids[] = $this->db->insert_id();
         }
 
-        $result = $this->sms_model->send_sms_batch_personalized($personalized);
-        $sent = ($result === 0);
-        if ($log_ids) {
-            $this->db->where_in('id', $log_ids)->update('sms_automation_logs', [
-                'status' => $sent ? 'sent' : 'failed',
-                'error_message' => $sent ? null : $this->provider_error($result)
-            ]);
-        }
+        $result = $this->sms_model->send_sms_batch_personalized($personalizedRecipients);
 
-        $next_run = date('Y-m-01 08:00:00', strtotime('first day of next month'));
-        $this->db->where('id', $automation['id'])->update('sms_automations', [
-            'last_run' => date('Y-m-d H:i:s'),
-            'next_run' => $next_run
+        // Update logs status
+        $status = ($result === 0) ? 'sent' : 'failed';
+        $this->db->where('automation_id', $automation->id)
+            ->where('status', 'pending')
+            ->where('sent_at >=', date('Y-m-d H:i:s', strtotime('-5 minutes')))
+            ->update('sms_automation_logs', ['status' => $status]);
+
+        // Update automation last_run
+        $this->db->where('id', $automation->id)->update('sms_automations', [
+            'last_run' => date('Y-m-d H:i:s')
         ]);
 
-        return $this->respond([
-            'status' => $sent ? 'success' : 'error',
-            'message' => $sent ? 'Bill reminders sent to '.count($personalized).' parent(s)' : 'SMS provider rejected the batch: '.$this->provider_error($result),
-            'count' => count($personalized)
-        ], $sent ? 0 : 1);
-    }
-
-    private function replace_placeholders($template, $data) {
-        foreach ($data as $key => $value) $template = str_replace('{'.$key.'}', $value, $template);
-        return $template;
-    }
-
-    private function provider_error($result) {
-        if ($result === null) return 'SMS service disabled or not configured';
-        if ((int)$result === 100) return 'No valid recipient phone numbers';
-        return 'Hubtel status '.(string)$result;
-    }
-
-    private function respond($payload, $exit_code = 0) {
-        echo json_encode($payload) . PHP_EOL;
-        exit($exit_code);
+        $sent_count = count($personalizedRecipients);
+        echo json_encode([
+            'status' => $result === 0 ? 'success' : 'error',
+            'message' => $result === 0 ? "Bill reminders sent to $sent_count parent(s)" : "Failed to send reminders. Status: $result",
+            'count' => $sent_count
+        ]);
     }
 }

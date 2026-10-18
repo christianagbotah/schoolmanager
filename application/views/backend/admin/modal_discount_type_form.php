@@ -21,9 +21,9 @@
                 <label class="modern-label"><?php echo get_phrase('discount_category'); ?> <span class="text-danger">*</span></label>
                 <select name="category_id" class="form-control modern-select" required>
                     <option value="">Select Category</option>
-                    <?php 
+                    <?php
                     $categories = $this->db->get('discount_categories')->result();
-                    foreach($categories as $cat): 
+                    foreach($categories as $cat):
                     ?>
                         <option value="<?php echo $cat->category_id; ?>" <?php echo ($discount_type && $discount_type->category_id == $cat->category_id) ? 'selected' : ''; ?>>
                             <?php echo $cat->name; ?> (<?php echo ucfirst($cat->code); ?>)
@@ -32,12 +32,12 @@
                 </select>
             </div>
         <?php endif; ?>
-        
+
         <div class="modern-form-group">
             <label class="modern-label"><?php echo get_phrase('discount_type_name'); ?> <span class="text-danger">*</span></label>
             <input type="text" name="name" class="form-control modern-input" value="<?php echo $discount_type ? $discount_type->name : ''; ?>" placeholder="<?php echo get_phrase('enter_discount_type_name'); ?>" required>
         </div>
-        
+
         <div class="modern-form-group">
             <label class="modern-label"><?php echo get_phrase('icon'); ?> <span style="font-size: 11px; color: #9ca3af;">(Emoji)</span></label>
             <input type="text" id="icon-input" name="icon" class="form-control modern-input" value="<?php echo $discount_type ? $discount_type->icon : ''; ?>" placeholder="Click emoji below" maxlength="4" style="cursor: pointer;">
@@ -54,12 +54,12 @@
                 <span onclick="$('#icon-input').val('💝')" style="font-size: 28px; cursor: pointer; padding: 8px; border: 2px solid #e5e7eb; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.borderColor='#667eea'; this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='#e5e7eb'; this.style.transform='scale(1)'">💝</span>
             </div>
         </div>
-        
+
         <div class="modern-form-group">
             <label class="modern-label"><?php echo get_phrase('description'); ?></label>
             <textarea name="description" class="form-control modern-textarea" rows="3" placeholder="<?php echo get_phrase('enter_description_optional'); ?>"><?php echo $discount_type ? $discount_type->description : ''; ?></textarea>
         </div>
-        
+
         <div class="modern-form-group">
             <label class="modern-label"><?php echo get_phrase('discount_method'); ?> <span class="text-danger">*</span></label>
             <select name="discount_method" class="form-control modern-select" required>
@@ -67,13 +67,13 @@
                 <option value="fixed" <?php echo ($discount_type && isset($discount_type->default_method) && $discount_type->default_method == 'fixed') ? 'selected' : ''; ?>><?php echo get_phrase('fixed_amount'); ?></option>
             </select>
         </div>
-        
+
         <div class="modern-form-group">
             <label class="modern-label"><?php echo get_phrase('discount_value'); ?> <span class="text-danger">*</span></label>
             <input type="number" name="discount_value" class="form-control modern-input" value="<?php echo ($discount_type && isset($discount_type->default_value)) ? $discount_type->default_value : '0'; ?>" min="0" step="0.01" placeholder="<?php echo get_phrase('enter_discount_value'); ?>" required>
             <small class="text-muted"><?php echo get_phrase('enter_percentage_0_100_or_fixed_amount'); ?></small>
         </div>
-        
+
         <div class="modern-form-group">
             <label class="modern-label"><?php echo get_phrase('status'); ?></label>
             <select name="is_active" class="form-control modern-select">
@@ -82,10 +82,10 @@
             </select>
         </div>
     </div>
-    
+
     <div class="form-group" style="margin-top: 20px; text-align: right;">
         <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo get_phrase('close'); ?></button>
-        <button type="submit" class="btn btn-primary" style="background: #2563eb; border: none; border-radius: 8px;"><?php echo get_phrase('save'); ?></button>
+        <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 8px;"><?php echo get_phrase('save'); ?></button>
     </div>
 <?php echo form_close(); ?>
 

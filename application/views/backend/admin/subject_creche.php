@@ -1,85 +1,6 @@
-<style>
-/* Family design-language alignment (academics wave) - presentation only.
-   Scoped to the page shell; control tabs, datatables, form actions,
-   input names and dropdown menus untouched. */
-#main_page .nav-tabs.bordered {
-    border-bottom: 2px solid #e5e7eb;
-}
-#main_page .nav-tabs.bordered > li > a {
-    font-size: 13px; font-weight: 600; color: #374151;
-    text-transform: uppercase; letter-spacing: 0.5px;
-    padding: 12px 16px; border: none; background: transparent;
-}
-#main_page .nav-tabs.bordered > li.active > a,
-#main_page .nav-tabs.bordered > li > a:hover {
-    color: #2563eb; border-bottom: 2px solid #2563eb; background: transparent;
-}
-#main_page .nav-tabs.bordered > li > a:focus-visible {
-    outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-#main_page label.control-label {
-    font-size: 13px; font-weight: 600; color: #374151;
-}
-#main_page .form-control {
-    border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 10px 14px;
-    font-size: 14px; height: 42px; box-shadow: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-#main_page .form-control:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none;
-}
-#main_page .btn {
-    border-radius: 10px; font-weight: 600; font-size: 14px;
-    border: none; padding: 10px 20px; transition: all 0.2s;
-}
-#main_page .btn-primary { background: #2563eb; color: #fff; }
-#main_page .btn-danger { background: #dc2626; color: #fff; }
-#main_page .btn-primary:hover, #main_page .btn-danger:hover {
-    filter: brightness(0.92);
-}
-#main_page .btn:focus-visible {
-    outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-#main_page #table_export {
-    border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;
-}
-#main_page #table_export thead th {
-    background: #f9fafb; color: #374151;
-    font-size: 13px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 0.5px; padding: 14px 12px;
-    border-bottom: 2px solid #e5e7eb;
-}
-#main_page #table_export tbody td {
-    padding: 12px; font-size: 14px; vertical-align: middle;
-}
-#main_page #table_export tbody tr:hover { background: #f9fafb; }
-#main_page .dropdown-menu {
-    border: 1px solid #e5e7eb; border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(16, 24, 40, 0.10); padding: 6px;
-}
-#main_page .dropdown-menu > li > a {
-    padding: 8px 12px; border-radius: 8px; font-size: 14px;
-}
-#main_page .dropdown-menu > li > a:hover { background: #f3f4f6; }
-@media (prefers-reduced-motion: reduce) {
-    #main_page .btn, #main_page .form-control { transition: none; }
-    #main_page .btn-primary:hover, #main_page .btn-danger:hover { filter: none; }
-}
-@media (max-width: 768px) {
-    #main_page .form-control { font-size: 16px; }
-    #main_page #table_export thead th,
-    #main_page #table_export tbody td { padding: 8px; font-size: 12px; }
-    #main_page .btn { width: 100%; margin-bottom: 10px; }
-    #main_page .nav-tabs.bordered > li > a { padding: 10px 12px; font-size: 12px; }
-}
-@media (max-width: 400px) {
-    #main_page .btn { padding: 10px 14px; }
-}
-</style>
 <script type="text/javascript">
 $(document).ready(function() {
-    <?php 
+    <?php
     if(isset($_GET['add']) && $_GET['add'] == 1) { ?>
         showAjaxModal_alert('Subject Added Successfully', 'Success');
     <?php } else if(isset($_GET['update']) && $_GET['update'] == 1) { ?>
@@ -129,8 +50,8 @@ $(document).ready(function() {
 											foreach($subjects as $row):
                                 $class = $this->db->get_where('class', array('class_id' => $row['class_id']))->result_array();
                                                 foreach ($class as $c):
-                                                    
-                                                
+
+
                                                 ?>
                                 <?php
                             //add section A or B if the class has more than one section
@@ -188,8 +109,8 @@ $(document).ready(function() {
                                   </div>
                                  </div>
                                 </form>
-                            </div>    
-                
+                            </div>
+
                 <?php
                     if($subjects_rows != 0) {
                         //Display a button for user to use to add same subjects for another class
@@ -202,7 +123,7 @@ $(document).ready(function() {
                                 <div class="form-group">
                                 <label class="col-sm-3 control-label"><?php echo get_phrase('class');?></label>
                                 <div class="col-sm-5">
-                                    <select name="class_id" class="form-control selectboxit" id="new_class_id" style="width:100%;" required>
+                                    <select name="class_id" class="form-control select2" id="new_class_id" style="width:100%;" required>
                                     <option value=""><?php echo get_phrase('select_class'); ?></option>
                                     	<?php
                                     	$name_array = array('CRECHE');
@@ -240,7 +161,7 @@ $(document).ready(function() {
                 </div>
 			</div>
             <!----TABLE LISTING ENDS--->
-            
+
             <!----CATEGORY CREATION FORM STARTS---->
 			<div class="tab-pane box" id="add_cat" style="padding: 5px">
                 <div class="box-content">
@@ -255,9 +176,9 @@ $(document).ready(function() {
                                   <button type="submit" class="btn btn-info"><?php echo get_phrase('add_category');?></button>
                               </div>
 					        </div>
-				   	    </div> 
+                        </div>
                     </form><hr>
-                    
+
                     <table class="table table-responsive" id="category_tbl">
                         <thead>
                             <tr>
@@ -268,7 +189,7 @@ $(document).ready(function() {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php 
+                            <?php
                                $all_cat =  $this->db->get('subject_category_creche')->result_array();
                                $sn = 1;
                                 foreach($all_cat as $row):
@@ -284,12 +205,12 @@ $(document).ready(function() {
                                 		    <a href="javascript:void(0);" class="btn btn-info" onclick="edit_category('<?= $row['category_id']; ?>')">Update</a>
                                 		</form>
                                     </div>
-                                
+
                                 </td>
                                 <td><button class="btn btn-success btn-sm" id="btn_<?= $row['category_id']; ?>" onclick="show_cat_edit('<?= $row['category_id']; ?>')"><i class="entypo-pencil"></i></button></td>
                                 <td><button class="btn btn-danger btn-sm" onclick="delete_cat('<?= $row['category_id']; ?>')"><i class="entypo-trash"></i></button></td>
                             </tr>
-                            <?php 
+                            <?php
                             $sn++;
                             endforeach; ?>
                         </tbody>
@@ -310,7 +231,7 @@ $(document).ready(function() {
                                     <input type="text" class="form-control" name="name" autofocus="true" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>"/>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label class="col-sm-3 control-label"><?php echo get_phrase('subject_category');?></label>
                                 <div class="col-sm-5">
@@ -359,11 +280,11 @@ $(document).ready(function() {
                                     </select>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label class="col-sm-3 control-label"><?php echo get_phrase('teacher');?></label>
                                 <div class="col-sm-5">
-                                    <select name="teacher_id" class="form-control selectboxit" style="width:100%;">
+                                    <select name="teacher_id" class="form-control select2" style="width:100%;">
                                         <option value=""><?php echo get_phrase('select_teacher');?></option>
                                     	<?php
 										$teachers = $this->db->get('teacher')->result_array();
@@ -382,7 +303,7 @@ $(document).ready(function() {
                                   <button type="submit" class="btn btn-info"><?php echo get_phrase('add_subject');?></button>
                               </div>
 					   </div>
-					   	   
+
                     </form>
                 </div>
 			</div>
@@ -417,9 +338,9 @@ $(document).ready(function() {
 	        function() {
 	            // On confirm - show loading and make AJAX call
 	            showAjaxModal_alert('Deleting category, please wait...', 'Loading');
-	            
+
 	            $.ajax({
-	               url: '<?php echo site_url('admin/subject_category/delete/') ?>' + id, 
+	               url: '<?php echo site_url('admin/subject_category/delete/') ?>' + id,
 	               success: function(response) {
 	                  showAjaxModal_alert('Category Successfully Deleted', 'Success', true);
 	               },
@@ -432,7 +353,7 @@ $(document).ready(function() {
 	        'danger'
 	    );
 	}
-	
+
 	//delete subject
 	function deleteSubject(subject_id, class_id) {
 	    showConfirmModal(
@@ -441,7 +362,7 @@ $(document).ready(function() {
 	        function() {
 	            // On confirm - show loading and make AJAX call
 	            showAjaxModal_alert('Deleting subject, please wait...', 'Loading');
-	            
+
 	            $.ajax({
 	                url: '<?php echo site_url('admin/subject_creche/delete/') ?>' + subject_id + '/' + class_id,
 	                type: 'POST',
@@ -449,11 +370,11 @@ $(document).ready(function() {
 	                success: function(response) {
 	                    // Close any existing modals first
 	                   // $('.modal').modal('hide');
-	                    
+
 	                    if(response.status === 'success') {
 	                        // Show success modal, then reload after user closes it or after delay
 	                        showAjaxModal_alert(response.message || 'Subject Deleted Successfully', 'Success', false, false);
-	                        
+
 	                        // Reload page after 2 seconds to show the updated list
 	                        setTimeout(function() {
 	                            window.location.reload();
@@ -473,12 +394,12 @@ $(document).ready(function() {
 	        'danger'
 	    );
 	}
-	
+
 	//show edit field
 	function show_cat_edit(id) {
 	    $('#raw_' + id).css('display', 'none');
 	    $('#edit_' + id).css('display', 'block');
-	    
+
 	    //remove the onclick on the button
 	   // $('#btn_' + id).removeAtrr('onclick');
 	    //$('#btn_' + id i).text('Update');
@@ -487,16 +408,16 @@ $(document).ready(function() {
 	function edit_category(id) {
 	    const cat_name = $('#edit_category_name_' + id).val();
         const cat_id = $('#cat_id_' + id).val();
-        
+
         if(!cat_name || cat_name.trim() === '') {
             showAjaxModal_alert('Category name cannot be empty', 'Error');
             return false;
         }
-        
+
         showAjaxModal_alert('Updating category, please wait...', 'Loading');
-        
+
 	    $.ajax({
-	       url: '<?php echo site_url('admin/subject_category/do_update/') ?>' + cat_name + '/' + cat_id, 
+	       url: '<?php echo site_url('admin/subject_category/do_update/') ?>' + cat_name + '/' + cat_id,
 	       success: function(response) {
 	          showAjaxModal_alert('Category Successfully Updated', 'Success', true);
 	       },
@@ -505,22 +426,22 @@ $(document).ready(function() {
 	       }
 	    });
 	}
-	
+
 	//add category
 	$('#cat_form').submit(function(e) {
 	    e.preventDefault();
-	    
+
 	    const cat_name = $('#cat_name').val();
-	    
+
 	    if(cat_name == '' || cat_name == null) {
 	        showAjaxModal_alert('Category name cannot be empty!', 'Error');
 	        return false;
 	    }
-	    
+
 	    showAjaxModal_alert('Creating category, please wait...', 'Loading');
-	    
+
 	    $.ajax({
-	       url: '<?php echo site_url('admin/subject_category/create/') ?>' + cat_name, 
+	       url: '<?php echo site_url('admin/subject_category/create/') ?>' + cat_name,
 	       success: function(response) {
 	          showAjaxModal_alert('Category Successfully Created', 'Success', true);
 	       },
@@ -529,32 +450,32 @@ $(document).ready(function() {
 	       }
 	    });
 	});
-	
+
 	$('#subj_import_form').submit(function(e) {
 	    e.preventDefault();
-	    
+
 	    //get new class and old class ids, year and term
 	    const new_class_id = $('#new_class_id').val();
 	    const old_class_id = '<?php echo $class_id; ?>';
 	    const year = '<?php echo $year; ?>';
 	    const term = '<?php echo $term; ?>';
-	    
+
 	    if(new_class_id == old_class_id) {
 	        showAjaxModal_alert('Error! It seems you have selected the same class. Please select a different class', 'Error');
 	        return false;
 	    }
-	    
+
 	    showAjaxModal_alert('Importing subjects, please wait...', 'Loading');
-	    
+
 	    //send info via ajax for processing
 	    $.ajax({
-	       url: '<?php echo site_url('admin/do_subjects_import_creche/') ?>' + new_class_id + '/' + old_class_id + '/' + year + '/' + term, 
+	       url: '<?php echo site_url('admin/do_subjects_import_creche/') ?>' + new_class_id + '/' + old_class_id + '/' + year + '/' + term,
 	       type: 'POST',
 	       success: function(response) {
 	           //if it returns success
 	           if(response == 'success') {
 	               showAjaxModal_alert('Subjects Successfully Added. Redirecting to class page...', 'Success', false);
-	               
+
 	               setTimeout(() => {
     	    	     window.location.href = '<?php echo site_url('admin/subject_creche/'); ?>' + new_class_id;
     	    	    }, 2000);
@@ -573,12 +494,12 @@ $(document).ready(function() {
 //mass import-yearly(academic yearly)
 	$('#subj_import_form_mass').submit(function(e) {
 	    e.preventDefault();
-	    
+
 	    showAjaxModal_alert('Importing all subjects, please wait...', 'Loading');
-	    
+
 	    //send info via ajax for processing
 	    $.ajax({
-	       url: '<?php echo site_url('admin/do_subjects_import_mass_creche') ?>', 
+	       url: '<?php echo site_url('admin/do_subjects_import_mass_creche') ?>',
 	       type: 'POST',
 	       success: function(response) {
 	           if(response == 'error') {
@@ -596,28 +517,28 @@ $(document).ready(function() {
 	// AJAX handler for add subject form
 	$('#subject_add_form').submit(function(e) {
 	    e.preventDefault();
-	    
+
 	    // Validate required fields
 	    const subjectName = $(this).find('input[name="name"]').val();
 	    const classId = $(this).find('select[name="class_id"]').val();
-	    
+
 	    if(!subjectName || subjectName.trim() === '') {
 	        showAjaxModal_alert('Subject name is required', 'Error');
 	        return false;
 	    }
-	    
+
 	    if(!classId || classId === '') {
 	        showAjaxModal_alert('Please select a class', 'Error');
 	        return false;
 	    }
-	    
+
 	    // Get form data and URL
 	    const formData = $(this).serialize();
 	    const formUrl = $(this).attr('action');
-	    
+
 	    // Show loading modal
 	    showAjaxModal_alert('Adding subject, please wait...', 'Loading');
-	    
+
 	    $.ajax({
 	        url: formUrl,
 	        type: 'POST',
@@ -630,7 +551,7 @@ $(document).ready(function() {
 	            try {
 	                // Try to parse JSON response
 	                const response = JSON.parse(responseText);
-	                
+
 	                if(response.status === 'success') {
 	                    // Show success message with auto-reload
 	                    showAjaxModal_alert('Subject Added Successfully', 'Success', true);
@@ -657,5 +578,5 @@ $(document).ready(function() {
 	        }
 	    });
 	});
-   
+
 </script>

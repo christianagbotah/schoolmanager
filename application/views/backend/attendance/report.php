@@ -1,7 +1,7 @@
 <style>
 * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 .analytics-container { background: #f8fafc; min-height: 100vh; padding: 24px; max-width: 1600px; margin: 0 auto; }
-.analytics-header { background: #764ba2; color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3); }
+.analytics-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3); }
 .filter-card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
 @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -22,7 +22,7 @@
 .modern-table td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
 .modern-table tr:hover { background: #f9fafb; }
 .btn-enterprise { padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; height: 46px; font-size: 15px; }
-.btn-primary { background: #764ba2; color: white; }
+.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
 .btn-success { background: #10b981; color: white; }
 .btn-primary:hover, .btn-success:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 .form-control { width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; height: 46px; }
@@ -31,11 +31,11 @@
 .badge-danger { background: #fee2e2; color: #991b1b; }
 .badge-warning { background: #fef3c7; color: #92400e; }
 /* Student Count Badge - Kept for new implementation */
-.student-count-badge { display: inline-block; margin-left: 10px; padding: 2px 10px; background: #059669; color: white; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.student-count-badge { display: inline-block; margin-left: 10px; padding: 2px 10px; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 12px; font-size: 11px; font-weight: 600; }
 
 /* Student Tag Styles */
 .student-tag {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
     border-radius: 4px;
     padding: 6px 10px;
@@ -140,110 +140,6 @@
 }
 </style>
 
-<style>
-@media screen {
-  .analytics-container {
-    max-width: 1600px; padding: 24px 28px 40px; background: #f8fafc;
-  }
-  .analytics-header {
-    padding: 22px 24px; margin-bottom: 16px; border-radius: 14px;
-    background: #0f172a; box-shadow: 0 8px 22px rgba(15,23,42,.14);
-  }
-  .analytics-header h1 { font-size: 28px !important; line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em; }
-  .analytics-header p { font-size: 14px !important; line-height: 1.45; color: #cbd5e1 !important; opacity: 1 !important; }
-  .analytics-header .btn-enterprise {
-    min-height: 42px; height: 42px; padding: 9px 15px; border-radius: 9px;
-    font-size: 14px; font-weight: 700;
-  }
-  .analytics-header .btn-success { background: #059669; }
-
-  .filter-card {
-    padding: 16px 18px; margin-bottom: 16px; border: 1px solid #e2e8f0;
-    border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  .filter-card > div:first-child {
-    display: grid !important; grid-template-columns: repeat(5, minmax(150px,1fr));
-    gap: 12px !important; align-items: end !important; overflow: visible !important; padding-bottom: 0 !important;
-  }
-  .filter-card label {
-    margin-bottom: 7px !important; color: #334155 !important; font-size: 14px !important;
-    line-height: 1.35; font-weight: 700 !important;
-  }
-  .filter-card label i { color: #2563eb !important; }
-  .filter-card .form-control {
-    min-height: 44px; height: 44px; padding: 9px 11px;
-    border: 1px solid #cbd5e1; border-radius: 9px; font-size: 14px; color: #0f172a; background: #fff;
-  }
-  .filter-card .form-control:focus {
-    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
-  }
-  .filter-card .btn-enterprise {
-    min-height: 44px; height: 44px; padding: 9px 16px !important;
-    border-radius: 9px; font-size: 14px; font-weight: 800;
-  }
-  .filter-card .btn-primary { background: #2563eb; }
-  .filter-card .btn-primary:hover { background: #1d4ed8; transform: none; box-shadow: 0 3px 9px rgba(37,99,235,.18); }
-
-  #students_filter_group { max-width: none !important; }
-  #custom_student_selector {
-    min-height: 44px !important; max-height: 44px !important; padding: 4px 6px !important;
-    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
-  }
-  #student_search_input { height: 34px !important; font-size: 14px !important; }
-  #student_search_results { border-width: 1px !important; border-color: #93c5fd !important; font-size: 14px; }
-  .search-result-item { min-height: 38px; padding: 9px 11px; font-size: 14px; }
-  .student-count-badge { padding: 4px 8px; border-radius: 999px; font-size: 13px; }
-  .student-tag { min-height: 32px; height: 32px; padding: 5px 9px; border-radius: 7px; font-size: 13px; background: #2563eb; }
-  #students_filter_group > div:last-child { font-size: 13px !important; line-height: 1.35; }
-
-  .stats-grid { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin-bottom: 16px; }
-  .stat-card {
-    padding: 16px 18px; border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
-    border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;
-  }
-  .stat-value { margin: 5px 0; color: #0f172a; font-size: 28px; line-height: 1.2; }
-  .stat-label { font-size: 13px; font-weight: 700; letter-spacing: .04em; }
-
-  .chart-grid { gap: 14px; margin-bottom: 16px; }
-  .chart-card, .table-card {
-    padding: 18px; border: 1px solid #e2e8f0; border-radius: 14px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  .chart-card h3, .table-card h3 { font-size: 17px !important; font-weight: 800 !important; color: #0f172a !important; }
-
-  .table-card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .modern-table { min-width: 760px; }
-  .modern-table th {
-    padding: 12px 13px; background: #f8fafc; color: #475569;
-    font-size: 13px; font-weight: 800; border-bottom-width: 1px;
-  }
-  .modern-table td { padding: 12px 13px; color: #334155; font-size: 14px; line-height: 1.45; }
-  .badge { padding: 5px 9px; border-radius: 999px; font-size: 13px; font-weight: 700; }
-
-  @media (max-width: 1280px) {
-    .filter-card > div:first-child { grid-template-columns: repeat(3,minmax(150px,1fr)); }
-  }
-  @media (max-width: 900px) {
-    .analytics-container { padding: 18px 14px 32px; }
-    .filter-card > div:first-child { grid-template-columns: repeat(2,minmax(0,1fr)); }
-    .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  }
-  @media (max-width: 640px) {
-    .analytics-container { padding: 12px 10px 28px; }
-    .analytics-header { padding: 18px 16px; }
-    .analytics-header h1 { font-size: 24px !important; }
-    .analytics-header > div { align-items: flex-start !important; flex-direction: column; }
-    .analytics-header .btn-enterprise { width: 100%; justify-content: center; }
-    .filter-card { padding: 14px; }
-    .filter-card > div:first-child { grid-template-columns: 1fr; }
-    .filter-card > div:last-child { justify-content: stretch !important; }
-    .filter-card > div:last-child .btn-enterprise { width: 100%; justify-content: center; }
-    .stats-grid { grid-template-columns: 1fr; }
-  }
-}
-</style>
-
-
 <link href="<?php echo base_url(); ?>assets/cdn/css/select2-4.1.0.min.css" rel="stylesheet" />
 <script src="<?php echo base_url(); ?>assets/cdn/js/select2-4.1.0.min.js"></script>
 
@@ -293,7 +189,7 @@
                 </label>
                 <select id="filter_class" class="form-control">
                     <option value=""><?php echo get_phrase('all_classes'); ?></option>
-                    <?php 
+                    <?php
                     if(isset($teacher_id) && $teacher_id) {
                         echo getFullClassList($teacher_id);
                     } else {
@@ -308,26 +204,26 @@
                     <i class="fa fa-users" style="margin-right: 6px; color: #667eea;"></i><?php echo get_phrase('select_students'); ?>
                     <span class="student-count-badge" id="student_count_badge" style="display: none;"></span>
                 </label>
-                
+
                 <!-- Custom Tag Input Container -->
                 <div id="custom_student_selector" style="border: 2px solid #e5e7eb; border-radius: 8px; min-height: 46px; max-height: 46px; padding: 4px 6px; background: white; display: flex; flex-wrap: nowrap; align-items: center; overflow-x: auto; overflow-y: hidden; gap: 4px;">
                     <!-- Selected students will appear here as tags -->
                     <div id="selected_students_tags" style="display: flex; gap: 4px; flex-shrink: 0;"></div>
-                    
+
                     <!-- Search Input -->
-                    <input type="text" 
-                           id="student_search_input" 
-                           placeholder="Type to search students..." 
+                    <input type="text"
+                           id="student_search_input"
+                           placeholder="Type to search students..."
                            style="border: none; outline: none; flex: 1; min-width: 120px; height: 36px; padding: 0 8px; font-size: 13px;"
                            autocomplete="off" />
-                    
+
                     <!-- Dropdown Results -->
                     <div id="student_search_results" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #667eea; border-radius: 8px; max-height: 250px; overflow-y: auto; margin-top: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1000;"></div>
                 </div>
-                
+
                 <!-- Hidden input to store selected student IDs -->
                 <input type="hidden" id="filter_students" value="" />
-                
+
                 <div style="font-size: 11px; color: #6b7280; margin-top: 4px;">
                     <i class="fa fa-info-circle" style="color: #667eea;"></i>
                     <?php echo get_phrase('type_to_search_students'); ?>
@@ -464,6 +360,7 @@
                             <th><?php echo get_phrase('late'); ?></th>
                             <th>Sick-Home</th>
                             <th>Sick-Clinic</th>
+                            <th>Excused</th>
                             <th><?php echo get_phrase('attendance_rate'); ?></th>
                         </tr>
                     </thead>
@@ -485,14 +382,14 @@ $(document).ready(function() {
     // Initialize Select2 for student selector with enhanced configuration
     // REMOVED - Old Select2 code removed in Task 1.1
     // Custom selector JavaScript will be added in subsequent tasks
-    
+
     // Show monthly fields by default since we only have monthly_grid mode
     toggleReportFields();
 });
 
 function toggleReportFields() {
     const reportType = $('#filter_type').val();
-    
+
     if (reportType === 'analytics') {
         // Analytics mode - show date range fields
         $('#start_field, #end_field').show();
@@ -507,19 +404,19 @@ function toggleReportFields() {
 $('#filter_class').change(function() {
     const classId = $(this).val();
     $('#filter_section').val(''); // Clear previous section
-    
+
     if(classId) {
         // Show loading indicator
         showAjaxModal_alert('<?php echo get_phrase('loading_section'); ?>...', 'loading');
-        
+
         $.get('<?php echo site_url('admin/get_section/'); ?>' + classId, function(response) {
             const $temp = $('<div>').html(response);
             const sectionId = $temp.find('select[name="section_id"] option:first').val();
             $('#filter_section').val(sectionId);
-            
+
             // Close loading modal
             setTimeout(() => $('.close').click(), 300);
-            
+
             console.log('Section loaded:', sectionId, 'for class:', classId);
         }).fail(function() {
             $('.close').click();
@@ -536,29 +433,29 @@ function loadReport() {
     const filterMode = $('#filter_mode').val();
     const studentIds = $('#filter_students').val();
     const classId = $('#filter_class').val();
-    
+
     // AUTO-DETECT filter mode based on what's selected:
     // If students are selected, use student mode regardless of dropdown
     // If class is selected and no students, use class mode
     const effectiveMode = (studentIds && studentIds.length > 0) ? 'students' : 'class';
-    
+
     // Check report type - Analytics loads via AJAX, Monthly Grid opens in new tab
     if(reportType === 'analytics') {
         // Analytics Summary - Load via AJAX on same page
         const startDate = $('#filter_start').val();
         const endDate = $('#filter_end').val();
         const status = $('#filter_status').val();
-        
+
         if(effectiveMode === 'class') {
             if(!classId) {
                 showAjaxModal_alert('<?php echo get_phrase('please_select_class'); ?>', 'error');
                 return;
             }
-            
+
             const sectionId = $('#filter_section').val();
             if(!sectionId) {
                 showAjaxModal_alert('<?php echo get_phrase('loading_section_please_wait'); ?> Retrying...', 'loading');
-                
+
                 setTimeout(function() {
                     const sectionId = $('#filter_section').val();
                     if(!sectionId) {
@@ -566,10 +463,10 @@ function loadReport() {
                         showAjaxModal_alert('Section failed to load. Please select the class again.', 'error');
                         return;
                     }
-                    
+
                     $('.close').click();
                     showAjaxModal_alert('<?php echo get_phrase('generating_report'); ?>...', 'loading');
-                    
+
                     // AJAX call to load analytics data
                     $.ajax({
                         url: '<?php echo site_url('admin/get_attendance_analytics'); ?>',
@@ -592,12 +489,12 @@ function loadReport() {
                         }
                     });
                 }, 1000);
-                
+
                 return;
             }
-            
+
             showAjaxModal_alert('<?php echo get_phrase('generating_report'); ?>...', 'loading');
-            
+
             // AJAX call to load analytics data
             $.ajax({
                 url: '<?php echo site_url('admin/get_attendance_analytics'); ?>',
@@ -619,17 +516,17 @@ function loadReport() {
                     showAjaxModal_alert('<?php echo get_phrase('operation_failed'); ?>: ' + error, 'error');
                 }
             });
-            
+
         } else {
             // Per-student analytics
             if(!studentIds || studentIds.length === 0) {
                 showAjaxModal_alert('<?php echo get_phrase('please_select_students'); ?>', 'error');
                 return;
             }
-            
+
             const firstStudentId = studentIds.split(',')[0].trim();
             showAjaxModal_alert('<?php echo get_phrase('generating_report'); ?>...', 'loading');
-            
+
             $.ajax({
                 url: '<?php echo site_url('admin/get_student_class_info'); ?>',
                 type: 'GET',
@@ -639,7 +536,7 @@ function loadReport() {
                     if(response.status === 'success') {
                         const classId = response.class_id;
                         const sectionId = response.section_id;
-                        
+
                         // AJAX call to load analytics data with student filter
                         $.ajax({
                             url: '<?php echo site_url('admin/get_attendance_analytics'); ?>',
@@ -675,7 +572,7 @@ function loadReport() {
         }
         return;
     }
-    
+
     // Monthly Grid Mode
     if(effectiveMode === 'class') {
         // By Class/Section mode - need class and section
@@ -683,16 +580,16 @@ function loadReport() {
         const month = $('#filter_month').val();
         const year = $('#filter_year').val();
         const term = $('#filter_term').val();
-        
+
         if(!classId) {
             showAjaxModal_alert('<?php echo get_phrase('please_select_class'); ?>', 'error');
             return;
         }
-        
+
         // Give section time to load if it's empty
         if(!sectionId) {
             showAjaxModal_alert('<?php echo get_phrase('loading_section_please_wait'); ?> Retrying...', 'loading');
-            
+
             // Retry after 1 second to give section time to load
             setTimeout(function() {
                 const sectionId = $('#filter_section').val();
@@ -701,39 +598,39 @@ function loadReport() {
                     showAjaxModal_alert('Section failed to load. Please select the class again.', 'error');
                     return;
                 }
-                
+
                 // Section loaded, proceed
                 $('.close').click();
                 showAjaxModal_alert('<?php echo get_phrase('generating_report'); ?>...', 'loading');
-                
+
                 let url = '<?php echo site_url('admin/attendance_report_view/'); ?>' + classId + '/' + sectionId + '/' + month + '/' + year + '/' + term;
                 window.open(url, '_blank');
                 setTimeout(() => $('.close').click(), 500);
             }, 1000);
-            
+
             return;
         }
-        
+
         showAjaxModal_alert('<?php echo get_phrase('generating_report'); ?>...', 'loading');
-        
+
         // Build URL for class/section mode
         let url = '<?php echo site_url('admin/attendance_report_view/'); ?>' + classId + '/' + sectionId + '/' + month + '/' + year + '/' + term;
         window.open(url, '_blank');
         setTimeout(() => $('.close').click(), 500);
-        
+
     } else {
         // By Selected Students mode - need students
         if(!studentIds || studentIds.length === 0) {
             showAjaxModal_alert('<?php echo get_phrase('please_select_students'); ?>', 'error');
             return;
         }
-        
+
         // For per-student mode, we still need a class/section to determine the grid
         // Use the first selected student's class
         const firstStudentId = studentIds.split(',')[0].trim();
-        
+
         showAjaxModal_alert('<?php echo get_phrase('generating_report'); ?>...', 'loading');
-        
+
         // Get student details via AJAX to find their class/section
         $.ajax({
             url: '<?php echo site_url('admin/get_student_class_info'); ?>',
@@ -747,15 +644,15 @@ function loadReport() {
                     const month = $('#filter_month').val();
                     const year = $('#filter_year').val();
                     const term = $('#filter_term').val();
-                    
+
                     // Build URL with student_ids as query parameters
                     let url = '<?php echo site_url('admin/attendance_report_view/'); ?>' + classId + '/' + sectionId + '/' + month + '/' + year + '/' + term;
-                    
+
                     // Convert comma-separated string to array format for URL: student_ids[]=1&student_ids[]=2
                     const idsArray = studentIds.split(',');
                     const queryParams = idsArray.map(id => 'student_ids[]=' + encodeURIComponent(id.trim())).join('&');
                     url += '?' + queryParams;
-                    
+
                     $('.close').click();
                     window.open(url, '_blank');
                 } else {
@@ -774,21 +671,21 @@ function loadReport() {
 
 function displayReport(data) {
     $('#report_content').show();
-    
+
     const totalAbsent = data.stats.total_absent + data.stats.total_sick_home + data.stats.total_sick_clinic;
     const totalPresent = data.stats.total_present + data.stats.total_late;
     const totalDays = data.stats.total_days;
     const totalRecords = totalPresent + totalAbsent;
     const attendanceRate = totalRecords > 0 ? ((totalPresent / totalRecords) * 100).toFixed(1) : 0;
     const absentRate = totalRecords > 0 ? ((totalAbsent / totalRecords) * 100).toFixed(1) : 0;
-    
+
     $('#stat_days').text(totalDays);
     $('#stat_present').text(totalPresent);
     $('#stat_absent').text(totalAbsent);
     $('#stat_avg').text(attendanceRate + '%');
     $('#present_rate').text(attendanceRate);
     $('#absent_rate').text(absentRate);
-    
+
     renderCharts(data);
     renderTable(data.students);
 }
@@ -796,12 +693,12 @@ function displayReport(data) {
 function renderCharts(data) {
     if(trendChart) trendChart.destroy();
     if(statusChart) statusChart.destroy();
-    
+
     const totalAbsent = data.stats.total_absent + data.stats.total_sick_home + data.stats.total_sick_clinic;
     const totalPresent = data.stats.total_present + data.stats.total_late;
     const totalRecords = totalPresent + totalAbsent;
     const attendanceRate = totalRecords > 0 ? ((totalPresent / totalRecords) * 100).toFixed(1) : 0;
-    
+
     const trendCtx = document.getElementById('trendChart').getContext('2d');
     trendChart = new Chart(trendCtx, {
         type: 'line',
@@ -825,15 +722,15 @@ function renderCharts(data) {
             }
         }
     });
-    
+
     const statusCtx = document.getElementById('statusChart').getContext('2d');
     statusChart = new Chart(statusCtx, {
         type: 'doughnut',
         data: {
-            labels: ['<?php echo get_phrase('present'); ?>', '<?php echo get_phrase('absent'); ?>', '<?php echo get_phrase('late'); ?>', 'Sick-Home', 'Sick-Clinic'],
+            labels: ['<?php echo get_phrase('present'); ?>', '<?php echo get_phrase('absent'); ?>', '<?php echo get_phrase('late'); ?>', 'Sick-Home', 'Sick-Clinic', 'Excused'],
             datasets: [{
-                data: [data.stats.total_present, data.stats.total_absent, data.stats.total_late, data.stats.total_sick_home, data.stats.total_sick_clinic],
-                backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#fbbf24', '#3b82f6']
+                data: [data.stats.total_present, data.stats.total_absent, data.stats.total_late, data.stats.total_sick_home, data.stats.total_sick_clinic, data.stats.total_excused || 0],
+                backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#fbbf24', '#3b82f6', '#8b5cf6']
             }]
         },
         options: {
@@ -852,11 +749,11 @@ function renderTable(students) {
         const rate = s.rate || 0;
         const badgeClass = rate >= 90 ? 'badge-success' : rate >= 75 ? 'badge-warning' : 'badge-danger';
         const sectionName = s.section_name ? s.section_name : '';
-        
+
         // Format class display: "NURSERY 1 LILY" format
         const classDisplay = s.class_numeric ? `${s.class_name} ${s.class_numeric}` : s.class_name;
         const fullClassDisplay = sectionName ? `${classDisplay} ${sectionName}` : classDisplay;
-        
+
         html += `<tr>
             <td><strong>${s.student_name}</strong></td>
             <td><strong>${fullClassDisplay}</strong></td>
@@ -865,6 +762,7 @@ function renderTable(students) {
             <td><span class="badge badge-warning">${s.late || 0}</span></td>
             <td><span class="badge" style="background: #fef3c7; color: #92400e;">${s.sick_home || 0}</span></td>
             <td><span class="badge" style="background: #dbeafe; color: #1e40af;">${s.sick_clinic || 0}</span></td>
+            <td><span class="badge" style="background: #ede9fe; color: #5b21b6;">${s.excused || 0}</span></td>
             <td><span class="badge ${badgeClass}">${rate}%</span></td>
         </tr>`;
     });
@@ -899,10 +797,10 @@ function addStudent(id, name) {
         console.log('Student already selected:', name);
         return;
     }
-    
+
     // Add to state
     selectedStudents.push({id: id, name: name});
-    
+
     // Update UI
     renderTags();
     updateHiddenInput();
@@ -935,7 +833,7 @@ function updateHiddenInput() {
 function updateCountBadge() {
     const count = selectedStudents.length;
     const badge = $('#student_count_badge');
-    
+
     if (count > 0) {
         badge.html('<i class="fa fa-check-circle"></i> ' + count + ' selected').fadeIn(200);
     } else {
@@ -950,23 +848,23 @@ function updateCountBadge() {
 function renderTags() {
     const container = $('#selected_students_tags');
     container.empty();
-    
+
     if (selectedStudents.length === 0) {
         return;
     }
-    
+
     selectedStudents.forEach(function(student) {
         const tag = $('<div></div>')
             .addClass('student-tag')
             .attr('data-id', student.id)
             .html(student.name + ' <span class="tag-remove">×</span>');
-        
+
         // Add click handler for remove button
         tag.find('.tag-remove').on('click', function(e) {
             e.stopPropagation();
             removeStudent(student.id);
         });
-        
+
         container.append(tag);
     });
 }
@@ -979,24 +877,24 @@ function renderTags() {
 $(document).ready(function() {
     $('#student_search_input').on('input', function() {
         const query = $(this).val().trim();
-        
+
         console.log('Input event fired, query:', query); // Debug log
-        
+
         // Clear previous timeout
         clearTimeout(searchTimeout);
-        
+
         // Hide dropdown if empty or less than 2 characters
         if (query.length < 2) {
             $('#student_search_results').hide();
             return;
         }
-        
+
         // Debounce - wait 250ms after user stops typing
         searchTimeout = setTimeout(function() {
             searchStudents(query);
         }, 250);
     });
-    
+
     console.log('Student search input handler initialized'); // Debug log
 });
 
@@ -1004,7 +902,7 @@ function searchStudents(query) {
     const ajaxUrl = '<?php echo site_url('admin/ajax_search_students'); ?>';
     console.log('Searching for:', query);
     console.log('AJAX URL:', ajaxUrl);
-    
+
     $.ajax({
         url: ajaxUrl,
         type: 'GET',
@@ -1032,7 +930,7 @@ function searchStudents(query) {
             console.error('Response Text:', xhr.responseText);
             console.error('XHR Object:', xhr);
             console.error('=========================');
-            
+
             // Show more helpful error message
             let errorMsg = 'Search failed';
             if (xhr.status === 403) {
@@ -1042,7 +940,7 @@ function searchStudents(query) {
             } else if (xhr.status === 500) {
                 errorMsg = 'Server error - Check console for details';
             }
-            
+
             $('#student_search_results')
                 .html('<div class="search-error"><i class="fa fa-exclamation-circle"></i> ' + errorMsg + '</div>')
                 .show();
@@ -1056,29 +954,29 @@ function searchStudents(query) {
 
 function renderSearchResults(students) {
     const container = $('#student_search_results');
-    
+
     if (!students || students.length === 0) {
         container.html('<div class="no-results"><i class="fa fa-user-slash"></i> No students found</div>').show();
         return;
     }
-    
+
     container.empty();
     let hasResults = false;
-    
+
     students.forEach(function(student) {
         // Skip if already selected
         if (selectedStudents.find(s => s.id == student.id)) {
             return;
         }
-        
+
         hasResults = true;
-        
+
         const item = $('<div></div>')
             .addClass('search-result-item')
             .attr('data-id', student.id)
             .attr('data-name', student.text)
             .html('<strong>' + student.text + '</strong>');
-        
+
         item.on('click', function() {
             const id = $(this).attr('data-id');
             const name = $(this).attr('data-name');
@@ -1086,14 +984,14 @@ function renderSearchResults(students) {
             $('#student_search_input').val('').focus();
             container.hide();
         });
-        
+
         container.append(item);
     });
-    
+
     if (!hasResults) {
         container.html('<div class="no-results"><i class="fa fa-check-circle"></i> All matching students already selected</div>');
     }
-    
+
     container.show();
 }
 
@@ -1135,7 +1033,7 @@ function toggleFilterMode() {
 function syncFilterMode() {
     const studentIds = $('#filter_students').val();
     const currentMode = $('#filter_mode').val();
-    
+
     // If students are selected and mode is still 'class', auto-switch to 'students'
     if(studentIds && studentIds.length > 0 && currentMode === 'class') {
         $('#filter_mode').val('students');

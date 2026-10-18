@@ -75,7 +75,7 @@ foreach($edit_data as $inv_row) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php 
+                        <?php
                             $id_array = array();
                             $i = 0;
                             foreach($edit_data as $row):
@@ -113,7 +113,7 @@ foreach($edit_data as $inv_row) {
                             </td>
                             <td width="150" style="text-align: right;">
                                 <div class="form-group">
-                                    <input type="number" id="payment_<?= $row['invoice_id']; ?>" class="form-control" name="amount_<?= $row['invoice_id']; ?>"  onkeyup="status_check('<?= $row['invoice_id']; ?>')" 
+                                    <input type="number" id="payment_<?= $row['invoice_id']; ?>" class="form-control" name="amount_<?= $row['invoice_id']; ?>"  onkeyup="status_check('<?= $row['invoice_id']; ?>')"
                                      placeholder="<?php echo get_phrase('amount_refunded');?>" autofocus="true" />
                                 </div>
                             </td>
@@ -131,7 +131,7 @@ foreach($edit_data as $inv_row) {
                                 <div class="form-group" id="bank_holder_<?= $row['invoice_id']; ?>" style="display: none">
                                     <select name="bank_<?= $row['invoice_id']; ?>" id="bank_<?= $row['invoice_id']; ?>" class="form-control" required>
                                         <option value="0"><?php echo get_phrase('select_Bank');?></option>
-                                        <?php 
+                                        <?php
                                             $banks = $this->db->get_where('accounts', array('account_type' => 1))->result_array();
                                             foreach($banks as $bank):
 
@@ -151,7 +151,7 @@ foreach($edit_data as $inv_row) {
                             <td width="120">
                                 <div class="form-group">
                                     <input type="text" class="datepicker form-control" name="timestamp_<?= $row['invoice_id']; ?>" id="timestamp_<?= $row['invoice_id']; ?>"
-                                 value="<?php 
+                                 value="<?php
                                     if($row['due'] == 0) {
                                         echo date('d M, Y', $row['payment_timestamp']);
                                     } else {
@@ -194,8 +194,8 @@ foreach($edit_data as $inv_row) {
                                     </div>
                                 </div>
                             </td>
-                        </tr>                         
-                    </tbody>  
+                        </tr>
+                    </tbody>
                 </table>
                  <?php echo form_close();?>
             </div>
@@ -229,7 +229,7 @@ foreach($edit_data as $inv_row) {
                         <?php
                             $count = 1;
                             $total_amount_received = 0;
-                            
+
                             if($param3 == '') {
                                 $this->db->select('receipt_code');
                             $this->db->distinct();
@@ -324,7 +324,7 @@ foreach($edit_data as $inv_row) {
                                 ?>
                                 <td><button class="btn btn-info" onclick="modal_view_receipt(<?php echo $rec['receipt_code'].','. $student_id.','. $total_amount_received.','. $timestamp; ?>)"><i class="entypo-eye"></i><em> View Receipt</em></button></td>
                             </tr>
-                        <?php 
+                        <?php
 
                             //reset the total amount received value back to 0
                             $total_amount_received = 0;
@@ -350,7 +350,7 @@ foreach($edit_data as $inv_row) {
             $('#bank_holder_' + invoice_id).fadeOut('slow');
         }
     }
-    
+
     function modal_view_receipt(receipt_code, student_id, total_amount_received, date_time) {
 
        /** invoice_code = invoice_code.toString();
@@ -372,6 +372,8 @@ foreach($edit_data as $inv_row) {
 
         } else if(receipt_style == 'style_3') {
             showAjaxModal_receipt('<?php echo site_url('modal/popup_receipt/modal_receipt_3/'); ?>' + receipt_code + '/' + student_id + '/' + total_amount_received + '/' + date_time, 'make_refund');
+        } else if(receipt_style == 'style_thermal') {
+            window.open('<?php echo site_url('admin/receipt_print/'); ?>' + receipt_code + '/' + student_id + '/' + total_amount_received + '/' + date_time, '_blank');
         }
     }
 </script>
@@ -383,7 +385,7 @@ foreach($edit_data as $inv_row) {
     $(document).ready(function() {
         onload_status_checker();
         check_input();
-        
+
     });
 
     $('#payment_form').submit(function(event) {
@@ -395,7 +397,7 @@ foreach($edit_data as $inv_row) {
             $('#payment_form').attr('target', '_blank');
         } //this set blank target for the form to open the generated receipt in a new tab.
 
-        let counter = 0; 
+        let counter = 0;
         let i = 0;
 
         for(i = 0; i < invoice_id_array.length; i++) {
@@ -405,7 +407,7 @@ foreach($edit_data as $inv_row) {
                 counter++;
              }
         }
-       
+
 
         if(counter == i) {
             event.preventDefault();
@@ -419,7 +421,7 @@ foreach($edit_data as $inv_row) {
         } else {
             $('.in').click();
             window.location.reload();
-        }     
+        }
     });
 
     function check_input() {
@@ -427,8 +429,8 @@ foreach($edit_data as $inv_row) {
         let payment_received = Number($('#payment_' + invoice_id).val());
         if(payment_received == '' || payment_received == null || payment_received < 1) {
            // $('#make_refund').attr('disabled', 'disabled');
-            
-            
+
+
         } else {
            // $('#make_refund').removeAttr('disabled');
             $('#err').css('display', 'none');
@@ -492,7 +494,7 @@ foreach($edit_data as $inv_row) {
        }
     }
 
-    
+
 
     $(function() {
         $('#exp_table').dataTable();

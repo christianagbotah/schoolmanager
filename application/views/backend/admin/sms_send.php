@@ -1,4 +1,4 @@
-<?php 
+<?php
     if(isset($_GET['pi'])) {
         $pi = $_GET['pi'];
     } else if(isset($_GET['ti'])) {
@@ -13,7 +13,7 @@
         <button type="button" data-dismiss="alert" class="close" aria-label="close">&times;</button>
         <strong style="text-align: center;">SMS Sent Successfully!</strong>
     </div>
-<?php 
+<?php
     } else if(isset($_GET['success']) && $_GET['success'] == 2) {
         ?>
         <div class="alert alert-danger alert-dismissable" role="alert">
@@ -45,7 +45,7 @@
     <div class="form-group">
         <label for="subject"><?php echo get_phrase('recipient'); ?>:</label>
         <br><br>
-        <select class="form-control selectboxit" id="bulk" name="bulk" onchange="send_to()" required="required">
+        <select class="form-control select2" id="bulk" name="bulk" onchange="send_to()" required="required">
             <option value="1">Send Individually</option>
             <option value="2">All Active Teachers</option>
             <option value="3">All Active Students</option>
@@ -77,7 +77,7 @@
 
                     <?php endforeach; ?>
 
-                    </optgroup> 
+                    </optgroup>
 
                 <!-- ACTIVE TEACHERS -->
                 <optgroup label="<?php echo get_phrase('active_teachers'); ?>">
@@ -166,7 +166,7 @@
         })
     });
 
-    
+
 
     function send_to() {
         //values from bulk select element
@@ -177,7 +177,7 @@
         let student_id = '<?php echo $si; ?>';
         let teacher_id = '<?php echo $ti; ?>';
 
-    
+
         if(select_val == 1) {
             $('#indiv').css('display', 'block');
             $('#indiv select').attr('required', 'required');
@@ -214,9 +214,9 @@
             //$('#phone input').attr('autofocus', 'autofocus');
             //$('#phone input').attr('required', 'required');
         }
-        
 
-        
+
+
     }
 
 
@@ -242,7 +242,7 @@ $('#sms_send_form').submit(function(event) {
       contentType: false,
       processData: false
   })
-  .done(function(data) {   
+  .done(function(data) {
       let response = data.send_sms;
 
     if(response == 'failed') {
@@ -260,20 +260,20 @@ $('#sms_send_form').submit(function(event) {
             navigation('<?php echo site_url('admin/message/sms_send/'); ?>');
          });
     } else {
-        
+
         //success
         showAjaxModal_alert(response, 'Success');
-        
+
 
          $('.close').click(function(e) {
             navigation('<?php echo site_url('admin/message/sms_send/'); ?>');
          });
-        
+
     }
   })
   .fail(function(err) {
     showAjaxModal_alert(err.responseText, 'Error');
-    
+
   });
 });
 </script>

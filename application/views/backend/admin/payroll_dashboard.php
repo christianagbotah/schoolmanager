@@ -14,7 +14,7 @@
                 </div>
             </div>
             <div class="panel-body">
-                
+
                 <!-- Month/Year Selector and Process Button -->
                 <div class="row" style="margin-bottom: 20px;">
                     <div class="col-md-4">
@@ -61,7 +61,7 @@
                             <h3><?php echo get_phrase('total_gross_salary'); ?></h3>
                         </div>
                     </div>
-                    
+
                     <div class="col-lg-3 col-md-6">
                         <div class="tile-stats tile-red">
                             <div class="icon"><i class="entypo-down"></i></div>
@@ -71,7 +71,7 @@
                             <h3><?php echo get_phrase('total_deductions'); ?></h3>
                         </div>
                     </div>
-                    
+
                     <div class="col-lg-3 col-md-6">
                         <div class="tile-stats tile-primary">
                             <div class="icon"><i class="entypo-wallet"></i></div>
@@ -81,7 +81,7 @@
                             <h3><?php echo get_phrase('total_net_salary'); ?></h3>
                         </div>
                     </div>
-                    
+
                     <div class="col-lg-3 col-md-6">
                         <div class="tile-stats tile-aqua">
                             <div class="icon"><i class="entypo-users"></i></div>
@@ -116,7 +116,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-md-4">
                                         <div class="info-box">
                                             <div class="info-box-icon bg-yellow">
@@ -130,7 +130,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-md-4">
                                         <div class="info-box">
                                             <div class="info-box-icon bg-red">
@@ -200,7 +200,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Category Breakdown Donut Chart -->
                     <div class="col-md-6">
                         <div class="panel panel-primary">
@@ -281,21 +281,21 @@
 <!-- Dashboard JavaScript -->
 <script type="text/javascript">
 $(document).ready(function() {
-    
+
     // Chart instances
     let monthComparisonChart = null;
     let categoryDonutChart = null;
     let payrollTrendChart = null;
-    
+
     // Load dashboard data
     function loadDashboardData() {
         const month = $('#dashboard_month').val();
         const year = $('#dashboard_year').val();
-        
+
         // Show loading state
         $('#load_dashboard_btn').html('<i class="entypo-spinner spin"></i> Loading...');
         $('#load_dashboard_btn').prop('disabled', true);
-        
+
         // Fetch dashboard data
         $.ajax({
             url: '<?php echo base_url(); ?>index.php?admin/payroll_dashboard_data',
@@ -324,7 +324,7 @@ $(document).ready(function() {
             }
         });
     }
-    
+
     // Update summary cards
     function updateSummaryCards(summary) {
         $('#total_gross').text('GH¢ ' + formatNumber(summary.total_gross));
@@ -332,19 +332,19 @@ $(document).ready(function() {
         $('#total_net').text('GH¢ ' + formatNumber(summary.total_net));
         $('#staff_paid').text(summary.staff_count);
     }
-    
+
     // Update payment status
     function updatePaymentStatus(status) {
         $('#status_paid').text(status.paid);
         $('#status_pending a').text(status.pending);
         $('#status_overdue').text(status.overdue);
-        
+
         // Highlight overdue in red
         if (status.overdue > 0) {
             $('#status_overdue').parent().parent().addClass('bg-danger');
         }
     }
-    
+
     // Update category breakdown table
     function updateCategoryBreakdown(categories) {
         let html = '';
@@ -359,15 +359,15 @@ $(document).ready(function() {
         });
         $('#category_breakdown_body').html(html);
     }
-    
+
     // Update month comparison chart
     function updateMonthComparisonChart(data) {
         const ctx = document.getElementById('month_comparison_chart').getContext('2d');
-        
+
         if (monthComparisonChart) {
             monthComparisonChart.destroy();
         }
-        
+
         monthComparisonChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -421,15 +421,15 @@ $(document).ready(function() {
             }
         });
     }
-    
+
     // Update category donut chart
     function updateCategoryDonutChart(data) {
         const ctx = document.getElementById('category_donut_chart').getContext('2d');
-        
+
         if (categoryDonutChart) {
             categoryDonutChart.destroy();
         }
-        
+
         categoryDonutChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -471,15 +471,15 @@ $(document).ready(function() {
             }
         });
     }
-    
+
     // Update payroll trend chart
     function updatePayrollTrendChart(data) {
         const ctx = document.getElementById('payroll_trend_chart').getContext('2d');
-        
+
         if (payrollTrendChart) {
             payrollTrendChart.destroy();
         }
-        
+
         payrollTrendChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -519,7 +519,7 @@ $(document).ready(function() {
             }
         });
     }
-    
+
     // Update top earners table
     function updateTopEarnersTable(earners) {
         let html = '';
@@ -533,7 +533,7 @@ $(document).ready(function() {
             html += '</tr>';
         });
         $('#top_earners_body').html(html);
-        
+
         // Reinitialize DataTable
         if ($.fn.DataTable.isDataTable('#top_earners_table')) {
             $('#top_earners_table').DataTable().destroy();
@@ -545,17 +545,17 @@ $(document).ready(function() {
             ordering: false
         });
     }
-    
+
     // Format number with commas
     function formatNumber(num) {
         return parseFloat(num).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     }
-    
+
     // Load button click
     $('#load_dashboard_btn').on('click', function() {
         loadDashboardData();
     });
-    
+
     // Load initial data
     loadDashboardData();
 });
@@ -693,151 +693,4 @@ $(document).ready(function() {
         transform: rotate(360deg);
     }
 }
-
-/* ---- family design-language alignment (presentation only) ---- */
-@keyframes payrollFadeInUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Panels -> family cards */
-.panel {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-    animation: payrollFadeInUp .4s ease-out;
-    margin-bottom: 20px;
-}
-.panel > .panel-heading {
-    background: transparent;
-    border-bottom: 1px solid #f3f4f6;
-    border-radius: 16px 16px 0 0;
-    padding: 18px 20px;
-    color: #111827;
-}
-.panel > .panel-heading .panel-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #111827;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.panel > .panel-body { padding: 20px; }
-.panel .panel-options a { text-decoration: none; }
-
-/* Tiles -> family KPI cards */
-.tile-stats {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-left: 5px solid #4f46e5;
-    border-radius: 16px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-    min-height: 0;
-    padding: 22px;
-    transition: transform .18s ease, box-shadow .18s ease;
-}
-.tile-stats:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(16, 24, 40, 0.10); }
-.tile-green   { color: #111827; border-left-color: #10b981; }
-.tile-red     { color: #111827; border-left-color: #ef4444; }
-.tile-primary { color: #111827; border-left-color: #4f46e5; }
-.tile-aqua    { color: #111827; border-left-color: #06b6d4; }
-.tile-stats .num { font-size: 32px; font-weight: 800; color: #111827; }
-.tile-stats h3 { color: #374151; font-weight: 600; letter-spacing: 0.3px; }
-.tile-stats .icon { opacity: 0.12; }
-.tile-green .icon { color: #10b981; }
-.tile-red .icon { color: #ef4444; }
-.tile-primary .icon { color: #4f46e5; }
-.tile-aqua .icon { color: #06b6d4; }
-
-/* Info boxes -> family status cards */
-.info-box {
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-    overflow: hidden;
-}
-.info-box-icon {
-    border-radius: 0;
-    background: rgba(0, 0, 0, 0.03);
-}
-.bg-green  { background-color: #10b981 !important; }
-.bg-yellow { background-color: #f59e0b !important; }
-.bg-red    { background-color: #ef4444 !important; }
-.bg-danger { background-color: #fee2e2 !important; color: #b91c1c !important; }
-.info-box-text { color: #374151; font-size: 13px; font-weight: 600; }
-.info-box-number { color: #111827; }
-.info-box-number a { color: #1d4ed8; text-decoration: none; }
-.info-box-number a:hover, .info-box-number a:focus-visible { text-decoration: underline; }
-
-/* Tables -> family table treatment */
-#category_breakdown_table,
-#top_earners_table {
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    overflow: hidden;
-}
-#category_breakdown_table th,
-#top_earners_table th {
-    background: #f9fafb;
-    color: #374151;
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    border-bottom: 1px solid #e5e7eb !important;
-}
-#category_breakdown_table td,
-#top_earners_table td {
-    border-bottom: 1px solid #f3f4f6;
-    color: #374151;
-}
-#category_breakdown_table tbody tr:last-child td,
-#top_earners_table tbody tr:last-child td { border-bottom: none; }
-
-/* Buttons -> family shape */
-.panel .btn {
-    border-radius: 10px;
-    font-weight: 600;
-    transition: all .2s;
-}
-.panel .btn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-.panel .btn-primary { background: #2563eb; border-color: #2563eb; }
-.panel .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
-.panel .btn-success { background: #059669; border-color: #059669; }
-.panel .btn-success:hover { background: #047857; border-color: #047857; }
-.panel .btn-info { background: #0284c7; border-color: #0284c7; }
-.panel .btn-info:hover { background: #0369a1; border-color: #0369a1; }
-
-/* Form controls -> family inputs */
-.panel .form-control {
-    border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    height: 42px;
-    font-size: 14px;
-    transition: border-color .15s ease, box-shadow .15s ease;
-}
-.panel .form-control:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-    outline: none;
-}
-
-/* 400px hardening tier */
-@media (max-width: 400px) {
-    .panel > .panel-heading { padding: 14px 15px; }
-    .panel > .panel-body { padding: 15px; }
-    .tile-stats { padding: 16px; border-radius: 14px; }
-    .tile-stats .num { font-size: 26px; }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    .panel, .tile-stats { animation: none; transition: none; }
-    .spin { animation: none; }
-}
-</style>
+</script>

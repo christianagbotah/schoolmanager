@@ -8,11 +8,11 @@
             </div>
             <div class="panel-body">
                 <div class="alert alert-info">
-                    <i class="fa fa-info-circle"></i> 
-                    <strong>Note:</strong> Once your request is approved, you have a limited time to complete the action. 
+                    <i class="fa fa-info-circle"></i>
+                    <strong>Note:</strong> Once your request is approved, you have a limited time to complete the action.
                     After the time expires, you'll need to request approval again.
                 </div>
-                
+
                 <div class="table-responsive">
                     <table id="myRequestsTable" class="table table-striped table-bordered">
                         <thead>
@@ -62,7 +62,7 @@
 <script>
 $(document).ready(function() {
     loadMyRequests();
-    
+
     // Refresh every 30 seconds
     setInterval(loadMyRequests, 30000);
 });
@@ -88,12 +88,12 @@ function loadMyRequests() {
 function displayMyRequests(requests) {
     var tbody = $('#myRequestsBody');
     tbody.empty();
-    
+
     if(requests.length === 0) {
         tbody.append('<tr><td colspan="8" class="text-center text-muted">You have no modification requests</td></tr>');
         return;
     }
-    
+
     requests.forEach(function(request) {
         var statusBadge = getStatusBadge(request.status);
         var actionBadge = getActionBadge(request.action_type);
@@ -101,12 +101,12 @@ function displayMyRequests(requests) {
         var approverName = request.approver_name || 'N/A';
         var timeRemaining = getTimeRemaining(request);
         var actions = getActionButtons(request);
-        
+
         var studentInfo = 'N/A';
         if(request.discount_details) {
             studentInfo = request.discount_details.student_name || 'Unknown';
         }
-        
+
         var row = '<tr>' +
             '<td><strong>#' + request.request_id + '</strong></td>' +
             '<td>' + studentInfo + '</td>' +
@@ -117,7 +117,7 @@ function displayMyRequests(requests) {
             '<td>' + timeRemaining + '</td>' +
             '<td>' + actions + '</td>' +
         '</tr>';
-        
+
         tbody.append(row);
     });
 }
@@ -146,23 +146,23 @@ function getTimeRemaining(request) {
     if(request.status !== 'approved' || !request.approval_expires_at) {
         return 'N/A';
     }
-    
+
     if(request.executed_at) {
         return '<span class="text-success"><i class="fa fa-check"></i> Executed</span>';
     }
-    
+
     var now = Math.floor(Date.now() / 1000);
     var remaining = request.approval_expires_at - now;
-    
+
     if(remaining <= 0) {
         return '<span class="text-danger"><i class="fa fa-exclamation-triangle"></i> Expired</span>';
     }
-    
+
     var hours = Math.floor(remaining / 3600);
     var minutes = Math.floor((remaining % 3600) / 60);
-    
+
     var color = hours < 2 ? 'text-danger' : (hours < 6 ? 'text-warning' : 'text-success');
-    
+
     return '<span class="' + color + '"><i class="fa fa-clock-o"></i> ' + hours + 'h ' + minutes + 'm</span>';
 }
 
@@ -170,19 +170,19 @@ function getActionButtons(request) {
     var buttons = '<button class="btn btn-info btn-xs" onclick="viewDetails(' + request.request_id + ')">' +
         '<i class="fa fa-eye"></i> View' +
         '</button>';
-    
+
     if(request.status === 'approved' && !request.executed_at && request.time_remaining > 0) {
         buttons += ' <button class="btn btn-success btn-xs" onclick="executeAction(' + request.request_id + ', ' + request.discount_id + ', \'' + request.discount_table + '\', \'' + request.action_type + '\')">' +
             '<i class="fa fa-play"></i> Execute Now' +
             '</button>';
     }
-    
+
     return buttons;
 }
 
 function viewDetails(requestId) {
     showAjaxModal_alert('Loading details...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url("discount_modification/my_requests"); ?>',
         type: 'GET',
@@ -225,14 +225,14 @@ function displayRequestDetails(request) {
         '<div class="col-md-12">' +
             '<h5><strong>Request Reason</strong></h5>' +
             '<div class="well well-sm">' + request.request_reason + '</div>';
-    
+
     if(request.rejection_reason) {
         html += '<h5><strong>Rejection Reason</strong></h5>' +
             '<div class="alert alert-danger">' + request.rejection_reason + '</div>';
     }
-    
+
     html += '</div></div>';
-    
+
     $('#detailsContent').html(html);
 }
 
@@ -242,7 +242,7 @@ function executeAction(requestId, discountId, table, actionType) {
         'Are you sure you want to execute this ' + actionType + ' action? This cannot be undone.',
         function() {
             showAjaxModal_alert('Executing action...', 'loading');
-            
+
             $.ajax({
                 url: '<?php echo site_url("discount_modification/execute_modification"); ?>',
                 type: 'POST',
@@ -276,7 +276,7 @@ function executeAction(requestId, discountId, table, actionType) {
 
 <style>
 .modern-modal-header {
-    background: #2563eb;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
 }
 

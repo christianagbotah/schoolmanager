@@ -10,7 +10,35 @@
     $this->db->distinct();
     $find_teacher = $this->db->get_where('subject', array('teacher_id' => $this->session->userdata('teacher_id'), 'year' => $running_year, 'term' => $running_term));
     $class_ids = $find_teacher->result_array();
-    
+
+    //general for class teacher
+    $this->db->select('class_id');
+    $this->db->distinct();
+    $find_teacher_c = $this->db->get_where('class', array('teacher_id' => $this->session->userdata('teacher_id')));
+    $class_ids_c = $find_teacher_c->result_array();
+
+
+?>
+
+<style type="text/css">
+	table.table-bordered.dataTable th:last-child, table.table-bordered.dataTable th:last-child {
+		border-right-width: 1px !important;
+	}
+
+	th {
+		padding-bottom: 20<?php
+	//creche
+	$this->db->select('class_id');
+	$this->db->distinct();
+	$find_teacher_creche = $this->db->get_where('class', array('teacher_id' => $this->session->userdata('teacher_id')));
+	$class_ids_creche = $find_teacher_creche->result_array();
+
+	//general
+    $this->db->select('class_id');
+    $this->db->distinct();
+    $find_teacher = $this->db->get_where('subject', array('teacher_id' => $this->session->userdata('teacher_id'), 'year' => $running_year, 'term' => $running_term));
+    $class_ids = $find_teacher->result_array();
+
     //general for class teacher
     $this->db->select('class_id');
     $this->db->distinct();
@@ -37,12 +65,12 @@
 		transform: rotate(-90deg);
 	}
 
-	@media 
+	@media
 only screen and (min-width: 1530px),
   {
-  	.lgt {
-  		margin-bottom: 10px;
-  	}
+    .lgt {
+        margin-bottom: 10px;
+    }
   }
 
 </style>
@@ -53,7 +81,7 @@ only screen and (min-width: 1530px),
 	<div class="col-md-3">
 		<div class="form-group">
 		<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('exam');?></label>
-			<select name="exam_id" class="form-control selectboxit" required>
+			<select name="exam_id" class="form-control select2" required>
 				<?php
 					$exams = $this->db->get_where('exam' , array('year' => $running_year, 'term' => $running_term))->result_array();
 					foreach($exams as $row):
@@ -68,20 +96,20 @@ only screen and (min-width: 1530px),
 	<div class="col-md-2">
 		<div class="form-group">
 		<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('class');?></label>
-			<select name="class_id" class="form-control selectboxit" onchange="get_class_subject(this.value)">
+			<select name="class_id" class="form-control select2" onchange="get_class_subject(this.value)">
 				<option value=""><?php echo get_phrase('select_class');?></option>
 				<?php
 				// Track added class IDs to prevent duplicates
 				$added_class_ids = array();
-				
+
 				// First, add classes where teacher is the class teacher (creche)
 				foreach($class_ids_creche as $subj):
 					// Skip if already added
 					if(in_array($subj['class_id'], $added_class_ids)) continue;
-					
+
 					$classes = $this->db->get_where('class', array('class_id' => $subj['class_id']))->result_array();
 					foreach($classes as $row):
-					 
+
 					 //add section A or B if the class has more than one section
                     $section_name = $this->db->get_where('section', array('class_id' => $row['class_id']))->row()->name;
                     $class_has_more_sections = $this->db->get_where('class', array('name' => $row['name'], 'name_numeric' => $row['name_numeric']))->num_rows();
@@ -91,21 +119,21 @@ only screen and (min-width: 1530px),
                     }
 				?>
 				<option value="<?php echo $row['class_id'];?>" <?php if($class_id == $row['class_id']) echo 'selected';?>><?php echo $row['name'].' '.$row['name_numeric'].$sec_name;?></option>
-				<?php 
+				<?php
 					// Mark this class as added
 					$added_class_ids[] = $subj['class_id'];
-					endforeach; 
-				endforeach; //FOR CRECHE ?> 
-                
+					endforeach;
+				endforeach; //FOR CRECHE ?>
+
                 <?php
 				// Second, add classes where teacher teaches subjects
 				foreach($class_ids as $subj):
 					// Skip if already added
 					if(in_array($subj['class_id'], $added_class_ids)) continue;
-					
+
 					$classes = $this->db->get_where('class', array('class_id' => $subj['class_id']))->result_array();
 					foreach($classes as $row):
-					
+
 					//add section A or B if the class has more than one section
                     $section_name = $this->db->get_where('section', array('class_id' => $row['class_id']))->row()->name;
                     $class_has_more_sections = $this->db->get_where('class', array('name' => $row['name'], 'name_numeric' => $row['name_numeric']))->num_rows();
@@ -115,10 +143,10 @@ only screen and (min-width: 1530px),
                     }
 				?>
 				<option value="<?php echo $row['class_id'];?>" <?php if($class_id == $row['class_id']) echo 'selected';?>><?php echo $row['name'].' '.$row['name_numeric'].$sec_name;?></option>
-				<?php 
+				<?php
 					// Mark this class as added
 					$added_class_ids[] = $subj['class_id'];
-					endforeach; 
+					endforeach;
 				endforeach; ?>
 			</select>
 		</div>
@@ -128,14 +156,14 @@ only screen and (min-width: 1530px),
 		<div class="col-md-2">
 			<div class="form-group">
 			<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('section');?></label>
-				<select name="section_id" id="section_id" class="form-control selectboxit">
-					<?php 
+				<select name="section_id" id="section_id" class="form-control select2">
+					<?php
 						$sections = $this->db->get_where('section' , array(
-							'class_id' => $class_id 
+							'class_id' => $class_id
 						))->result_array();
 						foreach($sections as $row):
 					?>
-					<option value="<?php echo $row['section_id'];?>" 
+					<option value="<?php echo $row['section_id'];?>"
 						<?php if($section_id == $row['section_id']) echo 'selected';?>>
 							<?php echo $row['name'];?>
 					</option>
@@ -143,31 +171,31 @@ only screen and (min-width: 1530px),
 				</select>
 			</div>
 		</div>
-		
+
 		<div class="col-md-4">
-    	<div class="form-group">
-    	<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('subject_category');?></label>
-    		<select name="category_id" id="category_id" class="form-control selectboxit">
-    			<option value="">SELECT CATEGORY</option>
+        <div class="form-group">
+        <label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('subject_category');?></label>
+            <select name="category_id" id="category_id" class="form-control select2">
+                <option value="">SELECT CATEGORY</option>
 				<option value="0">SUBJECTS WITH NO CATEGORY</option>
-    			<?php 
-    			    $category_id2 = '';
-    				$categories = $this->db->get('subject_category_creche')->result_array();
-    				foreach($categories as $row):
-    				$category_id2 = $row['category_id'];
-    			?>
-    			<option value="<?php echo $row['category_id'];?>" <?php if($category_id == $category_id2) echo 'selected';?>><?php echo $row['name'];?></option>
-    			<?php endforeach;?>
-    		</select>
-    	</div>
-    	<span style="color:red; display: none;" id="error_notec"></span>
+                <?php
+                    $category_id2 = '';
+                    $categories = $this->db->get('subject_category_creche')->result_array();
+                    foreach($categories as $row):
+                    $category_id2 = $row['category_id'];
+                ?>
+                <option value="<?php echo $row['category_id'];?>" <?php if($category_id == $category_id2) echo 'selected';?>><?php echo $row['name'];?></option>
+                <?php endforeach;?>
+            </select>
+        </div>
+        <span style="color:red; display: none;" id="error_notec"></span>
     </div>
     <div class="row">
         <div class="col-md-8">
 			<div class="form-group">
 			<label class="control-label col-md-2" style="margin-bottom: 5px;"><?php echo get_phrase('subject');?></label>
 				<select name="subject_id" id="subject_id" onchange="load_subject()" class="form-control select2 col-md-6">
-					<?php 
+					<?php
 						$subjects = $this->db->get_where('subject_creche' , array(
 							'class_id' => $class_id, 'category_id' => $category_id, 'year' => $this->db->get_where('settings' , array('type' => 'running_year'))->row()->description, 'term' => $this->db->get_where('settings' , array('type' => 'running_term'))->row()->description
 						))->result_array();
@@ -187,19 +215,19 @@ only screen and (min-width: 1530px),
 				<button type="submit" class="btn btn-info" id="btn_marks"><?php echo get_phrase('manage_marks');?></button>
 			</center>
 		</div>
-		
+
 		<!-- View Marksheet Button - Only for class/form masters -->
 		<div class="col-md-4" style="margin-top: 20px;">
 			<?php
 				// Check if current teacher is the class/form master
 				$class_info = $this->db->get_where('class', array('class_id' => $class_id))->row();
 				$is_class_master = ($class_info && $class_info->teacher_id == $this->session->userdata('teacher_id'));
-				
+
 				if($is_class_master):
 					// Get first enrolled student in this class for current academic session
 					$running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 					$running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
-					
+
 					$first_student = $this->db->select('student_id')
 						->from('enroll')
 						->where('class_id', $class_id)
@@ -210,7 +238,7 @@ only screen and (min-width: 1530px),
 						->limit(1)
 						->get()
 						->row();
-					
+
 					if($first_student):
 						$marksheet_url = site_url('admin/student_marksheet_creche/'.$first_student->student_id);
 			?>
@@ -219,9 +247,9 @@ only screen and (min-width: 1530px),
 					<i class="entypo-doc-text"></i> <?php echo get_phrase('view_marksheet');?>
 				</a>
 			</center>
-			<?php 
+			<?php
 					endif;
-				endif; 
+				endif;
 			?>
 		</div>
     </div>
@@ -246,17 +274,17 @@ only screen and (min-width: 1530px),
 <div class="row" style="text-align: center;">
 	<div class="col-sm-4"></div>
 	<div class="col-sm-4">
-	    
+
 		<div class="tile-stats tile-gray">
 			<div class="icon"><i class="entypo-chart-bar" style="color: #8082ec"></i></div>
-			
+
 			<h4><?php echo get_phrase('marks_for');?> <?php echo $this->db->get_where('exam' , array('exam_id' => $exam_id, 'year' => $running_year, 'term' => $running_term))->row()->name;?></h4>
 			<h4>
 				<?php echo get_phrase('term:').' '.$running_term.' | '. get_phrase('sessional_year:').' '.$running_year;?>
 			</h4>
 			<h4 style="color: #696969;">
-				<?php echo $this->db->get_where('class' , array('class_id' => $class_id))->row()->name.' '.$this->db->get_where('class' , array('class_id' => $class_id))->row()->name_numeric;?> : 
-				<?php echo get_phrase('section');?> <?php echo $this->db->get_where('section' , array('section_id' => $section_id))->row()->name;?> 
+				<?php echo $this->db->get_where('class' , array('class_id' => $class_id))->row()->name.' '.$this->db->get_where('class' , array('class_id' => $class_id))->row()->name_numeric;?> :
+				<?php echo get_phrase('section');?> <?php echo $this->db->get_where('section' , array('section_id' => $section_id))->row()->name;?>
 			</h4>
 		</div>
 	</div>
@@ -265,13 +293,13 @@ only screen and (min-width: 1530px),
 <div class="row">
 	<div class="col-md-12">
 
-		<?php 
+		<?php
 
 		$students_ids = [];
 		$this->db->select('student_id');
 		$this->db->distinct();
 		$students_ids_array = $this->db->get_where('mark' , array(
-						'class_id' => $class_id, 
+						'class_id' => $class_id,
 							'section_id' => $section_id ,
 								'year' => $running_year,
 									 'term' => $running_term,
@@ -282,7 +310,7 @@ only screen and (min-width: 1530px),
 		foreach($students_ids_array as $stid) {
 			array_push($students_ids, $stid['student_id']);
 		}
-		
+
 		echo form_open(site_url('admin/marks_update_creche/'.$exam_id.'/'.$class_id.'/'.$section_id.'/'.$subject_id.'/'.$category_id), array('id' => 'mark_sheet_form'));?>
 			<table class="table table-bordered" id="mark_sheet">
 				<thead>
@@ -290,7 +318,7 @@ only screen and (min-width: 1530px),
 					<tr>
 						<td colspan="3"></td>
 						<td style="text-align: center">
-							<select name="assess_" id="assess_" onchange="bulkAssessment()" class="form-control selectboxit">
+							<select name="assess_" id="assess_" onchange="bulkAssessment()" class="form-control select2">
 								<option value=""><?php echo get_phrase('select_assessment');?></option>
 								<?php
 									$assessmentsAll = $this->db->get('grade_creche')->result_array();
@@ -308,13 +336,13 @@ only screen and (min-width: 1530px),
 						<th><?php echo get_phrase('student_name');?></th>
 						<th>Assessment</th>
 					</tr>
-					
+
 				</thead>
 				<tbody>
 				<?php
 					$count = 1;
 					$marks_of_students = $this->db->get_where('mark' , array(
-						'class_id' => $class_id, 
+						'class_id' => $class_id,
 							'section_id' => $section_id ,
 								'year' => $running_year,
 									 'term' => $running_term,
@@ -336,9 +364,9 @@ only screen and (min-width: 1530px),
 						<td>
 							<?php echo $this->db->get_where('student' , array('student_id' => $row['student_id']))->row()->name;?>
 						</td>
-						
+
 						<td style="text-align: center">
-							<select name="assess_<?php echo $row['mark_id'];?>" id="assess_<?php echo $row['student_id']; ?>" class="form-control selectboxit">
+							<select name="assess_<?php echo $row['mark_id'];?>" id="assess_<?php echo $row['student_id']; ?>" class="form-control select2">
 								<option value=""><?php echo get_phrase('select_assessment');?></option>
 								<?php
 									$assessments = $this->db->get('grade_creche')->result_array();
@@ -352,13 +380,13 @@ only screen and (min-width: 1530px),
 					</tr>
 					<?php
 
-						$all_students_id[$id_counter] = $row['student_id']; 
+						$all_students_id[$id_counter] = $row['student_id'];
 						$id_counter++;
 						$students_counter++;
 					?>
 				<?php endforeach;?>
 
-				<?php 
+				<?php
 					//converting it into json before sending it to javascript
 					$array_js = json_encode($all_students_id);
 				?>
@@ -371,7 +399,7 @@ only screen and (min-width: 1530px),
 			</button>
 		</center>
 		<?php echo form_close();?>
-		
+
 	</div>
 </div>
 
@@ -385,9 +413,9 @@ only screen and (min-width: 1530px),
 		$('#mark_sheet').DataTable({
 			pageLength: 100,
 		});
-		
+
 		set_val();
-		
+
 	});
 
 	//mark all assessment in bulk
@@ -395,7 +423,7 @@ only screen and (min-width: 1530px),
 		let stIds = <?=json_encode($students_ids); ?>;
 		let gradeId = $('#assess_').val();
 		 for(var st in stIds) {
-		 	$('#assess_' + stIds[st]).val(gradeId).change();
+            $('#assess_' + stIds[st]).val(gradeId).change();
 		 }
 	}
 
@@ -424,20 +452,20 @@ only screen and (min-width: 1530px),
       .done(function() {
 
           showAjaxModal_alert('Assessment updated successfully.', 'Success');
-          
+
 
           setTimeout(() => {
-              $('.close').click();  
-              $('#subject_loader_form').submit();           
+              $('.close').click();
+              $('#subject_loader_form').submit();
               //window.location.reload();
           }, 3000);
       })
       .fail(function(err) {
           showAjaxModal_alert(err.responseText, 'Error');
       });
-			
+
 	});
-	
+
 	function load_subject() {
 	    $('#subject_loader_form').submit();
 	    $('#btn_marks').text('Loading...');
@@ -481,7 +509,7 @@ only screen and (min-width: 1530px),
 			if($('#assess_'+ student_ids[i]).val() == null || $('#assess_'+ student_ids[i]).val() == '') {
 
 				counter++;
-			} 
+			}
 
 		}
 
@@ -496,16 +524,16 @@ only screen and (min-width: 1530px),
 			showAjaxModal_alert('Assessment cannot be empty. Fill at least one before submitting your form.', 'Error');
 			return false;
 		}
-		
+
 	});
-	
+
 		//update subjects if category field changes
 		$('#category_id').on("change", function() {
 		    $('#error_note').css('display', 'none');//clear error if there was any
 		    $('#error_notec').css('display', 'none');//clear error if there was any
 		   let cat_id = $('#category_id').val();
 		   const class_id = '<?php echo $class_id; ?>';
-		   
+
 		   //send via ajax
 		   $.ajax({
 		      url: '<?php echo site_url('teacher/update_subjects_creche/'); ?>' + cat_id + '/' + class_id,
@@ -514,7 +542,7 @@ only screen and (min-width: 1530px),
 		      }
 		   });
 		});
-		
+
 		//check if subject is selected
 		$('#btn_marks').on("click", function() {
 		   if($('#subject_id').val() == '' || $('#subject_id').val() == null) {
@@ -559,26 +587,26 @@ $('#subject_loader_form').submit(function(event) {
       processData: false
   })
   .done(function(data) {
-  	if(data == 'no subject') {
-  		showAjaxModal_alert('Please select subject for this class.', 'Error');
+    if(data == 'no subject') {
+        showAjaxModal_alert('Please select subject for this class.', 'Error');
 
-  		setTimeout(() => {
-  			navigation(formUrl);
-  		}, 5000);
-      
-  	} else if(data == 'no enrollment') {
-  		showAjaxModal_alert('Make sure students were enrolled before proceeding. Try marking attendance first and try again.', 'Error');
+        setTimeout(() => {
+            navigation(formUrl);
+        }, 5000);
 
-  		setTimeout(() => {
-  			navigation(formUrl);
-  		}, 5000);
-      
-  	} else {
-  		$('#main_page').empty();
-  		
-  		navigation(data);
-  	}
+    } else if(data == 'no enrollment') {
+        showAjaxModal_alert('Make sure students were enrolled before proceeding. Try marking attendance first and try again.', 'Error');
+
+        setTimeout(() => {
+            navigation(formUrl);
+        }, 5000);
+
+    } else {
+        $('#main_page').empty();
+
+        navigation(data);
+    }
   });
 });
-	
+
 </script>

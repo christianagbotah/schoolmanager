@@ -15,51 +15,6 @@
     width: 202px;
     height: 202px;
   }
-
-  /* Family design-language alignment (attendance wave) - presentation only.
-     Scanner form, panels, buttons and summary table restyled; all scanner
-     JS/AJAX contracts (barcode_form, autoscan, value_change, view_all)
-     untouched. */
-  #main_page .panel { border-radius: 16px; border: 1px solid #e5e7eb;
-      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); }
-  #main_page .panel-heading { background: #f9fafb; border-bottom: 1px solid #e5e7eb;
-      border-radius: 16px 16px 0 0; padding: 16px 20px; }
-  #main_page .panel-heading h2 { font-size: 20px; font-weight: 700; color: #111827; }
-  #main_page .panel-body { padding: 20px; }
-  #main_page .form-control { min-height: 46px; border: 1px solid #cbd5e1; border-radius: 9px;
-      padding: 10px 12px; font-size: 15px; box-shadow: none;
-      transition: border-color 0.2s, box-shadow 0.2s; }
-  #main_page .form-control:focus { border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; }
-  #main_page .btn { min-height: 40px; padding: 8px 13px; border-radius: 9px;
-      font-size: 14px; font-weight: 700; border: none; transition: all 0.2s; }
-  #main_page .btn-info { background: #2563eb; color: #fff; }
-  #main_page .btn-success { background: #059669; color: #fff; }
-  #main_page .btn:hover { transform: translateY(-1px); }
-  #main_page .btn:focus-visible,
-  #main_page .form-control:focus-visible {
-      outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-  }
-  #main_page table.table { border: 1px solid #e5e7eb; border-radius: 12px;
-      overflow: hidden; }
-  #main_page table.table thead { background: #f9fafb; }
-  #main_page table.table thead th { padding: 12px 10px; font-size: 13px;
-      font-weight: 800; color: #475569; text-transform: uppercase;
-      letter-spacing: 0.4px; border-bottom: 1px solid #e5e7eb; }
-  #main_page table.table tbody td { padding: 10px; font-size: 14px;
-      vertical-align: middle; }
-  #main_page table.table tbody tr:hover { background: #f9fafb; }
-  @media (prefers-reduced-motion: reduce) {
-      #main_page .btn, #main_page .form-control { transition: none; }
-      #main_page .btn:hover { transform: none; }
-  }
-  @media (max-width: 768px) {
-      #main_page .form-control { min-height: 46px; font-size: 16px; }
-      #main_page .btn { min-height: 42px; font-size: 14px; }
-      #main_page table.table { min-width: 640px; }
-      #main_page table.table thead th { padding: 9px 8px; font-size: 13px; }
-      #main_page table.table tbody td { padding: 9px 8px; font-size: 14px; }
-  }
 </style>
 
 <hr />
@@ -71,18 +26,18 @@
       $name = $this->db->get_where($this->session->userdata('login_type'), array($this->session->userdata('login_type').'_id' => $this->session->userdata('login_user_id')))->row()->name;
       $admin_level = $this->db->get_where('admin', array('name' => $name))->row()->level;
     ?>
-    
+
     <div class="row">
     <!--<button class="btn btn-info btn-lg" id="barcodes_gen">Generate Mass Barcodes</button>-->
     </div><hr>
     <div class="panel panel-info">
       <div class="panel-heading">
         <div class="row">
-          <div class="col-sm-12 col-md-12"><h2>BARCODE SCANNER</h2> 
+          <div class="col-sm-12 col-md-12"><h2>BARCODE SCANNER</h2>
             <div class="switch-button  showcase-switch-button">
               <input id="autoscan"  type="checkbox"  value="1" checked name="autoscan" onchange="value_change(this.value)">
-              <label for="autoscan" ></label>   <strong style="font-size: 22px;" id="yes_no">AUTO</strong>                               
-            </div> 
+              <label for="autoscan" ></label>   <strong style="font-size: 22px;" id="yes_no">AUTO</strong>
+            </div>
           </div>
         </div>
       </div>
@@ -150,7 +105,7 @@
                       <input type="submit" name="submit" value="SUBMIT" class="btn btn-success btn-lg">
                   </div>
                 </div>
-                
+
                 <?php echo form_close();?>
         </div>
 
@@ -170,7 +125,7 @@
       //page scrolls to top
       $('html, body').animate({
           scrollTop: ($('#top').offset().top )
-      }, 1000); 
+      }, 1000);
 
       //processing
       showAjaxModal('<?php echo site_url('admin/barcode_scanner_view/') ?>' + category, 'take_payment');
@@ -190,7 +145,7 @@
     .fail(function() {
       alert("Error generating the Barcodes. Please try again later");
     })
-    
+
   });
 
 
@@ -230,7 +185,7 @@
       //Scroll to the top
       $('html, body').animate({
           scrollTop: ($('#top').offset().top )
-      }, 1000);  
+      }, 1000);
 
 
       let barcode_data = $('#barcode_scanner').val();//main data collected (Student's ID Number)
@@ -296,7 +251,7 @@
             }
           } //END OF CHECKING IN AND OUT
 
-          //FOR FEEDING, CLASSES & TRANSPORT 
+          //FOR FEEDING, CLASSES & TRANSPORT
           if(response.att_status == 'absent') {//student is absent
             showAjaxModal_alert('Sorry, it seems ' + response.student_name + ' is not in school today. Please confirm with the ' + response.class_name + ' teacher if class attendance was taken today.', 'Error');
           } else {
@@ -305,7 +260,7 @@
               showAjaxModal_alert(response.fees_type + ' access granted to ' + response.student_name, 'Success');
 
               //REFRESH PAGE IF IT WAS MANNUALLY SUBMITTED
-              
+
               if(autoscan < 1) {
                 //mannually submited
                 setTimeout(() => {
@@ -321,15 +276,15 @@
 
             }
           }
-          
+
         }
-        
+
       })
       .fail(function(err) {
        alert(err.responseText);// showAjaxModal_alert(err.responseText, 'Error');
        // showAjaxModal_alert('Unknown error occured, please try again later.', 'Error');
       });
-      
+
     });
 
     //show student image here
@@ -339,12 +294,12 @@
       if(autoscan < 1) {
         get_student_image();
       }
-      
+
     });
 
     function get_student_image() {
 
-      
+
       let student_code = $('#barcode_scanner').val();
 
       $.ajax({
@@ -357,10 +312,10 @@
         $('#passport img').attr('src', response.image);
         $('#student_name').html(response.student_name);
       });
-          
+
 
     }
-  
+
 
     $(document).on('hidden.bs.modal', function () {
       $('#barcode_scanner').focus();

@@ -1,9 +1,9 @@
 <!-- Head Teacher Remarks Management - Modern UI -->
 <div class="row">
     <div class="col-md-12">
-        
+
         <!-- Page Header -->
-        <div style="background:#764ba2;padding:32px;border-radius:16px;margin-bottom:24px;box-shadow:0 10px 40px rgba(102,126,234,0.3);">
+        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:32px;border-radius:16px;margin-bottom:24px;box-shadow:0 10px 40px rgba(102,126,234,0.3);">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
                 <div>
                     <h2 style="color:#fff;margin:0;font-size:28px;font-weight:700;display:flex;align-items:center;gap:12px;">
@@ -50,7 +50,7 @@
                     <i class="entypo-graduation-cap"></i> <?php echo get_phrase('remark_ranges'); ?>
                 </h4>
             </div>
-            
+
             <div class="table-responsive">
                 <table class="table table-hover" id="remarks-table" style="margin:0;">
                     <thead style="background:#f9fafb;">
@@ -104,7 +104,7 @@
                                     </td>
                                     <td class="text-center" style="padding:16px;vertical-align:middle;">
                                         <div class="btn-group" style="display:flex;gap:8px;justify-content:center;">
-                                            <button class="action-btn toggle-remark-status" 
+                                            <button class="action-btn toggle-remark-status"
                                                     data-id="<?php echo $remark->id; ?>"
                                                     data-status="<?php echo $remark->is_active; ?>"
                                                     data-range="<?php echo number_format($remark->min_percentage, 2); ?>% - <?php echo number_format($remark->max_percentage, 2); ?>%"
@@ -112,13 +112,13 @@
                                                     style="padding:10px 14px;border:none;border-radius:8px;background:#f3f4f6;color:#6b7280;cursor:pointer;transition:all 0.2s;font-size:15px;">
                                                 <i class="entypo-<?php echo $remark->is_active ? 'cancel' : 'eye'; ?>"></i>
                                             </button>
-                                            <button class="action-btn edit-remark" 
+                                            <button class="action-btn edit-remark"
                                                     data-id="<?php echo $remark->id; ?>"
                                                     title="<?php echo get_phrase('edit'); ?>"
                                                     style="padding:10px 14px;border:none;border-radius:8px;background:#dbeafe;color:#1e40af;cursor:pointer;transition:all 0.2s;font-size:15px;">
                                                 <i class="entypo-pencil"></i>
                                             </button>
-                                            <button class="action-btn delete-remark" 
+                                            <button class="action-btn delete-remark"
                                                     data-id="<?php echo $remark->id; ?>"
                                                     data-range="<?php echo number_format($remark->min_percentage, 2); ?>% - <?php echo number_format($remark->max_percentage, 2); ?>%"
                                                     title="<?php echo get_phrase('delete'); ?>"
@@ -154,7 +154,7 @@
 <!-- JavaScript for Head Teacher Remarks Management -->
 <script type="text/javascript">
 jQuery(document).ready(function($) {
-    
+
     // Helper function to ensure modal backdrop is removed
     function cleanupModalBackdrop() {
         // Remove any lingering backdrops
@@ -164,7 +164,7 @@ jQuery(document).ready(function($) {
         // Reset body padding
         $('body').css('padding-right', '');
     }
-    
+
     // Initialize jQuery UI Sortable for drag-and-drop reordering
     $("#sortable-remarks").sortable({
         handle: ".drag-handle",
@@ -188,7 +188,7 @@ jQuery(document).ready(function($) {
         update: function(event, ui) {
             var orderData = [];
             var newOrder = 1;
-            
+
             // Build order data array
             $("#sortable-remarks tr").each(function() {
                 if ($(this).data('id')) {
@@ -202,7 +202,7 @@ jQuery(document).ready(function($) {
                     newOrder++;
                 }
             });
-            
+
             // Send AJAX request to save new order
             $.ajax({
                 url: '<?php echo site_url('admin/head_teacher_remarks/update_order'); ?>',
@@ -224,12 +224,12 @@ jQuery(document).ready(function($) {
             });
         }
     });
-    
+
     // Add new remark range
     $("#add-remark-range").click(function() {
         $('#modal_ajax .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
         $('#modal_ajax').modal('show', {backdrop: 'static'});
-        
+
         $.ajax({
             url: '<?php echo site_url('admin/head_teacher_remarks/get_form'); ?>',
             type: 'POST',
@@ -241,14 +241,14 @@ jQuery(document).ready(function($) {
             }
         });
     });
-    
+
     // Edit remark range
     $(document).on('click', '.edit-remark', function() {
         var remarkId = $(this).data('id');
-        
+
         $('#modal_ajax .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
         $('#modal_ajax').modal('show', {backdrop: 'static'});
-        
+
         $.ajax({
             url: '<?php echo site_url('admin/head_teacher_remarks/get_form'); ?>',
             type: 'POST',
@@ -261,7 +261,7 @@ jQuery(document).ready(function($) {
             }
         });
     });
-    
+
     // Toggle active status
     $(document).on('click', '.toggle-remark-status', function() {
         var remarkId = $(this).data('id');
@@ -270,7 +270,7 @@ jQuery(document).ready(function($) {
         var $button = $(this);
         var $row = $button.closest('tr');
         var newStatusText = currentStatus == 1 ? '<?php echo get_phrase('deactivate'); ?>' : '<?php echo get_phrase('activate'); ?>';
-        
+
         // Use confirm_modal.php's showConfirmModal
         showConfirmModal(
             '<?php echo get_phrase('confirm_action'); ?>',
@@ -278,7 +278,7 @@ jQuery(document).ready(function($) {
             function() {
                 // Show loading modal
                 showAjaxModal_alert('<?php echo get_phrase('processing'); ?>...', 'loading', false, false);
-                
+
                 // User clicked Confirm - proceed with toggle
                 $.ajax({
                     url: '<?php echo site_url('admin/head_teacher_remarks/toggle_active'); ?>/' + remarkId,
@@ -288,7 +288,7 @@ jQuery(document).ready(function($) {
                         // Hide loading modal and cleanup backdrop
                         $('#modal_alert').modal('hide');
                         cleanupModalBackdrop();
-                        
+
                         if (response.success) {
                             // Update UI - status badge
                             var $statusCell = $row.find('.status-cell');
@@ -304,7 +304,7 @@ jQuery(document).ready(function($) {
                                 $button.attr('title', '<?php echo get_phrase('activate'); ?>');
                             }
                             $button.data('status', response.new_status);
-                            
+
                             // Show success toastr instead of modal to avoid backdrop
                             toastr.success(response.message);
                         } else {
@@ -322,13 +322,13 @@ jQuery(document).ready(function($) {
             'warning'
         );
     });
-    
+
     // Delete remark range
     $(document).on('click', '.delete-remark', function() {
         var remarkId = $(this).data('id');
         var range = $(this).data('range');
         var $row = $(this).closest('tr');
-        
+
         // Use confirm_modal.php's showConfirmModal
         showConfirmModal(
             '<?php echo get_phrase('delete_confirmation'); ?>',
@@ -336,7 +336,7 @@ jQuery(document).ready(function($) {
             function() {
                 // Show loading modal
                 showAjaxModal_alert('<?php echo get_phrase('deleting'); ?>...', 'loading', false, false);
-                
+
                 // User clicked Confirm - proceed with deletion
                 $.ajax({
                     url: '<?php echo site_url('admin/head_teacher_remarks/delete'); ?>/' + remarkId,
@@ -346,7 +346,7 @@ jQuery(document).ready(function($) {
                         if (response.success) {
                             // Show success modal that stays visible during reload
                             showAjaxModal_alert(response.message || '<?php echo get_phrase('range_deleted_successfully'); ?>', 'success', false, false);
-                            
+
                             // Fade out and remove row
                             $row.fadeOut(400, function() {
                                 $(this).remove();
@@ -354,7 +354,7 @@ jQuery(document).ready(function($) {
                                 if ($('#sortable-remarks tr[data-id]').length === 0) {
                                     $('#sortable-remarks').html('<tr><td colspan="7" class="text-center" style="padding:48px;"><div style="color:#9ca3af;"><i class="entypo-info" style="font-size:48px;display:block;margin-bottom:16px;"></i><p style="font-size:16px;margin:0;font-weight:500;"><?php echo get_phrase('no_remark_ranges_found'); ?></p><p style="font-size:14px;margin:8px 0 0 0;"><?php echo get_phrase('click_add_to_create_first_range'); ?></p></div></td></tr>');
                                 }
-                                
+
                                 // Close success modal after row removal
                                 setTimeout(function() {
                                     $('#modal_alert').modal('hide');
@@ -375,7 +375,7 @@ jQuery(document).ready(function($) {
             'danger'
         );
     });
-    
+
 });
 </script>
 
@@ -469,23 +469,23 @@ body {
     .table-responsive {
         overflow-x: auto;
     }
-    
+
     #remarks-table th,
     #remarks-table td {
         padding: 12px 8px !important;
         font-size: 13px;
     }
-    
+
     .action-btn {
         padding: 8px 10px !important;
         font-size: 14px !important;
     }
-    
+
     .order-badge {
         padding: 4px 10px !important;
         font-size: 13px !important;
     }
-    
+
     .status-badge {
         padding: 6px 12px !important;
         font-size: 10px !important;
@@ -496,7 +496,7 @@ body {
     #remarks-table {
         font-size: 12px;
     }
-    
+
     #remarks-table thead th {
         font-size: 11px;
     }

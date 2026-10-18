@@ -1,7 +1,7 @@
 <!-- Modern Teacher Remarks Templates Page -->
 <style>
 .page-header-gradient {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 32px;
     border-radius: 16px;
@@ -78,7 +78,7 @@
 }
 
 .modern-table thead {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
 }
 
@@ -282,16 +282,16 @@ window.loadTable = loadTable;
 function renderTable(data) {
     var tbody = $('#sortable-tbody');
     tbody.empty();
-    
+
     if (data.length === 0) {
         tbody.html('<tr><td colspan="6" class="text-center text-muted" style="padding: 2rem;"><?php echo get_phrase('no_templates_found'); ?></td></tr>');
         return;
     }
-    
+
     data.forEach(function(item) {
         var categoryClass = 'category-none';
         var categoryText = '<?php echo get_phrase('none'); ?>';
-        
+
         if (item.category) {
             if (item.category === 'positive') {
                 categoryClass = 'category-positive';
@@ -304,17 +304,17 @@ function renderTable(data) {
                 categoryText = '<?php echo get_phrase('negative'); ?>';
             }
         }
-        
+
         var statusClass = item.is_active == 1 ? 'status-active' : 'status-inactive';
         var statusText = item.is_active == 1 ? '<?php echo get_phrase('active'); ?>' : '<?php echo get_phrase('inactive'); ?>';
         var toggleIcon = item.is_active == 1 ? 'eye-slash' : 'eye';
         var toggleBtnClass = item.is_active == 1 ? 'action-btn-toggle-active' : 'action-btn-toggle-inactive';
-        
+
         var remarkText = item.remark_text;
         if (remarkText.length > 80) {
             remarkText = remarkText.substring(0, 80) + '...';
         }
-        
+
         var row = '<tr data-id="' + item.id + '" style="cursor:move;">' +
             '<td class="text-center drag-handle"><i class="fa fa-arrows-v"></i></td>' +
             '<td><div class="remark-text" title="' + item.remark_text.replace(/"/g, '&quot;') + '">' + remarkText + '</div></td>' +
@@ -335,7 +335,7 @@ function renderTable(data) {
                 '</div>' +
             '</td>' +
             '</tr>';
-        
+
         tbody.append(row);
     });
 }
@@ -343,45 +343,45 @@ function renderTable(data) {
 function initializeSortable() {
     var tbody = document.getElementById('sortable-tbody');
     if (!tbody || tbody.children.length === 0) return;
-    
+
     // Simple drag and drop implementation
     var draggedElement = null;
     var placeholder = null;
-    
+
     Array.from(tbody.children).forEach(function(row) {
         row.draggable = true;
-        
+
         row.addEventListener('dragstart', function(e) {
             draggedElement = this;
             this.style.opacity = '0.5';
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/html', this.innerHTML);
         });
-        
+
         row.addEventListener('dragend', function(e) {
             this.style.opacity = '';
             draggedElement = null;
-            
+
             // Remove placeholder if exists
             if (placeholder && placeholder.parentNode) {
                 placeholder.parentNode.removeChild(placeholder);
                 placeholder = null;
             }
-            
+
             // Update order
             updateOrderFromDOM();
         });
-        
+
         row.addEventListener('dragover', function(e) {
             if (e.preventDefault) {
                 e.preventDefault();
             }
             e.dataTransfer.dropEffect = 'move';
-            
+
             if (this !== draggedElement) {
                 var rect = this.getBoundingClientRect();
                 var midpoint = rect.top + (rect.height / 2);
-                
+
                 if (e.clientY < midpoint) {
                     this.parentNode.insertBefore(draggedElement, this);
                 } else {
@@ -390,7 +390,7 @@ function initializeSortable() {
             }
             return false;
         });
-        
+
         row.addEventListener('drop', function(e) {
             if (e.stopPropagation) {
                 e.stopPropagation();
@@ -411,7 +411,7 @@ function updateOrderFromDOM() {
             });
         }
     });
-    
+
     if (orderData.length > 0) {
         updateOrder(orderData);
     }
@@ -420,7 +420,7 @@ function updateOrderFromDOM() {
 function updateOrder(orderData) {
     // Show processing modal immediately
     showAjaxModal_alert('<?php echo get_phrase('updating_order'); ?>...', 'loading', false, false);
-    
+
     // Small delay to ensure modal renders before AJAX blocks UI
     setTimeout(function() {
         $.ajax({
@@ -431,7 +431,7 @@ function updateOrder(orderData) {
             success: function(response) {
                 // Hide processing modal
                 $('#modal_alert').modal('hide');
-                
+
                 if (response.success) {
                     toastr.success(response.message || '<?php echo get_phrase('order_updated_successfully'); ?>');
                 } else {
@@ -451,7 +451,7 @@ function showAddModal() {
     $('#modal_ajax .modal-dialog').removeClass('modal-lg modal-xl modal-sm');
     $('#modal_ajax .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
     $('#modal_ajax').modal('show', {backdrop: 'static'});
-    
+
     $.ajax({
         url: '<?php echo site_url('teacher_remarks_templates/get_form'); ?>',
         type: 'POST',
@@ -468,7 +468,7 @@ function editTemplate(id) {
     $('#modal_ajax .modal-dialog').removeClass('modal-lg modal-xl modal-sm');
     $('#modal_ajax .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
     $('#modal_ajax').modal('show', {backdrop: 'static'});
-    
+
     $.ajax({
         url: '<?php echo site_url('teacher_remarks_templates/get_form'); ?>',
         type: 'POST',
@@ -486,10 +486,10 @@ function toggleActive(btn, id) {
     var $btn = $(btn);
     var $row = $btn.closest('tr');
     var currentStatus = parseInt($btn.data('active'));
-    
+
     // Show loading modal
     showAjaxModal_alert('<?php echo get_phrase('processing'); ?>...', 'loading', false, false);
-    
+
     $.ajax({
         url: '<?php echo site_url("teacher_remarks_templates/toggle_active/"); ?>' + id,
         type: 'POST',
@@ -497,12 +497,12 @@ function toggleActive(btn, id) {
         success: function(response) {
             // Hide loading modal
             $('#modal_alert').modal('hide');
-            
+
             if (response.success) {
                 // Update status badge
                 var newStatus = currentStatus == 1 ? 0 : 1;
                 var statusBadge = $row.find('.status-badge');
-                
+
                 if (newStatus == 1) {
                     statusBadge.removeClass('status-inactive').addClass('status-active').text('<?php echo get_phrase('active'); ?>');
                     $btn.removeClass('action-btn-toggle-inactive').addClass('action-btn-toggle-active');
@@ -514,7 +514,7 @@ function toggleActive(btn, id) {
                     $btn.find('i').removeClass('fa-eye-slash').addClass('fa-eye');
                     $btn.data('active', 0);
                 }
-                
+
                 toastr.success(response.message || '<?php echo get_phrase('status_updated'); ?>');
             } else {
                 toastr.error(response.message || '<?php echo get_phrase('operation_failed'); ?>');
@@ -532,9 +532,9 @@ function deleteTemplate(id) {
     if (!confirm('<?php echo get_phrase('confirm_delete'); ?>')) {
         return;
     }
-    
+
     var row = $('tr[data-id="' + id + '"]');
-    
+
     $.ajax({
         url: '<?php echo site_url("teacher_remarks_templates/delete/"); ?>' + id,
         type: 'POST',

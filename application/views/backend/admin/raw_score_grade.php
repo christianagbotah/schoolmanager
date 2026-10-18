@@ -26,7 +26,7 @@ if($terminal_report_style == 'style_1') {
 
 <style>
 .grade-header {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 2rem;
     border-radius: 12px;
@@ -69,7 +69,7 @@ if($terminal_report_style == 'style_1') {
 }
 
 .grade-table thead {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
 }
 
@@ -167,7 +167,7 @@ if($terminal_report_style == 'style_1') {
     color: #1f2937;
     font-size: 2.5rem;
     font-weight: 700;
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -239,7 +239,7 @@ if($terminal_report_style == 'style_1') {
 }
 
 .btn-primary {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
     padding: 1rem 2.5rem;
@@ -287,7 +287,7 @@ if($terminal_report_style == 'style_1') {
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
     padding: 1rem;
@@ -343,25 +343,25 @@ if($terminal_report_style == 'style_1') {
     .grade-stats {
         grid-template-columns: 1fr;
     }
-    
+
     .form-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .action-buttons {
         flex-direction: column;
     }
-    
+
     .add-grade-form {
         margin: 1rem;
         padding: 2rem;
     }
-    
+
     .form-actions {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .form-header h2 {
         font-size: 2rem;
     }
@@ -396,7 +396,7 @@ if($terminal_report_style == 'style_1') {
     <div class="stat-card">
         <h3 style="margin: 0 0 0.5rem 0; color: #667eea;">Pass Mark</h3>
         <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #1f2937;">
-            <?php 
+            <?php
             $pass_grades = array_filter($grades, function($g) { return $g['mark_from'] >= 50; });
             echo !empty($pass_grades) ? min(array_column($pass_grades, 'mark_from')) : '50';
             ?>%
@@ -424,7 +424,7 @@ if($terminal_report_style == 'style_1') {
                     <strong><?php echo $row['name']; ?></strong>
                 </td>
                 <td>
-                    <span class="grade-badge <?php 
+                    <span class="grade-badge <?php
                         $grade = strtolower($row['grade_point'][0] ?? 'f');
                         echo 'grade-' . $grade;
                     ?>">
@@ -462,7 +462,7 @@ if($terminal_report_style == 'style_1') {
         <h2><i class="fa fa-graduation-cap"></i> Create New Raw Score Grade</h2>
         <p>Define a new raw score grading scale with mark ranges</p>
     </div>
-    
+
     <?php echo form_open(site_url('admin/grade/create_raw'), array('id' => 'gradeForm')); ?>
     <div class="form-grid">
         <div class="form-group">
@@ -472,7 +472,7 @@ if($terminal_report_style == 'style_1') {
             </label>
             <input type="text" name="name" class="form-input" placeholder="e.g., EXCELLENT, VERY GOOD" required>
         </div>
-        
+
         <div class="form-group">
             <label class="form-label">
                 <i class="fa fa-certificate"></i>
@@ -480,7 +480,7 @@ if($terminal_report_style == 'style_1') {
             </label>
             <input type="text" name="grade_point" class="form-input" placeholder="e.g., A+, A, B+, 1, 2" required>
         </div>
-        
+
         <div class="form-group">
             <label class="form-label">
                 <i class="fa fa-arrow-up"></i>
@@ -488,7 +488,7 @@ if($terminal_report_style == 'style_1') {
             </label>
             <input type="number" name="mark_from" class="form-input" placeholder="e.g., 80.5" min="0" max="100" step="0.1" required>
         </div>
-        
+
         <div class="form-group">
             <label class="form-label">
                 <i class="fa fa-arrow-down"></i>
@@ -496,7 +496,7 @@ if($terminal_report_style == 'style_1') {
             </label>
             <input type="number" name="mark_upto" class="form-input" placeholder="e.g., 100" min="0" max="100" step="0.1" required>
         </div>
-        
+
         <div class="form-group">
             <label class="form-label">
                 <i class="fa fa-star"></i>
@@ -505,7 +505,7 @@ if($terminal_report_style == 'style_1') {
             <input type="number" name="gpa" class="form-input" placeholder="e.g., 4.0, 3.5, 3.0" step="0.1" min="0" max="5" required>
         </div>
     </div>
-    
+
     <div class="form-actions">
         <button type="submit" class="btn-primary">
             <i class="fa fa-plus-circle"></i>
@@ -527,7 +527,7 @@ if($terminal_report_style == 'style_1') {
 function toggleForm() {
     const form = document.getElementById('addGradeForm');
     const btn = document.getElementById('toggleBtn');
-    
+
     if (form.classList.contains('form-hidden')) {
         form.classList.remove('form-hidden');
         form.classList.add('form-slide-in');
@@ -573,12 +573,12 @@ function deleteGrade(id) {
 // Form submission with AJAX
 $('#gradeForm').submit(function(e) {
     e.preventDefault();
-    
+
     // Hide the form first
     toggleForm();
-    
+
     showAjaxModal_alert('Creating grade...', 'loading');
-    
+
     $.ajax({
         url: $(this).attr('action'),
         type: 'POST',

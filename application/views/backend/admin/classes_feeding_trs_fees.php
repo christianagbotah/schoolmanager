@@ -1,13 +1,13 @@
-<?php 
+<?php
     $currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
     $un_year = $running_year;
     $un_term = $running_term;
     $date_timestamp = strtotime(date('d-m-Y'));
-    
+
     // Get fee mode
     $fee_mode_result = $this->db->get_where('settings', array('type' => 'fee_collection_mode'));
     $fee_mode = ($fee_mode_result->num_rows() > 0) ? $fee_mode_result->row()->description : 'integrated';
-    
+
     // Check enabled modules
     $show_feeding = is_fee_module_enabled('feeding');
     $show_classes = is_fee_module_enabled('classes');
@@ -15,13 +15,13 @@
     $show_breakfast = is_fee_module_enabled('breakfast');
     $show_water = is_fee_module_enabled('water');
     $enabled_count = ($show_feeding ? 1 : 0) + ($show_classes ? 1 : 0) + ($show_transport ? 1 : 0) + ($show_breakfast ? 1 : 0) + ($show_water ? 1 : 0);
-    
+
     if($enabled_count == 1) $col_class = 'col-md-12';
     elseif($enabled_count == 2) $col_class = 'col-md-6';
     elseif($enabled_count == 3) $col_class = 'col-md-4';
     elseif($enabled_count == 4) $col_class = 'col-md-6 col-lg-3';
     else $col_class = 'col-md-6 col-lg-4 col-xl-20';
-    
+
     // Module configurations
     $modules = [
         'feeding' => ['icon' => 'utensils', 'color' => '#3b82f6', 'label' => 'Feeding Fee'],
@@ -34,7 +34,7 @@
 
 <style>
 .fees-container {
-    background: #f9fafb;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     min-height: 100vh;
     padding: 2rem 1rem;
 }
@@ -116,11 +116,11 @@
     margin-left: 1rem;
 }
 .badge-separated {
-    background: #059669;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
 }
 .badge-integrated {
-    background: #d97706;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     color: white;
 }
 .col-xl-20 {
@@ -157,262 +157,6 @@
         width: 100%;
     }
 }
-
-/* Direct UI/UX refinement — Daily Fees Management */
-.fees-container {
-    padding: 24px 28px 40px !important;
-    background: #f8fafc !important;
-}
-.fees-container > .container-fluid {
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 0 !important;
-}
-.fees-container .modern-card {
-    padding: 18px !important;
-    margin-bottom: 16px !important;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important;
-    transition: border-color .15s ease, box-shadow .15s ease !important;
-}
-.fees-container .modern-card:hover {
-    transform: none !important;
-    box-shadow: 0 4px 12px rgba(15,23,42,.06) !important;
-}
-.fees-container .header-card {
-    padding: 20px 22px !important;
-    text-align: left !important;
-    background: #0f172a !important;
-    border: 0 !important;
-    border-radius: 14px !important;
-}
-.fees-container .header-card h1 {
-    margin: 0 0 5px !important;
-    color: #fff !important;
-    font-size: 24px !important;
-    line-height: 1.25;
-    font-weight: 800 !important;
-    letter-spacing: -.015em;
-}
-.fees-container .header-card p {
-    margin: 0 !important;
-    color: #cbd5e1 !important;
-    font-size: 14px !important;
-    line-height: 1.5;
-    opacity: 1 !important;
-}
-.fees-container .badge-mode {
-    margin: 12px 0 0 !important;
-    padding: 5px 10px !important;
-    border-radius: 999px !important;
-    font-size: 12px !important;
-    font-weight: 800 !important;
-}
-.fees-container .badge-integrated { background: #b45309 !important; }
-.fees-container .badge-separated { background: #047857 !important; }
-
-.fees-container .row.mb-4 {
-    margin-left: -7px !important;
-    margin-right: -7px !important;
-    margin-bottom: 16px !important;
-}
-.fees-container .row.mb-4 > .col-lg-6 {
-    padding-left: 7px !important;
-    padding-right: 7px !important;
-    margin-bottom: 0 !important;
-}
-.fees-container .row.mb-4 > .col-lg-6 > div {
-    height: 100%;
-    padding: 15px 16px !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    background: #fff !important;
-    color: #334155 !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.04) !important;
-}
-.fees-container .row.mb-4 > .col-lg-6 > div:hover {
-    box-shadow: 0 3px 10px rgba(15,23,42,.06) !important;
-    transform: none !important;
-}
-.fees-container .row.mb-4 h3 {
-    margin: 0 0 10px !important;
-    color: #0f172a !important;
-    font-size: 15px !important;
-    line-height: 1.35;
-    font-weight: 800 !important;
-}
-.fees-container .row.mb-4 .d-flex.align-items-center {
-    gap: 9px !important;
-}
-.fees-container .row.mb-4 .d-flex.align-items-center > div:first-child {
-    width: 40px;
-    height: 40px;
-    padding: 0 !important;
-    border-radius: 9px !important;
-    background: #eff6ff !important;
-    color: #2563eb !important;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-}
-.fees-container .row.mb-4 .d-flex.align-items-center > div:first-child i {
-    font-size: 16px !important;
-}
-.fees-container .row.mb-4 .form-control {
-    min-height: 44px !important;
-    height: 44px !important;
-    padding: 9px 11px !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 8px !important;
-    background: #fff !important;
-    color: #0f172a !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
-}
-.fees-container .row.mb-4 .form-control:focus {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
-    outline: none;
-}
-.fees-container .row.mb-4 button[type="submit"] {
-    min-height: 44px;
-    padding: 9px 14px !important;
-    border-radius: 8px !important;
-    border: 1px solid #2563eb !important;
-    background: #2563eb !important;
-    color: #fff !important;
-    font-size: 14px !important;
-    line-height: 1.35;
-    font-weight: 800 !important;
-    box-shadow: none !important;
-}
-.fees-container .row.mb-4 button[type="submit"]:hover {
-    background: #1d4ed8 !important;
-    transform: none !important;
-}
-
-.fees-container .section-title {
-    margin: 22px 0 12px !important;
-    color: #0f172a !important;
-    font-size: 18px !important;
-    line-height: 1.35;
-    font-weight: 800 !important;
-    gap: 8px !important;
-}
-.fees-container .section-title i {
-    color: #64748b;
-    font-size: 16px;
-}
-.fees-container #by_date > .section-title:first-child,
-.fees-container #by_term > .section-title:first-child {
-    margin-top: 4px !important;
-}
-.fees-container #by_date .row,
-.fees-container #by_term .row {
-    row-gap: 12px !important;
-    margin-bottom: 8px !important;
-}
-.fees-container #by_date .row > [class*="col-"],
-.fees-container #by_term .row > [class*="col-"] {
-    margin-bottom: 0 !important;
-}
-
-.fees-container .stat-card {
-    min-height: 150px;
-    padding: 15px 14px !important;
-    border: 1px solid #e2e8f0;
-    border-left: 4px solid !important;
-    border-radius: 12px !important;
-    background: #fff !important;
-    text-align: left !important;
-    box-shadow: 0 1px 2px rgba(15,23,42,.04) !important;
-    transition: border-color .15s ease, box-shadow .15s ease !important;
-}
-.fees-container .stat-card:hover {
-    transform: none !important;
-    box-shadow: 0 4px 12px rgba(15,23,42,.06) !important;
-}
-.fees-container .stat-icon {
-    margin: 0 0 9px !important;
-    font-size: 20px !important;
-    line-height: 1;
-}
-.fees-container .stat-label {
-    margin: 0 0 6px !important;
-    color: #475569 !important;
-    font-size: 13px !important;
-    line-height: 1.35;
-    font-weight: 700 !important;
-}
-.fees-container .stat-amount {
-    margin: 0 !important;
-    color: #0f172a !important;
-    font-size: 21px !important;
-    line-height: 1.25;
-    font-weight: 800 !important;
-}
-.fees-container .currency-symbol {
-    margin-right: 3px;
-    color: #64748b;
-    font-size: .58em !important;
-}
-.fees-container .stat-subtitle {
-    margin-top: 7px !important;
-    color: #94a3b8 !important;
-    font-size: 12.5px !important;
-    line-height: 1.4;
-}
-.fees-container a.text-decoration-none {
-    color: inherit !important;
-    text-decoration: none !important;
-}
-.fees-container a.text-decoration-none:focus-visible .stat-card {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.18) !important;
-}
-
-@media (max-width: 991px) {
-    .fees-container .row.mb-4 > .col-lg-6 + .col-lg-6 {
-        margin-top: 12px !important;
-    }
-    .fees-container .col-xl-20 {
-        flex: 0 0 50% !important;
-        max-width: 50% !important;
-    }
-}
-@media (max-width: 767px) {
-    .fees-container { padding: 18px 14px 32px !important; }
-    .fees-container .header-card { padding: 18px !important; }
-    .fees-container .header-card h1 { font-size: 21px !important; }
-    .fees-container .row.mb-4 .d-flex.align-items-center {
-        align-items: stretch !important;
-        flex-direction: column !important;
-    }
-    .fees-container .row.mb-4 .d-flex.align-items-center > div:first-child {
-        display: none !important;
-    }
-    .fees-container .row.mb-4 button[type="submit"] {
-        width: 100%;
-    }
-    .fees-container .col-xl-20,
-    .fees-container #by_date .row > [class*="col-"],
-    .fees-container #by_term .row > [class*="col-"] {
-        flex: 0 0 50% !important;
-        max-width: 50% !important;
-    }
-}
-@media (max-width: 480px) {
-    .fees-container { padding: 12px 10px 28px !important; }
-    .fees-container .col-xl-20,
-    .fees-container #by_date .row > [class*="col-"],
-    .fees-container #by_term .row > [class*="col-"] {
-        flex: 0 0 100% !important;
-        max-width: 100% !important;
-    }
-    .fees-container .stat-card { min-height: 132px; }
-}
 </style>
 
 <div class="fees-container">
@@ -431,7 +175,7 @@
         <!-- Search Filters -->
         <div class="row mb-4">
             <div class="col-lg-6 mb-3">
-                <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg p-4 hover:shadow-xl transition-all" style="background: #2563eb; border-radius: 16px; color: white;">
+                <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg p-4 hover:shadow-xl transition-all" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 16px; color: white;">
                     <h3 style="margin: 0 0 1rem 0; font-size: 1.125rem; font-weight: 700; color: white;">Search by Date</h3>
                     <?php echo form_open('', array('id' => 'by_date_form')); ?>
                     <div class="d-flex align-items-center gap-2">
@@ -448,7 +192,7 @@
             </div>
 
             <div class="col-lg-6 mb-3">
-                <div class="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl shadow-lg p-4 hover:shadow-xl transition-all" style="background: #2563eb; border-radius: 16px; color: white;">
+                <div class="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl shadow-lg p-4 hover:shadow-xl transition-all" style="background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%); border-radius: 16px; color: white;">
                     <h3 style="margin: 0 0 1rem 0; font-size: 1.125rem; font-weight: 700; color: white;">Search by Term/Year</h3>
                     <?php echo form_open('', array('id' => 'byterm_form')); ?>
                     <div class="d-flex align-items-center gap-2">
@@ -609,7 +353,7 @@ $(function() {
         autoclose: true,
         todayHighlight: true
     });
-    
+
     get_fct_by_date();
 });
 
@@ -622,15 +366,15 @@ $('#by_date_form').submit(function(e) {
 
 $('#byterm_form').submit(function(e) {
     e.preventDefault();
-    
+
     let year = $('#year').val();
     let term = $('#term').val();
-    
+
     if(!year || !term) {
         showAjaxModal_alert('Please select both year and term', 'error');
         return;
     }
-    
+
     get_fct_by_term();
     $('#by_term').show();
     $('#by_date').hide();
@@ -650,14 +394,14 @@ function get_fct_by_date() {
             $('#breakfast_fee_tile').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_breakfast_paid || '0.00'));
             $('#water_fee_tile').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_water_paid || '0.00'));
             $('#fdate, #cdate, #tdate, #bdate, #wdate').text(r[0].date_chosen);
-            
+
             $('#feeding_fee_tile_owe').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_feeding_owe || '0.00'));
             $('#classes_fee_tile_owe').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_classes_owe || '0.00'));
             $('#transport_fee_tile_owe').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_fare_owe || '0.00'));
             $('#breakfast_fee_tile_owe').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_breakfast_owe || '0.00'));
             $('#water_fee_tile_owe').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_water_owe || '0.00'));
             $('#fdate_owe, #cdate_owe, #tdate_owe, #bdate_owe, #wdate_owe').text(r[0].date_chosen);
-            
+
             $('#feeding_fee_tile_payable').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_feeding_payable || '0.00'));
             $('#classes_fee_tile_payable').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_classes_payable || '0.00'));
             $('#transport_fee_tile_payable').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_transport_payable || '0.00'));
@@ -671,7 +415,7 @@ function get_fct_by_date() {
 function get_fct_by_term() {
     let year = $('#year').val();
     let term = $('#term').val();
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_fct_byterm/search/'); ?>' + year + '/' + term,
         type: 'POST',
@@ -684,14 +428,14 @@ function get_fct_by_term() {
                 $('#breakfast_fee_tile_term').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_breakfast_paid || '0.00'));
                 $('#water_fee_tile_term').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_water_paid || '0.00'));
                 $('#fdate2, #cdate2, #tdate2, #bdate2, #wdate2').text(r[0].duration_chosen || 'No data');
-                
+
                 $('#feeding_fee_tile_owe_term').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_feeding_owe || '0.00'));
                 $('#classes_fee_tile_owe_term').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_classes_owe || '0.00'));
                 $('#transport_fee_tile_owe_term').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_fare_owe || '0.00'));
                 $('#breakfast_fee_tile_owe_term').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_breakfast_owe || '0.00'));
                 $('#water_fee_tile_owe_term').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_water_owe || '0.00'));
                 $('#fdate_owe2, #cdate_owe2, #tdate_owe2, #bdate_owe2, #wdate_owe2').text(r[0].duration_chosen || 'No data');
-                
+
                 $('#feeding_fee_tile_payable_term').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_feeding_payable || '0.00'));
                 $('#classes_fee_tile_payable_term').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_classes_payable || '0.00'));
                 $('#transport_fee_tile_payable_term').html('<sup class="currency-symbol"><?php echo $currency; ?></sup>' + (r[0].total_transport_payable || '0.00'));
@@ -747,12 +491,12 @@ function show_payments_modal(fee_type) {
 function show_payments_modal_term(fee_type) {
     let year = $('#year').val();
     let term = $('#term').val();
-    
+
     if(!year || !term) {
         showAjaxModal_alert('Please search by term first', 'error');
         return;
     }
-    
+
     $.ajax({
         url: '<?php echo site_url('modal/popup/payments_details_term/'); ?>' + fee_type + '/' + year + '/' + term,
         success: function(response) {
@@ -766,12 +510,12 @@ function show_payments_modal_term(fee_type) {
 function show_outstanding_modal_term(fee_type) {
     let year = $('#year').val();
     let term = $('#term').val();
-    
+
     if(!year || !term) {
         showAjaxModal_alert('Please search by term first', 'error');
         return;
     }
-    
+
     $.ajax({
         url: '<?php echo site_url('modal/popup/outstanding_details_term/'); ?>' + fee_type + '/' + year + '/' + term,
         success: function(response) {
@@ -785,12 +529,12 @@ function show_outstanding_modal_term(fee_type) {
 function show_payables_modal_term(fee_type) {
     let year = $('#year').val();
     let term = $('#term').val();
-    
+
     if(!year || !term) {
         showAjaxModal_alert('Please search by term first', 'error');
         return;
     }
-    
+
     $.ajax({
         url: '<?php echo site_url('modal/popup/payables_details_term/'); ?>' + fee_type + '/' + year + '/' + term,
         success: function(response) {

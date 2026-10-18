@@ -7,7 +7,7 @@
                     <input type="text" class="form-control" id="class_filter" placeholder="Filter By Class" name="amount" value="" required/>
                 </div>
                 <div class="col-sm-4">
-                    <select class="form-control selectboxit" name="term_filer" id="term_filer" onchange="return get_invoices_by_term(this.value)">
+                    <select class="form-control select2" name="term_filer" id="term_filer" onchange="return get_invoices_by_term(this.value)">
                         <option value="">Filter By Term</option>
                         <?php
                             for($i = 1; $i <= 3; $i++) {
@@ -25,7 +25,7 @@
         </form>
     </div>
 </div>-->
-<?php 
+<?php
 
     //currency
     $currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
@@ -41,10 +41,10 @@
     ";
     $unpaid_invoices_students = $this->db->query($query)->result();
 
- 
+
     $invoice_code_f = $this->db->get_where('settings', array('type'=>'invoice_number_format'))->row()->description;
     $inv_number_len = strlen($invoice_code_f);
-    
+
     // Calculate grand totals
     $grand_total_billed = 0;
     $grand_total_paid = 0;
@@ -54,7 +54,7 @@
 <!-- Summary Card -->
 <div class="row" style="margin-bottom: 15px;">
     <div class="col-md-12">
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <div class="row">
                 <div class="col-md-6 col-sm-6">
                     <div style="text-align: center; padding: 15px;">
@@ -89,14 +89,14 @@
                     <th><div>Term</div></th>
                     <th><div><?php echo get_phrase('year');?></div></th>
                     <th><div><?php echo get_phrase('options');?></div></th>
-                    
-                </tr>   
+
+                </tr>
             </thead>
             <tbody>
-                <?php 
+                <?php
                 $student_count = 0;
                 $invoice_count = 0;
-                
+
                 if (!empty($unpaid_invoices_students)) {
                     foreach($unpaid_invoices_students as $row):
 
@@ -104,8 +104,8 @@
                         if (!$studentDataRow || !$studentDataRow->num_rows()) {
                             continue; // Skip if student not found
                         }
-                        $studentName = $studentDataRow->row()->name; 
-                        
+                        $studentName = $studentDataRow->row()->name;
+
                         $enrollRow = $this->db->get_where('enroll', ['student_id' => $row->student_id, 'class_id IS NOT NULL'])->last_row();
                         if (!$enrollRow) {
                             continue; // Skip if no enrollment found
@@ -126,7 +126,7 @@
                         if (empty($unpaid_invoices)) {
                             continue;
                         }
-                        
+
                         $student_count++;
 
                         foreach($unpaid_invoices as $inv):
@@ -159,7 +159,7 @@
                             $this->db->where('can_delete !=', 'trash');
                             $amount_paid = $this->db->get_where('invoice', array('student_id' => $row->student_id, 'invoice_code' => $inv->invoice_code))->row()->amount_paid;
                             $amount_paid = floatval($amount_paid);
-                            
+
                             // Accumulate totals
                             $grand_total_billed += $total_amount;
                             $grand_total_paid += $amount_paid;
@@ -168,11 +168,11 @@
                             //Get invoice row to extract class_id for this specific invoice
                             $inv_row = $this->db->get_where('invoice', array('student_id' => $row->student_id, 'invoice_code' => $inv->invoice_code))->row();
                             $creation_timestamp = $inv_row->creation_timestamp;
-                            
+
                             // Get the class from the invoice's class_id (the class when invoice was created)
                             $invoice_class_id = $inv_row->class_id;
                             $invoiceClassName = getFullClassName($invoice_class_id);
-                            
+
                             // Display student name with the class from the invoice
                             $studentInfo = $studentName . ' - ' . $invoiceClassName;
 
@@ -191,7 +191,7 @@
                                 $ts = 'Sem: '.$sem;
                             } else if($sem == '') {
                                 $ts = 'Term: '.$term;
-                            } 
+                            }
 
 
                             if ($a_due == 0) {
@@ -202,10 +202,10 @@
                                 $payment_option = '';
                             } else {
                                 $status = '<button class="btn btn-danger btn-xs">Unpaid</button>';
-                                $payment_option = '<li><a href="#" onclick="invoice_pay_modal('.$row->student_id.')" style="color: #2563eb;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a></li><li class="divider"></li>';
+                                $payment_option = '<li><a href="#" onclick="invoice_pay_modal('.$row->student_id.')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a></li><li class="divider"></li>';
                             }
-                                
-                            
+
+
                             $options = '<div class="btn-group">'.get_action_button().'<ul class="dropdown-menu dropdown-default pull-right" role="menu">'.$payment_option.'<li><a href="#" onclick="invoice_view_modal(\''.$in_code.'\')" style="color: blue;"><i class="entypo-credit-card"></i>&nbsp;View_invoice</a></li><li class="divider"></li><li><a href="#" onclick="invoice_edit_modal('.$in_code.')" style="color: green;"><i class="entypo-pencil"></i>&nbsp;Edit</a></li>/*<li class="divider"></li><li><a href="#" onclick="invoice_delete_confirm('.$in_code.')" style="color: red;"><i class="entypo-trash"></i>&nbsp;Delete</a></li>*/</ul></div>';
                 ?>
                         <tr>
@@ -218,12 +218,12 @@
                             <td><?php echo $year; ?></td>
                             <td><?php echo $options; ?></td>
                         </tr>
-                <?php 
+                <?php
                         endforeach;
                     endforeach;
                     ?>
                     <!-- Grand Total Row: 8 cells for 8 columns -->
-                    <tr style="background-color: #f0f0f0; font-weight: bold; border-top: 3px solid #2563eb;">
+                    <tr style="background-color: #f0f0f0; font-weight: bold; border-top: 3px solid #667eea;">
                         <td style="text-align: right; padding: 12px;"><strong>GRAND TOTAL:</strong></td>
                         <td></td>
                         <td style="text-align: right; font-size: 14px;"><?php echo number_format($grand_total_billed, 2); ?></td>
@@ -255,7 +255,7 @@
         // Update summary card with totals (only students and outstanding)
         $('#total_students_count').text('<?php echo $student_count; ?>');
         $('#total_due_display').text('<?php echo number_format($grand_total_due, 2); ?>');
-        
+
         // Initialize DataTable with custom settings to handle grouped rows
         $('#invoices').DataTable({
             bFilter: true,
@@ -314,7 +314,7 @@
                     extend: 'print',
                     text: 'PRINT',
                     title: 'Unpaid Invoices Report',
-                    messageTop: '<h3 style="text-align:center; color: #2563eb;">Total Outstanding: <?php echo $currency; ?> <?php echo number_format($grand_total_due, 2); ?></h3>',
+                    messageTop: '<h3 style="text-align:center; color: #667eea;">Total Outstanding: <?php echo $currency; ?> <?php echo number_format($grand_total_due, 2); ?></h3>',
                     exportOptions: {
                         columns: ':not(:last-child)', // Exclude the Options column
                         format: {
@@ -379,10 +379,10 @@
         $.ajax({
             url: '<?php echo site_url('admin/get_invoice_term/'); ?>'+ invoice_code,
             success: function(response) {
-              showAjaxModal('<?php echo site_url('modal/popup/modal_view_invoice/');?>' + invoice_code + '/' + response);   
+              showAjaxModal('<?php echo site_url('modal/popup/modal_view_invoice/');?>' + invoice_code + '/' + response);
             }
         });
-        
+
     }
 
     function invoice_edit_modal(invoice_code) {

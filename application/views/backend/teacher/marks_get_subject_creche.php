@@ -3,9 +3,9 @@
 		<div class="form-group">
 		<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('section');?></label>
 			<select name="section_id" id="section_id" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-xl font-bold block w-full max-w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 uppercase">
-				<?php 
+				<?php
 					$sections = $this->db->get_where('section' , array(
-						'class_id' => $class_id 
+						'class_id' => $class_id
 					))->result_array();
 					foreach($sections as $row):
 				?>
@@ -21,7 +21,7 @@
 			<select name="category_id" id="category_id" class="select2 visible bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-xl font-bold block w-full max-w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 uppercase">
 			    <option value="">SELECT CATEGORY</option>
 				<option value="0">SUBJECTS WITH NO CATEGORY</option>
-				<?php 
+				<?php
 					$categories = $this->db->get('subject_category_creche')->result_array();
 					foreach($categories as $row):
 				?>
@@ -42,11 +42,11 @@
 
 
 	    		</select>
-	    		
+
 	    	</div>
 	    	<span style="color:red; display: none;" id="error_note"></span>
 	    </div>
-	    
+
 	    <div class="" style="margin-top: 20px">
 
 			<?php
@@ -61,9 +61,9 @@
 <script type="text/javascript">
 	$(document).ready(function() {
 
-        if($.isFunction($.fn.selectBoxIt))
+        if (typeof $.fn.select2 !== "undefined")
 		{
-			$("select.selectboxit").each(function(i, el)
+			$("select.select2").each(function(i, el)
 			{
 				var $this = $(el),
 					opts = {
@@ -71,25 +71,25 @@
 						'native': attrDefault($this, 'native', false),
 						defaultText: attrDefault($this, 'text', ''),
 					};
-					
+
 				$this.addClass('visible');
-				$this.selectBoxIt(opts);
+				$this.select2({ placeholder: "Select an option", allowClear: true, width: "100%" });
 			});
 		}
-		
+
 		//remove action from the form
 		$('form').removeAttr('action');
-		
+
 		//now add a new action attribute for creche mark selection
 		$('form').attr('action','<?php echo site_url('admin/marks_selector_creche'); ?>');
-		
+
 		//update subjects if category field changes
 		$('#category_id').on("change", function() {
 		    $('#error_note').css('display', 'none');//clear error if there was any
 		    $('#error_notec').css('display', 'none');//clear error if there was any
 		   let cat_id = $('#category_id').val();
 		   const class_id = '<?php echo $class_id; ?>';
-		   
+
 		   //send via ajax
 		   $.ajax({
 		      url: '<?php echo site_url('teacher/update_subjects_creche/'); ?>' + cat_id + '/' + class_id,
@@ -98,7 +98,7 @@
 		      }
 		   });
 		});
-		
+
 		//check if subject is selected
 		$('#btn_marks').on("click", function() {
 		   if($('#subject_id').val() == '' || $('#subject_id').val() == null) {
@@ -115,5 +115,5 @@
 		   }
 		});
     });
-	
+
 </script>

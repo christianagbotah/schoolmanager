@@ -1,9 +1,9 @@
 <div class="form-group">
-<label class="block text-sm font-bold text-gray-700 mb-2"><?php echo get_phrase('section');?></label>
-    <select name="section_id" id="section_id" class="bg-white border-2 border-gray-300 text-gray-900 text-base rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 h-[46px]">
-        <?php 
+<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('section');?></label>
+    <select name="section_id" id="section_id" class="form-control select2">
+        <?php
             $sections = $this->db->get_where('section' , array(
-                'class_id' => $class_id 
+                'class_id' => $class_id
             ))->result_array();
             foreach($sections as $row):
         ?>
@@ -17,9 +17,35 @@
     $(document).ready(function () {
 
         // SelectBoxIt Dropdown replacement
-        if ($.isFunction($.fn.selectBoxIt))
+        if (typeof $.fn.select2 !== "undefined")
         {
-            $("select.selectboxit").each(function (i, el)
+            $("select.select2").each(function (i, el)
+            {
+                var $this = $(el),
+                        opts = {
+                            showFirstOption: attrDefault($this, 'first-option', true),
+                            'native': attrDefault($t<div class="form-group">
+<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('section');?></label>
+    <select name="section_id" id="section_id" class="form-control select2">
+        <?php
+            $sections = $this->db->get_where('section' , array(
+                'class_id' => $class_id
+            ))->result_array();
+            foreach($sections as $row):
+        ?>
+        <option value="<?php echo $row['section_id'];?>"><?php echo $row['name'];?></option>
+        <?php endforeach;?>
+    </select>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        // SelectBoxIt Dropdown replacement
+        if (typeof $.fn.select2 !== "undefined")
+        {
+            $("select.select2").each(function (i, el)
             {
                 var $this = $(el),
                         opts = {
@@ -29,7 +55,7 @@
                         };
 
                 $this.addClass('visible');
-                $this.selectBoxIt(opts);
+                $this.select2({ placeholder: "Select an option", allowClear: true, width: "100%" });
             });
         }
 

@@ -1,5 +1,5 @@
 
-<?php 
+<?php
 
   $item_id = rand().'_'.time();
 ?>
@@ -9,38 +9,6 @@
     visibility: visible !important;
   }
 
-/* ---- family design-language alignment for dynamic bill-item rows ---- */
-.row.flex .h-16 {
-    height: 46px;
-    font-size: 14px;
-    line-height: 1.25;
-}
-.row.flex .select2-container .select2-selection--single {
-    height: 46px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border-color: #cbd5e1;
-}
-.row.flex .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 28px;
-    font-size: 14px;
-    color: #1f2937;
-}
-.row.flex .btn-info,
-.row.flex .btn-danger {
-    border-radius: 8px;
-    min-width: 34px;
-}
-.row.flex .btn-info:focus-visible,
-.row.flex .btn-danger:focus-visible {
-    outline: 2px solid #2563eb;
-    outline-offset: 2px;
-}
-@media (max-width: 768px) {
-    .row.flex { flex-wrap: wrap; gap: .5rem; }
-    .row.flex > div { min-width: 100%; }
-    .row.flex > div.w-fit, .row.flex > div.flex { min-width: 0; }
-}
 </style>
 
 
@@ -52,12 +20,12 @@
       // Start with bill_item table selection
       $this->db->select('*');
       $this->db->from('bill_item');
-      
+
       // Exclude already selected items
       if(!empty($bill_item) && is_array($bill_item)) {
           $this->db->where_not_in('bill_item.title', $bill_item);
       }
-      
+
       // Filter by class categories if class_ids provided
       if(!empty($class_ids) && is_array($class_ids)) {
           // Get unique categories for the selected classes
@@ -66,30 +34,30 @@
           $this->db->from('class');
           $this->db->where_in('class_id', $class_ids);
           $categories_query = $this->db->get();
-          
+
           $categories = array();
           foreach($categories_query->result() as $row) {
               $categories[] = $row->category;
           }
-          
+
           // Rebuild query after categories query
           $this->db->select('*');
           $this->db->from('bill_item');
-          
+
           // Re-apply exclusion filter
           if(!empty($bill_item) && is_array($bill_item)) {
               $this->db->where_not_in('bill_item.title', $bill_item);
           }
-          
+
           if(!empty($categories)) {
               // Filter bill items by class categories or specific class IDs
               $this->db->group_start();
-              
+
               // 1. Items with specific_class_ids matching selected classes
               foreach($class_ids as $class_id) {
                   $this->db->or_where("FIND_IN_SET('$class_id', bill_item.specific_class_ids) >", 0);
               }
-              
+
               // 2. Items with class_category matching (but no specific_class_ids)
               $this->db->or_group_start();
               $this->db->where_in('bill_item.class_category', $categories);
@@ -98,7 +66,7 @@
               $this->db->or_where('bill_item.specific_class_ids', '');
               $this->db->group_end();
               $this->db->group_end();
-              
+
               // 3. Global items (no specific_class_ids and no class_category)
               $this->db->or_group_start();
               $this->db->group_start();
@@ -110,11 +78,11 @@
               $this->db->or_where('bill_item.class_category', '');
               $this->db->group_end();
               $this->db->group_end();
-              
+
               $this->db->group_end();
           }
       }
-      
+
       $bill_items = $this->db->get();
 
       if($bill_items->num_rows() > 0) {?>
@@ -126,7 +94,7 @@
 
         foreach($bill_items->result_array() as $item):?>
 
-      
+
           <option value="<?=$item['title'];?>"><?=$item['title']; ?></option>
             <?php
               endforeach;

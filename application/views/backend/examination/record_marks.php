@@ -1,13 +1,13 @@
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-primary">
-            <div class="panel-heading" style="background: #764ba2; border: none;">
+            <div class="panel-heading" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
                 <h3 class="panel-title" style="color: white;">
                     <i class="fa fa-edit"></i> Record Student Marks
                 </h3>
             </div>
             <div class="panel-body">
-                
+
                 <!-- Filters -->
                 <div class="row mb-4">
                     <div class="col-md-3">
@@ -79,7 +79,7 @@ $(document).ready(function() {
 function loadSubjects() {
     const examId = $('#exam_id').val();
     if(!examId) return;
-    
+
     $.ajax({
         url: '<?php echo site_url("examination/get_exam_subjects"); ?>',
         type: 'GET',
@@ -92,7 +92,7 @@ function loadSubjects() {
                 html += `<option value="${subject.subject_id}" ${selected}>${subject.name}</option>`;
             });
             $('#subject_id').html(html);
-            
+
             <?php if($subject_id): ?>
             loadStudents();
             <?php endif; ?>
@@ -103,14 +103,14 @@ function loadSubjects() {
 function loadStudents() {
     const examId = $('#exam_id').val();
     const subjectId = $('#subject_id').val();
-    
+
     if(!examId || !subjectId) {
         showAjaxModal_alert('Please select exam and subject', 'warning');
         return;
     }
-    
+
     showAjaxModal_alert('Loading students...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url("examination/get_students_for_marks"); ?>',
         type: 'GET',
@@ -132,32 +132,32 @@ function displayStudents(students) {
             <td>${index + 1}</td>
             <td>${student.name}</td>
             <td>
-                <input type="number" class="form-control class-score" 
-                       data-student="${student.student_id}" 
-                       value="${student.class_score || ''}" 
+                <input type="number" class="form-control class-score"
+                       data-student="${student.student_id}"
+                       value="${student.class_score || ''}"
                        min="0" max="30" step="0.01"
                        onchange="calculateTotal(this)">
             </td>
             <td>
-                <input type="number" class="form-control exam-score" 
-                       data-student="${student.student_id}" 
-                       value="${student.exam_score || ''}" 
+                <input type="number" class="form-control exam-score"
+                       data-student="${student.student_id}"
+                       value="${student.exam_score || ''}"
                        min="0" max="70" step="0.01"
                        onchange="calculateTotal(this)">
             </td>
             <td>
-                <input type="text" class="form-control total-score" 
-                       data-student="${student.student_id}" 
+                <input type="text" class="form-control total-score"
+                       data-student="${student.student_id}"
                        value="${student.total_score || ''}" readonly>
             </td>
             <td>
-                <input type="text" class="form-control grade" 
-                       data-student="${student.student_id}" 
+                <input type="text" class="form-control grade"
+                       data-student="${student.student_id}"
                        value="${student.grade || ''}" readonly>
             </td>
             <td>
-                <input type="text" class="form-control remark" 
-                       data-student="${student.student_id}" 
+                <input type="text" class="form-control remark"
+                       data-student="${student.student_id}"
                        value="${student.remark || ''}" readonly>
             </td>
         </tr>`;
@@ -170,9 +170,9 @@ function calculateTotal(input) {
     const classScore = parseFloat($(`.class-score[data-student="${studentId}"]`).val()) || 0;
     const examScore = parseFloat($(`.exam-score[data-student="${studentId}"]`).val()) || 0;
     const total = classScore + examScore;
-    
+
     $(`.total-score[data-student="${studentId}"]`).val(total.toFixed(2));
-    
+
     // Get grade
     const grade = getGrade(total);
     $(`.grade[data-student="${studentId}"]`).val(grade.grade);
@@ -194,18 +194,18 @@ function getGrade(score) {
 function saveAllMarks() {
     const examId = $('#exam_id').val();
     const subjectId = $('#subject_id').val();
-    
+
     if(!examId || !subjectId) {
         showAjaxModal_alert('Please select exam and subject', 'warning');
         return;
     }
-    
+
     const marks = [];
     $('#students-list tr').each(function() {
         const studentId = $(this).find('.class-score').data('student');
         const classScore = $(this).find('.class-score').val();
         const examScore = $(this).find('.exam-score').val();
-        
+
         if(classScore || examScore) {
             marks.push({
                 student_id: studentId,
@@ -214,14 +214,14 @@ function saveAllMarks() {
             });
         }
     });
-    
+
     if(marks.length === 0) {
         showAjaxModal_alert('No marks to save', 'warning');
         return;
     }
-    
+
     showAjaxModal_alert('Saving marks...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url("examination/save_marks"); ?>',
         type: 'POST',

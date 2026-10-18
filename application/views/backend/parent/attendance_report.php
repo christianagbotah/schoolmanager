@@ -5,7 +5,7 @@
     <div class="col-md-offset-3 col-md-2">
          <div class="form-group">
             <label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('month'); ?></label>
-            <select name="month" class="form-control selectboxit">
+            <select name="month" class="form-control select2">
                 <?php
                 for ($i = 1; $i <= 12; $i++):
                     if ($i == 1)
@@ -44,14 +44,14 @@
          </div>
     </div>
 
-    <?php 
+    <?php
         $expl_running_year = explode('-', $running_year);
         $part_one = $expl_running_year[0];
     ?>
     <div class="col-md-2">
         <div class="form-group">
             <label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('academic_year'); ?></label>
-            <select class="form-control selectboxit" name="sessional_year">
+            <select class="form-control select2" name="sessional_year">
                 <?php
                           echo populate_academic_year();
                         ?>

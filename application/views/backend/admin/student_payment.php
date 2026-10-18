@@ -46,7 +46,7 @@
     min-width: 140px;
     max-width: 160px;
   }
-  
+
   /* Align specific classes multi-select with other fields - add margin-top to align */
   td [id^="input_specific_classes_"],
   td [id^="display_specific_classes_"] {
@@ -71,237 +71,16 @@
     overflow-y: auto !important;
     padding-bottom: 4px !important;
   }
-  
+
   /* Increase amount input field width for better display */
   [id^="edit_bill_amount_"] {
     min-width: 150px !important;
   }
 </style>
 
-<style>
-@media screen {
-  .finance-payment-workspace {
-    margin: 0; padding: 0 12px 40px; color: #334155;
-  }
-  .finance-payment-workspace > .col-md-12 { padding: 0; }
-
-  .finance-payment-workspace > .col-md-12 > .flex.justify-end {
-    margin: 0 0 12px !important; padding: 0 2px;
-  }
-  .finance-payment-workspace > .col-md-12 > .flex.justify-end > label {
-    min-height: 38px; padding: 7px 10px; border: 1px solid #e2e8f0;
-    border-radius: 9px; background: #fff; font-size: 14px; font-weight: 700;
-  }
-  .finance-payment-workspace > .col-md-12 > .flex.justify-end .text-lg {
-    font-size: 14px !important; line-height: 1.35;
-  }
-
-  .finance-payment-workspace .nav.nav-tabs.bordered {
-    display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 16px !important; padding: 5px !important;
-    border: 1px solid #e2e8f0 !important; border-radius: 12px; background: #fff;
-  }
-  .finance-payment-workspace .nav.nav-tabs.bordered > li { margin: 0 !important; }
-  .finance-payment-workspace .nav.nav-tabs.bordered > li > a {
-    min-height: 42px; padding: 9px 13px !important; border: 0 !important;
-    border-radius: 8px !important; background: transparent !important; color: #475569 !important;
-    font-size: 14px !important; line-height: 1.35; font-weight: 700 !important;
-    display: inline-flex; align-items: center; gap: 7px;
-  }
-  .finance-payment-workspace .nav.nav-tabs.bordered > li > a i {
-    font-size: 16px !important; line-height: 1 !important;
-  }
-  .finance-payment-workspace .nav.nav-tabs.bordered > li > a:hover {
-    background: #f1f5f9 !important; color: #0f172a !important;
-  }
-  .finance-payment-workspace .nav.nav-tabs.bordered > li.active > a,
-  .finance-payment-workspace .nav.nav-tabs.bordered > li.active > a:hover,
-  .finance-payment-workspace .nav.nav-tabs.bordered > li.active > a:focus {
-    background: #2563eb !important; color: #fff !important;
-    box-shadow: 0 2px 8px rgba(37,99,235,.18);
-  }
-  .finance-payment-workspace .nav.nav-tabs.bordered .badge {
-    padding: 4px 8px !important; border-radius: 999px !important; font-size: 12px !important;
-    margin-left: 3px !important;
-  }
-
-  .finance-payment-workspace .panel {
-    margin-bottom: 18px; border: 1px solid #e2e8f0; border-radius: 14px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05); overflow: hidden; background: #fff;
-  }
-  .finance-payment-workspace .panel > .panel-heading {
-    padding: 14px 18px; border-bottom: 1px solid #eef2f7; background: #fff;
-  }
-  .finance-payment-workspace .panel > .panel-heading .panel-title,
-  .finance-payment-workspace .panel > .panel-heading .panel-title span {
-    color: #0f172a !important; font-size: 17px !important; line-height: 1.35;
-    font-weight: 800 !important;
-  }
-  .finance-payment-workspace .panel > .panel-body { padding: 16px 18px !important; }
-
-  .finance-payment-workspace label:not(.switch-button):not(.toggle-switch) {
-    font-size: 14px !important; line-height: 1.35; font-weight: 700 !important; color: #334155;
-  }
-  .finance-payment-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
-  .finance-payment-workspace select,
-  .finance-payment-workspace textarea {
-    min-height: 46px !important; height: 46px !important; max-height: none !important;
-    padding: 9px 11px !important; border: 1px solid #cbd5e1 !important;
-    border-radius: 9px !important; background: #fff !important; color: #0f172a !important;
-    font-size: 15px !important; line-height: 1.4 !important; font-weight: 500 !important;
-  }
-  .finance-payment-workspace textarea {
-    min-height: 76px !important; height: auto !important; resize: vertical;
-  }
-  .finance-payment-workspace input:focus,
-  .finance-payment-workspace select:focus,
-  .finance-payment-workspace textarea:focus {
-    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important; outline: none;
-  }
-  .finance-payment-workspace input[readonly],
-  .finance-payment-workspace input[disabled],
-  .finance-payment-workspace select[disabled],
-  .finance-payment-workspace textarea[readonly] {
-    background: #f8fafc !important; color: #64748b !important;
-  }
-
-  .finance-payment-workspace .select2-container { min-height: 46px; }
-  .finance-payment-workspace .select2-container .select2-selection--single,
-  .finance-payment-workspace .select2-container .select2-selection--multiple,
-  .finance-payment-workspace .select2-container .select2-choice {
-    min-height: 46px !important; height: 46px !important; max-height: 46px !important;
-    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
-    background: #fff !important; font-size: 14px !important;
-  }
-  .finance-payment-workspace .select2-container .select2-selection__rendered,
-  .finance-payment-workspace .select2-container .select2-choice > span:first-child {
-    min-height: 44px; line-height: 44px !important; padding-top: 0 !important; padding-bottom: 0 !important;
-    font-size: 14px !important; color: #0f172a !important;
-  }
-  .finance-payment-workspace .select2-container .select2-selection--multiple {
-    height: auto !important; max-height: 76px !important; overflow-y: auto !important;
-  }
-  .finance-payment-workspace .select2-container .select2-selection--multiple .select2-selection__rendered {
-    min-height: 44px; line-height: normal !important; padding: 5px 7px !important;
-  }
-  .finance-payment-workspace [id^="input_specific_classes_"] .select2-container .select2-selection--multiple {
-    min-height: 46px !important; height: auto !important; max-height: 76px !important;
-  }
-
-  .finance-payment-workspace .btn,
-  .finance-payment-workspace button,
-  .finance-payment-workspace a[class*="bg-"] {
-    min-height: 40px; border-radius: 9px !important; font-size: 14px !important;
-    line-height: 1.35; font-weight: 700 !important;
-  }
-  .finance-payment-workspace .btn {
-    padding: 8px 13px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-  }
-  .finance-payment-workspace .btn-sm { min-height: 36px; padding: 7px 10px; font-size: 13px !important; }
-  .finance-payment-workspace button[type="submit"],
-  .finance-payment-workspace input[type="submit"] {
-    min-height: 44px; padding: 9px 16px !important; font-size: 14px !important; font-weight: 800 !important;
-  }
-  .finance-payment-workspace .h-20,
-  .finance-payment-workspace .h-16,
-  .finance-payment-workspace .h-14 {
-    height: auto !important; min-height: 44px !important; max-height: none !important;
-  }
-  .finance-payment-workspace .text-xl { font-size: 14px !important; line-height: 1.4 !important; }
-  .finance-payment-workspace .text-2xl { font-size: 16px !important; line-height: 1.4 !important; }
-  .finance-payment-workspace .text-3xl { font-size: 19px !important; line-height: 1.35 !important; }
-  .finance-payment-workspace .text-lg { font-size: 14px !important; line-height: 1.4 !important; }
-  .finance-payment-workspace .text-sm { font-size: 13px !important; line-height: 1.4 !important; }
-  .finance-payment-workspace .text-xs { font-size: 12.5px !important; line-height: 1.35 !important; }
-
-  .finance-payment-workspace table {
-    color: #334155; font-size: 14px !important;
-  }
-  .finance-payment-workspace table thead th {
-    padding: 11px 12px !important; background: #f8fafc !important; color: #475569 !important;
-    font-size: 13px !important; line-height: 1.35; font-weight: 800 !important;
-    letter-spacing: .03em; white-space: nowrap; border-bottom: 1px solid #e2e8f0 !important;
-  }
-  .finance-payment-workspace table tbody td {
-    padding: 10px 12px !important; color: #334155 !important; font-size: 14px !important;
-    line-height: 1.45; vertical-align: middle; border-color: #eef2f7 !important;
-  }
-  .finance-payment-workspace table tbody tr:hover td { background: #f8fbff !important; }
-  .finance-payment-workspace .responsive,
-  .finance-payment-workspace .overflow-x-auto,
-  .finance-payment-workspace .dataTables_wrapper {
-    max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
-  }
-  .finance-payment-workspace #bill_items_table { min-width: 1180px; }
-  .finance-payment-workspace #bulk_invoices_datatable { min-width: 1320px; }
-
-  .finance-payment-workspace .dataTables_wrapper .dataTables_length,
-  .finance-payment-workspace .dataTables_wrapper .dataTables_filter,
-  .finance-payment-workspace .dataTables_wrapper .dataTables_info,
-  .finance-payment-workspace .dataTables_wrapper .dataTables_paginate {
-    font-size: 14px !important; color: #475569;
-  }
-  .finance-payment-workspace .dataTables_wrapper select,
-  .finance-payment-workspace .dataTables_wrapper input[type="search"] {
-    min-height: 40px !important; height: 40px !important; padding: 7px 9px !important;
-    font-size: 14px !important; border: 1px solid #cbd5e1 !important; border-radius: 8px !important;
-  }
-
-  .finance-payment-workspace #manage_bulk_invoices .panel-heading,
-  .finance-payment-workspace #bulk_arrears_import .panel-heading,
-  .finance-payment-workspace #receipt_modifications .panel-heading {
-    background: #fff !important;
-  }
-  .finance-payment-workspace #manage_bulk_invoices .grid.md\:grid-cols-5 {
-    gap: 12px !important;
-  }
-  .finance-payment-workspace #manage_bulk_invoices .grid.md\:grid-cols-4 {
-    gap: 12px !important; margin-bottom: 16px !important;
-  }
-  .finance-payment-workspace #bulk_stats > div {
-    padding: 14px 16px !important; border-radius: 11px !important; box-shadow: none !important;
-  }
-  .finance-payment-workspace #bulk_stats .text-5xl { font-size: 28px !important; }
-  .finance-payment-workspace #global_search {
-    min-height: 44px !important; height: 44px !important; padding: 9px 12px !important;
-    font-size: 14px !important;
-  }
-  .finance-payment-workspace #selected_count { font-size: 16px !important; }
-
-  .finance-payment-workspace .alert {
-    border-radius: 10px; font-size: 14px; line-height: 1.45;
-  }
-
-  @media (max-width: 1100px) {
-    .finance-payment-workspace .grid.md\:grid-cols-7,
-    .finance-payment-workspace .grid.md\:grid-cols-5 {
-      grid-template-columns: repeat(2,minmax(0,1fr)) !important;
-    }
-  }
-  @media (max-width: 767px) {
-    .finance-payment-workspace { padding: 0 4px 32px; }
-    .finance-payment-workspace .nav.nav-tabs.bordered {
-      display: grid; grid-template-columns: 1fr; width: 100%;
-    }
-    .finance-payment-workspace .nav.nav-tabs.bordered > li > a {
-      width: 100%; justify-content: flex-start;
-    }
-    .finance-payment-workspace .grid.md\:grid-cols-7,
-    .finance-payment-workspace .grid.md\:grid-cols-5,
-    .finance-payment-workspace .grid.md\:grid-cols-4 {
-      grid-template-columns: 1fr !important;
-    }
-    .finance-payment-workspace .panel > .panel-body { padding: 14px !important; }
-    .finance-payment-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
-    .finance-payment-workspace select,
-    .finance-payment-workspace textarea { font-size: 16px !important; }
-  }
-}
-</style>
-
-
 
 <hr />
-<div class="row finance-payment-workspace">
+<div class="row">
   <div class="col-md-12">
       <!-- Arrears Tab Toggle -->
       <div class="flex justify-end mb-3">
@@ -313,12 +92,12 @@
           </div>
         </label>
       </div>
-      
+
       <ul class="nav nav-tabs bordered">
         <li class="active">
 
           <a href="#bill_item" class="font-bold text-xl" data-toggle="tab">
-            <i class="fa-solid fa-plus-circle fa-2x"></i> 
+            <i class="fa-solid fa-plus-circle fa-2x"></i>
             <span class="hidden-xs uppercase"><?php echo get_phrase('add_billing_item');?></span>
             <span class="visible-xs uppercase"><?php echo get_phrase('bill_item');?></span>
           </a>
@@ -333,7 +112,7 @@
 
         <li onclick="resetInvoice()">
           <a href="#paid" class="font-bold text-xl" data-toggle="tab">
-            <i class="fa-solid fa-credit-card fa-2x"></i> 
+            <i class="fa-solid fa-credit-card fa-2x"></i>
             <span class="hidden-xs uppercase"><?php echo get_phrase('create_invoice');?></span>
             <span class="visible-xs uppercase"><?php echo get_phrase('create_invoice');?></span>
           </a>
@@ -341,7 +120,7 @@
 
         <!-- <li>
           <a href="#view_invoices" class="font-bold text-xl" data-toggle="tab">
-            <i class="fa-solid fa-list fa-2x"></i> 
+            <i class="fa-solid fa-list fa-2x"></i>
             <span class="hidden-xs uppercase"><?php echo get_phrase('view_invoices');?></span>
             <span class="visible-xs uppercase"><?php echo get_phrase('view_invoices');?></span>
           </a>
@@ -349,7 +128,7 @@
 
         <li>
           <a href="#manage_bulk_invoices" class="font-bold text-xl" data-toggle="tab">
-            <i class="fa-solid fa-edit fa-2x"></i> 
+            <i class="fa-solid fa-edit fa-2x"></i>
             <span class="hidden-xs uppercase"><?php echo get_phrase('manage_bulk_invoices');?></span>
             <span class="visible-xs uppercase"><?php echo get_phrase('bulk_manage');?></span>
           </a>
@@ -357,7 +136,7 @@
 
         <li id="arrears_tab_li" style="display:<?php echo $this->db->get_where('settings', array('type' => 'enable_arrears_tab'))->row()->description == 'yes' ? 'block' : 'none'; ?>;">
           <a href="#bulk_arrears_import" class="font-bold text-xl" data-toggle="tab">
-            <i class="fa-solid fa-file-import fa-2x"></i> 
+            <i class="fa-solid fa-file-import fa-2x"></i>
             <span class="hidden-xs uppercase"><?php echo get_phrase('bulk_arrears_import');?></span>
             <span class="visible-xs uppercase"><?php echo get_phrase('arrears');?></span>
           </a>
@@ -365,14 +144,14 @@
 
         <li>
           <a href="#receipt_modifications" class="font-bold text-xl" data-toggle="tab">
-            <i class="fa-solid fa-shield-alt fa-2x"></i> 
+            <i class="fa-solid fa-shield-alt fa-2x"></i>
             <span class="hidden-xs uppercase"><?php echo get_phrase('modification_requests');?></span>
             <span class="visible-xs uppercase"><?php echo get_phrase('modifications');?></span>
-            <?php 
+            <?php
             $receipt_pending = $this->db->where('status', 'pending')->count_all_results('receipt_modification_requests');
             $invoice_pending = $this->db->where('status', 'pending')->count_all_results('invoice_modification_requests');
             $total_pending = $receipt_pending + $invoice_pending;
-            if($total_pending > 0): 
+            if($total_pending > 0):
             ?>
             <span class="badge badge-warning" style="font-size: 14px; padding: 6px 12px; border-radius: 20px; background: #f59e0b; color: white; margin-left: 8px;"><?php echo $total_pending; ?></span>
             <?php endif; ?>
@@ -386,13 +165,13 @@
           </a>
         </li> -->
       </ul>
-      
+
       <div class="tab-content">
             <br>
-        <!-- create  bill item -->    
+        <!-- create  bill item -->
         <div class="tab-pane active" id="bill_item">
 
-          <!-- creation of single invoice -->    
+          <!-- creation of single invoice -->
           <?php echo form_open(site_url('admin/invoice/add_bill_item/') , array('class' => 'form-horizontal form-groups-bordered validate','target'=>'_top', 'id' => 'add_bill_item_form'));?>
               <div class="row">
                 <div class="col-md-12 col-sm-12">
@@ -405,8 +184,8 @@
                                     data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white text-xl dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Bill item title" autofocus required="true" autofocus="true">
                             </div>
                             <div class="w-full">
-                              <select id="bill_category" name="bill_category" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg text-xl focus:ring-primary-500 focus:border-primary-500 block w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="true">    
-                            
+                              <select id="bill_category" name="bill_category" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg text-xl focus:ring-primary-500 focus:border-primary-500 block w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="true">
+
                                     <option value="">Select Bill Category</option>
 
                                     <?php
@@ -416,12 +195,12 @@
                                             <?php
                                         }
                                     ?>
-                                  
+
                                 </select>
                             </div>
 
                             <div class="w-full">
-                              <select id="bill_class_category" name="class_category" class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg text-xl focus:ring-primary-500 focus:border-primary-500 block w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">    
+                              <select id="bill_class_category" name="class_category" class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg text-xl focus:ring-primary-500 focus:border-primary-500 block w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                     <option value="">All Classes (Optional)</option>
                                     <?php
                                         // Get distinct class categories from class table
@@ -431,7 +210,7 @@
                                         $this->db->where('category IS NOT NULL', NULL, FALSE);
                                         $this->db->where('category !=', '');
                                         $categories = $this->db->get()->result_array();
-                                        
+
                                         // Custom order: Pre-School, Lower Primary, Upper Primary, JHS
                                         $order_map = array(
                                             'Pre-School' => 1,
@@ -439,14 +218,14 @@
                                             'Upper Primary' => 3,
                                             'JHS' => 4
                                         );
-                                        
+
                                         // Sort categories based on custom order
                                         usort($categories, function($a, $b) use ($order_map) {
                                             $order_a = isset($order_map[$a['category']]) ? $order_map[$a['category']] : 999;
                                             $order_b = isset($order_map[$b['category']]) ? $order_map[$b['category']] : 999;
                                             return $order_a - $order_b;
                                         });
-                                        
+
                                         foreach($categories as $cat) {
                                             if(!empty($cat['category'])) {
                                                 echo '<option value="'.$cat['category'].'">'.$cat['category'].'</option>';
@@ -457,7 +236,7 @@
                             </div>
 
                             <div class="w-full">
-                              <select id="bill_specific_class_ids" name="specific_class_ids[]" multiple class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg text-xl focus:ring-primary-500 focus:border-primary-500 block w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">    
+                              <select id="bill_specific_class_ids" name="specific_class_ids[]" multiple class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg text-xl focus:ring-primary-500 focus:border-primary-500 block w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                     <option value="">Specific Classes (Optional - overrides category)</option>
                                     <?php
                                         // Get all classes with sections
@@ -465,7 +244,7 @@
                                         $this->db->from('class');
                                         $this->db->join('section', 'section.class_id = class.class_id', 'left');
                                         $all_classes = $this->db->get()->result_array();
-                                        
+
                                         // Debug: log what we got
                                         error_log('Total classes found: ' . count($all_classes));
                                         if(!empty($all_classes)) {
@@ -473,10 +252,10 @@
                                             $unique_categories = array_unique(array_column($all_classes, 'category'));
                                             error_log('Unique categories: ' . json_encode($unique_categories));
                                         }
-                                        
+
                                         // Use the same ordering logic as getFullClassList
                                         $class_order = ['CRECHE', 'NURSERY', 'KG', 'BASIC', 'JHS'];
-                                        
+
                                         // Custom category order
                                         $category_order_map = array(
                                             'Pre-School' => 1,
@@ -484,37 +263,37 @@
                                             'Upper Primary' => 3,
                                             'JHS' => 4
                                         );
-                                        
+
                                         // Sort by custom order
                                         usort($all_classes, function($a, $b) use ($class_order, $category_order_map) {
                                             // First sort by category using custom order
                                             $cat_a = isset($category_order_map[$a['category']]) ? $category_order_map[$a['category']] : 999;
                                             $cat_b = isset($category_order_map[$b['category']]) ? $category_order_map[$b['category']] : 999;
-                                            
+
                                             if($cat_a != $cat_b) {
                                                 return $cat_a - $cat_b;
                                             }
-                                            
+
                                             // Then by name order
                                             $name_a = array_search($a['name'], $class_order);
                                             $name_b = array_search($b['name'], $class_order);
-                                            
+
                                             if($name_a === false) $name_a = 999;
                                             if($name_b === false) $name_b = 999;
-                                            
+
                                             if($name_a != $name_b) {
                                                 return $name_a - $name_b;
                                             }
-                                            
+
                                             // Then by numeric
                                             if($a['name_numeric'] != $b['name_numeric']) {
                                                 return (int)$a['name_numeric'] - (int)$b['name_numeric'];
                                             }
-                                            
+
                                             // Finally by section
                                             return strcmp($a['section_name'], $b['section_name']);
                                         });
-                                        
+
                                         // Output grouped by category
                                         $current_category = '';
                                         foreach($all_classes as $cls) {
@@ -526,12 +305,12 @@
                                                 echo '<optgroup label="'.(empty($cls['category']) ? 'Other' : $cls['category']).'">';
                                                 $current_category = $cls['category'];
                                             }
-                                            
+
                                             // Output each class with full name (name + numeric + section)
                                             $full_name = $cls['name'] . ' ' . $cls['name_numeric'] . ' ' . $cls['section_name'];
                                             echo '<option value="'.$cls['class_id'].'">'.$full_name.'</option>';
                                         }
-                                        
+
                                         if($current_category != '') {
                                             echo '</optgroup>';
                                         }
@@ -554,7 +333,7 @@
                     <div class="panel-body p-5">
                       <div class="row">
                         <div class="form-group col-sm-12 col-md-12">
-                          
+
                           <!-- Bulk Actions Toolbar -->
                           <div id="bulk_actions_toolbar" class="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-4" style="display: none; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                             <div class="flex items-center gap-4 flex-wrap">
@@ -607,7 +386,7 @@
                                   $sn = 1;
                                   $items_ids = [];
 
-                                  foreach($items->result_array() as $item): 
+                                  foreach($items->result_array() as $item):
                                     array_push($items_ids, $item['id']);
                                     ?>
                                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
@@ -625,7 +404,7 @@
 
                                           <input type="hidden" value="<?=$item['title'];?>" id="hidden_title_<?=$item['id'];?>"/>
                                         </div>
-                                    
+
                                     </td>
                                     <td width="300" class="px-6 py-2">
                                         <div id="display_category_<?=$item['id'];?>">
@@ -633,10 +412,10 @@
                                         </div>
                                         <div style="display: none" id="input_category_<?=$item['id'];?>">
 
-                                          <select id="edit_bill_category_<?=$item['id'];?>" name="edit_bill_category_<?=$item['id'];?>" class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg text-xl focus:ring-primary-500 focus:border-primary-500 block w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="true" data-validate="required"data-message-required="<?php echo get_phrase('value_required');?>">                
-                                              
+                                          <select id="edit_bill_category_<?=$item['id'];?>" name="edit_bill_category_<?=$item['id'];?>" class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg text-xl focus:ring-primary-500 focus:border-primary-500 block w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required="true" data-validate="required"data-message-required="<?php echo get_phrase('value_required');?>">
+
                                               <?php
-                                                
+
                                                 foreach($allBillCategory as $cat) {
                                                   ?>
                                                   <option value="<?=$cat['bill_category_id'];?>" <?=$item['bill_category_id'] == $cat['bill_category_id'] ? 'selected' : '';?>><?=$cat['bill_category_name'];?></option>
@@ -647,14 +426,14 @@
 
                                           <input type="hidden" value="<?=$item['bill_category_id'];?>" id="hidden_category_<?=$item['id'];?>"/>
                                         </div>
-                                    
+
                                     </td>
                                     <td width="200" class="px-6 py-2">
                                         <div id="display_class_category_<?=$item['id'];?>">
                                           <?=!empty($item['class_category']) ? $item['class_category'] : '<span style="color: #999;">All Classes</span>';?>
                                         </div>
                                         <div style="display: none" id="input_class_category_<?=$item['id'];?>">
-                                          <select id="edit_bill_class_category_<?=$item['id'];?>" name="edit_bill_class_category_<?=$item['id'];?>" class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg text-xl focus:ring-primary-500 focus:border-primary-500 block w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">                
+                                          <select id="edit_bill_class_category_<?=$item['id'];?>" name="edit_bill_class_category_<?=$item['id'];?>" class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg text-xl focus:ring-primary-500 focus:border-primary-500 block w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                               <option value="">All Classes</option>
                                               <?php
                                                 // Get distinct class categories from class table
@@ -664,7 +443,7 @@
                                                 $this->db->where('category IS NOT NULL', NULL, FALSE);
                                                 $this->db->where('category !=', '');
                                                 $edit_categories = $this->db->get()->result_array();
-                                                
+
                                                 // Custom order: Pre-School, Lower Primary, Upper Primary, JHS
                                                 $edit_order_map = array(
                                                     'Pre-School' => 1,
@@ -672,14 +451,14 @@
                                                     'Upper Primary' => 3,
                                                     'JHS' => 4
                                                 );
-                                                
+
                                                 // Sort categories based on custom order
                                                 usort($edit_categories, function($a, $b) use ($edit_order_map) {
                                                     $order_a = isset($edit_order_map[$a['category']]) ? $edit_order_map[$a['category']] : 999;
                                                     $order_b = isset($edit_order_map[$b['category']]) ? $edit_order_map[$b['category']] : 999;
                                                     return $order_a - $order_b;
                                                 });
-                                                
+
                                                 foreach($edit_categories as $ecat) {
                                                   if(!empty($ecat['category'])) {
                                                     $selected = ($item['class_category'] == $ecat['category']) ? 'selected' : '';
@@ -691,11 +470,11 @@
 
                                           <input type="hidden" value="<?=$item['class_category'];?>" id="hidden_class_category_<?=$item['id'];?>"/>
                                         </div>
-                                    
+
                                     </td>
                                     <td width="250" class="px-6 py-2">
                                         <div id="display_specific_classes_<?=$item['id'];?>">
-                                          <?php 
+                                          <?php
                                           if(!empty($item['specific_class_ids'])) {
                                             $class_ids = explode(',', $item['specific_class_ids']);
                                             $class_names = [];
@@ -716,14 +495,14 @@
                                           ?>
                                         </div>
                                         <div style="display: none" id="input_specific_classes_<?=$item['id'];?>">
-                                          <select id="edit_bill_specific_class_ids_<?=$item['id'];?>" name="edit_bill_specific_class_ids_<?=$item['id'];?>[]" multiple class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg text-xl focus:ring-primary-500 focus:border-primary-500 block w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" >                
+                                          <select id="edit_bill_specific_class_ids_<?=$item['id'];?>" name="edit_bill_specific_class_ids_<?=$item['id'];?>[]" multiple class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg text-xl focus:ring-primary-500 focus:border-primary-500 block w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" >
                                               <?php
                                                 // Get all classes with full names
                                                 $this->db->select('class.class_id, class.name, class.name_numeric, section.name as section_name');
                                                 $this->db->from('class');
                                                 $this->db->join('section', 'section.class_id = class.class_id', 'left');
                                                 $edit_all_classes = $this->db->get()->result_array();
-                                                
+
                                                 // Order by CRECHE, NURSERY, KG, BASIC, JHS
                                                 $edit_class_order = array('CRECHE' => 1, 'NURSERY' => 2, 'KG' => 3, 'BASIC' => 4, 'JHS' => 5);
                                                 usort($edit_all_classes, function($a, $b) use ($edit_class_order) {
@@ -734,9 +513,9 @@
                                                     }
                                                     return $order_a - $order_b;
                                                 });
-                                                
+
                                                 $current_specific_ids = !empty($item['specific_class_ids']) ? explode(',', $item['specific_class_ids']) : [];
-                                                
+
                                                 foreach($edit_all_classes as $ec) {
                                                   $full_name = $ec['name'] . ' ' . $ec['name_numeric'] . ($ec['section_name'] ? ' ' . $ec['section_name'] : '');
                                                   $selected = in_array($ec['class_id'], $current_specific_ids) ? 'selected' : '';
@@ -747,7 +526,7 @@
 
                                           <input type="hidden" value="<?=$item['specific_class_ids'];?>" id="hidden_specific_class_ids_<?=$item['id'];?>"/>
                                         </div>
-                                    
+
                                     </td>
                                     <td width="300" class="px-6 py-2">
                                         <div id="display_amount_<?=$item['id'];?>">
@@ -759,7 +538,7 @@
 
                                           <input type="hidden" value="<?=$item['amount'];?>" id="hidden_amount_<?=$item['id'];?>"/>
                                         </div>
-                                    
+
                                     </td>
                                     <td width="300" class="px-6 py-2">
                                         <div id="display_desc_<?=$item['id'];?>">
@@ -784,7 +563,7 @@
                                             <i class="entypo-trash"></i>
                                           </a>
 
-                                            <?php 
+                                            <?php
                                             else: ?>
                                           <a href="javascript:void(0);" id="delete_button_<?=$item['id'];?>" onclick="deleteItem('<?=$item['id'];?>');" class="btn btn-danger rounded-lg" title="Delete">
                                             <i class="entypo-trash"></i>
@@ -800,7 +579,7 @@
                                     <tr>
                                       <td class="px-6 py-2"></td>
                                       <td colspan="8" id="alert_<?=$item['id'];?>" class="px-6 py-2">
-                                        
+
                                       </td>
                                       <td class="px-6 py-2"></td>
                                       <td class="px-6 py-2"></td>
@@ -812,11 +591,11 @@
                                   echo '<tr><td align="center" colspan="5">No item found yet! Add one.</td></tr>';
                                 }
                               ?>
-                                    
+
                                   </tbody>
                               </table>
                           </div><!-- end -->
-                              
+
                         </div>
 
                         </div>
@@ -838,7 +617,7 @@
                       <div class="panel-heading">
                         <div class="panel-title"><?php //echo get_phrase('invoice_information_-_Single');?></div>
                         <div class="flex justify-center">
-                            <div class="alert alert-danger alert-dismissible" id="error" style="display: none;" role="alert" align="center"> 
+                            <div class="alert alert-danger alert-dismissible" id="error" style="display: none;" role="alert" align="center">
                               <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
                               </button>
                               <strong>Title, Date and Amount must not be empty!</strong>
@@ -848,17 +627,17 @@
 
                       <div class="panel-body">
                         <div class="flex justify-center items-center">
-                          <div class="flex items-center gap-3 alert alert-success alert-dismissible max-w-fit p-4 align-middle" id="success_note" style="display: none" role="alert" align="center"> 
+                          <div class="flex items-center gap-3 alert alert-success alert-dismissible max-w-fit p-4 align-middle" id="success_note" style="display: none" role="alert" align="center">
                                 <strong>invoice created successfully!</strong>
                                 <button type="button" class="close ring-2 ring-green-700 rounded-full w-16 h-16" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
                                 </button>
-                                
+
                           </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                             <div class="flex flex-col">
                                 <label for="house_capacity" class="block mb-2 font-bold text-2xl text-gray-900 dark:text-white hidden-xs">Date</label>
-            
+
                                 <div class="relative max-w-full">
                                   <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                                      <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -868,11 +647,11 @@
                                   <input id="date" id="date" data-format="dd-mm-yyyy" value="<?//=date('d-m-Y')?>" data-message-required="<?php //echo get_phrase('value_required');?>" placeholder="Date" name="date" type="text" class="datepicker bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full max-w-full h-20 ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 font-bold" placeholder="Select date commissioned">
                                 </div>
                             </div>
-                          
+
                             <div class="flex flex-col" id="term_holder">
                                 <label for="term" class="block mb-2 font-bold text-2xl text-gray-900 dark:text-white hidden-xs">Term</label>
                                 <select id="term" name="term" data-message-required="<?php //echo get_phrase('value_required');?>" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-xl font-bold block max-w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                                    
+
                                     <?php //$running_term = $this->db->get_where('settings' , array('type'=>'running_term'))->row()->description;?>
                                       <option value="" disabled="true"><?php //echo get_phrase('select_term');?></option>
                                       <?php //for($i = 1; $i <= 3; $i++):?>
@@ -904,7 +683,7 @@
 
                                           getFullClassList();
                                       ?>
-                                        
+
                                     </select>
                               </div>
 
@@ -940,7 +719,7 @@
 
                                           foreach($bill_items->result_array() as $item):?>
 
-                                        
+
                                             <option value="<?=$item['title'];?>"><?=$item['title'];?></option>
                                               <?php
                                                 endforeach;
@@ -963,7 +742,7 @@
                                 <div class="flex gap-3 w-full">
                                   <a href="javascript:void(0);" disabled onclick="add_invoice_item('16484_1565043896', '')" id="16484_1565043896_add_btn" class="btn btn-info btn-sm"><i class="fa fa-plus"></i></a>
                                 </div>
-                            </div>                          
+                            </div>
                         </div>
                   -->
                         <!-- submit button -->
@@ -972,7 +751,7 @@
 
                                   //echo get_button('submit', 'CREATE INVOICE', 'submit2 font-semibold');
                                 ?>
-                            </div> 
+                            </div>
                       </div>
               </div>
             </div> -->
@@ -993,7 +772,7 @@
               <div class="panel-heading">
                 <div class="flex panel-title uppercase justify-between items-center">
                   <span>Invoice Information - SINGLE/BULK</span>
-                  <a href="<?php echo site_url('admin/fee_structure'); ?>" target="_blank" 
+                  <a href="<?php echo site_url('admin/fee_structure'); ?>" target="_blank"
                      class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                      style="text-decoration: none; text-transform: none; color: white !important;">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white;">
@@ -1003,7 +782,7 @@
                   </a>
                 </div>
                 <div class="flex justify-center">
-                  <div class="alert alert-danger alert-dismissible" id="error2" style="display: none;" role="alert" align="center"> 
+                  <div class="alert alert-danger alert-dismissible" id="error2" style="display: none;" role="alert" align="center">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
                     </button>
                     <strong>Title, Date and Amount must not be empty!</strong>
@@ -1012,11 +791,11 @@
             </div>
             <div class="panel-body">
                 <div class="flex justify-center items-center">
-                  <div class="flex items-center gap-3 alert alert-success alert-dismissible max-w-fit p-4 align-middle" id="success_note2" style="display: none;" role="alert" align="center"> 
+                  <div class="flex items-center gap-3 alert alert-success alert-dismissible max-w-fit p-4 align-middle" id="success_note2" style="display: none;" role="alert" align="center">
                         <strong>Mass invoices were created successfully!</strong>
                         <button type="button" class="close ring-2 ring-green-700 rounded-full w-16 h-16" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
                         </button>
-                        
+
                   </div>
                 </div>
 
@@ -1032,7 +811,7 @@
                            </svg>
                           Create New Bulk Invoices
 
-                          
+
                       </li>
                       <li class="flex items-center text-xl font-semibold">
                           <svg class="w-6 h-6 me-2 text-green-500 dark:text-green-400 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -1040,9 +819,9 @@
                            </svg>
 
                            <span class="flex items-center text-xl text-gray-500 dark:text-gray-400">Update Bulk Invoices: <button data-popover-target="popover-description" data-popover-placement="bottom-end" type="button"> <span class="ml-5">See how</span> <i class="fa-solid fa-question-circle text-2xl"></i></button></span>
-                          
 
-                          
+
+
                       </li>
 
                     </ul>
@@ -1054,7 +833,7 @@
                                 <br>
                                  <h5 class="font-semibold text-gray-900 dark:text-white">Add New Bill Item</h5>
                                 <p>You can also add new bill items and the system will automate the updates.</p>
-                                
+
                             </div>
                             <div data-popper-arrow></div>
                         </div>
@@ -1074,11 +853,11 @@
                         <input id="date_mass" data-format="dd-mm-yyyy" value="<?=date('d-m-Y')?>" data-message-required="<?php echo get_phrase('value_required');?>" placeholder="Date" name="date" type="text" class="datepicker bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full h-20 ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 font-bold" placeholder="Select date commissioned">
                       </div>
                   </div>
-                
+
                   <div class="flex flex-col" id="term_holder">
                       <label for="term" class="block mb-2 font-bold text-2xl text-gray-900 dark:text-white hidden-xs">Term</label>
                       <select id="term_mass" name="term" data-validate="required" data-message-required="Please select term before proceeding" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-xl font-bold block max-w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" onchange="toggle_students_category()" required="required">
-                          
+
                           <?php $running_term = $this->db->get_where('settings' , array('type'=>'running_term'))->row()->description;?>
                             <option value=""><?php echo get_phrase('select_term');?></option>
                             <?php for($i = 1; $i <= 3; $i++):?>
@@ -1114,7 +893,7 @@
                           endif;
                         ?>
                         <option value="class" selected><?php echo get_phrase('By Class');?></option>
-                       
+
                     </select>
                   </div>
 
@@ -1126,7 +905,7 @@
 
                             getFullClassList();
                         ?>
-                          
+
                       </select>
                   </div>
                 </div>
@@ -1143,21 +922,21 @@
 
                   <!-- finding out if this bill should be added to the selected class category -->
                   <div class="flex gap-5 justify-end items-center mt-5 mb-5 p-5">
-                    
-                    <label for="add_to_class_bill" id="add_to_class_bill_label" class="control-label hidden-xs text-lg md:text-2xl cursor-pointer">Add this to selected class category bills?</label>  
+
+                    <label for="add_to_class_bill" id="add_to_class_bill_label" class="control-label hidden-xs text-lg md:text-2xl cursor-pointer">Add this to selected class category bills?</label>
 
                     <div class="switch-button pull-right showcase-switch-button text-lg md:text-xl">
                       <input type="checkbox" checked value="1"  name="add_to_class_bill" id="add_to_class_bill" onchange="updateBillAddition()">
 
                       <label for="add_to_class_bill"></label>
                     </div>
-                    
+
                   </div>
 
                   <!-- Pre holder if sample is present ignore-->
 
                   <div id="invoice_items_holder_generated" class="p-5"></div><!--End-->
-   
+
 
                   <div id="invoice_items_holder" style="display: none;" class="p-5">
                     <div class="flex gap-5 mb-5" id="16484_1565043896">
@@ -1175,7 +954,7 @@
 
                                 foreach($bill_items->result_array() as $item):?>
 
-                              
+
                                   <option value="<?=$item['title'];?>"><?=$item['title'];?></option>
                                     <?php
                                       endforeach;
@@ -1198,7 +977,7 @@
                       <div class="flex gap-3 w-full">
                         <a href="javascript:void(0);" disabled onclick="add_invoice_item('16484_1565043896', '')" id="16484_1565043896_add_btn" class="btn btn-info btn-sm"><i class="fa fa-plus"></i></a>
                       </div>
-                    </div> 
+                    </div>
 
                     <!-- submit button -->
                     <div class="flex justify-end">
@@ -1209,7 +988,7 @@
                     </div>
                   </div>
                   <!-- Ignore ends here -->
-              
+
 
                   <!-- Pre holder if sample is present-->
 
@@ -1244,7 +1023,7 @@
                       </div>
 
                       <!-- clone or unclone holder start -->
-                
+
                       <div class="flex flex-col gap-5 w-full" id="clone_unclone_holder" style="display: none;">
                         <div class="bg-red-100 p-3 border-2 border-red-400 rounded-lg mb-3 w-full">
                           <h2 class="mb-2 text-2xl font-semibold text-gray-500 dark:text-white italic text-justify"><i class="fa-solid fa-info-circle"></i> Please select the period's bill you want to clone. System will automatically recreate the invoices of the selected periods below for the term and year currently selected on the first row above. Please make sure your selection above is correct before proceeding.</h2>
@@ -1253,7 +1032,7 @@
 
                           <label for="term_clone" class="block mb-2 font-bold text-xl md:text-2xl text-gray-900 dark:text-white hidden-xs">Term</label>
                           <select id="term_clone" name="term_clone" data-message-required="<?php echo get_phrase('value_required');?>" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-xl font-bold block w-full max-w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                              
+
                               <?php $running_term = $this->db->get_where('settings' , array('type'=>'running_term'))->row()->description;?>
                                 <option value="" disabled="true"><?php echo get_phrase('select_term');?></option>
                                 <?php for($i = 1; $i <= 3; $i++):?>
@@ -1312,8 +1091,8 @@
                                 <a href="javascript:(void);" disabled onclick="return" class="btn btn-danger btn-sm"><i class="fa fa-remove"></i></a>
 
                               </div>
-                          </div> 
-                        
+                          </div>
+
                       </div> <!-- End of holder-->
 
                       <!-- submit button -->
@@ -1326,17 +1105,17 @@
                     </div>
                   </div>
 
-            </div>     
+            </div>
           </div>
           </div>
             <?php echo form_close();?>
-          </div>    
+          </div>
         </div><!-- create mass invoice ends -->
 
         <!-- View invoices -->
         <!-- <div class="tab-pane" id="view_invoices">
 
-        
+
           <div class="row">
           <div class="col-md-12 col-sm-12">
             <div class="panel panel-info panel-shadow p-5" data-collapsed="0">
@@ -1345,18 +1124,18 @@
             </div>
             <div class="panel-body">
                 <div class="flex justify-center items-center">
-                  <div class="flex items-center gap-3 alert alert-success alert-dismissible max-w-fit p-4 align-middle" id="view_invoice_success_note" style="display: none;" role="alert" align="center"> 
+                  <div class="flex items-center gap-3 alert alert-success alert-dismissible max-w-fit p-4 align-middle" id="view_invoice_success_note" style="display: none;" role="alert" align="center">
                         <strong>Updated successfully!</strong>
                         <button type="button" class="close ring-2 ring-green-700 rounded-full w-16 h-16" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
                         </button>
-                        
+
                   </div>
 
-                  <div class="flex items-center gap-3 alert alert-danger alert-dismissible max-w-fit p-4 align-middle" id="view_invoice_error_note" style="display: none;" role="alert" align="center"> 
+                  <div class="flex items-center gap-3 alert alert-danger alert-dismissible max-w-fit p-4 align-middle" id="view_invoice_error_note" style="display: none;" role="alert" align="center">
                         <strong>Update failed</strong>
                         <button type="button" class="close ring-2 ring-red-700 rounded-full w-16 h-16" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
                         </button>
-                        
+
                   </div>
                 </div>
 
@@ -1373,9 +1152,9 @@
                            </svg>
 
                            <span class="flex items-center text-xl text-gray-500 dark:text-gray-400">Update Individual Invoices: <button data-popover-target="popover-description-update" data-popover-placement="bottom-end" type="button"> <span class="ml-5">See how</span> <i class="fa-solid fa-question-circle text-2xl"></i></button></span>
-                          
 
-                          
+
+
                       </li>
 
                     </ul>
@@ -1389,7 +1168,7 @@
                                 <p>You can also add new bill items and the system will automate the updates.</p><br>
                                 <h5 class="font-semibold text-gray-900 dark:text-white">Remove Bill Item</h5>
                                 <p>You can remove bill items from the previous list.</p>
-                                
+
                             </div>
                             <div data-popper-arrow></div>
                         </div>
@@ -1400,7 +1179,7 @@
                   <div class="flex flex-col" id="term_holder">
                       <label for="term_view" class="block mb-2 font-bold text-2xl text-gray-900 dark:text-white hidden-xs uppercase">Invoice Term</label>
                       <select id="term_view" name="term" data-message-required="<?php echo get_phrase('value_required');?>" class="select2 bg-gray-50 border text-xl border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500  text-xl font-bold focus:border-primary-500 block max-w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                          
+
                           <?php $running_term = $this->db->get_where('settings' , array('type'=>'running_term'))->row()->description;?>
                             <option value="" disabled="true"><?php echo get_phrase('select_term');?></option>
                             <?php for($i = 1; $i <= 3; $i++):?>
@@ -1433,14 +1212,14 @@
                   <div class="flex flex-col">
                     <label for="student_id" class="block mb-2 font-bold text-2xl text-gray-900 dark:text-white hidden-xs uppercase">Search By Student Name</label>
                     <select name="student_id" id="student_id" data-message-required="<?php echo get_phrase('value_required');?>" class="select2 bg-gray-50 border text-2xl border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500  text-xl font-bold focus:border-primary-500 block max-w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" onchange="get_student_invoice_codes($(this).val());" placeholder="Search student by name" required="required">
-                        
+
                       </select>
                   </div>
 
                   <div class="flex flex-col">
                     <label for="student_invoice_codes" class="block mb-2 font-bold text-2xl text-gray-900 dark:text-white hidden-xs uppercase">Invoice Codes</label>
                     <select name="student_invoice_codes" id="student_invoice_codes" data-message-required="<?php echo get_phrase('value_required');?>" class="select2 bg-gray-50 border text-2xl border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500  text-xl font-bold focus:border-primary-500 block max-w-full h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" onchange="get_student_invoice_bill();" placeholder="Search student invoice code" required="required">
-                        
+
                       </select>
                   </div>
                   <div class="mt-10 flex gap-3">
@@ -1454,20 +1233,20 @@
                 </div>
 
                   <hr> -->
-              
+
 
                   <!-- Pre holder if sample is present-->
                   <!-- <div class="p-15 overflow-y-auto"> -->
-                    
+
                     <?php
                       //echo form_open(site_url('admin/mass_invoice_create/update/') , array('class' => 'form-horizontal form-groups-bordered validate', 'id'=> 'bill_list_form' ,'target'=>'_top'));?>
 
 
                       <!-- <div id="billed_student_invoices_holder" class="p-10"></div> Holder -->
-                      
+
                       <!-- Discount Display -->
                       <!-- <div id="invoice_discount_display" class="p-5 mb-5" style="display:none;"></div> -->
-                      
+
                       <!-- submit button -->
                       <!-- <div class="flex justify-end gap-3 mt-7" id="">
                           <button type="button" onclick="applyDiscount()" class="inline-flex items-center px-5 py-2.5 text-lg font-bold text-center text-white bg-purple-600 rounded-lg hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800" id="apply_discount_button">
@@ -1481,10 +1260,10 @@
                     </form>
                   </div>
 
-            </div>     
+            </div>
           </div>
           </div>
-          </div> 
+          </div>
 
         </div> -->
         <!-- view invoices ends -->
@@ -1638,14 +1417,14 @@
                           <i class="fa fa-receipt"></i> RECENT RECEIPTS
                         </button>
                       </div>
-                      
+
                       <!-- Search Field and Button (Second Row on Mobile, Same Row on Desktop) -->
                       <div class="flex gap-3 w-full lg:flex-1 lg:w-auto">
                         <div class="flex-1" style="position: relative;">
                           <input type="text" id="global_search" placeholder="Search by Student Name, Student Code, or Invoice Code..." class="bg-white border-2 border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg font-semibold block w-full h-14 p-4 transition-all" autocomplete="off">
                           <div id="search_suggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #667eea; border-top: none; border-radius: 0 0 12px 12px; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2); max-height: 400px; overflow-y: auto; z-index: 1000; margin-top: -8px;"></div>
                         </div>
-                        
+
                         <!-- Search Button -->
                         <button type="button" onclick="globalSearch()" class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold text-lg rounded-lg h-14 px-8 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2 whitespace-nowrap">
                           <i class="fa fa-search"></i> SEARCH
@@ -1757,12 +1536,12 @@
                   </div>
                 </div>
                 <div class="panel-body">
-                  <?php 
+                  <?php
                   $requests = $this->db->get('receipt_modification_requests')->result_array();
                   $invoice_requests = $this->db->get('invoice_modification_requests')->result_array();
                   $page_data['requests'] = $requests;
                   $page_data['invoice_requests'] = $invoice_requests;
-                  $this->load->view('backend/admin/receipt_invoice_modification_requests', $page_data); 
+                  $this->load->view('backend/admin/receipt_invoice_modification_requests', $page_data);
                   ?>
                 </div>
               </div>
@@ -1782,7 +1561,7 @@
                       <div class="panel-title"><?php echo get_phrase('upload bulk invoices');?></div>
                     </div>
                     <div class="panel-body">
-                      
+
                         <div class="col-md-3 col-sm-3 col-xs-2"></div>
                           <div class="col-md-3 col-sm-3 col-xs-5">
                             <div class="form_group">
@@ -1856,7 +1635,7 @@
     $('#apply_discount_button').attr('disabled', 'disabled');
     $('#apply_discount_button').addClass('cursor-not-allowed');
 
-    
+
 
 
     //loadBilledStudents();//load billed students at the view invoices tab
@@ -1873,11 +1652,11 @@
     });
 
     $('.submit').attr('disabled', 'disabled');
-    
+
     // Listen for invoice modification completion event from modal
     $(document).on('invoiceModificationComplete', function(event, data) {
       event.preventDefault(); // Prevent the fallback reload in modal
-      
+
       // Refresh the invoice table without full page reload
       if(typeof refreshBulkInvoices === 'function') {
         refreshBulkInvoices();
@@ -1950,7 +1729,7 @@
     //$('#16484_1565043896_add_btn').removeAttr('disabled');//enable add button
     //delete all other rows added
     $('#invoice_items_holder .row').not('#16484_1565043896').remove();
-    
+
     //get_class_students('');
     //get_class_students_mass('');
   }
@@ -2010,7 +1789,7 @@
           .fail(function() {
             alert('error');
           });
-        
+
       } else {
         $('.submit').attr('disabled', 'disabled');
         $('#invoice_items_holder').slideUp('slow');
@@ -2020,7 +1799,7 @@
 
     //for displaying already entered invoice items
     function toggle_clone_button(class_id) {
-      
+
         if (class_id.length > 0) {
 
           $('#clone_button').removeClass('bg-gray-300 cursor-not-allowed text-gray-600');
@@ -2043,7 +1822,7 @@
             // No classes selected - show message in first row only
             $('#177_1565053816_title').html('<option value="">Select class(es) first</option>');
             $('#177_1565053816_title').val('');
-            
+
             // Clear the selected array since no classes are selected
             selected = [];
             return;
@@ -2056,7 +1835,7 @@
             dataType: 'json',
             success: function(billItems) {
                 let options = '<option value="">Select Billing Item</option>';
-                
+
                 if(billItems && billItems.length > 0) {
                     billItems.forEach(function(item) {
                         options += '<option value="' + item.title + '">' + item.title + '</option>';
@@ -2064,35 +1843,35 @@
                 } else {
                     options = '<option value="">No bill items found for selected class(es)</option>';
                 }
-                
+
                 // Update ALL bill item dropdowns (first row and any added rows)
                 $('#invoice_items_holder2').find('select[id$="_title"]').each(function() {
                     let $dropdown = $(this);
                     let currentValue = $dropdown.val();
                     let currentText = $dropdown.find('option:selected').text();
-                    
+
                     // Update dropdown options
                     $dropdown.html(options);
-                    
+
                     // If there was a selected value, check if it still exists in the new list
                     if(currentValue && currentValue !== '') {
                         let stillExists = billItems.some(function(item) {
                             return item.title === currentValue;
                         });
-                        
+
                         if(stillExists) {
                             // Item still exists in new filtered list - keep it selected
                             $dropdown.val(currentValue);
                         } else {
                             // Item no longer exists (class was removed) - clear it
                             $dropdown.val('');
-                            
+
                             // Remove from mass_bill_items_array
                             let index = mass_bill_items_array.indexOf(currentValue);
                             if(index > -1) {
                                 mass_bill_items_array.splice(index, 1);
                             }
-                            
+
                             // Remove from selected array
                             let selectedIndex = selected.indexOf(currentValue);
                             if(selectedIndex > -1) {
@@ -2160,12 +1939,12 @@
 
                 // Check if students were found
                 var hasStudents = jQuery('#student_selection_holder_mass').find('.no-students-indicator').data('has-students');
-                
+
                 if (hasStudents === false) {
                     // No students found - disable bill items and create button
                     $('#invoice_items_holder2').slideUp('slow');
                     $('.submit2').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
-                    
+
                     // Show a notice
                     if ($('#no-students-notice').length === 0) {
                         $('#invoice_items_holder2').before('<div id="no-students-notice" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4"><p class="text-yellow-700 font-semibold">⚠️ Bill item selection and invoice creation are disabled until valid students are available.</p></div>');
@@ -2183,13 +1962,13 @@
             error: function(error)
             {
                 jQuery('#student_selection_holder_mass').html(error.responseText);
-                
+
                 // On error, also disable
                 $('#invoice_items_holder2').slideUp('slow');
                 $('.submit2').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
             }
         });
-      
+
     }
 
 
@@ -2204,7 +1983,7 @@
 
         jQuery('#student_selection_holder_mass').slideUp('slow');
         jQuery('#student_selection_holder_mass').html();
-        
+
 
        /* if(cat == 'class') {
           $('#invoice_items_holder2').slideUp('slow');
@@ -2214,7 +1993,7 @@
 */
           $('#invoice_items_holder2').slideDown('slow');
         //}
- 
+
       } else {
 
         toggle_clone_button([]);
@@ -2248,12 +2027,12 @@
 
               // Check if students were found
               var hasStudents = jQuery('#student_selection_holder_mass').find('.no-students-indicator').data('has-students');
-              
+
               if (hasStudents === false) {
                   // No students found - disable bill items and create button
                   $('#invoice_items_holder2').slideUp('slow');
                   $('.submit2').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
-                  
+
                   // Show a notice
                   if ($('#no-students-notice').length === 0) {
                       $('#invoice_items_holder2').before('<div id="no-students-notice" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4"><p class="text-yellow-700 font-semibold">⚠️ Bill item selection and invoice creation are disabled until valid students are available.</p></div>');
@@ -2272,13 +2051,13 @@
           {
               jQuery('#student_selection_holder_mass').slideDown('slow');
               jQuery('#student_selection_holder_mass').html(error.responseText);
-              
+
               // On error, also disable
               $('#invoice_items_holder2').slideUp('slow');
               $('.submit2').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
           }
         });
-     
+
     }
 
     function check_validation(){
@@ -2296,12 +2075,12 @@
         check_validation();
     });
 
-      
+
     //function to add the invoice items
       function add_invoice_item(id, type) {
 
       //  $('.select2').select2('destroy'); /*destroy*/
-        
+
         let title_value = $('#' + id + '_title').val();
         single_bill_items_array.push(title_value);
 
@@ -2332,19 +2111,19 @@
       function add_invoice_item2(id, type) {
 
         let title_value = $('#' + id + '_title').val();
-        
+
         if(!title_value || title_value === '') {
           showAjaxModal_alert('Please select a billing item first', 'error');
           return;
         }
-        
+
         mass_bill_items_array.push(title_value);
 
         item_ids.push(id);
-        
+
         // Get current selected classes
         let class_ids = $('#class_id2').val() || [];
-        
+
         $.ajax({
           url: '<?php echo site_url('admin/add_mass_invoice_item/'); ?>' + type,
           data: {
@@ -2362,7 +2141,7 @@
             //disable the add button of this row and remove the onclick event listener
             $('#' + id +  '_add_btn').removeAttr('onclick');
             $('#' + id +  '_add_btn').attr('disabled', 'disabled');
-            
+
             // Re-initialize select2 for new dropdowns
             $('.select2').select2();
           }
@@ -2401,7 +2180,7 @@
           $('#invoice_items_holder2, #mass_create_button_holder').slideUp('slow');
 
           $('#clone_button').text('GO BACK');
-          
+
         } else {
 
           /*show the term and year to clone row and hide the invoice items holder row*/
@@ -2415,7 +2194,7 @@
       function clone_previous_bill() {
 
         var class_ids_array = $('#class_id2').val();
-        
+
         if(class_ids_array.length < 1) {
 
           showAjaxModal_alert('No class selected! Select at least one class.', 'Error');
@@ -2444,7 +2223,7 @@
 
     //function to delete the invoice item
     function remove_invoice_item(id, type) {
-      
+
       let last_row_id = 0;
 
       if(type == 'single') {
@@ -2459,7 +2238,7 @@
       //push the last row id into the array
       if(id == last_row_id) {
         id = last_row_id;
-        
+
         //before we push this id inside the array, let's find out if it already exists in the array
         let id_counter = 0;
         for(i = 0; i < item_ids.length; i++) {
@@ -2479,7 +2258,7 @@
         //enable the add button of the previous row and add the onclick event listener
         $('#' + previous_id +  '_add_btn').attr('onclick', "add_invoice_item('" + previous_id + "')");
         $('#' + previous_id +  '_add_btn').removeAttr('disabled');
-      } 
+      }
 
       //remove the row with this id
       $('#'+id).remove();
@@ -2517,7 +2296,7 @@
       //console.log('after ' + mass_bill_items_array);
 
       let last_row_id = 0;
-      
+
       if(type == 'mass') {
         last_row_id = $('#invoice_items_holder_generated2 .row:last').attr('id');
 
@@ -2528,7 +2307,7 @@
       //push the last row id into the array
       if(id == last_row_id) {
         id = last_row_id;
-        
+
         //before we push this id inside the array, let's find out if it already exists in the array
         let id_counter = 0;
         for(i = 0; i < item_ids.length; i++) {
@@ -2548,7 +2327,7 @@
         //enable the add button of the previous row and add the onclick event listener
         $('#' + previous_id +  '_add_btn').attr('onclick', "add_invoice_item2('" + previous_id + "')");
         $('#' + previous_id +  '_add_btn').removeAttr('disabled');
-      } 
+      }
 
       //remove the row with this id
       $('#'+id).remove();
@@ -2587,12 +2366,12 @@
       let last_row_id = 0;
 
       last_row_id = $('#billed_student_invoices_holder .row:last').attr('id');
-      
+
       //check if the selected id is the same as the id of the last row
       //push the last row id into the array
       if(id == last_row_id) {
         id = last_row_id;
-        
+
         //before we push this id inside the array, let's find out if it already exists in the array
         let id_counter = 0;
         for(i = 0; i < bill_list_item_ids.length; i++) {
@@ -2605,7 +2384,7 @@
           bill_list_item_ids.push(id);
         }
 
-      } 
+      }
 
       //remove the row with this id
       $('#'+id).remove();
@@ -2629,7 +2408,7 @@
 
       $('html, body').animate({
            scrollTop: ($('#top').offset().top )
-      }, 1000); 
+      }, 1000);
 
       let data_ids = [];
 
@@ -2671,7 +2450,7 @@
       }
 
 
-      
+
         //Validate Title, Date and Total input to make sure they are not empty
         let validate_counter = 0;
         for(ji = 0; ji < item_ids.length; ji++) {
@@ -2682,7 +2461,7 @@
 
           if((title_inp == '' || title_inp == null) || (date_inp == '' || date_inp == null) || (total_inp == '' || total_inp == null)) {
             validate_counter++;
-          } 
+          }
         }
 
         if(validate_counter > 0) { //some fields have not been filled
@@ -2744,9 +2523,9 @@
       }
 
       let form_data = $('#mass_invoice_form').serialize();
-      
+
       let last_row_id = 0;
-      
+
       if($('#mass_invoice_form').hasClass('mass')) {
         item_ids = [];
         $('#invoice_items_holder_generated2 .row').each(function() {
@@ -2774,7 +2553,7 @@
 
         if((title_inp == '' || title_inp == null) || (date_inp == '' || date_inp == null) || (total_inp == '' || total_inp == null)) {
           validate_counter++;
-        } 
+        }
       }
 
       if(validate_counter > 0) {
@@ -2788,12 +2567,12 @@
       showInvoiceConfirmationModal(item_ids, function() {
         // User confirmed, proceed with invoice creation
         data_ids = item_ids.join('-');
-        
+
         showAjaxModal_alert('Please wait...', 'loading');
-        
+
         $('html, body').animate({
              scrollTop: ($('#top').offset().top )
-        }, 1000); 
+        }, 1000);
 
         $.ajax({
           url: '<?php echo site_url('admin/mass_invoice_create/create/'); ?>' + data_ids,
@@ -2821,13 +2600,13 @@
     //form submitted to upate student bill
     $('#bill_list_form').submit(function(event) {
       event.preventDefault();
-      
+
 
       showAjaxModal_alert('Please wait...', 'Loading');
-      
+
       $('html, body').animate({
            scrollTop: ($('#top').offset().top )
-      }, 1000); 
+      }, 1000);
 
       let data_ids = [];
 
@@ -2836,10 +2615,10 @@
       }
 
       let form_data = $('#bill_list_form').serialize();
-      
+
       let last_row_id = 0;
-      
-    
+
+
         last_row_id = $('#billed_student_invoices_holder .row:last').attr('id');
 
         //before we push this id inside the array, let's find out if it already exists in the array
@@ -2853,7 +2632,7 @@
         if(id_counter == 0) {//same id not found in the array so let's push it inside the array
           bill_list_item_ids.push(last_row_id);
         }
-      
+
 
         //Validate Title, Date and Total input to make sure they are not empty
         let validate_counter = 0;
@@ -2864,7 +2643,7 @@
 
           if((title_inp == '' || title_inp == null) || (total_inp == '' || total_inp == null)) {
             validate_counter++;
-          } 
+          }
         }
 
         if(validate_counter > 0) { //some fields have not been filled
@@ -2958,7 +2737,7 @@
           $('#bill_title').focus();
         } else if(response.success == 0) {
           showAjaxModal_alert('Failed to add item! Try again later.', 'error');
-        } 
+        }
       })
       .fail(function(err) {
         showAjaxModal_alert('An error occurred', 'error');
@@ -2986,13 +2765,13 @@
     function updateBillItemsTable(items) {
       var tbody = $('#bill_items_table tbody');
       tbody.empty();
-      
+
       if(items.length > 0) {
         items.forEach(function(item, index) {
-          var deleteBtn = (item.id == 8 || item.id == 9) ? 
+          var deleteBtn = (item.id == 8 || item.id == 9) ?
             '<a href="javascript:void(0);" title="System generated, can\'t be deleted!" disabled class="btn btn-danger rounded-lg" style="opacity: 0.5; cursor: not-allowed;"><i class="entypo-trash"></i></a>' :
             '<a href="javascript:void(0);" onclick="deleteItem(\''+item.id+'\');" class="btn btn-danger rounded-lg" title="Delete"><i class="entypo-trash"></i></a>';
-          
+
           var row = `
             <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
               <td class="px-6 py-2">
@@ -3091,7 +2870,7 @@
 
         // Convert arrays to strings for comparison
         let bill_specific_ids_str = bill_specific_class_ids ? bill_specific_class_ids.join(',') : '';
-        
+
         if(bill_title.toLowerCase() == hidden_title.toLowerCase() && bill_desc.toLowerCase() == hidden_desc.toLowerCase() && bill_category.toLowerCase() == hidden_category.toLowerCase() && bill_class_category == hidden_class_category && bill_specific_ids_str == hidden_specific_class_ids && Number(bill_amount) == Number(hidden_amount)) {
           //no changes detected. return false
           $('#alert_'+id).html('<div class="alert alert-info"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong><i class="entypo-info-circled"></i></strong> No changes was detected!</div>');
@@ -3216,17 +2995,17 @@
     }
 
     let isDeleting = false;
-    
+
     function deleteItem(id) {
       if(isDeleting) return;
-      
+
       showConfirmModal(
         'Confirm Delete',
         'Are you sure you want to delete this bill item?',
         function() {
           if(isDeleting) return;
           isDeleting = true;
-          
+
           showAjaxModal_alert('Deleting...', 'loading');
           $.ajax({
             url: '<?=site_url('admin/invoice/delete_bill_item/'); ?>' + id,
@@ -3256,7 +3035,7 @@
       );
     }
 
-    
+
     function getItemDetails(row_id, val) {
 
 
@@ -3271,7 +3050,7 @@
 
 
       let exists = existsInArray(selected, val, code);
-      
+
       if(exists) {
         showAjaxModal_alert('The selected item is already chosen. Select a different item!', 'Error');
 
@@ -3299,7 +3078,7 @@
     let counter2 = 0;
     function existsInArray(array, element, code) {
       let counter = 0;
-      
+
       for(let val in array) {
         if(array[val] == element) {
           counter++;
@@ -3379,16 +3158,16 @@
             //document.location = response;
           }
       });
-   
+
   });
 
   var loader = '<i class="fa fa-spinner fa-pulse"></i>';
   var checked_icon = '<i class="fa fa-check-square-o"></i>';
-  
+
   //check uploaded file
   function check_loaded_csvfile() {
     //send file path to php to upload the file and validate
-    
+
     var class_id = $('#class_id').val();
     var section_id = $('#section_id').val();
 
@@ -3402,7 +3181,7 @@
 
       $('#import_csv').removeAttr('disabled');
       $('#import_csv').click(); //submit the form
-      
+
       //first disable the upload button
       var import_btn = $('#import_csv').attr('disabled', 'disabled');
       //change the btn text to 'please wait. Validating file...'
@@ -3448,7 +3227,7 @@
         showAjaxModal_alert('An error occurred', 'error');
         $('#import_csv').text('Upload');
       })
-        
+
 
   })
 
@@ -3504,7 +3283,7 @@
 
       $('#email_invoice_button').attr('disabled', 'disabled');
       $('#email_invoice_button').addClass('cursor-not-allowed');
-      
+
 
       return;
 
@@ -3534,7 +3313,7 @@
     .done(function(response) {
 
       $('#student_invoice_codes').html(response).change();
-      
+
       if(!response || response.trim() === '' || response.includes('option value=""')) {
         $('#billed_student_invoices_holder').html('<div class="text-center py-20"><i class="fa fa-file-invoice fa-5x text-gray-300 mb-4"></i><p class="text-2xl text-gray-500 font-semibold">No invoice codes found for this student</p></div>');
       }
@@ -3570,7 +3349,7 @@
       list_bill_items_array = response.items;
 
       $('#billed_student_invoices_holder').html(response.list);
-      
+
       // Display discount details if available
       if(response.has_discount) {
         $('#invoice_discount_display').html(response.discount_html).show();
@@ -3598,7 +3377,7 @@
     })
 
   }
-  
+
 
   /*update the switch button value*/
   function updateBillAddition() {
@@ -3628,13 +3407,13 @@
     // STRONG VALIDATION: Validate TARGET term and year (where we're cloning TO)
     const termMass = $('#term_mass').val();
     const yearMass = $('#year_mass').val();
-    
+
     if(!termMass || termMass === '') {
       showAjaxModal_alert('<strong>Target Term Not Selected!</strong><br><br>Please select the <strong>Term</strong> (at the top of the form) where you want to create the invoices.<br><br>This is the destination term for the cloned invoices.', 'error');
       $('#term_mass').focus();
       return false;
     }
-    
+
     if(!yearMass || yearMass === '') {
       showAjaxModal_alert('<strong>Target Year Not Selected!</strong><br><br>Please select the <strong>Year</strong> (at the top of the form) where you want to create the invoices.<br><br>This is the destination year for the cloned invoices.', 'error');
       $('#year_mass').focus();
@@ -3644,19 +3423,19 @@
     // STRONG VALIDATION: Validate SOURCE term and year (what we're cloning FROM)
     const termClone = $('#term_clone').val();
     const yearClone = $('#year_clone').val();
-    
+
     if(!termClone || termClone === '') {
       showAjaxModal_alert('<strong>Source Term Not Selected!</strong><br><br>Please select the <strong>Term</strong> you want to clone from (in the clone section below).<br><br>This is the source term where the original invoices exist.', 'error');
       $('#term_clone').focus();
       return false;
     }
-    
+
     if(!yearClone || yearClone === '') {
       showAjaxModal_alert('<strong>Source Year Not Selected!</strong><br><br>Please select the <strong>Year</strong> you want to clone from (in the clone section below).<br><br>This is the source year where the original invoices exist.', 'error');
       $('#year_clone').focus();
       return false;
     }
-    
+
     // Validate that source and target are different
     if(termClone === termMass && yearClone === yearMass) {
       showAjaxModal_alert('<strong>Source and Target Cannot Be the Same!</strong><br><br>You cannot clone invoices from Term ' + termClone + ', Year ' + yearClone + ' to the same period.<br><br>Please select a different target term/year at the top of the form.', 'error');
@@ -3704,36 +3483,36 @@
     .done(function(response) {
       // Re-enable button
       $btn.html(originalText).prop('disabled', false);
-      
+
       if(!response.success) {
         showAjaxModal_alert(response.message || 'Failed to load bill preview', 'error');
         return;
       }
-      
+
       if(!response.data || response.data.length === 0) {
         showAjaxModal_alert('No bills found to clone for the selected term/year.<br><br><strong>Note:</strong> Previous bills are fetched from the Bill History. Make sure invoices were created for the selected term/year and class.', 'warning');
         return;
       }
-      
+
       // Show preview modal
       showCloneBillsPreview(response);
     })
     .fail(function(xhr, status, error) {
       // Re-enable button
       $btn.html(originalText).prop('disabled', false);
-      
+
       let errorMessage = 'An error occurred while loading bill preview.';
-      
+
       if(status === 'timeout') {
         errorMessage = 'Request timeout. Please try again.';
       } else if(xhr.responseText) {
         errorMessage += '<br><br>Error: ' + xhr.responseText;
       }
-      
+
       showAjaxModal_alert(errorMessage, 'error');
       console.error('Preview error:', {status, error, response: xhr.responseText});
     });
-    
+
     return false;
   });
 
@@ -3742,7 +3521,7 @@
     const data = response.data;
     const selectedTerm = response.selected_term;
     const selectedYear = response.selected_year;
-    
+
     // First, check if bills already exist for the selected period
     $.ajax({
       url: '<?php echo site_url('admin/check_existing_bills_for_clone'); ?>',
@@ -3766,11 +3545,11 @@
 
   function renderCloneBillsModal(response, existingBillsData) {
     const data = response.data;
-    
+
     // Extract unique bill items
     let uniqueBillItems = [];
     let billItemsMap = {};
-    
+
     if(data.length > 0) {
       data[0].bill_items.forEach((item, index) => {
         const key = item.bill_item_id;
@@ -3780,18 +3559,18 @@
         }
       });
     }
-    
+
     const totalAmount = uniqueBillItems.reduce((sum, item) => sum + parseFloat(item.amount), 0);
-    
+
     // Build modern modal HTML with existing bills warning
     let modalHTML = buildModernModalHTML(data, uniqueBillItems, totalAmount, response, existingBillsData);
-    
+
     $('#cloneBillsPreviewModal').remove();
     $('body').append(modalHTML);
     $('#cloneBillsPreviewModal').modal('show');
-    
+
     window.cloneBillsData = response;
-    
+
     // Event handlers
     $(document).on('input', '.bill-amount', updateGrandTotal);
     $(document).on('click', '.delete-bill-item', handleDeleteItem);
@@ -3875,13 +3654,13 @@
   function getExistingBillsWarning(existingBillsData, response) {
     const term = $('#term_mass option[value="' + response.selected_term + '"]').text();
     const year = response.selected_year;
-    
+
     let billsTableRows = '';
     existingBillsData.bills.forEach((bill, index) => {
-      const statusBadge = bill.has_payment 
+      const statusBadge = bill.has_payment
         ? '<span style="color: #e74c3c; font-weight: 600; font-size: 10px;"><i class="fa fa-exclamation-circle"></i> Has Payments</span>'
         : '<span style="color: #95a5a6; font-size: 10px;"><i class="fa fa-check-circle"></i> No Payments</span>';
-      
+
       billsTableRows += `
         <tr style="background: #fffbf0;">
           <td style="text-align: center; font-weight: 600;">${index + 1}</td>
@@ -3891,7 +3670,7 @@
         </tr>
       `;
     });
-    
+
     return `
       <div style="background: #fff3cd; border-left: 4px solid #ff9800; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
         <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;">
@@ -3901,7 +3680,7 @@
               Existing Bills Found for ${term} - ${year}
             </h5>
             <p style="margin: 0 0 12px 0; color: #856404; font-size: 12px; line-height: 1.6;">
-              <strong>Warning:</strong> Bills already exist for the selected students in this term/year. 
+              <strong>Warning:</strong> Bills already exist for the selected students in this term/year.
               The new bill will <strong>replace</strong> the existing one.
             </p>
             <p style="margin: 0 0 8px 0; color: #856404; font-size: 11px; font-weight: 600;">
@@ -3921,7 +3700,7 @@
               </tbody>
             </table>
             <p style="margin: 12px 0 0 0; font-size: 11px; color: #d35400; line-height: 1.5;">
-              <i class="fa fa-info-circle"></i> 
+              <i class="fa fa-info-circle"></i>
               <strong>Note:</strong> Items with payments will be updated. Items without payments that are not in the new bill will be deleted.
             </p>
           </div>
@@ -3939,11 +3718,11 @@
         <div>
           <h5 style="margin: 0 0 5px 0; font-weight: 600; color: #2c3e50; font-size: 13px;">Review and Edit Invoice Items</h5>
           <p style="margin: 0; color: #6c757d; line-height: 1.4; font-size: 11px;">
-            These bill items will be applied to <strong style="color: #667eea;">${studentCount} student(s)</strong>. 
+            These bill items will be applied to <strong style="color: #667eea;">${studentCount} student(s)</strong>.
             Edit amounts, delete items, or add new ones before creating invoices.
           </p>
           <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e9ecef; font-size: 11px;">
-            <span style="color: #6c757d;">Cloning from:</span> 
+            <span style="color: #6c757d;">Cloning from:</span>
             <strong style="color: #495057;">Term ${response.source_term}, ${response.source_year}</strong>
             <span style="color: #6c757d; margin: 0 5px;">→</span>
             <strong style="color: #667eea;">Term ${response.selected_term}, ${response.selected_year}</strong>
@@ -4004,7 +3783,7 @@
   function handleDeleteItem() {
     const $row = $(this).closest('tr');
     const hasSelect = $row.find('.bill-item-select').length > 0;
-    
+
     showConfirmModal(
       'Confirm Delete',
       'Are you sure you want to remove this bill item?',
@@ -4012,7 +3791,7 @@
         $row.remove();
         updateGrandTotal();
         renumberRows();
-        
+
         // If the deleted row had an unselected dropdown, re-enable add button
         if(hasSelect) {
           $('#addNewBillItem').prop('disabled', false).css('opacity', '1').css('cursor', 'pointer');
@@ -4027,19 +3806,19 @@
     const $btn = $('#confirmCloneBills');
     const originalText = $btn.html();
     $btn.html('<i class="fa fa-spinner fa-spin"></i> Creating...').prop('disabled', true);
-    
+
     // Get form data
     const data = window.cloneBillsData.data;
     const selectedYear = window.cloneBillsData.selected_year;
     const selectedTerm = window.cloneBillsData.selected_term;
-    
+
     const formElement = document.getElementById('mass_invoice_form');
     const formData = new FormData(formElement);
-    
+
     // IMPORTANT: Only include student IDs that are CHECKED in the form
     // Clear any existing student_id[] entries
     formData.delete('student_id[]');
-    
+
     // Get only checked students from the actual form checkboxes
     const checkedStudents = document.querySelectorAll('input[name="student_id[]"]:checked');
     if(checkedStudents.length === 0) {
@@ -4047,43 +3826,43 @@
       showAjaxModal_alert('No students selected! Please check at least one student.', 'error');
       return;
     }
-    
+
     // Add only the checked students
     checkedStudents.forEach(function(checkbox) {
       formData.append('student_id[]', checkbox.value);
     });
-    
+
     // Get selected class and other settings
     const selectedClass = $('#class_id2').val()[0]; // Get first selected class
     const addToBillHistory = $('#add_to_class_bill').is(':checked') ? 1 : 0;
     const studentsCategory = $('input[name="students_category"]:checked').val() || 'both';
-    
+
     // Build bill items from the preview table (single list for all students)
     let billItemsParam = [];
     let billItemsData = {};
-    
+
     $('#billItemsBody tr.bill-item-row').each(function(index) {
       const $row = $(this);
       const title = $row.find('td:eq(1)').text().trim();
       const amount = $row.find('.bill-amount').val();
       const description = $row.find('td:eq(3)').text().trim();
-      
+
       // Generate unique ID for this item
       const uniqueId = ($row.data('item-id') || 'new') + '_' + Date.now() + '_' + index;
       billItemsParam.push(uniqueId);
-      
+
       billItemsData[uniqueId + '_title'] = title;
       billItemsData[uniqueId + '_amount'] = parseFloat(amount);
       billItemsData[uniqueId + '_description'] = description !== '-' ? description : '';
     });
-    
+
     // Validate that we have bill items
     if(billItemsParam.length === 0) {
       $btn.html(originalText).prop('disabled', false);
       showAjaxModal_alert('No bill items to create. Please add at least one bill item.', 'error');
       return;
     }
-    
+
     // Build URL
     const billItemsString = billItemsParam.join('-');
     let url = '<?php echo site_url('admin/mass_invoice_create/create') ?>/' + billItemsString;
@@ -4093,12 +3872,12 @@
     url += '&add_to_class_bill=' + addToBillHistory;
     url += '&students_category=' + encodeURIComponent(studentsCategory);
     url += '&date=' + encodeURIComponent($('#date_mass').val() || '<?php echo date('m/d/Y'); ?>');
-    
+
     // Add bill item data to formData
     for(let key in billItemsData) {
       formData.append(key, billItemsData[key]);
     }
-    
+
     // Call mass_invoice_create method with discount support
     $.ajax({
       url: url,
@@ -4113,7 +3892,7 @@
     .done(function(response) {
       $btn.html(originalText).prop('disabled', false);
       $('#cloneBillsPreviewModal').modal('hide');
-      
+
       if(response.status == 'success') {
         showAjaxModal_alert(response.message, 'success', false, false);
         // Reload immediately without hiding the modal
@@ -4121,7 +3900,7 @@
         setInterval(() => {
           location.reload();
         }, 2000);
-        
+
       } else {
         showAjaxModal_alert(response.message, 'info');
         setInterval(() => {
@@ -4165,15 +3944,15 @@
         return false; // break
       }
     });
-    
+
     if(hasUnselectedRow) {
       showAjaxModal_alert('Please select a billing item first before adding a new row', 'error');
       return;
     }
-    
+
     const newIndex = $('#billItemsBody tr').length;
     const uniqueId = 'new_' + Date.now() + '_' + newIndex;
-    
+
     // Get already selected bill item titles
     const selectedTitles = [];
     $('#billItemsBody tr.bill-item-row').each(function() {
@@ -4182,10 +3961,10 @@
         selectedTitles.push(title);
       }
     });
-    
+
     // Get selected class IDs
     const classIds = $('#class_id2').val() || [];
-    
+
     // Fetch bill items from server
     $.ajax({
       url: '<?php echo site_url('admin/get_bill_items_json'); ?>',
@@ -4195,12 +3974,12 @@
       success: function(billItems) {
         // Filter out already selected items
         const availableItems = billItems.filter(item => !selectedTitles.includes(item.title));
-        
+
         if(availableItems.length === 0) {
           showAjaxModal_alert('All available bill items have been added', 'warning');
           return;
         }
-        
+
         const newRow = `
           <tr class="bill-item-row" data-item-id="${uniqueId}" data-index="${newIndex}">
             <td style="text-align: center;"><div class="row-number">${newIndex + 1}</div></td>
@@ -4214,35 +3993,35 @@
             <td><span class="bill-desc" style="color: #6c757d; font-size: 11px;">-</span></td>
             <td style="text-align: center;"><button type="button" class="btn-delete delete-bill-item" data-index="${newIndex}"><i class="fa fa-trash"></i></button></td>
           </tr>`;
-        
+
         $('#billItemsBody').append(newRow);
-        
+
         // Disable add button until selection is made
         $('#addNewBillItem').prop('disabled', true).css('opacity', '0.5').css('cursor', 'not-allowed');
-        
+
         // Handle bill item selection
         $(`.bill-item-select[data-index="${newIndex}"]`).on('change', function() {
           const $selected = $(this).find('option:selected');
           const amount = $selected.data('amount');
           const desc = $selected.data('desc');
           const title = $selected.data('title');
-          
+
           if(!title || title === '') {
             return;
           }
-          
+
           $(this).closest('tr').find('.bill-amount').val(amount);
           $(this).closest('tr').find('.bill-desc').text(desc || '-');
-          
+
           // Replace select with title text
           $(this).replaceWith(`<strong style="color: #2c3e50; font-size: 12px;">${title}</strong>`);
-          
+
           // Re-enable add button
           $('#addNewBillItem').prop('disabled', false).css('opacity', '1').css('cursor', 'pointer');
-          
+
           updateGrandTotal();
         });
-        
+
         updateGrandTotal();
       },
       error: function() {
@@ -4255,19 +4034,19 @@
     const $btn = $('#confirmCloneBills');
     const originalText = $btn.html();
     $btn.html('<i class="fa fa-spinner fa-spin"></i> Creating...').prop('disabled', true);
-    
+
     // Get form data
     const data = window.cloneBillsData.data;
     const selectedYear = window.cloneBillsData.selected_year;
     const selectedTerm = window.cloneBillsData.selected_term;
-    
+
     const formElement = document.getElementById('mass_invoice_form');
     const formData = new FormData(formElement);
-    
+
     // IMPORTANT: Only include student IDs that are CHECKED in the form
     // Clear any existing student_id[] entries
     formData.delete('student_id[]');
-    
+
     // Get only checked students from the actual form checkboxes
     const checkedStudents = document.querySelectorAll('input[name="student_id[]"]:checked');
     if(checkedStudents.length === 0) {
@@ -4275,43 +4054,43 @@
       showAjaxModal_alert('No students selected! Please check at least one student.', 'error');
       return;
     }
-    
+
     // Add only the checked students
     checkedStudents.forEach(function(checkbox) {
       formData.append('student_id[]', checkbox.value);
     });
-    
+
     // Get selected class and other settings
     const selectedClass = $('#class_id2').val()[0]; // Get first selected class
     const addToBillHistory = $('#add_to_class_bill').is(':checked') ? 1 : 0;
     const studentsCategory = $('input[name="students_category"]:checked').val() || 'both';
-    
+
     // Build bill items from the preview table (single list for all students)
     let billItemsParam = [];
     let billItemsData = {};
-    
+
     $('#billItemsBody tr.bill-item-row').each(function(index) {
       const $row = $(this);
       const title = $row.find('td:eq(1)').text().trim();
       const amount = $row.find('.bill-amount').val();
       const description = $row.find('td:eq(3)').text().trim();
-      
+
       // Generate unique ID for this item
       const uniqueId = ($row.data('item-id') || 'new') + '_' + Date.now() + '_' + index;
       billItemsParam.push(uniqueId);
-      
+
       billItemsData[uniqueId + '_title'] = title;
       billItemsData[uniqueId + '_amount'] = parseFloat(amount);
       billItemsData[uniqueId + '_description'] = description !== '-' ? description : '';
     });
-    
+
     // Validate that we have bill items
     if(billItemsParam.length === 0) {
       $btn.html(originalText).prop('disabled', false);
       showAjaxModal_alert('No bill items to create. Please add at least one bill item.', 'error');
       return;
     }
-    
+
     // Build URL
     const billItemsString = billItemsParam.join('-');
     let url = '<?php echo site_url('admin/mass_invoice_create/create') ?>/' + billItemsString;
@@ -4321,12 +4100,12 @@
     url += '&add_to_class_bill=' + addToBillHistory;
     url += '&students_category=' + encodeURIComponent(studentsCategory);
     url += '&date=' + encodeURIComponent($('#date_mass').val() || '<?php echo date('m/d/Y'); ?>');
-    
+
     // Add bill item data to formData
     for(let key in billItemsData) {
       formData.append(key, billItemsData[key]);
     }
-    
+
     // Call mass_invoice_create method with discount support
     $.ajax({
       url: url,
@@ -4341,7 +4120,7 @@
     .done(function(response) {
       $btn.html(originalText).prop('disabled', false);
       $('#cloneBillsPreviewModal').modal('hide');
-      
+
       if(response.status == 'success') {
         showAjaxModal_alert(response.message, 'success', false, false);
         // Reload immediately without hiding the modal
@@ -4376,7 +4155,7 @@ function showInvoiceConfirmationModal(item_ids, callback) {
   const date = $('#date_mass').val();
   const classes = $('#class_id2').val() || [];
   const filterType = $('#students_category').val(); // 'all', 'boarding', 'day', 'class'
-  
+
   // Get student category properly
   let studentCategory = $('#students_category option:selected').text().trim();
   if(filterType === 'class' && classes.length > 0) {
@@ -4387,12 +4166,12 @@ function showInvoiceConfirmationModal(item_ids, callback) {
     });
     studentCategory = 'By Class: ' + classNames.join(', ');
   }
-  
+
   const addToBillHistory = $('#add_to_class_bill').is(':checked');
-  
+
   // Count selected students
   const studentCount = $('input[name="student_id[]"]:checked').length;
-  
+
   // Get bill item titles and amounts FROM THE FORM INPUTS (not database)
   let billItemTitles = [];
   let billItemsSimple = []; // For non-class view
@@ -4404,7 +4183,7 @@ function showInvoiceConfirmationModal(item_ids, callback) {
       billItemsSimple.push({title: title, amount: amount});
     }
   });
-  
+
   // If "By Class" is selected, get per-class breakdown via AJAX
   if(filterType === 'class' && classes.length > 0) {
     $.ajax({
@@ -4434,13 +4213,13 @@ function showInvoiceConfirmationModal(item_ids, callback) {
 
 function displayConfirmationModal(data, term, year, date, studentCategory, studentCount, addToBillHistory, callback, viewMode) {
   let billItemsHTML = '';
-  
+
   if(viewMode === 'class') {
     // Per-class breakdown for "By Class" filter
     let classesData = data;
     classesData.forEach(function(classInfo) {
       let classTotal = 0;
-      
+
       billItemsHTML += `
         <div class="info-section">
           <h4><i class="fa fa-graduation-cap" style="margin-right: 8px; color: #667eea;"></i>${classInfo.class_name}</h4>
@@ -4453,7 +4232,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
               </tr>
             </thead>
             <tbody>`;
-      
+
       classInfo.items.forEach(function(item, index) {
         classTotal += item.amount;
         billItemsHTML += `
@@ -4463,7 +4242,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
                 <td style="text-align: right; font-weight: 600;">${item.amount.toFixed(2)}</td>
               </tr>`;
       });
-      
+
       billItemsHTML += `
               <tr class="total-row">
                 <td colspan="2" style="text-align: right; padding: 14px 10px;">CLASS TOTAL:</td>
@@ -4473,23 +4252,23 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
           </table>
         </div>`;
     });
-    
+
     billItemsHTML += `
       <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 12px; border-radius: 8px; margin-top: 15px;">
         <div style="display: flex; align-items: flex-start;">
           <i class="fa fa-info-circle" style="color: #2196f3; font-size: 18px; margin-right: 10px; margin-top: 2px;"></i>
           <div style="font-size: 12px; color: #1565c0; line-height: 1.6;">
-            <strong>Note:</strong> Each student will be billed only the items applicable to their class. 
+            <strong>Note:</strong> Each student will be billed only the items applicable to their class.
             Discounts and scholarships will be applied individually during invoice creation.
           </div>
         </div>
       </div>`;
-      
+
   } else {
     // Simple list for "All Students", "Boarding", "Day"
     let billItems = data;
     let grandTotal = 0;
-    
+
     billItemsHTML += `
       <div class="info-section">
         <h4><i class="fa fa-file-invoice-dollar" style="margin-right: 8px; color: #667eea;"></i>Selected Bill Items</h4>
@@ -4502,7 +4281,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
             </tr>
           </thead>
           <tbody>`;
-    
+
     billItems.forEach(function(item, index) {
       grandTotal += item.amount;
       billItemsHTML += `
@@ -4512,7 +4291,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
               <td style="text-align: right; font-weight: 600;">${item.amount.toFixed(2)}</td>
             </tr>`;
     });
-    
+
     billItemsHTML += `
             <tr class="total-row">
               <td colspan="2" style="text-align: right; padding: 14px 10px;">TOTAL (Per Student):</td>
@@ -4521,19 +4300,19 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
           </tbody>
         </table>
       </div>`;
-    
+
     billItemsHTML += `
       <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; border-radius: 8px; margin-top: 15px;">
         <div style="display: flex; align-items: flex-start;">
           <i class="fa fa-exclamation-triangle" style="color: #ff9800; font-size: 18px; margin-right: 10px; margin-top: 2px;"></i>
           <div style="font-size: 12px; color: #856404; line-height: 1.6;">
-            <strong>Note:</strong> Some items may not apply to all students based on their class category or specific class assignments. 
+            <strong>Note:</strong> Some items may not apply to all students based on their class category or specific class assignments.
             Discounts and scholarships will be applied individually during invoice creation.
           </div>
         </div>
       </div>`;
   }
-  
+
   // Build modal HTML
   const modalHTML = `
     <style>
@@ -4582,12 +4361,12 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
               <div style="display: flex; align-items: flex-start;">
                 <i class="fa fa-exclamation-triangle"></i>
                 <div class="warning-text">
-                  <strong>Please review carefully!</strong> Once confirmed, ${studentCount} invoice(s) will be created. 
+                  <strong>Please review carefully!</strong> Once confirmed, ${studentCount} invoice(s) will be created.
                   Make sure all details below are correct before proceeding.
                 </div>
               </div>
             </div>
-            
+
             <div class="info-section">
               <h4><i class="fa fa-calendar" style="margin-right: 8px; color: #667eea;"></i>Term & Year</h4>
               <div class="info-row">
@@ -4603,7 +4382,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
                 <div class="info-value">${date}</div>
               </div>
             </div>
-            
+
             <div class="info-section">
               <h4><i class="fa fa-users" style="margin-right: 8px; color: #667eea;"></i>Students & Classes</h4>
               <div class="info-row">
@@ -4619,12 +4398,12 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
                 <div class="info-value">${addToBillHistory ? '<span style="color: #27ae60;">Yes</span>' : '<span style="color: #e74c3c;">No</span>'}</div>
               </div>
             </div>
-            
+
             <h4 style="font-size: 16px; font-weight: 700; color: #2c3e50; margin-bottom: 15px;">
               <i class="fa fa-file-invoice-dollar" style="margin-right: 8px; color: #667eea;"></i>${viewMode === 'class' ? 'Bill Items Per Class' : 'Bill Items'}
             </h4>
             ${billItemsHTML}
-            
+
           </div>
           <div class="modern-footer">
             <button type="button" class="btn-modern btn-cancel" data-dismiss="modal">
@@ -4638,14 +4417,14 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
       </div>
     </div>
   `;
-  
+
   // Remove existing modal and add new one
   $('#invoiceConfirmModal').remove();
   $('body').append(modalHTML);
-  
+
   // Show modal
   $('#invoiceConfirmModal').modal({backdrop: 'static', keyboard: false});
-  
+
   // Handle confirm button
   $('#confirmInvoiceCreation').on('click', function() {
     $('#invoiceConfirmModal').modal('hide');
@@ -4743,7 +4522,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
 
     $('.close').click();
     showAjaxModal_alert('Sending email...', 'loading');
-    
+
     $.ajax({
       url: '<?php echo site_url('invoice_email/send/'); ?>' + invoice_code,
       type: 'POST',
@@ -4763,7 +4542,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
   // ============================================
   // BULK INVOICE PRINTING - ENTERPRISE IMPLEMENTATION
   // ============================================
-  
+
   function printBulkInvoices() {
     const term = $('#bulk_term').val();
     const year = $('#bulk_year').val();
@@ -4780,7 +4559,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
     let selectedInvoiceCodes = [];
     if(selectedInvoices.length > 0) {
       selectedInvoiceCodes = selectedInvoices.map(inv => inv.code);
-      
+
       showConfirmModal(
         'Print Selected Invoices',
         `You are about to print <strong>${selectedInvoices.length}</strong> selected invoice(s). Continue?`,
@@ -4796,13 +4575,13 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
                         status === 'paid' ? 'PAID' :
                         status === 'unpaid' ? 'UNPAID' :
                         status === 'partial' ? 'PARTIAL' : status.toUpperCase();
-      const filterText = filter === 'all' ? 'ALL STUDENTS' : 
-                        filter === 'boarding' ? 'BOARDING STUDENTS' : 
-                        filter === 'day' ? 'DAY STUDENTS' : 
+      const filterText = filter === 'all' ? 'ALL STUDENTS' :
+                        filter === 'boarding' ? 'BOARDING STUDENTS' :
+                        filter === 'day' ? 'DAY STUDENTS' :
                         filter === 'class' ? $('#bulk_class option:selected').text() : filter.toUpperCase();
-      
+
       const confirmMessage = `You are about to print ALL invoices matching:\n\nTerm: ${term || 'All'}\nYear: ${year || 'All'}\nStatus: ${statusText}\nFilter: ${filterText}\n\nThis may take a moment. Continue?`;
-      
+
       showConfirmModal(
         'Print All Filtered Invoices',
         confirmMessage,
@@ -4816,11 +4595,11 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
   }
 
   let isPrinting = false;
-  
+
   function executeBulkPrint(term, year, status, filter, classId, invoiceCodes) {
     if(isPrinting) return;
     isPrinting = true;
-    
+
     showAjaxModal_alert('Preparing invoices for printing...', 'loading');
 
     // Create form and submit to open in new window
@@ -4829,7 +4608,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
       'action': '<?php echo site_url('admin/print_bulk_invoices'); ?>',
       'target': '_blank'
     });
-    
+
     // Add CSRF token
     form.append($('<input>', {'type': 'hidden', 'name': '<?php echo $this->security->get_csrf_token_name(); ?>', 'value': '<?php echo $this->security->get_csrf_hash(); ?>'}));
 
@@ -4837,7 +4616,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
     form.append($('<input>', {'type': 'hidden', 'name': 'year', 'value': year}));
     form.append($('<input>', {'type': 'hidden', 'name': 'status', 'value': status}));
     form.append($('<input>', {'type': 'hidden', 'name': 'filter', 'value': filter}));
-    
+
     if(classId) {
       form.append($('<input>', {'type': 'hidden', 'name': 'class_id', 'value': classId}));
     }
@@ -4874,9 +4653,9 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
     const classId = $('#bulk_class').val();
 
     const invoiceCodes = selectedInvoices.map(inv => inv.code);
-    
+
     const confirmMessage = `You are about to print ${selectedInvoices.length} selected invoice(s).\n\nTerm: ${term || 'All'}\nYear: ${year || 'All'}\n\nA new window will open with all selected invoices ready to print.`;
-    
+
     showConfirmModal(
       'Print Selected Invoices',
       confirmMessage,
@@ -4966,7 +4745,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
     bulkInvoiceTable = $('#bulk_invoices_datatable').DataTable({
       data: data,
       columns: [
-        { 
+        {
           data: null,
           orderable: false,
           className: 'text-center',
@@ -4974,26 +4753,26 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
             return `<input type="checkbox" class="bulk-invoice-check w-5 h-5" data-invoice-id="${row.invoice_id}" data-invoice-code="${row.invoice_code}">`;
           }
         },
-        { 
+        {
           data: 'invoice_code',
           render: function(data, type, row) {
             return `<a href="javascript:void(0)" onclick="viewInvoiceDetails('${data}')" class="font-bold text-blue-600 hover:text-blue-800 hover:underline">#${data}</a>`;
           }
         },
-        { 
+        {
           data: 'student_name',
           render: function(data, type, row) {
             return `<div><a href="<?php echo site_url('admin/student_profile/'); ?>${row.student_id}" target="_blank" class="font-semibold text-blue-600 hover:text-blue-800 hover:underline">${data}</a><div class="text-xs text-gray-600">${row.student_code}</div></div>`;
           }
         },
-        { 
+        {
           data: 'class_name',
           render: function(data, type, row) {
             const section = row.section_name ? `<div class="text-xs text-gray-600">${row.section_name}</div>` : '';
             return `<div><div class="font-semibold text-base">${data}</div>${section}</div>`;
           }
         },
-        { 
+        {
           data: 'status',
           render: function(data) {
             const badges = {
@@ -5004,21 +4783,21 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
             return badges[data] || data;
           }
         },
-        { 
+        {
           data: 'total_amount',
           className: 'text-right whitespace-nowrap',
           render: function(data) {
             return `<span class="font-bold text-gray-800" style="white-space: nowrap;">${parseFloat(data || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>`;
           }
         },
-        { 
+        {
           data: 'amount_paid',
           className: 'text-right whitespace-nowrap',
           render: function(data) {
             return `<span class="font-semibold text-green-600" style="white-space: nowrap;">${parseFloat(data || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>`;
           }
         },
-        { 
+        {
           data: 'due',
           className: 'text-right whitespace-nowrap',
           render: function(data) {
@@ -5026,18 +4805,18 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
             return `<span class="font-semibold ${color}" style="white-space: nowrap;">${parseFloat(data || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>`;
           }
         },
-        { 
+        {
           data: 'creation_timestamp',
           render: function(data) {
             return new Date(data * 1000).toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'});
           }
         },
-        { 
+        {
           data: null,
           orderable: false,
           className: 'text-center',
           render: function(data, type, row) {
-            const payButton = parseFloat(row.due || 0) > 0 ? 
+            const payButton = parseFloat(row.due || 0) > 0 ?
               `<button onclick="openBulkPaymentModal('${row.student_id}')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-lg text-base font-bold transition-all whitespace-nowrap" title="Pay">
                 Pay
               </button>` : '';
@@ -5093,7 +4872,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
     });
 
     $('#selected_count').text(selectedInvoices.length);
-    
+
     if(selectedInvoices.length > 0) {
       $('#bulk_actions_bar').slideDown(300);
     } else {
@@ -5120,7 +4899,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
 
   function refreshBulkInvoices() {
     if(!window.bulkInvoiceRefreshData) return;
-    
+
     const data = window.bulkInvoiceRefreshData;
     $.ajax({
       url: '<?php echo site_url('admin/get_bulk_invoices'); ?>',
@@ -5153,8 +4932,8 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
       } else if(response.has_pending_discount) {
         showAjaxModal_alert('A pending discount request already exists for this invoice. Please wait for approval or rejection before submitting a modification request.', 'warning');
       } else {
-        loadModalContent('createModal', 
-          '<?php echo site_url('admin/invoice_modification_modal/'); ?>' + invoiceCode, 
+        loadModalContent('createModal',
+          '<?php echo site_url('admin/invoice_modification_modal/'); ?>' + invoiceCode,
           '<i class="fa fa-edit"></i> Modify Invoice');
       }
     }).fail(function() {
@@ -5229,7 +5008,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
 
     let totalAmount = 0;
     let studentNames = new Set();
-    
+
     // Get data from DataTable if available
     if(typeof bulkInvoiceTable !== 'undefined' && bulkInvoiceTable) {
       selectedInvoices.forEach(inv => {
@@ -5240,7 +5019,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
         }
       });
     }
-    
+
     const studentCount = studentNames.size;
 
     const modalContent = `
@@ -5337,12 +5116,12 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
         </div>
       </div>
     `;
-    
+
     showModalWithContent('createModal', '', modalContent);
   }
 
   let selectedBulkAction = null;
-  
+
   function selectBulkAction(action, element) {
     selectedBulkAction = action;
     document.querySelectorAll('.bulk-action-card').forEach(card => {
@@ -5351,7 +5130,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
     });
     element.style.borderColor = 'white';
     element.style.transform = 'scale(1.05)';
-    
+
     if(action === 'delete') {
       $('#bulk_delete_warning').slideDown(300);
       $('#bulk_edit_notice').slideUp(300);
@@ -5374,7 +5153,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
     }
     $('.close').click();
     showAjaxModal_alert('Processing bulk modification request...', 'loading');
-    
+
     $.ajax({
       url: '<?php echo site_url('admin/bulkModifyInvoices'); ?>',
       type: 'POST',
@@ -5410,9 +5189,9 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
     }
 
     showAjaxModal_alert('Preparing professional export...', 'loading');
-    
+
     const codes = selectedInvoices.map(inv => inv.code);
-    
+
     $.ajax({
       url: '<?php echo site_url('admin/export_invoices'); ?>',
       type: 'POST',
@@ -5421,12 +5200,12 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
       success: function(response) {
         if(response.status === 'success') {
           $('.close').click();
-          
+
           const schoolInfo = response.school_info;
-          
+
           // Create empty worksheet
           const ws = {};
-          
+
           // School header (rows 1-4)
           XLSX.utils.sheet_add_aoa(ws, [
             [schoolInfo.name],
@@ -5438,16 +5217,16 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
             ['Total Invoices: ' + selectedInvoices.length],
             ['']
           ], {origin: 'A1'});
-          
+
           // Add data starting from row 9
           XLSX.utils.sheet_add_json(ws, response.data, {origin: 'A9', skipHeader: false});
-          
+
           // Column widths
           ws['!cols'] = [
             {wch: 15}, {wch: 25}, {wch: 15}, {wch: 20}, {wch: 15},
             {wch: 15}, {wch: 15}, {wch: 15}, {wch: 12}, {wch: 12}
           ];
-          
+
           // Merges
           if(!ws['!merges']) ws['!merges'] = [];
           ws['!merges'].push(
@@ -5458,7 +5237,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
             {s: {r: 5, c: 0}, e: {r: 5, c: 9}}, // Date
             {s: {r: 6, c: 0}, e: {r: 6, c: 9}}  // Count
           );
-          
+
           // Style school header
           ws['A1'].s = {font: {bold: true, sz: 18, color: {rgb: "1E40AF"}}, alignment: {horizontal: 'center', vertical: 'center'}};
           ws['A2'].s = {font: {sz: 11, color: {rgb: "4B5563"}}, alignment: {horizontal: 'center'}};
@@ -5466,7 +5245,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
           ws['A5'].s = {font: {bold: true, sz: 14, color: {rgb: "FFFFFF"}}, fill: {fgColor: {rgb: "1E40AF"}}, alignment: {horizontal: 'center'}};
           ws['A6'].s = {font: {sz: 10, color: {rgb: "4B5563"}}, alignment: {horizontal: 'center'}};
           ws['A7'].s = {font: {bold: true, sz: 11, color: {rgb: "059669"}}, alignment: {horizontal: 'center'}};
-          
+
           // Style data headers (row 9)
           const range = XLSX.utils.decode_range(ws['!ref']);
           for(let C = 0; C <= 9; ++C) {
@@ -5479,7 +5258,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
               border: {top: {style: 'thin'}, bottom: {style: 'thin'}, left: {style: 'thin'}, right: {style: 'thin'}}
             };
           }
-          
+
           // Style data rows
           for(let R = 9; R <= range.e.r; ++R) {
             const isEven = (R - 9) % 2 === 0;
@@ -5492,7 +5271,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
                 alignment: {horizontal: C >= 5 && C <= 7 ? 'right' : 'left', vertical: 'center'},
                 border: {top: {style: 'thin', color: {rgb: "E5E7EB"}}, bottom: {style: 'thin', color: {rgb: "E5E7EB"}}, left: {style: 'thin', color: {rgb: "E5E7EB"}}, right: {style: 'thin', color: {rgb: "E5E7EB"}}}
               };
-              
+
               if(C === 8 && ws[addr].v) {
                 const status = ws[addr].v.toLowerCase();
                 if(status === 'paid') {
@@ -5508,16 +5287,16 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
               }
             }
           }
-          
+
           ws['!autofilter'] = {ref: XLSX.utils.encode_range({s: {r: 8, c: 0}, e: {r: 8, c: 9}})};
           ws['!freeze'] = {xSplit: 0, ySplit: 9};
-          
+
           const wb = XLSX.utils.book_new();
           XLSX.utils.book_append_sheet(wb, ws, 'Invoice Export');
-          
+
           const filename = 'Invoice_Export_' + new Date().toISOString().slice(0,10).replace(/-/g, '') + '_' + new Date().getTime() + '.xlsx';
           XLSX.writeFile(wb, filename, {cellStyles: true});
-          
+
           toastr.success(`Successfully exported ${selectedInvoices.length} invoice(s) to Excel`);
         } else {
           showAjaxModal_alert(response.message || 'Export failed', 'error');
@@ -5635,14 +5414,14 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
   // Autocomplete functionality
   $('#global_search').on('input', function() {
     const searchTerm = $(this).val().trim();
-    
+
     clearTimeout(searchTimeout);
-    
+
     if(searchTerm.length < 2) {
       $('#search_suggestions').hide().empty();
       return;
     }
-    
+
     searchTimeout = setTimeout(() => {
       $.ajax({
         url: '<?php echo site_url('admin/search_suggestions'); ?>',
@@ -5687,9 +5466,9 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
   function selectSuggestion(studentId, studentName) {
     $('#search_suggestions').hide();
     $('#global_search').val(studentName);
-    
+
     showAjaxModal_alert('Loading student invoices...', 'loading');
-    
+
     $.ajax({
       url: '<?php echo site_url('admin/global_invoice_search'); ?>',
       type: 'POST',
@@ -5703,7 +5482,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
           selectedStudentData = response.student_data;
           $('.close').click();
           toastr.success(response.message);
-          
+
           // Scroll to bulk invoice section
           $('html, body').animate({
             scrollTop: $('#bulk_invoice_management').offset().top - 100
@@ -5726,7 +5505,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
 
   function globalSearch() {
     const searchTerm = $('#global_search').val().trim();
-    
+
     if(!searchTerm) {
       showAjaxModal_alert('Please enter a search term', 'error');
       return;
@@ -5840,7 +5619,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
           .receipt-modal-padding { padding: 15px !important; }
           .receipt-header-title { font-size: 20px !important; }
         }
-        
+
         /* Receipt Action Popup Menu Styles */
         .receipt-action-popup-menu {
           position: fixed;
@@ -5859,14 +5638,14 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
           padding: 8px 0;
           pointer-events: none;
         }
-        
+
         .receipt-action-popup-menu.show {
           opacity: 1;
           visibility: visible;
           transform: scale(1) translateY(0);
           pointer-events: auto;
         }
-        
+
         .receipt-action-popup-item {
           display: flex;
           align-items: center;
@@ -5883,23 +5662,23 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
           cursor: pointer;
           text-align: left;
         }
-        
+
         .receipt-action-popup-item:hover {
           background: #f3f4f6;
         }
-        
+
         .receipt-action-popup-item i {
           width: 18px;
           text-align: center;
           font-size: 14px;
         }
-        
+
         .receipt-action-popup-item.primary i { color: #667eea; }
         .receipt-action-popup-item.primary:hover { background: #ede9fe; color: #5a67d8; }
-        
+
         .receipt-action-popup-item.warning i { color: #f59e0b; }
         .receipt-action-popup-item.warning:hover { background: #fef3c7; color: #d97706; }
-        
+
         .receipt-action-popup-divider {
           height: 1px;
           background: #e5e7eb;
@@ -5924,7 +5703,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
           </div>
         </div>
       </div>
-      
+
       <div class="receipt-modal-padding" style="padding: 25px; background: #f8f9fa;">
         <!-- Advanced Filters -->
         <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;">
@@ -5938,7 +5717,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
               <label style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: #4a5568;"><i class="fa fa-school"></i> Class</label>
               <select id="receipt_class" class="form-control" style="height: 42px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
                 <option value="">All Classes</option>
-                <?php 
+                <?php
                   $classes = getAllClassList();
                   foreach($classes as $cid) {
                     $cname = getFullClassName($cid);
@@ -5999,7 +5778,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
           </div>
         </div>
       </div>
-      
+
       <!-- Floating Receipt Action Popup Menu -->
       <div id="receiptActionPopupMenu" class="receipt-action-popup-menu">
         <button id="receiptViewBtn" class="receipt-action-popup-item primary">
@@ -6011,7 +5790,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
         </button>
       </div>
     `;
-    
+
     showModalWithContent('budgetDetailsModal', '', modalContent);
     setTimeout(function() {
       initReceiptActionPopup();
@@ -6063,26 +5842,26 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
     `);
 
     const columns = [
-      { 
-        data: 'receipt_code', 
-        render: (d) => `<span style="font-weight: 700; color: #667eea; font-size: 14px;">#${d}</span>` 
+      {
+        data: 'receipt_code',
+        render: (d) => `<span style="font-weight: 700; color: #667eea; font-size: 14px;">#${d}</span>`
       },
-      { 
-        data: 'invoice_code', 
-        render: (d) => `<span style="font-weight: 600; color: #4a5568;">#${d}</span>` 
+      {
+        data: 'invoice_code',
+        render: (d) => `<span style="font-weight: 600; color: #4a5568;">#${d}</span>`
       },
-      { 
+      {
         data: 'student_name',
         render: (d) => `<div style="font-weight: 600; color: #2d3748;">${d}</div>`
       },
-      { 
+      {
         data: 'class_name',
         render: (d) => `<span style="font-size: 13px; color: #718096;">${d}</span>`
       }
     ];
 
     // Payment Method column
-    columns.push({ 
+    columns.push({
       data: 'payment_method',
       render: (d) => {
         const methods = {
@@ -6097,12 +5876,12 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
     });
 
     columns.push(
-      { 
-        data: 'amount_paid', 
-        className: 'text-right', 
-        render: (d) => `<span style="font-weight: 700; color: #10b981; font-size: 15px;">${parseFloat(d || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>` 
+      {
+        data: 'amount_paid',
+        className: 'text-right',
+        render: (d) => `<span style="font-weight: 700; color: #10b981; font-size: 15px;">${parseFloat(d || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>`
       },
-      { 
+      {
         data: 'date',
         width: '140px',
         render: (d) => {
@@ -6113,20 +5892,20 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
           </div>`;
         }
       },
-      { 
+      {
         data: null,
         orderable: false,
         className: 'text-center',
         width: '180px',
         render: (d, t, row) => `
           <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-            <button onclick="viewReceiptDetails('${row.receipt_code}', '${row.student_id}', '${row.amount_paid}', '${row.date}')" 
+            <button onclick="viewReceiptDetails('${row.receipt_code}', '${row.student_id}', '${row.amount_paid}', '${row.date}')"
                     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3); white-space: nowrap;"
                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 10px rgba(102, 126, 234, 0.5)'"
                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(102, 126, 234, 0.3)'">
               <i class="fa fa-eye"></i> View
             </button>
-            <button onclick="requestModification(${row.payment_id})" 
+            <button onclick="requestModification(${row.payment_id})"
                     style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3); white-space: nowrap;"
                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 10px rgba(245, 158, 11, 0.5)'"
                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(245, 158, 11, 0.3)'">
@@ -6167,27 +5946,27 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
   // Initialize popup menu on modal load
   function initReceiptActionPopup() {
     $receiptActionPopupMenu = $('#receiptActionPopupMenu');
-    
+
     // Close popup when clicking outside
     $(document).off('click.receiptPopup').on('click.receiptPopup', function(e) {
       if (!$(e.target).closest('.btn-action-menu, .receipt-action-popup-menu').length) {
         closeReceiptActionPopup();
       }
     });
-    
+
     // Attach event handlers to menu items
     $('#receiptViewBtn').off('click').on('click', function() {
       if (currentReceiptData) {
         viewReceipt(
-          currentReceiptData.receiptCode, 
-          currentReceiptData.studentId, 
-          currentReceiptData.amount, 
+          currentReceiptData.receiptCode,
+          currentReceiptData.studentId,
+          currentReceiptData.amount,
           currentReceiptData.date
         );
       }
       closeReceiptActionPopup();
     });
-    
+
     $('#receiptModifyBtn').off('click').on('click', function() {
       if (currentReceiptData) {
         requestModification(currentReceiptData.paymentId);
@@ -6206,11 +5985,11 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
   function toggleReceiptActionMenu(btn, event) {
     event.stopPropagation();
     event.preventDefault();
-    
+
     // Ensure we have a valid DOM element
     var btnElement = btn instanceof jQuery ? btn[0] : btn;
     var $btn = $(btnElement);
-    
+
     // Store receipt data from button attributes
     currentReceiptData = {
       receiptCode: $btn.data('receipt-code'),
@@ -6219,15 +5998,15 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
       date: $btn.data('date'),
       paymentId: $btn.data('payment-id')
     };
-    
+
     // If menu is already open, close it
     if ($receiptActionPopupMenu && $receiptActionPopupMenu.hasClass('show')) {
       closeReceiptActionPopup();
       return;
     }
-    
+
     closeReceiptActionPopup();
-    
+
     // Force menu to be rendered but hidden to get proper dimensions
     $receiptActionPopupMenu.css({
       left: '-9999px',
@@ -6235,50 +6014,50 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
       display: 'block',
       visibility: 'hidden'
     }).addClass('show');
-    
+
     // Get actual menu dimensions
     var menuWidth = $receiptActionPopupMenu.outerWidth();
     var menuHeight = $receiptActionPopupMenu.outerHeight();
-    
+
     // Hide again to reposition
     $receiptActionPopupMenu.css({
       display: '',
       visibility: ''
     }).removeClass('show');
-    
+
     // Get button position relative to viewport
     var btnRect = btnElement.getBoundingClientRect();
-    
+
     // Calculate initial position (below button, aligned to right edge of button)
     var left = btnRect.right - menuWidth;
     var top = btnRect.bottom + 5;
-    
+
     // Adjust if menu would go off left edge of viewport
     if (left < 10) {
       left = btnRect.left; // Align to left edge of button instead
     }
-    
+
     // Adjust if menu would go off bottom edge of viewport
     if (top + menuHeight > window.innerHeight) {
       top = btnRect.top - menuHeight - 5; // Show above button
     }
-    
+
     // Ensure coordinates are within viewport bounds
     left = Math.max(10, Math.min(left, window.innerWidth - menuWidth - 10));
     top = Math.max(10, Math.min(top, window.innerHeight - menuHeight - 10));
-    
+
     // Debug logging
     console.log('Button rect:', btnRect);
     console.log('Menu dimensions:', {width: menuWidth, height: menuHeight});
     console.log('Calculated position:', {left: left, top: top});
     console.log('Window dimensions:', {width: window.innerWidth, height: window.innerHeight});
-    
+
     // Apply position and show menu
     $receiptActionPopupMenu.css({
       left: left + 'px',
       top: top + 'px'
     }).addClass('show');
-    
+
     $btn.addClass('active');
   }
 
@@ -6293,7 +6072,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
 
     // Prepare data for Excel
     const excelData = [];
-    
+
     // Header row with styling
     const headers = ['Receipt #', 'Invoice #', 'Student Name', 'Class'];
     if(boardingEnabled) headers.push('Type');
@@ -6347,7 +6126,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
 
     // Download file
     XLSX.writeFile(wb, filename);
-    
+
     toastr.success('Excel file downloaded successfully');
   }
 
@@ -6375,10 +6154,10 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
           if(response.has_pending) {
             showAjaxModal_alert('A pending modification request already exists for this receipt. Please wait for approval or rejection before submitting a new request.', 'warning');
           } else {
-            loadModalContent('createModal', 
-              '<?php echo site_url("admin/receipt_modification_modal/"); ?>' + paymentId, 
+            loadModalContent('createModal',
+              '<?php echo site_url("admin/receipt_modification_modal/"); ?>' + paymentId,
               '<i class="fa fa-edit"></i> Request Receipt Modification');
-            
+
             // Fix: When nested modal closes, restore body scroll for parent modal
             $('#createModal').on('hidden.bs.modal', function() {
               if($('#budgetDetailsModal').hasClass('show') || $('#budgetDetailsModal').is(':visible')) {
@@ -6413,7 +6192,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
   function toggleArrearsTab() {
     const isChecked = $('#toggle_arrears_tab').is(':checked');
     const value = isChecked ? 'yes' : 'no';
-    
+
     $.ajax({
       url: '<?php echo site_url('admin/update_arrears_tab_setting'); ?>',
       type: 'POST',
@@ -6603,7 +6382,7 @@ function displayConfirmationModal(data, term, year, date, studentCategory, stude
       }
     });
   }
-  
+
 
 
   function exportFeesStructure() {
@@ -6711,7 +6490,7 @@ $(document).ready(function() {
 function updateBulkToolbar() {
   const selected = $('.bill_item_checkbox:checked').length;
   $('#selected_count').text(selected);
-  
+
   if(selected > 0) {
     $('#bulk_actions_toolbar').slideDown();
   } else {
@@ -6871,7 +6650,7 @@ function bulkDelete() {
     'Are you sure you want to delete ' + selected.length + ' item(s)? This action cannot be undone!',
     function() {
       showAjaxModal_alert('Deleting items...', 'loading');
-      
+
       $.ajax({
         url: '<?=site_url('admin/invoice/bulk_delete_bill_items');?>',
         type: 'POST',
@@ -6893,5 +6672,14 @@ function bulkDelete() {
     'Delete',
     'danger'
   );
+}
+
+// View receipt details - opens receipt in new window
+function viewReceiptDetails(receipt_code, student_id, amount, timestamp) {
+  if (!receipt_code || !student_id) {
+    console.error('Missing receipt_code or student_id');
+    return;
+  }
+  window.open('<?php echo site_url('admin/receipt/'); ?>' + receipt_code + '/' + student_id + '/' + amount + '/' + timestamp, '_blank');
 }
 </script>

@@ -10,7 +10,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 11px;
@@ -20,13 +20,13 @@
             overflow-x: hidden;
             overflow-y: auto;
         }
-        
+
         center {
             width: 100%;
             max-width: 100%;
             overflow-x: hidden;
         }
-        
+
         page {
             display: block;
             margin: 0 auto;
@@ -38,29 +38,29 @@
             overflow-y: auto;
             overflow-x: hidden;
         }
-        
+
         page[size="A5"] {
             width: 148mm;
             height: auto;
             min-height: 210mm;
             max-width: 148mm;
         }
-        
+
         .header-section {
             border-bottom: 2px solid #34495e;
             padding-bottom: 6px;
             margin-bottom: 10px;
         }
-        
+
         .school-logo {
             max-height: 60px;
             width: auto;
         }
-        
+
         .school-info {
             text-align: center;
         }
-        
+
         .school-name {
             font-size: 18px;
             font-weight: bold;
@@ -69,15 +69,15 @@
             margin-bottom: 3px;
             line-height: 1.2;
         }
-        
+
         .school-details {
             font-size: 9px;
             color: #34495e;
             line-height: 1.2;
         }
-        
+
         .report-badge {
-            background: #dc2626;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;
             padding: 5px 10px;
             border-radius: 6px;
@@ -86,39 +86,39 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
+
         .report-info {
             font-size: 9px;
             font-weight: 600;
         }
-        
+
         .student-info-section {
-            background: #f1f5f9;
+            background: linear-gradient(135deg, #ecf0f1, #d5dbdb);
             padding: 8px;
             margin-bottom: 10px;
             border-radius: 4px;
         }
-        
+
         .student-info-table {
             width: 100%;
             max-width: 100%;
             font-size: 10px;
             table-layout: fixed;
         }
-        
+
         .student-info-table td {
             padding: 2px 4px;
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
-        
+
         .student-name {
             font-weight: bold;
             text-transform: uppercase;
             color: #2c3e50;
             font-size: 12px;
         }
-        
+
         .section-title {
             font-size: 11px;
             font-weight: bold;
@@ -127,12 +127,12 @@
             color: #2c3e50;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            background: #2563eb;
+            background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
             padding: 4px;
             border-radius: 3px;
         }
-        
+
         .bills-table {
             width: 100%;
             max-width: 100%;
@@ -141,9 +141,9 @@
             font-size: 10px;
             table-layout: fixed;
         }
-        
+
         .bills-table th {
-            background: #1e293b;
+            background: linear-gradient(135deg, #34495e, #2c3e50);
             color: white;
             padding: 4px 3px;
             font-size: 9px;
@@ -153,7 +153,7 @@
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
-        
+
         .bills-table td {
             padding: 3px;
             border: 1px solid #bdc3c7;
@@ -161,57 +161,57 @@
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
-        
+
         .bills-table .amount-cell {
             text-align: right;
             font-weight: 600;
         }
-        
+
         .arrears-row {
-            background: #fee2e2;
+            background: linear-gradient(135deg, #fadbd8, #f5b7b1);
             color: #c0392b;
             font-weight: bold;
         }
-        
+
         .new-bill-row {
-            background: #d1fae5;
+            background: linear-gradient(135deg, #d5f4e6, #a8e6cf);
             color: #27ae60;
         }
-        
+
         .total-row {
-            background: #f1f5f9;
+            background: linear-gradient(135deg, #ecf0f1, #d5dbdb);
             font-weight: bold;
             font-size: 10px;
         }
-        
+
         .grand-total-row {
-            background: #dc2626;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;
             font-weight: bold;
             font-size: 11px;
         }
-        
+
         .summary-section {
             margin-top: 10px;
             padding: 8px;
-            background: #fef9c3;
+            background: linear-gradient(135deg, #fff9e6, #ffeaa7);
             border-radius: 4px;
             border: 2px solid #f39c12;
         }
-        
+
         .summary-table {
             width: 100%;
             max-width: 100%;
             font-size: 10px;
             table-layout: fixed;
         }
-        
+
         .summary-table td {
             padding: 3px 5px;
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
-        
+
         .footer-note {
             margin-top: 10px;
             padding: 6px;
@@ -220,28 +220,28 @@
             font-size: 9px;
             font-style: italic;
         }
-        
+
         .print-buttons {
             text-align: center;
             margin-top: 20px;
         }
-        
+
         #main_report {
             width: 100%;
             max-width: 100%;
             overflow-x: hidden;
         }
-        
+
         .report-content {
             width: 100%;
             max-width: 100%;
             overflow-x: hidden;
         }
-        
+
         table {
             max-width: 100%;
         }
-        
+
         .btn {
             padding: 10px 20px;
             margin: 0 5px;
@@ -252,17 +252,17 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .btn-print {
-            background: #059669;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
             color: white;
         }
-        
+
         .btn-back {
-            background: #dc2626;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;
         }
-        
+
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -275,11 +275,11 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            
+
             .print-buttons {
                 display: none !important;
             }
-            
+
             page {
                 box-shadow: none;
                 margin: 0;
@@ -289,31 +289,31 @@
                 min-height: 210mm;
                 page-break-after: always;
             }
-            
+
             .header-section {
                 margin-bottom: 8px;
                 padding-bottom: 5px;
             }
-            
+
             .school-name {
                 font-size: 16px !important;
                 margin-bottom: 2px !important;
             }
-            
+
             .school-details {
                 font-size: 8px !important;
                 line-height: 1.1 !important;
             }
-            
+
             .report-badge {
                 padding: 3px 6px !important;
                 font-size: 8px !important;
             }
-            
+
             .report-info {
                 font-size: 7px !important;
             }
-            
+
             /* Force print colors and gradients */
             .bills-table th,
             .report-badge,
@@ -353,13 +353,13 @@ $class_name = $enroll ? $this->db->get_where('class', array('class_id' => $enrol
 
 // Get arrears and new bills
 $arrears = $this->db->query(
-    "SELECT SUM(amount - amount_paid) as total FROM invoice 
+    "SELECT SUM(amount - amount_paid) as total FROM invoice
      WHERE student_id = ? AND year < ? AND status != 'paid'",
     array($student_id, $year)
 )->row()->total ?? 0;
 
 $new_bills = $this->db->query(
-    "SELECT SUM(amount) as total FROM invoice 
+    "SELECT SUM(amount) as total FROM invoice
      WHERE student_id = ? AND year = ? AND term = ?",
     array($student_id, $year, $term)
 )->row()->total ?? 0;
@@ -368,19 +368,19 @@ $total_bill = $arrears + $new_bills;
 
 // Get invoice items
 $arrears_items = $this->db->query(
-    "SELECT i.title, SUM(i.amount) as amount 
-     FROM invoice_items i 
-     JOIN invoice inv ON i.invoice_code = inv.invoice_code 
-     WHERE inv.student_id = ? AND inv.year < ? AND inv.status != 'paid' 
+    "SELECT i.title, SUM(i.amount) as amount
+     FROM invoice_items i
+     JOIN invoice inv ON i.invoice_code = inv.invoice_code
+     WHERE inv.student_id = ? AND inv.year < ? AND inv.status != 'paid'
      GROUP BY i.title",
     array($student_id, $year)
 )->result_array();
 
 $new_items = $this->db->query(
-    "SELECT i.title, SUM(i.amount) as amount 
-     FROM invoice_items i 
-     JOIN invoice inv ON i.invoice_code = inv.invoice_code 
-     WHERE inv.student_id = ? AND inv.year = ? AND inv.term = ? 
+    "SELECT i.title, SUM(i.amount) as amount
+     FROM invoice_items i
+     JOIN invoice inv ON i.invoice_code = inv.invoice_code
+     WHERE inv.student_id = ? AND inv.year = ? AND inv.term = ?
      GROUP BY i.title",
     array($student_id, $year, $term)
 )->result_array();
@@ -584,7 +584,7 @@ $grand_total = $total_arrears + $total_new_bills;
             <div style="text-align: center; width: 100%; margin-bottom: 8px;">
                 <div class="school-name"><?=$system_name;?></div>
             </div>
-            
+
             <table style="width: 100%;">
                 <tbody>
                     <tr>
@@ -650,8 +650,8 @@ $grand_total = $total_arrears + $total_new_bills;
                 </tr>
             </thead>
             <tbody>
-                <?php 
-                foreach($arrears_invoices as $arr): 
+                <?php
+                foreach($arrears_invoices as $arr):
                     // Skip current term invoices in arrears section
                     if($arr['year'] == $year && $arr['term'] == $term) continue;
                 ?>
@@ -720,14 +720,14 @@ $grand_total = $total_arrears + $total_new_bills;
         </div>
 
         <div class="footer-note">
-            <strong>Note:</strong> This bill statement shows all outstanding arrears from previous terms and current term bills. 
+            <strong>Note:</strong> This bill statement shows all outstanding arrears from previous terms and current term bills.
             Please ensure all payments are made before the next term begins. For payment inquiries, contact the accounts office.
         </div>
 
         </div>
     </div>
     </page>
-    
+
     <div class="print-buttons">
         <button onclick="window.print()" class="btn btn-print">Print Bill</button>
         <button onclick="window.close()" class="btn btn-back">Close</button>

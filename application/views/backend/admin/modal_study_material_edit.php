@@ -77,7 +77,7 @@ foreach ($single_study_material_info as $row) {
                         <label for="field-ta" class="control-label"><?php echo get_phrase('class'); ?></label>
 
                         <div class="">
-                            <select name="class_id" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 selectboxit" id="class_id_edit" onchange="return get_class_subject_edit(this.value)" required="">
+                            <select name="class_id" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 select2" id="class_id_edit" onchange="return get_class_subject_edit(this.value)" required="">
                                 <option value=""><?php echo get_phrase('select_class'); ?></option>
                                 <?php foreach ($class_info as $row2) {
                                     //add section A or B if the class has more than one section
@@ -102,7 +102,7 @@ foreach ($single_study_material_info as $row) {
                             <select name="subject_id" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 text-gray-900 text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" id="subject_selector_holder_edit" required="required">
                                <?php
                                $subject = $this->db->get_where('subject',array('class_id'=>$row['class_id'], 'year' => $running_year, 'term' => $running_term))->result_array();
-                               foreach ($subject as $row2){                           
+                               foreach ($subject as $row2){
                                ?>
                                 <option value="<?php echo $row2['subject_id']; ?>" <?php if ($row['subject_id'] == $row2['subject_id']) echo 'selected'; ?>>
                                         <?php echo $row2['name']; ?>
@@ -127,7 +127,7 @@ foreach ($single_study_material_info as $row) {
                         <label for="field-ta" class="control-label"><?php echo get_phrase('file_type'); ?></label>
 
                         <div class="">
-                            <select name="file_type" class="form-control selectboxit">
+                            <select name="file_type" class="form-control select2">
                                 <option value=""><?php echo get_phrase('select_file_type'); ?></option>
                                 <option value="doc" <?php if($row['file_type'] == 'doc') echo 'selected'; ?>><?php echo get_phrase('docx'); ?>/Ms Word</option>
                                 <option value="pdf" <?php if($row['file_type'] == 'pdf') echo 'selected'; ?>><?php echo get_phrase('pdf'); ?></option>
@@ -173,13 +173,13 @@ foreach ($single_study_material_info as $row) {
             autoclose: true,
             todayHighlight: true
         });
-        
+
         // AJAX form submission
         $('#edit_form').submit(function(e) {
             e.preventDefault();
-            
+
             var formData = new FormData(this);
-            
+
             $.ajax({
                 url: $(this).attr('action'),
                 type: 'POST',

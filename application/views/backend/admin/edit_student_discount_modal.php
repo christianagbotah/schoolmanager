@@ -23,7 +23,7 @@ $student = $this->db->select('s.student_id, s.name, s.student_code, CONCAT(c.nam
 
 <?php echo form_open('admin/manage_discount_assignments/update', array('id' => 'edit_form_modal')); ?>
     <input type="hidden" name="assignment_id" value="<?php echo $assignment->assignment_id; ?>">
-    
+
     <div class="student-info">
         <div style="font-weight: 600; color: #1a202c; margin-bottom: 4px;">
             <i class="fa fa-user"></i> <?php echo $student->name; ?>
@@ -58,7 +58,7 @@ function initEditModal() {
     $('#profile_search_edit').val('');
     $('#profile_suggestions_edit').hide();
     updateProfileDisplayEdit();
-    
+
     $('#profile_search_edit').off('click focus input');
     $('#profile_search_edit').on('click focus', function() {
         const filtered = allProfilesEdit.filter(p => String(p.profile_id) !== String(selectedProfileEdit) && !assignedProfileIds.includes(String(p.profile_id)));
@@ -72,8 +72,8 @@ function initEditModal() {
             displayProfileSuggestionsEdit(filtered);
             return;
         }
-        const filtered = allProfilesEdit.filter(p => 
-            String(p.profile_id) !== String(selectedProfileEdit) && 
+        const filtered = allProfilesEdit.filter(p =>
+            String(p.profile_id) !== String(selectedProfileEdit) &&
             !assignedProfileIds.includes(String(p.profile_id)) &&
             p.profile_name.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -98,14 +98,14 @@ function displayProfileSuggestionsEdit(data) {
         $('#profile_suggestions_edit').html('<div style="padding: 16px; text-align: center; color: #94a3b8;">No profiles found</div>').show();
         return;
     }
-    
+
     let html = '';
     data.forEach(profile => {
         const discountValue = profile.discount_value ? parseFloat(profile.discount_value).toFixed(2) : '0.00';
         const discountMethod = profile.discount_method || 'percentage';
         const valueDisplay = discountMethod === 'percentage' ? discountValue + '%' : 'GHS ' + discountValue;
         const categoryBadge = profile.discount_category === 'invoice' ? '📄 Invoice' : '📅 Daily Fees';
-        
+
         let typeDisplay = 'N/A';
         if(profile.discount_category === 'invoice') {
             if(profile.bill_item_ids === '*') {
@@ -120,7 +120,7 @@ function displayProfileSuggestionsEdit(data) {
         } else if(profile.discount_category === 'daily_fees' && profile.discount_type) {
             typeDisplay = profile.discount_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         }
-        
+
         html += `
             <div class="profile-item-edit" data-id="${profile.profile_id}" style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; this.style.color='white'; this.querySelector('.profile-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.profile-meta').style.color='#718096';">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -155,12 +155,12 @@ function updateProfileDisplayEdit() {
         $('#selected_profile_display_edit').html('<div style="color: #94a3b8; text-align: center; width: 100%; padding: 8px;"><i class="fa fa-info-circle"></i> No profile selected</div>');
         return;
     }
-    
+
     const discountValue = profile.discount_value ? parseFloat(profile.discount_value).toFixed(2) : '0.00';
     const discountMethod = profile.discount_method || 'percentage';
     const valueDisplay = discountMethod === 'percentage' ? discountValue + '%' : 'GHS ' + discountValue;
     const categoryBadge = profile.discount_category === 'invoice' ? '📄' : '📅';
-    
+
     let typeDisplay = 'N/A';
     if(profile.discount_category === 'invoice') {
         if(profile.bill_item_ids === '*') {
@@ -175,7 +175,7 @@ function updateProfileDisplayEdit() {
     } else if(profile.discount_category === 'daily_fees' && profile.discount_type) {
         typeDisplay = profile.discount_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
-    
+
     $('#selected_profile_display_edit').html(`
         <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 10px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 6px rgba(245, 87, 108, 0.3); width: 100%;">
             <div style="flex: 1;">
@@ -194,23 +194,28 @@ $(document).off('click.editDropdown').on('click.editDropdown', function(e) {
 
 $('#edit_form_modal').submit(function(e) {
     e.preventDefault();
-    
+
     if(!selectedProfileEdit) {
         showAjaxModal_alert('<?php echo get_phrase("please_select_profile"); ?>', 'error');
         return;
     }
-    
+
     $('.close').click();
     showAjaxModal_alert('<?php echo get_phrase("updating"); ?>...', 'loading');
-    
+
     let postData = $(this).serialize() + '&profile_id=' + encodeURIComponent(selectedProfileEdit);
-    
+
+    // Debug logging
+    console.log('Submitting edit form with data:', postData);
+    console.log('Selected profile ID:', selectedProfileEdit);
+
     $.ajax({
         url: $(this).attr('action'),
         type: 'POST',
         data: postData,
         dataType: 'json'
     }).done(function(response) {
+        console.log('Response:', response);
         if(response.status === 'success') {
             showAjaxModal_alert(response.message, 'success', false, true);
             // Keep alert open and reload page after delay
@@ -224,7 +229,8 @@ $('#edit_form_modal').submit(function(e) {
         } else {
             showAjaxModal_alert(response.message, 'error');
         }
-    }).fail(function() {
+    }).fail(function(xhr, status, error) {
+        console.error('AJAX Error:', {xhr: xhr, status: status, error: error});
         showAjaxModal_alert('<?php echo get_phrase("an_error_occurred"); ?>', 'error');
     });
 });

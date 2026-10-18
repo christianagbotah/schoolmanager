@@ -19,7 +19,7 @@ function valid_email_address($email_address) {
     <link rel="stylesheet" href="<?php echo base_url('assets/css/bootstrap.css');?>">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/cdn/css/font-awesome-6.4.0.min.css">
     <link href="<?php echo base_url(); ?>assets/cdn/fonts/inter.css" rel="stylesheet">
-    <script src="<?php echo base_url('assets/js/jquery-3.3.1.min.js');?>"></script>
+    <script src="<?php echo base_url('assets/login_page/js/vendor/jquery-3.3.1.min.js');?>"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         *::-webkit-scrollbar { width: 0; height: 0; }
@@ -161,7 +161,7 @@ function valid_email_address($email_address) {
                         <label class="form-label">Authentication Key</label>
                         <div class="input-wrapper">
                             <i class="fas fa-key"></i>
-                            <input type="password" class="form-input auth-key-input" name="auth_key" id="auth_key" maxlength="5" placeholder="XXXXX" required autocomplete="off" oninput="auth_verification(this.value)">
+                            <input type="password" class="form-input auth-key-input" name="auth_key" id="auth_key" maxlength="5" placeholder="XXXXX" required autocomplete="off" onkeyup="auth_verification(this.value)">
                         </div>
                     </div>
                 </form>
@@ -237,7 +237,7 @@ function valid_email_address($email_address) {
 
         function auth_verification(auth_key) {
             if(auth_key.length < 5) return;
-            
+
             $.ajax({
                 url: '<?php echo site_url('login/auth_verification/') ?>' + auth_key,
                 success: function(response) {
@@ -253,7 +253,7 @@ function valid_email_address($email_address) {
                         } else if(response == 'true' || response == 'true_student') {
                             $('#auth_key2').val(auth_key);
                             $('#auth_verification_holder').html('<div class="auth-status loading"><i class="fas fa-spinner fa-spin"></i> Authenticating...</div>');
-                            
+
                             setTimeout(() => {
                                 $('#auth_verification_holder').html('<div class="auth-status success"><i class="fas fa-check-circle"></i> Authentication successful!</div>');
                                 $('#auth_key').prop('readonly', true);
@@ -263,7 +263,7 @@ function valid_email_address($email_address) {
                                 $('#auth_verification_holder').fadeOut(300, function() {
                                     $('#auth_form').hide();
                                     $('#form_login').fadeIn(300);
-                                    
+
                                     if(response == 'true_student') {
                                         $('#username_email').attr({
                                             'type': 'text',
@@ -275,10 +275,10 @@ function valid_email_address($email_address) {
                             }, 3500);
                         } else {
                             $('#auth_verification_holder').html('<div class="auth-status loading"><i class="fas fa-spinner fa-spin"></i> Authenticating...</div>');
-                            
+
                             setTimeout(() => {
                                 $('#auth_verification_holder').html('<div class="auth-status error"><i class="fas fa-times-circle"></i> Authentication failed<span class="close-auth" onclick="$(this).parent().fadeOut()">&times;</span></div>');
-                                
+
                                 if(fail_counter == 2) {
                                     $('#fail_login').show().find('#fail_message').text('2 failed attempts. Your account will be blocked after 3rd failure.');
                                 } else if(fail_counter == 3) {

@@ -1,13 +1,13 @@
 <div class="modal fade" id="subjectModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header" style="background: #764ba2; color: white;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                 <button type="button" class="close" data-dismiss="modal" style="color: white;">&times;</button>
                 <h4 class="modal-title"><i class="fa fa-book"></i> Add Subjects to Exam</h4>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="modal_exam_id">
-                
+
                 <div class="row">
                     <div class="col-md-6">
                         <h5>Core Subjects</h5>
@@ -32,7 +32,7 @@
 <script>
 function showSubjectModal(examId) {
     $('#modal_exam_id').val(examId);
-    
+
     $.ajax({
         url: '<?php echo site_url("examination/get_all_subjects"); ?>',
         type: 'GET',
@@ -40,7 +40,7 @@ function showSubjectModal(examId) {
         success: function(response) {
             let coreHtml = '';
             let electiveHtml = '';
-            
+
             response.data.forEach(subject => {
                 const checkbox = `
                     <div class="checkbox">
@@ -49,14 +49,14 @@ function showSubjectModal(examId) {
                             ${subject.name}
                         </label>
                     </div>`;
-                
+
                 if(subject.subject_type === 'core') {
                     coreHtml += checkbox;
                 } else {
                     electiveHtml += checkbox;
                 }
             });
-            
+
             $('#core-subjects').html(coreHtml);
             $('#elective-subjects').html(electiveHtml);
             $('#subjectModal').modal('show');
@@ -67,19 +67,19 @@ function showSubjectModal(examId) {
 function saveExamSubjects() {
     const examId = $('#modal_exam_id').val();
     const subjectIds = [];
-    
+
     $('input[name="subjects[]"]:checked').each(function() {
         subjectIds.push($(this).val());
     });
-    
+
     if(subjectIds.length === 0) {
         showAjaxModal_alert('Please select at least one subject', 'warning');
         return;
     }
-    
+
     $('#subjectModal').modal('hide');
     showAjaxModal_alert('Adding subjects...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url("examination/add_exam_subjects"); ?>',
         type: 'POST',

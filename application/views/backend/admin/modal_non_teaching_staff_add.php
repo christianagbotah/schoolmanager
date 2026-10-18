@@ -1,47 +1,7 @@
 <style type="text/css">
 	.validate-has-error { color: red; }
-
-.staff-form-modal { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-.staff-form-modal > .bg-white { border: 1px solid #e2e8f0; border-radius: 14px !important; box-shadow: 0 14px 34px rgba(15,23,42,.12) !important; }
-.non-teaching-form-modal > .bg-white > .bg-gradient-to-r { background-image: none !important; background-color: #5b21b6 !important; }
-.staff-form-modal > .bg-white > div:first-child { padding: 16px 20px !important; }
-.staff-form-modal h2.text-2xl { font-size: 20px !important; line-height: 1.3 !important; }
-.staff-form-modal .p-6 { padding: 20px !important; }
-.staff-form-modal h3.text-lg {
-    font-size: 16px !important; font-weight: 800 !important; color: #0f172a !important;
-    margin-bottom: 14px !important; padding-bottom: 10px !important; border-bottom-width: 1px !important;
-}
-.staff-form-modal label.text-xl { margin-bottom: 7px !important; font-size: 14px !important; line-height: 1.35 !important; font-weight: 700 !important; color: #334155 !important; }
-.staff-form-modal input.text-2xl,
-.staff-form-modal select.text-2xl,
-.staff-form-modal textarea.text-2xl {
-    min-height: 46px !important; padding: 10px 12px !important; border-width: 1px !important;
-    border-color: #cbd5e1 !important; border-radius: 9px !important; font-size: 15px !important;
-    line-height: 1.4 !important; color: #0f172a !important;
-}
-.staff-form-modal textarea.text-2xl { min-height: 96px !important; resize: vertical; }
-.staff-form-modal input.text-2xl:focus,
-.staff-form-modal select.text-2xl:focus,
-.staff-form-modal textarea.text-2xl:focus { border-color: #7c3aed !important; box-shadow: 0 0 0 3px rgba(124,58,237,.14) !important; }
-.staff-form-modal #id_generator { min-height: 46px; padding: 10px 16px !important; border-radius: 9px !important; font-size: 14px !important; }
-.staff-form-modal .btn-file,
-.staff-form-modal a.fileinput-exists { min-height: 40px; padding: 8px 14px !important; font-size: 14px !important; border-radius: 8px !important; }
-.staff-form-modal small.text-base { font-size: 13px !important; line-height: 1.4 !important; }
-.staff-form-modal button[type="submit"].text-2xl {
-    min-height: 46px; padding: 10px 20px !important; border-radius: 9px !important;
-    font-size: 15px !important; font-weight: 800 !important; box-shadow: 0 2px 8px rgba(124,58,237,.2) !important;
-}
-.staff-form-modal .gap-5 { gap: 16px !important; }
-.staff-form-modal .mb-8 { margin-bottom: 22px !important; }
-.staff-form-modal .mb-6 { margin-bottom: 20px !important; }
-@media (max-width: 640px) {
-    .staff-form-modal .p-6 { padding: 14px !important; }
-    .staff-form-modal input.text-2xl,
-    .staff-form-modal select.text-2xl,
-    .staff-form-modal textarea.text-2xl { font-size: 16px !important; }
-}
 </style>
-<div class="max-w-7xl mx-auto staff-form-modal non-teaching-form-modal">
+<div class="max-w-7xl mx-auto">
 	<div class="bg-white rounded-lg shadow-lg overflow-hidden">
 		<div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-5">
 			<h2 class="text-2xl font-bold text-white flex items-center gap-2">
@@ -76,7 +36,7 @@
 			<!-- Personal Information -->
 			<div class="mb-6">
 				<h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-purple-500">Personal Information</h3>
-				
+
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
 					<div>
 						<label class="block mb-2.5 text-xl font-bold text-gray-700">
@@ -105,10 +65,10 @@
 						Staff ID <span class="text-red-600">*</span>
 					</label>
 					<div class="flex gap-2">
-						<?php 
+						<?php
 							$staff_code_pref = $this->db->get_where('settings', array('type'=>'non_teaching_staff_code_prefix'))->row();
 							$staff_code_f = $this->db->get_where('settings', array('type'=>'non_teaching_staff_code_format'))->row();
-							
+
 							// Default prefix and format if not set
 							if (!$staff_code_pref) {
 								$staff_code_pref = (object)['description' => 'NTS-'];
@@ -116,7 +76,7 @@
 							if (!$staff_code_f) {
 								$staff_code_f = (object)['description' => '00001'];
 							}
-							
+
 							$staff_code_prefix = $staff_code_pref->description;
 							$staff_code_format = $staff_code_f->description;
 							$id_length = strlen($staff_code_prefix.$staff_code_format);
@@ -125,7 +85,7 @@
 							$this->db->order_by('staff_code', 'desc');
 							$this->db->limit(1);
 							$s_query = $this->db->get('non_teaching_staff');
-							
+
 							if($s_query->num_rows() > 0) {
 								$s_id = $s_query->row()->staff_code;
 								$first_num = '';
@@ -134,13 +94,13 @@
 								for($i=0; $i<strlen($s_id); $i++) {
 									if(is_numeric($s_id[$i])) {
 										$first_num = $s_id[$i];
-										break; 
+										break;
 									}
 								}
 								$position_of_first_num = strpos($s_id, $first_num);
 								$n_sid = substr($s_id, $position_of_first_num, strlen($s_id) - $i);
 								$staff_code = $n_sid + 1;
-								
+
 								if($first_num == 0) {
 									$old_len = strlen($s_id);
 									$new_len = strlen($staff_code);
@@ -153,13 +113,13 @@
 								$staff_code = $staff_code_prefix . $staff_code_format;
 							}
 						?>
-						<input type="text" id="id_field" onkeyup="verify_sid()" class="bg-white border-2 border-gray-300 text-gray-900 text-2xl rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 block w-full px-4 py-5 transition" name="staff_code" minlength="<?php echo $id_length; ?>" maxlength="<?php echo $id_length; ?>" value="<?php 
+						<input type="text" id="id_field" onkeyup="verify_sid()" class="bg-white border-2 border-gray-300 text-gray-900 text-2xl rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 block w-full px-4 py-5 transition" name="staff_code" minlength="<?php echo $id_length; ?>" maxlength="<?php echo $id_length; ?>" value="<?php
 							if($s_query->num_rows() > 0) {
-								if(isset($first_num) && $first_num == '0') { 
+								if(isset($first_num) && $first_num == '0') {
 									echo $staff_code;
 								} else {
 									echo $staff_code_prefix.$staff_code;
-								} 
+								}
 							} else {
 								echo $staff_code;
 							}
@@ -265,7 +225,7 @@
 			<!-- Contact Information -->
 			<div class="mb-6">
 				<h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-purple-500">Contact Information</h3>
-				
+
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
 					<div>
 						<label class="block mb-2.5 text-xl font-bold text-gray-700">
@@ -293,7 +253,7 @@
 			<!-- Identification -->
 			<div class="mb-6">
 				<h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-purple-500">Identification</h3>
-				
+
 				<div class="grid grid-cols-1 gap-5 mb-4">
 					<div>
 						<label class="block mb-2.5 text-xl font-bold text-gray-700">
@@ -344,7 +304,7 @@
 			<!-- Account Information -->
 			<div class="mb-6">
 				<h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-purple-500">Account Information</h3>
-				
+
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
 					<div>
 						<label class="block mb-2.5 text-xl font-bold text-gray-700">
@@ -418,14 +378,14 @@
 
 	$('#non_teaching_staff_add_form').submit(function(event) {
 		event.preventDefault();
-		
+
 		showConfirmModal(
 			'Confirm Add Staff',
 			'Are you sure you want to add this non-teaching staff member?',
 			function() {
 				// Close main modal first
 				$('#modal_ajax').modal('hide');
-				
+
 				// Show loading modal (cleaner pattern matching teacher forms)
 				showAjaxModal_alert('Creating non-teaching staff...', 'loading');
 

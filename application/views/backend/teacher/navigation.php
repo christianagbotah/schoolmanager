@@ -18,12 +18,12 @@ $theme_color = $this->db->get_where('settings', array('type' => 'theme_color'))-
 
 @media (max-width: 768px) {
     .sidebar-mobile-menu { display: block !important; visibility: visible !important; }
-    .sidebar-menu { position: fixed !important; left: -100% !important; top: 0 !important; width: 280px !important; height: 100vh !important; z-index: 100 !important; transition: left 0.3s ease !important; overflow-y: auto !important; display: flex !important; flex-direction: column !important; }
+    .sidebar-menu { position: fixed !important; left: -100% !important; top: 0 !important; width: 280px !important; height: 100vh !important; z-index: 1000 !important; transition: left 0.3s ease !important; overflow-y: auto !important; display: flex !important; flex-direction: column !important; }
     .sidebar-menu.mobile-open { left: 0 !important; }
     .sidebar-menu .logo-env { display: flex !important; justify-content: flex-start !important; }
     .sidebar-menu.mobile-open .logo-env { justify-content: flex-end !important; }
     .sidebar-menu .logo-env .logo a { background: #ffffff !important; padding: 12px !important; border-radius: 9999px !important; display: inline-block !important; }
-    .sidebar-menu #main-menu { flex: 1 !important; overflow-y: auto !important; }
+    .sidebar-menu #main-menu { flex: 1 !important; overflow-y: auto !important; display: block !important; visibility: visible !important; }
     .sidebar-menu #main-menu #search { position: sticky !important; top: 0 !important; z-index: 101 !important; background: <?php echo $theme_color; ?> !important; }
     .sidebar-menu .logo-env { position: sticky !important; top: 0 !important; z-index: 101 !important; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
     .page-container { margin-left: 0 !important; }
@@ -79,7 +79,7 @@ $theme_color = $this->db->get_where('settings', array('type' => 'theme_color'))-
         </li>
 
         <div class="nav-section-header text-slate-400 text-xs font-bold uppercase tracking-wider px-6">Main</div>
-        
+
         <li class="<?php if ($page_name == 'dashboard' || $page_name == 'dashboard_new') echo 'active'; ?>">
             <a href="#" onclick="navigation('<?php echo site_url('teacher/dashboard/ajax'); ?>')">
                 <i class="entypo-gauge"></i>
@@ -284,7 +284,7 @@ $theme_color = $this->db->get_where('settings', array('type' => 'theme_color'))-
             </ul>
         </li>
 
-        <li class="<?php if ($page_name == 'marks_manage' || $page_name == 'marks_manage_view' || $page_name == 'manage_mark' || $page_name == 'question_paper' || $page_name == 'portfolio_assessment_manage_view' || $page_name == 'portfolio_assessment_manage') echo 'opened active'; ?>">
+        <li class="<?php if ($page_name == 'marks_manage' || $page_name == 'marks_manage_view' || $page_name == 'manage_mark' || $page_name == 'question_paper' || $page_name == 'portfolio_assessment_manage_view' || $page_name == 'portfolio_assessment_manage' || $page_name == 'assessment_graph' || $page_name == 'cummulative_reports') echo 'opened active'; ?>">
             <a href="#">
                 <i class="fa fa-clipboard-list"></i>
                 <span><?php echo get_phrase('examination'); ?></span>
@@ -295,12 +295,35 @@ $theme_color = $this->db->get_where('settings', array('type' => 'theme_color'))-
                         <span><i class="fa fa-edit"></i> <?php echo get_phrase('manage_exam_marks'); ?></span>
                     </a>
                 </li>
-                <li id="raw_nav_teacher" class="<?php if ($page_name == 'raw_score_grade') echo 'active'; ?>" <?php 
+                <li id="raw_nav_teacher" class="<?php if ($page_name == 'raw_score_grade') echo 'active'; ?>" <?php
                     $waec_enabled = $this->db->get_where('settings', array('type' => 'raw_score'))->row();
                     if (!$waec_enabled || $waec_enabled->description != 'Yes') echo 'style="display: none;"';
                 ?>>
                     <a href="#" onclick="navigation('<?php echo site_url('admin/grade/raw_score_grade'); ?>')">
                         <span><i class="fa fa-certificate"></i> WAEC Standard Grading</span>
+                    </a>
+                </li>
+
+                <?php
+                // Show Portfolio Assessment menu only if enabled in settings
+                $portfolio_enabled = $this->db->get_where('settings', array('type' => 'portfolio_assessment_enabled'))->row();
+                if ($portfolio_enabled && $portfolio_enabled->description == '1'):
+                ?>
+                <li class="<?php if ($page_name == 'portfolio_assessment_manage' || $page_name == 'portfolio_assessment_manage_view') echo 'active'; ?>">
+                    <a href="#" onclick="navigation('<?php echo site_url('teacher/portfolio_assessment_manage'); ?>')">
+                        <span><i class="fa fa-chart-line"></i> <?php echo get_phrase('portfolio_assessment'); ?></span>
+                    </a>
+                </li>
+                <li class="<?php if ($page_name == 'assessment_graph') echo 'active'; ?>">
+                    <a href="#" onclick="navigation('<?php echo site_url('teacher/assessment_graph'); ?>')">
+                        <span><i class="fa fa-chart-area"></i> <?php echo get_phrase('assessment_graphs'); ?></span>
+                    </a>
+                </li>
+                <?php endif; ?>
+
+                <li class="<?php if ($page_name == 'cummulative_reports') echo 'active'; ?>">
+                    <a href="#" onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_cumulative_report'); ?>')">
+                        <span><i class="fa fa-file-alt"></i> <?php echo get_phrase('cumulative_reports'); ?></span>
                     </a>
                 </li>
             </ul>
@@ -365,11 +388,11 @@ $theme_color = $this->db->get_where('settings', array('type' => 'theme_color'))-
         $has_conduct_items = false;
         $has_interest_items = false;
         $has_attendance_monitoring = false;
-        
+
         if (!empty($teacher_id)) {
             // Get CI instance to access models
             $CI =& get_instance();
-            
+
             // Use permission helper if available
             if (function_exists('user_has_permission')) {
                 $has_head_teacher_remarks = user_has_permission($teacher_id, 'teacher', 'head_teacher_remarks', 'view');
@@ -381,19 +404,19 @@ $theme_color = $this->db->get_where('settings', array('type' => 'theme_color'))-
                 if (!isset($CI->user_permissions_model)) {
                     $CI->load->model('User_permissions_model', 'user_permissions_model');
                 }
-                
+
                 $has_head_teacher_remarks = $CI->user_permissions_model->check_permission($teacher_id, 'teacher', 'head_teacher_remarks', 'view');
                 $has_teacher_remarks_templates = $CI->user_permissions_model->check_permission($teacher_id, 'teacher', 'teacher_remarks_templates', 'view');
                 $has_conduct_items = $CI->user_permissions_model->check_permission($teacher_id, 'teacher', 'conduct_items', 'view');
                 $has_interest_items = $CI->user_permissions_model->check_permission($teacher_id, 'teacher', 'interest_items', 'view');
             }
-            
+
             // Check attendance monitoring privilege
             if (function_exists('can_access_attendance_monitoring')) {
                 $has_attendance_monitoring = can_access_attendance_monitoring('teacher', $teacher_id);
             }
         }
-        
+
         // Show Special Permissions section if teacher has any special permissions
         if ($has_head_teacher_remarks || $has_teacher_remarks_templates || $has_conduct_items || $has_interest_items || $has_attendance_monitoring):
         ?>
@@ -468,10 +491,10 @@ $theme_color = $this->db->get_where('settings', array('type' => 'theme_color'))-
 $(function() {
     $('#main-menu li a').addClass('list-group-item');
     $('.list-group-item').css('background-color', 'inherit');
-    
+
     // Collapse all menus except the one containing active item
     $('#main-menu li').not('.active').not(':has(li.active)').removeClass('opened');
-    
+
     // Scroll to active menu item
     var $activeItem = $('#main-menu li.active').first();
     if ($activeItem.length) {
@@ -480,7 +503,7 @@ $(function() {
             var itemTop = $activeItem.position().top;
             var sidebarHeight = $('.sidebar-menu').height();
             var itemHeight = $activeItem.outerHeight();
-            
+
             if (itemTop < 0 || itemTop + itemHeight > sidebarHeight) {
                 $('.sidebar-menu').animate({
                     scrollTop: sidebarTop + itemTop - (sidebarHeight / 2) + (itemHeight / 2)
@@ -488,23 +511,23 @@ $(function() {
             }
         }, 100);
     }
-    
+
     // Position popup menus when sidebar is collapsed - CLICK-BASED for desktop
     var currentOpenMenu = null;
-    
+
     // Click handler for parent menu items in collapsed mode
     $(document).on('click', '.page-container.sidebar-collapsed #main-menu > li:has(ul) > a', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         var $li = $(this).parent('li');
         var $submenu = $li.children('ul');
-        
+
         // Close any currently open menu
         if (currentOpenMenu && currentOpenMenu[0] !== $submenu[0]) {
             currentOpenMenu.css('display', 'none');
         }
-        
+
         // Toggle current menu
         if ($submenu.css('display') === 'block') {
             $submenu.css('display', 'none');
@@ -518,17 +541,17 @@ $(function() {
                 'position': 'fixed',
                 'left': '70px'
             });
-            
+
             var offset = $li.offset();
             var topPos = offset.top;
             var windowHeight = $(window).height();
             var submenuHeight = $submenu.outerHeight();
-            
+
             // Adjust position if menu would overflow viewport
             if (topPos + submenuHeight > windowHeight) {
                 topPos = Math.max(20, windowHeight - submenuHeight - 20);
             }
-            
+
             // Now show it properly positioned
             $submenu.css({
                 'top': topPos + 'px',
@@ -536,10 +559,10 @@ $(function() {
             });
             currentOpenMenu = $submenu;
         }
-        
+
         return false;
     });
-    
+
     // Close popup menu when clicking outside
     $(document).on('click', function(e) {
         if ($('.page-container').hasClass('sidebar-collapsed')) {
@@ -549,7 +572,7 @@ $(function() {
             }
         }
     });
-    
+
     // Hover tooltip for non-parent items in collapsed mode
     var hoverTimeout;
     $(document).on('mouseenter', '.page-container.sidebar-collapsed #main-menu > li:not(:has(ul))', function() {
@@ -557,10 +580,10 @@ $(function() {
         var $link = $li.children('a');
         var offset = $li.offset();
         var topPos = offset.top;
-        
+
         clearTimeout(hoverTimeout);
         $('.hover-tooltip').remove();
-        
+
         var title = $link.find('span').text();
         if (title) {
             $('body').append('<span class="hover-tooltip" style="position: fixed; left: 70px; top: ' + topPos + 'px; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); color: #fff; padding: 10px 20px; border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); z-index: 101; white-space: nowrap; border: 1px solid rgba(255,255,255,0.1); pointer-events: none;">' + title + '</span>');
@@ -570,12 +593,12 @@ $(function() {
             $('.hover-tooltip').remove();
         }, 100);
     });
-    
+
     // Mobile drawer toggle
     $('.sidebar-mobile-menu a').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         if ($('.sidebar-menu').hasClass('mobile-open')) {
             $('.sidebar-menu').removeClass('mobile-open');
             $('.mobile-backdrop').remove();
@@ -583,16 +606,16 @@ $(function() {
         } else {
             // Clean up any existing backdrop first
             $('.mobile-backdrop').remove();
-            
+
             $('body').addClass('sidebar-open');
-            $('body').append('<div class="mobile-backdrop" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99;"></div>');
+            $('body').append('<div class="mobile-backdrop" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10;"></div>');
             setTimeout(function() {
                 $('.sidebar-menu').addClass('mobile-open');
-                $('#main-menu').show();
+                $('#main-menu').css({'display': 'block', 'visibility': 'visible'}).show();
             }, 10);
         }
     });
-    
+
     // Close drawer on backdrop click
     $(document).on('click', '.mobile-backdrop', function() {
         $('.sidebar-menu').removeClass('mobile-open');
@@ -602,12 +625,13 @@ $(function() {
 });
 
 function navigation(url, type) {
-    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        $('#main-menu').css('display', 'none');
-    }
-    const isMobile = window.matchMedia("only screen and (max-width: 766px)").matches;
+    // Close mobile sidebar when navigating
+    const isMobile = window.matchMedia("only screen and (max-width: 768px)").matches;
     if (isMobile) {
-        $('#main-menu').css('display', 'none');
+        $('.sidebar-menu').removeClass('mobile-open');
+        $('.mobile-backdrop').remove();
+        $('body').removeClass('sidebar-open');
+        // Don't hide the menu - just close the sidebar
     }
     ajaxFunction(url, type);
 }

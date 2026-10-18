@@ -1,30 +1,21 @@
 <style>
-.modern-container, .modern-container * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-sizing: border-box; }
-.modern-container { max-width: 900px; margin: 0 auto; padding: 0 0 32px; }
-.modern-header { background: #2563eb; color: white; padding: 18px 20px; border-radius: 14px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25); }
-.modern-header h2 { margin: 0 0 6px 0; font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 12px; color: white; }
-.modern-header p { margin: 0; opacity: 0.95; font-size: 14px; }
-.modern-card { background: white; border-radius: 14px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.modern-form-group { margin-bottom: 18px; }
-.modern-label { display: block; font-weight: 700; color: #334155; font-size: 13px; margin-bottom: 7px; letter-spacing: 0.3px; }
+* { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.modern-container { max-width: 900px; margin: 0 auto; padding: 24px; }
+.modern-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25); }
+.modern-header h2 { margin: 0 0 8px 0; font-size: 28px; font-weight: 700; display: flex; align-items: center; gap: 12px; color: white; }
+.modern-header p { margin: 0; opacity: 0.95; font-size: 15px; }
+.modern-card { background: white; border-radius: 16px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.modern-form-group { margin-bottom: 32px; }
+.modern-label { display: block; font-weight: 600; color: #2d3748; font-size: 15px; margin-bottom: 12px; letter-spacing: 0.3px; }
 .modern-label i { color: #667eea; margin-right: 8px; }
-.modern-input, .modern-select { width: 100%; height: var(--sm-ui-control-height, 42px); padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 9px; font-size: 14px; transition: all 0.2s; background: #ffffff; color: #1a202c; font-weight: 500; }
+.modern-input, .modern-select { width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; transition: all 0.2s; background: #ffffff; color: #1a202c; font-weight: 500; }
 .modern-input:focus, .modern-select:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); background: #f7fafc; }
-.modern-actions { display: flex; gap: 8px; margin-top: 18px; }
-.modern-btn { min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 14px; border-radius: 9px; font-weight: 700; font-size: 14px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-.modern-btn-primary { background: #2563eb; color: white; }
+.modern-actions { display: flex; gap: 12px; margin-top: 40px; }
+.modern-btn { padding: 16px 32px; border-radius: 10px; font-weight: 600; font-size: 16px; border: none; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.modern-btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
 .modern-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 .modern-btn-secondary { background: white; color: #374151; border: 2px solid #e5e7eb; }
 .modern-btn-secondary:hover { border-color: #667eea; color: #667eea; }
-@media (max-width: 640px) {
-    .modern-container { padding-bottom: 28px; }
-    .modern-header { padding: 16px; border-radius: 12px; }
-    .modern-header h2 { font-size: 22px; }
-    .modern-card { padding: 14px; }
-    .modern-actions { flex-direction: column; }
-    .modern-btn { width: 100%; justify-content: center; }
-}
-
 </style>
 
 <div class="modern-container">
@@ -35,7 +26,7 @@
 
     <div class="modern-card">
         <?php echo form_open('admin/assign_student_discount/create', array('id' => 'assign_form')); ?>
-            
+
             <div class="modern-form-group">
                 <label class="modern-label"><i class="fa fa-users"></i><?php echo get_phrase('search_students'); ?></label>
                 <div style="position: relative;">
@@ -89,24 +80,24 @@ $(document).ready(function() {
             }
         }
     });
-    
+
     updateProfileDisplay();
 });
 
 $('#student_search').on('input', function() {
     const searchTerm = $(this).val().trim();
-    
+
     clearTimeout(searchTimeout);
-    
+
     if(searchTerm.length < 2) {
         $('#student_suggestions').hide().empty();
         return;
     }
-    
+
     searchTimeout = setTimeout(() => {
-        const filtered = allStudents.filter(s => 
-            !selectedStudents.includes(String(s.student_id)) && 
-            (s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        const filtered = allStudents.filter(s =>
+            !selectedStudents.includes(String(s.student_id)) &&
+            (s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
              s.student_code.toLowerCase().includes(searchTerm.toLowerCase()))
         );
         displaySuggestions(filtered);
@@ -118,11 +109,11 @@ function displaySuggestions(data) {
         $('#student_suggestions').html('<div style="padding: 16px; text-align: center; color: #94a3b8;">No students found</div>').show();
         return;
     }
-    
+
     let html = '';
     data.forEach(student => {
         html += `
-            <div class="suggestion-item" data-id="${student.student_id}" data-name="${student.name}" data-code="${student.student_code}" data-class="${student.class_name}" style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'; this.style.color='white'; this.querySelector('.suggestion-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.suggestion-meta').style.color='#718096';">
+            <div class="suggestion-item" data-id="${student.student_id}" data-name="${student.name}" data-code="${student.student_code}" data-class="${student.class_name}" style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; this.style.color='white'; this.querySelector('.suggestion-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.suggestion-meta').style.color='#718096';">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">
@@ -143,7 +134,7 @@ function displaySuggestions(data) {
 
 $(document).on('click', '.suggestion-item', function() {
     const studentId = String($(this).data('id'));
-    
+
     if(!selectedStudents.includes(studentId)) {
         selectedStudents.push(studentId);
         updateSelectedDisplay();
@@ -162,13 +153,13 @@ function updateSelectedDisplay() {
         $('#selected_students_display').html('<div style="color: #94a3b8; text-align: center; width: 100%; padding: 8px;"><i class="fa fa-info-circle"></i> No students selected yet</div>');
         return;
     }
-    
+
     let html = '';
     selectedStudents.forEach(id => {
         const student = allStudents.find(s => String(s.student_id) === String(id));
         if(student) {
             html += `
-                <div style="background: #2563eb; color: white; padding: 10px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 10px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);">
                     <div>
                         <div>${student.name}</div>
                         <div style="font-size: 11px; opacity: 0.9;">${student.student_code} • ${student.class_name}</div>
@@ -198,18 +189,18 @@ $('#profile_search').on('click focus', function() {
 
 $('#profile_search').on('input', function() {
     const searchTerm = $(this).val().trim();
-    
+
     clearTimeout(searchTimeout);
-    
+
     if(searchTerm.length < 1) {
         const filtered = allProfiles.filter(p => !selectedProfiles.includes(String(p.profile_id)));
         displayProfileSuggestions(filtered);
         return;
     }
-    
+
     searchTimeout = setTimeout(() => {
-        const filtered = allProfiles.filter(p => 
-            !selectedProfiles.includes(String(p.profile_id)) && 
+        const filtered = allProfiles.filter(p =>
+            !selectedProfiles.includes(String(p.profile_id)) &&
             p.profile_name.toLowerCase().includes(searchTerm.toLowerCase())
         );
         displayProfileSuggestions(filtered);
@@ -221,11 +212,11 @@ function displayProfileSuggestions(data) {
         $('#profile_suggestions').html('<div style="padding: 16px; text-align: center; color: #94a3b8;">No profiles found</div>').show();
         return;
     }
-    
+
     let html = '';
     data.forEach(profile => {
         html += `
-            <div class="profile-item" data-id="${profile.profile_id}" data-name="${profile.profile_name}" data-type="${profile.discount_type}" style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'; this.style.color='white'; this.querySelector('.profile-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.profile-meta').style.color='#718096';">
+            <div class="profile-item" data-id="${profile.profile_id}" data-name="${profile.profile_name}" data-type="${profile.discount_type}" style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; this.style.color='white'; this.querySelector('.profile-meta').style.color='rgba(255,255,255,0.9)';" onmouseout="this.style.background='white'; this.style.color='#2d3748'; this.querySelector('.profile-meta').style.color='#718096';">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">
@@ -245,7 +236,7 @@ function displayProfileSuggestions(data) {
 
 $(document).on('click', '.profile-item', function() {
     const profileId = String($(this).data('id'));
-    
+
     if(!selectedProfiles.includes(profileId)) {
         selectedProfiles.push(profileId);
         updateProfileDisplay();
@@ -264,13 +255,13 @@ function updateProfileDisplay() {
         $('#selected_profiles_display').html('<div style="color: #94a3b8; text-align: center; width: 100%; padding: 8px;"><i class="fa fa-info-circle"></i> No profiles selected yet</div>');
         return;
     }
-    
+
     let html = '';
     selectedProfiles.forEach(id => {
         const profile = allProfiles.find(p => String(p.profile_id) === String(id));
         if(profile) {
             html += `
-                <div style="background: #ec4899; color: white; padding: 10px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 6px rgba(245, 87, 108, 0.3);">
+                <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 10px 16px; border-radius: 8px; display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 2px 6px rgba(245, 87, 108, 0.3);">
                     <div>
                         <div>${profile.profile_name}</div>
                         <div style="font-size: 11px; opacity: 0.9;">${profile.discount_type.charAt(0).toUpperCase() + profile.discount_type.slice(1)}</div>
@@ -289,19 +280,19 @@ updateProfileDisplay();
 
 $('#assign_form').submit(function(e) {
     e.preventDefault();
-    
+
     if(selectedStudents.length === 0) {
         showAjaxModal_alert('<?php echo get_phrase("please_select_students"); ?>', 'error');
         return;
     }
-    
+
     if(selectedProfiles.length === 0) {
         showAjaxModal_alert('<?php echo get_phrase("please_select_profiles"); ?>', 'error');
         return;
     }
-    
+
     showAjaxModal_alert('<?php echo get_phrase("assigning_discount"); ?>...', 'loading');
-    
+
     let postData = $(this).serialize();
     selectedStudents.forEach(id => {
         postData += '&student_id[]=' + encodeURIComponent(id);
@@ -309,7 +300,7 @@ $('#assign_form').submit(function(e) {
     selectedProfiles.forEach(id => {
         postData += '&profile_id[]=' + encodeURIComponent(id);
     });
-    
+
     $.ajax({
         url: $(this).attr('action'),
         type: 'POST',

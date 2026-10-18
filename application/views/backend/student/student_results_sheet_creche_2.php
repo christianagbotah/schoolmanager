@@ -41,7 +41,7 @@
 
     $student_info = $this->crud_model->get_student_info($student_id);
 
-     
+
    // $exams         = $this->crud_model->get_exams();
     foreach ($student_info as $row1):
    // foreach ($exams as $row2):
@@ -69,9 +69,9 @@
         <div class="col-md-2">
                 <div class="form-group">
                     <label class="control-label"><?php echo get_phrase('class');?></label>
-                    <select name="class_id" class="form-control selectboxit" id="class_id">
+                    <select name="class_id" class="form-control select2" id="class_id">
                         <option value=""><?php echo get_phrase('select_a_class');?></option>
-                        <?php 
+                        <?php
                         $classes = $this->db->get_where('class', array('name' => 'CRECHE'))->result_array();
                         foreach($classes as $row):
                         ?>
@@ -97,7 +97,7 @@
             <div class="col-md-2">
                 <div class="form-group">
                     <label  class="control-label"><?php echo get_phrase('selected_term');?></label>
-                      <select name="term" class="form-control selectboxit"  onchange="get_exam_type()" id="term">
+                      <select name="term" class="form-control select2"  onchange="get_exam_type()" id="term">
                       <option value="" disabled="true"><?php echo get_phrase('select_term');?></option>
                       <?php for($i = 1; $i <= 3; $i++):?>
                           <option value="<?php echo $i;?>"
@@ -111,7 +111,7 @@
             <div class="col-md-2">
                 <div class="form-group">
                   <label  class="control-label"><?php echo get_phrase('selected_year');?></label>
-                      <select name="year" class="form-control selectboxit"  onchange="get_exam_type()" id="year">
+                      <select name="year" class="form-control select2"  onchange="get_exam_type()" id="year">
                       <option value="" disabled="true"><?php echo get_phrase('select_year');?></option>
                       <?php
                           echo populate_academic_year('', $year);
@@ -124,7 +124,7 @@
                 <div class="form-group">
                 <label class="control-label"><?php echo get_phrase('exam');?></label>
                  <select name="exam_id" class="form-control select2" id="exam_id">
-                    <?php 
+                    <?php
                     $exams = $this->db->get_where('exam', array('category_id !=' => '1'));
                      $array_exams  = $exams->result_array();
 
@@ -170,8 +170,8 @@
 
             <?php if($exam_rows != 0) { ?>
             <div class="panel-body">
-                
-                
+
+
                <div class="col-md-12">
 
                 <div class="row">
@@ -184,9 +184,9 @@
           </tr>
       </thead>
       <tbody>
-        <?php 
+        <?php
           $grading_sys = $this->db->get('grade_creche')->result_array();
-          foreach($grading_sys as $grade): 
+          foreach($grading_sys as $grade):
         ?>
         <tr>
           <td style="font-size: 16px"><?= $grade['abbrev']; ?></td>
@@ -198,20 +198,20 @@
   </div>
 </div>
 
-<?php 
+<?php
       $subj_category = $this->db->get('subject_category_creche')->result_array();
       foreach($subj_category as $cat): ?>
 
       <div class="row">
           <table class="table table-bordered">
-            <thead>   
+            <thead>
               <tr>
                 <th><?= $cat['name']; ?></th>
                 <th width="80"><?= 'GRADING'; ?></th>
               </tr>
             </thead>
             <tbody>
-              <?php 
+              <?php
               $subjects_creche = $this->db->get_where('subject_creche' , array(
                     'class_id' => $class_id , 'category_id' => $cat['category_id'], 'year' => $year, 'term' => $term
                 ))->result_array();
@@ -219,12 +219,12 @@
             <tr>
               <td><?= $subj['name']; ?></td>
               <td style="letter-spacing: 5px;">
-                <?php 
+                <?php
                     $grading = $this->db->get_where('mark' , array(
                                             'subject_id' => $subj['subject_id'],
                                                 'exam_id' => $exam_id,
                                                     'class_id' => $class_id,
-                                                        'student_id' => $student_id , 
+                                                        'student_id' => $student_id ,
                                                             'year' => $year,
                                                                 'term' => $term));
                                 if ( $grading->num_rows() > 0) {
@@ -241,13 +241,13 @@
 
           <?php endforeach; ?>
             </tbody>
-            
+
           </table>
       </div>
 
   <?php endforeach; ?>
 
-  <?php 
+  <?php
     if($this->db->get_where('subject_creche' , array('class_id' => $class_id , 'category_id' => '0', 'year' => $running_year, 'term' => $running_term))->num_rows() > 0) {
   ?>
                    <table class="table table-bordered table-responsive table-striped table-hover table-active">
@@ -266,7 +266,7 @@
                         <tbody>
                         <?php
                             $class_score_total = 0;
-                            $exam_score_total =0; 
+                            $exam_score_total =0;
                             $total_marks = 0;
                             $total_grade_point = 0;
                             $subjects = $this->db->get_where('subject_creche' , array(
@@ -280,7 +280,7 @@
                                 <td style="text-align: center;"><?php echo $sn;?></td>
                                 <td><?php if(strlen($row3['name']) <= 4) {
                                     echo strtoupper($row3['name']);
-                                }else{ 
+                                }else{
                                     echo $row3['name'];
                                 };?></td>
                                  <td style="text-align: center;">
@@ -289,7 +289,7 @@
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $exam_id,
                                                             'class_id' => $class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $year,
                                                                         'term' => $term));
                                         if ( $class_score_query->num_rows() > 0) {
@@ -310,7 +310,7 @@
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $exam_id,
                                                             'class_id' => $class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $year,
                                                                         'term' => $term));
                                         if ( $exam_score_query->num_rows() > 0) {
@@ -331,7 +331,7 @@
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $exam_id,
                                                             'class_id' => $class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $year,
                                                                         'term' => $term));
                                         if ( $obtained_mark_query->num_rows() > 0) {
@@ -352,7 +352,7 @@
                                     echo $highest_mark;
 
 
-        
+
                                     ?>
                                 </td>. //take highest mark column out-->
                                 <td style="text-align: center;">
@@ -360,10 +360,10 @@
                                         if($obtained_mark_query->num_rows() > 0) {
                                             if ($row4['mark_obtained'] >= 0 || $row4['mark_obtained'] != '') {
                                                 $grade = $this->crud_model->get_grade($row4['mark_obtained']);
-                                         
+
                                                 echo $this->crud_model->get_grade_level($grade['grade_point']);
                                                /** $total_grade_point += $grade['grade_point'];No grade point**/
-                                            } 
+                                            }
                                             if($row4['mark_obtained'] == NULL || $row4['mark_obtained'] == '') {
                                                             echo "N/A";
                                                         }
@@ -391,13 +391,13 @@
                                  ?>
                                 </td>
                               <!--  <td style="text-align: center;">
-                                    <?php // if($obtained_mark_query->num_rows() > 0) 
+                                    <?php // if($obtained_mark_query->num_rows() > 0)
                                             //echo $row4['comment'];
                                     ?>
                                 </td>.//take comment column out-->
                             </tr>
-                        <?php 
-                        
+                        <?php
+
                           $sn++;
                         endforeach;?>
 
@@ -411,7 +411,7 @@
                     </tbody>
                    </table>
 
-                   <?php 
+                   <?php
                       }
                    ?>
 
@@ -436,7 +436,7 @@
                             <div class="col-lg-12 col-md-12">
                                 <?php echo form_open(site_url('admin/'), array('id' => 'conducts_form'));?>
                                     <div class="table table-responsive">
-                                        
+
 
                                         <!--Attendance by input method-->
                                         <table class="table table-bordered table-striped" >
@@ -451,12 +451,12 @@
                                           <tbody>
                                             <tr>
                                               <td><input type="number" size="20" value="<?php echo $days_opened; ?>"  onkeyup="change_days_absent()" class="form-control" name="days_opened" readonly id="days_opened"></td>
-                                            
+
                                               <td><input type="number" size="20" value="<?php echo $days_present; ?>" readonly onkeyup="change_days_absent()" class="form-control" name="days_present" id="days_present"></td>
-                                              
+
                                               <td><input type="number" size="20" value="<?php echo $days_opened - $days_present; ?>" class="form-control" readonly name="days_absent" id="days_absent" readonly="readonly"></td>
                                             </tr>
-                              
+
                                           </tbody>
                                         </table>
                                         <!--add simple script here-->
@@ -466,7 +466,7 @@
                                             let days_present = Number($('#days_present').val());
                                             let days_absent = days_opened - days_present;
 
-                                            $('#days_absent').val(days_absent);  
+                                            $('#days_absent').val(days_absent);
                                           }
                                         </script>
 
@@ -479,7 +479,7 @@
                                                     <td valign="middle" style="background-color: #520452; color: #fff; padding-top: 15px"><label for="attitude" class="form-control-label">ATTITUDE</label></td>
 
                                                     <td><input type="text" id="attitude" readonly class="form-control" name="attitude" placeholder="DEPENDABLE" value="<?php echo $attitude; ?>" ></td>
-                                                                                                        
+
                                                     <td valign="middle" style="background-color: #520452; color: #fff; padding-top: 15px"><label for="conduct" class="form-control-label">CONDUCT</label></td>
 
                                                     <td><input type="text" id="conduct" class="form-control" name="conduct" readonly placeholder="PRODUCTIVE" value="<?php echo $conduct; ?>" ></td>
@@ -487,16 +487,16 @@
                                                     <td valign="middle" style="background-color: #520452; color: #fff; padding-top: 15px"><label for="interest" class="form-control-label">INTEREST</label></td>
 
                                                     <td><input type="text" id="interest" placeholder="MATHEMATICS" class="form-control" name="interest" readonly value="<?php echo $interest; ?>" ></td>
-                                                    
-                                                    
+
+
                                                 </tr>
                                             </tbody>
                                         </table>
-                                        
+
                                         <input type="hidden" name="exam_id" value="<?php echo $exam_id; ?>">
                                         <input type="hidden" name="student_id" value="<?php echo $row1['student_id']; ?>">
                                         <input type="hidden" name="class_id" value="<?php echo $class_id;?>">
-                                        
+
                                         <div class="form-group row">
                                             <div class="form-group col-md-6">
                                                 <label class="form-control-label">Class Teacher's Remarks:</label>
@@ -536,27 +536,27 @@
                                 "theme": "none",
                                 "type": "serial",
                                 "dataProvider": [
-                                        <?php 
+                                        <?php
                                             foreach ($subjects as $subject) :
                                         ?>
                                         {
                                             "subject": "<?php echo substr($subject['name'], 0, 3);?>",
-                                            "class_score": 
+                                            "class_score":
                                             <?php
                                                 $class_mark = $this->crud_model->get_class_score( $exam_id , $class_id , $subject['subject_id'] , $row1['student_id']);
                                                 echo $class_mark;
                                             ?>,
-                                            "exam_score": 
+                                            "exam_score":
                                             <?php
                                                 $exam_mark = $this->crud_model->get_exam_score( $exam_id , $class_id , $subject['subject_id'], $row1['student_id'] );
                                                 echo $exam_mark;
                                             ?>
                                         },
-                                        <?php 
+                                        <?php
                                             endforeach;
 
                                         ?>
-                                    
+
                                 ],
                                 "valueAxes": [{
                                     "stackType": "3d",
@@ -593,26 +593,26 @@
                                     "menuTop":"20px",
                                     "menuRight":"20px",
                                     "menuItems": [{
-                                        "format": 'png'   
-                                    }]  
+                                        "format": 'png'
+                                    }]
                                 }
                             });
-                      
+
                     </script>
-                    
-                    
+
+
                </div>
-                
+
                <div class="row">
                         <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
                             <table class="table" id="hint_table">
                                 <caption>Hints</caption>
                                 <tr>
-                                   <th><div id="circle1"></th> 
+                                   <th><div id="circle1"></th>
                                    <td><b><i>Class Score</i></b></td>
                                 </tr>
                                 <tr>
-                                   <th><div id="circle2"></th> 
+                                   <th><div id="circle2"></th>
                                    <td><b><i>Exam Score</i></b></td>
                                 </tr>
                             </table>
@@ -621,18 +621,18 @@
             </div>
 
             <br><br> <br><br>
-                <a href="<?php echo site_url('student/student_marksheet_print_view_creche/'.$student_id.'/'.$exam_id);?>" 
+                <a href="<?php echo site_url('student/student_marksheet_print_view_creche/'.$student_id.'/'.$exam_id);?>"
                         class="btn btn-primary" target="_blank" style="position: relative; float: right; bottom: 20px; right: 10px;">
                         <?php echo get_phrase('print_marksheet');?>
                     </a>
-            <br><br> 
+            <br><br>
 
             <?php
             } else {
                 echo '<center><h3 style="color: red">No Record Found!</h3></center>';
             }
-        ?>          
-        </div>  
+        ?>
+        </div>
     </div>
 </div>
 <?php
@@ -654,12 +654,12 @@
         /* Act on the event */
         $('html, body').animate({
           scrollTop: ($('#top').offset().top )
-        }, 1000); 
+        }, 1000);
 
         //assign the student id
         $('#student_id').val($(this).val());
         $('#results_form').submit();
-        
+
     });
 
     //when results form is submitted
@@ -703,7 +703,7 @@
         $(".select2").select2({
             theme: "classic"
         });
-        
+
         var selected_term = <?php echo $term; ?>;
         var running_term = <?php echo $running_term; ?>;
         var selected_year = '<?php echo $year; ?>';

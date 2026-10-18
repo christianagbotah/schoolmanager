@@ -1,53 +1,3 @@
-<style type="text/css">
-/* ---- family design-language alignment (presentation only) ---- */
-.panel {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-}
-.panel > .panel-heading {
-    background: transparent;
-    border-bottom: 1px solid #f3f4f6;
-    border-radius: 16px 16px 0 0;
-    color: #111827;
-}
-.panel > .panel-heading .panel-title { font-size: 15px; font-weight: 700; color: #111827; }
-.panel > .panel-body { padding: 18px; }
-.btn {
-    border-radius: 10px;
-    font-weight: 600;
-    transition: all .2s;
-}
-.btn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-.btn-primary { background: #2563eb; border-color: #2563eb; }
-.btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
-.table-bordered, .table {
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    overflow: hidden;
-}
-.table > thead > tr > th {
-    background: #f9fafb;
-    color: #374151;
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .3px;
-    border-bottom: 1px solid #e5e7eb !important;
-    padding: 12px 10px;
-}
-.table tbody td { border-bottom: 1px solid #f3f4f6; color: #374151; }
-hr { border-color: #f3f4f6; }
-@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
-@media (max-width: 400px) {
-    .panel > .panel-body { padding: 14px; }
-    .table > thead > tr > th { font-size: 11px; padding: 8px 6px; }
-}
-</style>
 <center>
 	<button class="btn btn-primary">
 		<i class="entypo-user"></i> <?php echo $this->crud_model->get_type_name_by_id('student' , $param2);?>
@@ -56,10 +6,10 @@ hr { border-color: #f3f4f6; }
 <hr />
 <?php
 	$running_year = $this->db->get_where('settings' , array('type' => 'running_year'))->row()->description;
-    $running_term = $this->db->get_where('settings' , array('type' => 'running_term'))->row()->description; 
+    $running_term = $this->db->get_where('settings' , array('type' => 'running_term'))->row()->description;
     $student_info = $this->crud_model->get_student_info($param2);
     $exams         = $this->crud_model->get_exams();
-    
+
 
     foreach ($student_info as $row1):
     foreach ($exams as $row2):
@@ -77,12 +27,12 @@ hr { border-color: #f3f4f6; }
                 <div class="panel-title">
                     <span><?php echo $row2['name']; ?></span>
                     <span style="position: relative; right: -180px;"><?php echo get_phrase('term:').' '.$running_term. ' | '.get_phrase('year:').' '.$running_year; ?></span>
-                    
+
                     </div>
-              
+
             </div>
             <div class="panel-body">
-               
+
                 <table class="table table-bordered table-responsive table-striped table-hover table-active">
                        <thead>
                         <tr>
@@ -99,7 +49,7 @@ hr { border-color: #f3f4f6; }
                         <tbody>
                         <?php
                             $class_score_total = 0;
-                            $exam_score_total =0; 
+                            $exam_score_total =0;
                             $total_marks = 0;
                             $total_grade_point = 0;
                             $subjects = $this->db->get_where('subject' , array(
@@ -118,7 +68,7 @@ hr { border-color: #f3f4f6; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $class_id,
-                                                                'student_id' => $row1['student_id'] , 
+                                                                'student_id' => $row1['student_id'] ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $class_score_query->num_rows() > 0) {
@@ -139,7 +89,7 @@ hr { border-color: #f3f4f6; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $class_id,
-                                                                'student_id' => $row1['student_id'] , 
+                                                                'student_id' => $row1['student_id'] ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $exam_score_query->num_rows() > 0) {
@@ -160,7 +110,7 @@ hr { border-color: #f3f4f6; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $class_id,
-                                                                'student_id' => $row1['student_id'] , 
+                                                                'student_id' => $row1['student_id'] ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $obtained_mark_query->num_rows() > 0) {
@@ -181,7 +131,7 @@ hr { border-color: #f3f4f6; }
                                     echo $highest_mark;
 
 
-        
+
                                     ?>
                                 </td>. //take highest mark column out-->
                                 <td style="text-align: center;">
@@ -216,12 +166,12 @@ hr { border-color: #f3f4f6; }
                                  ?>
                                 </td>
                               <!--  <td style="text-align: center;">
-                                    <?php // if($obtained_mark_query->num_rows() > 0) 
+                                    <?php // if($obtained_mark_query->num_rows() > 0)
                                             //echo $row4['comment'];
                                     ?>
                                 </td>.//take comment column out-->
                             </tr>
-                        <?php 
+                        <?php
                         $i++;
                         endforeach;?>
 
@@ -238,7 +188,7 @@ hr { border-color: #f3f4f6; }
                 <hr />
 
             </div>
-        </div>  
+        </div>
     </div>
 </div>
 <?php

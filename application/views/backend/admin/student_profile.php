@@ -1,12 +1,12 @@
 <style>
-.profile-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-.profile-card:hover { box-shadow: 0 10px 24px rgba(16, 24, 40, 0.10); border-color: #cbd5e1; transform: translateY(-2px); }
+.profile-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: all 0.3s; }
+.profile-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
 .info-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 9999px; font-size: 16px; font-weight: 500; }
 .tab-modern { position: relative; padding: 12px 24px; font-weight: 600; transition: all 0.3s; border-radius: 8px; font-size: 16px; }
-.tab-modern.active { background: #2563eb; color: white; }
-.stat-card { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 12px; padding: 20px; color: white; }
+.tab-modern.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+.stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; color: white; }
 div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
-.sticky-header { position: sticky; top: 0; z-index: 10; background: #f9fafb; }
+.sticky-header { position: sticky; top: 0; z-index: 10; background: linear-gradient(to bottom right, rgb(249 250 251), rgb(243 244 246)); }
 .tab-content-scrollable { max-height: calc(100vh - 280px); overflow-y: auto; }
 @media (max-width: 768px) {
   .tab-modern { padding: 8px 12px; font-size: 14px; }
@@ -15,122 +15,6 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
   .dataTables_wrapper .dataTables_length { display: inline-block; width: 48%; }
   .dataTables_wrapper .dataTables_filter { display: inline-block; width: 48%; float: right !important; }
   .dataTables_wrapper .dataTables_filter input { width: 100% !important; }
-}
-
-/* ---- family design-language alignment (presentation only) ---- */
-.tab-modern:focus-visible, .profile-card button:focus-visible, .btn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-.btn { border-radius: 10px; font-weight: 600; transition: all .2s; }
-.btn-success { background: #059669; border-color: #059669; }
-.btn-success:hover { background: #047857; border-color: #047857; }
-.btn-danger { background: #dc2626; border-color: #dc2626; }
-.btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
-.btn-info { background: #0284c7; border-color: #0284c7; }
-.btn-info:hover { background: #0369a1; border-color: #0369a1; }
-.tab-pane-modern table.datatable { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
-.tab-pane-modern table.datatable thead th, .tab-pane-modern table.datatable tfoot th {
-  background: #f9fafb; color: #374151; font-size: 12px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: .3px;
-  border-bottom: 1px solid #e5e7eb !important; padding: 12px 10px;
-}
-.tab-pane-modern table.datatable tbody td { border-bottom: 1px solid #f3f4f6; color: #374151; }
-#tab6 table.datatable { font-size: 14px; }
-#tab6 table.datatable tbody td { font-size: 14px; }
-@media (prefers-reduced-motion: reduce) {
-  .profile-card, .btn, .tab-modern { transition: none; }
-  .profile-card:hover { transform: none; }
-}
-@media (max-width: 400px) {
-  .profile-card { border-radius: 12px; }
-  .tab-modern { padding: 8px 10px; font-size: 13px; }
-}
-
-/* Direct UX readability refinement — Student Profile */
-.student-profile-workspace { padding: 24px 28px 40px !important; color: #334155; }
-.student-profile-workspace > .sticky-header {
-  top: 0; margin: 0 0 18px; padding: 14px 0 16px;
-  background: rgba(248,250,252,.96); border-bottom: 1px solid #e2e8f0;
-  backdrop-filter: blur(10px);
-}
-.student-profile-workspace > .sticky-header h1 {
-  font-size: 30px !important; line-height: 1.2; font-weight: 800 !important;
-  color: #0f172a !important; letter-spacing: -.02em;
-}
-.student-profile-workspace > .sticky-header label { font-size: 14px !important; font-weight: 700 !important; }
-.student-profile-workspace > .sticky-header .form-control,
-.student-profile-workspace > .sticky-header .select2-container .select2-choice {
-  min-height: 44px; font-size: 15px !important; border-radius: 9px;
-}
-.profile-card {
-  border-color: #e2e8f0; border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
-}
-.profile-card:hover { transform: none; box-shadow: 0 5px 16px rgba(15,23,42,.07); border-color: #cbd5e1; }
-.info-badge { font-size: 14px; font-weight: 700; min-height: 34px; padding: 6px 12px; }
-.tab-modern {
-  min-height: 42px; padding: 10px 16px; border-radius: 8px;
-  font-size: 14px; font-weight: 700; line-height: 1.35;
-}
-.tab-modern.active { background: #2563eb; color: #fff; }
-.stat-card { background: #4338ca; border-radius: 12px; }
-.student-profile-workspace .btn {
-  min-height: 40px; padding: 8px 14px; font-size: 14px; line-height: 1.4; font-weight: 700;
-}
-.student-profile-workspace .btn-lg { min-height: 44px; padding: 10px 17px; font-size: 15px; }
-.student-profile-workspace .text-xs { font-size: 13px !important; line-height: 1.4 !important; }
-.student-profile-workspace .text-sm { font-size: 14px !important; line-height: 1.45 !important; }
-.student-profile-workspace .profile-card h3.text-2xl { font-size: 19px !important; line-height: 1.35 !important; }
-.student-profile-workspace .profile-card p.text-xl { font-size: 17px !important; line-height: 1.45 !important; }
-.student-profile-workspace .profile-card[style*="linear-gradient"] { background: #312e81 !important; }
-
-.tab-content-wrapper { min-width: 0; }
-.tab-pane-modern { min-width: 0; }
-.tab-pane-modern .table-responsive,
-.tab-pane-modern .dataTables_wrapper,
-#tab6 { max-width: 100%; }
-.tab-pane-modern table { font-size: 14px; }
-.tab-pane-modern table.datatable {
-  min-width: 760px; border-color: #e2e8f0; border-radius: 12px;
-}
-.tab-pane-modern table.datatable thead th,
-.tab-pane-modern table.datatable tfoot th {
-  padding: 12px 13px; background: #f8fafc; color: #475569;
-  font-size: 13px; font-weight: 800; letter-spacing: .035em;
-}
-.tab-pane-modern table.datatable tbody td {
-  padding: 12px 13px; color: #334155; font-size: 14px; line-height: 1.45;
-}
-.student-profile-workspace .dataTables_wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.student-profile-workspace .dataTables_wrapper .dataTables_length,
-.student-profile-workspace .dataTables_wrapper .dataTables_filter,
-.student-profile-workspace .dataTables_wrapper .dataTables_info,
-.student-profile-workspace .dataTables_wrapper .dataTables_paginate { font-size: 14px; color: #475569; }
-.student-profile-workspace .dataTables_wrapper select,
-.student-profile-workspace .dataTables_wrapper input[type="search"] {
-  min-height: 40px; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px;
-  font-size: 14px; background: #fff; color: #0f172a;
-}
-.student-profile-workspace #tab6 table { min-width: 900px; }
-.student-profile-workspace #tab6 .h-16 { min-height: 42px !important; height: auto !important; }
-.student-profile-workspace #tab6 .text-xl { font-size: 15px !important; }
-.student-profile-workspace #tab6 .text-2xl { font-size: 18px !important; }
-
-@media (max-width: 768px) {
-  .student-profile-workspace { padding: 16px 14px 32px !important; }
-  .student-profile-workspace > .sticky-header h1 { font-size: 26px !important; }
-  .student-profile-workspace .profile-card { border-radius: 12px; }
-  .student-profile-workspace .lg\:sticky { position: static !important; max-height: none !important; }
-  .student-profile-workspace .staff-profile-tabs,
-  .student-profile-workspace .profile-card.sticky-header > div {
-    overflow-x: auto; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch;
-  }
-  .tab-modern { min-width: max-content; padding: 10px 14px; font-size: 14px; }
-}
-@media (max-width: 400px) {
-  .student-profile-workspace { padding: 12px 10px 28px !important; }
-  .student-profile-workspace > .sticky-header { padding-top: 8px; }
-  .student-profile-workspace .btn { min-height: 42px; }
 }
 </style>
 
@@ -142,7 +26,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
 
   $this->db->select_max('timestamp');
   $att_timestamp = $this->db->get('attendance')->row()->timestamp;
-  
+
   $param3 = $param3 ?? '';
   $inv_number_len = 0;
 
@@ -159,19 +43,19 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
 
     $gender = $this->db->get_where('student', array('student_id' => $row['student_id']))->row()->sex;
 
-    $student_id = $row['student_id']; //$this->db->get_where('invoice' , array('invoice_code' => 
+    $student_id = $row['student_id']; //$this->db->get_where('invoice' , array('invoice_code' =>
 
     $class_name = $this->crud_model->get_class_name($class_id);
     $student_name = $this->crud_model->getStudentInfoById($student_id)->name;
 ?>
 <!-- Modern Student Profile -->
-<div class="min-h-screen bg-gray-50 p-4 md:p-6 student-profile-workspace">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6">
   <!-- Student Selector -->
   <div class="mb-6 sticky-header pb-4">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Student Profile</h1>
       <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-        <label for="other_students" class="text-sm font-medium text-gray-700">Switch Student:</label>
+        <label class="text-sm font-medium text-gray-700">Switch Student:</label>
         <select class="form-control select2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 w-full sm:w-auto" id="other_students">
           <?php foreach($other_students as $os) { ?>
             <option value="<?=$os['student_id']?>" <?=$student_id == $os['student_id'] ? 'selected' : ''; ?>><?=$this->crud_model->getStudentNameById($os['student_id'])?></option>
@@ -218,7 +102,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
             <?php echo $class_name.' '.$class_name_numeric. ' | Section '.$section_name; ?>
           </a>
           <?php if (!isset($is_teacher_view) || !$is_teacher_view): ?>
-          <button onclick="destroySelect2()" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <button onclick="destroySelect2()" class="mt-6 w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg">
             <i class="entypo-pencil mr-2"></i>Edit Profile
           </button>
           <?php endif; ?>
@@ -294,7 +178,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                   ['icon' => 'entypo-home', 'label' => 'Hometown', 'value' => $row['hometown'] ?? 'N/A', 'color' => 'teal', 'teacher_visible' => true],
                   ['icon' => 'entypo-calendar', 'label' => 'Admission Date', 'value' => $row['admission_date'] ? date('M d, Y', strtotime($row['admission_date'])) : 'N/A', 'color' => 'cyan', 'teacher_visible' => true]
                 ];
-                foreach($personal as $info) { 
+                foreach($personal as $info) {
                   // Skip sensitive fields for teachers
                   if (isset($is_teacher_view) && $is_teacher_view && !$info['teacher_visible']) {
                     continue;
@@ -442,7 +326,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
         </div>
         <?php if (!isset($is_teacher_view) || !$is_teacher_view): ?>
         <div class="tab-pane-modern" id="tab2" style="display:none;">
-          <?php 
+          <?php
             // Check if parent exists
             if ($row['parent_id'] == NULL) { ?>
             <div class="profile-card p-12 text-center">
@@ -453,7 +337,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
               // Get primary parent/guardian info
               $parent_info = $this->db->get_where('parent', array('parent_id' => $row['parent_id']))->row();
               $guardian_gender = isset($parent_info->guardian_gender) ? $parent_info->guardian_gender : 'Guardian';
-              
+
               // Check if there are multiple phone numbers (father & mother)
               $phones = !empty($parent_info->phone) ? explode(',', $parent_info->phone) : [];
               $has_multiple_contacts = count($phones) > 1;
@@ -730,8 +614,8 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
           <?php } ?>
         </div>
         <?php endif; ?>
-      
-      <?php 
+
+      <?php
           if($class_name == 'CRECHE') { ?>
             <div class="tab-pane-modern" id="tab3" style="display:none;">
         <?php if(empty($exams)) { ?>
@@ -752,10 +636,10 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
 
           $full_class_name = $this_class_name.' '.$this_class_numeric.$this_sec_name;
 
-          
+
 
           ?>
-          <div class="profile-card" style="margin-top: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%); color: white; border-radius: 16px;">
+          <div class="profile-card" style="margin-top: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
             <div style="display: flex; align-items: center; gap: 12px;">
               <i class="fa fa-graduation-cap" style="font-size: 24px; opacity: 0.8;"></i>
               <h3 style="margin: 0; font-size: 18px; font-weight: 600;"><?php echo $this->crud_model->get_exams_name($row2['exam_id']).'-'.$full_class_name; ?></h3>
@@ -769,9 +653,9 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
             <div style="text-align: center">
               <table class="table">
                 <thead>
-                  <?php 
+                  <?php
                     $grading_sys = $this->db->get('grade_creche')->result_array();
-                    foreach($grading_sys as $grade): 
+                    foreach($grading_sys as $grade):
                   ?>
                   <tr>
                     <th style="font-size: 16px"><?= $grade['abbrev']; ?></th>
@@ -784,20 +668,20 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
             </div>
           </div>
 
-           <?php 
+           <?php
               $subj_category = $this->db->get('subject_category_creche')->result_array();
               foreach($subj_category as $cat): ?>
 
               <div class="row">
                   <table class="table table-bordered">
-                    <thead>   
+                    <thead>
                       <tr>
                         <th><?= $cat['name']; ?></th>
                         <th width="80"><?= 'GRADING'; ?></th>
                       </tr>
                     </thead>
                     <tbody>
-                      <?php 
+                      <?php
                       $subjects_creche = $this->db->get_where('subject_creche' , array(
                             'class_id' => $class_id , 'category_id' => $cat['category_id'], 'year' => $running_year, 'term' => $running_term
                         ))->result_array();
@@ -805,12 +689,12 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                     <tr>
                       <td><?= $subj['name']; ?></td>
                       <td style="letter-spacing: 5px;">
-                        <?php 
+                        <?php
                             $grading = $this->db->get_where('mark' , array(
                                                     'subject_id' => $subj['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $grading->num_rows() > 0) {
@@ -827,13 +711,13 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
 
                   <?php endforeach; ?>
                     </tbody>
-                    
+
                   </table>
               </div>
 
           <?php endforeach; ?>
 
-      <?php 
+      <?php
       if($this->db->get_where('subject_creche' , array('class_id' => $class_id , 'category_id' => '0', 'year' => $running_year, 'term' => $running_term))->num_rows() > 0) {
       ?>
 
@@ -853,7 +737,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                         <tbody>
                         <?php
                             $class_score_total = 0;
-                            $exam_score_total =0; 
+                            $exam_score_total =0;
                             $total_marks = 0;
                             $total_grade_point = 0;
                             $subjects = $this->db->get_where('subject_creche' , array(
@@ -867,7 +751,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                 <td style="text-align: center;"><?php echo $i;?></td>
                                 <td><?php if(strlen($row3['name']) <= 4) {
                                     echo strtoupper($row3['name']);
-                                }else{ 
+                                }else{
                                     echo $row3['name'];
                                 };?></td>
                                  <td style="text-align: center;">
@@ -876,7 +760,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $class_score_query->num_rows() > 0) {
@@ -897,7 +781,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $exam_score_query->num_rows() > 0) {
@@ -918,7 +802,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $obtained_mark_query->num_rows() > 0) {
@@ -939,7 +823,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                     echo $highest_mark;
 
 
-        
+
                                     ?>
                                 </td>. //take highest mark column out-->
                                 <td style="text-align: center;">
@@ -974,12 +858,12 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                  ?>
                                 </td>
                               <!--  <td style="text-align: center;">
-                                    <?php // if($obtained_mark_query->num_rows() > 0) 
+                                    <?php // if($obtained_mark_query->num_rows() > 0)
                                             //echo $row4['comment'];
                                     ?>
                                 </td>.//take comment column out-->
                             </tr>
-                        <?php 
+                        <?php
                         $i++;
                         endforeach;?>
 
@@ -1016,7 +900,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
         <?php } ?>
       </div>
             <?php
-          } 
+          }
           //JHS
           else if($class_name == 'JHSS') {
             ?>
@@ -1033,7 +917,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
             <p class="text-xl text-gray-500"><?php echo get_phrase('no_examinations_found'); ?></p>
           </div>
         <?php } else { ?>
-        <?php foreach ($exams as $row2) { 
+        <?php foreach ($exams as $row2) {
           $running_year = $this->crud_model->get_exams_year($row2['exam_id']);
           $running_sem = $this->crud_model->get_exams_sem($row2['exam_id']);
           $exam_class_id = $this->crud_model->get_exams_class_id($row2['exam_id'], $student_id);
@@ -1047,7 +931,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
           //INCASE THIS STUDENT WAS IN CRECHE BEFORE
           if($exam_class_name == 'CRECHE') {
             ?>
-              <div class="profile-card" style="margin-top: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%); color: white; border-radius: 16px;">
+              <div class="profile-card" style="margin-top: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
             <div style="display: flex; align-items: center; gap: 12px;">
               <i class="fa fa-graduation-cap" style="font-size: 24px; opacity: 0.8;"></i>
               <h3 style="margin: 0; font-size: 18px; font-weight: 600;"><?php echo $this->crud_model->get_exams_name($row2['exam_id']).'-'.$full_class_name; ?></h3>
@@ -1063,9 +947,9 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
             <div style="text-align: center">
               <table class="table">
                 <thead>
-                  <?php 
+                  <?php
                     $grading_sys = $this->db->get('grade_creche')->result_array();
-                    foreach($grading_sys as $grade): 
+                    foreach($grading_sys as $grade):
                   ?>
                   <tr>
                     <th style="font-size: 16px"><?= $grade['abbrev']; ?></th>
@@ -1078,20 +962,20 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
             </div>
           </div>
 
-           <?php 
+           <?php
               $subj_category = $this->db->get('subject_category_creche')->result_array();
               foreach($subj_category as $cat): ?>
 
               <div class="row">
                   <table class="table table-bordered">
-                    <thead>   
+                    <thead>
                       <tr>
                         <th><?= $cat['name']; ?></th>
                         <th width="80"><?= 'GRADING'; ?></th>
                       </tr>
                     </thead>
                     <tbody>
-                      <?php 
+                      <?php
                       $subjects_creche = $this->db->get_where('subject_creche' , array(
                             'class_id' => $exam_class_id , 'category_id' => $cat['category_id'], 'year' => $running_year, 'term' => $running_term
                         ))->result_array();
@@ -1099,12 +983,12 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                     <tr>
                       <td><?= $subj['name']; ?></td>
                       <td style="letter-spacing: 5px;">
-                        <?php 
+                        <?php
                             $grading = $this->db->get_where('mark' , array(
                                                     'subject_id' => $subj['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $grading->num_rows() > 0) {
@@ -1121,13 +1005,13 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
 
                   <?php endforeach; ?>
                     </tbody>
-                    
+
                   </table>
               </div>
 
           <?php endforeach; ?>
 
-      <?php 
+      <?php
       if($this->db->get_where('subject_creche' , array('class_id' => $exam_class_id , 'category_id' => '0', 'year' => $running_year, 'term' => $running_term))->num_rows() > 0) {
       ?>
 
@@ -1147,7 +1031,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                         <tbody>
                         <?php
                             $class_score_total = 0;
-                            $exam_score_total =0; 
+                            $exam_score_total =0;
                             $total_marks = 0;
                             $total_grade_point = 0;
                             $subjects = $this->db->get_where('subject_creche' , array(
@@ -1161,7 +1045,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                 <td style="text-align: center;"><?php echo $i;?></td>
                                 <td><?php if(strlen($row3['name']) <= 4) {
                                     echo strtoupper($row3['name']);
-                                }else{ 
+                                }else{
                                     echo $row3['name'];
                                 };?></td>
                                  <td style="text-align: center;">
@@ -1170,7 +1054,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $class_score_query->num_rows() > 0) {
@@ -1191,7 +1075,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $exam_score_query->num_rows() > 0) {
@@ -1212,7 +1096,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $obtained_mark_query->num_rows() > 0) {
@@ -1233,7 +1117,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                     echo $highest_mark;
 
 
-        
+
                                     ?>
                                 </td>. //take highest mark column out-->
                                 <td style="text-align: center;">
@@ -1268,12 +1152,12 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                  ?>
                                 </td>
                               <!--  <td style="text-align: center;">
-                                    <?php // if($obtained_mark_query->num_rows() > 0) 
+                                    <?php // if($obtained_mark_query->num_rows() > 0)
                                             //echo $row4['comment'];
                                     ?>
                                 </td>.//take comment column out-->
                             </tr>
-                        <?php 
+                        <?php
                         $i++;
                         endforeach;?>
 
@@ -1331,7 +1215,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                         <tbody>
                         <?php
                             $class_score_total = 0;
-                            $exam_score_total =0; 
+                            $exam_score_total =0;
                             $total_marks = 0;
                             $total_grade_point = 0;
                             $subjects = $this->db->get_where('subject' , array(
@@ -1345,7 +1229,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                 <td style="text-align: center;"><?php echo $i;?></td>
                                 <td><?php if(strlen($row3['name']) <= 4) {
                                     echo strtoupper($row3['name']);
-                                }else{ 
+                                }else{
                                     echo $row3['name'];
                                 };?></td>
                                  <td style="text-align: center;">
@@ -1354,7 +1238,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $class_score_query->num_rows() > 0) {
@@ -1375,7 +1259,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $exam_score_query->num_rows() > 0) {
@@ -1396,7 +1280,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $obtained_mark_query->num_rows() > 0) {
@@ -1417,7 +1301,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                     echo $highest_mark;
 
 
-        
+
                                     ?>
                                 </td>. //take highest mark column out-->
                                 <td style="text-align: center;">
@@ -1452,12 +1336,12 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                  ?>
                                 </td>
                               <!--  <td style="text-align: center;">
-                                    <?php // if($obtained_mark_query->num_rows() > 0) 
+                                    <?php // if($obtained_mark_query->num_rows() > 0)
                                             //echo $row4['comment'];
                                     ?>
                                 </td>.//take comment column out-->
                             </tr>
-                        <?php 
+                        <?php
                         $i++;
                         endforeach;?>
 
@@ -1513,7 +1397,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                         <tbody>
                         <?php
                             $class_score_total = 0;
-                            $exam_score_total =0; 
+                            $exam_score_total =0;
                             $total_marks = 0;
                             $total_grade_point = 0;
                             $subjects = $this->db->get_where('subject' , array(
@@ -1527,7 +1411,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                 <td style="text-align: center;"><?php echo $i;?></td>
                                 <td><?php if(strlen($row3['name']) <= 4) {
                                     echo strtoupper($row3['name']);
-                                }else{ 
+                                }else{
                                     echo $row3['name'];
                                 };?></td>
                                  <td style="text-align: center;">
@@ -1536,7 +1420,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'sem' => $running_sem));
                                         if ( $class_score_query->num_rows() > 0) {
@@ -1557,7 +1441,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'sem' => $running_sem));
                                         if ( $exam_score_query->num_rows() > 0) {
@@ -1578,7 +1462,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'sem' => $running_sem));
                                         if ( $obtained_mark_query->num_rows() > 0) {
@@ -1599,7 +1483,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                     echo $highest_mark;
 
 
-        
+
                                     ?>
                                 </td>. //take highest mark column out-->
                                 <td style="text-align: center;">
@@ -1634,12 +1518,12 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                  ?>
                                 </td>
                               <!--  <td style="text-align: center;">
-                                    <?php // if($obtained_mark_query->num_rows() > 0) 
+                                    <?php // if($obtained_mark_query->num_rows() > 0)
                                             //echo $row4['comment'];
                                     ?>
                                 </td>.//take comment column out-->
                             </tr>
-                        <?php 
+                        <?php
                         $i++;
                         endforeach;?>
 
@@ -1670,7 +1554,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
            </div>
            <hr/>
            </div> <br><br><br>
-        <?php } 
+        <?php }
         //END OF JHS RESULTS
         } ?>
         <?php } ?>
@@ -1694,7 +1578,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
             <p class="text-xl text-gray-500"><?php echo get_phrase('no_examinations_found'); ?></p>
           </div>
         <?php } else { ?>
-        <?php foreach ($exams as $row2) { 
+        <?php foreach ($exams as $row2) {
           $running_year = $this->crud_model->get_exams_year($row2['exam_id']);
           $running_term = $this->crud_model->get_exams_term($row2['exam_id']);
 
@@ -1708,7 +1592,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
           //INCASE THIS STUDENT WAS IN CRECHE BEFORE
           if($exam_class_name == 'CRECHE') {
             ?>
-              <div class="profile-card" style="margin-top: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%); color: white; border-radius: 16px;">
+              <div class="profile-card" style="margin-top: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
             <div style="display: flex; align-items: center; gap: 12px;">
               <i class="fa fa-graduation-cap" style="font-size: 24px; opacity: 0.8;"></i>
               <h3 style="margin: 0; font-size: 18px; font-weight: 600;"><?php echo $this->crud_model->get_exams_name($row2['exam_id']).'-'.$full_class_name; ?></h3>
@@ -1725,9 +1609,9 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
             <div style="text-align: center">
               <table class="table">
                 <thead>
-                  <?php 
+                  <?php
                     $grading_sys = $this->db->get('grade_creche')->result_array();
-                    foreach($grading_sys as $grade): 
+                    foreach($grading_sys as $grade):
                   ?>
                   <tr>
                     <th style="font-size: 16px"><?= $grade['abbrev']; ?></th>
@@ -1740,20 +1624,20 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
             </div>
           </div>
 
-           <?php 
+           <?php
               $subj_category = $this->db->get('subject_category_creche')->result_array();
               foreach($subj_category as $cat): ?>
 
               <div class="row">
                   <table class="table table-bordered">
-                    <thead>   
+                    <thead>
                       <tr>
                         <th><?= $cat['name']; ?></th>
                         <th width="80"><?= 'GRADING'; ?></th>
                       </tr>
                     </thead>
                     <tbody>
-                      <?php 
+                      <?php
                       $subjects_creche = $this->db->get_where('subject_creche' , array(
                             'class_id' => $exam_class_id , 'category_id' => $cat['category_id'], 'year' => $running_year, 'term' => $running_term
                         ))->result_array();
@@ -1761,12 +1645,12 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                     <tr>
                       <td><?= $subj['name']; ?></td>
                       <td style="letter-spacing: 5px;">
-                        <?php 
+                        <?php
                             $grading = $this->db->get_where('mark' , array(
                                                     'subject_id' => $subj['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $grading->num_rows() > 0) {
@@ -1783,13 +1667,13 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
 
                   <?php endforeach; ?>
                     </tbody>
-                    
+
                   </table>
               </div>
 
           <?php endforeach; ?>
 
-      <?php 
+      <?php
       if($this->db->get_where('subject_creche' , array('class_id' => $exam_class_id , 'category_id' => '0', 'year' => $running_year, 'term' => $running_term))->num_rows() > 0) {
       ?>
 
@@ -1809,7 +1693,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                         <tbody>
                         <?php
                             $class_score_total = 0;
-                            $exam_score_total =0; 
+                            $exam_score_total =0;
                             $total_marks = 0;
                             $total_grade_point = 0;
                             $subjects = $this->db->get_where('subject_creche' , array(
@@ -1823,7 +1707,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                 <td style="text-align: center;"><?php echo $i;?></td>
                                 <td><?php if(strlen($row3['name']) <= 4) {
                                     echo strtoupper($row3['name']);
-                                }else{ 
+                                }else{
                                     echo $row3['name'];
                                 };?></td>
                                  <td style="text-align: center;">
@@ -1832,7 +1716,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $class_score_query->num_rows() > 0) {
@@ -1853,7 +1737,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $exam_score_query->num_rows() > 0) {
@@ -1874,7 +1758,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $obtained_mark_query->num_rows() > 0) {
@@ -1895,7 +1779,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                     echo $highest_mark;
 
 
-        
+
                                     ?>
                                 </td>. //take highest mark column out-->
                                 <td style="text-align: center;">
@@ -1930,12 +1814,12 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                  ?>
                                 </td>
                               <!--  <td style="text-align: center;">
-                                    <?php // if($obtained_mark_query->num_rows() > 0) 
+                                    <?php // if($obtained_mark_query->num_rows() > 0)
                                             //echo $row4['comment'];
                                     ?>
                                 </td>.//take comment column out-->
                             </tr>
-                        <?php 
+                        <?php
                         $i++;
                         endforeach;?>
 
@@ -1993,7 +1877,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                         <tbody>
                         <?php
                             $class_score_total = 0;
-                            $exam_score_total =0; 
+                            $exam_score_total =0;
                             $total_marks = 0;
                             $total_grade_point = 0;
                             $subjects = $this->db->get_where('subject' , array(
@@ -2007,7 +1891,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                 <td style="text-align: center;"><?php echo $i;?></td>
                                 <td><?php if(strlen($row3['name']) <= 4) {
                                     echo strtoupper($row3['name']);
-                                }else{ 
+                                }else{
                                     echo $row3['name'];
                                 };?></td>
                                  <td style="text-align: center;">
@@ -2016,7 +1900,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $class_score_query->num_rows() > 0) {
@@ -2037,7 +1921,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $exam_score_query->num_rows() > 0) {
@@ -2058,7 +1942,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                                     'subject_id' => $row3['subject_id'],
                                                         'exam_id' => $row2['exam_id'],
                                                             'class_id' => $exam_class_id,
-                                                                'student_id' => $student_id , 
+                                                                'student_id' => $student_id ,
                                                                     'year' => $running_year,
                                                                         'term' => $running_term));
                                         if ( $obtained_mark_query->num_rows() > 0) {
@@ -2079,7 +1963,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                     echo $highest_mark;
 
 
-        
+
                                     ?>
                                 </td>. //take highest mark column out-->
                                 <td style="text-align: center;">
@@ -2114,12 +1998,12 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                  ?>
                                 </td>
                               <!--  <td style="text-align: center;">
-                                    <?php // if($obtained_mark_query->num_rows() > 0) 
+                                    <?php // if($obtained_mark_query->num_rows() > 0)
                                             //echo $row4['comment'];
                                     ?>
                                 </td>.//take comment column out-->
                             </tr>
-                        <?php 
+                        <?php
                         $i++;
                         endforeach;?>
 
@@ -2220,17 +2104,25 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
 
           // Get wallet balances for daily fees
           $wallet = $this->db->get_where('daily_fee_wallet', array('student_id' => $row['student_id']))->row();
-          
+
           if($wallet) {
               $tf_owe = max(0, $wallet->feeding_arrears);
               $tf_refund = max(0, $wallet->feeding_balance) * -1;
               $tc_owe = max(0, $wallet->classes_arrears);
               $tc_refund = max(0, $wallet->classes_balance) * -1;
+              $tb_owe = max(0, $wallet->breakfast_arrears ?? 0);
+              $tb_refund = max(0, $wallet->breakfast_balance ?? 0) * -1;
+              $tw_owe = max(0, $wallet->water_arrears ?? 0);
+              $tw_refund = max(0, $wallet->water_balance ?? 0) * -1;
           } else {
               $tf_owe = 0;
               $tf_refund = 0;
               $tc_owe = 0;
               $tc_refund = 0;
+              $tb_owe = 0;
+              $tb_refund = 0;
+              $tw_owe = 0;
+              $tw_refund = 0;
           }
 
             //if($amount > 0) {
@@ -2241,7 +2133,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
             // $this->db->where('student_id', $row['student_id']);
             // $this->db->where('timestamp', $timestamp);
             // $tt_owe = $this->db->get()->row()->due;
-        
+
             // $this->db->select_sum('due');
             // $this->db->from('transport_fare');
             // $this->db->where('due <', 0);
@@ -2251,8 +2143,8 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
             $tt_owe = 0;
             $tt_refund = 0;
 
-        
-                                    
+
+
          ?>
 
          <!-- Start of accounts receivables -->
@@ -2261,7 +2153,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
               <section class="px-2">
                     <div class="font-bold text-2xl text-gray-500 text-right">ACCOUNTS RECEIVABLES</div>
                     <div class="font-extrabold text-2xl text-gray-600 text-right" id="total_receivables"></div>
-                    <div class="flex flex-col p-5 w-full max-w-full border-t-4 bg-white shadow-md border border-t-green-500 rounded-xl">
+                    <div class="flex flex-col p-5 w-full max-w-full border-t-8 bg-white shadow-md border border-t-green-500 rounded-xl">
                         <table class="w-full text-lg text-left text-gray-500 dark:text-gray-400 datatable" id="receivables">
                             <thead class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
 
@@ -2275,7 +2167,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                               </thead>
                               <tfoot class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
-                                  
+
                                   <th scope="col" class="px-4 py-3">DATE</th>
                                   <th scope="col" class="px-4 py-3" style="text-align: left !important">INVOICE#</th>
                                   <th scope="col" class="px-4 py-3" style="text-align: right !important">AMOUNT</th>
@@ -2298,49 +2190,131 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                               <td class="px-4 py-3"><?php echo $rec['invoice_code']; ?></td>
                               <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $amount_rec, $currency); ?></strong></td>
                               <td class="px-4 py-3" align="right">
-                                  <a href="#" class="btn btn-success rounded-lg h-16 content-center" onclick="invoice_pay_modal('<?=$row['student_id'] ?>')"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
+                                  <a href="#" class="btn btn-success rounded-lg h-16 content-center" onclick="invoice_pay_modal('<?=$row['student_id'] ?>')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
                               </td>
                             </tr>
                         <?php endforeach;
 
                           if($tf_owe != 0) {
+                            // Get fee collection mode to determine payment link
+                            $collection_mode = get_settings('daily_fee_collection_mode') ?: 'classroom';
+
+                            // Determine payment URL based on collection mode
+                            if ($collection_mode == 'cashier') {
+                              // Cashier only - go to cashier portal
+                              $payment_url = site_url('fee_collection/collect?student_id=' . $row['student_id'] . '&fee_type=feeding');
+                            } else {
+                              // Classroom or Hybrid - go to new attendance page
+                              $payment_url = site_url('attendance/mark?class_id=' . $class_id . '&date=' . date('Y-m-d') . '&student_id=' . $row['student_id']);
+                            }
                          ?>
 
                             <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-xl font-semibold">
                               <td class="px-4 py-3 uppercase"><?php echo 'As at today'; ?></td>
                               <td class="px-4 py-3"><?php echo 'FEEDING FEE'; ?></td>
                               <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tf_owe, $currency); ?></strong></td>
-                              
+
                               <td class="px-4 py-3" align="right">
-                                  <a href="<?php echo site_url('admin/manage_attendance_view/'.$class_id.'/'.$section_id.'/'.$att_timestamp.'/'.$row['student_id']) ?>" class="btn btn-success rounded-lg h-16 content-center"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
+                                  <a href="<?php echo $payment_url; ?>" class="btn btn-success rounded-lg h-16 content-center" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
                               </td>
                             </tr>
                           <?php }
 
                           if($tc_owe != 0) {
+                            // Get fee collection mode to determine payment link
+                            $collection_mode = get_settings('daily_fee_collection_mode') ?: 'classroom';
+
+                            // Determine payment URL based on collection mode
+                            if ($collection_mode == 'cashier') {
+                              // Cashier only - go to cashier portal
+                              $payment_url = site_url('fee_collection/collect?student_id=' . $row['student_id'] . '&fee_type=classes');
+                            } else {
+                              // Classroom or Hybrid - go to new attendance page
+                              $payment_url = site_url('attendance/mark?class_id=' . $class_id . '&date=' . date('Y-m-d') . '&student_id=' . $row['student_id']);
+                            }
                           ?>
                             <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-xl font-semibold">
                               <td class="px-4 py-3 uppercase"><?php echo 'As at today'; ?></td>
                               <td class="px-4 py-3"><?php echo 'CLASSES FEE'; ?></td>
                               <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tc_owe, $currency); ?></strong></td>
-                              
+
                               <td class="px-4 py-3" align="right">
-                                  <a href="<?php echo site_url('admin/manage_attendance_view/'.$class_id.'/'.$section_id.'/'.$att_timestamp.'/'.$row['student_id']) ?>" class="btn btn-success rounded-lg h-16 content-center"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
+                                  <a href="<?php echo $payment_url; ?>" class="btn btn-success rounded-lg h-16 content-center" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
                               </td>
                             </tr>
                           <?php }
 
                           if($tt_owe != 0) {
+                            // Get fee collection mode to determine payment link
+                            $collection_mode = get_settings('daily_fee_collection_mode') ?: 'classroom';
+
+                            // Determine payment URL based on collection mode
+                            if ($collection_mode == 'cashier') {
+                              // Cashier only - go to cashier portal
+                              $payment_url = site_url('fee_collection/collect?student_id=' . $row['student_id'] . '&fee_type=transport');
+                            } else {
+                              // Classroom or Hybrid - go to new attendance page
+                              $payment_url = site_url('attendance/mark?class_id=' . $class_id . '&date=' . date('Y-m-d') . '&student_id=' . $row['student_id']);
+                            }
                           ?>
                             <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-xl font-semibold">
                               <td class="px-4 py-3 uppercase"><?php echo 'As at today'; ?></td>
                               <td class="px-4 py-3"><?php echo 'TRANSPORT FARE'; ?></td>
                               <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tt_owe, $currency); ?></strong></td>
-                              
+
                               <td class="px-4 py-3" align="right">
-                                  <a href="<?php echo site_url('admin/manage_attendance_view/'.$class_id.'/'.$section_id.'/'.$att_timestamp.'/'.$row['student_id']) ?>" class="btn btn-success rounded-lg h-16 content-center"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
+                                  <a href="<?php echo $payment_url; ?>" class="btn btn-success rounded-lg h-16 content-center" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
                               </td>
                             </tr>
+                            <?php
+                              }
+
+                              if($tb_owe != 0) {
+                                // Get fee collection mode to determine payment link
+                                $collection_mode = get_settings('daily_fee_collection_mode') ?: 'classroom';
+
+                                // Determine payment URL based on collection mode
+                                if ($collection_mode == 'cashier') {
+                                  // Cashier only - go to cashier portal
+                                  $payment_url = site_url('fee_collection/collect?student_id=' . $row['student_id'] . '&fee_type=breakfast');
+                                } else {
+                                  // Classroom or Hybrid - go to new attendance page
+                                  $payment_url = site_url('attendance/mark?class_id=' . $class_id . '&date=' . date('Y-m-d') . '&student_id=' . $row['student_id']);
+                                }
+                              ?>
+                                <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-xl font-semibold">
+                                  <td class="px-4 py-3 uppercase"><?php echo 'As at today'; ?></td>
+                                  <td class="px-4 py-3"><?php echo 'BREAKFAST FEE'; ?></td>
+                                  <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tb_owe, $currency); ?></strong></td>
+
+                                  <td class="px-4 py-3" align="right">
+                                      <a href="<?php echo $payment_url; ?>" class="btn btn-success rounded-lg h-16 content-center" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
+                                  </td>
+                                </tr>
+                              <?php }
+
+                              if($tw_owe != 0) {
+                                // Get fee collection mode to determine payment link
+                                $collection_mode = get_settings('daily_fee_collection_mode') ?: 'classroom';
+
+                                // Determine payment URL based on collection mode
+                                if ($collection_mode == 'cashier') {
+                                  // Cashier only - go to cashier portal
+                                  $payment_url = site_url('fee_collection/collect?student_id=' . $row['student_id'] . '&fee_type=water');
+                                } else {
+                                  // Classroom or Hybrid - go to new attendance page
+                                  $payment_url = site_url('attendance/mark?class_id=' . $class_id . '&date=' . date('Y-m-d') . '&student_id=' . $row['student_id']);
+                                }
+                              ?>
+                                <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-xl font-semibold">
+                                  <td class="px-4 py-3 uppercase"><?php echo 'As at today'; ?></td>
+                                  <td class="px-4 py-3"><?php echo 'WATER FEE'; ?></td>
+                                  <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tw_owe, $currency); ?></strong></td>
+
+                                  <td class="px-4 py-3" align="right">
+                                      <a href="<?php echo $payment_url; ?>" class="btn btn-success rounded-lg h-16 content-center" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Take Payment</a>
+                                  </td>
+                                </tr>
                             <?php
                               }
                             ?>
@@ -2359,7 +2333,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                 <section class="px-2">
                     <div class="font-bold text-2xl text-gray-500 text-right">ACCOUNTS PAYABLES</div>
                     <div class="font-extrabold text-2xl text-gray-600 text-right" id="total_payables"></div>
-                    <div class="flex flex-col p-5 w-full max-w-full border-t-4 bg-white shadow-md border border-t-red-500 rounded-xl">
+                    <div class="flex flex-col p-5 w-full max-w-full border-t-8 bg-white shadow-md border border-t-red-500 rounded-xl">
                         <table class="w-full text-lg text-left text-gray-500 dark:text-gray-400 datatable" id="payables">
                             <thead class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
 
@@ -2374,7 +2348,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
 
                             <tfoot class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
-                                  
+
                                   <th scope="col" class="px-4 py-3">DATE</th>
                                   <th scope="col" class="px-4 py-3" style="text-align: left !important">INVOICE#</th>
                                   <th scope="col" class="px-4 py-3" style="text-align: right !important">AMOUNT</th>
@@ -2395,12 +2369,12 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                             <td class="px-4 py-3 uppercase"><?php echo date('d M Y', $pdate); ?></td>
                             <td class="px-4 py-3"><?php echo $pay['invoice_code']; ?></td>
                             <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $amount_pay, $currency); ?></strong></td>
-                            
+
                             <td class="px-4 py-3" align="right">
-                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center" disabled onclick="invoice_refund_modal('<?=$row['student_id'] ?>')"><i class="entypo-bookmarks"></i>&nbsp; Make Refund</a>
+                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center" disabled onclick="invoice_refund_modal('<?=$row['student_id'] ?>')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp; Make Refund</a>
                             </td>
                           </tr>
-                      <?php endforeach; 
+                      <?php endforeach;
 
                       if($tf_refund != 0) {
                        ?>
@@ -2409,9 +2383,9 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                             <td class="px-4 py-3 uppercase"><?php echo 'As at today'; ?></td>
                             <td class="px-4 py-3"><?php echo 'FEEDING FEE'; ?></td>
                             <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tf_refund, $currency); ?></strong></td>
-                            
+
                             <td class="px-4 py-3" align="right">
-                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center" disabled onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'feeding')"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
+                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center" disabled onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'feeding')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
                             </td>
                           </tr>
                         <?php }
@@ -2423,7 +2397,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                             <td class="px-4 py-3"><?php echo 'CLASSES FEE'; ?></td>
                             <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tc_refund, $currency); ?></strong></td>
                             <td class="px-4 py-3" align="right">
-                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center" onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'classes')"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
+                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center" onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'classes')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
                             </td>
                           </tr>
                         <?php }
@@ -2435,9 +2409,34 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                             <td class="px-4 py-3"><?php echo 'TRANSPORT FARE'; ?></td>
                             <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tt_refund, $currency); ?></strong></td>
                             <td class="px-4 py-3" align="right">
-                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center " onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'transport')"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
+                                <a href="#" class="btn btn-danger rounded-lg h-16 content-center " onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'transport')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
                             </td>
                           </tr>
+                          <?php
+                            }
+
+                            if($tb_refund != 0) {
+                            ?>
+                              <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-xl font-semibold">
+                                <td class="px-4 py-3 uppercase"><?php echo 'As at today'; ?></td>
+                                <td class="px-4 py-3"><?php echo 'BREAKFAST FEE'; ?></td>
+                                <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tb_refund, $currency); ?></strong></td>
+                                <td class="px-4 py-3" align="right">
+                                    <a href="#" class="btn btn-danger rounded-lg h-16 content-center " onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'breakfast')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
+                                </td>
+                              </tr>
+                            <?php }
+
+                            if($tw_refund != 0) {
+                            ?>
+                              <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-xl font-semibold">
+                                <td class="px-4 py-3 uppercase"><?php echo 'As at today'; ?></td>
+                                <td class="px-4 py-3"><?php echo 'WATER FEE'; ?></td>
+                                <td class="px-4 py-3" align="right"><strong><?php echo numfmt_format_currency($fmt, $tw_refund, $currency); ?></strong></td>
+                                <td class="px-4 py-3" align="right">
+                                    <a href="#" class="btn btn-danger rounded-lg h-16 content-center " onclick="fct_refund_modal('<?=$row['student_id'] ?>', 'water')" style="color: #d803f8;"><i class="entypo-bookmarks"></i>&nbsp;Make Refund</a>
+                                </td>
+                              </tr>
                           <?php
                             }
                           ?>
@@ -2447,7 +2446,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                </section>
              </div>
          </div> <!-- end of payables -->
-              
+
 
          <!--Payment -->
          <hr>
@@ -2464,11 +2463,11 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                 <section class="px-2">
                     <div class="font-bold text-2xl text-gray-500 text-right">BILLED INVOICES PAYMENTS HISTORY</div>
                     <div class="font-extrabold text-2xl text-gray-600 text-right" id="accumulated"></div>
-                    <div class="flex flex-col p-5 w-full max-w-full border-t-4 bg-white shadow-md border border-t-sky-500 rounded-xl">
+                    <div class="flex flex-col p-5 w-full max-w-full border-t-8 bg-white shadow-md border border-t-sky-500 rounded-xl">
                         <table class="w-full text-lg text-left text-gray-500 dark:text-gray-400 datatable" id="exp_table">
                             <thead class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
-                                  
+
                                   <th scope="col" class="px-4 py-3">DATE</th>
                                   <th scope="col" class="px-4 py-3" style="text-align: left !important">RECEIPT#</th>
                                   <th scope="col" class="px-4 py-3" style="text-align: left !important">METHOD</th>
@@ -2480,7 +2479,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
 
                             <tfoot class="text-lg text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
-                                  
+
                                   <th scope="col" class="px-4 py-3">DATE</th>
                                   <th scope="col" class="px-4 py-3" style="text-align: left !important">RECEIPT#</th>
                                   <th scope="col" class="px-4 py-3" style="text-align: left !important">METHOD</th>
@@ -2490,8 +2489,8 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                                 </tr>
                             </tfoot>
                           <tbody>
-                            
-                              
+
+
                             <?php
                         $count = 1;
                         $total_amount_received = 0;
@@ -2573,7 +2572,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
                           $method = $this->db->get_where('payment', array(
                             'receipt_code' => $rec['receipt_code'],
                           ))->row()->payment_method;
-                          
+
                           // Get payment method name instead of ID
                           $method_name = get_payment_method_name($method);
                           ?>
@@ -2621,7 +2620,7 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
 
      $('#payment_ta').dataTable();
 
-     
+
  });
 
 
@@ -2648,6 +2647,8 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
 
         } else if(receipt_style == 'style_3') {
             showAjaxModal_receipt('<?php echo site_url('modal/popup_receipt/modal_receipt_3/'); ?>' + receipt_code + '/' + student_id + '/' + total_amount_received + '/' + date_time, 'take_payment');
+        } else if(receipt_style == 'style_thermal') {
+            window.open('<?php echo site_url('admin/receipt_print/'); ?>' + receipt_code + '/' + student_id + '/' + total_amount_received + '/' + date_time, '_blank');
         }
 
     }
@@ -2674,12 +2675,12 @@ div.dataTables_wrapper div.dataTables_filter input { width: 70% !important; }
         /* Act on the event */
         $('html, body').animate({
           scrollTop: ($('#top').offset().top )
-        }, 1000); 
+        }, 1000);
 
         const url = '<?php echo site_url('admin/student_profile/') ?>' + $(this).val();
 
         navigation(url);
-        
+
     });
 
 

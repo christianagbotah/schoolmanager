@@ -449,7 +449,7 @@ $config['csrf_token_name'] = 'agbotah_essuon';
 $config['csrf_cookie_name'] = 'joana_vic';
 $config['csrf_expire'] = 7200;
 $config['csrf_regenerate'] = FALSE;
-$config['csrf_exclude_uris'] = array('api.*+');
+$config['csrf_exclude_uris'] = array('api.*+', 'sync/push', 'sync/pull');
 
 /*
 |--------------------------------------------------------------------------

@@ -13,57 +13,57 @@
 /* ========================================
    BASE LAYOUT - DESKTOP FIRST
    ======================================== */
-.pos-container { 
-    display: grid; 
-    grid-template-columns: 300px 1fr 400px; 
-    gap: 20px; 
-    padding: 0 20px; 
+.pos-container {
+    display: grid;
+    grid-template-columns: 300px 1fr 400px;
+    gap: 20px;
+    padding: 0 20px;
 }
 
-.pos-left { 
-    background: #fff; 
-    border-radius: 12px; 
-    padding: 20px; 
-    overflow-y: auto; 
-    max-height: calc(100vh - 40px); 
+.pos-left {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(100vh - 40px);
 }
 
-.pos-middle { 
-    background: #fff; 
-    border-radius: 12px; 
-    padding: 20px; 
-    overflow-y: auto; 
+.pos-middle {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    overflow-y: auto;
 }
 
-.pos-right { 
-    background: #1e293b; 
-    border-radius: 12px; 
-    padding: 20px; 
-    color: white; 
-    display: flex; 
-    flex-direction: column; 
-    position: sticky; 
-    top: 20px; 
-    height: fit-content; 
-    max-height: calc(100vh - 40px); 
+.pos-right {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 20px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+    max-height: calc(100vh - 40px);
 }
 
 /* ========================================
    FEE ITEMS & CARDS
    ======================================== */
-.fee-item { 
-    background: #f8fafc; 
-    border: 2px solid #e2e8f0; 
-    border-radius: 8px; 
-    padding: 15px; 
-    margin-bottom: 10px; 
-    cursor: pointer; 
-    transition: all 0.2s; 
+.fee-item {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-.fee-item.active { 
-    border-color: #3b82f6; 
-    background: #eff6ff; 
+.fee-item.active {
+    border-color: #3b82f6;
+    background: #eff6ff;
 }
 
 .fee-item:hover {
@@ -74,133 +74,133 @@
 /* ========================================
    KEYPAD & POS ELEMENTS
    ======================================== */
-.pos-display { 
-    background: #0f172a; 
-    padding: 20px; 
-    border-radius: 8px; 
-    margin-bottom: 20px; 
+.pos-display {
+    background: #0f172a;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
-.pos-keypad { 
-    display: grid; 
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 10px; 
-    margin-top: auto; 
+.pos-keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: auto;
 }
 
-.pos-key { 
-    background: #334155; 
-    padding: 20px; 
-    border-radius: 8px; 
-    text-align: center; 
-    font-size: 20px; 
-    font-weight: bold; 
-    cursor: pointer; 
-    transition: all 0.2s; 
-    user-select: none; 
+.pos-key {
+    background: #334155;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
 }
 
-.pos-key:hover { 
-    background: #475569; 
-    transform: scale(1.05); 
+.pos-key:hover {
+    background: #475569;
+    transform: scale(1.05);
 }
 
-.pos-key:active { 
-    transform: scale(0.95); 
+.pos-key:active {
+    transform: scale(0.95);
 }
 
-.pos-key.clear { 
-    background: #dc2626; 
+.pos-key.clear {
+    background: #dc2626;
 }
 
-.pos-key.enter { 
-    background: #16a34a; 
-    grid-column: span 2; 
+.pos-key.enter {
+    background: #16a34a;
+    grid-column: span 2;
 }
 
 /* ========================================
    OTHER ELEMENTS
    ======================================== */
-.student-card { 
-    background: #f8fafc; 
-    border: 2px solid #e2e8f0; 
-    border-radius: 8px; 
-    padding: 12px; 
-    margin-bottom: 8px; 
-    cursor: pointer; 
-    transition: all 0.2s; 
+.student-card {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-.student-card:hover { 
-    border-color: #3b82f6; 
-    background: #eff6ff; 
-    transform: translateX(4px); 
+.student-card:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    transform: translateX(4px);
 }
 
-.saved-txn { 
-    background: #fef3c7; 
-    border-left: 4px solid #f59e0b; 
-    padding: 10px; 
-    margin-bottom: 10px; 
-    cursor: pointer; 
+.saved-txn {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
 }
 
-.saved-txn:hover { 
-    background: #fde68a; 
+.saved-txn:hover {
+    background: #fde68a;
 }
 
-.payment-history { 
-    background: #fff; 
-    border: 1px solid #e2e8f0; 
-    border-radius: 8px; 
-    padding: 12px; 
-    margin-top: 15px; 
-    max-height: 300px; 
-    overflow-y: auto; 
+.payment-history {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 15px;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
-.payment-item { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 8px; 
-    border-bottom: 1px solid #f1f5f9; 
+.payment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #f1f5f9;
 }
 
-.payment-item:last-child { 
-    border-bottom: none; 
+.payment-item:last-child {
+    border-bottom: none;
 }
 
-.payment-item:hover { 
-    background: #f8fafc; 
+.payment-item:hover {
+    background: #f8fafc;
 }
 
-.mobile-keypad-toggle { 
-    display: none; 
+.mobile-keypad-toggle {
+    display: none;
 }
 
-.transaction-header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 16px; 
-    flex-wrap: wrap; 
-    gap: 12px; 
+.transaction-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
-.transaction-header-buttons { 
-    display: flex; 
-    gap: 8px; 
-    flex-wrap: wrap; 
+.transaction-header-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
-.transaction-buttons-container { 
-    display: flex; 
-    gap: 12px; 
+.transaction-buttons-container {
+    display: flex;
+    gap: 12px;
 }
 
-.transaction-buttons-container button { 
-    flex: 1; 
+.transaction-buttons-container button {
+    flex: 1;
 }
 
 /* ========================================
@@ -212,11 +212,11 @@
         gap: 15px !important;
         padding: 10px !important;
     }
-    
+
     .pos-left, .pos-middle {
         max-height: none !important;
     }
-    
+
     .pos-right {
         position: fixed !important;
         bottom: 0 !important;
@@ -230,11 +230,11 @@
         z-index: 999999 !important;
         box-shadow: 0 -4px 20px rgba(0,0,0,0.3) !important;
     }
-    
+
     .pos-right.expanded {
         transform: translateY(0) !important;
     }
-    
+
     .mobile-keypad-toggle {
         display: block !important;
         text-align: center !important;
@@ -245,13 +245,13 @@
         border-radius: 16px 16px 0 0 !important;
         user-select: none !important;
     }
-    
+
     .mobile-keypad-toggle:after {
         content: "▲ Tap to use Keypad" !important;
         font-size: 14px !important;
         font-weight: bold !important;
     }
-    
+
     .pos-right.expanded .mobile-keypad-toggle:after {
         content: "▼ Hide Keypad" !important;
     }
@@ -266,14 +266,14 @@
         padding: 15px !important;
         border-radius: 10px !important;
     }
-    
+
     /* Headers */
     .pos-left h2, .pos-middle h2 {
         font-size: 18px !important;
         margin-bottom: 12px !important;
         font-weight: 700 !important;
     }
-    
+
     /* Transaction Header - STACK VERTICALLY */
     .transaction-header {
         flex-direction: column !important;
@@ -283,56 +283,56 @@
         padding: 12px !important;
         border-radius: 10px !important;
     }
-    
+
     .transaction-header h2 {
         margin-bottom: 0 !important;
     }
-    
+
     .transaction-header-buttons {
         width: 100% !important;
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
         gap: 8px !important;
     }
-    
+
     .transaction-header-buttons button {
         font-size: 13px !important;
         padding: 10px 8px !important;
         white-space: nowrap !important;
         min-height: 44px !important;
     }
-    
+
     /* Student Info Card */
     #student_info {
         padding: 14px !important;
         border-radius: 10px !important;
         margin-bottom: 14px !important;
     }
-    
+
     #student_info .font-bold.text-lg {
         font-size: 16px !important;
         line-height: 1.3 !important;
         margin-bottom: 5px !important;
     }
-    
+
     #student_info .text-sm {
         font-size: 13px !important;
         line-height: 1.4 !important;
     }
-    
+
     /* FEE CARDS - SINGLE COLUMN LAYOUT */
     #fee_items {
         display: flex !important;
         flex-direction: column !important;
         gap: 12px !important;
     }
-    
+
     .fee-item {
         padding: 14px !important;
         margin-bottom: 0 !important;
         border-radius: 10px !important;
     }
-    
+
     /* Fee Card Content */
     .fee-item > div.flex {
         display: flex !important;
@@ -341,35 +341,35 @@
         align-items: center !important;
         gap: 12px !important;
     }
-    
+
     .fee-item > div.flex > div:first-child {
         flex: 1 !important;
         min-width: 0 !important;
     }
-    
+
     .fee-item .font-bold {
         font-size: 15px !important;
         font-weight: 700 !important;
         margin-bottom: 4px !important;
     }
-    
+
     .fee-item .text-sm.text-red-600 {
         font-size: 12px !important;
         font-weight: 600 !important;
     }
-    
+
     .fee-item > div.flex > div:last-child {
         flex-shrink: 0 !important;
         min-width: 80px !important;
         text-align: right !important;
     }
-    
+
     .fee-item .text-2xl {
         font-size: 19px !important;
         font-weight: 800 !important;
         line-height: 1.2 !important;
     }
-    
+
     /* Transport Dropdown */
     .fee-item select#transport_direction {
         width: 100% !important;
@@ -378,34 +378,34 @@
         border-radius: 8px !important;
         margin-top: 8px !important;
     }
-    
+
     /* Payment Summary */
     .bg-gray-100.p-4 {
         padding: 14px !important;
         border-radius: 10px !important;
         margin-top: 14px !important;
     }
-    
+
     .bg-gray-100 .flex.justify-between {
         display: flex !important;
         justify-content: space-between !important;
         margin-bottom: 10px !important;
     }
-    
+
     .bg-gray-100 .flex.justify-between:last-child {
         margin-bottom: 0 !important;
     }
-    
+
     .bg-gray-100 .flex.justify-between .text-xl {
         font-size: 16px !important;
         font-weight: 800 !important;
     }
-    
+
     .bg-gray-100 .flex.justify-between .text-lg {
         font-size: 14px !important;
         font-weight: 700 !important;
     }
-    
+
     /* Payment Method & Date - SINGLE COLUMN */
     #transaction_area .grid.grid-cols-2 {
         display: flex !important;
@@ -413,7 +413,7 @@
         gap: 10px !important;
         margin-top: 14px !important;
     }
-    
+
     #payment_method, #payment_date {
         width: 100% !important;
         padding: 12px !important;
@@ -421,20 +421,20 @@
         border-width: 2px !important;
         border-radius: 8px !important;
     }
-    
+
     /* Amount Tendered Input */
     .bg-gray-50.border-2 {
         padding: 12px !important;
         margin-top: 12px !important;
         border-radius: 8px !important;
     }
-    
+
     .bg-gray-50.border-2 label {
         font-size: 14px !important;
         font-weight: 600 !important;
         margin-bottom: 8px !important;
     }
-    
+
     #amount_tendered_input {
         width: 100% !important;
         padding: 12px !important;
@@ -442,14 +442,14 @@
         border-width: 2px !important;
         border-radius: 8px !important;
     }
-    
+
     /* Transaction Buttons - STACK VERTICALLY */
     .transaction-buttons-container {
         flex-direction: column !important;
         gap: 10px !important;
         margin-top: 16px !important;
     }
-    
+
     .transaction-buttons-container button {
         width: 100% !important;
         padding: 14px !important;
@@ -458,7 +458,7 @@
         min-height: 48px !important;
         border-radius: 8px !important;
     }
-    
+
     /* Search Inputs */
     input#student_search, select#class_search {
         padding: 12px !important;
@@ -466,49 +466,49 @@
         border-width: 2px !important;
         border-radius: 8px !important;
     }
-    
+
     /* Student Cards in Left Panel */
     .student-card {
         padding: 12px !important;
         margin-bottom: 10px !important;
     }
-    
+
     .student-card .font-bold {
         font-size: 14px !important;
     }
-    
+
     .student-card .text-xs {
         font-size: 11px !important;
     }
-    
+
     /* Keypad */
     .pos-display {
         padding: 14px !important;
         margin-bottom: 14px !important;
     }
-    
+
     .pos-display .text-sm {
         font-size: 11px !important;
         margin-bottom: 6px !important;
     }
-    
+
     .pos-display .text-xl {
         font-size: 14px !important;
     }
-    
+
     .pos-display .text-2xl {
         font-size: 16px !important;
     }
-    
+
     #keypad_display {
         font-size: 28px !important;
         font-weight: 800 !important;
     }
-    
+
     .pos-keypad {
         gap: 8px !important;
     }
-    
+
     .pos-key {
         padding: 15px !important;
         font-size: 18px !important;
@@ -523,24 +523,24 @@
         padding: 8px !important;
         gap: 12px !important;
     }
-    
+
     .transaction-header-buttons {
         grid-template-columns: 1fr 1fr !important;
     }
-    
+
     .transaction-header-buttons button {
         font-size: 12px !important;
         padding: 9px 6px !important;
     }
-    
+
     .fee-item .font-bold {
         font-size: 14px !important;
     }
-    
+
     .fee-item .text-2xl {
         font-size: 18px !important;
     }
-    
+
     .pos-key {
         padding: 13px !important;
         font-size: 17px !important;
@@ -561,7 +561,7 @@
                     foreach($classes as $class):
                 ?>
                 <option value="<?php echo $class['class_id']; ?>"><?php echo $class['class_name']; ?></option>
-                <?php 
+                <?php
                     endforeach;
                 endif;
                 ?>
@@ -588,9 +588,9 @@
 
         <div id="transaction_area" style="display:none;">
             <div id="student_info" class="bg-blue-50 p-4 rounded-lg mb-4"></div>
-            
+
             <div id="fee_items"></div>
-            
+
             <div class="bg-gray-100 p-4 rounded-lg mt-4">
                 <div class="flex justify-between text-xl font-bold mb-2">
                     <span>TOTAL DUE:</span>
@@ -686,7 +686,7 @@ function searchByClass() {
     const classId = $('#class_search').val();
     if(!classId) { $('#search_results').html(''); return; }
     const searchTerm = $('#student_search').val();
-    
+
     $.post('<?php echo site_url('admin/search_students_by_class'); ?>', { class_id: classId, search: searchTerm }, function(response) {
         const data = JSON.parse(response);
         if(data.status === 'success') {
@@ -705,7 +705,7 @@ function searchByClass() {
 function filterStudentList() {
     const classId = $('#class_search').val();
     const searchTerm = $('#student_search').val();
-    
+
     if(classId) {
         searchByClass();
     } else if(searchTerm.length >= 2) {
@@ -796,47 +796,59 @@ function loadTransaction(data) {
         tendered: 0,
         transport_direction: data.transport_direction || ''
     };
-    
+
+    // Auto-populate amounts for fees with arrears (if no prepaid balance)
+    ['feeding', 'classes', 'transport'].forEach(type => {
+        const due = currentTransaction.fees[type].due;
+        const prepaidKey = `${type}_balance`;
+        const prepaid = parseFloat(data[prepaidKey] || 0);
+
+        // If student owes money and has NO prepaid balance, auto-fill the amount
+        if (due > 0 && prepaid === 0) {
+            currentTransaction.fees[type].amount = due;
+        }
+    });
+
     let studentInfoHtml = `<div class="font-bold text-lg">${data.student.name}</div>
         <div class="text-sm">${data.student.student_code} | ${data.class_name} ${data.class_numeric} ${data.section || ''}</div>`;
-    
+
     if(data.is_beneficiary) {
         studentInfoHtml += `<div class="bg-green-50 border border-green-200 rounded p-2 mt-2">
             <p class="text-xs font-bold text-green-800"><i class="fa fa-gift"></i> Beneficiary Student</p>`;
-        
+
         if(data.feeding_discount > 0 && !data.hide_feeding) {
             const originalFee = parseFloat(data.feeding_due) + parseFloat(data.feeding_discount);
             studentInfoHtml += `<p class="text-xs text-green-700">Feeding: GH₵${originalFee.toFixed(2)} - GH₵${parseFloat(data.feeding_discount).toFixed(2)} = GH₵${parseFloat(data.feeding_due).toFixed(2)}</p>`;
         } else if(data.hide_feeding) {
             studentInfoHtml += `<p class="text-xs text-green-700">Feeding: 100% Discount (Free)</p>`;
         }
-        
+
         if(data.classes_discount > 0 && !data.hide_classes) {
             const originalFee = parseFloat(data.classes_due) + parseFloat(data.classes_discount);
             studentInfoHtml += `<p class="text-xs text-green-700">Classes: GH₵${originalFee.toFixed(2)} - GH₵${parseFloat(data.classes_discount).toFixed(2)} = GH₵${parseFloat(data.classes_due).toFixed(2)}</p>`;
         } else if(data.hide_classes) {
             studentInfoHtml += `<p class="text-xs text-green-700">Classes: 100% Discount (Free)</p>`;
         }
-        
+
         if(data.feeding_discount == 0 && data.classes_discount == 0 && !data.hide_feeding && !data.hide_classes) {
             studentInfoHtml += `<p class="text-xs text-orange-700">No discount configured for this class</p>`;
         }
-        
+
         studentInfoHtml += `</div>`;
     }
-    
+
     $('#student_info').html(studentInfoHtml);
-    
+
     let feeHtml = '';
     visibleFeeTypes = [];
     ['feeding', 'classes', 'transport'].forEach(type => {
         const fee = currentTransaction.fees[type];
         const hideKey = `hide_${type}`;
         if(data[hideKey]) return; // Skip if fee should be hidden (disabled module, 100% discount, or no transport)
-        
+
         visibleFeeTypes.push(type);
         const feeLabel = type === 'transport' ? 'Transport Fare' : `${type.charAt(0).toUpperCase() + type.slice(1)} Fee`;
-        
+
         // Add transport direction selector for transport fee
         let transportDirectionHtml = '';
         if(type === 'transport' && data.route_fare) {
@@ -851,7 +863,7 @@ function loadTransaction(data) {
                     </select>
                 </div>`;
         }
-        
+
         feeHtml += `<div class="fee-item" id="fee_${type}" onclick="selectFee('${type}')">
             <div class="flex justify-between items-center">
                 <div>
@@ -865,24 +877,24 @@ function loadTransaction(data) {
             </div>
         </div>`;
     });
-    
+
     // Add amount tendered field after fee items
     feeHtml += `<div class="bg-gray-50 border-2 border-gray-300 rounded-lg p-4 mt-4">
         <label class="block text-sm font-bold text-gray-700 mb-2">Amount Tendered</label>
-        <input type="number" id="amount_tendered_input" step="0.01" placeholder="0.00" 
-               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg font-bold" 
-               onchange="updateTotals()" oninput="updateTotals()" 
-               onfocus="clearFeeSelection()" onblur="restoreFeeSelection()" 
+        <input type="number" id="amount_tendered_input" step="0.01" placeholder="0.00"
+               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg font-bold"
+               onchange="updateTotals()" oninput="updateTotals()"
+               onfocus="clearFeeSelection()" onblur="restoreFeeSelection()"
                onkeydown="if(event.key==='Enter') navigateNext()">
     </div>`;
-    
+
     $('#fee_items').html(feeHtml);
     $('#transaction_area').show();
     $('#search_results').html('');
-    
+
     // Adjust grid columns based on visible fee types
     $('.pos-container').removeClass('cols-1 cols-2 cols-3').addClass('cols-' + visibleFeeTypes.length);
-    
+
     setupNavigation();
     updateTotals();
 }
@@ -951,7 +963,7 @@ function setupNavigation() {
 function navigateNext() {
     currentNavIndex++;
     if(currentNavIndex >= navigationElements.length) currentNavIndex = 0;
-    
+
     const element = navigationElements[currentNavIndex];
     if(element.startsWith('fee_')) {
         const feeType = element.replace('fee_', '');
@@ -979,7 +991,7 @@ function applyAmount() {
     currentTransaction.fees[selectedFeeType].amount = amount;
     $(`#amount_${selectedFeeType}`).text(amount.toFixed(2));
     updateTotals();
-    
+
     navigateNext();
 }
 
@@ -989,13 +1001,13 @@ function updateTotals() {
         totalDue += f.due;
         totalPaying += f.amount;
     });
-    
+
     const amountTendered = parseFloat($('#amount_tendered_input').val()) || 0;
-    
+
     $('#total_due').text('GHS ' + totalDue.toFixed(2));
     $('#amount_paying_display').text('GHS ' + totalPaying.toFixed(2));
     $('#amount_tendered_display').text('GHS ' + amountTendered.toFixed(2));
-    
+
     // Only calculate and show change if amount tendered is entered
     if(amountTendered > 0) {
         const change = amountTendered - totalPaying;
@@ -1005,7 +1017,7 @@ function updateTotals() {
         $('#change_display').text('GHS 0.00');
         $('#change_display').removeClass('text-red-600 text-green-600').addClass('text-red-600');
     }
-    
+
     currentTransaction.tendered = amountTendered;
 }
 
@@ -1031,13 +1043,13 @@ function saveTransaction() {
 
 function processPayment() {
     if(!currentTransaction.student_id) return false;
-    
+
     // Validate transport direction if transport fee is being collected
     if(currentTransaction.fees.transport.amount > 0 && !currentTransaction.transport_direction) {
         showAjaxModal_alert('Please select transport usage (In/Out/Both/None)', 'warning', false);
         return false;
     }
-    
+
     showAjaxModal_alert('Processing...', 'loading');
     $.post('<?php echo site_url('admin/process_fee_payment'); ?>', {
         student_id: currentTransaction.student_id,
@@ -1087,7 +1099,7 @@ function showPrintPrompt(data) {
         'Print Receipt',
         'primary'
     );
-    
+
     setTimeout(function() {
         $('#confirm_modal .modal-footer .btn-default').remove();
         $('#confirm_modal .modal-footer').append('<button type="button" class="btn btn-default" onclick="$(\'.close\')[0].click(); resetForNextStudent();">Skip</button>');
@@ -1141,9 +1153,9 @@ function loadSavedCount() {
 }
 
 $(document).ready(function() {
-    $('.datepicker').datepicker({ 
-        format: 'dd-mm-yyyy', 
-        autoclose: true, 
+    $('.datepicker').datepicker({
+        format: 'dd-mm-yyyy',
+        autoclose: true,
         todayHighlight: true,
         endDate: '0d'
     }).on('changeDate', function() {
@@ -1151,7 +1163,7 @@ $(document).ready(function() {
     });
     loadSavedCount();
     handleDateChange();
-    
+
     $('#class_search').select2({
         placeholder: 'Search by Class...',
         allowClear: true,
@@ -1159,19 +1171,19 @@ $(document).ready(function() {
     }).on('change', function() {
         searchByClass();
     });
-    
+
     $(document).on('keydown', function(e) {
         if(!selectedFeeType || $('#student_search').is(':focus') || $('#payment_method').is(':focus') || $('#payment_date').is(':focus') || $('.select2-search__field').is(':focus')) return;
         if(/^[0-9.]$/.test(e.key)) { e.preventDefault(); addDigit(e.key); }
         else if(e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); clearKeypad(); }
         else if(e.key === 'Enter') { e.preventDefault(); applyAmount(); }
     });
-    
+
     // Mobile keypad toggle functionality
     $('.mobile-keypad-toggle').on('click', function() {
         $('.pos-right').toggleClass('expanded');
     });
-    
+
     // Auto-collapse keypad when scrolling on mobile
     if(window.innerWidth <= 1024) {
         let scrollTimeout;
@@ -1189,15 +1201,15 @@ $(document).ready(function() {
 function handleDateChange() {
     const selectedDate = $('#payment_date').val();
     if(!selectedDate) return;
-    
+
     const parts = selectedDate.split('-');
     const selected = new Date(parts[2], parts[1] - 1, parts[0]);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     selected.setHours(0, 0, 0, 0);
-    
+
     const diffDays = Math.floor((today - selected) / (1000 * 60 * 60 * 24));
-    
+
     if(diffDays > 0) {
         $('#date_indicator').text('BACKDATE').css({
             'background-color': '#fbbf24',
@@ -1220,7 +1232,7 @@ function handleDateChange() {
         $('#date_indicator').hide();
         $('#backdate_warning').hide();
     }
-    
+
     if(currentTransaction.student_id) {
         selectStudent(currentTransaction.student_id);
     }
@@ -1230,26 +1242,26 @@ function updateTransportFare() {
     const direction = $('#transport_direction').val();
     const routeFare = currentTransaction.fees.transport.route_fare;
     let amount = 0;
-    
+
     if(direction === 'in' || direction === 'out') {
         amount = routeFare;
     } else if(direction === 'both') {
         amount = routeFare * 2;
     }
-    
+
     currentTransaction.fees.transport.amount = amount;
     currentTransaction.fees.transport.due = amount;
     currentTransaction.transport_direction = direction;
-    
+
     $('#amount_transport').text(amount.toFixed(2));
     $('#fee_transport .text-red-600').text('Due: GHS ' + amount.toFixed(2));
-    
+
     if(selectedFeeType === 'transport') {
         $('#selected_fee_due').text('GHS ' + amount.toFixed(2));
         keypadValue = amount.toString();
         $('#keypad_display').text(keypadValue);
     }
-    
+
     updateTotals();
 }
 
@@ -1287,14 +1299,14 @@ function closeCouponModal() {
 function generateCashierCoupon() {
     const date = $('#coupon_date').val();
     const classFilter = $('#coupon_class_filter').val();
-    
+
     if(!date) {
         alert('Please select a date');
         return;
     }
-    
+
     closeCouponModal();
-    
+
     $.ajax({
         url: '<?php echo site_url("dining_coupon/generateCashierCoupon"); ?>',
         type: 'POST',
@@ -1322,13 +1334,13 @@ function generateCashierCoupon() {
 document.addEventListener('DOMContentLoaded', function() {
     const keypadToggle = document.querySelector('.mobile-keypad-toggle');
     const posRight = document.querySelector('.pos-right');
-    
+
     if (keypadToggle && posRight) {
         keypadToggle.addEventListener('click', function(e) {
             e.stopPropagation();
             posRight.classList.toggle('expanded');
         });
-        
+
         // Close keypad when clicking outside on mobile
         document.addEventListener('click', function(e) {
             if (window.innerWidth <= 1024) {
@@ -1356,7 +1368,7 @@ document.addEventListener('DOMContentLoaded', function() {
         color: #0f172a !important;
         letter-spacing: -0.02em !important;
     }
-    
+
     /* Transaction Header Layout */
     .transaction-header {
         display: flex !important;
@@ -1369,14 +1381,14 @@ document.addEventListener('DOMContentLoaded', function() {
         border-radius: 12px !important;
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
-    
+
     .transaction-header-buttons {
         width: 100% !important;
         display: flex !important;
         flex-direction: row !important;
         gap: 8px !important;
     }
-    
+
     .transaction-header-buttons button {
         flex: 1 !important;
         font-size: 13px !important;
@@ -1387,7 +1399,7 @@ document.addEventListener('DOMContentLoaded', function() {
         border-radius: 8px !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
     }
-    
+
     /* Student Info Card */
     #student_info {
         padding: 16px !important;
@@ -1396,7 +1408,7 @@ document.addEventListener('DOMContentLoaded', function() {
         box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
         border: 1px solid #e0e7ff !important;
     }
-    
+
     #student_info div.font-bold.text-lg,
     #student_info .font-bold.text-lg {
         font-size: 17px !important;
@@ -1405,14 +1417,14 @@ document.addEventListener('DOMContentLoaded', function() {
         font-weight: 800 !important;
         color: #1e293b !important;
     }
-    
+
     #student_info div.text-sm,
     #student_info .text-sm {
         font-size: 13px !important;
         line-height: 1.5 !important;
         color: #64748b !important;
     }
-    
+
     /* FEE CARDS - CRITICAL MOBILE IMPROVEMENTS */
     /* Fee Items Container */
     #fee_items {
@@ -1422,7 +1434,7 @@ document.addEventListener('DOMContentLoaded', function() {
         margin-bottom: 18px !important;
         padding: 0 !important;
     }
-    
+
     /* Individual Fee Card - Enhanced Card Design */
     .fee-item {
         display: flex !important;
@@ -1435,18 +1447,18 @@ document.addEventListener('DOMContentLoaded', function() {
         box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
         transition: all 0.25s ease !important;
     }
-    
+
     .fee-item:active {
         transform: scale(0.98) !important;
     }
-    
+
     .fee-item.active {
         border-color: #3b82f6 !important;
         background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
         box-shadow: 0 4px 12px rgba(59,130,246,0.25) !important;
         transform: translateY(-2px) !important;
     }
-    
+
     /* Fee Card Inner Flex Container */
     .fee-item > div.flex {
         display: flex !important;
@@ -1456,7 +1468,7 @@ document.addEventListener('DOMContentLoaded', function() {
         width: 100% !important;
         gap: 14px !important;
     }
-    
+
     /* Fee Card Left Side (Title & Due Amount) */
     .fee-item > div.flex > div:first-child {
         flex: 1 !important;
@@ -1465,7 +1477,7 @@ document.addEventListener('DOMContentLoaded', function() {
         flex-direction: column !important;
         gap: 5px !important;
     }
-    
+
     /* Fee Title - Enhanced */
     .fee-item > div.flex > div:first-child > div.font-bold,
     .fee-item .font-bold {
@@ -1476,7 +1488,7 @@ document.addEventListener('DOMContentLoaded', function() {
         color: #0f172a !important;
         letter-spacing: -0.01em !important;
     }
-    
+
     /* Due Amount Label - Enhanced Visibility */
     .fee-item > div.flex > div:first-child > div.text-sm,
     .fee-item .text-sm.text-red-600 {
@@ -1491,14 +1503,14 @@ document.addEventListener('DOMContentLoaded', function() {
         display: inline-block !important;
         width: fit-content !important;
     }
-    
+
     /* Transport Dropdown inside Fee Card */
     .fee-item > div.flex > div:first-child > div.mt-2,
     .fee-item .mt-2 {
         margin-top: 10px !important;
         width: 100% !important;
     }
-    
+
     .fee-item select#transport_direction {
         width: 100% !important;
         padding: 10px !important;
@@ -1508,7 +1520,7 @@ document.addEventListener('DOMContentLoaded', function() {
         background: white !important;
         font-weight: 600 !important;
     }
-    
+
     /* Fee Card Right Side (Payment Amount) - Enhanced Badge */
     .fee-item > div.flex > div:last-child,
     .fee-item > div.flex > div.text-right {
@@ -1522,12 +1534,12 @@ document.addEventListener('DOMContentLoaded', function() {
         border-radius: 10px !important;
         border: 2px solid #86efac !important;
     }
-    
+
     .fee-item.active > div.flex > div:last-child {
         background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
         border-color: #60a5fa !important;
     }
-    
+
     /* Payment Amount Display - Larger and Bolder */
     .fee-item > div.flex > div:last-child > div.text-2xl,
     .fee-item .text-2xl.font-bold,
@@ -1539,11 +1551,11 @@ document.addEventListener('DOMContentLoaded', function() {
         white-space: nowrap !important;
         letter-spacing: -0.02em !important;
     }
-    
+
     .fee-item.active div[id^="amount_"] {
         color: #1d4ed8 !important;
     }
-    
+
     /* PAYMENT SUMMARY SECTION - Enhanced Card Design */
     .bg-gray-100.p-4 {
         padding: 18px !important;
@@ -1553,7 +1565,7 @@ document.addEventListener('DOMContentLoaded', function() {
         border: 2px solid #e5e7eb !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
     }
-    
+
     /* Payment Summary Rows */
     .bg-gray-100 .flex.justify-between {
         display: flex !important;
@@ -1563,11 +1575,11 @@ document.addEventListener('DOMContentLoaded', function() {
         margin-bottom: 12px !important;
         padding: 6px 0 !important;
     }
-    
+
     .bg-gray-100 .flex.justify-between:last-child {
         margin-bottom: 0 !important;
     }
-    
+
     /* Total Due Row (Prominent) - Enhanced */
     .bg-gray-100 .flex.justify-between.text-xl {
         padding: 12px 0 !important;
@@ -1580,26 +1592,26 @@ document.addEventListener('DOMContentLoaded', function() {
         padding-right: 8px !important;
         border-radius: 6px !important;
     }
-    
+
     .bg-gray-100 .flex.justify-between.text-xl > span {
         font-size: 17px !important;
         font-weight: 900 !important;
         color: #0f172a !important;
         letter-spacing: -0.01em !important;
     }
-    
+
     /* Other Payment Summary Rows */
     .bg-gray-100 .flex.justify-between.text-lg > span:first-child {
         font-size: 14px !important;
         font-weight: 700 !important;
         color: #374151 !important;
     }
-    
+
     .bg-gray-100 .flex.justify-between.text-lg > span:last-child {
         font-size: 15px !important;
         font-weight: 800 !important;
     }
-    
+
     /* Specific Amount Colors - Enhanced with Backgrounds */
     #amount_paying_display {
         color: #1d4ed8 !important;
@@ -1607,21 +1619,21 @@ document.addEventListener('DOMContentLoaded', function() {
         padding: 4px 10px !important;
         border-radius: 6px !important;
     }
-    
+
     #amount_tendered_display {
         color: #15803d !important;
         background: #dcfce7 !important;
         padding: 4px 10px !important;
         border-radius: 6px !important;
     }
-    
+
     #change_display {
         color: #dc2626 !important;
         background: #fee2e2 !important;
         padding: 4px 10px !important;
         border-radius: 6px !important;
     }
-    
+
     /* AMOUNT TENDERED INPUT FIELD - Enhanced */
     .bg-gray-50.border-2 {
         padding: 14px !important;
@@ -1631,7 +1643,7 @@ document.addEventListener('DOMContentLoaded', function() {
         border: 2px solid #cbd5e1 !important;
         box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
     }
-    
+
     .bg-gray-50.border-2 label {
         font-size: 15px !important;
         font-weight: 800 !important;
@@ -1640,7 +1652,7 @@ document.addEventListener('DOMContentLoaded', function() {
         display: block !important;
         letter-spacing: -0.01em !important;
     }
-    
+
     #amount_tendered_input {
         width: 100% !important;
         padding: 14px !important;
@@ -1652,13 +1664,13 @@ document.addEventListener('DOMContentLoaded', function() {
         background: white !important;
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.05) !important;
     }
-    
+
     #amount_tendered_input:focus {
         border-color: #3b82f6 !important;
         outline: none !important;
         box-shadow: 0 0 0 4px rgba(59,130,246,0.15) !important;
     }
-    
+
     /* PAYMENT METHOD GRID - Enhanced */
     #transaction_area .grid.grid-cols-2 {
         display: grid !important;
@@ -1666,7 +1678,7 @@ document.addEventListener('DOMContentLoaded', function() {
         gap: 12px !important;
         margin-top: 16px !important;
     }
-    
+
     #payment_method,
     #payment_date {
         padding: 14px !important;
@@ -1679,14 +1691,14 @@ document.addEventListener('DOMContentLoaded', function() {
         border-color: #9ca3af !important;
         box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
     }
-    
+
     #payment_method:focus,
     #payment_date:focus {
         border-color: #3b82f6 !important;
         outline: none !important;
         box-shadow: 0 0 0 4px rgba(59,130,246,0.15) !important;
     }
-    
+
     /* TRANSACTION BUTTONS - Enhanced with Gradients */
     .transaction-buttons-container {
         display: flex !important;
@@ -1694,7 +1706,7 @@ document.addEventListener('DOMContentLoaded', function() {
         gap: 12px !important;
         margin-top: 18px !important;
     }
-    
+
     .transaction-buttons-container button {
         width: 100% !important;
         padding: 16px !important;
@@ -1706,12 +1718,12 @@ document.addEventListener('DOMContentLoaded', function() {
         box-shadow: 0 4px 10px rgba(0,0,0,0.12) !important;
         letter-spacing: -0.01em !important;
     }
-    
+
     .transaction-buttons-container button:active {
         transform: scale(0.97) !important;
         box-shadow: 0 2px 6px rgba(0,0,0,0.1) !important;
     }
-    
+
     /* Input Fields - Enhanced */
     input#student_search,
     select#class_search {
@@ -1721,14 +1733,14 @@ document.addEventListener('DOMContentLoaded', function() {
         border-radius: 10px !important;
         font-weight: 500 !important;
     }
-    
+
     /* Keypad Display */
     .pos-display {
         padding: 14px !important;
         margin-bottom: 16px !important;
         border-radius: 10px !important;
     }
-    
+
     .pos-display .text-sm {
         font-size: 11px !important;
         margin-bottom: 7px !important;
@@ -1736,27 +1748,27 @@ document.addEventListener('DOMContentLoaded', function() {
         text-transform: uppercase !important;
         letter-spacing: 0.05em !important;
     }
-    
+
     #selected_fee_type.text-xl {
         font-size: 14px !important;
         font-weight: 700 !important;
     }
-    
+
     #selected_fee_due.text-2xl {
         font-size: 16px !important;
         font-weight: 800 !important;
     }
-    
+
     #keypad_display {
         font-size: 26px !important;
         font-weight: 800 !important;
     }
-    
+
     /* Keypad Keys - Enhanced */
     .pos-keypad {
         gap: 8px !important;
     }
-    
+
     .pos-key {
         padding: 14px 10px !important;
         font-size: 18px !important;
@@ -1764,228 +1776,10 @@ document.addEventListener('DOMContentLoaded', function() {
         border-radius: 10px !important;
         box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
     }
-    
+
     .pos-key:active {
         transform: scale(0.95) !important;
         box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important;
     }
 }
 </style>
-
-<style>
-/* Final POS readability layer — presentation only */
-@media screen {
-  body { background: #f8fafc; }
-  .pos-container {
-    width: 100%; max-width: 1680px; margin: 0 auto;
-    grid-template-columns: 300px minmax(440px,1fr) 340px;
-    gap: 16px; padding: 16px 20px 28px;
-  }
-  .pos-left, .pos-middle, .pos-right {
-    border-radius: 14px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  .pos-left, .pos-middle {
-    padding: 18px; border: 1px solid #e2e8f0; background: #fff;
-  }
-  .pos-right {
-    padding: 16px; top: 16px; background: #0f172a;
-    border: 1px solid #1e293b;
-  }
-
-  .pos-left h2.text-xl,
-  .pos-middle h2.text-xl,
-  .transaction-header h2.text-xl {
-    margin: 0 0 12px !important; color: #0f172a !important;
-    font-size: 18px !important; line-height: 1.3; font-weight: 800 !important;
-  }
-  .transaction-header {
-    margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;
-  }
-  .transaction-header-buttons { gap: 8px; }
-  .transaction-header-buttons button {
-    min-height: 40px; padding: 8px 12px !important;
-    border-radius: 8px !important; font-size: 13px !important; font-weight: 700 !important;
-    box-shadow: none !important;
-  }
-
-  #class_search, #student_search {
-    min-height: 44px !important; height: 44px; padding: 9px 11px !important;
-    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
-    background: #fff; color: #0f172a; font-size: 15px !important; line-height: 1.4;
-  }
-  #class_search:focus, #student_search:focus {
-    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
-  }
-
-  .student-card {
-    min-height: 56px; padding: 10px 11px !important; margin-bottom: 7px !important;
-    border: 1px solid #e2e8f0 !important; border-radius: 9px !important;
-    background: #fff !important; box-shadow: none !important;
-  }
-  .student-card:hover {
-    border-color: #93c5fd !important; background: #f8fbff !important;
-    transform: none !important; box-shadow: 0 2px 8px rgba(15,23,42,.05) !important;
-  }
-  .student-card .font-bold { color: #0f172a; font-size: 14px !important; line-height: 1.4; }
-  .student-card .text-xs { color: #64748b !important; font-size: 13px !important; line-height: 1.35; }
-
-  .payment-history {
-    margin-top: 12px; padding: 10px; border: 1px solid #e2e8f0;
-    border-radius: 10px; background: #fff;
-  }
-  .payment-history > div:first-child { color: #0f172a; font-size: 14px; font-weight: 800 !important; }
-  .payment-item { padding: 9px 6px; gap: 8px; }
-  .payment-item div[style*="font-size:12px"] { font-size: 13px !important; line-height: 1.35; }
-  .payment-item div[style*="font-size:10px"] { font-size: 13px !important; line-height: 1.4; color: #64748b !important; }
-  .payment-item .btn-xs {
-    min-width: 36px; min-height: 34px; padding: 6px 9px !important;
-    border-radius: 7px; font-size: 13px !important;
-  }
-
-  #student_info {
-    padding: 13px 14px !important; margin-bottom: 14px !important;
-    border: 1px solid #bfdbfe; border-radius: 10px !important; background: #eff6ff !important;
-  }
-  #student_info .font-bold.text-lg { font-size: 16px !important; line-height: 1.35; color: #0f172a !important; }
-  #student_info .text-sm { font-size: 14px !important; line-height: 1.45; color: #475569 !important; }
-  #student_info .text-xs { font-size: 13px !important; line-height: 1.4; }
-
-  #fee_items { display: flex; flex-direction: column; gap: 9px; margin-bottom: 12px; }
-  .fee-item {
-    margin-bottom: 0 !important; padding: 12px 13px !important;
-    border: 1px solid #e2e8f0 !important; border-radius: 10px !important;
-    background: #fff !important; box-shadow: none !important;
-  }
-  .fee-item:hover { border-color: #93c5fd !important; transform: none !important; }
-  .fee-item.active {
-    border-color: #2563eb !important; background: #eff6ff !important;
-    box-shadow: 0 0 0 2px rgba(37,99,235,.10) !important; transform: none !important;
-  }
-  .fee-item .font-bold { color: #0f172a !important; font-size: 15px !important; line-height: 1.35; }
-  .fee-item .text-sm.text-red-600 {
-    margin-top: 2px; padding: 0 !important; background: transparent !important;
-    color: #dc2626 !important; font-size: 13px !important; line-height: 1.35; font-weight: 700 !important;
-  }
-  .fee-item div[id^="amount_"] {
-    color: #15803d !important; font-size: 20px !important; line-height: 1.2; font-weight: 800 !important;
-  }
-  .fee-item select#transport_direction {
-    min-height: 40px; padding: 7px 9px !important; border: 1px solid #cbd5e1 !important;
-    border-radius: 8px !important; font-size: 14px !important; font-weight: 600 !important;
-  }
-
-  #transaction_area > .bg-gray-100 {
-    padding: 14px !important; margin-top: 12px !important;
-    border: 1px solid #e2e8f0; border-radius: 10px !important; background: #f8fafc !important;
-    box-shadow: none !important;
-  }
-  #transaction_area > .bg-gray-100 .flex.justify-between {
-    margin-bottom: 8px !important; padding: 2px 0 !important;
-  }
-  #transaction_area > .bg-gray-100 .text-xl > span {
-    font-size: 16px !important; font-weight: 800 !important;
-  }
-  #transaction_area > .bg-gray-100 .text-lg > span:first-child {
-    font-size: 14px !important; font-weight: 700 !important;
-  }
-  #transaction_area > .bg-gray-100 .text-lg > span:last-child {
-    font-size: 15px !important; font-weight: 800 !important;
-  }
-
-  #fee_items .bg-gray-50.border-2 {
-    margin-top: 10px !important; padding: 12px !important;
-    border: 1px solid #cbd5e1 !important; border-radius: 10px !important;
-    background: #fff !important; box-shadow: none !important;
-  }
-  #fee_items .bg-gray-50.border-2 label {
-    margin-bottom: 7px !important; color: #334155 !important;
-    font-size: 14px !important; font-weight: 700 !important;
-  }
-  #amount_tendered_input {
-    min-height: 46px !important; padding: 9px 11px !important;
-    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
-    background: #fff !important; color: #0f172a !important; font-size: 16px !important; font-weight: 700 !important;
-    box-shadow: none !important;
-  }
-  #amount_tendered_input:focus {
-    border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important; outline: none;
-  }
-
-  #transaction_area .grid.grid-cols-2 {
-    display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; margin-top: 12px !important;
-  }
-  #payment_method, #payment_date {
-    min-height: 44px; padding: 9px 11px !important;
-    border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
-    background: #fff !important; color: #0f172a !important; font-size: 15px !important; font-weight: 600 !important;
-    box-shadow: none !important;
-  }
-  #date_indicator { font-size: 12px !important; border-radius: 6px; }
-
-  #backdate_warning { padding: 10px 12px !important; border-radius: 9px; }
-  #backdate_warning .text-sm { font-size: 13px !important; }
-  #backdate_warning .text-xs { font-size: 13px !important; line-height: 1.4; }
-
-  .transaction-buttons-container {
-    display: flex !important; flex-direction: row !important; gap: 10px !important; margin-top: 14px !important;
-  }
-  .transaction-buttons-container button {
-    min-height: 46px !important; padding: 10px 14px !important;
-    border-radius: 9px !important; font-size: 14px !important; font-weight: 800 !important;
-    box-shadow: none !important;
-  }
-
-  .pos-display {
-    padding: 14px !important; margin-bottom: 14px !important;
-    border: 1px solid #334155; border-radius: 10px !important; background: #111827 !important;
-  }
-  .pos-display .text-sm {
-    margin-bottom: 5px !important; color: #94a3b8 !important;
-    font-size: 13px !important; line-height: 1.35; font-weight: 700 !important;
-    text-transform: none !important; letter-spacing: 0 !important;
-  }
-  #selected_fee_type { font-size: 15px !important; line-height: 1.35; }
-  #selected_fee_due { font-size: 18px !important; line-height: 1.3; }
-  #keypad_display { font-size: 30px !important; line-height: 1.15; }
-
-  .pos-keypad { gap: 8px !important; }
-  .pos-key {
-    min-height: 50px; padding: 12px 8px !important;
-    border-radius: 9px !important; font-size: 18px !important; font-weight: 800 !important;
-    box-shadow: none !important;
-  }
-  .pos-key:hover { transform: none !important; background: #475569; }
-
-  @media (max-width: 1200px) {
-    .pos-container { grid-template-columns: 280px minmax(400px,1fr) 320px; gap: 12px; padding: 12px; }
-  }
-  @media (max-width: 1024px) {
-    .pos-container { grid-template-columns: 1fr !important; padding: 10px !important; }
-    .pos-left, .pos-middle { max-height: none !important; }
-    .student-card .text-xs,
-    .pos-display .text-sm,
-    #backdate_warning .text-xs { font-size: 13px !important; }
-  }
-  @media (max-width: 768px) {
-    .pos-left, .pos-middle { padding: 14px !important; }
-    .transaction-header { align-items: stretch !important; }
-    .transaction-header-buttons { display: grid !important; grid-template-columns: 1fr 1fr !important; }
-    .transaction-header-buttons button { min-height: 44px !important; font-size: 13px !important; }
-    #transaction_area .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
-    .transaction-buttons-container { flex-direction: column !important; }
-    .transaction-buttons-container button { width: 100%; min-height: 48px !important; }
-    .fee-item { padding: 13px !important; }
-    .fee-item div[id^="amount_"] { font-size: 20px !important; }
-    #class_search, #student_search { font-size: 16px !important; }
-    .payment-item div[style*="font-size:10px"],
-    .payment-item div[style*="font-size:12px"] { font-size: 13px !important; }
-  }
-  @media (max-width: 480px) {
-    .pos-container { padding: 8px !important; gap: 10px !important; }
-    .transaction-header-buttons { grid-template-columns: 1fr !important; }
-    .student-card .text-xs { font-size: 13px !important; }
-    .pos-display .text-sm { font-size: 13px !important; }
-  }
-}
-</style>
-

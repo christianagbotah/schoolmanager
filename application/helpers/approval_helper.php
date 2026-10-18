@@ -28,17 +28,13 @@ function notify_super_admins_approval_request($request_id, $request_type, $reque
 
     if(empty($super_admins)) return false;
 
-    // Generate action-bound approval tokens so an approve link cannot be changed into a decline link (or vice versa).
-    $request = $CI->db->where('request_id', $request_id)->get('request')->row();
-    if(!$request) return false;
-    $secret = (string)$CI->config->item('encryption_key');
-    if($secret === '') return false;
-    $approve_token = hash_hmac('sha256', $request_id . '|' . $request->request_created_timestamp . '|Approved', $secret);
-    $decline_token = hash_hmac('sha256', $request_id . '|' . $request->request_created_timestamp . '|Declined', $secret);
+    // Generate approval token
+    $request = $CI->db->where('request_id', $request_id)->get('invoice_requests')->row();
+    $token = md5($request_id . $request->request_created_timestamp . 'approval_secret');
 
     // Approval links
-    $approve_link = site_url('admin/manageRequestApproval/quick_action/' . $request_id . '/Approved?token=' . rawurlencode($approve_token));
-    $decline_link = site_url('admin/manageRequestApproval/quick_action/' . $request_id . '/Declined?token=' . rawurlencode($decline_token));
+    $approve_link = site_url('admin/manageRequestApproval/quick_action/' . $request_id . '/Approved?token=' . $token);
+    $decline_link = site_url('admin/manageRequestApproval/quick_action/' . $request_id . '/Declined?token=' . $token);
     $view_link = site_url('admin/manageRequestApproval');
 
     foreach($super_admins as $admin) {
@@ -138,19 +134,17 @@ function create_invoice_request($invoice_id, $request_type, $description, $reque
         return true; // Super admins don't need approval
     }
 
-    // Resolve the current invoice code, then use the legacy generic request table.
-    $invoice = $CI->db->where('invoice_id', (int)$invoice_id)->get('invoice')->row();
-    if(!$invoice) return false;
+    // Create request
     $request_data = [
+        'invoice_id' => $invoice_id,
+        'request_type' => $request_type,
         'request_description' => $description,
         'request_issuer_id' => $requester_id,
-        'request_table' => 'invoice',
-        'request_ids' => (string)$invoice->invoice_code,
         'approval_status' => 'Pending',
         'request_created_timestamp' => date('Y-m-d H:i:s')
     ];
 
-    $CI->db->insert('request', $request_data);
+    $CI->db->insert('invoice_requests', $request_data);
     $request_id = $CI->db->insert_id();
 
     if($request_id) {

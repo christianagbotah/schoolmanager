@@ -1,6 +1,6 @@
-<?php 
-$parent_id = ''; 
-$class_id = ''; 
+<?php
+$parent_id = '';
+$class_id = '';
 $alert_type = '';
 $alert_content = '';
 $display_mode = $display = 'none';
@@ -11,24 +11,24 @@ $currency = $this->db->get_where('settings', array('type' => 'currency'))->row()
 <style>
 * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 html, body { margin: 0; padding: 0; overflow-x: hidden; }
-body { background: #f9fafb; min-height: 100vh; }
-.admission-container { max-width: 1400px; margin: 16px auto; background: white; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 24px rgba(16, 24, 40, 0.08); overflow: hidden; width: 100%; box-sizing: border-box; }
+body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+.admission-container { max-width: 1400px; margin: 20px auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; width: 100%; box-sizing: border-box; }
 @media (max-width: 640px) { .admission-container { margin: 5px; border-radius: 10px; width: calc(100% - 10px); } }
-.admission-header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%); color: white; padding: 32px 30px; text-align: center; position: relative; overflow: hidden; box-shadow: 0 12px 32px rgba(79, 70, 229, 0.25); }
+.admission-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; position: relative; overflow: hidden; }
 .admission-header::before { content: ''; position: absolute; top: -50%; right: -10%; width: 300px; height: 300px; background: rgba(255,255,255,0.1); border-radius: 50%; }
 .admission-header::after { content: ''; position: absolute; bottom: -30%; left: -5%; width: 200px; height: 200px; background: rgba(255,255,255,0.08); border-radius: 50%; }
 @media (max-width: 640px) { .admission-header { padding: 60px 15px 30px; } }
-.admission-header h2 { margin: 0; font-size: 24px; font-weight: 800; color: white; position: relative; z-index: 1; letter-spacing: -0.5px; }
-@media (max-width: 640px) { .admission-header h2 { font-size: 22px; } }
-.admission-header p { margin: 12px 0 0; opacity: 0.95; color: white; font-size: 14px; position: relative; z-index: 1; font-weight: 500; }
+.admission-header h2 { margin: 0; font-size: 36px; font-weight: 800; color: white; position: relative; z-index: 1; letter-spacing: -0.5px; }
+@media (max-width: 640px) { .admission-header h2 { font-size: 26px; } }
+.admission-header p { margin: 12px 0 0; opacity: 0.95; color: white; font-size: 16px; position: relative; z-index: 1; font-weight: 500; }
 @media (max-width: 640px) { .admission-header p { font-size: 14px; } }
 .form-content { padding: 0 40px; box-sizing: border-box; background: #e8e8e8; }
 @media (max-width: 640px) { .form-content { padding: 0 10px; } }
-.section-card { background: white; border: 1px solid #e5e7eb; border-radius: 16px; padding: 25px; margin: 25px 0; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); }
+.section-card { background: white; border-radius: 12px; padding: 25px; margin: 25px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 @media (max-width: 640px) { .section-card { padding: 15px; margin: 15px 0; border-radius: 10px; } }
-.section-header { background: #f9fafb; color: #111827; border: 1px solid #e5e7eb; border-left: 5px solid #4f46e5; padding: 16px 20px; margin: 0 0 25px 0; border-radius: 12px; font-weight: 700; font-size: 17px; box-shadow: none; display: flex; align-items: center; gap: 12px; transition: border-color 0.18s ease; }
-.section-header:hover { border-color: #cbd5e1; }
-.section-header i { font-size: 20px; color: #4f46e5; }
+.section-header { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 18px 24px; margin: 0 0 25px 0; border-radius: 12px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 20px rgba(79, 172, 254, 0.3); display: flex; align-items: center; gap: 12px; transition: all 0.3s; }
+.section-header:hover { transform: translateX(5px); box-shadow: 0 6px 25px rgba(79, 172, 254, 0.4); }
+.section-header i { font-size: 22px; }
 @media (max-width: 640px) { .section-header { padding: 15px 18px; margin: 25px 0 20px; font-size: 16px; } .section-header i { font-size: 20px; } }
 .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; gap: 18px; } }
@@ -37,22 +37,22 @@ body { background: #f9fafb; min-height: 100vh; }
 .form-field label { display: block; margin-bottom: 10px; font-weight: 600; color: #1f2937; font-size: 14px; letter-spacing: 0.2px; }
 .form-field input, .form-field select, .form-field textarea { width: 100%; padding: 13px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px; transition: all 0.3s; box-sizing: border-box; background: #ffffff; color: #1f2937; font-weight: 500; }
 .form-field input:hover, .form-field select:hover, .form-field textarea:hover { border-color: #d1d5db; }
-.form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); background: #ffffff; }
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: #667eea; outline: none; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); background: #fafbff; }
 .form-field input::placeholder, .form-field textarea::placeholder { color: #9ca3af; font-weight: 400; }
-.submit-btn { background: #2563eb; color: #ffffff !important; padding: 14px 44px; border: none; border-radius: 12px; font-size: 17px; font-weight: 700; cursor: pointer; box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35); transition: all 0.3s; margin: 40px 0; letter-spacing: 0.3px; }
+.submit-btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff !important; padding: 16px 48px; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); transition: all 0.3s; margin: 40px 0; letter-spacing: 0.3px; }
 @media (max-width: 640px) { .submit-btn { padding: 14px 36px; font-size: 16px; margin: 30px 0; width: 100%; } }
-.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35); background: #1d4ed8; }
+.submit-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4); background: linear-gradient(135deg, #059669 0%, #047857 100%); }
 .submit-btn:active { transform: translateY(-1px); }
 .submit-btn i { color: #ffffff !important; margin-right: 8px; }
-.alert-note { background: #fef3c7; border-left: 5px solid #f59e0b; padding: 24px; margin: 25px 0; border-radius: 12px; box-sizing: border-box; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); }
+.alert-note { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 5px solid #f59e0b; padding: 24px; margin: 25px 0; border-radius: 12px; box-sizing: border-box; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15); }
 @media (max-width: 640px) { .alert-note { padding: 12px; margin: 15px 0; font-size: 13px; border-radius: 8px; } }
 .alert-note strong { color: #92400e; font-weight: 700; }
-.photo-upload { text-align: center; padding: 30px; border: 2px dashed #d1d5db; border-radius: 14px; background: #f9fafb; transition: all 0.3s; }
-.photo-upload:hover { border-color: #4f46e5; background: #eff6ff; }
+.photo-upload { text-align: center; padding: 30px; border: 3px dashed #d1d5db; border-radius: 12px; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); transition: all 0.3s; }
+.photo-upload:hover { border-color: #9ca3af; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); }
 @media (max-width: 640px) { .photo-upload { padding: 20px; } }
 
 /* Bill Preview Section */
-.bill-preview-container { background: #f0f9ff; border: 1px solid #bae6fd; border-left: 5px solid #0ea5e9; border-radius: 16px; padding: 30px; margin: 30px 0; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); display: block; }
+.bill-preview-container { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 16px; padding: 30px; margin: 30px 0; box-shadow: 0 8px 25px rgba(14, 165, 233, 0.15); display: block; }
 @media (max-width: 640px) { .bill-preview-container { padding: 12px; margin: 15px 0; border-radius: 10px; } }
 .residence-billing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
 @media (max-width: 768px) { .residence-billing-grid { grid-template-columns: 1fr; gap: 20px; padding: 0; } }
@@ -74,7 +74,7 @@ body { background: #f9fafb; min-height: 100vh; }
 
 .remove-bill-item, .remove-admission-fee { transition: all 0.3s; }
 .remove-bill-item:hover, .remove-admission-fee:hover { transform: scale(1.2); opacity: 0.7; }
-.bill-total { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: #0284c7; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3); }
+.bill-total { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); border-radius: 12px; margin-top: 20px; box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3); }
 @media (max-width: 640px) { .bill-total { flex-direction: column; align-items: flex-end; gap: 8px; padding: 16px; } }
 .bill-total-label { font-size: 16px; font-weight: 700; color: white; letter-spacing: 0.3px; }
 .bill-total-amount { font-size: 20px; font-weight: 800; color: white; }
@@ -84,12 +84,12 @@ body { background: #f9fafb; min-height: 100vh; }
 .bill-empty-state p { font-size: 14px; font-weight: 500; margin: 0; }
 
 /* Modern Select2 Styling */
-.select2-container--default .select2-selection--single { height: var(--sm-ui-control-height, 42px); border: 2px solid #e5e7eb; border-radius: 10px; padding: 8px 12px; transition: all 0.3s ease; }
+.select2-container--default .select2-selection--single { height: 48px; border: 2px solid #e5e7eb; border-radius: 10px; padding: 8px 12px; transition: all 0.3s ease; }
 .select2-container--default .select2-selection--single:hover { border-color: #3b82f6; }
 .select2-container--default.select2-container--focus .select2-selection--single { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-.select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 40px; color: #111827; font-size: 14px; font-weight: 600; padding-left: 8px; }
+.select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 30px; color: #111827; font-size: 15px; font-weight: 600; padding-left: 8px; }
 .select2-container--default .select2-selection--single .select2-selection__placeholder { color: #9ca3af; font-weight: 500; }
-.select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px; }
+.select2-container--default .select2-selection--single .select2-selection__arrow { height: 46px; }
 .select2-dropdown { border: 2px solid #e5e7eb; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 4px; }
 .select2-container--default .select2-results__option { padding: 14px 18px; font-size: 15px; font-weight: 600; color: #111827; transition: all 0.2s ease; border-bottom: 1px solid #f3f4f6; }
 .select2-container--default .select2-results__option:last-child { border-bottom: none; }
@@ -100,123 +100,13 @@ body { background: #f9fafb; min-height: 100vh; }
 .select2-search--dropdown { padding: 12px; background: #f9fafb; border-bottom: 2px solid #e5e7eb; }
 .select2-search--dropdown .select2-search__field { border: 2px solid #e5e7eb; border-radius: 8px; padding: 10px 12px; font-size: 14px; font-weight: 500; }
 .select2-search--dropdown .select2-search__field:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-
-/* ---- Direct UI/UX refinement: Student Admission workspace ---- */
-body { background: #f8fafc; }
-.admission-container {
-    max-width: 1500px; margin: 0 auto 32px; padding: 0;
-    background: transparent; border: 0; border-radius: 0; box-shadow: none; overflow: visible;
-}
-.admission-header {
-    display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto;
-    column-gap: 24px; row-gap: 5px; align-items: center; text-align: left;
-    background: #0f172a; padding: 18px 20px; border-radius: 14px;
-    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16);
-}
-.admission-header::before, .admission-header::after { display: none; }
-.admission-header h2 {
-    grid-column: 1; grid-row: 1; font-size: 24px; line-height: 1.2; letter-spacing: -0.02em;
-}
-.admission-header p {
-    grid-column: 1; grid-row: 2; margin: 2px 0 0; font-size: 14px; line-height: 1.5;
-    color: #cbd5e1; opacity: 1;
-}
-.admission-header .customize-form-btn {
-    position: static !important; top: auto !important; right: auto !important;
-    grid-column: 2; grid-row: 1 / 3; align-self: center;
-    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 14px !important; border: 1px solid rgba(255,255,255,.28) !important;
-    border-radius: 10px !important; background: #fff !important; color: #1d4ed8 !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,.14) !important; font-size: 14px; font-weight: 700 !important;
-}
-.form-content { padding: 0; background: transparent; }
-.alert-note {
-    margin: 18px 0; padding: 15px 18px; border: 1px solid #fde68a; border-left: 4px solid #f59e0b;
-    border-radius: 12px; background: #fffbeb; box-shadow: none; color: #78350f; font-size: 14px; line-height: 1.55;
-}
-.section-card {
-    margin: 18px 0; padding: 22px 24px; border: 1px solid #e2e8f0; border-radius: 14px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.04); background: #fff;
-}
-.section-header {
-    margin: 0 0 20px; padding: 0 0 14px 12px; border: 0; border-bottom: 1px solid #e5e7eb;
-    border-left: 4px solid #2563eb; border-radius: 0; background: transparent; box-shadow: none;
-    color: #0f172a; font-size: 18px; font-weight: 800; line-height: 1.35; gap: 10px;
-}
-.section-header:hover { border-bottom-color: #e5e7eb; border-left-color: #2563eb; }
-.section-header i { color: #2563eb; font-size: 19px; }
-.form-grid { gap: 18px 20px; }
-.form-field label {
-    margin-bottom: 7px; color: #334155; font-size: 13px; font-weight: 700; letter-spacing: 0;
-}
-.form-field input, .form-field select, .form-field textarea {
-    min-height: var(--sm-ui-control-height, 42px); padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 9px;
-    font-size: 14px; font-weight: 500; color: #0f172a; background: #fff;
-}
-.form-field textarea { min-height: 108px; line-height: 1.5; resize: vertical; }
-.form-field input:hover, .form-field select:hover, .form-field textarea:hover { border-color: #94a3b8; }
-.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
-    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.14);
-}
-.form-field input::placeholder, .form-field textarea::placeholder { color: #94a3b8; }
-.form-field button[type="button"] { min-height: var(--sm-ui-control-height, 42px); }
-.photo-upload { padding: 24px; background: #f8fafc; border-color: #cbd5e1; border-radius: 12px; }
-.photo-upload:hover { border-color: #2563eb; background: #eff6ff; }
-.select2-container--default .select2-selection--single {
-    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); border: 1px solid #cbd5e1; border-radius: 9px; padding: 7px 10px;
-}
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 40px; font-size: 14px; font-weight: 600;
-}
-.select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px; }
-
-.admission-actions {
-    position: sticky; bottom: 14px; z-index: 40; display: flex; justify-content: flex-end; gap: 10px;
-    margin: 20px 0 26px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 14px;
-    background: rgba(255,255,255,.96); box-shadow: 0 12px 30px rgba(15,23,42,.12);
-    backdrop-filter: blur(10px);
-}
-.admission-reset-btn, .admission-submit-btn {
-    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 16px; border: 0; border-radius: 10px;
-    font-size: 14px; font-weight: 800; cursor: pointer; display: inline-flex;
-    align-items: center; justify-content: center; gap: 8px; transition: .18s ease;
-}
-.admission-reset-btn { background: #fff; color: #b91c1c; border: 1px solid #fecaca; }
-.admission-reset-btn:hover { background: #fef2f2; border-color: #fca5a5; }
-.admission-submit-btn {
-    margin: 0; background: #2563eb !important; color: #fff !important;
-    box-shadow: 0 2px 8px rgba(37,99,235,.24) !important;
-}
-.admission-submit-btn:hover { background: #1d4ed8 !important; transform: translateY(-1px); }
-
-@media (max-width: 900px) {
-    .admission-container { padding: 0; }
-    .admission-header { grid-template-columns: 1fr; grid-template-rows: auto; padding: 22px; }
-    .admission-header h2, .admission-header p, .admission-header .customize-form-btn {
-        grid-column: 1; grid-row: auto;
-    }
-    .admission-header .customize-form-btn { justify-self: start; margin-top: 10px; }
-}
-@media (max-width: 640px) {
-    .admission-container { width: 100%; margin: 0 auto 28px; padding: 0; }
-    .admission-header { padding: 20px 16px; border-radius: 12px; }
-    .admission-header h2 { font-size: 22px; }
-    .admission-header p { font-size: 14px; }
-    .admission-header .customize-form-btn { width: 100%; justify-content: center; }
-    .section-card { padding: 16px; margin: 14px 0; border-radius: 12px; }
-    .section-header { margin-bottom: 16px; font-size: 17px; padding-bottom: 12px; }
-    .form-grid { gap: 14px; }
-    .form-field label { font-size: 14px; }
-    .form-field input, .form-field select, .form-field textarea { font-size: 16px; }
-    .admission-actions { bottom: 8px; padding: 9px; }
-    .admission-reset-btn, .admission-submit-btn { flex: 1 1 0; padding: 11px 12px; }
-}
 </style>
 
 <div class="admission-container">
 	<div class="admission-header">
 		<h2><i class="entypo-graduation-cap"></i> Student Admission Form</h2>
 		<p>Complete all required fields to admit a new student</p>
-		<button type="button" onclick="openFormCustomizer()" class="customize-form-btn" style="position: absolute; top: 20px; right: 20px; background: white; color: #4f46e5; padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; z-index: 100; transition: all 0.3s;">
+		<button type="button" onclick="openFormCustomizer()" class="customize-form-btn" style="position: absolute; top: 20px; right: 20px; background: white; color: #667eea; padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; z-index: 100; transition: all 0.3s;">
 			<i class="fa fa-sliders" style="pointer-events: none;"></i>
 			<span class="btn-text" style="pointer-events: none;">Customize Form</span>
 		</button>
@@ -362,8 +252,8 @@ body { background: #f8fafc; }
 	<div class="form-grid">
 		<div class="form-field">
 			<label>Student ID <span style="color:red">*</span></label>
-			<?php 
-			//generate student id 
+			<?php
+			//generate student id
 			$student_code_pref       = $this->db->get_where('settings', array('type'=>'student_code_prefix'))->row()->description;
 
 			$student_code_f       = $this->db->get_where('settings', array('type'=>'student_code_format'))->row()->description;
@@ -377,7 +267,7 @@ body { background: #f8fafc; }
 
 			if($st_query->row()->student_code != '' || $st_query->row()->student_code != null) {
 				if($st_query->num_rows() > 0) {
-			
+
 
 					//extract the numeric out and increase it by 1
 					$first_num = ''; //the first occurence of a number in the string ....
@@ -387,7 +277,7 @@ body { background: #f8fafc; }
 					for($i=0; $i<strlen($st_id); $i++) {
 						if(is_numeric($st_id[$i])) {
 							$first_num = $st_id[$i];
-							break; 
+							break;
 						}
 					}
 
@@ -400,7 +290,7 @@ body { background: #f8fafc; }
 					$student_code       = $n_stid + 1;
 
 					//checking if the first 4digits of the id equals the current year, if not, we create a new ID using the current year format
-					
+
 					if(intval(date('Y')) != intval(substr($student_code, 0, 4))) {
 						//new year so the student ID format has to change
 						//e.g in 2021, it will start with 2021001
@@ -415,9 +305,9 @@ body { background: #f8fafc; }
 							$student_code =  substr($st_id, 0, $act_len).$student_code;
 						}else {
 							$student_code = $student_code_pref.$student_code;
-						}	
+						}
 
-					}		                        
+					}
 
 				}	else{
 					$student_code       = $student_code_pref . $student_code_f;
@@ -465,7 +355,7 @@ body { background: #f8fafc; }
 	<!-- PARENT/GUARDIAN INFORMATION -->
 	<div class="section-card">
 	<div class="section-header"><i class="entypo-users"></i> Parent / Guardian Information</div>
-	
+
 	<!-- Guardian Selection -->
 	<div class="form-grid" style="margin-bottom: 30px;">
 		<div class="form-field">
@@ -479,11 +369,11 @@ body { background: #f8fafc; }
 					$phone = $row['phone'] ? ' • ' . $row['phone'] : '';
 					$profession = $row['profession'] ? ' • ' . $row['profession'] : '';
 				?>
-				<option value="<?php echo $row['parent_id'];?>" 
-					data-name="<?php echo htmlspecialchars($row['name']); ?>" 
-					data-phone="<?php echo htmlspecialchars($row['phone']); ?>" 
-					data-email="<?php echo htmlspecialchars($row['email']); ?>" 
-					data-address="<?php echo htmlspecialchars($row['address']); ?>" 
+				<option value="<?php echo $row['parent_id'];?>"
+					data-name="<?php echo htmlspecialchars($row['name']); ?>"
+					data-phone="<?php echo htmlspecialchars($row['phone']); ?>"
+					data-email="<?php echo htmlspecialchars($row['email']); ?>"
+					data-address="<?php echo htmlspecialchars($row['address']); ?>"
 					data-profession="<?php echo htmlspecialchars($row['profession']); ?>">
 					<?php echo $row['name'] . $phone . $profession;?>
 				</option>
@@ -500,7 +390,7 @@ body { background: #f8fafc; }
 			</select>
 		</div>
 	</div>
-	
+
 	<!-- Father's Information -->
 	<div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 4px solid #3b82f6; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
 		<h4 style="margin: 0 0 20px 0; color: #1e40af; font-size: 16px; font-weight: 700;"><i class="fa fa-male"></i> Father's Information</h4>
@@ -519,7 +409,7 @@ body { background: #f8fafc; }
 			</div>
 		</div>
 	</div>
-	
+
 	<!-- Mother's Information -->
 	<div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
 		<h4 style="margin: 0 0 20px 0; color: #92400e; font-size: 16px; font-weight: 700;"><i class="fa fa-female"></i> Mother's Information</h4>
@@ -538,7 +428,7 @@ body { background: #f8fafc; }
 			</div>
 		</div>
 	</div>
-	
+
 	<!-- Other Guardian Information -->
 	<div id="other_guardian_section" style="background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); border-left: 4px solid #a855f7; padding: 20px; border-radius: 12px; margin-bottom: 25px; display: none;">
 		<h4 style="margin: 0 0 20px 0; color: #6b21a8; font-size: 16px; font-weight: 700;"><i class="fa fa-user"></i> Guardian Information</h4>
@@ -696,7 +586,7 @@ body { background: #f8fafc; }
 			</div>
 			<?php endif; ?>
 		</div>
-		
+
 		<!-- Right Column: Billing Preview -->
 		<div>
 			<div class="bill-preview-container" id="bill_preview_section" style="margin: 0; padding: 20px;">
@@ -709,28 +599,28 @@ body { background: #f8fafc; }
 						<p>Select class and residence type to view admission bills</p>
 					</div>
 				</div>
-				
+
 				<!-- Discount Profile Selector -->
 				<div id="discount_selector_section" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 2px dashed #0ea5e9;">
 					<label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-weight: 700; color: #0c4a6e; font-size: 15px;">
 						<i class="fa fa-tag" style="color: #0ea5e9;"></i>
 						Apply Discount Profiles (Optional)
 					</label>
-					
+
 					<!-- Invoice Discount Profile -->
 					<div style="margin-bottom: 15px;">
 						<label style="font-size: 13px; color: #64748b; margin-bottom: 5px; display: block;">
 							<i class="fa fa-file-invoice" style="color: #3b82f6;"></i> Invoice Discount
 						</label>
-						<select name="invoice_discount_profile" id="invoice_discount_profile" class="select2" style="width: 100%; height: 42px; border: 2px solid #3b82f6; border-radius: 10px; padding: 0 15px; font-size: 14px; font-weight: 600; color: #0c4a6e; background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);">
+						<select name="invoice_discount_profile" id="invoice_discount_profile" class="select2" style="width: 100%; height: 50px; border: 2px solid #3b82f6; border-radius: 10px; padding: 0 15px; font-size: 14px; font-weight: 600; color: #0c4a6e; background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);">
 							<option value="">No Invoice Discount</option>
 							<?php
 							$invoice_profiles = $this->db->where('is_active', 1)->where('discount_category', 'invoice')->get('discount_profiles')->result_array();
 							foreach($invoice_profiles as $profile):
 								$method_display = $profile['discount_method'] === 'percentage' ? $profile['discount_value'] . '%' : $currency . ' ' . number_format($profile['discount_value'], 2);
 							?>
-							<option value="<?php echo $profile['profile_id']; ?>" 
-									data-method="<?php echo $profile['discount_method']; ?>" 
+							<option value="<?php echo $profile['profile_id']; ?>"
+									data-method="<?php echo $profile['discount_method']; ?>"
 									data-value="<?php echo $profile['discount_value']; ?>">
 								<?php echo $profile['profile_name'] . ' (' . $method_display . ')'; ?>
 							</option>
@@ -738,21 +628,21 @@ body { background: #f8fafc; }
 						</select>
 						<div id="invoice_profile_preview" style="display: none; background: white; border-radius: 10px; padding: 15px; margin-top: 10px; border: 2px solid #3b82f6; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);"></div>
 					</div>
-					
+
 					<!-- Daily Fees Discount Profile -->
 					<div>
 						<label style="font-size: 13px; color: #64748b; margin-bottom: 5px; display: block;">
 							<i class="fa fa-calendar-day" style="color: #10b981;"></i> Daily Fees Discount
 						</label>
-						<select name="daily_fees_discount_profile" id="daily_fees_discount_profile" class="select2" style="width: 100%; height: 42px; border: 2px solid #10b981; border-radius: 10px; padding: 0 15px; font-size: 14px; font-weight: 600; color: #0c4a6e; background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);">
+						<select name="daily_fees_discount_profile" id="daily_fees_discount_profile" class="select2" style="width: 100%; height: 50px; border: 2px solid #10b981; border-radius: 10px; padding: 0 15px; font-size: 14px; font-weight: 600; color: #0c4a6e; background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);">
 							<option value="">No Daily Fees Discount</option>
 							<?php
 							$daily_profiles = $this->db->where('is_active', 1)->where('discount_category', 'daily_fees')->get('discount_profiles')->result_array();
 							foreach($daily_profiles as $profile):
 								$method_display = $profile['discount_method'] === 'percentage' ? $profile['discount_value'] . '%' : $currency . ' ' . number_format($profile['discount_value'], 2);
 							?>
-							<option value="<?php echo $profile['profile_id']; ?>" 
-									data-method="<?php echo $profile['discount_method']; ?>" 
+							<option value="<?php echo $profile['profile_id']; ?>"
+									data-method="<?php echo $profile['discount_method']; ?>"
 									data-value="<?php echo $profile['discount_value']; ?>">
 								<?php echo $profile['profile_name'] . ' (' . $method_display . ')'; ?>
 							</option>
@@ -765,7 +655,7 @@ body { background: #f8fafc; }
 			</div>
 		</div>
 	</div>
-	
+
 	<input type="hidden" name="my_admission_fee" id="my_admission_fee" value="<?=$this->boarding_model->getAdmissionFeeByResidentialStatus('Day');?>">
 	<input type="hidden" name="item_id" id="item_id" value="9">
 
@@ -789,11 +679,11 @@ body { background: #f8fafc; }
 		</div>
 	</div>
 
-	<div class="admission-actions">
-		<button type="button" onclick="resetForm()" class="admission-reset-btn">
+	<div style="position: fixed; bottom: 20px; right: 20px; z-index: 999; display: flex; gap: 15px;">
+		<button type="button" onclick="resetForm()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 15px 30px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(239,68,68,0.3); transition: all 0.3s;">
 			<i class="entypo-ccw"></i> Reset Form
 		</button>
-		<button type="submit" class="submit-btn bg-blue-600 admission-submit-btn">
+		<button type="submit" class="submit-btn bg-blue-600" style="box-shadow: 0 4px 12px rgba(0,0,0,0.3); padding: 15px 30px; font-size: 16px; margin: 0;">
 			<i class="entypo-check"></i> Admit Student
 		</button>
 	</div>
@@ -815,14 +705,14 @@ function resetForm() {
 $(document).ready(function() {
 	$('#others').css('display', 'none');
 	barcode();
-	
+
 	// Initialize Select2 with search functionality for parent dropdown
 	$('#parent_id').select2({
 		allowClear: true,
 		placeholder: 'Search or select guardian...',
 		width: '100%'
 	});
-	
+
 	// Ensure "Register New Guardian" always appears in search results
 	$('#parent_id').on('select2:open', function() {
 		setTimeout(function() {
@@ -878,19 +768,19 @@ function get_class_sections(class_id) {
 
 $('#parent_id').change(function(event) {
 	var parent_id = $(this).val();
-	
+
 	if(parent_id == 'new') {
 		showAjaxModal('<?php echo site_url('modal/popup/modal_parent_add_st/');?>');
 		$('#guardian_type_field').hide();
 		$('#other_guardian_section').hide();
 		return;
 	}
-	
+
 	if(parent_id) {
 		// Show guardian type selector
 		$('#guardian_type_field').slideDown();
 		$('#guardian_type').prop('required', true);
-		
+
 		// If guardian type is already selected, trigger the change to update fields
 		var currentGuardianType = $('#guardian_type').val();
 		if(currentGuardianType) {
@@ -915,13 +805,13 @@ $('#guardian_type').change(function() {
 		address: selectedOption.data('address'),
 		profession: selectedOption.data('profession')
 	};
-	
+
 	if(!guardianType) {
 		$('#other_guardian_section').hide();
 		clearAllParentFields();
 		return;
 	}
-	
+
 	if(guardianType === 'father') {
 		// Populate father's fields
 		$('#father_name').val(guardianData.name || '');
@@ -967,7 +857,7 @@ function reloadParentDropdown() {
 			if(response.status === 'success') {
 				let options = '<option value="">Select Guardian / Register New</option>';
 				options += '<option value="new">Register New Guardian</option>';
-				
+
 				response.parents.forEach(function(parent) {
 					let selected = parent.parent_id == response.last_added ? 'selected' : '';
 					options += '<option value="' + parent.parent_id + '" ' + selected;
@@ -978,13 +868,13 @@ function reloadParentDropdown() {
 					options += ' data-profession="' + (parent.profession || '') + '"';
 					options += '>' + parent.name + '</option>';
 				});
-				
+
 				$('#parent_id').html(options);
-				
+
 				if(typeof $.fn.select2 !== 'undefined') {
 					$('#parent_id').select2('destroy').select2();
 				}
-				
+
 				if(response.last_added) {
 					$('#guardian_type_field').show();
 					$('#guardian_type').prop('required', true);
@@ -1026,15 +916,15 @@ function toggle_password_view() {
 $('#student_single_add_form').submit(function(event) {
 	event.preventDefault();
 	showAjaxModal_alert('Processing admission...', 'loading');
-	
+
 	// Create FormData from form
 	var formData = new FormData(this);
-	
+
 	// Ensure CSRF token is included
 	var csrfName = '<?php echo $this->security->get_csrf_token_name(); ?>';
 	var csrfHash = '<?php echo $this->security->get_csrf_hash(); ?>';
 	formData.set(csrfName, csrfHash);
-	
+
 	$.ajax({
 		url: '<?php echo site_url('admin/student/create'); ?>',
 		type: 'POST',
@@ -1053,7 +943,7 @@ $('#student_single_add_form').submit(function(event) {
 			$(function(){
 				$.each(data, function(index, val) {
 					$('#list_err_student_create').append('<li style="font-size: 16px">' + val + '</li>');
-				}); 
+				});
 			});
 			showAjaxModal_alert('<ul id="list_err_student_create"></ul>', 'error');
 		}
@@ -1061,7 +951,7 @@ $('#student_single_add_form').submit(function(event) {
 	.fail(function(xhr, status, error) {
 		console.error('AJAX Error:', xhr.responseText);
 		let errorMsg = 'An error occurred. Please try again.';
-		
+
 		// Try to parse error response
 		try {
 			let response = JSON.parse(xhr.responseText);
@@ -1078,7 +968,7 @@ $('#student_single_add_form').submit(function(event) {
 				errorMsg = 'Server Error: ' + xhr.status + ' - ' + error;
 			}
 		}
-		
+
 		showAjaxModal_alert(errorMsg, 'error');
 	});
 });
@@ -1090,7 +980,7 @@ $('#residence_type').change(function(e) {
 	} else {
 		$('#boarding_holder').slideDown('slow');
 	}
-	
+
 	$.ajax({
 		url: '<?php echo site_url('admin/getAdmissionFee/') ?>' + selectedVal,
 		type: 'post',
@@ -1116,20 +1006,20 @@ $('#class_id').change(function() {
 function loadAdmissionBills() {
 	let class_id = $('#class_id').val();
 	let residence_type = $('#residence_type').val() || 'Day';
-	
+
 	if(!class_id) {
 		$('#bill_items_container').html('<div class="bill-empty-state"><i class="entypo-info"></i><p>Select class and residence type to view admission bills</p></div>');
 		return;
 	}
-	
+
 	// Clear the container first
 	$('#bill_items_container').html('<div class="bill-empty-state"><i class="entypo-info"></i><p>Loading bills...</p></div>');
-	
+
 	$.ajax({
 		url: '<?php echo site_url('admin/getAdmissionBillPreview'); ?>',
 		type: 'POST',
-		data: { 
-			class_id: class_id, 
+		data: {
+			class_id: class_id,
 			residence_type: residence_type,
 			'<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
 		},
@@ -1141,7 +1031,7 @@ function loadAdmissionBills() {
 			let html = '';
 			let total = 0;
 			let hasItems = false;
-			
+
 			// Add regular bills (excluding admission fees)
 			if(response.bills && response.bills.length > 0) {
 				$.each(response.bills, function(index, bill) {
@@ -1159,7 +1049,7 @@ function loadAdmissionBills() {
 					}
 				});
 			}
-			
+
 			// Add admission fee for current residence type only
 			if(response.admission_fee && parseFloat(response.admission_fee) > 0) {
 				let admFee = parseFloat(response.admission_fee);
@@ -1172,7 +1062,7 @@ function loadAdmissionBills() {
 				html += '</div>';
 				hasItems = true;
 			}
-			
+
 			if(hasItems) {
 				html += '<div style="border-top: 2px solid #0ea5e9; padding-top: 15px; margin-top: 15px;">';
 				html += '<div style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 15px;">';
@@ -1198,20 +1088,20 @@ function loadAdmissionBills() {
 				html = '<div class="bill-empty-state"><i class="entypo-info-circled"></i><p>No bills configured for this class</p></div>';
 				$('#discount_selector_section').hide();
 			}
-			
+
 			if(hasItems) {
 				$('#apply_discount_btn').show();
 			} else {
 				$('#apply_discount_btn').hide();
 			}
-			
+
 			$('#bill_items_container').html(html);
-			
+
 			// Calculate total and add event listeners
 			if(hasItems) {
 				calculateBillTotal();
 				$('.bill-amount-input').on('input', calculateBillTotal);
-				
+
 				$('.admission-fee-input').on('input', function() {
 					$('#my_admission_fee').val($(this).val());
 					calculateBillTotal();
@@ -1254,9 +1144,9 @@ $('#dormitory_id').change(function(e) {
 $(document).on('click', '.remove-bill-item', function() {
 	let title = $(this).data('title');
 	let $billItem = $(this).closest('.bill-item');
-	
+
 	showConfirmModal(
-		'Remove Bill Item', 
+		'Remove Bill Item',
 		'Are you sure you want to remove <strong>"' + title + '"</strong> from this student\'s bill?',
 		function() {
 			$billItem.fadeOut(300, function() {
@@ -1272,9 +1162,9 @@ $(document).on('click', '.remove-bill-item', function() {
 // Event delegation for admission fee delete
 $(document).on('click', '.remove-admission-fee', function() {
 	let $admissionFeeItem = $('.admission-fee-item');
-	
+
 	showConfirmModal(
-		'Remove Admission Fee', 
+		'Remove Admission Fee',
 		'Are you sure you want to remove the <strong>Admission Fee</strong> from this student\'s bill?',
 		function() {
 			$admissionFeeItem.fadeOut(300, function() {
@@ -1294,9 +1184,9 @@ function calculateBillTotal() {
 		let amount = parseFloat($(this).val()) || 0;
 		subtotal += amount;
 	});
-	
+
 	$('#subtotal_amount').text(CURRENCY + ' ' + subtotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
-	
+
 	// Only apply preview for invoice discount profile
 	let invoiceProfileId = $('#invoice_discount_profile').val();
 	if(invoiceProfileId) {
@@ -1313,7 +1203,7 @@ $('#invoice_discount_profile').change(function() {
 	var selectedOption = $(this).find('option:selected');
 	var method = selectedOption.data('method');
 	var value = selectedOption.data('value');
-	
+
 	if(profileId) {
 		// Fetch profile details to show applicable items
 		$.ajax({
@@ -1325,17 +1215,17 @@ $('#invoice_discount_profile').change(function() {
 			if(response.status === 'success' && response.profile) {
 				var profile = response.profile;
 				var methodText = method === 'percentage' ? 'Percentage Discount' : 'Fixed Amount Discount';
-				var valueText = method === 'percentage' 
-					? '<span style="font-size: 24px; font-weight: 800; color: #2563eb;">' + value + '%</span>' 
+				var valueText = method === 'percentage'
+					? '<span style="font-size: 24px; font-weight: 800; color: #2563eb;">' + value + '%</span>'
 					: '<span style="font-size: 24px; font-weight: 800; color: #2563eb;">' + CURRENCY + ' ' + parseFloat(value).toFixed(2) + '</span>';
-				
+
 				var itemsText = '';
 				if(profile.is_all_items) {
 					itemsText = '<div style="font-size: 12px; color: #1e40af; margin-top: 8px; font-weight: 600;"><i class="fa fa-check-circle"></i> Applies to: All Bill Items</div>';
 				} else if(profile.item_names && profile.item_names.length > 0) {
 					itemsText = '<div style="font-size: 11px; color: #1e40af; margin-top: 8px;"><strong>Applies to:</strong> ' + profile.item_names.join(', ') + '</div>';
 				}
-				
+
 				var html = '<div style="text-align: center; padding: 15px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 8px;">';
 				html += '<div style="font-size: 11px; color: #1e40af; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">' + methodText + '</div>';
 				html += valueText;
@@ -1347,7 +1237,7 @@ $('#invoice_discount_profile').change(function() {
 	} else {
 		$('#invoice_profile_preview').slideUp(300);
 	}
-	
+
 	calculateBillTotal();
 });
 
@@ -1357,7 +1247,7 @@ $('#daily_fees_discount_profile').change(function() {
 	var selectedOption = $(this).find('option:selected');
 	var method = selectedOption.data('method');
 	var value = selectedOption.data('value');
-	
+
 	if(profileId) {
 		// Fetch profile details to show applicable items
 		$.ajax({
@@ -1369,17 +1259,17 @@ $('#daily_fees_discount_profile').change(function() {
 			if(response.status === 'success' && response.profile) {
 				var profile = response.profile;
 				var methodText = method === 'percentage' ? 'Percentage Discount' : 'Fixed Amount Discount';
-				var valueText = method === 'percentage' 
-					? '<span style="font-size: 24px; font-weight: 800; color: #059669;">' + value + '%</span>' 
+				var valueText = method === 'percentage'
+					? '<span style="font-size: 24px; font-weight: 800; color: #059669;">' + value + '%</span>'
 					: '<span style="font-size: 24px; font-weight: 800; color: #059669;">' + CURRENCY + ' ' + parseFloat(value).toFixed(2) + '</span>';
-				
+
 				var itemsText = '';
 				if(profile.is_all_items) {
 					itemsText = '<div style="font-size: 12px; color: #065f46; margin-top: 8px; font-weight: 600;"><i class="fa fa-check-circle"></i> Applies to: All Daily Fees</div>';
 				} else if(profile.item_names && profile.item_names.length > 0) {
 					itemsText = '<div style="font-size: 11px; color: #065f46; margin-top: 8px;"><strong>Applies to:</strong> ' + profile.item_names.join(', ') + '</div>';
 				}
-				
+
 				var html = '<div style="text-align: center; padding: 15px; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 8px;">';
 				html += '<div style="font-size: 11px; color: #065f46; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">' + methodText + '</div>';
 				html += valueText;
@@ -1401,7 +1291,7 @@ function applyDiscountPreview(subtotal) {
 		$('#total_bill_amount').text(CURRENCY + ' ' + subtotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
 		return;
 	}
-	
+
 	$.ajax({
 		url: '<?php echo site_url('admin/getDiscountProfileDetails'); ?>',
 		type: 'POST',
@@ -1421,7 +1311,7 @@ function applyDiscountPreview(subtotal) {
 			console.log('Items:', profile.items);
 			let totalDiscount = 0;
 			let breakdownHtml = '';
-			
+
 			if(profile.bill_item_ids === '*') {
 				// Wildcard: apply to all items - show as single line
 				if(profile.discount_method === 'percentage') {
@@ -1457,12 +1347,12 @@ function applyDiscountPreview(subtotal) {
 					let itemAmount = parseFloat($(this).val()) || 0;
 					let itemTitleLower = itemTitle.toLowerCase().trim();
 					let discountApplied = false;
-					
+
 					$.each(profile.items, function(index, item) {
 						if(discountApplied) return;
 						let discountTypeLower = item.discount_type.toLowerCase().trim();
-						
-						if(discountTypeLower === itemTitleLower || 
+
+						if(discountTypeLower === itemTitleLower ||
 						   (discountTypeLower.includes('school') && itemTitleLower.includes('school')) ||
 						   (discountTypeLower.includes('admission') && itemTitleLower.includes('admission')) ||
 						   (discountTypeLower.includes('uniform') && itemTitleLower.includes('uniform'))) {
@@ -1485,11 +1375,11 @@ function applyDiscountPreview(subtotal) {
 					});
 				});
 			}
-			
+
 			console.log('=== DISCOUNT CALCULATION COMPLETE ===');
 			console.log('Total discount:', totalDiscount);
 			console.log('Breakdown HTML:', breakdownHtml);
-			
+
 			if(totalDiscount > 0 || profile.bill_item_ids === '*') {
 				if(totalDiscount > 0) {
 					// Show profile info
@@ -1500,7 +1390,7 @@ function applyDiscountPreview(subtotal) {
 						profileInfo += 'Applies to: ' + profile.item_names.join(', ');
 					}
 					$('#discount_profile_info').html(profileInfo);
-					
+
 					$('#discount_breakdown').html(breakdownHtml);
 					$('#discount_total_amount').text('- ' + CURRENCY + ' ' + totalDiscount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'));
 					$('#discount_details').show();
@@ -1515,7 +1405,7 @@ function applyDiscountPreview(subtotal) {
 						profileInfo += 'Applies to: ' + profile.item_names.join(', ');
 					}
 					$('#discount_profile_info').html(profileInfo);
-					
+
 					$('#discount_breakdown').html('<div style="color: #f59e0b; font-style: italic;">No matching bill items for this discount profile</div>');
 					$('#discount_total_amount').text('- ' + CURRENCY + ' 0.00');
 					$('#discount_details').show();
@@ -1549,7 +1439,7 @@ function initDatepicker() {
 
 $(document).ready(function() {
 	initDatepicker();
-	
+
 	$('input[required], select[required], textarea[required]').each(function() {
 		var $field = $(this);
 		var label = $field.closest('.form-field').find('label').first().text().replace('*', '').trim();
@@ -1568,10 +1458,10 @@ $(document).ready(function() {
 <!-- Form Customizer Modal -->
 <div id="formCustomizerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; overflow-y: auto;">
 	<div style="max-width: 800px; margin: 50px auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-		<div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%); color: white; padding: 25px 30px; border-radius: 16px 16px 0 0; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);">
+		<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px 30px; border-radius: 20px 20px 0 0; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);">
 			<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
 				<h3 style="margin: 0; font-size: 24px; font-weight: 700; color: white;"><i class="fa fa-sliders"></i> Customize Admission Form</h3>
-				<button onclick="closeFormCustomizer()" aria-label="Close form customizer" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 20px;">&times;</button>
+				<button onclick="closeFormCustomizer()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 20px;">&times;</button>
 			</div>
 			<div style="display: flex; gap: 10px; align-items: center;">
 				<input type="text" id="fieldSearchInput" placeholder="Search fields..." onkeyup="filterFields()" style="flex: 1; padding: 10px 15px; border: 2px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.15); color: white; border-radius: 8px; font-size: 14px;">
@@ -1631,13 +1521,13 @@ function openFormCustomizer() {
 	const modal = document.getElementById('formCustomizerModal');
 	const container = document.getElementById('fieldToggles');
 	const prefs = JSON.parse(localStorage.getItem('studentFormPrefs') || '{}');
-	
+
 	let sections = {};
 	formFields.forEach(field => {
 		if(!sections[field.section]) sections[field.section] = [];
 		sections[field.section].push(field);
 	});
-	
+
 	let html = '';
 	Object.keys(sections).forEach(section => {
 		html += `<div style="background: #f9fafb; padding: 20px; border-radius: 12px; border: 2px solid #e5e7eb;">`;
@@ -1653,7 +1543,7 @@ function openFormCustomizer() {
 		});
 		html += `</div>`;
 	});
-	
+
 	container.innerHTML = html;
 	modal.style.display = 'block';
 }
@@ -1665,11 +1555,11 @@ function closeFormCustomizer() {
 function filterFields() {
 	const searchTerm = document.getElementById('fieldSearchInput').value.toLowerCase();
 	const sections = document.querySelectorAll('#fieldToggles > div');
-	
+
 	sections.forEach(section => {
 		const fields = section.querySelectorAll('div[style*="display: flex"]');
 		let visibleCount = 0;
-		
+
 		fields.forEach(field => {
 			const text = field.textContent.toLowerCase();
 			if(text.includes(searchTerm)) {
@@ -1679,7 +1569,7 @@ function filterFields() {
 				field.style.display = 'none';
 			}
 		});
-		
+
 		section.style.display = visibleCount > 0 ? '' : 'none';
 	});
 }
@@ -1688,9 +1578,9 @@ function toggleField(fieldName, isVisible) {
 	const prefs = JSON.parse(localStorage.getItem('studentFormPrefs') || '{}');
 	prefs[fieldName] = isVisible;
 	localStorage.setItem('studentFormPrefs', JSON.stringify(prefs));
-	
+
 	$.post('<?php echo site_url('admin/save_form_preference'); ?>', {field_name: fieldName, is_visible: isVisible ? 1 : 0});
-	
+
 	const fieldEl = document.querySelector(`[name="${fieldName}"]`);
 	if(fieldEl) {
 		const formField = fieldEl.closest('.form-field');
@@ -1750,7 +1640,7 @@ $(document).ready(function() {
 			}
 		}
 	});
-	
+
 	// Auto-save form data
 	const formId = 'student_add_form';
 	const savedData = localStorage.getItem(formId);
@@ -1765,7 +1655,7 @@ $(document).ready(function() {
 			}
 		});
 	}
-	
+
 	let saveTimeout;
 	$('#student_single_add_form :input').on('input change', function() {
 		clearTimeout(saveTimeout);
@@ -1781,7 +1671,7 @@ $(document).ready(function() {
 			localStorage.setItem(formId, JSON.stringify(formData));
 		}, 1000);
 	});
-	
+
 	$('#student_single_add_form').on('submit', function() {
 		localStorage.removeItem(formId);
 	});
@@ -1809,18 +1699,6 @@ input:disabled + .toggle-slider { opacity: 0.5; cursor: not-allowed; }
 /* Fixed Submit Button Responsive */
 @media (max-width: 640px) {
 	.submit-btn { position: fixed !important; bottom: 10px !important; right: 10px !important; left: 10px !important; width: calc(100% - 20px) !important; margin: 0 !important; }
-}
-
-/* ---- family design-language alignment additions ---- */
-.submit-btn:focus-visible, .customize-form-btn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-.form-field input:focus-visible, .form-field select:focus-visible, .form-field textarea:focus-visible {
-    outline: none;
-}
-@media (prefers-reduced-motion: reduce) {
-    .section-header, .submit-btn, .remove-bill-item, .remove-admission-fee { transition: none; }
 }
 </style>
 

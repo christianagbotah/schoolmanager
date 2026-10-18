@@ -1,19 +1,19 @@
-<?php 
+<?php
     $raw_score =  $this->db->get_where('settings' , array('type' => 'raw_score'))->row()->description;
 
 ?>
 
 <style type="text/css">
 	#preloader2{
-		width: 100%; 
-		min-height: 1020px; 
-		background-color: #fff; 
-		text-align: center; 
-		z-index: 99999; 
+		width: 100%;
+		min-height: 1020px;
+		background-color: #fff;
+		text-align: center;
+		z-index: 99999;
 		position: absolute;
 		top: 350px;
 	}
-	
+
 	.ajax_alert {
 	    position: relative;
 	    top: 100px;
@@ -27,7 +27,7 @@
     </div>
 </div>
 
-	
+
 <hr />
 <div class="row">
 	<div class="col-md-12">
@@ -63,8 +63,8 @@
 											foreach($subjects as $row):
                                 $class = $this->db->get_where('class', array('class_id' => $row['class_id']))->result_array();
                                                 foreach ($class as $c):
-                                                    
-                                                
+
+
                                                 ?>
                                 <?php
                             //add section A or B if the class has more than one section
@@ -120,11 +120,11 @@
                                       <button type="submit" class="btn btn-primary" id="subj_import"><?php echo get_phrase('import_all_subjects');?></button>
                                   </div>
                                  </div>
-                                
+
                                 <div id="same_class_id_error_mass" style="color: red; display: none;"></div>
                                 </form>
-                            </div>    
-                
+                            </div>
+
                 <?php
                     if($subjects_rows != 0) {
                         //Display a button for user to use to add same subjects for another class
@@ -137,7 +137,7 @@
                                 <div class="form-group">
                                 <label class="col-sm-3 control-label"><?php echo get_phrase('class');?></label>
                                 <div class="col-sm-5">
-                                    <select name="class_id" class="form-control selectboxit" id="new_class_id" style="width:100%;" required>
+                                    <select name="class_id" class="form-control select2" id="new_class_id" style="width:100%;" required>
                                     <option value=""><?php echo get_phrase('select_class'); ?></option>
                                     	<?php
 
@@ -189,11 +189,11 @@
                                     </select>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label class="col-sm-3 control-label"><?php echo get_phrase('teacher');?></label>
                                 <div class="col-sm-5">
-                                    <select name="teacher_id" class="form-control selectboxit" style="width:100%;">
+                                    <select name="teacher_id" class="form-control select2" style="width:100%;">
                                         <option value=""><?php echo get_phrase('select_teacher');?></option>
                                     	<?php
 										$teachers = $this->db->get('teacher')->result_array();
@@ -212,7 +212,7 @@
                                   <button type="submit" class="btn btn-info"><?php echo get_phrase('add_subject');?></button>
                               </div>
 					   </div>
-					   	   
+
                     </form>
                 </div>
 			</div>
@@ -238,7 +238,7 @@
             $('#status').css('display', 'none');
         }
 	});
-	
+
 	$('#subj_import_form').submit(function(e) {
 	    e.preventDefault();
 	    //get new class and old class ids, year and term
@@ -248,8 +248,8 @@
 	    let term = '<?php echo $term; ?>';
         let class_name = '<?php echo $class_name; ?>';
 
-        
-        
+
+
 
         if(class_name == 'JHSS') {
             term = '<?php echo $sem; ?>';
@@ -259,13 +259,13 @@
 	    if(new_class_id == old_class_id) {
 	        $('#same_class_id_error').css('display', 'block');
 	        $('#same_class_id_error').text('Error! It seems you have selected the same class. Please select a different class');
-	        
+
 	        return false;
 	    }
-	    
+
 	    //send info via ajax for processing
 	    $.ajax({
-	       url: '<?php echo site_url('admin/do_subjects_import/') ?>' + new_class_id + '/' + old_class_id + '/' + year + '/' + term + '/' + class_name, 
+	       url: '<?php echo site_url('admin/do_subjects_import/') ?>' + new_class_id + '/' + old_class_id + '/' + year + '/' + term + '/' + class_name,
 	       type: 'POST',
 	       beforeSend: function(){
 	           //show the preloader
@@ -277,7 +277,7 @@
 				});
 				$('#main_div').css('cursor', 'not-allowed');
 	       },
-	       
+
 	       success: function(response) {
 	           //if it returns success
 	           if(response == 'success') {
@@ -285,7 +285,7 @@
         			$('#preloader2').html(
         				'<div class="alert alert-success alert-dismissible ajax_alert" role="alert" aria-label="alert"><button class="close" data-dismiss="alert">&times;</button><h3>Subjects Successfully Added.</h3><h4 align="center">Please wait, you are being redirected to the class page!</h4></div>'
         			);
-        			
+
         			setTimeout(() => {
     	    	     window.location.href = '<?php echo site_url('admin/subject/'); ?>' + new_class_id;
     	    	    }, 3000);
@@ -294,7 +294,7 @@
         			$('#preloader2').html(
         				'<div class="alert alert-danger alert-dismissible ajax_alert" role="alert" aria-label="alert"><button class="close" data-dismiss="alert">&times;</button><h3>Subjects Were Not Added.</h3><h4 align="center">Please try again!</h4></div>'
         			);
-        			
+
         			setTimeout(() => {
     	    	     window.location.reload();
     	    	    }, 4000);
@@ -304,7 +304,7 @@
         			$('#preloader2').html(
         				'<div class="alert alert-danger alert-dismissible ajax_alert" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="close" onclick=" return window.location.reload();"><span aria-hidden="true">&times;</span></button><h3>This Class Already Has Subjects Registered For This Term/Semester</h3><h4 align="center">If you are not sure, please check by clicking on this class under Subject menu.</h4><h4 align="center">In case you want to UPDATE or ADD new subjects to this class, kindly do it individually.</h4></div>'
         			);
-        			
+
         			$('#main_div').click(function(event) {
 					event.returnValue = true;
 				});
@@ -312,33 +312,33 @@
 
 	           }
 	       },
-	       
+
 	       error: function(error_s) {
-	          
-    			
+
+
     			//show error message
     			$('#preloader2').html(
     				'<div class="alert alert-danger alert-dismissible ajax_alert" role="alert" ><button type="button" class="close" data-dismiss="alert" aria-label="close">&times;</button><h3 align="center">Sorry, Subjects Could Not Be Added.</h3><h4 align="center">Please try again!</h4></div>'
     			);
-    			
-    			
+
+
     			 setTimeout(() => {
 	    	    window.location.reload();
 	    	 }, 4000);
 	       }
-	       
-	       
+
+
 	    });
 	});
 
 //mass import-yearly(academic yearly)
-    
+
 	$('#subj_import_form_mass').submit(function(e) {
 	    e.preventDefault();
-	    
+
 	    //send info via ajax for processing
 	    $.ajax({
-	       url: '<?php echo site_url('admin/do_subjects_import_mass') ?>', 
+	       url: '<?php echo site_url('admin/do_subjects_import_mass') ?>',
 	       type: 'POST',
 	       beforeSend: function(){
 	           //show the preloader
@@ -350,7 +350,7 @@
 				});
 				$('#main_div').css('cursor', 'not-allowed');
 	       },
-	       
+
 	       success: function(response) {
 
 	               if(response == 'error') {
@@ -359,7 +359,7 @@
             			$('#preloader2').html(
             				'<div class="alert alert-danger alert-dismissible ajax_alert" role="alert" aria-label="alert"><button class="close" data-dismiss="alert" onclick="return window.location.reload()"><span aria-hidden="true">&times;</span></button><h3>Subjects Were Already Registered For This Year.</h3><h4 align="center">If you are not sure, please check by clicking on each class under Subject menu.</h4><h4 align="center">In case you want to UPDATE or ADD new subjects to a class, kindly do it individually.</h4></div>'
             			);
-            			
+
             			$('#main_div').click(function(event) {
         					event.returnValue = true;
         				});
@@ -369,30 +369,30 @@
             			$('#preloader2').html(
             				'<div class="alert alert-success alert-dismissible ajax_alert" role="alert" aria-label="alert"><button class="close" data-dismiss="alert">&times;</button><h3>Subjects Successfully Imported.</h3></div>'
             			);
-            			
+
             			setTimeout(() => {
         	    	     window.location.reload();
         	    	    }, 2000);
 	               }
 	       },
-	       
+
 	       error: function(error_s) {
-	          
-    			
+
+
     			//show error message
-    			
+
     			$('#preloader2').html(
     				'<div class="alert alert-danger alert-dismissible ajax_alert" role="alert" ><button type="button" class="close" data-dismiss="alert" aria-label="close">&times;</button><h3 align="center">Sorry, Subjects Could Not Be Imported.</h3><h4 align="center">Please try again!</h4></div>'
     			);
-    			
-    			
+
+
     			 setTimeout(() => {
 	    	    window.location.reload();
 	    	 }, 4000);
 	       }
-	       
-	       
+
+
 	    });
 	});
-   
+
 </script>

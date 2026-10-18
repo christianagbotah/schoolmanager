@@ -2,25 +2,25 @@
 @import url('<?php echo base_url(); ?>assets/cdn/fonts/inter.css');
 * { font-family: 'Inter', sans-serif; }
 .modern-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
-.page-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 16px; padding: 28px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15); }
+.page-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2); }
 .page-title { font-size: 32px; font-weight: 700; color: white !important; margin: 0 0 8px 0; letter-spacing: -0.5px; }
 .page-subtitle { font-size: 16px; color: rgba(255,255,255,0.9); margin: 0; }
-.filter-card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); border: 1px solid #e5e7eb; }
+.filter-card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #f3f4f6; }
 .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
 .form-group label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-.modern-input { border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 12px 16px; font-size: 14px; transition: all 0.3s; width: 100%; height: 46px; box-sizing: border-box; }
-.modern-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; }
+.modern-input { border: 2px solid #e5e7eb; border-radius: 10px; padding: 12px 16px; font-size: 14px; transition: all 0.3s; width: 100%; height: 46px; box-sizing: border-box; }
+.modern-input:focus { border-color: #667eea; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); outline: none; }
 .select2-container .select2-selection--single { height: 46px !important; border: 2px solid #e5e7eb !important; border-radius: 10px !important; }
 .select2-container--classic .select2-selection--single .select2-selection__rendered { line-height: 42px !important; padding-left: 16px !important; }
 .select2-container--classic .select2-selection--single .select2-selection__arrow { height: 42px !important; }
 .btn-modern { padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; height: 46px; }
-.btn-primary { background: #2563eb; color: white; box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35); }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35); background: #1d4ed8; }
-.btn-success { background: #059669; color: white; box-shadow: 0 1px 2px rgba(5, 150, 105, 0.35); }
-.btn-success:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(5, 150, 105, 0.35); background: #047857; }
-.data-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); border: 1px solid #e5e7eb; }
+.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
+.btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+.btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
+.data-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #f3f4f6; }
 .table-modern { width: 100%; border-collapse: separate; border-spacing: 0; }
-.table-modern thead th { background: #f9fafb; padding: 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb; }
+.table-modern thead th { background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%); padding: 16px; text-align: left; font-weight: 600; color: #374151; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e5e7eb; }
 .table-modern tbody tr { transition: all 0.2s; }
 .table-modern tbody tr:hover { background: #f9fafb; }
 .table-modern tbody td { padding: 16px; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
@@ -30,19 +30,6 @@
 .currency { font-size: 9px; font-weight: 500; opacity: 0.7; margin-right: 2px; }
 .empty-state { text-align: center; padding: 60px 20px; color: #9ca3af; }
 .empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
-
-/* ---- family design-language alignment additions ---- */
-.btn-modern:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-@media (prefers-reduced-motion: reduce) {
-    .btn-modern, .table-modern tbody tr { transition: none; }
-}
-@media (max-width: 400px) {
-    .modern-container { padding: 12px; }
-    .filter-card, .data-card { padding: 15px; border-radius: 14px; }
-}
 </style>
 
 <div class="modern-container">
@@ -58,7 +45,7 @@
             <div class="student-search-wrapper" style="position: relative;">
                 <input type="text" id="student_search" placeholder="Search student by name or code..." autocomplete="off" class="modern-input" style="padding-left: 40px;">
                 <input type="hidden" id="student_filter" name="student_filter">
-                <div class="search-icon" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #2563eb; font-size: 16px; pointer-events: none;">
+                <div class="search-icon" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #667eea; font-size: 16px; pointer-events: none;">
                     <i class="fa fa-search"></i>
                 </div>
                 <div id="student_dropdown" class="hidden" style="position: absolute; width: 100%; background: white; border: 2px solid #e5e7eb; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 4px; max-height: 320px; overflow-y: auto; z-index: 1000;"></div>
@@ -102,18 +89,18 @@
 $(function() {
     // Initialize year filter
     loadLedger();
-    
+
     // AJAX Student Search
     let searchTimeout;
     $('#student_search').on('input', function() {
         clearTimeout(searchTimeout);
         const searchTerm = $(this).val().trim();
-        
+
         if(searchTerm.length < 2) {
             $('#student_dropdown').addClass('hidden').html('');
             return;
         }
-        
+
         searchTimeout = setTimeout(function() {
             $.ajax({
                 url: '<?php echo base_url(); ?>admin/search_all_students',
@@ -130,7 +117,7 @@ $(function() {
                             html += '</div>';
                         });
                         $('#student_dropdown').removeClass('hidden').html(html);
-                        
+
                         // Handle student selection
                         $('.student-item').on('click', function() {
                             const studentId = $(this).data('id');
@@ -139,7 +126,7 @@ $(function() {
                             $('#student_search').val(studentName);
                             $('#student_dropdown').addClass('hidden').html('');
                         });
-                        
+
                         // Hover effect
                         $('.student-item').hover(
                             function() { $(this).css('background', '#f9fafb'); },
@@ -152,14 +139,14 @@ $(function() {
             });
         }, 300);
     });
-    
+
     // Close dropdown when clicking outside
     $(document).on('click', function(e) {
         if(!$(e.target).closest('.student-search-wrapper').length) {
             $('#student_dropdown').addClass('hidden').html('');
         }
     });
-    
+
     // Clear selection when input is cleared
     $('#student_search').on('keyup', function() {
         if($(this).val().trim() === '') {
@@ -184,7 +171,7 @@ function loadLedger() {
     }).done(function(response) {
         if(response.status === 'success') {
             $('#ledger-content').html(response.html);
-            
+
             // Initialize DataTables with pagination and filters
             if($.fn.DataTable.isDataTable('#ledgerTable')) {
                 $('#ledgerTable').DataTable().destroy();
@@ -208,7 +195,7 @@ function loadLedger() {
                 },
                 dom: '<"top"lf>rt<"bottom"ip><"clear">'
             });
-            
+
             // Auto-scroll to results
             $('html, body').animate({
                 scrollTop: $('#ledger-content').offset().top - 20
@@ -224,9 +211,9 @@ function loadLedger() {
 }
 
 function exportLedger() {
-    window.location.href = '<?php echo base_url(); ?>admin/export_student_ledger?' + 
-        'student_id=' + $('#student_filter').val() + 
-        '&year=' + $('#year_filter').val() + 
+    window.location.href = '<?php echo base_url(); ?>admin/export_student_ledger?' +
+        'student_id=' + $('#student_filter').val() +
+        '&year=' + $('#year_filter').val() +
         '&term=' + $('#term_filter').val();
 }
 </script>

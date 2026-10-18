@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 //feedback
 $display = 'none';
@@ -43,8 +43,8 @@ if(isset($_GET['msg'])) {
 
 <style type="text/css">
     #search_row {
-        position: sticky !important; 
-        top: 0px !important; 
+        position: sticky !important;
+        top: 0px !important;
         z-index: 999 !important;
     }
     .datatable tbody tr {
@@ -59,9 +59,9 @@ if(isset($_GET['msg'])) {
         position: relative;
         display: inline-block;
     }
-    
+
     .action-popup-btn {
-        background: #2563eb;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: none;
         padding: 8px 16px;
@@ -75,34 +75,34 @@ if(isset($_GET['msg'])) {
         transition: all 0.2s;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    
+
     .action-popup-btn:hover {
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
-    
+
     .action-popup-btn i.fa-chevron-down {
         font-size: 10px;
         transition: transform 0.2s;
     }
-    
+
     .action-popup-btn.active i.fa-chevron-down {
         transform: rotate(180deg);
     }
 
     /* Status button variants */
     .action-popup-btn.status-active {
-        background: #059669;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     }
-    
+
     .action-popup-btn.status-blocked {
-        background: #dc2626;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     }
-    
+
     .action-popup-btn.status-muted {
-        background: #d97706;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
-    
+
     .action-popup-menu {
         position: fixed;
         top: 0;
@@ -120,14 +120,14 @@ if(isset($_GET['msg'])) {
         padding: 8px 0;
         pointer-events: none;
     }
-    
+
     .action-popup-menu.show {
         opacity: 1;
         visibility: visible;
         transform: scale(1) translateY(0);
         pointer-events: auto;
     }
-    
+
     .action-popup-item {
         display: flex;
         align-items: center;
@@ -144,231 +144,40 @@ if(isset($_GET['msg'])) {
         cursor: pointer;
         text-align: left;
     }
-    
+
     .action-popup-item:hover {
         background: #f3f4f6;
     }
-    
+
     .action-popup-item i {
         width: 18px;
         text-align: center;
         font-size: 14px;
     }
-    
+
     .action-popup-item.success i { color: #059669; }
     .action-popup-item.success:hover { background: #d1fae5; color: #047857; }
-    
+
     .action-popup-item.danger i { color: #dc2626; }
     .action-popup-item.danger:hover { background: #fee2e2; color: #b91c1c; }
-    
+
     .action-popup-item.warning i { color: #d97706; }
     .action-popup-item.warning:hover { background: #fef3c7; color: #b45309; }
-    
+
     .action-popup-item.primary i { color: #2563eb; }
     .action-popup-item.primary:hover { background: #dbeafe; color: #1d4ed8; }
-    
+
     .action-popup-item.info i { color: #0891b2; }
     .action-popup-item.info:hover { background: #cffafe; color: #0e7490; }
-    
+
     .action-popup-item.purple i { color: #7c3aed; }
     .action-popup-item.purple:hover { background: #ede9fe; color: #6d28d9; }
-    
+
     .action-popup-divider {
         height: 1px;
         background: #e5e7eb;
         margin: 6px 0;
     }
-
-    /* ---- family design-language alignment (presentation only) ---- */
-    .panel {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-    }
-    .panel > .panel-heading {
-        background: transparent;
-        border-bottom: 1px solid #f3f4f6;
-        border-radius: 16px 16px 0 0;
-        color: #111827;
-    }
-    .panel > .panel-body { padding: 18px; }
-    .nav-tabs > li > a {
-        border-radius: 10px 10px 0 0;
-        font-weight: 600;
-        color: #374151;
-    }
-    .nav-tabs > li.active > a { color: #111827; }
-    .btn {
-        border-radius: 10px;
-        font-weight: 600;
-        transition: all .2s;
-    }
-    .btn:focus-visible {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-    }
-    .btn-primary { background: #2563eb; border-color: #2563eb; }
-    .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
-    .btn-success { background: #059669; border-color: #059669; }
-    .btn-success:hover { background: #047857; border-color: #047857; }
-    .btn-danger { background: #dc2626; border-color: #dc2626; }
-    .btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
-    .btn-info { background: #0284c7; border-color: #0284c7; }
-    .btn-info:hover { background: #0369a1; border-color: #0369a1; }
-    #panel_exam select:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-        outline: none;
-    }
-    .tab-content table.datatable { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; font-size: 14px; }
-    .tab-content table.datatable thead th {
-        background: #f9fafb; color: #374151; font-size: 12px; font-weight: 600;
-        text-transform: uppercase; letter-spacing: .3px;
-        border-bottom: 1px solid #e5e7eb !important; padding: 12px 10px;
-    }
-    .tab-content table.datatable tbody td { font-size: 14px; border-bottom: 1px solid #f3f4f6; color: #374151; }
-    .alert { border-radius: 12px; }
-    hr { border-color: #f3f4f6; }
-    @media (prefers-reduced-motion: reduce) {
-        .btn, .action-popup-btn, .action-popup-menu { transition: none; }
-        .action-popup-btn:hover { transform: none; }
-    }
-    @media (max-width: 400px) {
-        .tab-content table.datatable thead th, .tab-content table.datatable tbody td { padding: 8px 8px; }
-    }
-
-/* Direct UX readability refinement — Class Student Information */
-body { background: #f8fafc; }
-.row.mb-4 > .col-md-12 > h2 {
-    margin: 0 0 8px !important; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0;
-    color: #0f172a !important; font-size: 28px !important; line-height: 1.25; font-weight: 800 !important;
-    letter-spacing: -.02em;
-}
-.nav.nav-tabs.bordered {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
-    margin: 0 0 16px !important; padding: 5px !important;
-    border: 1px solid #e2e8f0 !important; border-radius: 12px; background: #fff;
-}
-.nav.nav-tabs.bordered > li { margin: 0 !important; }
-.nav.nav-tabs.bordered > li > a {
-    min-height: 40px; padding: 9px 14px !important; border: 0 !important; border-radius: 8px !important;
-    background: transparent !important; color: #475569 !important; font-size: 14px !important; font-weight: 700 !important;
-}
-.nav.nav-tabs.bordered > li.active > a,
-.nav.nav-tabs.bordered > li.active > a:hover { background: #2563eb !important; color: #fff !important; }
-
-.nav.nav-tabs.bordered .btn {
-    min-height: 42px !important; height: auto !important; padding: 9px 12px !important;
-    font-size: 14px !important; line-height: 1.35; font-weight: 700 !important;
-}
-.d-none.d-md-grid {
-    margin-top: 12px !important; padding: 12px !important; gap: 8px !important;
-    box-shadow: none !important; border: 1px solid #e2e8f0 !important;
-    border-top: 1px solid #e2e8f0 !important; border-radius: 12px !important; background: #f8fafc;
-}
-@media (min-width: 768px) {
-    .d-none.d-md-grid { display: grid !important; grid-template-columns: repeat(5, minmax(0,1fr)) !important; }
-}
-.d-none.d-md-grid .btn {
-    min-height: 44px !important; height: auto !important; padding: 9px 10px !important;
-    font-size: 14px !important; font-weight: 700 !important; line-height: 1.3;
-}
-.md\:hidden .btn { min-height: 42px !important; height: auto !important; font-size: 13px !important; padding: 8px 10px !important; }
-
-#panel_exam {
-    margin-top: 14px !important; border: 1px solid #e2e8f0; border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05) !important; overflow: hidden;
-}
-#panel_exam .panel-body { padding: 16px !important; }
-#panel_exam .flex.flex-col.md\:flex-row {
-    gap: 12px !important; padding: 0 !important; justify-content: flex-start !important;
-}
-#panel_exam label {
-    width: auto !important; min-width: 130px; margin: 0 !important;
-    color: #334155 !important; font-size: 14px !important; font-weight: 700 !important;
-}
-#panel_exam #exam_id {
-    width: min(420px, 100%) !important; min-height: 46px !important; height: 46px !important;
-    padding: 9px 12px !important; border: 1px solid #cbd5e1 !important; border-radius: 9px !important;
-    font-size: 15px !important; font-weight: 600 !important; background: #fff !important; color: #0f172a !important;
-}
-#panel_exam #c_print {
-    min-height: 46px !important; height: 46px !important; padding: 9px 16px !important;
-    font-size: 14px !important; font-weight: 800 !important; text-transform: none !important;
-}
-
-.tab-content > .alert { margin-top: 12px !important; font-size: 14px; border-radius: 10px; }
-.tab-content .bg-white.border.border-gray-200.rounded-xl {
-    min-height: auto !important; height: auto !important; margin-bottom: 16px !important;
-    padding: 16px !important; border-radius: 12px !important; box-shadow: 0 1px 2px rgba(15,23,42,.04);
-}
-.tab-content .bg-white.border.border-gray-200.rounded-xl > .flex {
-    gap: 0 !important; divide: none !important;
-}
-.tab-content .bg-white.border.border-gray-200.rounded-xl .text-2xl {
-    font-size: 14px !important; line-height: 1.4 !important; font-weight: 700 !important;
-}
-.tab-content .bg-white.border.border-gray-200.rounded-xl .text-3xl {
-    font-size: 21px !important; line-height: 1.3 !important; color: #0f172a !important;
-}
-.tab-content .bg-white.border.border-gray-200.rounded-xl .flex.justify-between {
-    gap: 10px; padding: 8px 14px; border-right: 1px solid #eef2f7; min-width: 0;
-}
-
-.tab-pane.overflow-x-scroll { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
-.tab-pane table.datatable {
-    min-width: 1180px; width: 100% !important; font-size: 14px !important;
-    border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;
-}
-.tab-pane table.datatable thead th {
-    padding: 12px 12px !important; background: #f8fafc !important; color: #475569 !important;
-    font-size: 13px !important; line-height: 1.35; font-weight: 800 !important; letter-spacing: .03em;
-}
-.tab-pane table.datatable tbody td {
-    padding: 11px 12px !important; color: #334155 !important; font-size: 14px !important;
-    line-height: 1.45; vertical-align: middle;
-}
-.tab-pane table.datatable tbody tr:hover td { background: #f8fbff !important; }
-.tab-pane table.datatable img.img-circle { width: 38px !important; height: 38px !important; object-fit: cover; }
-.action-popup-btn {
-    min-height: 36px; padding: 7px 11px; border-radius: 8px; font-size: 14px; font-weight: 700;
-}
-.action-popup-btn i.fa-chevron-down { font-size: 11px; }
-.action-popup-item { min-height: 38px; padding: 8px 12px; font-size: 14px; }
-.dataTables_wrapper .dataTables_length,
-.dataTables_wrapper .dataTables_filter,
-.dataTables_wrapper .dataTables_info,
-.dataTables_wrapper .dataTables_paginate { font-size: 14px !important; color: #475569; }
-.dataTables_wrapper select,
-.dataTables_wrapper input[type="search"] {
-    min-height: 40px; padding: 8px 10px; border: 1px solid #cbd5e1;
-    border-radius: 8px; font-size: 14px !important; background: #fff; color: #0f172a;
-}
-
-#action_bar > div { padding-top: 10px !important; padding-bottom: 10px !important; }
-#action_bar .text-xs, #action_bar .md\:text-sm { font-size: 13px !important; }
-#action_bar #selected_count { font-size: 20px !important; }
-#action_bar a, #action_bar button {
-    min-height: 42px; padding: 8px 14px !important; font-size: 14px !important;
-    line-height: 1.35; border-radius: 9px !important; transform: none !important;
-}
-#action_bar a:hover, #action_bar button:hover { transform: translateY(-1px) !important; }
-
-@media (max-width: 767px) {
-    .row.mb-4 > .col-md-12 > h2 { font-size: 24px !important; }
-    .nav.nav-tabs.bordered { display: block; }
-    .nav.nav-tabs.bordered > li { width: 100%; }
-    .nav.nav-tabs.bordered > li > a { width: 100%; }
-    #panel_exam .flex.flex-col.md\:flex-row { align-items: stretch !important; }
-    #panel_exam label { min-width: 0; }
-    #panel_exam #exam_id, #panel_exam #c_print { width: 100% !important; }
-    .tab-content .bg-white.border.border-gray-200.rounded-xl > .flex { flex-direction: column !important; }
-    .tab-content .bg-white.border.border-gray-200.rounded-xl .flex.justify-between {
-        border-right: 0; border-bottom: 1px solid #eef2f7;
-    }
-    #action_bar a, #action_bar button { font-size: 13px !important; padding: 8px 9px !important; }
-}
 </style>
 <hr />
 
@@ -376,7 +185,7 @@ body { background: #f8fafc; }
 <div class="row mb-4">
     <div class="col-md-12">
         <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">
-            <?php 
+            <?php
                 $class_info = $this->db->get_where('class', array('class_id' => $class_id))->row();
                 echo $class_info->name . ' ' . $class_info->name_numeric;
                 $section_info = $this->db->get_where('section', array('class_id' => $class_id))->row();
@@ -521,16 +330,16 @@ body { background: #f8fafc; }
 
                 <div class="panel panel-info panel-collapse collapse mt-12 shadow-md" id="panel_exam">
                     <div class="panel-body w-full">
-                        <?php 
+                        <?php
                          $class_name         =   $this->db->get_where('class' , array('class_id' => $class_id))->row()->name;
                         $class_name_numeric =   $this->db->get_where('class' , array('class_id' => $class_id))->row()->name_numeric;
 
                         if($class_name == 'CRECHE') {
-                            echo form_open(site_url('admin/student_marksheet_bulk_print_view_creche/'. $class_id. '/'. $row['section_id'])); 
+                            echo form_open(site_url('admin/student_marksheet_bulk_print_view_creche/'. $class_id. '/'. $row['section_id']));
                         } else {
-                            echo form_open(site_url('admin/student_marksheet_bulk_print_view/'. $class_id. '/'. $row['section_id']), array('id' => 'exam_selected_form' )); 
+                            echo form_open(site_url('admin/student_marksheet_bulk_print_view/'. $class_id. '/'. $row['section_id']), array('id' => 'exam_selected_form' ));
                         }
-                        
+
 
                         ?>
 
@@ -539,16 +348,16 @@ body { background: #f8fafc; }
                             <label for="to_class_id" class="block mb-2 font-bold text-2xl text-gray-900 dark:text-white w-full max-w-full md:w-1/5 md:max-w-1/5 uppercase">Select Exam Type</label>
                             <select id="exam_id" name="exam_id" data-message-required="<?php echo get_phrase('value_required');?>" class="select2 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-500 focus:border-primary-500 text-xl font-bold block w-full max-w-full md:w-2/5 md:max-w-2/5 h-20 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                 <option value="">CHOOSE EXAMINATION</option>
-                                <?php 
+                                <?php
                                 $this->db->select('exam_id');
                                 $this->db->distinct();
                                 $exams_query = $this->db->get_where('mark', array('class_id' => $class_id));
-                                
+
 
                                 if($class_name == 'JHSS') {
                                     if($exams_query->num_rows() > 0) {
                                     $exams = $exams_query->result_array();
-                                    
+
                                     // Fetch exam details and sort by year and semester descending
                                     $exams_with_details = array();
                                     foreach($exams as $e_row) {
@@ -562,20 +371,20 @@ body { background: #f8fafc; }
                                             );
                                         }
                                     }
-                                    
+
                                     // Sort by year desc, then semester desc
                                     usort($exams_with_details, function($a, $b) {
                                         $year_cmp = strcmp($b['year'], $a['year']);
                                         if($year_cmp != 0) return $year_cmp;
                                         return $b['sem'] - $a['sem'];
                                     });
-                                    
+
                                     foreach($exams_with_details as $exam):
                                          ?>
-                                    
+
                                     <option value="<?php echo $exam['exam_id']; ?>"><?php echo $exam['name']. ', Year: '. explode('-', $exam['year'])[1].' | Semester: '.$exam['sem']; ?></option>
 
-                                    <?php endforeach; 
+                                    <?php endforeach;
                                     } else {
                                         echo '<option>No exam found</option>';
                                     }
@@ -584,7 +393,7 @@ body { background: #f8fafc; }
 
                                     if($exams_query->num_rows() > 0) {
                                         $exams = $exams_query->result_array();
-                                        
+
                                         // Fetch exam details and sort by year and term descending
                                         $exams_with_details = array();
                                         foreach($exams as $e_row) {
@@ -598,31 +407,31 @@ body { background: #f8fafc; }
                                                 );
                                             }
                                         }
-                                        
+
                                         // Sort by year desc, then term desc
                                         usort($exams_with_details, function($a, $b) {
                                             $year_cmp = strcmp($b['year'], $a['year']);
                                             if($year_cmp != 0) return $year_cmp;
                                             return $b['term'] - $a['term'];
                                         });
-                                        
-                                        foreach($exams_with_details as $exam): 
+
+                                        foreach($exams_with_details as $exam):
                                             ?>
-                                    
+
                                     <option value="<?php echo $exam['exam_id']; ?>"><?php echo $exam['name']. ', Year: '. explode('-', $exam['year'])[1].' | Term: '.$exam['term']; ?></option>
-                                    <?php endforeach; 
+                                    <?php endforeach;
                                     } else {
                                         echo '<option>No exam found</option>';
                                     }
 
                                 }
-                                    
+
                                     ?>
                             </select>
                             <input type="submit" class="btn rounded-lg btn-info h-20 text-2xl font-bold uppercase" id="c_print" name="print_b" value="Click here to print">
                         </div>
-                            
-                            
+
+
                             <?php echo form_close(); ?>
                             <a target="_blank" id="exam_anchor"></a>
 
@@ -638,7 +447,7 @@ body { background: #f8fafc; }
                                 });
                             </script>
                     </div>
-                </div> 
+                </div>
             </li>
             <?php endif; // End cashier check ?>
         </ul>
@@ -650,14 +459,14 @@ body { background: #f8fafc; }
                <strong> <?php echo $feedback; ?></strong>
             </div>
             <hr>
-                <div class="bg-white border border-gray-200 rounded-xl md:h-40 p-6 mb-16 md:mb-0 h-fit md:h-auto">
-                
+                <div class="bg-gray-100 md:h-40 p-6 mb-16 md:mb-0 h-fit md:h-auto">
+
                     <!-- <div class="form-group row" id="search_row">
                         <div class="col-lg-9 col-md-9 col-sm-7"></div>
                         <div class="col-lg-3 col-md-3 col-sm-5">
                             <input type="search" class="form-control bg-gray-50 border border-gray-300 text-gray-500 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full h-16 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white text-xl dark:focus:ring-primary-500 dark:focus:border-primary-500" name="student_search" id="student_search" placeholder="Search Student..." style="height: 35px">
                         </div>
-                        
+
                     </div> -->
 
                     <div class="flex flex-col md:flex-row gap-4 justify-around divide-y-4 md:divide-x-4 divide-gray-50">
@@ -667,7 +476,7 @@ body { background: #f8fafc; }
 
                         <div class="flex justify-between"><span class="text-gray-500 text-2xl font-semibold">UNSET GENDER:</span> <span class="font-bold text-3xl" id="total_unset_gender"><span class="text-sm text-gray-400">Updating...</span></span></div>
 
-                        <?php 
+                        <?php
                             if($boarding_system == 'yes'):
                                 ?>
                             <div class="flex justify-between"><span class="text-gray-500 text-2xl font-semibold">TOTAL BOARDERS:</span> <span class="font-bold text-3xl" id="total_boarders"><?=number_format($this->boarding_model->classBoardersCount($class_id), 0, '.', ',');?></span></div>
@@ -705,7 +514,7 @@ body { background: #f8fafc; }
                     </thead>
                     <tbody>
 
-                        <?php   
+                        <?php
                                 if($class_name == 'JHSS') {
                                     $student_query = $this->db->get_where('enroll' , array(
                                     'class_id' => $class_id, 'mute' => '0', 'year' => $running_year, 'sem' => $running_sem
@@ -719,15 +528,15 @@ body { background: #f8fafc; }
                                     $students   =   $student_query->result_array();
                                 }
 
-                             $class_male = 0; 
+                             $class_male = 0;
                              $class_female = 0;
                              $class_unknown = 0;
                              $serial_number = 1; // Initialize serial number counter
-                                
+
                             if($student_query->num_rows() > 0):
                                 foreach($students as $row):?>
 
-                                <?php 
+                                <?php
                                     $student_info = $this->db->get_where('student' , array('student_id' => $row['student_id']))->row();
 
                                     $students_acc_st = $student_info->block_limit;
@@ -750,7 +559,7 @@ body { background: #f8fafc; }
                                         $class_male++;
 
                                     } else {
-                                        
+
                                         $class_unknown++;
                                     }
 
@@ -799,7 +608,7 @@ body { background: #f8fafc; }
                             <input type="checkbox" class="checkbox" onclick="boxChecked()" name="students_sel[]" value="<?= $row['student_id']; ?>"></td>
                             <td class="px-4 py-3 font-semibold"><?php echo $serial_number++; ?></td>
                             <td><?php echo $student_info->student_code;?></td>
-                          
+
 
 
                             <td scope="row" class="flex items-center content-center px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white" width="80">
@@ -829,7 +638,7 @@ body { background: #f8fafc; }
                             <td class="px-4 py-3">
                                 <?=$enrollmentRow->residence_type; ?>
                             </td>
-                            
+
                             <?php if($admin_level != 4): // Show for non-cashiers ?>
                             <td class="px-4 py-3 text-center" style="font-weight: bolder; letter-spacing: 3px;" width="100">
                              <?php
@@ -852,7 +661,7 @@ body { background: #f8fafc; }
                                     </button>
                                 </div>
                                 <!-- Hidden data attributes for actions -->
-                                <span class="hidden action-data" 
+                                <span class="hidden action-data"
                                       data-student-id="<?= $row['student_id']; ?>"
                                       data-class-id="<?= $class_id; ?>"
                                       data-marksheet-url="<?= $class_name == 'CRECHE' ? site_url('admin/student_marksheet_creche/'.$row['student_id']) : site_url('admin/student_marksheet/'.$row['student_id']); ?>"
@@ -982,20 +791,20 @@ body { background: #f8fafc; }
                                 columns: ':visible'
                             }
                         },
-                        
+
                     ]
                 }
             }
         });
-        
-        
+
+
         boxChecked();
 
-        
+
     });
 
     $('input[name="students_sel[]"]').click(function(e) {
-            
+
         let selected_ids = [];
 
         $('input[name="students_sel[]"]:checked').each(function() {
@@ -1035,11 +844,11 @@ body { background: #f8fafc; }
         } else {
             $('#tfooter').removeAttr('style');
             $('#selected_count').text(count_checked_buttons);
-            
+
             // Apply theme color from PHP variable
             var skinColor = '<?php echo $skin_colour; ?>';
             var bgColor = '#522b76'; // default purple
-            
+
             if(skinColor === 'blue') bgColor = '#2c3e50';
             else if(skinColor === 'red') bgColor = '#c0392b';
             else if(skinColor === 'green') bgColor = '#27ae60';
@@ -1047,9 +856,9 @@ body { background: #f8fafc; }
             else if(skinColor === 'black') bgColor = '#34495e';
             else if(skinColor === 'white') bgColor = '#95a5a6';
             else if(skinColor === 'cafe') bgColor = '#8b4513';
-            
+
             $('#action_bar').css('background', bgColor);
-            
+
             setTimeout(function() {
                 $('#action_bar').removeClass('translate-y-full').addClass('translate-y-0');
             }, 100);
@@ -1059,12 +868,12 @@ body { background: #f8fafc; }
     $('#checkboxes_form').submit(function(event) {
         event.preventDefault();
         let admin_level = <?php echo $admin_level; ?>;
-        
+
         if(admin_level != 1) {
             showAjaxModal_alert('Sorry, you are not allowed to perform this action. Contact your Super Administrator.', 'error');
             return false;
         }
-        
+
         showConfirmModal(
             'Confirm Bulk Delete',
             'Are you sure you want to delete the selected students? This action is irreversible!',
@@ -1324,19 +1133,19 @@ body { background: #f8fafc; }
     // ============================================
     // POPUP MENU FUNCTIONALITY
     // ============================================
-    
+
     var currentStudentId = null;
     var currentClassId = null;
     var currentActionData = null;
     var $statusPopupMenu = null;
     var $actionPopupMenu = null;
-    
+
     $(function() {
         $statusPopupMenu = $('#statusPopupMenu');
         $actionPopupMenu = $('#actionPopupMenu');
         initPopupMenus();
     });
-    
+
     function initPopupMenus() {
         // Close popup when clicking outside
         $(document).off('click.studentPopup').on('click.studentPopup', function(e) {
@@ -1345,115 +1154,115 @@ body { background: #f8fafc; }
             }
         });
     }
-    
+
     function closeAllPopupMenus() {
         if ($statusPopupMenu) $statusPopupMenu.removeClass('show');
         if ($actionPopupMenu) $actionPopupMenu.removeClass('show');
         $('.action-popup-btn').removeClass('active');
     }
-    
+
     // ============================================
     // STATUS POPUP MENU
     // ============================================
-    
+
     function toggleStatusMenu(btn, event, studentId) {
         event.stopPropagation();
         event.preventDefault();
-        
+
         currentStudentId = studentId;
-        
+
         // Ensure we have a valid DOM element
         var btnElement = btn instanceof jQuery ? btn[0] : btn;
-        
+
         // If menu is already open, close it
         if ($statusPopupMenu && $statusPopupMenu.hasClass('show')) {
             closeAllPopupMenus();
             return;
         }
-        
+
         closeAllPopupMenus();
-        
+
         // Force menu to be rendered but hidden to get proper dimensions
         $statusPopupMenu.css({
             left: '-9999px',
             top: '-9999px'
         }).addClass('show');
-        
+
         // Get actual menu dimensions
         var menuWidth = $statusPopupMenu.outerWidth();
         var menuHeight = $statusPopupMenu.outerHeight();
-        
+
         // Hide again to reposition
         $statusPopupMenu.removeClass('show');
-        
+
         // Position the menu - getBoundingClientRect gives viewport-relative coordinates
         // which is correct for position: fixed elements
         var btnRect = btnElement.getBoundingClientRect();
-        
+
         var left = btnRect.left;
         var top = btnRect.bottom + 5;
-        
+
         // Adjust if menu would go off right edge
         if (left + menuWidth > window.innerWidth) {
             left = window.innerWidth - menuWidth - 10;
         }
-        
+
         // Adjust if menu would go off bottom edge
         if (top + menuHeight > window.innerHeight) {
             top = btnRect.top - menuHeight - 5;
         }
-        
+
         // Ensure coordinates are within viewport
         left = Math.max(10, left);
         top = Math.max(10, top);
-        
+
         $statusPopupMenu.css({
             left: left + 'px',
             top: top + 'px'
         });
-        
+
         // Show menu
         $statusPopupMenu.addClass('show');
         $(btnElement).addClass('active');
     }
-    
+
     // Status menu action handlers
     $(document).ready(function() {
         $('#statusBlockBtn').on('click', function() {
             if (currentStudentId) account_block(currentStudentId);
             closeAllPopupMenus();
         });
-        
+
         $('#statusUnblockBtn').on('click', function() {
             if (currentStudentId) account_unblock(currentStudentId);
             closeAllPopupMenus();
         });
-        
+
         $('#statusMuteBtn').on('click', function() {
             if (currentStudentId) account_mute(currentStudentId);
             closeAllPopupMenus();
         });
-        
+
         $('#statusUnmuteBtn').on('click', function() {
             if (currentStudentId) account_unmute(currentStudentId);
             closeAllPopupMenus();
         });
     });
-    
+
     // ============================================
     // ACTION POPUP MENU
     // ============================================
-    
+
     function toggleActionMenu(btn, event, studentId) {
         event.stopPropagation();
         event.preventDefault();
-        
+
         // Ensure we have a valid DOM element
         var btnElement = btn instanceof jQuery ? btn[0] : btn;
         var $btn = $(btnElement);
         var $row = $btn.closest('tr');
         var $dataSpan = $row.find('.action-data');
-        
+
         currentStudentId = $dataSpan.data('student-id');
         currentClassId = $dataSpan.data('class-id');
         currentActionData = {
@@ -1464,80 +1273,80 @@ body { background: #f8fafc; }
             idUrl: $dataSpan.data('id-url'),
             hasInvoice: $dataSpan.data('has-invoice')
         };
-        
+
         // Show/hide payment button based on invoice status
         if (currentActionData.hasInvoice == '1') {
             $('#actionPaymentBtn').show();
         } else {
             $('#actionPaymentBtn').hide();
         }
-        
+
         // If menu is already open, close it
         if ($actionPopupMenu && $actionPopupMenu.hasClass('show')) {
             closeAllPopupMenus();
             return;
         }
-        
+
         closeAllPopupMenus();
-        
+
         // Force menu to be rendered but hidden to get proper dimensions
         $actionPopupMenu.css({
             left: '-9999px',
             top: '-9999px'
         }).addClass('show');
-        
+
         // Get actual menu dimensions
         var menuWidth = $actionPopupMenu.outerWidth();
         var menuHeight = $actionPopupMenu.outerHeight();
-        
+
         // Hide again to reposition
         $actionPopupMenu.removeClass('show');
-        
+
         // Position the menu - getBoundingClientRect gives viewport-relative coordinates
         // which is correct for position: fixed elements
         var btnRect = btnElement.getBoundingClientRect();
-        
+
         var left = btnRect.left;
         var top = btnRect.bottom + 5;
-        
+
         // Adjust if menu would go off right edge
         if (left + menuWidth > window.innerWidth) {
             left = window.innerWidth - menuWidth - 10;
         }
-        
+
         // Adjust if menu would go off bottom edge
         if (top + menuHeight > window.innerHeight) {
             top = btnRect.top - menuHeight - 5;
         }
-        
+
         // Ensure coordinates are within viewport
         left = Math.max(10, left);
         top = Math.max(10, top);
-        
+
         $actionPopupMenu.css({
             left: left + 'px',
             top: top + 'px'
         });
-        
+
         // Show menu
         $actionPopupMenu.addClass('show');
         $btn.addClass('active');
     }
-    
+
     // Action menu handlers
     $(document).ready(function() {
         $('#actionPaymentBtn').on('click', function() {
             if (currentStudentId) invoice_pay_modal(currentStudentId);
             closeAllPopupMenus();
         });
-        
+
         $('#actionMarksheetBtn').on('click', function() {
             if (currentActionData && currentActionData.marksheetUrl) {
                 navigation(currentActionData.marksheetUrl);
             }
             closeAllPopupMenus();
         });
-        
+
         $('#actionSmsBtn').on('click', function() {
             if (currentActionData && currentActionData.smsUrl) {
                 check_sms_status();
@@ -1545,28 +1354,28 @@ body { background: #f8fafc; }
             }
             closeAllPopupMenus();
         });
-        
+
         $('#actionProfileBtn').on('click', function() {
             if (currentActionData && currentActionData.profileUrl) {
                 navigation(currentActionData.profileUrl);
             }
             closeAllPopupMenus();
         });
-        
+
         $('#actionEditBtn').on('click', function() {
             if (currentActionData && currentActionData.editUrl) {
                 showAjaxModal(currentActionData.editUrl);
             }
             closeAllPopupMenus();
         });
-        
+
         $('#actionIdBtn').on('click', function() {
             if (currentActionData && currentActionData.idUrl) {
                 showAjaxModal(currentActionData.idUrl);
             }
             closeAllPopupMenus();
         });
-        
+
         $('#actionDeleteBtn').on('click', function() {
             if (currentStudentId && currentClassId) {
                 deleteStudent(currentStudentId, currentClassId);

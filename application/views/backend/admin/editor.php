@@ -22,116 +22,116 @@
                         <?php
                             $count = 1;
                             $total_amount_received = 0;
-                            
+
                             if ($param3 == '') {
-                            	$this->db->select('receipt_code');
-                            	$this->db->distinct();
-                            	$this->db->from('payment');
-                            	//$this->db->where('invoice_code =', 0);
-                            	//$this->db->or_where('invoice_code !=', '');
-                            	$this->db->where('invoice_code !=', null);
-                            	$this->db->where('student_id', $student_id);
-                            	$this->db->order_by('receipt_code', 'desc');
-                            	$rec_code = $this->db->get()->result_array();
-                            
+                                $this->db->select('receipt_code');
+                                $this->db->distinct();
+                                $this->db->from('payment');
+                                //$this->db->where('invoice_code =', 0);
+                                //$this->db->or_where('invoice_code !=', '');
+                                $this->db->where('invoice_code !=', null);
+                                $this->db->where('student_id', $student_id);
+                                $this->db->order_by('receipt_code', 'desc');
+                                $rec_code = $this->db->get()->result_array();
+
                             } else if ($param3 != '' && $param4 != '') {
-                            	$this->db->select('receipt_code');
-                            	$this->db->distinct();
-                            	$this->db->from('payment');
-                            	//$this->db->where('invoice_code =', 0);
-                            	//$this->db->or_where('invoice_code !=', '');
-                            	$this->db->where('invoice_code !=', null);
-                            	$this->db->where('student_id', $student_id);
-                            	$this->db->where('year', $param3);
-                            
-                            	if ($class_name == 'JHSS') {
-                            		$this->db->where('sem', $param4);
-                            	} else {
-                            		$this->db->where('term', $param4);
-                            	}
-                            
-                            	$this->db->order_by('receipt_code', 'desc');
-                            	$rec_code = $this->db->get()->result_array();
-                            
+                                $this->db->select('receipt_code');
+                                $this->db->distinct();
+                                $this->db->from('payment');
+                                //$this->db->where('invoice_code =', 0);
+                                //$this->db->or_where('invoice_code !=', '');
+                                $this->db->where('invoice_code !=', null);
+                                $this->db->where('student_id', $student_id);
+                                $this->db->where('year', $param3);
+
+                                if ($class_name == 'JHSS') {
+                                    $this->db->where('sem', $param4);
+                                } else {
+                                    $this->db->where('term', $param4);
+                                }
+
+                                $this->db->order_by('receipt_code', 'desc');
+                                $rec_code = $this->db->get()->result_array();
+
                             } else {
-                            	$this->db->select('receipt_code');
-                            	$this->db->distinct();
-                            	$this->db->from('payment');
-                            	//$this->db->where('invoice_code =', 0);
-                            	//$this->db->or_where('invoice_code !=', '');
-                            	$this->db->where('invoice_code !=', null);
-                            	$this->db->where('student_id', $student_id);
-                            	//$this->db->where('day_timestamp', $param3);
-                            	$this->db->order_by('receipt_code', 'desc');
-                            	$rec_code = $this->db->get()->result_array();
+                                $this->db->select('receipt_code');
+                                $this->db->distinct();
+                                $this->db->from('payment');
+                                //$this->db->where('invoice_code =', 0);
+                                //$this->db->or_where('invoice_code !=', '');
+                                $this->db->where('invoice_code !=', null);
+                                $this->db->where('student_id', $student_id);
+                                //$this->db->where('day_timestamp', $param3);
+                                $this->db->order_by('receipt_code', 'desc');
+                                $rec_code = $this->db->get()->result_array();
                             }
-                            
+
                             foreach ($rec_code as $rec):
-                            
-                            	$payments = $this->db->get_where('payment', array(
-                            		'receipt_code' => $rec['receipt_code'],
-                            	))->result_array();
-                            
 
-                            		$total_amount_received += array_column($payments, 'amount');
+                                $payments = $this->db->get_where('payment', array(
+                                    'receipt_code' => $rec['receipt_code'],
+                                ))->result_array();
 
-                            
-                            	$timestamp = $this->db->get_where('payment', array(
-                            		'receipt_code' => $rec['receipt_code'],
-                            	))->row()->timestamp;
-                            
-                            	$year = $this->db->get_where('payment', array(
-                            		'receipt_code' => $rec['receipt_code'],
-                            	))->row()->year;
-                            
-                            	if ($class_name == 'JHSS') {
-                            		$sem = $this->db->get_where('payment', array(
-                            			'receipt_code' => $rec['receipt_code'],
-                            		))->row()->sem;
-                            	} else {
-                            		$term = $this->db->get_where('payment', array(
-                            			'receipt_code' => $rec['receipt_code'],
-                            		))->row()->term;
-                            	}
-                            
-                            	$method = $this->db->get_where('payment', array(
-                            		'receipt_code' => $rec['receipt_code'],
-                            	))->row()->method;
-                            	?>
+
+                                    $total_amount_received += array_column($payments, 'amount');
+
+
+                                $timestamp = $this->db->get_where('payment', array(
+                                    'receipt_code' => $rec['receipt_code'],
+                                ))->row()->timestamp;
+
+                                $year = $this->db->get_where('payment', array(
+                                    'receipt_code' => $rec['receipt_code'],
+                                ))->row()->year;
+
+                                if ($class_name == 'JHSS') {
+                                    $sem = $this->db->get_where('payment', array(
+                                        'receipt_code' => $rec['receipt_code'],
+                                    ))->row()->sem;
+                                } else {
+                                    $term = $this->db->get_where('payment', array(
+                                        'receipt_code' => $rec['receipt_code'],
+                                    ))->row()->term;
+                                }
+
+                                $method = $this->db->get_where('payment', array(
+                                    'receipt_code' => $rec['receipt_code'],
+                                ))->row()->method;
+                                ?>
                         <tr>
                             <td><?php echo $count++; ?></td>
                             <td><?php echo $rec['receipt_code']; ?></td>
                             <td style="font-weight: bolder; text-align: right"><?php echo numfmt_format_currency($fmt, $total_amount_received, $currency); ?></td>
                             <td>
                                 <?php
-                            	if ($method == 1) {
-                            		echo get_phrase('cash');
-                            	}
-                            
-                            	if ($method == 2) {
-                            		echo get_phrase('cheque');
-                            	}
-                            
-                            	if ($method == 3) {
-                            		echo get_phrase('card');
-                            	}
-                            
-                            	if ($method == 4) {
-                            		echo 'Mobile Money';
-                            	}
-                            
-                            	?>
+                                if ($method == 1) {
+                                    echo get_phrase('cash');
+                                }
+
+                                if ($method == 2) {
+                                    echo get_phrase('cheque');
+                                }
+
+                                if ($method == 3) {
+                                    echo get_phrase('card');
+                                }
+
+                                if ($method == 4) {
+                                    echo 'Mobile Money';
+                                }
+
+                                ?>
                     </td>
                     <td><?php echo date('d M, Y H:i:s', $timestamp); ?></td>
 
                     <?php
-                    	//convert zero invoice numbers
-                    	if ($param2[0] == 0) {
-                    		$in_code = '_' . $param2;
-                    	} else {
-                    		$in_code = $param2;
-                    	}
-                    	?>
+                        //convert zero invoice numbers
+                        if ($param2[0] == 0) {
+                            $in_code = '_' . $param2;
+                        } else {
+                            $in_code = $param2;
+                        }
+                        ?>
 	                                <td><button class="btn btn-info" onclick="modal_view_receipt('<?php echo $rec['receipt_code'] ?>', <?=$student_id . ',' . $total_amount_received . ',' . $timestamp;?>)"><i class="entypo-eye"></i><em> View Receipt</em></button></td>
 	                            </tr>
 	                        <?php
@@ -172,8 +172,12 @@ endforeach;
 
         if(receipt_style == 'style_1') {
             showAjaxModal_receipt('<?php echo site_url('modal/popup_receipt/modal_receipt/'); ?>' + receipt_code + '/' + student_id + '/' + total_amount_received + '/' + date_time, 'take_payment');
-        } else {
+        } else if(receipt_style == 'style_2') {
             showAjaxModal_receipt('<?php echo site_url('modal/popup_receipt/modal_receipt_2/'); ?>' + receipt_code + '/' + student_id + '/' + total_amount_received + '/' + date_time, 'take_payment');
+        } else if(receipt_style == 'style_3') {
+            showAjaxModal_receipt('<?php echo site_url('modal/popup_receipt/modal_receipt_3/'); ?>' + receipt_code + '/' + student_id + '/' + total_amount_received + '/' + date_time, 'take_payment');
+        } else if(receipt_style == 'style_thermal') {
+            window.open('<?php echo site_url('admin/receipt_print/'); ?>' + receipt_code + '/' + student_id + '/' + total_amount_received + '/' + date_time, '_blank');
         }
 
     }

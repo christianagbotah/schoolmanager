@@ -17,6 +17,25 @@
                         <div class="col-sm-5">
                             <input type="text" class="form-control" name="name" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" value="" autofocus required>
                         </div>
+              <div class="row">
+    <div class="col-md-8">
+        <div class="panel panel-primary" data-collapsed="0">
+            <div class="panel-heading">
+                <div class="panel-title" >
+                    <i class="entypo-plus-circled"></i>
+                    <?php echo get_phrase('addmission_form'); ?>
+                </div>
+            </div>
+            <div class="panel-body">
+
+                <?php echo form_open(site_url('teacher/student/create/'), array('class' => 'form-horizontal form-groups-bordered validate', 'enctype' => 'multipart/form-data')); ?>
+
+                <div class="form-group">
+                        <label for="field-1" class="col-sm-3 control-label"><?php echo get_phrase('name');?></label>
+
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" name="name" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" value="" autofocus required>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -91,7 +110,7 @@
                         <label for="field-2" class="col-sm-3 control-label"><?php echo get_phrase('gender');?></label>
 
                         <div class="col-sm-5">
-                            <select name="sex" class="form-control selectboxit">
+                            <select name="sex" class="form-control select2">
                               <option value=""><?php echo get_phrase('select');?></option>
                               <option value="male"><?php echo get_phrase('male');?></option>
                               <option value="female"><?php echo get_phrase('female');?></option>
@@ -134,7 +153,7 @@
                         <label for="field-2" class="col-sm-3 control-label"><?php echo get_phrase('dormitory');?></label>
 
                         <div class="col-sm-5">
-                            <select name="dormitory_id" class="form-control selectboxit">
+                            <select name="dormitory_id" class="form-control select2">
                               <option value=""><?php echo get_phrase('select');?></option>
                                   <?php
                                     $dormitories = $this->db->get('dormitory')->result_array();
@@ -150,7 +169,7 @@
                         <label for="field-2" class="col-sm-3 control-label"><?php echo get_phrase('transport_route');?></label>
 
                         <div class="col-sm-5">
-                            <select name="transport_id" class="form-control selectboxit">
+                            <select name="transport_id" class="form-control select2">
                               <option value=""><?php echo get_phrase('select');?></option>
                                   <?php
                                     $transports = $this->db->get('transport')->result_array();

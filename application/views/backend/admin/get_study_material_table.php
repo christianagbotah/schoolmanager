@@ -78,8 +78,8 @@
                         </div>
                       </td></tr>';
             }
-            
-            foreach ($study_material_info as $row) { 
+
+            foreach ($study_material_info as $row) {
                 $statusColour = $row['status'] == 'Pending' ? 'bg-yellow-400' : ($row['status'] == 'Approved' ? 'bg-green-500' : 'bg-red-500');
                 $statusBg = $row['status'] == 'Pending' ? 'bg-yellow-50' : ($row['status'] == 'Approved' ? 'bg-green-50' : 'bg-red-50');
                 $statusText = $row['status'] == 'Pending' ? 'text-yellow-700' : ($row['status'] == 'Approved' ? 'text-green-700' : 'text-red-700');
@@ -114,7 +114,7 @@
                 <td class="px-4 py-5">
                     <div class="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-3 py-2 rounded-lg font-medium text-base">
                         <i class="entypo-users"></i>
-                        <?php 
+                        <?php
                         $class = $this->db->get_where('class', array('class_id' => $row['class_id']))->row();
                         $section = $this->db->get_where('section', array('class_id' => $row['class_id']))->row();
                         $section_name = $section ? ' - ' . $section->name : '';
@@ -125,16 +125,22 @@
                 <td class="px-4 py-5">
                     <div class="inline-flex items-center gap-2 bg-purple-50 text-purple-700 px-3 py-2 rounded-lg font-medium text-base">
                         <i class="entypo-book"></i>
-                        <?php echo $this->db->get_where('subject', array('subject_id' => $row['subject_id']))->row()->name;?>
+                        <?php
+                        $subject = $this->db->get_where('subject', array('subject_id' => $row['subject_id']))->row();
+                        echo $subject ? $subject->name : 'N/A';
+                        ?>
                     </div>
                 </td>
                 <td class="px-4 py-5">
                     <div class="text-base text-gray-700 font-medium">
-                        <?php echo $this->db->get_where('teacher', array('teacher_id' => $row['teacher_id']))->row()->name;?>
+                        <?php
+                        $teacher = $this->db->get_where('teacher', array('teacher_id' => $row['teacher_id']))->row();
+                        echo $teacher ? $teacher->name : 'N/A';
+                        ?>
                     </div>
                 </td>
                 <td class="px-4 py-5">
-                    <a href="<?php echo base_url().$row['file_path']; ?>" 
+                    <a href="<?php echo base_url().$row['file_path']; ?>"
                        class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-semibold shadow-sm text-base transition hover:shadow-md">
                         <i class="entypo-download"></i>
                         <span>Download</span>
@@ -148,7 +154,7 @@
                 </td>
                 <td class="px-4 py-5">
                     <?php echo form_open('/admin/study_material/update_status', ['class' => 'w-full', 'id' => 'update_status_form']);?>
-                    <select class="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 font-medium cursor-pointer hover:bg-gray-100 transition" 
+                    <select class="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 font-medium cursor-pointer hover:bg-gray-100 transition"
                             onchange="updateStatus($(this).val(), <?= $row['document_id'];?>)">
                         <option value="">Change Status...</option>
                         <option value="Pending" <?= $row['status'] == 'Pending' ? 'selected' : '';?>>⏳ Pending</option>

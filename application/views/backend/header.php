@@ -1,4 +1,4 @@
-<?php 
+<?php
   $this->session->unset_userdata('flash_message');
   $this->session->unset_userdata('error_message');
 
@@ -85,7 +85,7 @@
 
         50%{
             opacity: 1;
-            
+
         }
         100%{
             opacity: 0;
@@ -142,7 +142,7 @@
     height: 4rem !important;
     font-weight: bold;
     font-size: 12px !important;
-    
+
   }
 
   .select2-container-multi {
@@ -203,8 +203,8 @@ $theme_accent = $this->db->get_where('settings', array('type' => 'theme_accent')
 }
 
 .sidebar-menu .logo-env {
-    background: linear-gradient(135deg, 
-        rgb(<?php echo max(0, hexdec(substr($theme_primary, 1, 2)) - 40); ?>, <?php echo max(0, hexdec(substr($theme_primary, 3, 2)) - 40); ?>, <?php echo max(0, hexdec(substr($theme_primary, 5, 2)) - 40); ?>) 0%, 
+    background: linear-gradient(135deg,
+        rgb(<?php echo max(0, hexdec(substr($theme_primary, 1, 2)) - 40); ?>, <?php echo max(0, hexdec(substr($theme_primary, 3, 2)) - 40); ?>, <?php echo max(0, hexdec(substr($theme_primary, 5, 2)) - 40); ?>) 0%,
         rgb(<?php echo max(0, hexdec(substr($theme_secondary, 1, 2)) - 40); ?>, <?php echo max(0, hexdec(substr($theme_secondary, 3, 2)) - 40); ?>, <?php echo max(0, hexdec(substr($theme_secondary, 5, 2)) - 40); ?>) 100%) !important;
 }
 
@@ -228,38 +228,136 @@ a.text-primary:hover {
 
 <!-- Metro Toggle Button Styles - Always available -->
 <style>
-.metro-toggle-btn { 
-    width: 25px; 
-    height: 50px; 
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05)); 
-    border: 2px solid rgba(255, 255, 255, 0.3); 
-    border-top-left-radius: 8px; 
-    border-bottom-left-radius: 8px; 
-    border-right: none; 
-    cursor: pointer; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    color: white; 
-    font-size: 14px; 
-    transition: all 0.3s ease; 
-    backdrop-filter: blur(10px); 
-    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2); 
+.metro-toggle-btn {
+    width: 25px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-right: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
 }
-.metro-toggle-btn:hover { 
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1)); 
-    width: 28px; 
+.metro-toggle-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1));
+    width: 28px;
 }
-.metro-toggle-btn i { 
-    transition: all 0.3s ease; 
+.metro-toggle-btn i {
+    transition: all 0.3s ease;
+}
+</style>
+
+<!-- Mobile Sidebar Backdrop Styles - iOS Fix -->
+<style>
+/* Mobile sidebar backdrop for iOS compatibility */
+.sidebar-mobile-backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 999; /* Below sidebar but above content */
+	display: block;
+	-webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+	touch-action: none; /* Prevent scrolling on iOS */
+}
+
+/* Prevent body scroll when mobile menu is open */
+body.sidebar-mobile-open {
+	overflow: hidden;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+}
+
+/* Ensure sidebar is above backdrop */
+.sidebar-menu {
+	z-index: 1000 !important;
+}
+
+.page-container .sidebar-menu .main-menu {
+	z-index: 1000 !important;
+}
+
+/* iOS-specific touch improvements */
+@supports (-webkit-touch-callout: none) {
+	/* iOS-only styles */
+	.sidebar-mobile-backdrop {
+		-webkit-transform: translateZ(0); /* Force hardware acceleration */
+		transform: translateZ(0);
+	}
+
+	.sidebar-menu .main-menu {
+		-webkit-overflow-scrolling: touch;
+		-webkit-transform: translateZ(0);
+		transform: translateZ(0);
+	}
+}
+
+/* Collapsed sidebar hover submenu styles */
+.page-container.sidebar-collapsed #main-menu > li > ul {
+	display: none;
+}
+
+.page-container.sidebar-collapsed #main-menu > li > ul.hover-submenu-visible {
+	display: block !important;
+	position: fixed !important;
+	left: 70px !important;
+	min-width: 200px;
+	max-width: 280px;
+	background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+	border-radius: 8px;
+	box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+	border: 1px solid rgba(255,255,255,0.1);
+	z-index: 1001 !important;
+	padding: 8px 0;
+	margin: 0 !important;
+	list-style: none;
+}
+
+.page-container.sidebar-collapsed #main-menu > li > ul.hover-submenu-visible li {
+	position: relative;
+	display: block !important;
+	width: 100%;
+	float: none !important;
+}
+
+.page-container.sidebar-collapsed #main-menu > li > ul.hover-submenu-visible li a {
+	display: block !important;
+	padding: 10px 20px !important;
+	color: #e2e8f0 !important;
+	text-decoration: none !important;
+	transition: all 0.3s ease;
+	white-space: nowrap;
+}
+
+.page-container.sidebar-collapsed #main-menu > li > ul.hover-submenu-visible li a:hover {
+	background: rgba(255,255,255,0.1);
+	color: #fff !important;
+	padding-left: 25px !important;
+}
+
+.page-container.sidebar-collapsed #main-menu > li > ul.hover-submenu-visible li a i {
+	margin-right: 10px;
+	width: 20px;
+	text-align: center;
 }
 </style>
 
 <div class="flex flex-col w-full max-w-full py-3 md:py-5 fixed top-0 left-0 right-0 px-4 md:px-10 border-b-4 border-red-500" style="background-color: #0a0069; z-index: 100;" id="top">
 	<div class="col-md-12 col-sm-12 col-xs-12 clearfix" style="text-align:center; position: relative;">
 		<h2 id="sys_name"  style="font-weight:200; margin:0px; color: #fff !important;"><small><span id="notice_term" class="pull-left text-lg font-bold mt-4"><?php echo $term_notice; ?></span></small> <small><span id="notice_sem2" class="pull-left"><?php echo $sem_notice; ?></span></small> <span class="font-bold md:font-extrabold text-gray-300 text-base sm:text-lg md:text-2xl lg:text-4xl"><?php echo $system_name;?></span> </h2>
-		
-		<?php 
+
+		<?php
 	    // Show metro toggle button for all admin pages (not just dashboard)
 	    if($account_type == 'admin' && $admin_level < 4):
 	    ?>
@@ -270,7 +368,7 @@ a.text-primary:hover {
 		<?php endif; ?>
     </div>
 
-    <?php 
+    <?php
     // Include the metro menu on all admin pages (not just dashboard)
     if($account_type == 'admin' && $admin_level < 4) {
         $data = array(
@@ -279,7 +377,7 @@ a.text-primary:hover {
         );
         $this->load->view('backend/admin/metro_menu', $data);
     }
-    ?>  
+    ?>
 
 	<!-- Raw Links -->
 	<div class="flex flex-wrap gap-2 md:gap-4 w-full max-w-full col-md-12 col-sm-12 col-xs-12 clearfix" style="margin-top: 20px;">
@@ -290,7 +388,7 @@ a.text-primary:hover {
 	        	<div id="session_static" style="background-color: #21a9e1;" class="p-2 rounded-lg">
 		           <li>
 		           		<h4 class="m-0">
-		           			<?php 
+                            <?php
 		           			$admin_level = 0;
 		           			if($account_type == 'admin') {
 		           				$admin_level = $this->db->get_where('admin', array('admin_id' => $this->session->userdata('admin_id')))->row()->level;
@@ -308,7 +406,7 @@ a.text-primary:hover {
 		           </li>
 	           </div>
 	        </ul>
-	        
+
 	        <ul class="list-inline links-list">
 	        	<div id="term_static" style="background-color: #21a9e1;" class="p-2 rounded-lg">
 		           <li>
@@ -344,11 +442,11 @@ a.text-primary:hover {
              </li>
            </div>
         </ul>-->
-		
+
 		<!-- Mobile Hamburger Menu -->
 		<div class="sidebar-menu  visible:xs visible:sm md:hidden">
 			<header class="border-b border-white/10 block md:block">
-				
+
 				<div class="sidebar-mobile-menu mt-5">
 					<a href="#" class="with-animation">
 						<i class="fa fa-bars text-4xl text-white"></i>
@@ -357,13 +455,13 @@ a.text-primary:hover {
 			</header>
 		</div>
 		<ul class="list-inline links-list flex flex-wrap items-center justify-end gap-2 md:gap-4 ml-auto" style="margin-bottom: 15px;">
-						
-		  <?php 
+
+		  <?php
 		  if($account_type == 'admin') {
 			  $admin_level = $this->db->get_where('admin', array('admin_id' => $this->session->userdata('admin_id')))->row()->level;
 			  if($admin_level < 4): // Not cashier
 		  ?>
-		  
+
 		  <!-- Drive List Button -->
 		  <li>
 			<button onclick="window.open('<?php echo site_url('admin/drive_list_page'); ?>', '_blank')" class="px-3 md:px-6 py-2 md:py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-sm md:text-base">
@@ -371,7 +469,7 @@ a.text-primary:hover {
 				<span class="hidden md:inline">Drive List</span>
 			</button>
 		  </li>
-		  
+
 		  <!-- Billing Button -->
 		  <li>
 			<button onclick="navigation('<?php echo site_url('admin/student_invoice'); ?>')" class="px-3 md:px-6 py-2 md:py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-sm md:text-base">
@@ -379,7 +477,7 @@ a.text-primary:hover {
 				<span class="hidden md:inline">Billing</span>
 			</button>
 		  </li>
-		  
+
 		  <!-- Take Payment Button -->
 		  <li>
 			<button onclick="showAjaxModal('<?php echo site_url('modal/popup/modal_take_payment/0'); ?>', 'take_payment')" class="px-3 md:px-6 py-2 md:py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-sm md:text-base">
@@ -390,7 +488,7 @@ a.text-primary:hover {
 		  <?php endif; }?>
 
 		  <!-- Notification Bell - Only for Super Admin -->
-		  <?php 
+		  <?php
 		  $show_notifications = true;
 		  if($account_type == 'admin') {
 			  $admin_level = $this->db->get_where('admin', array('admin_id' => $this->session->userdata('admin_id')))->row()->level;
@@ -398,9 +496,9 @@ a.text-primary:hover {
 				  $show_notifications = false;
 			  }
 		  }
-		  if($show_notifications): 
+		  if($show_notifications):
 		  ?>
-		  <li class="dropdown" id="notification_bell">
+		  <li class="dropdown" id="notification_bell" style="display: none;">
 			<a href="#" class="notification-bell-trigger" data-toggle="dropdown" aria-label="Notifications">
 				<div class="notification-icon-wrapper">
 					<i class="fa fa-bell"></i>
@@ -546,7 +644,7 @@ a.text-primary:hover {
 				<?php endif;?>
 			</li>
 		</ul>
-		
+
 	</div>
     <div class="flex gap-10 items-center hidden">
     	<div class="">
@@ -581,10 +679,10 @@ a.text-primary:hover {
                                  </div>
                               </div>
                            </div>
-                              
+
                            <!-- last list item -->
                            <div id="message_list_holder">
-                              
+
                            </div>
                         </div>
                         <!-- END list group-->
@@ -618,10 +716,10 @@ a.text-primary:hover {
                                  </div>
                               </div>
                            </div>
-                              
+
                            <!-- last list item -->
                            <div id="momo_message_list_holder">
-                              
+
                            </div>
                         </div>
                         <!-- END list group-->
@@ -631,7 +729,7 @@ a.text-primary:hover {
                </li>
            <?php endif; ?>
             </ul>
-            
+
        </div>
     </div>
 </div>
@@ -678,14 +776,14 @@ a.text-primary:hover {
 		animation: slideDown 0.3s ease-out;
 		margin-top: 8px !important;
 	}
-	
+
 	.sidebar-mobile-menu-btn {
 		border: none !important;
 		outline: none !important;
 		background: transparent !important;
 		box-shadow: none !important;
 	}
-	
+
 	.sidebar-mobile-menu-btn:hover,
 	.sidebar-mobile-menu-btn:focus,
 	.sidebar-mobile-menu-btn:active {
@@ -775,8 +873,7 @@ a.text-primary:hover {
 			font-size: 14px !important;
 		}
 	}
-
-	/* Modern Notification Bell Styles */
+	/* Modern Notification Bell Styles - Fixed Version */
 	#notification_bell {
 		position: relative;
 	}
@@ -849,37 +946,39 @@ a.text-primary:hover {
 	}
 
 	.notification-dropdown {
-		position: fixed !important;
-		top: 80px !important;
-		right: 16px !important;
+		position: absolute !important;
+		top: 100% !important;
+		right: 0 !important;
 		left: auto !important;
-		width: 380px;
+		width: 400px;
 		max-width: calc(100vw - 32px);
 		background: #ffffff;
 		border-radius: 16px;
-		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
 		border: none;
 		padding: 0;
-		margin: 0 !important;
-		animation: dropdownSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		margin-top: 8px !important;
+		animation: dropdownSlide 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 		overflow: hidden;
 		z-index: 1060 !important;
 		transform-origin: top right;
 		display: none;
+		max-height: calc(100vh - 100px);
 	}
 
 	#notification_bell.open .notification-dropdown {
-		display: block !important;
+		display: flex !important;
+		flex-direction: column;
 	}
 
 	@keyframes dropdownSlide {
 		from {
 			opacity: 0;
-			transform: translateY(-10px);
+			transform: translateY(-10px) scale(0.95);
 		}
 		to {
 			opacity: 1;
-			transform: translateY(0);
+			transform: translateY(0) scale(1);
 		}
 	}
 
@@ -887,14 +986,15 @@ a.text-primary:hover {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 16px 20px;
+		padding: 18px 20px;
 		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 		border-bottom: none;
+		flex-shrink: 0;
 	}
 
 	.notification-header h4 {
 		margin: 0;
-		font-size: 16px;
+		font-size: 17px;
 		font-weight: 700;
 		color: #ffffff;
 		letter-spacing: 0.3px;
@@ -902,20 +1002,25 @@ a.text-primary:hover {
 
 	.notification-count-text {
 		font-size: 12px;
-		color: rgba(255, 255, 255, 0.9);
+		color: rgba(255, 255, 255, 0.95);
 		background: rgba(255, 255, 255, 0.2);
-		padding: 4px 10px;
+		padding: 5px 12px;
 		border-radius: 12px;
 		font-weight: 600;
+		backdrop-filter: blur(10px);
 	}
 
 	.notification-body {
 		padding: 0;
 		margin: 0;
+		flex: 1;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.notification-list {
-		max-height: 420px;
+		flex: 1;
 		overflow-y: auto;
 		overflow-x: hidden;
 		scrollbar-width: thin;
@@ -1163,13 +1268,9 @@ a.text-primary:hover {
 	/* Responsive Design */
 	@media (max-width: 768px) {
 		.notification-dropdown {
-			width: 340px;
-			right: 12px !important;
-			max-width: calc(100vw - 24px);
-		}
-
-		.notification-list {
-			max-height: 360px;
+			width: 360px;
+			right: 8px !important;
+			max-width: calc(100vw - 16px);
 		}
 
 		.notification-item {
@@ -1193,61 +1294,25 @@ a.text-primary:hover {
 
 	@media (max-width: 480px) {
 		.notification-dropdown {
-			position: fixed !important;
-			top: 80px !important;
-			bottom: auto !important;
-			left: 8px !important;
+			width: calc(100vw - 16px);
 			right: 8px !important;
-			width: auto !important;
-			max-width: none !important;
-			border-radius: 16px;
-			max-height: calc(100vh - 100px);
-			margin: 16px 0 0 0 !important;
-		}
-
-		#notification_bell.open .notification-dropdown {
-			display: flex !important;
-			flex-direction: column;
 		}
 
 		.notification-header {
 			padding: 14px 16px;
-			flex-shrink: 0;
 		}
 
 		.notification-header h4 {
 			font-size: 15px;
 		}
 
-		.notification-body {
-			flex: 1;
-			overflow: hidden;
+		.notification-actions {
+			flex-direction: column;
 		}
 
-		.notification-list {
-			max-height: none;
-			height: 100%;
-		}
-
-		.notification-item {
-			gap: 10px;
-			padding: 10px 14px;
-		}
-
-		.notification-icon {
-			width: 32px;
-			height: 32px;
-			font-size: 14px;
-		}
-
-		.notification-icon-wrapper .fa-bell {
-			font-size: 20px;
-		}
-
-		.notification-badge {
-			min-width: 16px;
-			height: 16px;
-			font-size: 9px;
+		.btn-mark-all,
+		.btn-clear-all {
+			width: 100%;
 		}
 	}
 
@@ -1260,22 +1325,32 @@ a.text-primary:hover {
 
 		.notification-item {
 			border-bottom-color: #334155;
+			color: #e2e8f0 !important;
 		}
 
 		.notification-item:hover {
-			background: rgba(51, 65, 85, 0.3);
+			background: rgba(102, 126, 234, 0.1);
+		}
+
+		.notification-item.unread {
+			background: #1e3a5f;
 		}
 
 		.notification-title {
-			color: #f1f5f9;
+			color: #f1f5f9 !important;
 		}
 
 		.notification-message {
-			color: #cbd5e1;
+			color: #cbd5e1 !important;
 		}
 
 		.notification-time {
-			color: #94a3b8;
+			color: #94a3b8 !important;
+		}
+
+		.notification-footer {
+			background: #0f172a;
+			border-top-color: #334155;
 		}
 
 		.notification-empty i {
@@ -1287,19 +1362,17 @@ a.text-primary:hover {
 		}
 	}
 
-
-
-
-
-
 </style>
+
+<hr style="margin-top:0px;" />
+<table class="table table-h"></table>
 
 <script type="text/javascript">
 	$ = jQuery;
 
 	//var block_int = null;
 
-	
+
 
 	/**$(function() {
 
@@ -1353,9 +1426,9 @@ a.text-primary:hover {
 				//redirect user to the login page after the login here button is clicked
 				$(document).on('hidden.bs.modal', '#modal_idle_user', function() {
 					window.location.href = '<?php echo site_url('login/logout'); ?>';
-				});			
+				});
 			}
-		}		
+		}
 	}); **/
 
   $('#mega_link').click(function(event) {
@@ -1372,8 +1445,8 @@ a.text-primary:hover {
                 //cache: false,
                 data: {
                     '<?php echo $this->security->get_csrf_token_name(); ?>': '<?php echo $this->security->get_csrf_hash(); ?>'
-                } 
-             }); 
+                }
+             });
 /**
          check_internal_m();
          setInterval(() => {
@@ -1404,7 +1477,7 @@ a.text-primary:hover {
         	});
         }
           **/
-        
+
 
        });
 
@@ -1413,7 +1486,7 @@ a.text-primary:hover {
     //check if there's internet connectivity
     const checkOnlineStatus = async () => {
         try {
-            const response = await fetch('https://jsonplaceholder.typicode.com/posts?id=1', 
+            const response = await fetch('https://jsonplaceholder.typicode.com/posts?id=1',
             );
             console.log(response.status);
             return true;
@@ -1439,7 +1512,7 @@ a.text-primary:hover {
 
 	function get_term_changer()
 	{
-        
+
 		$.ajax({
             url: '<?php echo site_url('admin/get_term_changer');?>',
             success: function(response)
@@ -1470,7 +1543,7 @@ a.text-primary:hover {
 			}else {
 				$('#webs').text('This service is not available.');
 			}
-			
+
 		});
 	});
 
@@ -1478,7 +1551,7 @@ a.text-primary:hover {
 		/**update payment alert for admin
 		setInterval(function() {
 			notifications(); notifications_rows();
-		}, 600); 
+		}, 600);
 
 		var marked_read = '';
 		var user_id = '';
@@ -1511,7 +1584,7 @@ a.text-primary:hover {
 						$('#bell').css({'color': '#1325ab'});
 					}
 				}
-				
+
 			});
 		}**/
 
@@ -1577,7 +1650,7 @@ a.text-primary:hover {
             $('#att_alert h3').fadeIn('500');
           } else {
 
-          }     
+          }
         }
       });
 
@@ -1591,7 +1664,7 @@ a.text-primary:hover {
         url: '<?php echo site_url('admin/att_update_show'); ?>',
         success: function(response) {
           $('#unmarked_tb').fadeIn('500');
-          $('table #att_list_holder').html(response);       
+          $('table #att_list_holder').html(response);
         }
       });
     }); **/
@@ -1607,10 +1680,10 @@ a.text-primary:hover {
    //  $('body').click(function(event) {
       /* Act on the event */
    //   $('#unmarked_tb').fadeOut('slow');
- //   }); 
+ //   });
 
 
-             
+
 </script>
 
 <!-- Global Base URL for JavaScript -->
@@ -1633,16 +1706,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (userId && syncManager) {
         syncManager.setUserId(userId);
     }
-    
+
     // Auto-add data-sync to all forms
     document.querySelectorAll('form').forEach(form => {
         if (!form.hasAttribute('data-no-sync')) {
             form.setAttribute('data-sync', '');
         }
     });
-    
+
     // Service worker removed - using local WAMP + cloud sync approach instead
-    
+
     // Test connection status on load
     setTimeout(() => {
         if (typeof syncManager !== 'undefined') {
@@ -1676,7 +1749,7 @@ $(document).ready(function() {
 		e.stopPropagation();
 		$('#info').toggleClass('open');
 	});
-	
+
 	$(document).on('click', function(e) {
 		if (!$(e.target).closest('#info').length) {
 			$('#info').removeClass('open');
@@ -1705,7 +1778,7 @@ function loadNotifications() {
 			if(response.status === 'success') {
 				const count = response.count || 0;
 				const notifications = response.notifications || [];
-				
+
 				const $badge = $('#notification_badge');
 				if(count > 0) {
 					$badge.text(count > 99 ? '99+' : count).addClass('active');
@@ -1716,13 +1789,13 @@ function loadNotifications() {
 					$('#notification_count').text('No new notifications');
 					$('#btn_mark_all').hide();
 				}
-				
+
 				if(notifications.length > 0) {
 					$('#btn_clear_all').show();
 				} else {
 					$('#btn_clear_all').hide();
 				}
-				
+
 				if(notifications.length > 0) {
 					let html = '';
 					notifications.forEach(function(notif) {
@@ -1738,14 +1811,14 @@ function loadNotifications() {
 						};
 						const icon = iconMap[notif.type] || 'fa-bell';
 						const timeAgo = notif.time_ago || 'Just now';
-						
+
 						let actionLink = '';
 						if(notif.type === 'discount_approval') {
 							actionLink = `<a href="<?php echo site_url('admin/discount_approvals'); ?>" class="notification-action-btn" onclick="event.stopPropagation();"><i class="fa fa-external-link-alt"></i> Review Discount</a>`;
 						} else if(notif.type === 'invoice_delete_approval') {
 							actionLink = `<a href="<?php echo site_url('admin/manageRequestApproval'); ?>" class="notification-action-btn" onclick="event.stopPropagation();"><i class="fa fa-external-link-alt"></i> Review Request</a>`;
 						}
-						
+
 						html += `
 							<div class="notification-item ${notif.is_read == 0 ? 'unread' : ''}" onclick="showNotificationDetails(${notif.notification_id})">
 								<div class="notification-icon">
@@ -1785,14 +1858,15 @@ function loadNotifications() {
 
 function showNotificationDetails(notificationId) {
 	$('#notification_bell').removeClass('open');
-	
+
+	// Show loading state
 	if(typeof showAjaxModal_alert !== 'function') {
 		$('#notificationDetailsModal .modal-body').html('<div style="text-align:center;padding:40px;"><div class="loader-spinner"></div><p style="margin-top:20px;color:#667eea;font-weight:600;">Loading...</p></div>');
 		$('#notificationDetailsModal').modal('show');
 	} else {
 		showAjaxModal_alert('Loading notification...', 'loading');
 	}
-	
+
 	$.ajax({
 		url: '<?php echo site_url($account_type . '/get_notification_details/'); ?>' + notificationId,
 		type: 'GET',
@@ -1801,11 +1875,19 @@ function showNotificationDetails(notificationId) {
 			if(typeof showAjaxModal_alert === 'function') {
 				$('#modal_alert').modal('hide');
 			}
-			
+
 			if(response.status === 'success') {
 				const notif = response.notification;
-				const data = notif.data ? JSON.parse(notif.data) : {};
-				
+				const routeUrl = response.route_url;
+				const actionLabel = response.action_label || 'View Details';
+				const data = notif.data ? (typeof notif.data === 'string' ? JSON.parse(notif.data) : notif.data) : {};
+
+				// If route URL exists, navigate directly
+				if(routeUrl) {
+					window.location.href = routeUrl;
+					return;
+				}
+
 				const iconMap = {
 					'admission': 'user-plus',
 					'payment': 'money-bill-wave',
@@ -1815,7 +1897,7 @@ function showNotificationDetails(notificationId) {
 					'success': 'check-circle'
 				};
 				const icon = iconMap[notif.type] || 'bell';
-				
+
 				let content = `
 					<div style="padding:20px;">
 						<div style="display:flex;align-items:center;gap:15px;margin-bottom:20px;">
@@ -1831,7 +1913,7 @@ function showNotificationDetails(notificationId) {
 							<p style="color:#334155;font-size:15px;line-height:1.6;margin:0;">${notif.message}</p>
 						</div>
 				`;
-				
+
 				if(data.student_name) {
 					content += `
 						<div style="border-top:1px solid #e2e8f0;padding-top:20px;">
@@ -1882,9 +1964,9 @@ function showNotificationDetails(notificationId) {
 						</div>
 					`;
 				}
-				
+
 				content += '</div>';
-				
+
 				let actions = '';
 				if(notif.type === 'admission' && data.student_id) {
 					actions = `
@@ -1893,14 +1975,14 @@ function showNotificationDetails(notificationId) {
 						</button>
 					`;
 				}
-				
+
 				$('#notificationDetailsModal .modal-body').html(content);
 				$('#notificationDetailsModal .modal-footer').html(`
 					${actions}
 					<button class="btn modern-btn modern-btn-cancel" data-dismiss="modal">Close</button>
 				`);
 				$('#notificationDetailsModal').modal('show');
-				
+
 				if(notif.is_read == 0) {
 					$.post('<?php echo site_url($account_type . '/mark_as_read/'); ?>' + notificationId, function() {
 						loadNotifications();
@@ -1927,7 +2009,7 @@ function viewStudent(studentId) {
 function markAllAsRead() {
 	const $btn = $('#btn_mark_all');
 	$btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Marking...');
-	
+
 	$.ajax({
 		url: '<?php echo site_url('admin/mark_all_read'); ?>',
 		type: 'POST',
@@ -1953,7 +2035,7 @@ function clearAllNotifications() {
 		function() {
 			const $btn = $('#btn_clear_all');
 			$btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Clearing...');
-			
+
 			$.ajax({
 				url: '<?php echo site_url('admin/clear_all_notifications'); ?>',
 				type: 'POST',
@@ -1988,14 +2070,14 @@ $(document).ready(function() {
 	// Initialize notification system
 	loadNotifications();
 	//setInterval(loadNotifications, 30000);
-	
+
 	// Handle dropdown toggle
 	$('.notification-bell-trigger').on('click', function(e) {
 		e.preventDefault();
 		e.stopPropagation();
 		$('#notification_bell').toggleClass('open');
 	});
-	
+
 	// Close dropdown when clicking outside
 	$(document).on('click', function(e) {
 		if (!$(e.target).closest('#notification_bell').length) {
@@ -2008,14 +2090,14 @@ $(document).ready(function() {
 function handleNotificationClick(event, tabId) {
 	event.preventDefault();
 	event.stopPropagation();
-	
+
 	// Close notification dropdown
 	$('#notification_bell').removeClass('open');
-	
+
 	// Check if we're already on the student_invoice page
 	const currentUrl = window.location.href;
 	const targetUrl = '<?php echo site_url('admin/student_invoice'); ?>';
-	
+
 	if (currentUrl.includes('student_invoice')) {
 		// Already on the page, just activate the tab
 		$('a[href="#' + tabId + '"]').tab('show');
@@ -2032,7 +2114,7 @@ function handleNotificationClick(event, tabId) {
 (function() {
     function handleSelect2Responsive() {
         const isMobile = window.innerWidth < 768;
-        
+
         if (isMobile) {
             // Destroy select2 on mobile devices
             // IMPORTANT: Only target actual <select> elements, not generated containers
@@ -2054,19 +2136,19 @@ function handleNotificationClick(event, tabId) {
             });
         }
     }
-    
+
     // Run on page load
     $(document).ready(function() {
         handleSelect2Responsive();
     });
-    
+
     // Run on window resize with debounce
     let resizeTimer;
     $(window).on('resize', function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(handleSelect2Responsive, 250);
     });
-    
+
     // Run on AJAX complete for dynamically loaded content
     $(document).ajaxComplete(function() {
         setTimeout(handleSelect2Responsive, 100);

@@ -218,52 +218,65 @@ class Finance_model extends MY_Model {
     public function update_student_ledger_for_invoice($invoice_code, $student_id) {
         if(!$this->db->table_exists('student_ledger')) return ['status' => 'skipped'];
 
-        // The invoice table stores the post-discount amount. Add the active approved
-        // discount allocations back so the invoice ledger reference represents the
-        // base billed amount, while discount references carry their own credits.
-        $invoice_total_row = $this->db->select('COALESCE(SUM(amount),0) AS total', false)
-            ->where('invoice_code', $invoice_code)
-            ->where('student_id', $student_id)
-            ->get('invoice')->row_array();
-        $invoice_total = (float)($invoice_total_row['total'] ?? 0);
+        $invoice_items = $this->db->where('invoice_code', $invoice_code)->get('invoice')->result();
+        $total_amount = 0;
+        foreach($invoice_items as $item) {
+            $total_amount += $item->amount;
+        }
 
-        // Use the approved discount record as the source of truth. Older data may
-        // have a valid approved discount whose per-item allocation rows are missing.
-        $discount_total_row = $this->db->select('COALESCE(SUM(discount_amount),0) AS total', false)
-            ->where('invoice_code', $invoice_code)
-            ->where('student_id', $student_id)
-            ->where('status', 'approved')
-            ->get('invoice_discounts')->row_array();
-        $discount_total = (float)($discount_total_row['total'] ?? 0);
-        $desired_effect = round($invoice_total + $discount_total, 2);
+        $current_balance = $this->get_student_ledger_balance($student_id);
+        $new_balance = $current_balance + $total_amount;
 
-        return $this->reconcile_ledger_effect(
-            (int)$student_id,
-            'invoice',
-            (string)$invoice_code,
-            $desired_effect,
-            'invoice',
-            'Invoice synchronized: ' . $invoice_code,
-            get_settings('running_year'),
-            get_settings('running_term')
-        );
+        $this->db->insert('student_ledger', [
+            'student_id' => $student_id,
+            'transaction_date' => date('Y-m-d'),
+            'transaction_type' => 'invoice',
+            'reference_type' => 'invoice',
+            'reference_id' => $invoice_code,
+            'description' => 'Invoice created: ' . $invoice_code,
+            'debit_amount' => $total_amount,
+            'credit_amount' => 0,
+            'balance' => $new_balance,
+            'year' => get_settings('running_year'),
+            'term' => get_settings('running_term'),
+            'created_by' => $this->session->userdata('admin_id') ?: 1,
+            'created_at' => time()
+        ]);
+
+        if($this->db->field_exists('synced_to_ledger', 'invoice')) {
+            $this->db->where('invoice_code', $invoice_code)
+                ->update('invoice', ['synced_to_ledger' => 1, 'ledger_entry_id' => $this->db->insert_id()]);
+        }
+
+        return ['status' => 'success', 'ledger_id' => $this->db->insert_id()];
     }
 
     public function update_student_ledger_for_payment($payment_id) {
         if(!$this->db->table_exists('student_ledger')) return ['status' => 'skipped'];
+
         $payment = $this->db->where('payment_id', $payment_id)->get('payment')->row();
         if(!$payment) return ['status' => 'error', 'message' => 'Payment not found'];
 
-        return $this->reconcile_ledger_effect(
-            (int)$payment->student_id,
-            'payment',
-            (string)$payment_id,
-            -round((float)$payment->amount, 2),
-            'payment',
-            'Payment synchronized - ' . (string)$payment->payment_method,
-            $payment->year,
-            $payment->term
-        );
+        $current_balance = $this->get_student_ledger_balance($payment->student_id);
+        $new_balance = $current_balance - $payment->amount;
+
+        $this->db->insert('student_ledger', [
+            'student_id' => $payment->student_id,
+            'transaction_date' => date('Y-m-d', $payment->timestamp),
+            'transaction_type' => 'payment',
+            'reference_type' => 'payment',
+            'reference_id' => $payment_id,
+            'description' => 'Payment received - ' . $payment->payment_method,
+            'debit_amount' => 0,
+            'credit_amount' => $payment->amount,
+            'balance' => $new_balance,
+            'year' => $payment->year,
+            'term' => $payment->term,
+            'created_by' => $this->session->userdata('admin_id') ?: 1,
+            'created_at' => time()
+        ]);
+
+        return ['status' => 'success', 'ledger_id' => $this->db->insert_id()];
     }
 
     public function get_student_ledger_balance($student_id) {
@@ -276,83 +289,29 @@ class Finance_model extends MY_Model {
         return $last_entry ? $last_entry->balance : 0;
     }
 
-    public function update_student_ledger_for_discount($invoice_code, $student_id, $discount_amount, $discount_id = null) {
+    public function update_student_ledger_for_discount($invoice_code, $student_id, $discount_amount) {
         if(!$this->db->table_exists('student_ledger')) return ['status' => 'skipped'];
-        $ledger_reference = $discount_id ? ($invoice_code . ':discount:' . (int)$discount_id) : $invoice_code;
-        return $this->reconcile_ledger_effect(
-            (int)$student_id,
-            'discount',
-            (string)$ledger_reference,
-            -round(max(0, (float)$discount_amount), 2),
-            'discount',
-            'Discount synchronized for invoice: ' . $invoice_code . ($discount_id ? ' [discount #' . (int)$discount_id . ']' : ''),
-            get_settings('running_year'),
-            get_settings('running_term')
-        );
-    }
 
-    /**
-     * Reconcile one ledger reference to a deterministic balance effect.
-     * Positive desired_effect = debit / increases student balance.
-     * Negative desired_effect = credit / decreases student balance.
-     * Repeating the same call is a no-op once the reference is reconciled.
-     */
-    public function reconcile_ledger_effect($student_id, $reference_type, $reference_id, $desired_effect, $initial_type = 'adjustment', $description = '', $year = null, $term = null) {
-        if(!$this->db->table_exists('student_ledger')) return ['status' => 'skipped'];
-        $student_id = (int)$student_id;
-        $reference_type = (string)$reference_type;
-        $reference_id = (string)$reference_id;
-        $desired_effect = round((float)$desired_effect, 2);
-        if(!$student_id || $reference_id === '') return ['status'=>'error','message'=>'Invalid ledger reference'];
-
-        $this->db->trans_start();
-        // Serialize ledger reconciliation per student so concurrent approvals cannot
-        // both calculate from the same balance/reference state.
-        $this->db->query('SELECT student_id FROM student WHERE student_id = ? FOR UPDATE', [$student_id]);
-
-        $effect_row = $this->db->select('COUNT(*) AS entries, COALESCE(SUM(debit_amount - credit_amount),0) AS net_effect', false)
-            ->where('student_id', $student_id)
-            ->where('reference_type', $reference_type)
-            ->where('reference_id', $reference_id)
-            ->get('student_ledger')->row_array();
-        $existing_effect = round((float)($effect_row['net_effect'] ?? 0), 2);
-        $entries = (int)($effect_row['entries'] ?? 0);
-        $delta = round($desired_effect - $existing_effect, 2);
-
-        if(abs($delta) < 0.005) {
-            $this->db->trans_complete();
-            return ['status'=>'no_change','existing_effect'=>$existing_effect,'desired_effect'=>$desired_effect];
-        }
-
-        $current_balance = (float)$this->get_student_ledger_balance($student_id);
-        $new_balance = round($current_balance + $delta, 2);
-        $transaction_type = $entries === 0 ? $initial_type : 'adjustment';
-        $debit = $delta > 0 ? $delta : 0;
-        $credit = $delta < 0 ? abs($delta) : 0;
-        $ledger_description = $description !== '' ? $description : ucfirst($reference_type) . ' ledger reconciliation';
-        if($entries > 0) {
-            $ledger_description .= ' · reconciled from ' . number_format($existing_effect,2,'.','') . ' to ' . number_format($desired_effect,2,'.','');
-        }
+        $current_balance = $this->get_student_ledger_balance($student_id);
+        $new_balance = $current_balance - $discount_amount;
 
         $this->db->insert('student_ledger', [
             'student_id' => $student_id,
             'transaction_date' => date('Y-m-d'),
-            'transaction_type' => $transaction_type,
-            'reference_type' => $reference_type,
-            'reference_id' => $reference_id,
-            'description' => $ledger_description,
-            'debit_amount' => $debit,
-            'credit_amount' => $credit,
+            'transaction_type' => 'discount',
+            'reference_type' => 'discount',
+            'reference_id' => $invoice_code,
+            'description' => 'Discount applied to invoice: ' . $invoice_code,
+            'debit_amount' => 0,
+            'credit_amount' => $discount_amount,
             'balance' => $new_balance,
-            'year' => $year ?: get_settings('running_year'),
-            'term' => $term ?: get_settings('running_term'),
+            'year' => get_settings('running_year'),
+            'term' => get_settings('running_term'),
             'created_by' => $this->session->userdata('admin_id') ?: 1,
             'created_at' => time()
         ]);
-        $ledger_id = (int)$this->db->insert_id();
-        $this->db->trans_complete();
-        if($this->db->trans_status() === FALSE) return ['status'=>'error','message'=>'Ledger reconciliation failed'];
-        return ['status'=>'success','ledger_id'=>$ledger_id,'delta'=>$delta,'desired_effect'=>$desired_effect];
+
+        return ['status' => 'success', 'ledger_id' => $this->db->insert_id()];
     }
 
     public function get_student_ledger($student_id, $year = null, $term = null) {
@@ -772,16 +731,34 @@ class Finance_model extends MY_Model {
      * Reverse invoice ledger entry when invoice is deleted
      */
     public function reverse_invoice_ledger($invoice_code, $student_id) {
-        return $this->reconcile_ledger_effect(
-            (int)$student_id,
-            'invoice',
-            (string)$invoice_code,
-            0,
-            'adjustment',
-            'Invoice deleted/reversed: ' . $invoice_code,
-            get_settings('running_year'),
-            get_settings('running_term')
-        );
+        if(!$this->db->table_exists('student_ledger')) return ['status' => 'skipped'];
+
+        $invoice_items = $this->db->where('invoice_code', $invoice_code)->get('invoice')->result();
+        $total_amount = 0;
+        foreach($invoice_items as $item) {
+            $total_amount += $item->amount;
+        }
+
+        $current_balance = $this->get_student_ledger_balance($student_id);
+        $new_balance = $current_balance - $total_amount;
+
+        $this->db->insert('student_ledger', [
+            'student_id' => $student_id,
+            'transaction_date' => date('Y-m-d'),
+            'transaction_type' => 'adjustment', // FIX: Changed from 'invoice_reversal' to valid ENUM value
+            'reference_type' => 'invoice',
+            'reference_id' => $invoice_code,
+            'description' => 'Invoice deleted/reversed: ' . $invoice_code,
+            'debit_amount' => 0,
+            'credit_amount' => $total_amount,
+            'balance' => $new_balance,
+            'year' => get_settings('running_year'),
+            'term' => get_settings('running_term'),
+            'created_by' => $this->session->userdata('admin_id') ?: 1,
+            'created_at' => time()
+        ]);
+
+        return ['status' => 'success', 'ledger_id' => $this->db->insert_id()];
     }
 
     /**
@@ -791,43 +768,81 @@ class Finance_model extends MY_Model {
         $payment = $this->db->where('payment_id', $payment_id)->get('payment')->row();
         if(!$payment) return ['status' => 'error', 'message' => 'Payment not found'];
 
-        $ledger_result = $this->reconcile_ledger_effect(
-            (int)$payment->student_id,
-            'payment',
-            (string)$payment_id,
-            0,
-            'adjustment',
-            'Payment deleted/reversed - ' . (string)$payment->payment_method,
-            $payment->year,
-            $payment->term
-        );
+        // Reverse ledger entry
+        if($this->db->table_exists('student_ledger')) {
+            $current_balance = $this->get_student_ledger_balance($payment->student_id);
+            $new_balance = $current_balance + $payment->amount;
 
-        // Reverse journal entry in accounts. The financial hook is responsible for
-        // its own journal-side duplicate protection.
+            $this->db->insert('student_ledger', [
+                'student_id' => $payment->student_id,
+                'transaction_date' => date('Y-m-d'),
+                'transaction_type' => 'adjustment', // FIX: Changed from 'payment_reversal' to valid ENUM value
+                'reference_type' => 'payment',
+                'reference_id' => $payment_id,
+                'description' => 'Payment deleted/reversed - ' . $payment->payment_method,
+                'debit_amount' => $payment->amount,
+                'credit_amount' => 0,
+                'balance' => $new_balance,
+                'year' => $payment->year,
+                'term' => $payment->term,
+                'created_by' => $this->session->userdata('admin_id') ?: 1,
+                'created_at' => time()
+            ]);
+        }
+
+        // Reverse journal entry in accounts
         $this->load->library('Financial_integration_hooks');
-        $accounts_result = $this->financial_integration_hooks->reverse_invoice_payment($payment_id);
-        return ['status' => 'success', 'ledger_reversed' => $ledger_result, 'accounts_reversed' => $accounts_result];
+        $result = $this->financial_integration_hooks->reverse_invoice_payment($payment_id);
+
+        return ['status' => 'success', 'ledger_reversed' => true, 'accounts_reversed' => $result];
     }
 
     /**
      * Reverse discount ledger entry when discount is removed
      * IMPORTANT: discount_amount MUST be provided before deleting the discount record
      */
-    public function reverse_discount_ledger($invoice_code, $student_id, $discount_amount = null, $discount_id = null) {
+    public function reverse_discount_ledger($invoice_code, $student_id, $discount_amount = null) {
         if(!$this->db->table_exists('student_ledger')) return ['status' => 'skipped'];
-        $ledger_reference = $discount_id ? ($invoice_code . ':discount:' . (int)$discount_id) : $invoice_code;
-        return $this->reconcile_ledger_effect(
-            (int)$student_id,
-            'discount',
-            (string)$ledger_reference,
-            0,
-            'adjustment',
-            'Discount reversed for invoice: ' . $invoice_code . ($discount_id ? ' [discount #' . (int)$discount_id . ']' : ''),
-            get_settings('running_year'),
-            get_settings('running_term')
-        );
+
+        // If discount amount not provided, try to get it from invoice_discounts table
+        // WARNING: This will fail if discount was already deleted
+        if($discount_amount === null) {
+            $discount = $this->db->where('invoice_code', $invoice_code)
+                ->where('student_id', $student_id)
+                ->get('invoice_discounts')->row();
+            $discount_amount = $discount ? $discount->discount_amount : 0;
+
+            // Log warning if discount not found
+            if(!$discount) {
+                log_message('error', "reverse_discount_ledger: Discount not found for invoice {$invoice_code}, student {$student_id}. Discount may have been deleted before reversal.");
+            }
+        }
+
+        if($discount_amount <= 0) return ['status' => 'skipped', 'message' => 'No discount to reverse'];
+
+        $current_balance = $this->get_student_ledger_balance($student_id);
+        $new_balance = $current_balance + $discount_amount;
+
+        $this->db->insert('student_ledger', [
+            'student_id' => $student_id,
+            'transaction_date' => date('Y-m-d'),
+            'transaction_type' => 'adjustment', // FIX: Changed from 'discount_reversal' to valid ENUM value
+            'reference_type' => 'discount',
+            'reference_id' => $invoice_code,
+            'description' => 'Discount reversed for invoice: ' . $invoice_code,
+            'debit_amount' => $discount_amount,
+            'credit_amount' => 0,
+            'balance' => $new_balance,
+            'year' => get_settings('running_year'),
+            'term' => get_settings('running_term'),
+            'created_by' => $this->session->userdata('admin_id') ?: 1,
+            'created_at' => time()
+        ]);
+
+        return ['status' => 'success', 'ledger_id' => $this->db->insert_id()];
     }
 
+    // ==================== HELPER METHODS ====================
     public function get_student_unpaid_invoices($student_id) {
         return $this->db->select('*')
             ->where('student_id', $student_id)

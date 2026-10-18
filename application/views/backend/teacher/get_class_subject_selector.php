@@ -1,8 +1,8 @@
-<?php 
+<?php
 $running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 $running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
 $subjects = $this->db->get_where('subject', array('class_id' => $class_id, 'teacher_id' => $this->session->userdata('teacher_id'),  'year' => $running_year, 'term' => $running_term))->result_array(); ?>
-<select class="form-control selectboxit" name="subject_id">
+<select class="form-control select2" name="subject_id">
     <?php foreach ($subjects as $subject): ?>
         <option value="<?php echo $subject['subject_id'] ?>"><?php echo $subject['name']; ?></option>
     <?php endforeach; ?>
@@ -13,9 +13,9 @@ $subjects = $this->db->get_where('subject', array('class_id' => $class_id, 'teac
     $(document).ready(function() {
 
         // SelectBoxIt Dropdown replacement
-        if($.isFunction($.fn.selectBoxIt))
+        if (typeof $.fn.select2 !== "undefined")
         {
-            $("select.selectboxit").each(function(i, el)
+            $("select.select2").each(function(i, el)
             {
                 var $this = $(el),
                     opts = {
@@ -25,7 +25,7 @@ $subjects = $this->db->get_where('subject', array('class_id' => $class_id, 'teac
                     };
 
                 $this.addClass('visible');
-                $this.selectBoxIt(opts);
+                $this.select2({ placeholder: "Select an option", allowClear: true, width: "100%" });
             });
         }
     });

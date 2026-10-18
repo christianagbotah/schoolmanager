@@ -18,7 +18,7 @@
                     <div class="form-group">
                         <label class="col-sm-3 control-label"><?php echo get_phrase('class');?></label>
                         <div class="col-sm-9">
-                            <select name="class_id" class="form-control selectboxit" data-validate="required" id="class_id"
+                            <select name="class_id" class="form-control select2" data-validate="required" id="class_id"
                             data-message-required="<?php echo get_phrase('value_required');?>"
                             onchange="return get_class_sections(this.value)" required>
                                 <option value=""><?php echo get_phrase('select_class');?></option>
@@ -31,7 +31,7 @@
                     <div class="form-group">
                         <label for="field-2" class="col-sm-3 control-label"><?php echo get_phrase('section');?></label>
                         <div class="col-sm-9" id="section_selector_holder">
-                            <select name="section_id" class="form-control selectboxit" id = "section_id">
+                            <select name="section_id" class="form-control select2" id = "section_id">
                                 <option value=""><?php echo get_phrase('select_class_first');?></option>
                             </select>
                         </div>
@@ -40,7 +40,7 @@
                     <div class="form-group">
                         <label for="field-2" class="col-sm-3 control-label"><?php echo get_phrase('subject');?></label>
                         <div class="col-sm-9" id="subject_selector_holder">
-                            <select name="subject_id" class="form-control selectboxit" id = "subject_id">
+                            <select name="subject_id" class="form-control select2" id = "subject_id">
                                 <option value=""><?php echo get_phrase('select_class_first');?></option>
                             </select>
                         </div>
@@ -68,7 +68,7 @@
                         <div class="col-sm-4">
                             <div class="input-group">
                                 <input type="text" class="form-control timepicker" name="time_start" id="time_start" data-template="dropdown" data-show-seconds="true" data-default-time="11:00" data-show-meridian="false" data-minute-step="5" data-second-step="5" value="" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" />
-                                
+
                                 <div class="input-group-addon">
                                     <a href="#"><i class="entypo-clock"></i></a>
                                 </div>
@@ -78,7 +78,7 @@
                         <div class="col-sm-4">
                             <div class="input-group">
                                 <input type="text" class="form-control timepicker" name="time_end" id="time_end" data-template="dropdown" data-show-seconds="true" data-default-time="11:30" data-show-meridian="false" data-minute-step="5" data-second-step="5" value="" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" />
-                                
+
                                 <div class="input-group-addon">
                                     <a href="#"><i class="entypo-clock"></i></a>
                                 </div>

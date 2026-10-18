@@ -1,4 +1,4 @@
-<?php 
+<?php
 $running_year = $this->db->get_where('settings', array('type' => 'running_year'))->row()->description;
 $running_term = $this->db->get_where('settings', array('type' => 'running_term'))->row()->description;
 $running_sem = $this->db->get_where('settings', array('type' => 'running_sem'))->row()->description;
@@ -12,7 +12,7 @@ $class_name = $this->crud_model->get_class_name($class_id);
 
 if($account_type == 'teacher') {
 
-    if($class_name == 'JHSS') { 
+    if($class_name == 'JHSS') {
 
         //if this is a class master or class teacher, grant full access to all the subjects
         if($class_teacher == $this->session->userdata('teacher_id')) {
@@ -47,7 +47,7 @@ if($account_type == 'teacher') {
 
 
  ?>
-<select class="form-control selectboxit" name="subject_id">
+<select class="form-control select2" name="subject_id">
     <?php foreach ($subjects as $subject): ?>
         <option value="<?php echo $subject['subject_id'] ?>"><?php echo $subject['name']; ?></option>
     <?php endforeach; ?>
@@ -58,9 +58,9 @@ if($account_type == 'teacher') {
     $(document).ready(function() {
 
         // SelectBoxIt Dropdown replacement
-        if($.isFunction($.fn.selectBoxIt))
+        if (typeof $.fn.select2 !== "undefined")
         {
-            $("select.selectboxit").each(function(i, el)
+            $("select.select2").each(function(i, el)
             {
                 var $this = $(el),
                     opts = {
@@ -70,7 +70,7 @@ if($account_type == 'teacher') {
                     };
 
                 $this.addClass('visible');
-                $this.selectBoxIt(opts);
+                $this.select2({ placeholder: "Select an option", allowClear: true, width: "100%" });
             });
         }
     });

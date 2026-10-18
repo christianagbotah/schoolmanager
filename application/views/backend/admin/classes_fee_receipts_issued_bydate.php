@@ -10,21 +10,21 @@
         <div class="col-md-6">
             <div class="col-md-12">
                 <div class="row">
-                <div class="col-md-12">          
+                <div class="col-md-12">
                     <div class="tile-stats tile-green" style="overflow: visible; min-height: 180px;">
                         <div class="icon" style="margin-bottom: 20px;"><i class="fa fa-dollar" style="padding-right: 10px;"></i></div>
                         <sub style="font-weight: bold; color: #ffffff; font-size: 15px;"><?php echo 'Amount'; ?></sub> <div class="num" data-start="0"
                                 data-postfix="" data-duration="500" data-delay="0" id="receipt_date_rec"></div>
 
                         <sub style="font-weight: bold; color: #ffffff; font-size: 15px; margin-top: -69px;" class="pull-right"><?php echo 'Quantity'; ?> <label class="label label-danger" id="receipt_date_rec_qty"></label></sub>
-                        
+
                         <h3><?php echo get_phrase('total_receipts_for_classes_fees');?></h3>
                         <p id="receipt_date_rec_date"></p>
 
                         <div class="col-md-4 pull-right" style="">
                             <?php echo form_open(site_url('admin/update_class/search'), array('class' => 'form-horizontal form-group-bordered', 'id' => 'class_update_form')); ?>
                             <label class="form-control-labels" style="color: #fff;">Filter By Class</label>
-                            <select name="class_id" class="form-control selectboxit" onchange="class_update()" id="receipt_class_selection">
+                            <select name="class_id" class="form-control select2" onchange="class_update()" id="receipt_class_selection">
                             <option value=""><?php echo get_phrase('click_here');?></option>
                             <?php
                                 $classes = $this->db->get('class')->result_array();
@@ -45,42 +45,42 @@
                                     } else {
                                         $creche_name = ucwords(strtolower($class_name)). ' '. $class_name_numeric.$sec_name;
                                     }
-                                                        
+
                             ?>
-                                            
+
                             <option value="<?php echo $row['class_id'];?>"
                                 ><?php echo $creche_name; ?></option>
-                                            
+
                             <?php endforeach;?>
                         </select>
                         </form>
             </div>
                     </div>
-                    
+
                 </div>
             </div>
             </div>
-            
+
         </div>
 
         <div class="col-md-6">
             <div class="col-md-12">
                 <div class="row">
-                <div class="col-md-12">          
+                <div class="col-md-12">
                     <div class="tile-stats tile-pink" style="overflow: visible; min-height: 180px;">
                         <div class="icon" style="margin-bottom: 20px;"><i class="fa fa-dollar" style="padding-right: 10px;"></i></div>
                         <sub style="font-weight: bold; color: #ffffff; font-size: 15px;"><?php echo 'Amount'; ?></sub> <div class="num" data-start="0"
                                 data-postfix="" data-duration="500" data-delay="0" id="receipt_date_rec2"></div>
 
                         <sub style="font-weight: bold; color: #ffffff; font-size: 15px; margin-top: -69px;" class="pull-right"><?php echo 'Quantity'; ?> <label class="label label-danger" id="receipt_date_rec_qty2"></label></sub>
-                        
+
                         <h3><?php echo get_phrase('total_receipts_for_classes_fees');?></h3>
                         <p id="receipt_date_rec_date2"></p>
 
                         <div class="col-md-8 pull-right" style="">
                             <?php echo form_open(site_url('admin/update_issuer'), array('class' => 'form-horizontal form-group-bordered', 'id' => 'issuer_update_form')); ?>
                             <label class="form-control-labels" style="color: #fff;">Filter By Issuer</label>
-                            <select name="class_id" class="form-control selectboxit" onchange="issuer_update()" id="receipt_issuer_selection">
+                            <select name="class_id" class="form-control select2" onchange="issuer_update()" id="receipt_issuer_selection">
                             <option value=""><?php echo get_phrase('click_here');?></option>
                             <?php
 
@@ -97,7 +97,7 @@
                                         array_push($issuers_ids_array_teachers, substr($id['issuer_id'], 1));
                                     } else { //for admins
                                         array_push($issuers_ids_array, $id['issuer_id']);
-                                    }   
+                                    }
                                 }
 
                                 if(count($issuers_ids_array_teachers) > 0) {
@@ -136,28 +136,28 @@
                                         $account_type = 'Admin';
                                     } else if($account_type == 3) {
                                         $account_type = 'Accountant';
-                                    }                  
+                                    }
                                     ?>
-                                                    
+
                                     <option value="<?php echo $row['admin_id'];?>"
                                         ><?php echo $row['name']; ?><small>(<?= $account_type; ?>)</small></option>
-                                                    
+
                                     <?php endforeach;
                                         }
                                 }
-                                
+
 
                                 ?>
-                                
+
                         </select>
                         </form>
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
             </div>
-            
+
         </div>
     </div>
 
@@ -172,7 +172,7 @@
 
 	$(function($) {
         //$('.datatable').DataTable();
-        
+
         //load_data();
         get_classes_fee_receipts_by_date();
 
@@ -243,7 +243,7 @@
                 $('#receipts_tab').DataTable();
             }
         })
-        
+
     }
 
 function check_sms_status() {

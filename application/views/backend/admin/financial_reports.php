@@ -1,7 +1,7 @@
 <hr>
 <div class="row">
     <div class="col-md-4" id="tile1">
-    
+
         <div class="tile-stats tile-blue">
             <div class="icon" style="margin-bottom: 20px;"><i class="fa fa-dollar" style="padding-right: 10px;"></i></div>
             <sub style="font-weight: bold; color: #ffffff; font-size: 15px;"><?php echo 'ANNUAL'; ?></sub> <div class="num" data-start="0"
@@ -9,23 +9,23 @@
 
                     <p style="font-weight: bold; position: absolute; right: 20px; bottom: 10px; display: none" id="alert1"><em>Click to generate</em></p>
         </div>
-        
+
     </div>
 
     <div class="col-md-4" id="tile2">
-    
+
         <div class="tile-stats tile-green">
             <div class="icon" style="margin-bottom: 20px;"><i class="fa fa-money" style="padding-right: 10px;"></i></div>
             <sub style="font-weight: bold; color: #ffffff; font-size: 15px;"><?php echo 'TERMLY'; ?></sub> <div class="num" data-start="0"
-                    data-postfix="" data-duration="500" data-delay="0">REPORT</div>      
+                    data-postfix="" data-duration="500" data-delay="0">REPORT</div>
 
-                    <p style="font-weight: bold; position: absolute; right: 20px; bottom: 10px; display: none" id="alert2"><em>Click to generate</em></p> 
+                    <p style="font-weight: bold; position: absolute; right: 20px; bottom: 10px; display: none" id="alert2"><em>Click to generate</em></p>
         </div>
-        
+
     </div>
 
     <div class="col-md-4" id="tile3">
-    
+
         <div class="tile-stats tile-black">
             <div class="icon" style="margin-bottom: 20px;"><i class="fa fa-bus" style="padding-right: 10px;"></i></div>
             <sub style="font-weight: bold; color: #ffffff; font-size: 15px;"><?php echo 'WEEKLY'; ?></sub> <div class="num" data-start="0"
@@ -33,7 +33,7 @@
 
                     <p style="font-weight: bold; position: absolute; right: 20px; bottom: 10px; display: none" id="alert3"><em>Click to generate</em></p>
         </div>
-        
+
     </div>
 </div>
 
@@ -48,24 +48,24 @@
                         <div class="col-sm-12">
                         <div class="form-group">
                           <label  class="control-label col-sm-4"><?php echo get_phrase('yEAR');?></label>
-                          <div class="col-sm-8">  
-                              <select name="year" class="form-control selectboxit" id="year" required="required">
+                          <div class="col-sm-8">
+                              <select name="year" class="form-control select2" id="year" required="required">
                               <?php
                           echo populate_academic_year();
                         ?>
                               </select>
                             </div>
-                        </div>     
+                        </div>
                     </div>
                     <div class="col-sm-3"></div>
                     <div class="col-sm-3"></div>
                     <div class="col-sm-6 form-group">
                         <button class="btn btn-info btn-lg">GENERATE</button>
                     </div>
-                    
+
                     <?php echo form_close();?>
                 </div>
-            </div>       
+            </div>
 
 
         <div class="col-md-4">
@@ -81,35 +81,35 @@
                                   <div class="col-sm-12">
                                       <input type="number" name="term" min="1" max="3" id="term" placeholder="Enter" class="form-control" value="" size="20" required="required">
                                   </div>
-                            </div> 
+                            </div>
                             </div>
                             <div class="col-sm-7">
                                 <div class="form-group">
                                   <label  class="control-label col-sm-12"><?php echo get_phrase('year');?></label>
-                                  <div class="col-sm-12">  
-                                      <select name="year" class="form-control selectboxit" id="year" required="required">
+                                  <div class="col-sm-12">
+                                      <select name="year" class="form-control select2" id="year" required="required">
                                       <?php
                           echo populate_academic_year();
                         ?>
                                       </select>
                                     </div>
-                                </div> 
-                                
-                            </div> 
+                                </div>
+
+                            </div>
                     </div>
                     <div class="col-sm-3"></div>
                     <div class="col-sm-3"></div>
                     <div class="col-sm-6 form-group">
                         <button class="btn btn-info btn-lg">GENERATE</button>
                     </div>
-                    
+
                     <?php echo form_close();?>
-            </div>     
+            </div>
         </div>
 
 
         <div class="col-md-4">
-        
+
             <div class="tile-stats tile-red" id="tile_show3" style="display: none">
                 <div class="icon" style="margin-bottom: 20px;"><i class="fa fa-dollar" style="padding-right: 10px;"></i></div>
                 <sub style="font-weight: bold; color: #ffffff; font-size: 15px;"><?php echo 'SELECT DATE INTERVAL'; ?></sub> <br><br>
@@ -121,7 +121,7 @@
                             <div class="col-sm-8">
                                 <div class="input-group">
                                     <input type="text" class="form-control datepicker" name="date_start" id="date_start" data-template="dropdown" value="" data-format="dd-mm-yyyy" placeholder="Click to choose"data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" />
-                                    
+
                                     <div class="input-group-addon">
                                         <a href="#"><i class="entypo-calendar"></i></a>
                                     </div>
@@ -141,24 +141,24 @@
                             <div class="col-sm-8">
                                 <div class="input-group">
                                     <input type="text" class="form-control datepicker" name="date_end" id="date_end" data-template="dropdown" value="" placeholder="Click to choose" data-format="dd-mm-yyyy" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" />
-                                    
+
                                     <div class="input-group-addon">
                                         <a href="#"><i class="entypo-calendar"></i></a>
                                     </div>
                                 </div>
                             </div>
                             </div>
-                        </div>       
+                        </div>
                     </div>
                     <div class="col-sm-3"></div>
                     <div class="col-sm-3"></div>
                     <div class="col-sm-6 form-group">
                         <button class="btn btn-info btn-lg">GENERATE</button>
                     </div>
-                    
+
                     <?php echo form_close();?>
-            </div>        
-        </div> 
+            </div>
+        </div>
 
 </div>
 
@@ -260,7 +260,7 @@
                 }
 
             });
-            
+
         }
     });
 
@@ -282,7 +282,7 @@
                 }
 
             });
-            
+
         }
     });
 
@@ -304,7 +304,7 @@
                 }
 
             });
-            
+
         }
     });
 

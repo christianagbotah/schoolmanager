@@ -42,31 +42,22 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
 ?>
 
 <style>
-/* ---- Invoice Management — SchoolManager family design-language alignment (presentation only) ----
-   Contract: class names, ids, DOM structure, PHP, JS untouched. This block restyles the
-   page-local component classes (.modern-card, .search-card, .stats-card, .form-input-modern,
-   .btn-modern, .tab-btn, ...) to the family tokens (flat cards, ink hero bands, blue accent,
-   10-16px radii, 42-48px controls, focus rings, 360px support). */
-
+/* Modern Invoices Page Styling */
 .invoices-container {
-    background: transparent;
-    padding: 0 0 .25rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    min-height: 100vh;
+    padding: 1rem 0;
 }
 
-/* Family card */
 .modern-card {
     background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    transition: box-shadow .2s ease, border-color .2s ease;
-}
-
-.modern-card:hover {
-    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
-    border-color: #d5dbe7;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
 }
 
 /* Table holder specific styling - reduced padding for better table display */
@@ -90,119 +81,141 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
     overflow-x: auto !important;
 }
 
-/* Family ink hero card - search band */
+.modern-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+}
+
 .search-card {
     background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    color: #ffffff;
-    border: 1px solid #0f172a;
-    border-radius: 16px;
+    color: white;
+    border: none;
 }
 
 .search-card .form-input-modern {
-    background: #ffffff;
-    border: 1.5px solid #cbd5e1;
-    color: #111827;
-    font-size: .95rem;
-    font-weight: 500;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #1e293b;
+    backdrop-filter: blur(10px);
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
 .search-card .form-input-modern::placeholder {
-    color: #9ca3af;
+    color: rgba(30, 41, 59, 0.6);
 }
 
 .search-card .form-input-modern:focus {
-    background: #ffffff;
+    background: rgba(255, 255, 255, 1);
     border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-    color: #111827;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+    color: #1e293b;
 }
 
 .search-card select.form-input-modern {
-    background: #ffffff;
-    color: #111827;
+    background: rgba(255, 255, 255, 0.95);
+    color: #1e293b;
 }
 
 .search-card select.form-input-modern option {
-    background: #ffffff;
-    color: #111827;
-    padding: 6px 10px;
-    font-size: .9rem;
+    background: white;
+    color: #1e293b;
+    padding: 8px 12px;
+    font-size: 1rem;
     font-weight: 500;
 }
 
 .search-card label {
-    color: #ffffff;
-    font-size: .8rem;
-    font-weight: 600;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
 }
 
-/* KPI statistics cards - family ink with accent edge (yellow "No Data" state stays legible) */
 .stats-card {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
     text-align: center;
     cursor: pointer;
-    transition: box-shadow .2s ease, border-color .2s ease;
+    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    border: 1px solid #0f172a;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.stats-card:hover::before {
+    left: 100%;
 }
 
 .stats-card:hover {
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .stats-card.blue {
-    border-top: 3px solid #3b82f6;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
 }
 
 .stats-card.green {
-    border-top: 3px solid #10b981;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.stats-card.purple {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
 }
 
 .stats-icon {
-    font-size: 2rem;
-    margin-bottom: .75rem;
-    opacity: .85;
+    font-size: 3.5rem;
+    margin-bottom: 1.2rem;
+    opacity: 0.9;
 }
 
 .stats-amount {
-    font-size: 1.9rem;
+    font-size: 3rem;
     font-weight: 800;
-    letter-spacing: -0.02em;
-    margin: .25rem 0;
+    margin: 0.5rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .stats-label {
-    font-size: .9rem;
+    font-size: 1.3rem;
     font-weight: 600;
-    opacity: .85;
-    margin-bottom: .5rem;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
 }
 
 .stats-subtitle {
-    font-size: .85rem;
-    opacity: .75;
-    margin-top: .5rem;
+    font-size: 1rem;
+    opacity: 0.8;
+    margin-top: 0.5rem;
 }
 
-/* Family inputs */
 .form-input-modern {
-    padding: .7rem 1rem;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    font-size: .95rem;
-    font-weight: 500;
-    transition: border-color .15s ease, box-shadow .15s ease;
+    padding: 1.2rem 1.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
     background: #ffffff;
-    color: #111827;
+    color: #374151;
     width: 100%;
 }
 
 .form-input-modern:focus {
     outline: none;
     border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    transform: translateY(-2px);
 }
 
 .form-input-modern::placeholder {
@@ -210,132 +223,111 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
     font-weight: 400;
 }
 
-/* keep the calendar icon clear of input text */
-.form-input-modern.ps-10 {
-    padding-left: 2.5rem;
-}
-
-/* Family flat buttons */
 .btn-modern {
-    padding: .7rem 1.25rem;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: .95rem;
-    transition: background-color .2s ease, box-shadow .2s ease, border-color .2s ease;
+    padding: 1.2rem 2.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
     border: none;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: .5rem;
+    gap: 0.5rem;
     text-decoration: none;
-    min-height: 2.75rem;
-}
-
-.btn-modern:focus-visible {
-    outline: 2px solid #2563eb;
-    outline-offset: 2px;
+    min-height: 3.5rem;
 }
 
 .btn-modern-primary {
-    background: #2563eb;
-    color: #ffffff;
-    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.35);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.25);
 }
 
 .btn-modern-primary:hover {
-    background: #1d4ed8;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px 0 rgba(59, 130, 246, 0.35);
 }
 
 .btn-modern-success {
-    background: #059669;
-    color: #ffffff;
-    box-shadow: 0 1px 2px rgba(5, 150, 105, 0.3);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.25);
 }
 
 .btn-modern-success:hover {
-    background: #047857;
-    box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px 0 rgba(16, 185, 129, 0.35);
 }
 
 .btn-modern-danger {
-    background: #dc2626;
-    color: #ffffff;
-    box-shadow: 0 1px 2px rgba(220, 38, 38, 0.3);
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.25);
 }
 
 .btn-modern-danger:hover {
-    background: #b91c1c;
-    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px 0 rgba(239, 68, 68, 0.35);
 }
 
 .btn-modern-info {
-    background: #0284c7;
-    color: #ffffff;
-    box-shadow: 0 1px 2px rgba(2, 132, 199, 0.3);
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    color: white;
+    box-shadow: 0 4px 14px 0 rgba(6, 182, 212, 0.25);
 }
 
 .btn-modern-info:hover {
-    background: #0369a1;
-    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+    background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px 0 rgba(6, 182, 212, 0.35);
 }
 
-.btn-modern:active {
-    box-shadow: none;
-}
-
-.btn-modern:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-}
-
-/* Filter panel (kept for compatibility) */
 .filter-section {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    padding: 1.5rem;
-    margin: 1.5rem 0;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid #e2e8f0;
 }
 
-/* Family ink hero card - class selection band */
 .class-selection-card {
     background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    color: #ffffff;
-    border: 1px solid #0f172a;
-    border-radius: 16px;
-    padding: 1.75rem;
+    color: white;
+    border-radius: 20px;
+    padding: 2rem;
     text-align: center;
-    margin: 0 0 1.5rem;
+    margin: 2rem 0;
 }
 
 .class-selection-card .form-input-modern {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1.5px solid rgba(255, 255, 255, 0.25);
-    color: #ffffff;
-    font-size: 1rem;
-    padding: .8rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 1.2rem;
+    padding: 1.25rem 1.5rem;
 }
 
 .class-selection-card .form-input-modern::placeholder {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .class-selection-card .form-input-modern:focus {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.55);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
-/* Loading */
 .loading-spinner {
     display: inline-block;
-    width: 1.75rem;
-    height: 1.75rem;
-    border: 3px solid rgba(148, 163, 184, 0.35);
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
-    border-top-color: #2563eb;
+    border-top-color: #3b82f6;
     animation: spin 1s ease-in-out infinite;
 }
 
@@ -343,8 +335,30 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
     to { transform: rotate(360deg); }
 }
 
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
+    .invoices-container {
+        padding: 1rem 0;
+    }
+
     .modern-card {
         padding: 1rem;
         margin-bottom: 1rem;
@@ -355,30 +369,31 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
     }
 
     .stats-amount {
-        font-size: 1.5rem;
+        font-size: 2rem;
     }
 
     .stats-icon {
-        font-size: 1.75rem;
+        font-size: 2.5rem;
     }
 
     .btn-modern {
-        padding: .65rem 1rem;
-        font-size: .9rem;
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+        width: 100%;
     }
 
     .form-input-modern {
-        padding: .65rem .85rem;
-        font-size: .9rem;
+        padding: 1rem 1.2rem;
+        font-size: 1rem;
     }
 
     #receipts-tab .row.mb-4 > div {
-        margin-bottom: .75rem;
+        margin-bottom: 1rem;
     }
 
     .tab-btn {
-        font-size: .95rem;
-        padding: 0.6rem 0.9rem;
+        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
     }
 
     .tab-navigation {
@@ -389,7 +404,7 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
 
 @media (max-width: 640px) {
     .modern-card {
-        padding: 0.85rem;
+        padding: 0.75rem;
         border-radius: 12px;
     }
 
@@ -399,7 +414,7 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
 
     .stats-card .flex {
         flex-direction: column;
-        gap: .75rem;
+        gap: 1rem;
     }
 
     .filter-section {
@@ -411,48 +426,119 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
     }
 
     h1.display-4 {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
     }
 
     h2.text-3xl {
-        font-size: 1.15rem;
-    }
-
-    .btn-modern {
-        width: 100%;
+        font-size: 1.5rem;
     }
 
     .tab-btn {
-        font-size: .9rem;
+        font-size: 1rem;
         padding: 0.5rem 0.75rem;
     }
 }
 
-@media (max-width: 400px) {
-    .modern-card {
-        padding: 0.65rem;
-    }
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
 
-    .stats-amount {
-        font-size: 1.25rem;
-    }
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
 
-    .stats-icon {
-        font-size: 1.5rem;
-    }
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
 
-    .tab-navigation {
-        gap: 0;
-    }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
 
-    .tab-btn {
-        padding: 0.5rem 0.6rem;
-        font-size: .85rem;
-    }
+/* Focus states for accessibility */
+.form-input-modern:focus,
+.btn-modern:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
 
-    h3.text-2xl {
-        font-size: 1.05rem;
-    }
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Additional Modern Enhancements */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Enhanced button states */
+.btn-modern:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+.btn-modern:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Card hover effects */
+.modern-card:hover .stats-icon {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition: all 0.3s ease;
 }
 
 /* Custom selection styles */
@@ -461,39 +547,51 @@ $date_timestamp = date('l M d, Y', $date_timestamp);
     color: #1e40af;
 }
 
-/* DataTables - family treatment */
+/* Enhanced focus states */
+.form-input-modern:focus,
+.btn-modern:focus,
+select:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* Improved table styling for data tables */
 .dataTables_wrapper {
-    background: transparent;
-    padding: 0;
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .dataTables_wrapper .dataTables_length,
 .dataTables_wrapper .dataTables_filter,
 .dataTables_wrapper .dataTables_info,
 .dataTables_wrapper .dataTables_paginate {
-    margin: .75rem 0;
+    margin: 1rem 0;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button {
-    padding: 0.375rem 0.75rem;
-    margin: 0 0.125rem;
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
     border-radius: 8px;
     border: 1px solid #e5e7eb;
-    background: #ffffff;
+    background: white;
     color: #374151;
-    transition: all 0.15s ease;
+    transition: all 0.3s ease;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background: #2563eb;
-    color: #ffffff;
-    border-color: #2563eb;
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+    transform: translateY(-2px);
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: #2563eb;
-    color: #ffffff;
-    border-color: #2563eb;
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
 }
 
 /* Smooth scrolling enhancement */
@@ -501,48 +599,53 @@ html {
     scroll-behavior: smooth;
 }
 
-#table_holder {
-    transition: box-shadow .2s ease;
+/* Enhanced scroll animation */
+.scroll-to-content {
+    transition: all 0.3s ease;
 }
 
-/* Tab Navigation - family segmented tabs */
+.scroll-to-content:hover {
+    transform: translateY(-2px);
+}
+
+/* Content area highlight when scrolling */
+#table_holder {
+    transition: all 0.3s ease;
+}
+
+#table_holder.scroll-highlight {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+    transform: scale(1.02);
+}
+
+/* Tab Navigation Styles */
 .tab-navigation {
     display: flex;
-    gap: 0.25rem;
-    margin-bottom: 1.5rem;
+    gap: 1rem;
+    margin-bottom: 2rem;
     border-bottom: 2px solid #e5e7eb;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
 .tab-btn {
-    padding: 0.75rem 1.25rem;
+    padding: 1rem 2rem;
     background: transparent;
     border: none;
     border-bottom: 3px solid transparent;
     color: #6b7280;
-    font-size: 1rem;
+    font-size: 1.5rem;
     font-weight: 600;
     cursor: pointer;
-    white-space: nowrap;
-    margin-bottom: -2px;
-    transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+    transition: all 0.3s ease;
 }
 
 .tab-btn:hover {
-    color: #2563eb;
-    background: rgba(59, 130, 246, 0.06);
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.05);
 }
 
 .tab-btn.active {
-    color: #111827;
-    border-bottom-color: #2563eb;
-}
-
-.tab-btn:focus-visible {
-    outline: 2px solid #3b82f6;
-    outline-offset: -2px;
-    border-radius: 8px 8px 0 0;
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
 }
 
 .tab-content {
@@ -568,21 +671,6 @@ html {
     margin-top: -11px !important;
 }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    html {
-        scroll-behavior: auto;
-    }
-
-    .modern-card,
-    .btn-modern,
-    .tab-btn,
-    .form-input-modern,
-    .stats-card,
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-        transition: none;
-    }
-}
 </style>
 
 
@@ -617,19 +705,19 @@ html {
                         <div>
                             <label for="date_sel" class="block text-sm font-semibold mb-2">Select Date</label>
                         </div>
-                        
+
                         <div class="flex gap-3 items-end">
                             <div class="flex-1">
                                 <div class="relative">
                                     <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                                         <i class="fa-solid fa-calendar text-white opacity-70"></i>
                                     </div>
-                                    <input id="date_sel" data-format="dd-mm-yyyy" value="<?php echo date('d-m-Y', strtotime($date_timestamp)); ?>" 
-                                           placeholder="Select date" name="date_sel" type="text" 
+                                    <input id="date_sel" data-format="dd-mm-yyyy" value="<?php echo date('d-m-Y', strtotime($date_timestamp)); ?>"
+                                           placeholder="Select date" name="date_sel" type="text"
                                            class="form-input-modern ps-10 datepicker" placeholder="Select date">
                                 </div>
                             </div>
-                            
+
                             <div class="flex-shrink-0">
                                 <button type="submit" class="btn-modern btn-modern-primary">
                                     <i class="fa-solid fa-search"></i>
@@ -650,7 +738,7 @@ html {
                         <h3 class="text-2xl font-bold mb-2">Search by Term/Year</h3>
                         <p class="opacity-90">Filter invoices by academic term and year</p>
                     </div>
-                    
+
                     <?php echo form_open(site_url('admin/get_receipts_byterm/search'), array('class' => 'form-horizontal', 'id' => 'receipts_byterm_form')); ?>
                     <div class="space-y-4">
                         <div class="flex gap-3 items-end">
@@ -666,7 +754,7 @@ html {
                                     <?php endfor; ?>
                                 </select>
                             </div>
-                            
+
                             <div class="flex-1">
                                 <label for="year" class="block text-sm font-semibold mb-2">Year</label>
                                 <select id="year" name="year" class="form-input-modern">
@@ -675,7 +763,7 @@ html {
                                     <?php echo populate_academic_year($forYear, $un_year); ?>
                                 </select>
                             </div>
-                            
+
                             <div class="flex-shrink-0">
                                 <label class="block text-sm font-semibold mb-2">&nbsp;</label>
                                 <button type="submit" class="btn-modern btn-modern-primary">
@@ -766,7 +854,7 @@ html {
                 <h2 class="text-3xl font-bold mb-2">Class Selection</h2>
                 <p class="text-lg opacity-90">Select a class to view and manage student invoices</p>
             </div>
-            
+
             <?php echo form_open(site_url('admin/invoices_show/invoice_search'), array('class' => 'w-full', 'id' => 'invoices_reload_form')); ?>
             <div class="max-w-2xl mx-auto">
                 <label for="class_selection" class="block text-lg font-semibold mb-4">Choose Class</label>
@@ -779,7 +867,7 @@ html {
             </select>
         </div>
         <?php echo form_close(); ?>
-            
+
             <div class="text-center mt-6">
                 <button class="btn-modern btn-modern-success" style="display: none" id="return_to_class_list">
                     <i class="fa-solid fa-arrow-left"></i>
@@ -800,7 +888,7 @@ html {
             </div>
             <div id="per_invoice_loaded" style="display: none; position: relative; top: 0px;"></div>
         </div>
-        
+
     <div><a href="#table_holder" id="anchor_a"></a></div>
     </div>
     </div>
@@ -815,7 +903,7 @@ html {
                 <h2 class="text-3xl font-bold mb-2">All Receipts</h2>
                 <p class="text-lg opacity-90">Search and filter all payment receipts</p>
             </div>
-            
+
             <!-- Filters -->
             <div class="row mb-4 items-center">
                 <div class="col-md-2">
@@ -876,17 +964,17 @@ html {
         boxChecked();
         get_receipts_by_term();
         get_receipts_by_date();
-        
+
         // Check if returning from payment edit
         if(sessionStorage.getItem('return_to_receipts') === 'true') {
             sessionStorage.removeItem('return_to_receipts');
-            
+
             // Switch to receipts tab
             $('.tab-btn').removeClass('active');
             $('.tab-btn[data-tab="receipts-tab"]').addClass('active');
             $('.tab-content').removeClass('active');
             $('#receipts-tab').addClass('active');
-            
+
             // Restore filters
             const filters = JSON.parse(sessionStorage.getItem('receipt_filters') || '{}');
             if(filters.start_date) $('#filter_start_date').val(filters.start_date);
@@ -900,7 +988,7 @@ html {
                     }, 500);
                 }
             }
-            
+
             // Auto-load receipts
             setTimeout(function() {
                 loadAllReceipts();
@@ -911,7 +999,7 @@ html {
                 }, 1000);
             }, 600);
         }
-        
+
         // Tab navigation
         $('.tab-btn').click(function() {
             const tabId = $(this).data('tab');
@@ -920,12 +1008,12 @@ html {
             $('.tab-content').removeClass('active');
             $('#' + tabId).addClass('active');
         });
-        
+
         // Load receipts button
         $('#load_receipts_btn').click(function() {
             loadAllReceipts();
         });
-        
+
         // Load students when class is selected
         $('#filter_class').change(function() {
             const class_id = $(this).val();
@@ -1123,14 +1211,14 @@ html {
             $('#table_holder #per_invoice_loaded').fadeOut('slow');
             $('#table_holder #class_list').fadeIn('slow');
             $('#table_holder #class_list').html(response);
-            
+
             // Initialize DataTable and then scroll
             $('.datatable').DataTable({
                 "initComplete": function(settings, json) {
                     scrollToContentArea();
                 }
             });
-            
+
             // Fallback scroll in case DataTable doesn't initialize
             setTimeout(() => {
                 scrollToContentArea();
@@ -1391,7 +1479,7 @@ html {
         }
     }
 
-   
+
 
     //is any box checked
     function boxChecked(approvedCounter=0, firstLoad=false) {

@@ -71,7 +71,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="panel-body">
                 <!-- Filter Section -->
                 <div class="row" style="margin-bottom: 20px;">
@@ -105,7 +105,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Table View -->
                 <div id="tableView" class="table-responsive">
                     <table id="discountProfilesTable" class="table table-striped table-bordered table-hover" style="width:100%">
@@ -125,7 +125,7 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 <!-- Grid View -->
                 <div id="gridView" style="display: none;">
                     <div class="profiles-grid" id="profilesGrid">
@@ -180,12 +180,13 @@
     align-items: center;
     gap: 14px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-    transition: box-shadow .2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid rgba(0,0,0,0.05);
 }
 
 .stat-card:hover {
-    box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
 }
 
 .stat-icon {
@@ -201,9 +202,9 @@
 }
 
 .stat-primary .stat-icon { background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 100%); }
-.stat-success .stat-icon { background: #059669; }
-.stat-info .stat-icon { background: #0284c7; }
-.stat-warning .stat-icon { background: #d97706; }
+.stat-success .stat-icon { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+.stat-info .stat-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.stat-warning .stat-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
 
 .stat-content {
     flex: 1;
@@ -310,7 +311,8 @@
 }
 
 .btn-create:hover {
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .panel-body {
@@ -323,7 +325,7 @@
 }
 
 #discountProfilesTable thead th {
-    background: #f9fafb;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     color: #495057;
     font-weight: 600;
     font-size: 13px;
@@ -340,11 +342,12 @@
 }
 
 #discountProfilesTable tbody tr {
-    transition: background-color .15s ease;
+    transition: all 0.2s;
 }
 
 #discountProfilesTable tbody tr:hover {
-    background: #f8fafc;
+    background: #f8f9fa;
+    transform: scale(1.01);
 }
 
 .table-responsive {
@@ -367,7 +370,7 @@
         margin: 0 -15px;
         border-radius: 0;
     }
-    
+
     .table-responsive table {
         min-width: 1000px;
     }
@@ -388,15 +391,16 @@
 }
 
 .btn-info {
-    background: #0284c7;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
 
 .btn-danger {
-    background: #dc2626;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
 .btn-xs:hover {
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 /* Labels */
@@ -410,17 +414,17 @@
 }
 
 .label-info {
-    background: #0284c7;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     color: white;
 }
 
 .label-warning {
-    background: #d97706;
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
     color: white;
 }
 
 .label-success {
-    background: #059669;
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     color: white;
 }
 
@@ -449,14 +453,15 @@
     border: 1px solid #e9ecef;
     border-radius: 16px;
     padding: 24px;
-    transition: box-shadow .2s ease, border-color .2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     height: 100%;
     display: flex;
     flex-direction: column;
 }
 
 .profile-card:hover {
-    box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
     border-color: var(--theme-primary);
 }
 
@@ -486,13 +491,13 @@
     letter-spacing: 0.5px;
 }
 
-.badge-invoice { 
-    background: #0284c7;
+.badge-invoice {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     color: white;
 }
 
-.badge-daily { 
-    background: #d97706;
+.badge-daily {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
     color: white;
 }
 
@@ -534,7 +539,8 @@
 }
 
 .profile-card-actions .btn:hover {
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 /* Empty State */
@@ -578,8 +584,8 @@
 .modern-select:focus,
 .modern-search:focus {
     outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .filter-icon,
@@ -683,8 +689,8 @@
 }
 
 .modern-switch input:checked + .modern-slider {
-    background: #059669;
-    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.18);
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    box-shadow: 0 0 10px rgba(17, 153, 142, 0.3);
 }
 
 .modern-switch input:checked + .modern-slider .modern-slider-button {
@@ -706,7 +712,7 @@
 }
 
 .modern-switch input:checked:hover + .modern-slider {
-    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.28);
+    box-shadow: 0 0 12px rgba(17, 153, 142, 0.5);
 }
 
 /* Modern Multi-Select */
@@ -756,13 +762,14 @@
 }
 
 .multiselect-item:hover {
-    border-color: #2563eb;
-    background: #f0f6ff;
+    border-color: #3498db;
+    background: #f0f8ff;
+    transform: translateX(4px);
 }
 
 .multiselect-item.selected {
-    background: #2563eb;
-    border-color: #2563eb;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
     color: white;
 }
 
@@ -771,7 +778,7 @@
     height: 20px;
     margin-right: 12px;
     cursor: pointer;
-    accent-color: #2563eb;
+    accent-color: #667eea;
 }
 
 .multiselect-item label {
@@ -787,7 +794,7 @@
 }
 
 .multiselect-select-all {
-    background: #059669;
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     color: white;
     border: none;
     padding: 8px 16px;
@@ -800,13 +807,13 @@
 }
 
 .multiselect-select-all:hover {
-    background: #047857;
-    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(17, 153, 142, 0.3);
 }
 
 .multiselect-selected-count {
     display: inline-block;
-    background: #2563eb;
+    background: #667eea;
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
@@ -861,9 +868,9 @@
 .modal-form-select:focus,
 .modal-form-textarea:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: #4299e1;
     background-color: #fff;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.1);
 }
 
 .modal-form-group {
@@ -882,182 +889,7 @@
     padding-top: 20px;
     border-top: 2px solid #e2e8f0;
 }
-
-/* ---- family focus + motion ---- */
-.toggle-btn:focus-visible,
-.btn-create:focus-visible,
-.btn-xs:focus-visible,
-.multiselect-select-all:focus-visible,
-.clear-search:focus-visible {
-    outline: 2px solid #2563eb;
-    outline-offset: 2px;
-}
-@media (prefers-reduced-motion: reduce) {
-    .stat-card, .profile-card, .btn-xs, .btn-create,
-    .multiselect-item, .modern-slider, .modern-slider-button {
-        transition: none;
-    }
-}
 </style>
-
-<style>
-@media screen {
-  .modern-container { padding: 0 0 40px; color: #334155; }
-
-  .stats-grid { gap: 12px; margin-bottom: 16px; }
-  .stat-card {
-    min-height: 92px; padding: 14px 15px; gap: 11px;
-    border: 1px solid #e2e8f0; border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  .stat-card:hover { box-shadow: 0 4px 12px rgba(15,23,42,.07); }
-  .stat-icon { width: 42px; height: 42px; border-radius: 9px; font-size: 17px; }
-  .stat-value { margin-bottom: 3px; color: #0f172a; font-size: 25px; line-height: 1.15; font-weight: 800; }
-  .stat-label { color: #64748b; font-size: 13px; line-height: 1.35; font-weight: 800; letter-spacing: .035em; }
-  #profileBreakdown { margin-top: 4px !important; font-size: 13px !important; line-height: 1.35; }
-
-  .modern-panel {
-    border: 1px solid #e2e8f0; border-radius: 14px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  .panel-header {
-    padding: 14px 18px; background: #0f172a;
-    border-bottom: 1px solid #1e293b;
-  }
-  .panel-title { gap: 8px; color: #fff; font-size: 18px; line-height: 1.35; font-weight: 800; }
-  .panel-title i { font-size: 18px; }
-  .header-right { gap: 8px; }
-  .view-toggle { padding: 3px; border-radius: 8px; background: rgba(255,255,255,.12); }
-  .toggle-btn {
-    width: 38px; min-height: 36px; padding: 7px 9px; border-radius: 7px;
-    font-size: 14px;
-  }
-  .btn-create {
-    min-height: 40px; padding: 8px 13px; border-radius: 8px;
-    font-size: 14px; font-weight: 800;
-  }
-  .panel-body { padding: 16px 18px; }
-
-  .panel-body > .row[style*="margin-bottom"] {
-    display: grid; grid-template-columns: minmax(150px,.8fr) minmax(150px,.8fr) minmax(220px,1.6fr);
-    gap: 12px; margin: 0 0 14px !important;
-  }
-  .panel-body > .row[style*="margin-bottom"] > div {
-    width: auto; float: none; padding: 0;
-  }
-  .modern-select-wrapper, .modern-search-wrapper { min-height: 44px; }
-  .modern-select, .modern-search {
-    min-height: 44px; height: 44px; padding-top: 9px; padding-bottom: 9px;
-    border: 1px solid #cbd5e1; border-radius: 9px; color: #0f172a; font-size: 14px;
-  }
-  .modern-select:focus, .modern-search:focus {
-    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
-  }
-  .filter-icon, .search-icon, .clear-search { font-size: 14px; }
-
-  .table-responsive {
-    border: 1px solid #e2e8f0; border-radius: 11px; overflow-x: auto; -webkit-overflow-scrolling: touch;
-  }
-  #discountProfilesTable { min-width: 1000px; margin: 0 !important; }
-  #discountProfilesTable thead th {
-    padding: 11px 12px; background: #f8fafc; color: #475569;
-    font-size: 13px; line-height: 1.35; font-weight: 800;
-    letter-spacing: .03em; border-bottom: 1px solid #e2e8f0;
-  }
-  #discountProfilesTable tbody td {
-    padding: 11px 12px; color: #334155; font-size: 14px; line-height: 1.45;
-    vertical-align: middle; border-color: #eef2f7;
-  }
-  #discountProfilesTable tbody tr:hover { background: #f8fbff; }
-  .btn-xs, #discountProfilesTable .btn-xs {
-    min-width: 34px; min-height: 34px; padding: 6px 8px;
-    border-radius: 7px; font-size: 13px;
-  }
-  #discountProfilesTable .label,
-  #discountProfilesTable .badge {
-    padding: 4px 8px; border-radius: 999px; font-size: 12.5px; font-weight: 700;
-  }
-
-  .profiles-grid { gap: 12px; }
-  .profile-card {
-    border: 1px solid #e2e8f0; border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  .profile-card:hover { transform: none; box-shadow: 0 4px 12px rgba(15,23,42,.07); }
-  .profile-card-header { padding: 12px 14px; background: #f8fafc; border-bottom: 1px solid #eef2f7; }
-  .profile-card-title { color: #0f172a; font-size: 15px; line-height: 1.35; font-weight: 800; }
-  .profile-card-badge { padding: 4px 8px; border-radius: 999px; font-size: 12.5px; font-weight: 700; }
-  .profile-card-body { padding: 13px 14px; }
-  .profile-info-item { padding: 6px 0; color: #475569; font-size: 13.5px; line-height: 1.45; }
-  .profile-info-item i { font-size: 13px; }
-  .profile-card-actions { padding: 10px 14px; gap: 7px; border-top: 1px solid #eef2f7; }
-  .profile-card-actions .btn {
-    min-height: 36px; padding: 7px 10px; border-radius: 7px; font-size: 13px; font-weight: 700;
-  }
-
-  .modern-switch { transform: scale(.9); transform-origin: center; }
-
-  .modal-form-label {
-    margin-bottom: 7px; color: #334155; font-size: 14px; line-height: 1.35; font-weight: 700;
-  }
-  .modal-form-label i { font-size: 13px; }
-  .modal-form-input, .modal-form-select, .modal-form-textarea {
-    min-height: 46px; padding: 10px 12px; border: 1px solid #cbd5e1;
-    border-radius: 9px; color: #0f172a; font-size: 15px; line-height: 1.4;
-  }
-  .modal-form-textarea { min-height: 90px; resize: vertical; }
-  .modal-form-input:focus, .modal-form-select:focus, .modal-form-textarea:focus {
-    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
-  }
-  .modern-multiselect-container {
-    min-height: 46px; border: 1px solid #cbd5e1; border-radius: 9px;
-  }
-  .multiselect-placeholder { padding: 11px 12px; font-size: 14px; }
-  .multiselect-item { min-height: 38px; padding: 8px 10px; }
-  .multiselect-item label { font-size: 14px; line-height: 1.4; }
-  .multiselect-select-all { min-height: 36px; padding: 7px 10px; font-size: 13px; }
-  .multiselect-selected-count { font-size: 13px; }
-
-  #createModal button[data-dismiss="modal"],
-  #createModal button[type="submit"] {
-    min-height: 44px !important; padding: 9px 16px !important;
-    border-radius: 9px !important; font-size: 14px !important; font-weight: 800 !important;
-    background-image: none !important;
-  }
-  #createModal button[type="submit"] { background: #2563eb !important; color: #fff !important; }
-  #createModal button[data-dismiss="modal"] { background: #fff !important; color: #475569 !important; border-width: 1px !important; }
-
-  .dataTables_wrapper .dataTables_length,
-  .dataTables_wrapper .dataTables_filter,
-  .dataTables_wrapper .dataTables_info,
-  .dataTables_wrapper .dataTables_paginate { color: #475569; font-size: 14px; }
-  .dataTables_wrapper select,
-  .dataTables_wrapper input[type="search"] {
-    min-height: 40px; padding: 7px 9px; border: 1px solid #cbd5e1;
-    border-radius: 8px; font-size: 14px;
-  }
-
-  @media (max-width: 900px) {
-    .panel-body > .row[style*="margin-bottom"] { grid-template-columns: 1fr 1fr; }
-    .panel-body > .row[style*="margin-bottom"] > div:last-child { grid-column: 1 / -1; }
-    .profiles-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  }
-  @media (max-width: 600px) {
-    .stats-grid { grid-template-columns: 1fr 1fr; }
-    .panel-header { align-items: flex-start; flex-direction: column; }
-    .header-right { width: 100%; justify-content: space-between; }
-    .btn-create { flex: 1; justify-content: center; }
-    .panel-body { padding: 14px; }
-    .panel-body > .row[style*="margin-bottom"] { grid-template-columns: 1fr; }
-    .panel-body > .row[style*="margin-bottom"] > div:last-child { grid-column: auto; }
-    .profiles-grid { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 400px) {
-    .stats-grid { grid-template-columns: 1fr; }
-  }
-}
-</style>
-
 
 <script>
 var table; // Global variable
@@ -1089,14 +921,14 @@ $(document).ready(function() {
     loadBillItemsMap(function() {
         // Load stats
         loadStats();
-    
+
     // Initialize DataTable with simple data
     table = $('#discountProfilesTable').DataTable({
         data: <?php echo json_encode($profiles); ?>,
         columns: [
             { data: 'profile_id', width: '5%' },
             { data: 'profile_name', width: '20%' },
-            { 
+            {
                 data: null,
                 width: '15%',
                 render: function(data, type, row) {
@@ -1110,8 +942,8 @@ $(document).ready(function() {
                             // Convert IDs to readable names using the map
                             return billItemIds.split(',').map(function(id) {
                                 var itemName = billItemsMap[id.trim()] || id.trim();
-                                return '<span class="label label-info" style="margin: 2px;">' + 
-                                    itemName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) + 
+                                return '<span class="label label-info" style="margin: 2px;">' +
+                                    itemName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) +
                                     '</span>';
                             }).join(' ');
                         }
@@ -1121,21 +953,21 @@ $(document).ready(function() {
                             return 'N/A';
                         }
                         return discountType.split(',').map(function(type) {
-                            return '<span class="label label-warning" style="margin: 2px;">' + 
-                                type.trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) + 
+                            return '<span class="label label-warning" style="margin: 2px;">' +
+                                type.trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) +
                                 '</span>';
                         }).join(' ');
                     }
                 }
             },
-            { 
+            {
                 data: 'discount_category',
                 width: '10%',
                 render: function(data) {
                     return data === 'invoice' ? '<span class="label label-info">Invoice</span>' : '<span class="label label-warning">Daily Fees</span>';
                 }
             },
-            { 
+            {
                 data: 'discount_method',
                 width: '10%',
                 render: function(data) {
@@ -1143,7 +975,7 @@ $(document).ready(function() {
                 },
                 defaultContent: '📊 Percentage'
             },
-            { 
+            {
                 data: 'discount_value',
                 width: '10%',
                 render: function(data, type, row) {
@@ -1155,7 +987,7 @@ $(document).ready(function() {
                 },
                 defaultContent: '0'
             },
-            { 
+            {
                 data: 'is_active',
                 width: '10%',
                 render: function(data, type, row) {
@@ -1170,7 +1002,7 @@ $(document).ready(function() {
                     </div>`;
                 }
             },
-            { 
+            {
                 data: null,
                 width: '20%',
                 className: 'text-right',
@@ -1185,7 +1017,7 @@ $(document).ready(function() {
                             </div>
                         `;
                     }
-                    
+
                     return `
                         <div style="text-align: right;">
                             <button class="btn btn-xs btn-primary" onclick="editProfile(${row.profile_id})" title="Edit">
@@ -1201,11 +1033,11 @@ $(document).ready(function() {
         ],
         order: [[0, 'desc']]
     });
-    
+
         // Set default view
         var savedView = localStorage.getItem('profilesView') || 'table';
         switchView(savedView);
-        
+
         // Auto-trigger updateDiscountTypes on modal show if restricted mode
         if (restrictedMode) {
             $('#createModal').on('shown.bs.modal', function() {
@@ -1223,11 +1055,11 @@ function filterProfiles() {
     var category = $('#categoryFilter').val();
     var status = $('#statusFilter').val();
     var search = $('#searchFilter').val().toLowerCase();
-    
+
     // Filter DataTable
     if(table) {
         $.fn.dataTable.ext.search = [];
-        
+
         // Add category filter
         if(category !== '') {
             $.fn.dataTable.ext.search.push(
@@ -1237,7 +1069,7 @@ function filterProfiles() {
                 }
             );
         }
-        
+
         // Add status filter
         if(status !== '') {
             $.fn.dataTable.ext.search.push(
@@ -1247,11 +1079,11 @@ function filterProfiles() {
                 }
             );
         }
-        
+
         // Apply search and redraw
         table.search(search).draw();
     }
-    
+
     // Filter Grid
     $('.profile-card').each(function() {
         var card = $(this);
@@ -1259,11 +1091,11 @@ function filterProfiles() {
         var profileName = card.find('.profile-card-title').text().toLowerCase();
         var isActive = card.find('.modern-switch input').is(':checked');
         var profileStatus = isActive ? '1' : '0';
-        
+
         var categoryMatch = !category || profileCategory === category;
         var statusMatch = !status || profileStatus === status;
         var searchMatch = !search || profileName.includes(search);
-        
+
         if(categoryMatch && statusMatch && searchMatch) {
             card.show();
         } else {
@@ -1274,7 +1106,7 @@ function filterProfiles() {
 
 function switchView(view) {
     localStorage.setItem('profilesView', view);
-    
+
     if(view === 'table') {
         $('#tableView').show();
         $('#gridView').hide();
@@ -1298,13 +1130,13 @@ function loadGridView() {
     }).done(function(response) {
         var grid = $('#profilesGrid');
         grid.empty();
-        
+
         if(response.profiles && response.profiles.length > 0) {
             response.profiles.forEach(function(profile) {
-                var categoryBadge = profile.discount_category === 'invoice' ? 
+                var categoryBadge = profile.discount_category === 'invoice' ?
                     '<span class="profile-card-badge badge-invoice">📄 Invoice</span>' :
                     '<span class="profile-card-badge badge-daily">📅 Daily Fees</span>';
-                
+
                 var readableType;
                 if (profile.discount_category === 'invoice') {
                     var billItemIds = profile.bill_item_ids || 'N/A';
@@ -1315,8 +1147,8 @@ function loadGridView() {
                     } else {
                         readableType = billItemIds.split(',').map(function(id) {
                             var itemName = billItemsMap[id.trim()] || id.trim();
-                            return '<span class="label label-info" style="margin: 2px;">' + 
-                                itemName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) + 
+                            return '<span class="label label-info" style="margin: 2px;">' +
+                                itemName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) +
                                 '</span>';
                         }).join(' ');
                     }
@@ -1326,8 +1158,8 @@ function loadGridView() {
                         readableType = 'N/A';
                     } else {
                         readableType = discountType.split(',').map(function(type) {
-                            return '<span class="label label-warning" style="margin: 2px;">' + 
-                                type.trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) + 
+                            return '<span class="label label-warning" style="margin: 2px;">' +
+                                type.trim().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) +
                                 '</span>';
                         }).join(' ');
                     }
@@ -1338,7 +1170,7 @@ function loadGridView() {
                 var isActive = profile.is_active == 1;
                 var checked = isActive ? 'checked' : '';
                 var statusBadge = isActive ? '<span class="label label-success"><i class="fa fa-check-circle"></i> Active</span>' : '<span class="label label-default"><i class="fa fa-times-circle"></i> Inactive</span>';
-                
+
                 var card = `
                     <div class="profile-card">
                         <div class="profile-card-header">
@@ -1402,12 +1234,12 @@ function loadGridView() {
 function handleFormSubmit(e) {
     e.preventDefault();
     showAjaxModal_alert('<?php echo get_phrase('processing'); ?>', 'loading');
-    
+
     var profile_id = $('#profile_id').val();
-    var url = profile_id ? 
+    var url = profile_id ?
         '<?php echo site_url('admin/discount_profiles/update/'); ?>' + profile_id :
         '<?php echo site_url('admin/discount_profiles/create'); ?>';
-    
+
     $.ajax({
         url: url,
         type: 'POST',
@@ -1430,7 +1262,7 @@ function handleFormSubmit(e) {
 function reloadProfilesData() {
     // Reload stats
     loadStats();
-    
+
     // Reload table
     $.ajax({
         url: '<?php echo site_url('admin/discount_profiles'); ?>',
@@ -1445,7 +1277,7 @@ function reloadProfilesData() {
                 table.rows.add(response.profiles);
                 table.draw();
             }
-            
+
             // Update Grid if visible
             if($('#gridView').is(':visible')) {
                 loadGridView();
@@ -1486,12 +1318,12 @@ function showCreateModal() {
             <option value="daily_fees">📅 <?php echo get_phrase('daily_fees'); ?></option>
         `;
     }
-    
+
     var formHtml = `
         <form id="profileForm" method="post" action="<?php echo site_url($account_type . '/discount_profiles/create'); ?>" class="space-y-6">
             <input type="hidden" id="profile_id" name="profile_id">
             <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
-            
+
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <div class="modal-form-group">
@@ -1499,58 +1331,58 @@ function showCreateModal() {
                             <i class="fa fa-tag text-primary"></i> <?php echo get_phrase('profile_name'); ?>
                             <span class="modal-required">*</span>
                         </label>
-                        <input type="text" name="profile_name" id="profile_name" 
-                               class="modal-form-input" 
+                        <input type="text" name="profile_name" id="profile_name"
+                               class="modal-form-input"
                                placeholder="e.g., Staff Children Discount" required>
                     </div>
-                    
+
                     <div class="modal-form-group">
                         <label class="modal-form-label">
                             <i class="fa fa-folder text-primary"></i> <?php echo get_phrase('category'); ?>
                             <span class="modal-required">*</span>
                         </label>
-                        <select name="discount_category" id="discount_category" 
-                                class="modal-form-select" 
-                                ${restrictedMode ? 'disabled' : ''} 
+                        <select name="discount_category" id="discount_category"
+                                class="modal-form-select"
+                                ${restrictedMode ? 'disabled' : ''}
                                 required onchange="updateDiscountTypes()">
                             ${categoryOptions}
                         </select>
                         ${restrictedMode ? '<input type="hidden" name="discount_category" value="daily_fees">' : ''}
                     </div>
-                    
+
                     <div class="modal-form-group">
                         <label class="modal-form-label">
                             <i class="fa fa-calculator text-primary"></i> <?php echo get_phrase('method'); ?>
                             <span class="modal-required">*</span>
                         </label>
-                        <select name="discount_method" id="discount_method" 
-                                class="modal-form-select" 
+                        <select name="discount_method" id="discount_method"
+                                class="modal-form-select"
                                 required>
                             <option value="percentage">📊 Percentage (%)</option>
                             <option value="fixed">💰 Fixed Amount (GHS)</option>
                         </select>
                     </div>
-                    
+
                     <div class="modal-form-group">
                         <label class="modal-form-label">
                             <i class="fa fa-dollar text-success"></i> <?php echo get_phrase('value'); ?>
                             <span class="modal-required">*</span>
                         </label>
                         <input type="number" name="discount_value" id="discount_value" step="0.01" min="0"
-                               class="modal-form-input" 
+                               class="modal-form-input"
                                placeholder="e.g., 50 or 100.00" required>
                     </div>
-                    
+
                     <div>
                         <label class="modal-form-label">
                             <i class="fa fa-align-left text-muted"></i> <?php echo get_phrase('description'); ?>
                         </label>
-                        <textarea name="description" id="description" rows="3" 
-                                  class="modal-form-textarea" 
+                        <textarea name="description" id="description" rows="3"
+                                  class="modal-form-textarea"
                                   placeholder="Optional description..."></textarea>
                     </div>
                 </div>
-                
+
                 <div>
                     <label class="modal-form-label">
                         <i class="fa fa-list text-success"></i> <?php echo get_phrase('type'); ?>
@@ -1561,14 +1393,14 @@ function showCreateModal() {
                     </div>
                 </div>
             </div>
-            
+
             <div class="pt-4 border-t border-gray-200">
                 <div class="flex gap-3 justify-end">
-                    <button type="button" data-dismiss="modal" 
+                    <button type="button" data-dismiss="modal"
                             class="text-gray-700 bg-white border-2 border-gray-300 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 font-semibold rounded-lg text-lg px-10 py-3.5">
                         <i class="fa fa-times"></i> Cancel
                     </button>
-                    <button type="submit" 
+                    <button type="submit"
                             class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-lg px-10 py-3.5">
                         <i class="fa fa-save"></i> Save
                     </button>
@@ -1576,9 +1408,9 @@ function showCreateModal() {
             </div>
         </form>
     `;
-    
+
     showModalWithContent('createModal', '<i class="fa fa-plus-circle"></i> <?php echo get_phrase('create_discount_profile'); ?>', formHtml);
-    
+
     // Attach form handler after modal is shown
     $('#createModal').on('shown.bs.modal', function() {
         $('#profileForm').off('submit').on('submit', handleFormSubmit);
@@ -1592,7 +1424,7 @@ function editProfile(profile_id) {
         data: { profile_id: profile_id },
         dataType: 'json'
     }).done(function(data) {
-        
+
         var categoryOptions = '';
         if (restrictedMode) {
             // Only show daily_fees for cashiers/conductors
@@ -1607,12 +1439,12 @@ function editProfile(profile_id) {
                 <option value="daily_fees" ${data.discount_category === 'daily_fees' ? 'selected' : ''}>📅 <?php echo get_phrase('daily_fees'); ?></option>
             `;
         }
-        
+
         var formHtml = `
             <form id="profileForm" method="post" action="<?php echo site_url($account_type . '/discount_profiles/update'); ?>" class="space-y-6">
                 <input type="hidden" id="profile_id" name="profile_id" value="${data.profile_id}">
                 <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
-                
+
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <div class="modal-form-group">
@@ -1621,56 +1453,56 @@ function editProfile(profile_id) {
                                 <span class="modal-required">*</span>
                             </label>
                             <input type="text" name="profile_name" id="profile_name" value="${data.profile_name}"
-                                   class="modal-form-input" 
+                                   class="modal-form-input"
                                    required>
                         </div>
-                        
+
                         <div class="modal-form-group">
                             <label class="modal-form-label">
                                 <i class="fa fa-folder text-primary"></i> <?php echo get_phrase('category'); ?>
                                 <span class="modal-required">*</span>
                             </label>
-                            <select name="discount_category" id="discount_category" 
-                                    class="modal-form-select" 
-                                    ${restrictedMode ? 'disabled' : ''} 
+                            <select name="discount_category" id="discount_category"
+                                    class="modal-form-select"
+                                    ${restrictedMode ? 'disabled' : ''}
                                     required onchange="updateDiscountTypes()">
                                 ${categoryOptions}
                             </select>
                             ${restrictedMode ? '<input type="hidden" name="discount_category" value="daily_fees">' : ''}
                         </div>
-                        
+
                         <div class="modal-form-group">
                             <label class="modal-form-label">
                                 <i class="fa fa-calculator text-primary"></i> <?php echo get_phrase('method'); ?>
                                 <span class="modal-required">*</span>
                             </label>
-                            <select name="discount_method" id="discount_method" 
-                                    class="modal-form-select" 
+                            <select name="discount_method" id="discount_method"
+                                    class="modal-form-select"
                                     required>
                                 <option value="percentage" ${data.discount_method === 'percentage' ? 'selected' : ''}>📊 Percentage (%)</option>
                                 <option value="fixed" ${data.discount_method === 'fixed' ? 'selected' : ''}>💰 Fixed Amount (GHS)</option>
                             </select>
                         </div>
-                        
+
                         <div class="modal-form-group">
                             <label class="modal-form-label">
                                 <i class="fa fa-dollar text-success"></i> <?php echo get_phrase('value'); ?>
                                 <span class="modal-required">*</span>
                             </label>
                             <input type="number" name="discount_value" id="discount_value" step="0.01" min="0" value="${data.discount_value || 0}"
-                                   class="modal-form-input" 
+                                   class="modal-form-input"
                                    placeholder="e.g., 50 or 100.00" required>
                         </div>
-                        
+
                         <div class="modal-form-group">
                             <label class="modal-form-label">
                                 <i class="fa fa-align-left text-muted"></i> <?php echo get_phrase('description'); ?>
                             </label>
-                            <textarea name="description" id="description" rows="3" 
+                            <textarea name="description" id="description" rows="3"
                                       class="modal-form-textarea">${data.description || ''}</textarea>
                         </div>
                     </div>
-                    
+
                     <div>
                         <label class="modal-form-label">
                             <i class="fa fa-list text-success"></i> <?php echo get_phrase('type'); ?>
@@ -1681,14 +1513,14 @@ function editProfile(profile_id) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="pt-4 border-t border-gray-200">
                     <div class="flex gap-3 justify-end">
-                        <button type="button" data-dismiss="modal" 
+                        <button type="button" data-dismiss="modal"
                                 class="text-gray-700 bg-white border-2 border-gray-300 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 font-semibold rounded-lg text-lg px-10 py-3.5">
                             <i class="fa fa-times"></i> Cancel
                         </button>
-                        <button type="submit" 
+                        <button type="submit"
                                 class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 font-semibold rounded-lg text-lg px-10 py-3.5">
                             <i class="fa fa-save"></i> Update
                         </button>
@@ -1696,12 +1528,12 @@ function editProfile(profile_id) {
                 </div>
             </form>
         `;
-        
+
         showModalWithContent('createModal', '<i class="fa fa-edit"></i> <?php echo get_phrase('edit_discount_profile'); ?>', formHtml);
-        
+
         // Remove any previous event handlers to prevent stacking
         $('#createModal').off('shown.bs.modal');
-        
+
         // Populate discount types after modal is shown
         $('#createModal').on('shown.bs.modal', function() {
             updateDiscountTypes();
@@ -1709,15 +1541,15 @@ function editProfile(profile_id) {
                 // Clear all checkboxes first
                 $('.multiselect-item input[type="checkbox"]').prop('checked', false);
                 $('.multiselect-item').removeClass('selected');
-                
+
                 // Get the correct field based on category
                 var selectedValues = data.discount_category === 'invoice' ? data.bill_item_ids : data.discount_type;
-                
+
                 // Handle "*" for all invoice items
                 if (selectedValues === '*') {
                     selectedValues = 'all_invoice_items';
                 }
-                
+
                 if (selectedValues) {
                     var types = selectedValues.split(',');
                     types.forEach(function(type) {
@@ -1764,7 +1596,7 @@ function deleteProfile(profile_id) {
 
 function toggleStatus(profile_id) {
     showAjaxModal_alert('<?php echo get_phrase('updating'); ?>', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/discount_profiles/toggle_status'); ?>',
         type: 'POST',
@@ -1785,14 +1617,14 @@ function toggleStatus(profile_id) {
 function updateDiscountTypes() {
     var category = $('#discount_category').val();
     var container = $('#discount_type_container');
-    
+
     container.html('<div class="multiselect-placeholder">Loading...</div>');
-    
+
     if (!category) {
         container.html('<div class="multiselect-placeholder">Select category first...</div>');
         return;
     }
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_discount_types_for_profiles'); ?>',
         type: 'GET',
@@ -1802,14 +1634,14 @@ function updateDiscountTypes() {
         if(response.status === 'success' && response.data && response.data.length > 0) {
             var html = '<button type="button" class="multiselect-select-all" onclick="toggleSelectAll()">Select All</button>';
             html += '<div class="multiselect-items">';
-            
+
             response.data.forEach(function(item) {
                 html += '<div class="multiselect-item">';
                 html += '<input type="checkbox" value="' + item.value + '" onchange="toggleItemByCheckbox(this); updateHiddenField(); updateSelectAllButton();">';
                 html += '<label onclick="toggleItemByLabel(event)">' + item.label + '</label>';
                 html += '</div>';
             });
-            
+
             html += '</div>';
             container.html(html);
         } else {
@@ -1851,11 +1683,11 @@ function toggleSelectAll() {
     var allChecked = $('.multiselect-item input[type="checkbox"]:checked').length === $('.multiselect-item input[type="checkbox"]').length;
     $('.multiselect-item input[type="checkbox"]').prop('checked', !allChecked);
     $('.multiselect-item').toggleClass('selected', !allChecked);
-    
+
     // Update button text
     var btn = $('.multiselect-select-all');
     btn.text(allChecked ? 'Select All' : 'Deselect All');
-    
+
     updateHiddenField();
 }
 
@@ -1864,12 +1696,12 @@ function updateHiddenField() {
     $('.multiselect-item input[type="checkbox"]:checked').each(function() {
         selected.push($(this).val());
     });
-    
+
     // Remove ALL existing discount_type inputs
     $('input[name="discount_type"]').remove();
     $('input[name="discount_type[]"]').remove();
     $('#discount_type_hidden').remove();
-    
+
     // Add single hidden field with comma-separated values
     $('<input>').attr({
         type: 'hidden',

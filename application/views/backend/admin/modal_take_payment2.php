@@ -580,6 +580,8 @@ $receipt_style = $this->db->get_where('settings', array('type' => 'receipt_style
 
         } else if(receipt_style == 'style_3') {
             showAjaxModal_receipt('<?php echo site_url('modal/popup_receipt/modal_receipt_3/'); ?>' + receipt_code + '/' + student_id + '/' + total_amount_received + '/' + date_time, 'take_payment');
+        } else if(receipt_style == 'style_thermal') {
+            window.open('<?php echo site_url('admin/receipt_print/'); ?>' + receipt_code + '/' + student_id + '/' + total_amount_received + '/' + date_time, '_blank');
         }
     }
 

@@ -1,53 +1,15 @@
-<?php 
+<?php
 $edit_data		=	$this->db->get_where('class_routine' , array('class_routine_id' => $param2) )->result_array();
 ?>
-<style>
-/* Direct UX refinement — Edit Class Routine modal */
-.routine-edit-modal { padding: 4px !important; }
-.routine-edit-modal .box-content { padding: 14px 10px 4px; }
-.routine-edit-modal form { margin: 0; }
-.routine-edit-modal .form-group { margin-bottom: 15px; }
-.routine-edit-modal .control-label {
-    padding-top: 11px; color: #334155; font-size: 14px; font-weight: 700;
-}
-.routine-edit-modal .form-control,
-.routine-edit-modal .selectboxit-container .selectboxit {
-    min-height: 46px; height: 46px; border: 1px solid #cbd5e1;
-    border-radius: 9px; background: #fff; color: #0f172a; font-size: 15px;
-}
-.routine-edit-modal .form-control:focus {
-    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
-}
-.routine-edit-modal .selectboxit-container,
-.routine-edit-modal .selectboxit-container .selectboxit { width: 100% !important; }
-.routine-edit-modal .col-sm-9 > .col-md-3 { padding-left: 0; padding-right: 10px; }
-.routine-edit-modal #section_subject_edit_holder .form-group { margin-bottom: 15px; }
-.routine-edit-modal button[type="submit"] {
-    min-height: 44px; padding: 9px 18px; border-radius: 9px;
-    background: #2563eb; border-color: #2563eb; color: #fff;
-    font-size: 14px; font-weight: 800;
-}
-.routine-edit-modal button[type="submit"]:hover { background: #1d4ed8; border-color: #1d4ed8; }
-
-@media (max-width: 767px) {
-    .routine-edit-modal .box-content { padding: 10px 4px 2px; }
-    .routine-edit-modal .control-label { padding-top: 0; margin-bottom: 6px; text-align: left; }
-    .routine-edit-modal .col-sm-5,
-    .routine-edit-modal .col-sm-9,
-    .routine-edit-modal .col-md-3 { width: 100%; padding-left: 15px; padding-right: 15px; margin-bottom: 8px; }
-    .routine-edit-modal button[type="submit"] { width: 100%; }
-}
-</style>
-
-<div class="tab-pane box active routine-edit-modal" id="edit" style="padding: 5px">
+<div class="tab-pane box active" id="edit" style="padding: 5px">
     <div class="box-content">
         <?php foreach($edit_data as $row):?>
         <?php echo form_open(site_url('admin/class_routine/do_update/'.$row['class_routine_id'])  , array('id' => 'class_routine_edit_form', 'class' => 'form-horizontal validatable','target'=>'_top'));?>
                 <div class="form-group">
                     <label class="col-sm-3 control-label"><?php echo get_phrase('class');?></label>
                     <div class="col-sm-5">
-                        <select id="class_id" name="class_id" class="form-control selectboxit" onchange="section_subject_select(this.value , <?php echo $param2;?>)">
-                            <?php 
+                        <select id="class_id" name="class_id" class="form-control select2" onchange="section_subject_select(this.value , <?php echo $param2;?>)">
+                            <?php
                         $classes = $this->db->get_where('class', array('teacher_id' => $this->session->userdata('teacher_id')))->result_array();
                         foreach($classes as $row2):
 
@@ -71,7 +33,7 @@ $edit_data		=	$this->db->get_where('class_routine' , array('class_routine_id' =>
                 <div class="form-group">
                     <label class="col-sm-3 control-label"><?php echo get_phrase('day');?></label>
                     <div class="col-sm-5">
-                        <select name="day" class="form-control selectboxit">
+                        <select name="day" class="form-control select2">
                             <option value="saturday" 	<?php if($row['day']=='saturday')echo 'selected="selected"';?>>Saturday</option>
                             <option value="sunday" 		<?php if($row['day']=='sunday')echo 'selected="selected"';?>>Sunday</option>
                             <option value="monday" 		<?php if($row['day']=='monday')echo 'selected="selected"';?>>Monday</option>
@@ -85,7 +47,7 @@ $edit_data		=	$this->db->get_where('class_routine' , array('class_routine_id' =>
                 <div class="form-group">
                     <label class="col-sm-3 control-label"><?php echo get_phrase('starting_time');?></label>
                     <div class="col-sm-9">
-                        <?php 
+                        <?php
                             if($row['time_start'] < 13)
                             {
                                 $time_start		=	$row['time_start'];
@@ -98,7 +60,7 @@ $edit_data		=	$this->db->get_where('class_routine' , array('class_routine_id' =>
                                 $time_start_min =   $row['time_start_min'];
                                 $starting_ampm	=	2;
                             }
-                            
+
                         ?>
                         <div class="col-md-3">
                             <select name="time_start" class="form-control" required>
@@ -118,7 +80,7 @@ $edit_data		=	$this->db->get_where('class_routine' , array('class_routine_id' =>
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <select name="starting_ampm" class="form-control selectboxit">
+                            <select name="starting_ampm" class="form-control select2">
                                 <option value="1" <?php if($starting_ampm	==	'1')echo 'selected="selected"';?>>am</option>
                                 <option value="2" <?php if($starting_ampm	==	'2')echo 'selected="selected"';?>>pm</option>
                             </select>
@@ -128,9 +90,9 @@ $edit_data		=	$this->db->get_where('class_routine' , array('class_routine_id' =>
                 <div class="form-group">
                     <label class="col-sm-3 control-label"><?php echo get_phrase('ending_time');?></label>
                     <div class="col-sm-9">
-                        
-                        
-                        <?php 
+
+
+                        <?php
                             if($row['time_end'] < 13)
                             {
                                 $time_end		=	$row['time_end'];
@@ -143,7 +105,7 @@ $edit_data		=	$this->db->get_where('class_routine' , array('class_routine_id' =>
                                 $time_end_min   =   $row['time_end_min'];
                                 $ending_ampm	=	2;
                             }
-                            
+
                         ?>
                         <div class="col-md-3">
                             <select name="time_end" class="form-control" required>
@@ -163,7 +125,7 @@ $edit_data		=	$this->db->get_where('class_routine' , array('class_routine_id' =>
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <select name="ending_ampm" class="form-control selectboxit">
+                            <select name="ending_ampm" class="form-control select2">
                                 <option value="1" <?php if($ending_ampm	==	'1')echo 'selected="selected"';?>>am</option>
                                 <option value="2" <?php if($ending_ampm	==	'2')echo 'selected="selected"';?>>pm</option>
                             </select>
@@ -197,7 +159,7 @@ $edit_data		=	$this->db->get_where('class_routine' , array('class_routine_id' =>
         var class_id = $('#class_id').val();
         var class_routine_id = '<?php echo $param2;?>';
         section_subject_select(class_id,class_routine_id);
-        
+
         $('#class_routine_edit_form').submit(function(e) {
             e.preventDefault();
             $('.close')[0].click();
@@ -221,6 +183,6 @@ $edit_data		=	$this->db->get_where('class_routine' , array('class_routine_id' =>
                 showAjaxModal_alert('An error occurred', 'error');
             });
         });
-    }); 
+    });
 </script>
 

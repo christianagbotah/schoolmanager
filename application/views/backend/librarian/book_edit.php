@@ -34,7 +34,7 @@ $edit_data		=	$this->db->get_where('book' , array('book_id' => $param2) )->resul
                 <div class="form-group">
                     <label class="col-sm-3 control-label"><?php echo get_phrase('class');?></label>
                     <div class="col-sm-5">
-                        <select name="class_id" class="form-control selectboxit">
+                        <select name="class_id" class="form-control select2">
                             <?php
                             $classes = $this->db->get('class')->result_array();
                             foreach($classes as $row2):
@@ -68,7 +68,7 @@ $edit_data		=	$this->db->get_where('book' , array('book_id' => $param2) )->resul
                 <!--<div class="form-group">
                     <label class="col-sm-3 control-label"><?php echo get_phrase('status');?></label>
                     <div class="col-sm-5">
-                        <select name="status" class="form-control selectboxit">
+                        <select name="status" class="form-control select2">
                             <option value="available" <?php if($row['status']=='available')echo 'selected';?>><?php echo get_phrase('available');?></option>
                             <option value="unavailable" <?php if($row['status']=='unavailable')echo 'selected';?>><?php echo get_phrase('unavailable');?></option>
                         </select>

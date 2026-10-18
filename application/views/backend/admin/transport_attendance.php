@@ -2,19 +2,19 @@
 .filter-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
 .filter-group { display: flex; flex-direction: column; gap: 8px; }
 .filter-label { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px; }
-.filter-input, .filter-select, .filter-btn { height: var(--sm-ui-control-height, 42px); border: 2px solid #e5e7eb; border-radius: 8px; padding: 0 11px; font-size: 14px; transition: all 0.3s; }
+.filter-input, .filter-select, .filter-btn { height: 48px; border: 2px solid #e5e7eb; border-radius: 8px; padding: 0 16px; font-size: 15px; transition: all 0.3s; }
 .filter-input:focus, .filter-select:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-.filter-btn { background: #1e40af; color: white; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.filter-btn { background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .filter-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
 .action-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
-.btn-action { height: var(--sm-ui-control-height, 42px); padding: 0 14px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
-.btn-present { background: #059669; color: white; }
-.btn-absent { background: #dc2626; color: white; }
-.btn-save { background: #7c3aed; color: white; margin-left: auto; }
+.btn-action { height: 48px; padding: 0 24px; border-radius: 8px; font-weight: 600; font-size: 15px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
+.btn-present { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+.btn-absent { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
+.btn-save { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; margin-left: auto; }
 .btn-action:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 .attendance-table { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 .attendance-table table { width: 100%; border-collapse: collapse; }
-.attendance-table thead { background: #f8fafc; }
+.attendance-table thead { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); }
 .attendance-table th { padding: 16px; text-align: left; font-weight: 700; font-size: 14px; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px; }
 .attendance-table td { padding: 16px; border-bottom: 1px solid #e5e7eb; font-size: 15px; color: #374151; }
 .attendance-table tbody tr:hover { background: #f8fafc; }
@@ -27,134 +27,16 @@
     .btn-save { margin-left: 0; }
     .attendance-table { overflow-x: auto; }
 }
-
-/* Direct UX refinement — Transport Attendance */
-body { background: #f8fafc; }
-.transport-attendance-workspace {
-    margin: 0 !important; padding: 0 0 32px !important; color: #334155; background: #f8fafc; min-height: 100%;
-}
-.transport-attendance-workspace > div {
-    border: 0 !important; border-radius: 0 !important; background: transparent !important;
-    box-shadow: none !important; overflow: visible;
-}
-.transport-attendance-workspace > div > div:first-child {
-    margin-bottom: 18px; padding: 0 0 18px !important;
-    background: transparent !important; border-radius: 0 !important; border-bottom: 1px solid #e2e8f0;
-}
-.transport-attendance-workspace > div > div:first-child h2 {
-    margin: 0 !important; color: #0f172a !important; font-size: 24px !important; line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em;
-}
-.transport-attendance-workspace > div > div:first-child h2 i { color: #2563eb; margin-right: 7px; }
-.transport-attendance-workspace > div > div:nth-child(2) { padding: 0 !important; }
-
-.transport-attendance-workspace .filter-card {
-    margin-bottom: 16px; padding: 18px; border: 1px solid #e2e8f0;
-    border-radius: 12px; box-shadow: none; background: #fff;
-}
-.transport-attendance-workspace .filter-card[style*="background: #f0f9ff"] {
-    background: #f8fbff !important; border-left: 4px solid #2563eb !important;
-}
-.transport-attendance-workspace .filter-card h3 {
-    margin: 0 0 14px !important; color: #1e3a8a !important;
-    font-size: 17px !important; font-weight: 800 !important;
-}
-.transport-attendance-workspace .filter-group { gap: 6px; }
-.transport-attendance-workspace .filter-label {
-    margin-bottom: 2px; font-size: 14px; font-weight: 700; color: #334155;
-}
-.transport-attendance-workspace .filter-input,
-.transport-attendance-workspace .filter-select,
-.transport-attendance-workspace .filter-btn {
-    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 0 11px;
-    border-width: 1px; border-color: #cbd5e1; border-radius: 9px; font-size: 14px;
-}
-.transport-attendance-workspace .filter-input:focus,
-.transport-attendance-workspace .filter-select:focus {
-    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.14);
-}
-.transport-attendance-workspace .filter-btn {
-    background: #2563eb; font-size: 14px; font-weight: 800;
-}
-.transport-attendance-workspace .filter-btn:hover {
-    background: #1d4ed8; transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(37,99,235,.18);
-}
-
-.transport-attendance-workspace .select2-container .select2-selection--single {
-    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); border: 1px solid #cbd5e1; border-radius: 9px;
-}
-.transport-attendance-workspace .select2-container .select2-selection__rendered {
-    line-height: 40px; padding-left: 11px; font-size: 14px;
-}
-.transport-attendance-workspace .select2-container .select2-selection__arrow { height: 40px; }
-
-.transport-attendance-workspace .action-btns {
-    gap: 10px; margin-bottom: 14px; padding-top: 2px;
-}
-.transport-attendance-workspace .btn-action {
-    min-height: 42px; height: 42px; padding: 0 15px; border-radius: 9px;
-    font-size: 14px; font-weight: 800;
-}
-.transport-attendance-workspace .btn-action:hover {
-    transform: translateY(-1px); box-shadow: 0 3px 10px rgba(15,23,42,.12);
-}
-.transport-attendance-workspace .btn-save { background: #2563eb; }
-
-.transport-attendance-workspace .attendance-table {
-    border: 1px solid #e2e8f0; border-radius: 12px;
-    box-shadow: none; overflow-x: auto; -webkit-overflow-scrolling: touch;
-}
-.transport-attendance-workspace .attendance-table table { min-width: 780px; }
-.transport-attendance-workspace .attendance-table thead { background: #f8fafc; }
-.transport-attendance-workspace .attendance-table th {
-    padding: 12px 13px; color: #475569; font-size: 13px; font-weight: 800;
-    letter-spacing: .035em; border-bottom: 1px solid #e2e8f0;
-}
-.transport-attendance-workspace .attendance-table td {
-    padding: 12px 13px; color: #334155; font-size: 14px; line-height: 1.45;
-}
-.transport-attendance-workspace .attendance-select {
-    min-height: 40px; height: 40px; border-width: 1px; border-color: #cbd5e1;
-    border-radius: 8px; padding: 0 10px; font-size: 14px; min-width: 130px;
-}
-.transport-attendance-workspace .attendance-select:focus {
-    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12);
-}
-
-
-.transport-attendance-workspace .filter-card:first-of-type .filter-grid {
-    display: grid !important;
-    grid-template-columns: minmax(180px,1.2fr) repeat(3,minmax(145px,.9fr)) auto !important;
-    gap: 10px !important; align-items: end !important;
-}
-.transport-attendance-workspace .student-report-filter-grid {
-    display: grid !important;
-    grid-template-columns: minmax(240px,1.5fr) repeat(4,minmax(125px,.75fr)) auto !important;
-    gap: 10px !important; align-items: end !important;
-}
-.transport-attendance-workspace .student-report-filter-grid .filter-group { min-width: 0; }
-@media (max-width: 768px) {
-    .transport-attendance-workspace { padding: 0 0 28px !important; }
-    .transport-attendance-workspace > div > div:first-child h2 { font-size: 22px !important; }
-    .transport-attendance-workspace > div > div:nth-child(2) { padding: 14px !important; }
-    .transport-attendance-workspace .filter-card { padding: 14px; }
-    .transport-attendance-workspace .filter-grid { grid-template-columns: 1fr !important; }
-    .transport-attendance-workspace .action-btns { flex-direction: column; }
-    .transport-attendance-workspace .btn-action { width: 100%; justify-content: center; }
-    .transport-attendance-workspace .btn-save { margin-left: 0; }
-    .transport-attendance-workspace .attendance-table th { font-size: 13px; padding: 9px 10px; }
-    .transport-attendance-workspace .attendance-table td { font-size: 14px; padding: 10px; }
-}
 </style>
 
-<div style="padding: 24px;" class="transport-attendance-workspace">
+<div style="padding: 24px;">
     <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-        <div style="background: #7c3aed; padding: 24px; border-radius: 12px 12px 0 0;">
-            <h2 style="margin: 0; color: white; font-size: 24px; font-weight: 700;">
+        <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 24px; border-radius: 12px 12px 0 0;">
+            <h2 style="margin: 0; color: white; font-size: 28px; font-weight: 700;">
                 <i class="entypo-clipboard"></i> <?php echo get_phrase('transport_attendance'); ?>
             </h2>
         </div>
-        
+
         <div style="padding: 24px;">
             <!-- Filters -->
             <div class="filter-card">
@@ -169,17 +51,17 @@ body { background: #f8fafc; }
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    
+
                     <div class="filter-group">
                         <label class="filter-label"><?php echo get_phrase('from_date'); ?></label>
                         <input type="date" id="from_date" value="<?php echo date('Y-m-d'); ?>" class="filter-input">
                     </div>
-                    
+
                     <div class="filter-group">
                         <label class="filter-label"><?php echo get_phrase('to_date'); ?></label>
                         <input type="date" id="to_date" value="<?php echo date('Y-m-d'); ?>" class="filter-input">
                     </div>
-                    
+
                     <div class="filter-group">
                         <label class="filter-label"><?php echo get_phrase('session'); ?></label>
                         <select id="attendance_type" class="filter-select">
@@ -188,7 +70,7 @@ body { background: #f8fafc; }
                             <option value="afternoon"><?php echo get_phrase('afternoon'); ?></option>
                         </select>
                     </div>
-                    
+
                     <div class="filter-group" style="justify-content: flex-end;">
                         <label class="filter-label" style="opacity: 0;">Load</label>
                         <button onclick="loadAttendance()" class="filter-btn">
@@ -199,25 +81,25 @@ body { background: #f8fafc; }
             </div>
 
             <!-- Student Report Section -->
-            <div class="filter-card" style="background: #f0f9ff; border-left: 4px solid #3b82f6;">
+            <div class="filter-card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-left: 4px solid #3b82f6;">
                 <h3 style="color: #1e40af; margin-bottom: 16px; font-weight: 700;">
                     <i class="entypo-user"></i> <?php echo get_phrase('student_transport_report'); ?>
                 </h3>
-                <div class="filter-grid student-report-filter-grid">
+                <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 16px; align-items: end;" class="filter-grid">
                     <div class="filter-group">
                         <label class="filter-label"><?php echo get_phrase('select_student'); ?></label>
                         <select id="report_student_id" class="filter-select select2-student" style="border-color: #3b82f6; width: 100%;">
                             <option value="">-- <?php echo get_phrase('select_student'); ?> --</option>
                         </select>
                     </div>
-                    
+
                     <div class="filter-group">
                         <label class="filter-label"><?php echo get_phrase('year'); ?></label>
                         <select id="report_year" class="filter-select" style="border-color: #3b82f6;">
                             <?php populate_academic_year('yes'); ?>
                         </select>
                     </div>
-                    
+
                     <div class="filter-group">
                         <label class="filter-label"><?php echo get_phrase('term'); ?></label>
                         <select id="report_term" class="filter-select" style="border-color: #3b82f6;">
@@ -227,19 +109,21 @@ body { background: #f8fafc; }
                             <option value="3" <?php echo ($this->db->get_where('settings', array('type' => 'running_term'))->row()->description == '3') ? 'selected' : ''; ?>>3</option>
                         </select>
                     </div>
+                </div>
 
+                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; align-items: end; margin-top: 16px;" class="filter-grid">
                     <div class="filter-group">
                         <label class="filter-label"><?php echo get_phrase('from_date'); ?></label>
                         <input type="date" id="report_from_date" class="filter-input" style="border-color: #3b82f6;">
                     </div>
-                    
+
                     <div class="filter-group">
                         <label class="filter-label"><?php echo get_phrase('to_date'); ?></label>
                         <input type="date" id="report_to_date" class="filter-input" style="border-color: #3b82f6;">
                     </div>
-                    
+
                     <div class="filter-group">
-                        <button onclick="generateStudentReport()" class="filter-btn" style="background: #1e40af;">
+                        <button onclick="generateStudentReport()" class="filter-btn" style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);">
                             <i class="entypo-doc-text"></i> <?php echo get_phrase('generate_report'); ?>
                         </button>
                     </div>
@@ -252,7 +136,7 @@ body { background: #f8fafc; }
                 <input type="hidden" id="form_from_date" name="from_date">
                 <input type="hidden" id="form_to_date" name="to_date">
                 <input type="hidden" id="form_attendance_type" name="attendance_type">
-                
+
                 <div id="attendanceTableContainer" style="display: none;">
                     <div class="action-btns">
                         <button type="button" onclick="markAll('present')" class="btn-action btn-present">
@@ -265,7 +149,7 @@ body { background: #f8fafc; }
                             <i class="fa fa-save"></i> <?php echo get_phrase('save_attendance'); ?>
                         </button>
                     </div>
-                    
+
                     <div class="attendance-table">
                         <table id="attendance_table">
                             <thead>
@@ -290,7 +174,7 @@ body { background: #f8fafc; }
 // Load all transport students for dropdown
 $(document).ready(function() {
     loadStudentsForReport();
-    
+
     // Initialize Select2 for student search
     $('.select2-student').select2({
         placeholder: '-- <?php echo get_phrase('select_student'); ?> --',
@@ -313,7 +197,7 @@ function loadStudentsForReport() {
             response.data.forEach(function(student) {
                 select.append('<option value="' + student.student_id + '">' + student.student_code + ' - ' + student.name + ' (' + student.class + ')</option>');
             });
-            
+
             // Reinitialize Select2 after populating
             select.select2({
                 placeholder: '-- <?php echo get_phrase('select_student'); ?> --',
@@ -331,24 +215,24 @@ function generateStudentReport() {
     var term = $('#report_term').val();
     var from_date = $('#report_from_date').val();
     var to_date = $('#report_to_date').val();
-    
+
     if (!student_id) {
         showAjaxModal_alert('<?php echo get_phrase('please_select_student'); ?>', 'error');
         return;
     }
-    
+
     if (!from_date || !to_date) {
         showAjaxModal_alert('<?php echo get_phrase('please_select_date_range'); ?>', 'error');
         return;
     }
-    
+
     showAjaxModal_alert('Generating report...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url("admin/get_student_transport_report"); ?>',
         type: 'POST',
-        data: { 
-            student_id: student_id, 
+        data: {
+            student_id: student_id,
             year: year,
             term: term,
             from_date: from_date,
@@ -369,28 +253,28 @@ function generateStudentReport() {
 
 function displayStudentReport(data) {
     var html = '<div id="studentReportContent" style="padding: 24px;">';
-    
+
     // Header
     html += '<div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #3b82f6; padding-bottom: 20px;">';
     html += '<h2 style="color: #1e40af; margin: 0 0 10px 0; font-weight: 700;">Transport Attendance Report</h2>';
     html += '<p style="color: #6b7280; font-size: 16px; margin: 0;">' + data.student.student_code + ' - ' + data.student.name + '</p>';
     html += '<p style="color: #6b7280; font-size: 14px; margin: 4px 0 0 0;">' + data.student.class + '</p>';
     html += '</div>';
-    
+
     // Student Info & Statistics
     html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">';
-    
+
     // Student Info Card
-    html += '<div style="background: #f0f9ff; padding: 20px; border-radius: 12px; border-left: 4px solid #3b82f6;">';
+    html += '<div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #3b82f6;">';
     html += '<h4 style="color: #1e40af; margin: 0 0 12px 0; font-weight: 700;"><i class="entypo-user"></i> Student Information</h4>';
     html += '<table style="width: 100%; font-size: 14px;">';
     html += '<tr><td style="padding: 6px 0; color: #6b7280;"><strong>Route:</strong></td><td style="color: #1f2937;">' + (data.student.route_name || 'Not Assigned') + '</td></tr>';
     html += '<tr><td style="padding: 6px 0; color: #6b7280;"><strong>Route Fare:</strong></td><td style="color: #1f2937;">GHS ' + (data.student.route_fare ? parseFloat(data.student.route_fare).toFixed(2) : '0.00') + '</td></tr>';
     html += '<tr><td style="padding: 6px 0; color: #6b7280;"><strong>Report Period:</strong></td><td style="color: #1f2937;">' + data.period_label + '</td></tr>';
     html += '</table></div>';
-    
+
     // Statistics Card
-    html += '<div style="background: #f0fdf4; padding: 20px; border-radius: 12px; border-left: 4px solid #10b981;">';
+    html += '<div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #10b981;">';
     html += '<h4 style="color: #059669; margin: 0 0 12px 0; font-weight: 700;"><i class="entypo-chart-bar"></i> Statistics</h4>';
     html += '<table style="width: 100%; font-size: 14px;">';
     html += '<tr><td style="padding: 6px 0; color: #6b7280;"><strong>Total Days:</strong></td><td style="color: #1f2937; font-weight: 700;">' + data.stats.total_days + '</td></tr>';
@@ -398,10 +282,10 @@ function displayStudentReport(data) {
     html += '<tr><td style="padding: 6px 0; color: #6b7280;"><strong>Absent:</strong></td><td style="color: #ef4444; font-weight: 700;">' + data.stats.absent + ' (' + data.stats.absent_percent + '%)</td></tr>';
     html += '<tr><td style="padding: 6px 0; color: #6b7280;"><strong>Late:</strong></td><td style="color: #f59e0b; font-weight: 700;">' + data.stats.late + ' (' + data.stats.late_percent + '%)</td></tr>';
     html += '</table></div></div>';
-    
+
     // Payment Information
     if (data.payments && data.payments.total_paid > 0) {
-        html += '<div style="background: #fef3c7; padding: 20px; border-radius: 12px; border-left: 4px solid #f59e0b; margin-bottom: 30px;">';
+        html += '<div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #f59e0b; margin-bottom: 30px;">';
         html += '<h4 style="color: #d97706; margin: 0 0 12px 0; font-weight: 700;"><i class="entypo-credit-card"></i> Payment Summary</h4>';
         html += '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; text-align: center;">';
         html += '<div><div style="font-size: 24px; font-weight: 700; color: #d97706;">GHS ' + parseFloat(data.payments.total_paid).toFixed(2) + '</div><div style="color: #92400e; font-size: 13px; margin-top: 4px;">Total Paid</div></div>';
@@ -409,13 +293,13 @@ function displayStudentReport(data) {
         html += '<div><div style="font-size: 24px; font-weight: 700; color: #d97706;">GHS ' + parseFloat(data.payments.expected).toFixed(2) + '</div><div style="color: #92400e; font-size: 13px; margin-top: 4px;">Expected (Term)</div></div>';
         html += '</div></div>';
     }
-    
+
     // Attendance Details Table
     if (data.attendance && data.attendance.length > 0) {
         html += '<div style="margin-bottom: 20px;"><h4 style="color: #1f2937; margin-bottom: 16px; font-weight: 700;"><i class="entypo-calendar"></i> Attendance Details</h4>';
         html += '<table class="table table-bordered" style="background: white; font-size: 14px;"><thead style="background: #f3f4f6;"><tr>';
         html += '<th style="padding: 12px;">Date</th><th style="padding: 12px;">Session</th><th style="padding: 12px;">Status</th><th style="padding: 12px;">Marked By</th></tr></thead><tbody>';
-        
+
         data.attendance.forEach(function(record) {
             var statusColor = record.status === 'present' ? '#10b981' : (record.status === 'absent' ? '#ef4444' : '#f59e0b');
             var statusIcon = record.status === 'present' ? 'check' : (record.status === 'absent' ? 'cancel' : 'clock');
@@ -425,25 +309,25 @@ function displayStudentReport(data) {
             html += '<td style="padding: 12px;"><span style="color: ' + statusColor + '; font-weight: 600;"><i class="entypo-' + statusIcon + '"></i> ' + record.status.toUpperCase() + '</span></td>';
             html += '<td style="padding: 12px;">' + (record.marked_by_name || 'System') + '</td></tr>';
         });
-        
+
         html += '</tbody></table></div>';
     } else {
         html += '<div style="background: #fef3c7; padding: 20px; border-radius: 8px; text-align: center; color: #92400e; margin-bottom: 20px;">';
         html += '<i class="entypo-info-circled" style="font-size: 24px; margin-bottom: 8px;"></i><br>';
         html += 'No attendance records found for the selected period.</div>';
     }
-    
+
     // Action Buttons
-    html += '<div class="no-print" style="display: flex; gap: 12px; justify-content: center; margin-top: 16px;">';
+    html += '<div class="no-print" style="display: flex; gap: 12px; justify-content: center; margin-top: 30px;">';
     html += '<button onclick="printStudentReport()" class="btn btn-primary" style="background: #3b82f6; border: none; padding: 12px 32px; border-radius: 8px; font-weight: 600;">';
     html += '<i class="entypo-print"></i> Print Report</button>';
     html += '<button onclick="exportStudentReportPDF()" class="btn btn-success" style="background: #10b981; border: none; padding: 12px 32px; border-radius: 8px; font-weight: 600;">';
     html += '<i class="entypo-doc"></i> Export PDF</button>';
     html += '<button onclick="closeStudentReport()" class="btn btn-default" style="padding: 12px 32px; border-radius: 8px; font-weight: 600;">';
     html += '<i class="entypo-cancel"></i> Close</button></div>';
-    
+
     html += '</div>';
-    
+
     showModalWithContent('largeModal', '<i class="entypo-chart-line"></i> Student Transport Report', html);
 }
 
@@ -475,26 +359,26 @@ function loadAttendance() {
     var from_date = $('#from_date').val();
     var to_date = $('#to_date').val();
     var attendance_type = $('#attendance_type').val();
-    
+
     if (!transport_id) {
         showAjaxModal_alert('<?php echo get_phrase('please_select_route'); ?>', 'error');
         return;
     }
-    
+
     showAjaxModal_alert('Loading...', 'loading');
-    
+
     $('#form_transport_id').val(transport_id);
     $('#form_from_date').val(from_date);
     $('#form_to_date').val(to_date);
     $('#form_attendance_type').val(attendance_type);
-    
+
     $.ajax({
         url: '<?php echo site_url("admin/get_transport_attendance_students"); ?>',
         type: 'POST',
-        data: { 
-            transport_id: transport_id, 
+        data: {
+            transport_id: transport_id,
             attendance_date: from_date,
-            attendance_type: attendance_type 
+            attendance_type: attendance_type
         },
         dataType: 'json'
     }).done(function(response) {
@@ -513,25 +397,25 @@ function loadAttendance() {
 function renderAttendanceTable(students, showRoute) {
     var tbody = $('#attendance_table tbody');
     tbody.empty();
-    
+
     // Show/hide route column header
     if (showRoute) {
         $('#route_header').show();
     } else {
         $('#route_header').hide();
     }
-    
+
     students.forEach(function(student) {
         var row = '<tr>';
         row += '<td style="font-weight: 700; color: #3b82f6;">' + student.student_code + '</td>';
         row += '<td>' + student.name + '</td>';
         row += '<td>' + student.class + '</td>';
-        
+
         // Show route column if "all" routes selected
         if (showRoute) {
             row += '<td>' + (student.route || '-') + '</td>';
         }
-        
+
         row += '<td>';
         row += '<input type="hidden" name="transport_ids[' + student.student_id + ']" value="' + student.transport_id + '">';
         row += '<select name="attendance[' + student.student_id + ']" class="attendance-select">';
@@ -550,7 +434,7 @@ function markAll(status) {
 $('#attendanceForm').on('submit', function(e) {
     e.preventDefault();
     showAjaxModal_alert('Saving...', 'loading');
-    
+
     // Build data manually to include transport_ids
     var formData = {
         attendance: {},
@@ -558,19 +442,19 @@ $('#attendanceForm').on('submit', function(e) {
         attendance_date: $('#form_from_date').val(),
         attendance_type: $('#form_attendance_type').val()
     };
-    
+
     $('select[name^="attendance"]').each(function() {
         var name = $(this).attr('name');
         var student_id = name.match(/\[(\d+)\]/)[1];
         formData.attendance[student_id] = $(this).val();
     });
-    
+
     $('input[name^="transport_ids"]').each(function() {
         var name = $(this).attr('name');
         var student_id = name.match(/\[(\d+)\]/)[1];
         formData.transport_ids[student_id] = $(this).val();
     });
-    
+
     $.ajax({
         url: '<?php echo site_url("admin/transport_attendance/mark_attendance"); ?>',
         type: 'POST',

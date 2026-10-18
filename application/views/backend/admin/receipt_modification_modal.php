@@ -149,17 +149,15 @@ $gradient_dark = adjustBrightness($theme_color, -30);
                 </div>
                 <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">New Amount</label>
-                    <input type="number" name="new_amount" class="form-control" step="0.01" min="0.01" value="<?php echo ($payment->amount ?? 0); ?>"
+                    <input type="number" name="new_amount" class="form-control" step="0.01" value="<?php echo ($payment->amount ?? 0); ?>"
                            style="height: 48px; border: 2px solid #d1fae5; border-radius: 8px; font-size: 16px; font-weight: 600;">
                 </div>
                 <div>
                     <label style="display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px;">New Payment Method</label>
-                    <?php $current_method=(string)$payment->payment_method; if(strcasecmp($current_method,'Cash')===0)$current_method='1'; elseif(strcasecmp($current_method,'Cheque')===0)$current_method='2'; elseif(strcasecmp($current_method,'Mobile Money')===0)$current_method='3'; elseif(strcasecmp($current_method,'Bank Transfer')===0)$current_method='4'; ?>
                     <select name="new_method" class="form-control" style="height: 48px; border: 2px solid #d1fae5; border-radius: 8px; font-size: 15px;">
-                        <option value="1" <?php echo $current_method==='1'?'selected':''; ?>>Cash</option>
-                        <option value="2" <?php echo $current_method==='2'?'selected':''; ?>>Cheque</option>
-                        <option value="3" <?php echo $current_method==='3'?'selected':''; ?>>Mobile Money</option>
-                        <option value="4" <?php echo $current_method==='4'?'selected':''; ?>>Bank Transfer</option>
+                        <option value="cash" <?php echo (isset($payment->payment_method) && $payment->payment_method == 'cash') ? 'selected' : ''; ?>>Cash</option>
+                        <option value="momo" <?php echo (isset($payment->payment_method) && $payment->payment_method == 'momo') ? 'selected' : ''; ?>>Mobile Money</option>
+                        <option value="cheque" <?php echo (isset($payment->payment_method) && $payment->payment_method == 'cheque') ? 'selected' : ''; ?>>Cheque</option>
                     </select>
                 </div>
             </div>

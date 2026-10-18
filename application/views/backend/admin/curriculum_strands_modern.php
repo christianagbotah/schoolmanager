@@ -14,7 +14,7 @@
 }
 
 .curriculum-header {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 16px;
     padding: 32px;
     margin-bottom: 32px;
@@ -71,22 +71,22 @@
 }
 
 .stat-card-icon.purple {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
 }
 
 .stat-card-icon.blue {
-    background: #1d4ed8;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     color: #fff;
 }
 
 .stat-card-icon.green {
-    background: #15803d;
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
     color: #fff;
 }
 
 .stat-card-icon.orange {
-    background: #d97706;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     color: #fff;
 }
 
@@ -150,7 +150,7 @@
 }
 
 .modern-btn-primary {
-    background: #764ba2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
 }
 
@@ -160,17 +160,17 @@
 }
 
 .modern-btn-success {
-    background: #15803d;
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
     color: #fff;
 }
 
 .modern-btn-info {
-    background: #1d4ed8;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     color: #fff;
 }
 
 .modern-btn-danger {
-    background: #b91c1c;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
     color: #fff;
 }
 
@@ -291,11 +291,11 @@
     .curriculum-header h1 {
         font-size: 24px;
     }
-    
+
     .curriculum-stats {
         grid-template-columns: 1fr;
     }
-    
+
     .action-buttons {
         flex-direction: column;
     }
@@ -321,7 +321,7 @@
             <div class="stat-card-value"><?php echo count($strands); ?></div>
             <div class="stat-card-label"><?php echo get_phrase('total_strands'); ?></div>
         </div>
-        
+
         <div class="stat-card">
             <div class="stat-card-icon blue">
                 <i class="entypo-graduation-cap"></i>
@@ -329,7 +329,7 @@
             <div class="stat-card-value"><?php echo count(array_unique(array_column($strands, 'subject_id'))); ?></div>
             <div class="stat-card-label"><?php echo get_phrase('subjects_covered'); ?></div>
         </div>
-        
+
         <div class="stat-card">
             <div class="stat-card-icon green">
                 <i class="entypo-users"></i>
@@ -337,7 +337,7 @@
             <div class="stat-card-value"><?php echo count(array_unique(array_column($strands, 'class_level'))); ?></div>
             <div class="stat-card-label"><?php echo get_phrase('class_levels'); ?></div>
         </div>
-        
+
         <div class="stat-card">
             <div class="stat-card-icon orange">
                 <i class="entypo-chart-line"></i>
@@ -359,7 +359,7 @@
                 <?php echo get_phrase('add_new_strand'); ?>
             </button>
         </div>
-        
+
         <div class="curriculum-card-body">
             <?php if (!empty($strands)): ?>
                 <table class="modern-table" id="strands-table">
@@ -455,14 +455,14 @@ function showEditStrandModal(strandId) {
 
     $('#strandModalTitle').text('<?php echo get_phrase('edit_strand'); ?>');
     $('#strandForm').attr('action', '<?php echo site_url('admin/curriculum_strands/update/'); ?>' + strandId);
-    
+
     // Set class first
     $('#class_level').val(strand.class_level);
-    
+
     // Set strand name and description immediately
     $('#strand_name').val(strand.name);
     $('#strand_description').val(strand.description);
-    
+
     // Load subjects for the class, then set the subject
     if (strand.class_level) {
         $.ajax({
@@ -473,7 +473,7 @@ function showEditStrandModal(strandId) {
             success: function(response) {
                 var subjectDropdown = $('#subject_id');
                 subjectDropdown.html('<option value=""><?php echo get_phrase('select_subject'); ?></option>');
-                
+
                 if (response.success && response.subjects.length > 0) {
                     $.each(response.subjects, function(index, subject) {
                         subjectDropdown.append(
@@ -497,7 +497,7 @@ function showEditStrandModal(strandId) {
         console.warn('No class_level found in strand data');
         $('#subject_id').html('<option value=""><?php echo get_phrase('select_class_first'); ?></option>');
     }
-    
+
     $('#strandModal').modal('show');
 }
 
@@ -506,7 +506,7 @@ function confirmDeleteStrand(strandId) {
         // Show loading in both modal and toast
         showAjaxModal_alert('<?php echo get_phrase('deleting'); ?>...', 'Loading');
         showNotification('info', '<?php echo get_phrase('deleting'); ?>...');
-        
+
         $.ajax({
             url: '<?php echo site_url('admin/curriculum_strands/delete/'); ?>' + strandId,
             type: 'POST',
@@ -516,7 +516,7 @@ function confirmDeleteStrand(strandId) {
                     // Show success in both modal and toast
                     showAjaxModal_alert(response.message || '<?php echo get_phrase('strand_deleted_successfully'); ?>', 'Success', true);
                     showNotification('success', response.message || '<?php echo get_phrase('strand_deleted_successfully'); ?>');
-                    
+
                     // Page will reload automatically from showAjaxModal_alert
                 } else {
                     // Show error in both modal and toast

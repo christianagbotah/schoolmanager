@@ -1,67 +1,3 @@
-<style>
-/* Family design-language alignment (academics wave) - presentation only.
-   Scoped to the page shell; filter form actions, select ids/names,
-   showTermSem/get_exam_type handlers, tile summary and the result grid
-   logic untouched. No academic columns are hidden on any breakpoint. */
-#main_page label.control-label {
-    font-size: 13px; font-weight: 600; color: #374151;
-    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
-}
-#main_page .form-group { margin-bottom: 18px; }
-#main_page .form-control {
-    border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 10px 14px;
-    font-size: 14px; height: 42px; box-shadow: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-#main_page .form-control:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none;
-}
-#main_page .btn {
-    border-radius: 10px; font-weight: 600; font-size: 14px;
-    border: none; padding: 10px 20px; transition: all 0.2s;
-}
-#main_page .btn-info { background: #2563eb; color: #fff; }
-#main_page .btn-primary { background: #7c3aed; color: #fff; }
-#main_page .btn:hover { transform: translateY(-1px); }
-#main_page .btn:focus-visible,
-#main_page .form-control:focus-visible {
-    outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-#main_page .tile-stats {
-    background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05); padding: 24px;
-}
-#main_page .tile-stats h3 { font-size: 18px; color: #111827; }
-#main_page .tile-stats h4 { font-size: 15px; color: #374151; }
-#main_page table.table-bordered {
-    border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;
-    background: #fff;
-}
-#main_page table.table-bordered thead td {
-    background: #f9fafb; color: #374151; font-size: 13px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 10px;
-    border-bottom: 2px solid #e5e7eb; white-space: nowrap;
-}
-#main_page table.table-bordered tbody td {
-    padding: 12px 10px; font-size: 14px; vertical-align: middle;
-}
-#main_page table.table-bordered tbody tr:hover { background: #f9fafb; }
-@media (prefers-reduced-motion: reduce) {
-    #main_page .btn, #main_page .form-control { transition: none; }
-    #main_page .btn:hover { transform: none; }
-}
-@media (max-width: 768px) {
-    #main_page .form-control { font-size: 16px; }
-    #main_page table.table-bordered thead td,
-    #main_page table.table-bordered tbody td { padding: 8px 6px; font-size: 12px; }
-    #main_page .btn { width: 100%; }
-}
-@media (max-width: 400px) {
-    #main_page .tile-stats { padding: 15px; border-radius: 14px; }
-    #main_page .btn { padding: 10px 14px; }
-}
-</style>
 <hr />
 <div class="row">
 	<div class="col-md-12">
@@ -69,15 +5,15 @@
 			<div class="col-md-2">
 				<div class="form-group">
 					<label class="control-label"><?php echo get_phrase('class');?></label>
-					<select name="class_id" class="form-control selectboxit" id="class_id">
+					<select name="class_id" class="form-control select2" id="class_id">
                         <option value=""><?php echo get_phrase('select_a_class');?></option>
-                        <?php 
+                        <?php
                         $classes = $this->db->get('class')->result_array();
                         foreach($classes as $row):
                         ?>
                             <option value="<?php echo $row['class_id'];?>"
-                            	<?php if ($class_id == $row['class_id']) echo 'selected';?>>
-                            		<?php echo $row['name'].' '.$row['name_numeric'];?>
+                                <?php if ($class_id == $row['class_id']) echo 'selected';?>>
+                                    <?php echo $row['name'].' '.$row['name_numeric'];?>
                             </option>
                         <?php
                         endforeach;
@@ -87,9 +23,9 @@
 			</div>
 
 			<div class="col-md-2">
-            	<div class="form-group">
+                <div class="form-group">
                     <label  class="col-sm-3 control-label"><?php echo get_phrase('term');?></label>
-                      <select name="term" class="form-control selectboxit" onchange="get_exam_type()" id="term">
+                      <select name="term" class="form-control select2" onchange="get_exam_type()" id="term">
                       <?php $running_term = $this->db->get_where('settings' , array('type'=>'running_term'))->row()->description;?>
                       <option value="" disabled="true"><?php echo get_phrase('sessional_term');?></option>
                       <?php for($i = 1; $i <= 3; $i++):?>
@@ -105,7 +41,7 @@
             <div class="col-md-2">
 				<div class="form-group">
 	              <label  class="control-label"><?php echo get_phrase('sessional_year');?></label>
-	                  <select name="year" class="form-control selectboxit" onchange="get_exam_type()" id="year">
+	                  <select name="year" class="form-control select2" onchange="get_exam_type()" id="year">
 	                  <?php $running_year = $this->db->get_where('settings' , array('type'=>'running_year'))->row()->description;?>
 	                  <option value="" disabled="true"><?php echo get_phrase('sessional_year');?></option>
 	                  <?php
@@ -120,7 +56,7 @@
 				<label class="control-label"><?php echo get_phrase('exam');?></label>
 					<select name="exam_id" class="form-control " id="exam_id">
                         <option value=""><?php echo get_phrase('select_an_exam');?></option>
-                        
+
                     </select>
 				</div>
 			</div>
@@ -131,8 +67,8 @@
 		<?php echo form_close();?>
 	</div>
 </div>
-<?php 
-	
+<?php
+
 ?>
 
 <?php if ($class_id != '' && $exam_id != '') {?>
@@ -144,9 +80,9 @@
 		<div class="icon"><i class="entypo-docs" style="color: ;"></i></div>
 			<h3 style="color: #696969;">
 				<?php
-					$exam_name  = $this->db->get_where('exam' , array('exam_id' => $exam_id))->row()->name; 
+					$exam_name  = $this->db->get_where('exam' , array('exam_id' => $exam_id))->row()->name;
 					$class_name = $this->db->get_where('class' , array('class_id' => $class_id))->row()->name;
-					$class_name_numeric = $this->db->get_where('class' , array('class_id' => $class_id))->row()->name_numeric; 
+					$class_name_numeric = $this->db->get_where('class' , array('class_id' => $class_id))->row()->name_numeric;
 					echo get_phrase('exam_tabulation_sheet');
 				?>
 			</h3>
@@ -181,14 +117,14 @@
 				<td style="text-align: center;">
 					<?php echo get_phrase('students');?> <i class="entypo-down-thin"></i> | <?php echo get_phrase('subjects');?> <i class="entypo-right-thin"></i>
 				</td>
-				<?php 
+				<?php
 					$subjects = $this->db->get_where('subject' , array('class_id' => $class_id , 'year' => $year, 'term' => $term))->result_array();
 					foreach($subjects as $row):
 				?>
 					<td style="text-align: center;">
 						<?php if(strlen($row['name']) <= 4) {
                                     echo strtoupper($row['name']);
-                                }else{ 
+                                }else{
                                     echo $row['name'];
                                 };?></td>
 				<?php endforeach;?>
@@ -199,7 +135,7 @@
 			</thead>
 			<tbody>
 			<?php
-				
+
 				$students = $this->db->get_where('enroll' , array('class_id' => $class_id , 'year' => $year, 'mute' => '0', 'term' => $term));
 				if($students->num_rows() < 1) {$this->session->set_flashdata('error_message' , get_phrase('no_record_was_found.'));
 			    }
@@ -220,13 +156,13 @@
 				       $this->db->where('status', '1');
 				       $this->db->limit(4);
 				       //$this->db->order_by("mark_obtained", "desc");
-				       
+
 				       $marks = $this->db->get('mark')->result_array();
 
 				        foreach ($marks as $row) {
 				            $sum_core += $row['mark_obtained'];
 				        }
-				     
+
 
 				     //aggregation of best 2
 				    $sum_best2 = 0;
@@ -239,7 +175,7 @@
 				       $this->db->where('status', '0');
 				       $this->db->limit(2);
 				       $this->db->order_by("mark_obtained", "desc");
-				       
+
 				       $marks = $this->db->get('mark')->result_array();
 
 				        foreach ($marks as $row) {
@@ -247,10 +183,10 @@
 
 				            //finding the aggregate for the best 2 subjects
 				            $core_grade = $this->crud_model->get_raw_score_grade($row['mark_obtained']);
-				            $total_aggregate += $core_grade['grade_point'];  
+				            $total_aggregate += $core_grade['grade_point'];
 				        }
 
-				        	
+
 			?>
 				<tr>
 					<td>
@@ -258,15 +194,15 @@
 					</td>
 				<?php
 					$total_marks = 0;
-					$total_grade_point = 0;  
+					$total_grade_point = 0;
 					foreach($subjects as $row2):
 				?>
 					<td style="text-align: center;">
-						<?php 
+						<?php
 							$obtained_mark_query = 	$this->db->get_where('mark' , array(
-													'class_id' => $class_id , 
-														'exam_id' => $exam_id , 
-															'subject_id' => $row2['subject_id'] , 
+													'class_id' => $class_id ,
+														'exam_id' => $exam_id ,
+															'subject_id' => $row2['subject_id'] ,
 																'student_id' => $row['student_id'],
 																	'year' => $year,
 																		'term' => $term
@@ -282,10 +218,10 @@
 										$total_aggregate += $core_grade['grade_point'];
 	                                }
 								}
-								
+
 							}
 
-							
+
 
 						?>
 					</td>
@@ -295,9 +231,9 @@
 				<td style="text-align: center;">
 					<?php
 					  $section_id = $this->db->get_where('section' , array('class_id' => $class_id))->row()->section_id;
-          			  $this->crud_model->get_aggregate_marks($exam_id, $class_id, $section_id, $row['student_id'], $year, $term);
+                      $this->crud_model->get_aggregate_marks($exam_id, $class_id, $section_id, $row['student_id'], $year, $term);
 
-            		?>
+                    ?>
 				</td>
 				</tr>
 
@@ -306,7 +242,7 @@
 			</tbody>
 		</table>
 		<center>
-			<a href="<?php echo site_url('admin/tabulation_sheet_print_view/'.$class_id.'/'.$exam_id.'/'.$year.'/'.$term.'/'.$section_id);?>" 
+			<a href="<?php echo site_url('admin/tabulation_sheet_print_view/'.$class_id.'/'.$exam_id.'/'.$year.'/'.$term.'/'.$section_id);?>"
 				class="btn btn-primary" target="_blank">
 				<?php echo get_phrase('print_tabulation_sheet');?>
 			</a>
@@ -330,7 +266,7 @@
 			$('#submit').removeAttr('disabled');
 		}
 		else{
-			$('#submit').attr('disabled', 'disabled');	
+			$('#submit').attr('disabled', 'disabled');
 		}
 	}
 	$('#class_id').change(function() {
@@ -344,7 +280,7 @@
 
 	**/
 
-	//load exam types	
+	//load exam types
 	$(function() {
 		get_exam_type()
 	});
@@ -360,6 +296,6 @@
 				}
 			});
 		}
-	
-	
+
+
 </script>

@@ -303,27 +303,27 @@ $running_term = $this->db->get_where('settings', array('type' => 'running_term')
         <div class="col-md-4">
             <div class="content-card">
                 <h3><i class="fa fa-bolt"></i> Quick Actions</h3>
-                
-                <a href="<?php echo site_url('admin/exam/create'); ?>" class="quick-action-btn">
+
+                <a href="<?php echo site_url('admin/exam#add'); ?>" class="quick-action-btn">
                     <i class="fa fa-plus-circle"></i>
                     Create New Exam
                 </a>
-                
+
                 <a href="<?php echo site_url('admin/marks_manage'); ?>" class="quick-action-btn">
                     <i class="fa fa-edit"></i>
                     Manage Marks
                 </a>
-                
+
                 <a href="<?php echo site_url('admin/tabulation_sheet'); ?>" class="quick-action-btn">
                     <i class="fa fa-table"></i>
                     Tabulation Sheet
                 </a>
-                
+
                 <a href="<?php echo site_url('admin/exam'); ?>" class="quick-action-btn">
                     <i class="fa fa-list"></i>
                     All Examinations
                 </a>
-                
+
                 <a href="<?php echo site_url('admin/grade'); ?>" class="quick-action-btn">
                     <i class="fa fa-award"></i>
                     Grading System
@@ -357,11 +357,11 @@ function loadDashboardData() {
 
 function updateStats(stats) {
     console.log('Dashboard Stats:', stats);
-    
+
     $('#total-exams').text(stats.total_exams || 0);
     $('#completed-exams').text(stats.completed_exams || 0);
     $('#total-students').text(stats.total_students || 0);
-    
+
     if(stats.debug_info) {
         console.log('Debug Info:', stats.debug_info);
         console.log('Search Year:', stats.debug_info.search_year);
@@ -372,26 +372,26 @@ function updateStats(stats) {
 
 function updateRecentExams(exams) {
     const container = $('#recent-exams-container');
-    
+
     if(!exams || exams.length === 0) {
         container.html('<div class="empty-state"><i class="fa fa-clipboard-list"></i><p>No examinations found for this term</p></div>');
         return;
     }
-    
+
     let html = '';
     exams.forEach(function(exam) {
         const examDate = new Date(exam.date * 1000);
         const now = new Date();
         const isUpcoming = examDate > now;
-        
+
         let statusClass = 'status-completed';
         let statusText = 'Completed';
-        
+
         if(isUpcoming) {
             statusClass = 'status-upcoming';
             statusText = 'Upcoming';
         }
-        
+
         html += `
             <div class="exam-card">
                 <div class="d-flex justify-content-between align-items-center">
@@ -413,7 +413,7 @@ function updateRecentExams(exams) {
             </div>
         `;
     });
-    
+
     container.html(html);
 }
 
@@ -422,9 +422,9 @@ function refreshDashboard() {
     const originalText = btn.innerHTML;
     btn.innerHTML = '<div class="loading-spinner"></div> Refreshing...';
     btn.disabled = true;
-    
+
     loadDashboardData();
-    
+
     setTimeout(function() {
         btn.innerHTML = originalText;
         btn.disabled = false;

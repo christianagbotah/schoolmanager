@@ -30,7 +30,7 @@
     }
 
     function showAjaxModalDisplay(data = '')
-    {        
+    {
 
         // LOADING THE AJAX MODAL
         $('#modal_display').modal('show', {backdrop: 'true'});
@@ -147,7 +147,7 @@
     function showAjaxModal_confirm2(message, type)
     {
         $('#modal_confirm2 .modal-content').css({
-            
+
 
         });
 
@@ -188,7 +188,7 @@
             $('#modal_confirm2 .modal-body').append('<div style="text-align:center;margin-top:10px;"><img src="<?php echo base_url(); ?>assets/images/validate.gif" width="34px"/></div>');
         }
 
-    } 
+    }
 
 
     //prompt
@@ -200,14 +200,14 @@
         // LOADING THE AJAX MODAL
         $('#modal_prompt').modal({backdrop: 'static', keyboard: false});
         $('#modal_prompt .modal-body h3').html(message);
-        
+
     }
 
     function showAjaxModal_preloader()
     {
         // LOADING THE AJAX MODAL
         $('#modal_preloader').modal({backdrop: 'static', keyboard: false});
-        
+
     }
 
     //success-error
@@ -343,7 +343,7 @@
             }
         });
     }
-    
+
     </script>
 
     <!-- (Confirm Ajax modal_move_student)-->
@@ -360,7 +360,7 @@
                 <div class="modal-footer">
                     <div class="col-sm-6 col-md-6 col-xs-6">
                         <button type="button" id="modal_move_student_move" class="btn btn-success btn-lg">Move</button>
-                    </div>    
+                    </div>
                     <div class="col-sm-6 col-md-6 col-xs-6" style="text-align: left;">
                         <button type="button" class="btn btn-danger btn-lg" id="modal_move_student_cancel"  data-dismiss="modal">Cancel</button>
                     </div>
@@ -398,7 +398,7 @@
 
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    
+
                 </div>
 
                 <div class="modal-body"></div>
@@ -465,7 +465,7 @@
                 <div class="modal-footer">
                     <div class="col-sm-6 col-md-6 col-xs-6">
                         <button type="button" id="modal_yes" class="btn btn-success btn-lg">Yes</button>
-                    </div>    
+                    </div>
                     <div class="col-sm-6 col-md-6 col-xs-6" style="text-align: left;">
                         <button type="button" class="btn btn-danger btn-lg" id="modal_no"  data-dismiss="modal">No</button>
                     </div>
@@ -503,7 +503,7 @@
 
                 <div class="modal-body"></div>
 
-                <div class="modal-footer">   
+                <div class="modal-footer">
                     <div class="col-sm-12 col-md-12 col-xs-12" style="text-align: cneter;">
                         <button type="button" class="btn btn-success btn-lg"  data-dismiss="modal">Login here</button>
                     </div>
@@ -523,7 +523,7 @@
 
                 <div class="modal-body"></div>
 
-                <div class="modal-footer">   
+                <div class="modal-footer">
                     <div class="col-sm-12 col-md-12 col-xs-12" style="text-align: cneter;">
                         <button type="button" class="btn btn-danger btn-lg"  data-dismiss="modal">Close</button>
                     </div>
@@ -543,7 +543,7 @@
             document.getElementById('update_link').setAttribute('href' , delete_url);
         } else if(modal_type === 'modal_block') {
             $('#modal_block').modal('show', {backdrop: 'static'});
-            
+
             $('#block_link').click(function(e) {
 
                 $('.close').click();
@@ -559,7 +559,7 @@
                     //========start
                     showAjaxModal_alert('Account Blocked Successfully', 'Success');
 
-                    
+
 
                     setTimeout(() => {
                         navigation('<?php echo site_url('admin/'); ?>' + type + '/' + class_id);
@@ -573,14 +573,14 @@
                 .fail(function(err) {
                     showAjaxModal_alert('Error: ' + err.responseText, 'Error');
                 });
-                
+
             })
 
-            
+
 
         } else if(modal_type === 'modal_unblock') {
             $('#modal_unblock').modal('show', {backdrop: 'static'});
-            
+
              $('#unblock_link').click(function(e) {
 
                 $('.close').click();
@@ -596,7 +596,7 @@
                     //========start
                     showAjaxModal_alert('Account Unblocked Successfully', 'Success');
 
-                    
+
 
                     setTimeout(() => {
                         navigation('<?php echo site_url('admin/'); ?>' + type + '/' + class_id);
@@ -610,7 +610,7 @@
                 .fail(function(err) {
                     showAjaxModal_alert('Error: ' + err.responseText, 'Error');
                 });
-                
+
             })
 
         } else if(modal_type === 'modal_mute') {
@@ -631,7 +631,7 @@
                     //========start
                     showAjaxModal_alert('Student Muted Successfully', 'Success');
 
-                    
+
 
                     setTimeout(() => {
                         navigation('<?php echo site_url('admin/'); ?>' + type + '/' + class_id);
@@ -645,7 +645,7 @@
                 .fail(function(err) {
                     showAjaxModal_alert('Error: ' + err.responseText, 'Error');
                 });
-                
+
             })
 
         } else if(modal_type === 'modal_unmute') {
@@ -678,7 +678,7 @@
                     //========start
                     showAjaxModal_alert('Student Unmuted Successfully', 'Success');
 
-                    
+
 
                     setTimeout(() => {
                         navigation('<?php echo site_url('admin/'); ?>' + type + '/' + class_id);
@@ -692,7 +692,7 @@
                 .fail(function(err) {
                     showAjaxModal_alert('Error: ' + err.responseText, 'Error');
                 });
-                
+
             })
 
         } else if(modal_type === 'modal_exam_delete') {
@@ -710,7 +710,7 @@
                       })
                       .done(function() {
                           showAjaxModal_alert('Exam deleted successfully.', 'Success');
-                          
+
 
                           setTimeout(() => {
                               $('.close').click();
@@ -727,7 +727,7 @@
                 }
             });
 
-            
+
         } else if(modal_type === 'modal_invoice_delete') {
             $('#modal_invoice_delete').modal('show', {backdrop: 'static'});
 
@@ -759,15 +759,15 @@
                   })
                   .done(function(response) {
                       if(response == 'done') {
-                        
+
                         showAjaxModal_alert('Data deleted successfully.', 'Success');
-                      
+
 
                           setTimeout(() => {
                               $('.close').click();
                               navigation('<?php echo site_url('admin/parent'); ?>');
                               //window.location.reload();
-                          }, 3000); 
+                          }, 3000);
                       } else {
                         showAjaxModal_alert('Data not deleted!', 'Error');
                       }
@@ -779,7 +779,7 @@
 
 
         }
-       
+
     }
     </script>
 
@@ -801,7 +801,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- (Exam Delete Modal)-->
     <div class="modal fade" id="modal_exam_delete">
         <div class="modal-dialog">
@@ -938,7 +938,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                             <label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('Select class for enrollment');?></label>
-                                <select name="class_id_enrollment" id="class_id_enrollment" class="form-control selectboxit">
+                                <select name="class_id_enrollment" id="class_id_enrollment" class="form-control select2">
                                     <option value=""><?php echo get_phrase('select_class');?></option>
                                     <?php
 
@@ -1025,7 +1025,7 @@
         </div>
         <div class="modal-body">
             <h3 class="text-light" style="text-align: center; color: #545151"></h3>
-            
+
         </div>
       </div>
     </div>
@@ -1041,7 +1041,7 @@
         </div>
         <div class="modal-body">
             <h3 class="text-light" style="text-align: center; color: #545151"></h3>
-            
+
         </div>
         <div class="modal-footer form-group row">
             <div class="col-lg-7 col-md-7 col-sm-7 col-xs-5"></div>
@@ -1053,7 +1053,7 @@
                     <button class="btn btn-danger btn-lg" id="prompt_cancel" data-dismiss="modal" aria-label="Cancel">CANCEL</button>
                 </div>
             </div>
-            
+
         </div>
       </div>
     </div>
@@ -1081,7 +1081,7 @@
                             <small>Powered by: Lightworld Technologies Limited - Ghana</small>
                         </div>
                     </center>
-                    
+
                 </div>
             </div>
         </div>

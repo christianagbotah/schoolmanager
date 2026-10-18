@@ -7,13 +7,13 @@
 				<div class="max-w-md">
 					<div class="form-group">
 					<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('class');?></label>
-						<select name="class_id" class="form-control selectboxit" onchange="get_class_subject(this.value)">
+						<select name="class_id" class="form-control select2" onchange="get_class_subject(this.value)">
 							<option value=""><?php echo get_phrase('select_class');?></option>
 							<?php
 							foreach($class_ids_creche as $subj):
 								$classes = $this->db->get_where('class', array('class_id' => $subj['class_id']))->result_array();
 								foreach($classes as $row):
-								 
+
 								 //add section A or B if the class has more than one section
 			                    $section_name = $this->db->get_where('section', array('class_id' => $row['class_id']))->row()->name;
 			                    $class_has_more_sections = $this->db->get_where('class', array('name' => $row['name'], 'name_numeric' => $row['name_numeric']))->num_rows();
@@ -23,13 +23,13 @@
 			                    }
 							?>
 							<option value="<?php echo $row['class_id'];?>"><?php echo $row['name'].' '.$row['name_numeric'].$sec_name;?></option>
-							<?php endforeach; endforeach; //FOR CRECHE ?> 
-			                
+							<?php endforeach; endforeach; //FOR CRECHE ?>
+
 			                <?php
 							foreach($class_ids_c as $cs):
 								$classes_c = $this->db->get_where('class', array('class_id' => $cs['class_id']))->result_array();
 								foreach($classes_ as $rowc):
-								
+
 								//add section A or B if the class has more than one section
 			                    $section_name = $this->db->get_where('section', array('class_id' => $rowc['class_id']))->row()->name;
 			                    $class_has_more_sections = $this->db->get_where('class', array('name' => $rowc['name'], 'name_numeric' => $rowc['name_numeric']))->num_rows();
@@ -40,12 +40,12 @@
 							?>
 							<option value="<?php echo $rowc['class_id'];?>"><?php echo $rowc['name'].' '.$rowc['name_numeric'].$sec_name;?></option>
 							<?php endforeach; endforeach; ?>
-							
+
 							<?php
 							foreach($class_ids as $subj):
 								$classes = $this->db->get_where('class', array('class_id' => $subj['class_id']))->result_array();
 								foreach($classes as $row):
-								
+
 								//add section A or B if the class has more than one section
 			                    $section_name = $this->db->get_where('section', array('class_id' => $row['class_id']))->row()->name;
 			                    $class_has_more_sections = $this->db->get_where('class', array('name' => $row['name'], 'name_numeric' => $row['name_numeric']))->num_rows();
@@ -65,7 +65,7 @@
 				<div class="max-w-md">
 					<div class="form-group">
 					<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('class');?></label>
-						<select name="class_id" class="form-control selectboxit" onchange="get_class_subject(this.value)">
+						<select name="class_id" class="form-control select2" onchange="get_class_subject(this.value)">
 							<option value=""><?php echo get_phrase('select_class');?></option>
 							<?php
 
@@ -77,9 +77,9 @@
 			<?php
 		}
 	?>
-	
 
-	
+
+
 		<div class="max-w-md">
 			<div class="form-group">
 			<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('week');?></label>
@@ -87,7 +87,7 @@
 			</div>
 		</div>
 
-		
+
 		<div class="">
 				<button type="submit" class="btn btn-info" id="submit"><?php echo get_phrase('manage_assessment');?></button>
 		</div>
@@ -98,7 +98,7 @@
 
 <div class="row">
 	<div class="col-md-12">
-		
+
 
 		<?php
 
@@ -132,7 +132,7 @@
 						<th rowspan="2"><?php echo get_phrase('ID');?></th>
 						<th rowspan="2"><?php echo get_phrase('name');?></th>
 						<th colspan="1"><?php echo get_phrase('date');?></th>
-						
+
 						<?php
 							for($d = 0; $d < sizeof($dates_array); $d++) { ?>
 								<th colspan="1" style="text-align: center; padding-top: 20px;"><input type="text" id="date_<?php echo $dates_array[$d]; ?>" class="form-control <?=$dates_array[$d] == strtotime(date('d-m-Y')) ? 'today_selected' : '' ?>" value="<?=date('d-m-Y', $dates_array[$d]) ?>" name="date_<?php echo $dates_array[$d]; ?>" readonly="readonly" data-format="dd-mm-yyyy"></th>
@@ -141,8 +141,8 @@
 						?>
 
 					</tr>
-					<tr>	
-						<th ><?php echo get_phrase('code');?></th>	
+					<tr>
+						<th ><?php echo get_phrase('code');?></th>
 
 						<?php
 							for($d = 0; $d < sizeof($dates_array); $d++) { ?>
@@ -150,19 +150,19 @@
 								<?php
 							}
 						?>
-						
+
 					</tr>
 				</thead>
 				<tbody>
 				<?php
 					$count = 1;
 
-					if($class_name == 'JHSS') { 
+					if($class_name == 'JHSS') {
 
 						$this->db->select('student_id');
 						$this->db->distinct();
 						$list_of_students = $this->db->get_where('portfolio_assessment' , array(
-							'class_id' => $class_id, 
+							'class_id' => $class_id,
 									'year' => $running_year,
 										 'sem' => $running_sem,
 											'subject_id' => $subject_id,
@@ -174,7 +174,7 @@
 						$this->db->select('student_id');
 						$this->db->distinct();
 						$list_of_students = $this->db->get_where('portfolio_assessment' , array(
-							'class_id' => $class_id, 
+							'class_id' => $class_id,
 									'year' => $running_year,
 										 'term' => $running_term,
 											'subject_id' => $subject_id,
@@ -182,13 +182,13 @@
 													'exam_id' => $exam_id
 						))->result_array();
 					}
-					
+
 
 					$students_counter = 0;
 					$students_ids = array();
 					$assessment_ids = array();
 
-					
+
 
 
 					foreach($list_of_students as $row):
@@ -197,15 +197,15 @@
 						<!--<td><?php echo $count++;?></td>-->
 
                         <td width="80"><?php echo $this->db->get_where('student',array('student_id'=>$row['student_id']))->row()->student_code;?></td>
-          
+
 						<td width="300" colspan="2">
 							<?php echo $this->db->get_where('student' , array('student_id' => $row['student_id']))->row()->name;?>
 						</td>
 
 
-						
+
 							<?php
-							for($d = 0; $d < sizeof($dates_array); $d++) { 
+							for($d = 0; $d < sizeof($dates_array); $d++) {
 
 								//retrieve the student's score for each strand -topic
 									$strand_score_query = $this->db->get_where('portfolio_assessment', array('student_id' => $row['student_id'], 'timestamp' => $dates_array[$d], 'week' => $week, 'class_id' => $class_id, 'subject_id' => $subject_id))->row();
@@ -216,7 +216,7 @@
 
 									array_push($assessment_ids, $assessment_id); //push assessment ids here
 
-								
+
 								?>
 
 
@@ -271,7 +271,7 @@
 						<!--<th rowspan="2"><?php echo get_phrase('ID');?></th>-->
 						<th rowspan="2"><?php echo get_phrase('name');?></th>
 						<th><?php echo get_phrase('date');?></th>
-						
+
 						<?php
 							for($d = 0; $d < sizeof($dates_array); $d++) { ?>
 								<th colspan="<?=$subjects_query->num_rows();?>" style="text-align: center; padding-top: 20px;"><?=date('d-m-Y', $dates_array[$d]) ?></th>
@@ -280,8 +280,8 @@
 						?>
 
 					</tr>
-					<tr>	
-						<th ><?php echo get_phrase('code');?></th>	
+					<tr>
+						<th ><?php echo get_phrase('code');?></th>
 
 						<?php
 							for($d = 0; $d < sizeof($dates_array); $d++) { //each day
@@ -292,19 +292,19 @@
 							endforeach;
 							}
 						?>
-						
+
 					</tr>
 				</thead>
 				<tbody>
 				<?php
 					$count = 1;
 
-					if($class_name == 'JHSS') { 
+					if($class_name == 'JHSS') {
 
 						$this->db->select('student_id');
 						$this->db->distinct();
 						$list_of_students = $this->db->get_where('portfolio_assessment' , array(
-							'class_id' => $class_id, 
+							'class_id' => $class_id,
 									'year' => $running_year,
 										 'sem' => $running_sem,
 											'subject_id' => $subject_id,
@@ -316,7 +316,7 @@
 						$this->db->select('student_id');
 						$this->db->distinct();
 						$list_of_students = $this->db->get_where('portfolio_assessment' , array(
-							'class_id' => $class_id, 
+							'class_id' => $class_id,
 									'year' => $running_year,
 										 'term' => $running_term,
 											'subject_id' => $subject_id,
@@ -324,13 +324,13 @@
 													'exam_id' => $exam_id
 						))->result_array();
 					}
-					
+
 
 					$students_counter = 0;
 					$students_ids = array();
 					$assessment_ids = array();
 
-					
+
 
 
 					foreach($list_of_students as $row):
@@ -339,13 +339,13 @@
 						<!--<td><?php echo $count++;?></td>
 
                         <td width="80"><?php echo $this->db->get_where('student',array('student_id'=>$row['student_id']))->row()->student_code;?></td> -->
-          
+
 						<td width="300" colspan="2">
 							<?php echo $this->db->get_where('student' , array('student_id' => $row['student_id']))->row()->name;?>
 						</td>
 
 
-						
+
 							<?php
 							for($d = 0; $d < sizeof($dates_array); $d++) { //each date
 
@@ -360,7 +360,7 @@
 
 									array_push($assessment_ids, $assessment_id); //push assessment ids here
 
-								
+
 								?>
 
 
@@ -369,7 +369,7 @@
 										$grade = $this->crud_model->get_grade($strand_score);
                     echo $grade['grade_point'];
 								 ?>
-								 	
+
 								 </td>
 								<?php
 							endforeach;

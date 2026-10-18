@@ -1,7 +1,7 @@
 <style>
 * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 .amount-reports-container { padding: 24px; background: #f8f9fa; min-height: 100vh; }
-.amount-header { background: #2563eb; color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3); }
+.amount-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3); }
 .amount-header h1 { margin: 0 0 8px 0; font-size: 32px; font-weight: 700; color: white !important; }
 .amount-header p { margin: 0; opacity: 0.9; font-size: 16px; color: white; }
 .filters-card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
@@ -9,7 +9,7 @@
 .filter-group { flex: 1; min-width: 200px; }
 .filter-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 .filter-select { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 15px; height: 48px; }
-.btn-generate { padding: 12px 32px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s; height: 48px; }
+.btn-generate { padding: 12px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s; height: 48px; }
 .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
 .stat-card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid; }
@@ -34,75 +34,6 @@
 .export-btn { padding: 12px 20px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; height: 48px; font-size: 15px; }
 .export-btn:hover { background: #059669; }
 </style>
-<style>
-@media screen {
-
-  .amount-reports-container { padding: 24px 28px 40px; background: #f8fafc; }
-  .amount-header {
-    padding: 22px 24px; margin-bottom: 16px; border-radius: 14px !important;
-    background: #0f172a !important; box-shadow: 0 8px 22px rgba(15,23,42,.14) !important;
-  }
-  .amount-header h1 { font-size: 28px !important; line-height: 1.2; font-weight: 800 !important; letter-spacing: -.02em; }
-  .amount-header p { font-size: 14px !important; line-height: 1.5; color: #cbd5e1 !important; opacity: 1; }
-
-  .filters-card {
-    padding: 14px 16px; margin-bottom: 14px;
-    border: 1px solid #e2e8f0; border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  .filters-card > div {
-    display: grid !important; grid-template-columns: repeat(3,minmax(150px,1fr)) auto auto;
-    gap: 10px !important; align-items: end !important;
-  }
-  .filter-group label {
-    margin-bottom: 6px; color: #334155; font-size: 13px; font-weight: 800; letter-spacing: .035em;
-  }
-  .filter-select {
-    min-height: 44px; height: 44px; padding: 8px 10px;
-    border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; font-size: 14px;
-  }
-  .btn-generate, .export-btn {
-    min-height: 44px; height: 44px; padding: 8px 14px;
-    border-radius: 8px; font-size: 14px; font-weight: 800;
-  }
-  .btn-generate:hover { transform: none; box-shadow: 0 3px 8px rgba(37,99,235,.15); }
-
-  .stats-grid { gap: 12px; margin-bottom: 14px; }
-  .stat-card {
-    min-height: 96px; padding: 14px 16px;
-    border: 1px solid #e2e8f0; border-left-width: 4px;
-    border-radius: 12px; box-shadow: 0 1px 2px rgba(15,23,42,.05);
-  }
-  .stat-value { margin: 4px 0 0; color: #0f172a; font-size: 24px; line-height: 1.2; font-weight: 800; }
-  .stat-value sup { font-size: 12px; color: #64748b; }
-  .stat-label { color: #64748b; font-size: 13px; line-height: 1.35; font-weight: 800; }
-
-  .report-card {
-    padding: 16px 18px; border: 1px solid #e2e8f0; border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(15,23,42,.05); overflow-x: auto;
-  }
-  .report-card h3 { margin-bottom: 14px; color: #0f172a; font-size: 17px; font-weight: 800; }
-  .report-card .table { min-width: 1000px; }
-  .report-card .table th {
-    padding: 11px 12px; background: #f8fafc; color: #475569;
-    font-size: 13px; font-weight: 800; border-bottom: 1px solid #e2e8f0;
-  }
-  .report-card .table td { padding: 11px 12px; color: #334155; font-size: 14px; line-height: 1.45; }
-  .report-card .badge { padding: 4px 8px; border-radius: 999px; font-size: 12.5px; font-weight: 700; }
-  .report-card [style*="font-size: 12px"] { font-size: 13px !important; }
-
-  @media (max-width: 760px) {
-    .amount-reports-container { padding: 16px 14px 32px; }
-    .amount-header { padding: 18px 16px; }
-    .amount-header h1 { font-size: 24px !important; }
-    .filters-card > div { grid-template-columns: 1fr !important; }
-    .btn-generate, .export-btn { width: 100%; justify-content: center; }
-    .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  }
-
-}
-</style>
-
 
 <div class="amount-reports-container">
     <div class="amount-header">
@@ -123,9 +54,9 @@
             <div class="filter-group">
                 <label><?php echo get_phrase('academic_year'); ?></label>
                 <select id="filterYear" class="filter-select">
-                    <?php 
+                    <?php
                     $years = populate_academic_year();
-                    foreach($years as $year): 
+                    foreach($years as $year):
                     ?>
                         <option value="<?php echo $year; ?>" <?php echo $year == get_settings('running_year') ? 'selected' : ''; ?>><?php echo $year; ?></option>
                     <?php endforeach; ?>
@@ -180,7 +111,7 @@ let reportData = [];
 
 function generateAmountReport() {
     showAjaxModal_alert('<?php echo get_phrase('generating_report'); ?>...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url('admin/get_discount_amount_report'); ?>',
         type: 'GET',
@@ -209,7 +140,7 @@ function renderAmountReport(summary) {
     $('#stat-original').html('<sup style="font-size: 0.6em; font-weight: 600;">GHS</sup> ' + parseFloat(summary.total_original_amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
     $('#stat-students').text(summary.unique_students || 0);
     $('#statsGrid').show();
-    
+
     let html = `
         <table class="table">
             <thead>
@@ -227,12 +158,12 @@ function renderAmountReport(summary) {
             </thead>
             <tbody>
     `;
-    
+
     reportData.forEach((item, index) => {
-        let discountDisplay = item.discount_method === 'percentage' 
-            ? `${parseFloat(item.discount_percentage).toFixed(1)}%` 
+        let discountDisplay = item.discount_method === 'percentage'
+            ? `${parseFloat(item.discount_percentage).toFixed(1)}%`
             : `<sup style="font-size: 0.7em;">GHS</sup> ${parseFloat(item.discount_value_display).toFixed(2)}`;
-        
+
         html += `
             <tr>
                 <td><strong>${index + 1}</strong></td>
@@ -250,7 +181,7 @@ function renderAmountReport(summary) {
             </tr>
         `;
     });
-    
+
     html += '</tbody></table>';
     $('#reportContent').html(html);
 }
@@ -260,14 +191,14 @@ function exportAmountReport() {
         showAjaxModal_alert('<?php echo get_phrase('no_data_to_export'); ?>', 'error');
         return;
     }
-    
+
     var ws_data = [['#', 'Student Name', 'Student Code', 'Profile', 'Category', 'Original Amount (GHS)', 'Discount', 'Discount Amount (GHS)', 'Final Amount (GHS)']];
-    
+
     reportData.forEach(function(item, index) {
-        var discountDisplay = item.discount_method === 'percentage' 
-            ? parseFloat(item.discount_percentage).toFixed(1) + '%' 
+        var discountDisplay = item.discount_method === 'percentage'
+            ? parseFloat(item.discount_percentage).toFixed(1) + '%'
             : 'GHS ' + parseFloat(item.discount_value_display).toFixed(2);
-        
+
         ws_data.push([
             index + 1,
             item.student_name,
@@ -280,14 +211,14 @@ function exportAmountReport() {
             parseFloat(item.final_amount)
         ]);
     });
-    
+
     var wb = XLSX.utils.book_new();
     var ws = XLSX.utils.aoa_to_sheet(ws_data);
-    
+
     ws['!cols'] = [
         {wch: 5}, {wch: 25}, {wch: 15}, {wch: 20}, {wch: 15}, {wch: 20}, {wch: 15}, {wch: 22}, {wch: 20}
     ];
-    
+
     XLSX.utils.book_append_sheet(wb, ws, 'Discount Report');
     XLSX.writeFile(wb, 'Discount_Amount_Report_' + new Date().toISOString().split('T')[0] + '.xlsx');
 }

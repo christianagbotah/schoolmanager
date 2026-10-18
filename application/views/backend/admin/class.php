@@ -1,4 +1,4 @@
-<?php 
+<?php
     $currency = $this->db->get_where('settings', array('type' => 'currency'))->row()->description;
     $fmt = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
 ?>
@@ -11,128 +11,27 @@
     .class-page label { font-size: 15px !important; font-weight: 600; }
     .class-page select, .class-page input { font-size: 15px !important; }
     .class-page option { font-size: 15px !important; }
-
-    /* Direct UX refinement — Classes workspace */
-    .structure-workspace { padding: 24px 28px 40px !important; }
-    .structure-page-head {
-        margin: 0 0 18px; padding: 0 0 18px; border-bottom: 1px solid #e2e8f0;
-    }
-    .structure-eyebrow {
-        margin: 0 0 4px; color: #2563eb; font-size: 13px; font-weight: 800;
-        letter-spacing: .08em; text-transform: uppercase;
-    }
-    .structure-page-head h1 {
-        margin: 0; color: #0f172a; font-size: 30px; line-height: 1.2;
-        font-weight: 800; letter-spacing: -.02em;
-    }
-    .structure-page-head p:last-child { margin: 7px 0 0; color: #64748b; font-size: 15px; line-height: 1.5; }
-
-    .structure-workspace > .mb-6.border-b { border: 0 !important; margin-bottom: 16px !important; }
-    .structure-workspace > .mb-6.border-b > ul {
-        display: inline-flex !important; gap: 5px; margin: 0 !important; padding: 5px !important;
-        border: 1px solid #e2e8f0; border-radius: 12px; background: #fff;
-    }
-    .structure-workspace > .mb-6.border-b li { margin: 0 !important; }
-    .structure-workspace [data-tabs-target] {
-        min-height: 40px; padding: 9px 14px !important; border: 0 !important;
-        border-radius: 8px !important; font-size: 14px !important; line-height: 1.35;
-        font-weight: 700 !important; color: #475569 !important; background: transparent !important;
-    }
-    .structure-workspace [data-tabs-target] i { font-size: 16px !important; }
-    .structure-workspace [data-tabs-target]:hover { background: #f1f5f9 !important; color: #0f172a !important; }
-    .structure-workspace [data-tabs-target].active {
-        background: #2563eb !important; color: #fff !important; box-shadow: 0 2px 8px rgba(37,99,235,.18);
-    }
-
-    #tabContent > [role="tabpanel"] > div {
-        border-radius: 14px !important; border-color: #e2e8f0 !important;
-        box-shadow: 0 1px 2px rgba(15,23,42,.04) !important; overflow: hidden;
-    }
-    #tabContent > [role="tabpanel"] > div > div:first-child {
-        padding: 15px 18px !important; background: #fff; border-bottom: 1px solid #eef2f7 !important;
-    }
-    #tabContent h3 { margin: 0; font-size: 17px !important; font-weight: 800 !important; color: #0f172a !important; }
-    #tabContent > [role="tabpanel"] > div > div:last-child { padding: 16px 18px !important; }
-
-    #table_export { min-width: 860px; }
-    #table_export thead th {
-        padding: 12px 13px !important; background: #f8fafc !important; color: #475569 !important;
-        font-size: 13px !important; font-weight: 800 !important; letter-spacing: .035em;
-    }
-    #table_export tbody td { padding: 12px 13px !important; color: #334155; font-size: 14px !important; line-height: 1.45; }
-    #table_export tbody tr:hover td { background: #f8fbff; }
-    #table_export .dropdown > button {
-        width: 40px; height: 40px; min-height: 40px; padding: 0 !important;
-        display: inline-flex; align-items: center; justify-content: center; font-size: 18px !important;
-    }
-
-    .class-page label { margin-bottom: 7px !important; font-size: 14px !important; font-weight: 700 !important; color: #334155 !important; }
-    .class-page select, .class-page input:not([type="file"]) {
-        min-height: 46px !important; padding: 10px 12px !important; border: 1px solid #cbd5e1 !important;
-        border-radius: 9px !important; background: #fff !important; color: #0f172a !important; font-size: 15px !important;
-    }
-    .class-page select:focus, .class-page input:focus {
-        border-color: #2563eb !important; box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important; outline: none;
-    }
-    #class_form .grid { gap: 16px !important; }
-    #class_form button[type="submit"], #uploadBtn {
-        min-height: 46px; padding: 10px 18px !important; font-size: 15px !important; font-weight: 800 !important;
-        border-radius: 9px !important;
-    }
-
-    #bulk .grid.lg\:grid-cols-2 { gap: 16px !important; margin-bottom: 18px !important; }
-    #bulk .grid.lg\:grid-cols-2 > div { padding: 18px !important; border-radius: 12px !important; }
-    #bulk h4 { font-size: 15px !important; margin-bottom: 10px !important; }
-    #bulk p, #bulk li { font-size: 14px !important; line-height: 1.5; }
-    #bulk a { min-height: 42px; padding: 9px 14px !important; font-size: 14px !important; border-radius: 9px !important; }
-    #uploadZone { height: 190px !important; border-radius: 12px !important; }
-    #uploadZone i.text-6xl { font-size: 40px !important; margin-bottom: 10px !important; }
-
-    .class-page .dataTables_wrapper .dataTables_length,
-    .class-page .dataTables_wrapper .dataTables_filter,
-    .class-page .dataTables_wrapper .dataTables_info,
-    .class-page .dataTables_wrapper .dataTables_paginate { font-size: 14px !important; color: #475569; }
-    .class-page .dataTables_wrapper select,
-    .class-page .dataTables_wrapper input[type="search"] { min-height: 40px !important; font-size: 14px !important; }
-
-    @media (max-width: 767px) {
-        .structure-workspace { padding: 18px 14px 32px !important; }
-        .structure-page-head h1 { font-size: 26px; }
-        .structure-workspace > .mb-6.border-b > ul {
-            display: grid !important; grid-template-columns: 1fr; width: 100%;
-        }
-        .structure-workspace [data-tabs-target] { width: 100%; justify-content: flex-start; }
-        #class_form .grid { grid-template-columns: 1fr !important; }
-    }
 </style>
 
-<div class="class-page p-5 sm:p-6 structure-workspace">
-    <div class="structure-page-head">
-        <div>
-            <p class="structure-eyebrow">School Setup</p>
-            <h1>Classes</h1>
-            <p>Manage class definitions, assigned sections and teachers, or create multiple classes from a prepared file.</p>
-        </div>
-    </div>
-
+<div class="class-page p-5 sm:p-6">
     <!-- Tabs -->
     <div class="mb-6 border-b border-gray-200">
         <ul class="flex flex-wrap -mb-px text-center" role="tablist">
             <li class="mr-2" role="presentation">
-                <button class="inline-flex items-center gap-2 px-6 py-4 border-b-2 border-blue-600 text-blue-600 rounded-t-lg active" id="list-tab" data-tabs-target="#list" type="button" role="tab" >
-                    <i class="entypo-list" ></i>
+                <button class="inline-flex items-center gap-2 px-6 py-4 border-b-2 border-blue-600 text-blue-600 rounded-t-lg active" id="list-tab" data-tabs-target="#list" type="button" role="tab" style="font-size: 1.375rem !important; font-weight: 700 !important;">
+                    <i class="entypo-list" style="font-size: 1.5rem;"></i>
                     <span><?php echo get_phrase('class_list');?></span>
                 </button>
             </li>
             <li class="mr-2" role="presentation">
-                <button class="inline-flex items-center gap-2 px-6 py-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 rounded-t-lg" id="add-tab" data-tabs-target="#add" type="button" role="tab" >
-                    <i class="entypo-plus-circled" ></i>
+                <button class="inline-flex items-center gap-2 px-6 py-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 rounded-t-lg" id="add-tab" data-tabs-target="#add" type="button" role="tab" style="font-size: 1.375rem !important; font-weight: 700 !important;">
+                    <i class="entypo-plus-circled" style="font-size: 1.5rem;"></i>
                     <span><?php echo get_phrase('add_class');?></span>
                 </button>
             </li>
             <li class="mr-2" role="presentation">
-                <button class="inline-flex items-center gap-2 px-6 py-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 rounded-t-lg" id="bulk-tab" data-tabs-target="#bulk" type="button" role="tab" >
-                    <i class="entypo-upload" ></i>
+                <button class="inline-flex items-center gap-2 px-6 py-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 rounded-t-lg" id="bulk-tab" data-tabs-target="#bulk" type="button" role="tab" style="font-size: 1.375rem !important; font-weight: 700 !important;">
+                    <i class="entypo-upload" style="font-size: 1.5rem;"></i>
                     <span><?php echo get_phrase('bulk_upload');?></span>
                 </button>
             </li>
@@ -163,7 +62,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php 
+                            <?php
                             $count = 1;
                             $class = getAllClassList();
                             for($i=0; $i < sizeof($class); $i++):
@@ -236,7 +135,7 @@
                             <select name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" required>
                                 <option value=""><?php echo get_phrase('select_class_name');?></option>
                                 <?php
-                                    $class_name = ['CRECHE', 'NURSERY', 'KG', 'BASIC', 'JHS']; 
+                                    $class_name = ['CRECHE', 'NURSERY', 'KG', 'BASIC', 'JHS'];
                                     foreach($class_name as $cn) {
                                         echo '<option value="'.$cn.'">'.$cn.'</option>';
                                     }
@@ -262,7 +161,7 @@
                         <div>
                             <label class="block mb-3 text-lg font-semibold text-gray-900"><?php echo get_phrase('section');?></label>
                             <select name="section_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" required>
-                                <?php 
+                                <?php
                                 $this->db->select('name');
                                 $this->db->distinct();
                                 $this->db->from('section');
@@ -273,13 +172,13 @@
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        
+
 
                         <div>
                             <label class="block mb-3 text-lg font-semibold text-gray-900"><?php echo get_phrase('teacher');?></label>
                             <select name="teacher_id" id="teacher_select" class="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                                 <option value=""><?php echo get_phrase('select_teacher');?></option>
-                                <?php 
+                                <?php
                                 $teachers = $this->db->get('teacher')->result_array();
                                 foreach($teachers as $row):
                                 ?>
@@ -392,10 +291,10 @@ function confirm_modal(url) {
 jQuery(document).ready(function($) {
     var datatable = $("#table_export").dataTable();
     $(".dataTables_wrapper select").select2({minimumResultsForSearch: -1});
-    
+
     // Initialize Bootstrap dropdowns
     $('.dropdown-toggle').dropdown();
-    
+
     $('#teacher_select').select2({
         placeholder: '<?php echo get_phrase('select_teacher');?>',
         allowClear: true,

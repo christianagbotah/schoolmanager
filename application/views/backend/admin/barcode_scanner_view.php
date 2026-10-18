@@ -1,19 +1,4 @@
-<style>
-/* Family design-language alignment (attendance wave) - presentation only.
-   Scoped to this modal fragment's own elements; category/date selectors,
-   scanned_view_updator and title_changer contracts untouched. */
-#category, #date_show, #date_sel {
-    border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 8px 12px;
-    font-size: 14px; box-shadow: none; height: 38px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-#category:focus, #date_show:focus, #date_sel:focus {
-    border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-    outline: none;
-}
-#title_holder { font-size: 17px; font-weight: 700; color: #111827; }
-</style>
-<?php 
+<?php
 //echo date('d-m-Y', 1608854400);
     $active_sms_service = $this->db->get_where('settings' , array('type' => 'active_sms_service'))->row()->description;
 ?>
@@ -53,7 +38,7 @@
         </center>
     </div>
     <div class="col-md-12" id="details_holder">
-                
+
 
     </div>
 </div>
@@ -104,13 +89,13 @@
         .fail(function(err) {
             showAjaxModal_alert('An error occurred while loading the scanned data.', 'Error', false, true);
         });
-        
+
     }
 
 
     //change title
     function title_changer() {
-        
+
         let category = $('#category').val();
         let text = '';
 
@@ -122,13 +107,13 @@
 
         } else if(category == 'feeding') {
             text = 'FEEDING FEE';
-            
+
         } else if(category == 'classes') {
             text = 'CLASSES FEE';
-            
+
         } else if(category == 'transport') {
             text = 'TRANSPORT FARE';
-            
+
         }
 
         //UPDATE NOW

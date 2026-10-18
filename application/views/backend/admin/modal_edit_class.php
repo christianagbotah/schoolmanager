@@ -1,4 +1,4 @@
-<?php 
+<?php
 $edit_data = $this->db->get_where('class', array('class_id' => $param2))->result_array();
 foreach ($edit_data as $row):
 ?>
@@ -12,13 +12,13 @@ foreach ($edit_data as $row):
 
 <div class="edit-class-modal max-w-5xl mx-auto p-4">
     <div class="bg-white rounded-lg shadow-lg border border-gray-200">
-        <div class="bg-blue-700 px-6 py-4">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
             <h3 class="text-xl font-bold text-white flex items-center gap-2">
                 <i class="entypo-pencil"></i>
                 <?php echo get_phrase('edit_class');?>
             </h3>
         </div>
-        
+
         <div class="p-6">
             <?php echo form_open(site_url('admin/classes/do_update/'.$row['class_id']), array('id' => 'class_form_edit'));?>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -53,7 +53,7 @@ foreach ($edit_data as $row):
                 <div>
                     <label class="block mb-2 text-sm font-semibold text-gray-900"><?php echo get_phrase('section');?></label>
                     <select name="section_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3" required>
-                        <?php 
+                        <?php
                         $this->db->select('name');
                         $this->db->distinct();
                         $this->db->from('section');
@@ -70,7 +70,7 @@ foreach ($edit_data as $row):
                     <label class="block mb-2 text-sm font-semibold text-gray-900"><?php echo get_phrase('teacher');?></label>
                     <select name="teacher_id" id="teacher_select_edit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3">
                         <option value=""><?php echo get_phrase('select_teacher');?></option>
-                        <?php 
+                        <?php
                         $teachers = $this->db->get('teacher')->result_array();
                         foreach($teachers as $row2):
                         ?>
@@ -78,7 +78,7 @@ foreach ($edit_data as $row):
                         <?php endforeach; ?>
                     </select>
                 </div>
-                
+
                 <div class="flex items-end">
                     <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-semibold rounded-lg text-base px-5 py-3 flex items-center justify-center gap-2">
                         <i class="entypo-check"></i>
@@ -100,7 +100,7 @@ foreach ($edit_data as $row):
         width: '100%',
         dropdownParent: $('#teacher_select_edit').parent()
     });
-    
+
     $('#class_form_edit').submit(function(event) {
         event.preventDefault();
         $('.close')[0].click();

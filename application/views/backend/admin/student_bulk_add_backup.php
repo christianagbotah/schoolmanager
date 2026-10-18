@@ -1,10 +1,10 @@
 <style type="text/css">
 	#preloader2 {
-		width: 100%; 
-		min-height: 1920px; 
-		background-color: #fff; 
-		text-align: center; 
-		z-index: 99999; 
+		width: 100%;
+		min-height: 1920px;
+		background-color: #fff;
+		text-align: center;
+		z-index: 99999;
 		position: absolute;
 	}
 </style>
@@ -14,7 +14,7 @@
 		<p id="loading_txt" style="padding-top: 15px; font-weight: bold;">Admitting your students, please wait<span id="dot1">.</span><span id="dot2">.</span><span id="dot3">.</span></p>
 	</div>
 <hr />
-<?php 
+<?php
 	$loader = '<img src="'.base_url('assets/images/validate.gif').'" width="16px;">';
 	$checked_icon = '<i class="glyphicon glyphicon-check" style="color: green;"></i>';
 
@@ -67,7 +67,7 @@
 	<div class="col-sm-2"></div>
 </div>
 
-<?php 
+<?php
 	$error_msg = '';
 	if(isset($_GET['success']) && $_GET['success'] == 1) { ?>
 
@@ -94,7 +94,7 @@
 		</div>
 		<div class="col-sm-2"></div>
 		</div>
-		
+
 		<?php
 	} else if(isset($_GET['error']) && $_GET['error'] == 2 || isset($_GET['error']) && $_GET['error'] == 3) { ?>
 		<div class="row">
@@ -107,7 +107,7 @@
 		</div>
 		<div class="col-sm-2"></div>
 		</div>
-		
+
 		<?php
 	}
 ?>
@@ -120,7 +120,7 @@
 	<div class="col-md-3 col-sm-3 col-xs-5">
 		<div class="form_group">
 			<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('class');?></label>
-			<select name="class_id" id="class_id" class="form-control selectboxit" required
+			<select name="class_id" id="class_id" class="form-control select2" required
 				onchange="get_sections(this.value)"  data-validate="required"  data-message-required="<?php echo get_phrase('value_required');?>">
 				<option value=""><?php echo get_phrase('select_class');?></option>
 				<?php
@@ -131,7 +131,7 @@
 	</div>
 	<div id="section_holder" class="col-md-3 col-sm-3 col-xs-3">
 		<label class="control-label" style="margin-bottom: 5px;"><?php echo get_phrase('section');?></label>
-		<select name="section_id" id="section_id" class="form-control selectboxit">
+		<select name="section_id" id="section_id" class="form-control select2">
 			<option value=""><?php echo get_phrase('select_class_first');?></option>
 		</select>
 	</div>
@@ -176,7 +176,7 @@ $('#generate_csv').mouseout(function() {
 	$('#generate_csv').popover('hide');
 });
 
-	
+
 });
 
 
@@ -303,7 +303,7 @@ $('#generate_csv').mouseout(function() {
 							$('#main_div').css('cursor', 'wait');
 						}
 					}
-					
+
 				}
 
 			});

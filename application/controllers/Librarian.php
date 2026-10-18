@@ -61,7 +61,7 @@ class Librarian extends CI_Controller
 
         $page_data['page_name']  = 'dashboard';
         $page_data['page_title'] = get_phrase('librarian_dashboard');
-        
+
 
             $page_data['account_type'] = $this->session->userdata('login_type');
                      $page_data['account_type'] = $this->session->userdata('login_type');
@@ -77,7 +77,7 @@ class Librarian extends CI_Controller
         $page_data['notices']    = $this->db->get_where('noticeboard',array('status'=>1))->result_array();
         $page_data['page_name']  = 'noticeboard';
         $page_data['page_title'] = get_phrase('noticeboard');
-        
+
 
             $page_data['account_type'] = $this->session->userdata('login_type');
                      $page_data['account_type'] = $this->session->userdata('login_type');
@@ -145,7 +145,7 @@ class Librarian extends CI_Controller
                $data['total_copies'] = $this->input->post('total_copies');
             }
             else{
-               $data['total_copies'] = null;  
+               $data['total_copies'] = null;
             }
             if(!empty($_FILES["file_name"]["name"])) {
                 $data['file_name'] = $_FILES["file_name"]["name"];
@@ -188,7 +188,7 @@ class Librarian extends CI_Controller
         $page_data['books']      = $this->db->get('book')->result_array();
         $page_data['page_name']  = 'book';
         $page_data['page_title'] = get_phrase('manage_library_books');
-        
+
 
             $page_data['account_type'] = $this->session->userdata('login_type');
                      $page_data['account_type'] = $this->session->userdata('login_type');
@@ -206,7 +206,6 @@ class Librarian extends CI_Controller
 
         if ($param1 == "accept")
         {
-            $book_id        = $this->db->get_where('book_request', array('book_request_id' => $param2))->row()->book_id;
             $status         = $this->db->get_where('book', array('book_id' => $book_id))->row()->status;
             if($status == 'Unavailable') {
                 $this->session->set_flashdata('error_message', get_phrase('no_copy_of_this_book_is_available'));
@@ -216,7 +215,7 @@ class Librarian extends CI_Controller
 
                 $this->db->update('book_request', $data, array('book_request_id' => $param2));
             }
-            
+
 
             // INCREMENT NUMBER OF ISSUED COPIES
             $book_id        = $this->db->get_where('book_request', array('book_request_id' => $param2))->row()->book_id;
@@ -239,7 +238,7 @@ class Librarian extends CI_Controller
                 $this->db->update('book', $data2, array('book_id' => $book_id));
 
             $this->session->set_flashdata('flash_message', get_phrase('request_accepted_successfully'));
-            
+
             $issued_copies  = $this->db->get_where('book', array('book_id' => $book_id))->row()->issued_copies;
             $total_copies   = $this->db->get_where('book', array('book_id' => $book_id))->row()->total_copies;
             if($issued_copies < $total_copies) {
@@ -257,7 +256,7 @@ class Librarian extends CI_Controller
             redirect(site_url('librarian/book_request'));
             }
 
-            
+
         }
 
         if ($param1 == "reject")
@@ -308,7 +307,7 @@ class Librarian extends CI_Controller
             $data['password']             = $this->input->post('password');
             $data['new_password']         = password_hash($this->input->post('new_password'), PASSWORD_BCRYPT);
             $data['confirm_new_password'] = $this->input->post('confirm_new_password');
-            
+
             $current_password = $this->db->get_where('librarian', array(
                 'librarian_id' => $this->session->userdata('librarian_id')
             ))->row()->password;
@@ -329,7 +328,7 @@ class Librarian extends CI_Controller
         $page_data['edit_data']  = $this->db->get_where('librarian', array(
             'librarian_id' => $this->session->userdata('librarian_id')
         ))->result_array();
-        
+
 
             $page_data['account_type'] = $this->session->userdata('login_type');
                      $page_data['account_type'] = $this->session->userdata('login_type');
@@ -361,11 +360,11 @@ class Librarian extends CI_Controller
         $totalData = $this->ajaxload->all_books_count();
         $totalFiltered = $totalData;
 
-        if(empty($this->input->post('search')['value'])) {            
+        if(empty($this->input->post('search')['value'])) {
             $books = $this->ajaxload->all_books($limit,$start,$order,$dir);
         }
         else {
-            $search = $this->input->post('search')['value']; 
+            $search = $this->input->post('search')['value'];
             $books =  $this->ajaxload->book_search($limit,$start,$search,$order,$dir);
             $totalFiltered = $this->ajaxload->book_search_count($search);
         }
@@ -377,7 +376,7 @@ class Librarian extends CI_Controller
                     $download = '';
                 else
                     $download = '<a href="'.site_url("uploads/document/$row->file_name").'" class="btn btn-blue btn-icon icon-left"><i class="entypo-download"></i>'.get_phrase('download').'</a>';
-                
+
                 $options = '<div class="btn-group"><button type="button" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown">
                                     Action <span class="caret"></span></button><ul class="dropdown-menu dropdown-default pull-right" role="menu"><li><a href="#" onclick="book_edit_modal('.$row->book_id.')" style="color: green;"><i class="entypo-pencil"></i>&nbsp;'.get_phrase('edit').'</a></li><li class="divider"></li><li><a href="#" onclick="book_delete_confirm('.$row->book_id.')" style="color: red;"><i class="entypo-trash"></i>&nbsp;'.get_phrase('delete').'</a></li></ul></div>';
 
@@ -390,18 +389,18 @@ class Librarian extends CI_Controller
                 $nestedData['class'] = $this->db->get_where('class', array('class_id' => $row->class_id))->row()->name.' '.$this->db->get_where('class', array('class_id' => $row->class_id))->row()->name_numeric;
                 $nestedData['download'] = $download;
                 $nestedData['options'] = $options;
-                
+
                 $data[] = $nestedData;
             }
         }
-          
+
         $json_data = array(
-            "draw"            => intval($this->input->post('draw')),  
-            "recordsTotal"    => intval($totalData),  
-            "recordsFiltered" => intval($totalFiltered), 
-            "data"            => $data   
+            "draw"            => intval($this->input->post('draw')),
+            "recordsTotal"    => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data"            => $data
         );
-            
+
         echo json_encode($json_data);
     }
 }

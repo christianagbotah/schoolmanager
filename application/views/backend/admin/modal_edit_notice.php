@@ -1,4 +1,4 @@
-<?php 
+<?php
 $edit_data		=	$this->db->get_where('noticeboard' , array('notice_id' => $param2) )->result_array();
 ?>
 <div class="tab-pane box active" id="edit" style="padding: 5px">
@@ -35,7 +35,7 @@ $edit_data		=	$this->db->get_where('noticeboard' , array('notice_id' => $param2)
                 <div class="form-group">
                         <label class="col-sm-3 control-label"><?php echo 'Send SMS'; ?></label>
                         <div class="col-sm-4">
-                            <select class="form-control selectboxit" name="check_sms" id="check_sms">
+                            <select class="form-control select2" name="check_sms" id="check_sms">
                                 <option value="1"><?php echo get_phrase('yes'); ?></option>
                                 <option value="2"><?php echo get_phrase('no'); ?></option>
                             </select>
@@ -56,24 +56,24 @@ $edit_data		=	$this->db->get_where('noticeboard' , array('notice_id' => $param2)
                     <div class="form-group" style="display: none" id="sms_target_holder">
                         <label class="col-sm-3 control-label"><?php echo get_phrase('send_sMS_to...'); ?></label>
                         <div class="col-sm-4">
-                            <select class="form-control selectboxit" name="sms_target">
+                            <select class="form-control select2" name="sms_target">
                                 <option value="1"><?php echo get_phrase('all_(_parents,_teachers,_students)'); ?></option>
                                 <option value="2"><?php echo get_phrase('parents_only'); ?></option>
                                 <option value="3"><?php echo get_phrase('teachers_only'); ?></option>
                                 <option value="4"><?php echo get_phrase('students_only'); ?></option>
                             </select>
-                            
+
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="col-sm-3 control-label"><?php echo get_phrase('send_email-_alert_to_all'); ?></label>
                         <div class="col-sm-4">
-                            <select class="form-control selectboxit" name="check_email">
+                            <select class="form-control select2" name="check_email">
                                 <option value="1"><?php echo get_phrase('yes'); ?></option>
                                 <option value="2"><?php echo get_phrase('no'); ?></option>
                             </select>
-                            
+
                         </div>
                     </div>
 
@@ -91,7 +91,7 @@ $edit_data		=	$this->db->get_where('noticeboard' , array('notice_id' => $param2)
 <script type="text/javascript">
   $(document).ready(function() {
     show_sms_target();
-    
+
     var active_sms_service = '<?php echo $active_sms_service; ?>';
     if(active_sms_service == '' || active_sms_service == 'disabled') {
       $('#sms_active').css('background-color', 'red');

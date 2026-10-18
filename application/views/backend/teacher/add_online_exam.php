@@ -19,7 +19,7 @@
                     <div class="form-group">
                         <label class="col-sm-3 control-label"><?php echo get_phrase('class');?></label>
                         <div class="col-sm-9">
-                            <select name="class_id" class="form-control selectboxit" data-validate="required" id="class_id"
+                            <select name="class_id" class="form-control select2" data-validate="required" id="class_id"
                             data-message-required="<?php echo get_phrase('value_required');?>"
                             onchange="return get_class_sections(this.value)" required>
                                 <option value=""><?php echo get_phrase('select_class');?></option>
@@ -27,7 +27,7 @@
 				foreach($class_ids_creche as $subj):
 					$classes = $this->db->get_where('class', array('class_id' => $subj['class_id']))->result_array();
 					foreach($classes as $row):
-					 
+
 					 //add section A or B if the class has more than one section
                     $section_name = $this->db->get_where('section', array('class_id' => $row['class_id']))->row()->name;
                     $class_has_more_sections = $this->db->get_where('class', array('name' => $row['name'], 'name_numeric' => $row['name_numeric']))->num_rows();
@@ -37,13 +37,13 @@
                     }
 				?>
 				<option value="<?php echo $row['class_id'];?>"><?php echo $row['name'].' '.$row['name_numeric'].$sec_name;?></option>
-				<?php endforeach; endforeach; //FOR CRECHE ?> 
-                
+				<?php endforeach; endforeach; //FOR CRECHE ?>
+
                 <?php
 				foreach($class_ids_c as $cs):
 					$classes_c = $this->db->get_where('class', array('class_id' => $cs['class_id']))->result_array();
 					foreach($classes_ as $rowc):
-					
+
 					//add section A or B if the class has more than one section
                     $section_name = $this->db->get_where('section', array('class_id' => $rowc['class_id']))->row()->name;
                     $class_has_more_sections = $this->db->get_where('class', array('name' => $rowc['name'], 'name_numeric' => $rowc['name_numeric']))->num_rows();
@@ -54,12 +54,12 @@
 				?>
 				<option value="<?php echo $rowc['class_id'];?>"><?php echo $rowc['name'].' '.$rowc['name_numeric'].$sec_name;?></option>
 				<?php endforeach; endforeach; ?>
-				
+
 				<?php
 				foreach($class_ids as $subj):
 					$classes = $this->db->get_where('class', array('class_id' => $subj['class_id']))->result_array();
 					foreach($classes as $row):
-					
+
 					//add section A or B if the class has more than one section
                     $section_name = $this->db->get_where('section', array('class_id' => $row['class_id']))->row()->name;
                     $class_has_more_sections = $this->db->get_where('class', array('name' => $row['name'], 'name_numeric' => $row['name_numeric']))->num_rows();
@@ -76,7 +76,7 @@
                     <div class="form-group">
                         <label for="field-2" class="col-sm-3 control-label"><?php echo get_phrase('section');?></label>
                         <div class="col-sm-9" id="section_selector_holder">
-                            <select name="section_id" class="form-control selectboxit" id = "section_id">
+                            <select name="section_id" class="form-control select2" id = "section_id">
                                 <option value=""><?php echo get_phrase('select_class_first');?></option>
                             </select>
                         </div>
@@ -85,7 +85,7 @@
                     <div class="form-group">
                         <label for="field-2" class="col-sm-3 control-label"><?php echo get_phrase('subject');?></label>
                         <div class="col-sm-9" id="subject_selector_holder">
-                            <select name="subject_id" class="form-control selectboxit" id = "subject_id">
+                            <select name="subject_id" class="form-control select2" id = "subject_id">
                                 <option value=""><?php echo get_phrase('select_class_first');?></option>
                             </select>
                         </div>
@@ -113,7 +113,7 @@
                         <div class="col-sm-4">
                             <div class="input-group">
                                 <input type="text" class="form-control timepicker" name="time_start" id="time_start" data-template="dropdown" data-show-seconds="true" data-default-time="11:00" data-show-meridian="false" data-minute-step="5" data-second-step="5" value="" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" />
-                                
+
                                 <div class="input-group-addon">
                                     <a href="#"><i class="entypo-clock"></i></a>
                                 </div>
@@ -123,7 +123,7 @@
                         <div class="col-sm-4">
                             <div class="input-group">
                                 <input type="text" class="form-control timepicker" name="time_end" id="time_end" data-template="dropdown" data-show-seconds="true" data-default-time="11:30" data-show-meridian="false" data-minute-step="5" data-second-step="5" value="" data-validate="required" data-message-required="<?php echo get_phrase('value_required');?>" />
-                                
+
                                 <div class="input-group-addon">
                                     <a href="#"><i class="entypo-clock"></i></a>
                                 </div>

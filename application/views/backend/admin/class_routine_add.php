@@ -1,71 +1,12 @@
-<style>
-/* Direct UX rebuild — Admin Add Class Routine */
-body { background: #f8fafc; }
-.routine-add-workspace { margin: 0 !important; padding: 0 0 32px; }
-.routine-add-workspace > .col-md-12 { padding: 0 !important; }
-.routine-add-head {
-    margin: 0 0 18px; padding-bottom: 18px; border-bottom: 1px solid #e2e8f0;
-}
-.routine-add-head .eyebrow {
-    margin: 0 0 4px; color: #2563eb; font-size: 13px; font-weight: 800;
-    letter-spacing: .08em; text-transform: uppercase;
-}
-.routine-add-head h1 {
-    margin: 0; color: #0f172a; font-size: 24px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em;
-}
-.routine-add-head p {
-    margin: 7px 0 0; max-width: 760px; color: #64748b; font-size: 14px; line-height: 1.5;
-}
-.routine-add-workspace form {
-    max-width: 980px; padding: 22px 20px; border: 1px solid #e2e8f0;
-    border-radius: 14px; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.05);
-}
-.routine-add-workspace .form-group { margin-bottom: 16px; }
-.routine-add-workspace .control-label {
-    padding-top: 11px; color: #334155; font-size: 13px; font-weight: 700;
-}
-.routine-add-workspace .form-control,
-.routine-add-workspace .selectboxit-container .selectboxit {
-    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); border: 1px solid #cbd5e1; border-radius: 9px;
-    background: #fff; color: #0f172a; font-size: 14px;
-}
-.routine-add-workspace .form-control:focus {
-    border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); outline: none;
-}
-.routine-add-workspace .selectboxit-container { width: 100% !important; }
-.routine-add-workspace .selectboxit-container .selectboxit { width: 100% !important; }
-.routine-add-workspace .col-sm-9 > .col-md-3 { padding-left: 0; padding-right: 10px; }
-.routine-add-workspace #section_subject_selection_holder .form-group { margin-bottom: 16px; }
-.routine-add-workspace #add_class_routine {
-    min-height: var(--sm-ui-control-height, 42px); height: var(--sm-ui-control-height, 42px); padding: 9px 16px; border-radius: 9px;
-    background: #2563eb; border-color: #2563eb; color: #fff; font-size: 14px; font-weight: 800;
-}
-.routine-add-workspace #add_class_routine:hover { background: #1d4ed8; border-color: #1d4ed8; }
-
-@media (max-width: 767px) {
-    .routine-add-workspace { padding: 0 0 28px; }
-    .routine-add-head h1 { font-size: 22px; }
-    .routine-add-workspace form { padding: 18px 14px; }
-    .routine-add-workspace .control-label { padding-top: 0; margin-bottom: 6px; text-align: left; }
-    .routine-add-workspace .col-sm-5,
-    .routine-add-workspace .col-sm-9,
-    .routine-add-workspace .col-md-3 { width: 100%; padding-left: 15px; padding-right: 15px; margin-bottom: 8px; }
-    .routine-add-workspace #add_class_routine { width: 100%; }
-}
-</style>
-<div class="routine-add-head">
-    <p class="eyebrow">Academics</p>
-    <h1>Add Class Routine</h1>
-    <p>Choose the class, section, subject, day and time range to add a timetable entry.</p>
-</div>
-<div class="row routine-add-workspace">
+<hr />
+<div class="row">
 	<div class="col-md-12">
-		
+
 		<?php echo form_open(site_url('admin/class_routine/create') , array('class' => 'form-horizontal form-groups validate','target'=>'_top'));?>
             <div class="form-group">
                 <label class="col-sm-3 control-label"><?php echo get_phrase('class');?></label>
                 <div class="col-sm-5">
-                    <select name="class_id" id = "class_id" class="form-control selectboxit" style="width:100%;"
+                    <select name="class_id" id = "class_id" class="form-control select2" style="width:100%;"
                         onchange="return get_class_section_subject(this.value)">
                         <option value=""><?php echo get_phrase('select_class');?></option>
                         <?php
@@ -75,11 +16,11 @@ body { background: #f8fafc; }
                 </div>
             </div>
             <div id="section_subject_selection_holder"></div>
-            
+
             <div class="form-group">
                 <label class="col-sm-3 control-label"><?php echo get_phrase('day');?></label>
                 <div class="col-sm-5">
-                    <select name="day" class="form-control selectboxit" style="width:100%;">
+                    <select name="day" class="form-control select2" style="width:100%;">
                         <option value="sunday">Sunday</option>
                         <option value="monday">Monday</option>
                         <option value="tuesday">Tuesday</option>
@@ -95,7 +36,7 @@ body { background: #f8fafc; }
                 <label class="col-sm-3 control-label"><?php echo get_phrase('starting_time');?></label>
                 <div class="col-sm-9">
                     <div class="col-md-3">
-                        <select name="time_start" id= "starting_hour" class="form-control selectboxit">
+                        <select name="time_start" id= "starting_hour" class="form-control select2">
                             <option value=""><?php echo get_phrase('hour');?></option>
                             <?php for($i = 0; $i <= 12 ; $i++):?>
                                 <option value="<?php echo $i;?>"><?php echo $i;?></option>
@@ -103,7 +44,7 @@ body { background: #f8fafc; }
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="time_start_min" id= "starting_minute" class="form-control selectboxit">
+                        <select name="time_start_min" id= "starting_minute" class="form-control select2">
                             <option value=""><?php echo get_phrase('minutes');?></option>
                             <?php for($i = 0; $i <= 11 ; $i++):
 
@@ -114,7 +55,7 @@ body { background: #f8fafc; }
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="starting_ampm" class="form-control selectboxit">
+                        <select name="starting_ampm" class="form-control select2">
                             <option value="1">am</option>
                             <option value="2">pm</option>
                         </select>
@@ -125,7 +66,7 @@ body { background: #f8fafc; }
                 <label class="col-sm-3 control-label"><?php echo get_phrase('ending_time');?></label>
                 <div class="col-sm-9">
                     <div class="col-md-3">
-                        <select name="time_end" id= "ending_hour" class="form-control selectboxit">
+                        <select name="time_end" id= "ending_hour" class="form-control select2">
                             <option value=""><?php echo get_phrase('hour');?></option>
                             <?php for($i = 0; $i <= 12 ; $i++):?>
                                 <option value="<?php echo $i;?>"><?php echo $i;?></option>
@@ -133,8 +74,8 @@ body { background: #f8fafc; }
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="time_end_min" id= "ending_minute" class="form-control selectboxit">
-                            <option value=""><?php echo get_phrase('minutes');?></option>  
+                        <select name="time_end_min" id= "ending_minute" class="form-control select2">
+                            <option value=""><?php echo get_phrase('minutes');?></option>
                             <?php for($i = 0; $i <= 11 ; $i++):
                                 if(strlen($i) == 1) $i = '0'.$i;
                                 ?>
@@ -143,7 +84,7 @@ body { background: #f8fafc; }
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="ending_ampm" class="form-control selectboxit">
+                        <select name="ending_ampm" class="form-control select2">
                             <option value="1">am</option>
                             <option value="2">pm</option>
                         </select>
@@ -189,7 +130,7 @@ function check_validation(){
     console.log('class_id: '+class_id+' starting_hour:'+starting_hour+' starting_minute: '+starting_minute+' ending_hour: '+ending_hour+' ending_minute: '+ending_minute);
     if(class_id !== '' && starting_hour !== '' && starting_minute  !== '' && ending_hour  !== '' && ending_minute !== ''){
         $('#add_class_routine').removeAttr('disabled');
-    }    
+    }
 }
 $('#class_id').change(function() {
     class_id = $('#class_id').val();

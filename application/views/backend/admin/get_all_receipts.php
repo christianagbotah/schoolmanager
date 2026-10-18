@@ -49,7 +49,7 @@ $total_receipts = count($receipts);
 ?>
 
 <!-- Total Payment Card -->
-<div style="background: #059669; border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(16, 24, 40, 0.15); position: relative; overflow: hidden;">
+<div style="background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%); border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3); position: relative; overflow: hidden;">
     <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
     <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
     <div style="display: flex; justify-content: space-around; align-items: center; position: relative; z-index: 1;">
@@ -72,7 +72,7 @@ $total_receipts = count($receipts);
     border-spacing: 0;
 }
 #receipts_table thead tr {
-    background: #1e293b;
+    background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
 }
 #receipts_table thead th {
     color: white !important;
@@ -86,7 +86,8 @@ $total_receipts = count($receipts);
     transition: all 0.2s;
 }
 #receipts_table tbody tr:hover {
-    background-color: #f8fafc !important;
+    background-color: #f3f4f6 !important;
+    transform: scale(1.01);
 }
 #receipts_table tbody td {
     border: none !important;
@@ -125,7 +126,7 @@ $total_receipts = count($receipts);
         </thead>
         <tbody>
             <?php if (count($receipts) > 0): ?>
-                <?php $i = 1; foreach ($receipts as $receipt): 
+                <?php $i = 1; foreach ($receipts as $receipt):
                     $this->db->select_sum('due');
                     $this->db->where('receipt_code', $receipt['receipt_code']);
                     $total_due = $this->db->get('payment')->row()->due;
@@ -141,11 +142,11 @@ $total_receipts = count($receipts);
                         <td style="text-align: right; color: #059669; font-weight: 600;"><?php echo $currency . ' ' . number_format($receipt['total_amount'], 2); ?></td>
                         <td><span style="background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 12px; font-size: 0.875rem; font-weight: 600;"><?php echo ucfirst($receipt['payment_method']); ?></span></td>
                         <td>
-                            <a href="<?php echo site_url('admin/receipt/' . $receipt['receipt_code'] . '/' . $receipt['student_id'] . '/' . $receipt['total_amount'] . '/' . $receipt['timestamp'] . '/' . $total_fees_owe); ?>" 
+                            <a href="<?php echo site_url('admin/receipt/' . $receipt['receipt_code'] . '/' . $receipt['student_id'] . '/' . $receipt['total_amount'] . '/' . $receipt['timestamp'] . '/' . $total_fees_owe); ?>"
                                class="btn btn-sm btn-info" target="_blank" style="border-radius: 8px; margin-right: 5px;">
                                 <i class="fa fa-eye"></i> View
                             </a>
-                            <button onclick="requestModificationByReceipt('<?php echo $receipt['receipt_code']; ?>')" 
+                            <button onclick="requestModificationByReceipt('<?php echo $receipt['receipt_code']; ?>')"
                                class="btn btn-sm btn-warning" style="border-radius: 8px;">
                                 <i class="fa fa-edit"></i> Modify
                             </button>
@@ -177,8 +178,8 @@ function requestModificationByReceipt(receiptCode) {
     $.get('<?php echo site_url("admin/get_payment_id_by_receipt/"); ?>' + receiptCode, function(response) {
         var data = JSON.parse(response);
         if(data.status === 'success') {
-            loadModalContent('createModal', 
-                '<?php echo site_url("admin/receipt_modification_modal/"); ?>' + data.payment_id, 
+            loadModalContent('createModal',
+                '<?php echo site_url("admin/receipt_modification_modal/"); ?>' + data.payment_id,
                 '<i class="fa fa-edit"></i> Request Receipt Modification');
         } else {
             showAjaxModal_alert('Receipt not found', 'error');

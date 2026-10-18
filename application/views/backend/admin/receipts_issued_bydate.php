@@ -10,79 +10,79 @@
         <div class="col-md-6">
             <div class="col-md-12">
                 <div class="row">
-                <div class="col-md-12">          
+                <div class="col-md-12">
                     <div class="tile-stats tile-green" style="overflow: visible; min-height: 180px;">
                         <div class="icon" style="margin-bottom: 20px;"><i class="fa fa-dollar" style="padding-right: 10px;"></i></div>
                         <sub style="font-weight: bold; color: #ffffff; font-size: 15px;"><?php echo 'Amount'; ?></sub> <div class="num" data-start="0"
                                 data-postfix="" data-duration="500" data-delay="0" id="receipt_date_rec"></div>
 
                         <sub style="font-weight: bold; color: #ffffff; font-size: 15px; margin-top: -69px;" class="pull-right"><?php echo 'Quantity'; ?> <label class="label label-danger" id="receipt_date_rec_qty"></label></sub>
-                        
+
                         <h3><?php echo get_phrase('total_receipts_for_issued_invoices');?></h3>
                         <p id="receipt_date_rec_date"></p>
 
                         <div class="col-md-4 pull-right" style="">
                             <?php echo form_open(site_url('admin/update_class/search'), array('class' => 'form-horizontal form-group-bordered', 'id' => 'class_update_form')); ?>
                             <label class="form-control-labels" style="color: #fff;">Filter By Class</label>
-                            <select name="class_id" class="form-control selectboxit" onchange="class_update()" id="receipt_class_selection">
+                            <select name="class_id" class="form-control select2" onchange="class_update()" id="receipt_class_selection">
                             <option value=""><?php echo get_phrase('click_here');?></option>
                             <?php
                                 $this->db->select('c.class_id, c.name, c.name_numeric, s.name as section_name');
                                 $this->db->from('class c');
                                 $this->db->join('section s', 'c.class_id = s.class_id', 'left');
                                 $classes = $this->db->get()->result_array();
-                                
+
                                 $class_counts = array();
                                 foreach($classes as $c) {
                                     $key = $c['name'].'_'.$c['name_numeric'];
                                     $class_counts[$key] = isset($class_counts[$key]) ? $class_counts[$key] + 1 : 1;
                                 }
-                                
+
                                 foreach($classes as $row):
                                     $key = $row['name'].'_'.$row['name_numeric'];
                                     $sec_name = ($class_counts[$key] > 1) ? $row['section_name'] : '';
-                                    
+
                                     if($row['name'] == 'CRECHE') {
                                         $creche_name = ucwords(strtolower($row['name'])).$sec_name;
                                     } else {
                                         $creche_name = ucwords(strtolower($row['name'])). ' '. $row['name_numeric'].$sec_name;
                                     }
-                                                        
+
                             ?>
-                                            
+
                             <option value="<?php echo $row['class_id'];?>"
                                 ><?php echo $creche_name; ?></option>
-                                            
+
                             <?php endforeach;?>
                         </select>
                         </form>
             </div>
                     </div>
-                    
+
                 </div>
             </div>
             </div>
-            
+
         </div>
 
         <div class="col-md-6">
             <div class="col-md-12">
                 <div class="row">
-                <div class="col-md-12">          
+                <div class="col-md-12">
                     <div class="tile-stats tile-pink" style="overflow: visible; min-height: 180px;">
                         <div class="icon" style="margin-bottom: 20px;"><i class="fa fa-dollar" style="padding-right: 10px;"></i></div>
                         <sub style="font-weight: bold; color: #ffffff; font-size: 15px;"><?php echo 'Amount'; ?></sub> <div class="num" data-start="0"
                                 data-postfix="" data-duration="500" data-delay="0" id="receipt_date_rec2"></div>
 
                         <sub style="font-weight: bold; color: #ffffff; font-size: 15px; margin-top: -69px;" class="pull-right"><?php echo 'Quantity'; ?> <label class="label label-danger" id="receipt_date_rec_qty2"></label></sub>
-                        
+
                         <h3><?php echo get_phrase('total_receipts_for_issued_invoices');?></h3>
                         <p id="receipt_date_rec_date2"></p>
 
                         <div class="col-md-8 pull-right" style="">
                             <?php echo form_open(site_url('admin/update_issuer'), array('class' => 'form-horizontal form-group-bordered', 'id' => 'issuer_update_form')); ?>
                             <label class="form-control-labels" style="color: #fff;">Filter By Issuer</label>
-                            <select name="class_id" class="form-control selectboxit" onchange="issuer_update()" id="receipt_issuer_selection">
+                            <select name="class_id" class="form-control select2" onchange="issuer_update()" id="receipt_issuer_selection">
                             <option value=""><?php echo get_phrase('click_here');?></option>
                             <?php
                                 $this->db->select('a.admin_id, a.name, a.level');
@@ -104,11 +104,11 @@
                         </form>
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
             </div>
-            
+
         </div>
     </div>
 
@@ -122,8 +122,8 @@
 <script type="text/javascript">
 
 	$(function($) {
-        
-        
+
+
         load_data();
         get_receipts_by_date2();
 
@@ -204,7 +204,7 @@
                                 columns: ':visible'
                             }
                         },
-                         
+
                         'colvis',
                     ]
                 });
@@ -212,7 +212,7 @@
 
             }
         })
-        
+
     }
 
 function check_sms_status() {

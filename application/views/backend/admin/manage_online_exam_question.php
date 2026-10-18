@@ -132,11 +132,11 @@
                     <?php echo get_phrase('add_question');?>
                 </div>
             </div>
-            <div class="panel-body">   
+            <div class="panel-body">
                 <div class="form-group">
                     <label class="col-sm-3 control-label"><?php echo get_phrase('question_type');?></label>
                     <div class="col-sm-8">
-                        <select class="selectboxit" name="question_type" id="question_type">
+                        <select class="select2" name="question_type" id="question_type">
                             <option value=""><?php echo get_phrase('select_question_type');?></option>
                             <option value="multiple_choice"><?php echo get_phrase('multiple_choice');?></option>
                             <option value="true_false"><?php echo get_phrase('true_or_false');?></option>
@@ -171,5 +171,5 @@
             });
         });
     });
-    
+
 </script>

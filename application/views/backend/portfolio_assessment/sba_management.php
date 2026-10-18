@@ -1,13 +1,13 @@
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-primary">
-            <div class="panel-heading" style="background: #43e97b; border: none;">
+            <div class="panel-heading" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border: none;">
                 <h3 class="panel-title" style="color: white;">
                     <i class="fa fa-graduation-cap"></i> SBA Management (Auto-Filled from Portfolio)
                 </h3>
             </div>
             <div class="panel-body">
-                
+
                 <!-- Filter Form -->
                 <form id="sba-filter-form" class="row">
                     <div class="col-md-3">
@@ -51,10 +51,10 @@
                 <!-- SBA Data Table -->
                 <div id="sba-container" class="mt-4" style="display: none;">
                     <div class="alert alert-info">
-                        <i class="fa fa-info-circle"></i> <strong>Class Test</strong> column is auto-filled from Portfolio Assessment. 
+                        <i class="fa fa-info-circle"></i> <strong>Class Test</strong> column is auto-filled from Portfolio Assessment.
                         Portfolio Average × Weight (30%) = Class Test Score
                     </div>
-                    
+
                     <table class="table table-bordered table-hover">
                         <thead style="background: #43e97b; color: white;">
                             <tr>
@@ -70,7 +70,7 @@
                         </thead>
                         <tbody id="sba-list"></tbody>
                     </table>
-                    
+
                     <button onclick="syncAllSBA()" class="btn btn-primary">
                         <i class="fa fa-sync"></i> Sync All from Portfolio
                     </button>
@@ -85,7 +85,7 @@
 function loadSubjects() {
     const classId = $('#class_id').val();
     if(!classId) return;
-    
+
     $.ajax({
         url: '<?php echo site_url("examination/get_all_subjects"); ?>',
         type: 'GET',
@@ -105,12 +105,12 @@ function loadSBAData() {
     const subjectId = $('#subject_id').val();
     const year = $('#year').val();
     const term = $('#term').val();
-    
+
     if(!classId || !subjectId) {
         showAjaxModal_alert('Please select class and subject', 'Warning', false, true);
         return;
     }
-    
+
     $.ajax({
         url: '<?php echo site_url("portfolio_enterprise/get_sba_data"); ?>',
         type: 'GET',
@@ -127,7 +127,7 @@ function loadSBAData() {
 
 function displaySBAData(data) {
     let html = '';
-    
+
     if(data.length === 0) {
         html = '<tr><td colspan="8" class="text-center">No SBA data found. Portfolio assessments will auto-fill when saved.</td></tr>';
     } else {
@@ -146,7 +146,7 @@ function displaySBAData(data) {
             </tr>`;
         });
     }
-    
+
     $('#sba-list').html(html);
 }
 
@@ -155,10 +155,10 @@ function syncAllSBA() {
     const subjectId = $('#subject_id').val();
     const year = $('#year').val();
     const term = $('#term').val();
-    
+
     showCustomConfirm('Sync all students SBA from portfolio?', function() {
         showAjaxModal_alert('Syncing...', 'loading');
-        
+
         $.ajax({
             url: '<?php echo site_url("portfolio_enterprise/batch_sync_sba"); ?>',
             type: 'POST',

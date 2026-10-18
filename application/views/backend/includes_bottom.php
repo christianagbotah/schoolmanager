@@ -9,7 +9,7 @@
 (function($) {
 	// Store original modal method
 	var originalModal = $.fn.modal;
-	
+
 	// Override modal method with error handling
 	$.fn.modal = function(option) {
 		try {
@@ -18,7 +18,7 @@
 				console.warn('Modal: No elements found');
 				return this;
 			}
-			
+
 			// Check if option is valid
 			if (option && typeof option === 'string') {
 				// Valid string options: 'show', 'hide', 'toggle', 'handleUpdate'
@@ -28,7 +28,7 @@
 					return this;
 				}
 			}
-			
+
 			// Call original modal method
 			return originalModal.call(this, option);
 		} catch (e) {
@@ -36,7 +36,7 @@
 			return this;
 		}
 	};
-	
+
 	// Copy static properties
 	$.fn.modal.Constructor = originalModal.Constructor;
 	$.fn.modal.noConflict = originalModal.noConflict;
@@ -101,7 +101,7 @@
 <script src="<?php echo base_url('assets/cdn/js/buttons.print.min.js');?>?v=<?php echo time(); ?>" crossorigin="anonymous"></script>
 <script src="<?php echo base_url('assets/cdn/js/buttons.colVis.min.js');?>" crossorigin="anonymous"></script>
 <?php endif; ?>
- 
+
 
 <!-- Select2 v3.5.2 (original version) -->
 <script src="<?php echo base_url('assets/js/select2/select2.min.js');?>"></script>
@@ -185,9 +185,6 @@
 </script>
 
 
-<!-- Global UI consistency: dynamic topbar spacing -->
-<script src="<?php echo base_url('assets/js/ui-consistency.js');?>?v=<?php echo time(); ?>"></script>
-
 <!-- Global script to make HTML5 date inputs clickable anywhere -->
 <script>
 $(document).on('click', 'input[type="date"]', function() {
@@ -207,10 +204,10 @@ $(document).ready(function() {
     $('#main-menu li.has-sub > a').off('click').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         var $li = $(this).parent('li');
         var $submenu = $li.children('ul');
-        
+
         if ($li.hasClass('opened')) {
             // Close submenu
             $li.removeClass('opened');
@@ -222,10 +219,10 @@ $(document).ready(function() {
             $li.addClass('opened');
             $submenu.slideDown(300);
         }
-        
+
         return false;
     });
-    
+
     // Mark menu items with submenus
     $('#main-menu li').each(function() {
         if ($(this).children('ul').length > 0) {

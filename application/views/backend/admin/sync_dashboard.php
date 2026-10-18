@@ -1,14 +1,14 @@
 <?php
 /**
  * Enhanced Sync Dashboard for Multi-Location Bidirectional Sync
- * 
+ *
  * Provides comprehensive monitoring of sync operations across multiple locations
  * with real-time status, metrics charts, and conflict management.
- * 
+ *
  * @package    School Manager
  * @subpackage Views
  * @category   Sync
- * 
+ *
  * Requirements: 1.1, 1.3, 1.4, 1.9, 6.1, 6.3
  * Task 2.1: Dashboard layout structure with gradient header and responsive grid
  */
@@ -225,21 +225,21 @@ $metrics = $sync_status['metrics'] ?? [];
     .sync-status-cards-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .sync-dashboard-header {
         padding: var(--spacing-xl);
     }
-    
+
     .sync-header-stats {
         gap: var(--spacing-xl);
     }
-    
+
     .sync-realtime-indicator {
         position: static;
         margin-top: var(--spacing-lg);
         width: fit-content;
     }
-    
+
     .sync-connection-badge {
         position: static;
         margin-top: var(--spacing-lg);
@@ -251,12 +251,12 @@ $metrics = $sync_status['metrics'] ?? [];
     .sync-status-cards-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .sync-header-stats {
         flex-direction: column;
         gap: var(--spacing-lg);
     }
-    
+
     .sync-dashboard-container {
         padding: var(--spacing-lg);
     }
@@ -579,11 +579,11 @@ $metrics = $sync_status['metrics'] ?? [];
     .sync-quick-actions-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .sync-location-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .sync-charts-grid {
         grid-template-columns: 1fr;
     }
@@ -595,167 +595,10 @@ $metrics = $sync_status['metrics'] ?? [];
     .sync-manual-controls-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .sync-chart-container {
         height: 250px;
     }
-}
-
-/* ============================================================
-   Family design-language alignment (SchoolManager dashboard system)
-   Appended after the rules above so family tokens win the cascade.
-   Presentation only - no structural or behavioural change.
-   ============================================================ */
-@keyframes syncFadeInUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Page canvas - matches the admin dashboard wrapper */
-.sync-dashboard-container {
-    background: #f9fafb;
-    min-height: 100vh;
-    max-width: none;
-    padding: 16px;
-}
-@media (min-width: 768px) {
-    .sync-dashboard-container { padding: 24px; }
-}
-
-/* Hero - same gradient, radius, shadow and decor circles as the family hero */
-.sync-dashboard-header {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%);
-    border-radius: 16px;
-    box-shadow: 0 12px 32px rgba(79, 70, 229, 0.25);
-    overflow: hidden;
-    position: relative;
-}
-.sync-dashboard-header::before {
-    content: ''; position: absolute; top: -70px; right: -70px;
-    width: 240px; height: 240px; background: rgba(255,255,255,0.06); border-radius: 50%;
-}
-.sync-dashboard-header::after {
-    content: ''; position: absolute; bottom: -50px; left: -50px;
-    width: 180px; height: 180px; background: rgba(255,255,255,0.05); border-radius: 50%;
-}
-.sync-dashboard-header h1 { font-size: 30px; }
-.sync-header-stat-value { font-size: 36px; }
-.sync-header-stat-label { letter-spacing: 0.8px; }
-
-/* Cards - same as the family .dashboard-card */
-.sync-card,
-.sync-chart-card,
-.sync-pending-list,
-.sync-manual-controls {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-    animation: syncFadeInUp .4s ease-out;
-    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-}
-.sync-card:hover,
-.sync-chart-card:hover,
-.sync-manual-controls:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(16, 24, 40, 0.10);
-    border-color: #cbd5e1;
-}
-
-/* Status accent edges - family KPI treatment */
-.sync-card-success { border-left: 4px solid var(--color-success, #10b981); }
-.sync-card-warning { border-left: 4px solid var(--color-warning, #f59e0b); }
-.sync-card-error   { border-left: 4px solid var(--color-error, #ef4444); }
-.sync-card-info    { border-left: 4px solid var(--color-info, #3b82f6); }
-
-/* Quick actions - same as the family quick-action tiles */
-.sync-quick-action-card {
-    background: #fff;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 14px;
-    box-shadow: none;
-    padding: 20px 16px;
-    animation: syncFadeInUp .4s ease-out;
-    transition: border-color .18s ease, background .18s ease, transform .18s ease, box-shadow .18s ease;
-}
-.sync-quick-action-card:hover {
-    border-color: #3b82f6;
-    background: #eff6ff;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.14);
-}
-.sync-quick-action-card:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-.sync-quick-action-icon {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    border-radius: 16px;
-    box-shadow: 0 2px 6px rgba(16, 24, 40, 0.14);
-    transition: transform .18s ease;
-}
-.sync-quick-action-card:hover .sync-quick-action-icon { transform: scale(1.06); }
-
-/* Buttons - same shape language as the family buttons */
-.sync-btn {
-    border-radius: 10px;
-    font-weight: 600;
-    min-height: 42px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: all .2s;
-}
-.sync-btn-sm { min-height: 34px; }
-.sync-btn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
-}
-
-/* Chart containers - family heights */
-.sync-chart-container { height: 320px; }
-
-/* Status badges - family pill treatment */
-.sync-location-status-badge,
-.sync-connection-badge,
-.sync-pending-item-count {
-    border-radius: 999px;
-    font-weight: 600;
-    letter-spacing: 0.2px;
-}
-
-/* Tables inside cards - scroll safety on small screens */
-.table-responsive { border-radius: 12px; }
-
-/* 400px tier - family hardening */
-@media (max-width: 400px) {
-    .sync-dashboard-container { padding: 12px; }
-    .sync-card,
-    .sync-chart-card,
-    .sync-pending-list,
-    .sync-manual-controls { padding: 15px; border-radius: 14px; }
-    .sync-dashboard-header { padding: 20px 15px; }
-    .sync-header-stat-value { font-size: 30px; }
-    .sync-status-cards-grid,
-    .sync-quick-actions-grid,
-    .sync-location-grid { gap: 12px; }
-}
-
-@media (max-width: 768px) {
-    .sync-chart-container { height: 260px; }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    .sync-card,
-    .sync-chart-card,
-    .sync-pending-list,
-    .sync-manual-controls,
-    .sync-quick-action-card { animation: none; transition: none; }
-    .sync-realtime-indicator.active .sync-realtime-pulse::before,
-    .sync-connection-badge.online .sync-status-dot { animation: none; }
 }
 </style>
 
@@ -767,19 +610,19 @@ $metrics = $sync_status['metrics'] ?? [];
             Multi-Location Sync Dashboard
         </h1>
         <p>Monitor and control bidirectional synchronization across all locations</p>
-        
+
         <!-- Real-time Sync Indicator -->
         <div class="sync-realtime-indicator <?php echo $realtime_enabled ? 'active' : 'inactive'; ?>" id="realtime-indicator">
             <div class="sync-realtime-pulse"></div>
             <span><?php echo $realtime_enabled ? 'Real-time Sync Active' : 'Real-time Sync Off'; ?></span>
         </div>
-        
+
         <!-- Connection Status Badge -->
         <div class="sync-connection-badge <?php echo $internet_online ? 'online' : 'offline'; ?>" id="connection-status-badge">
             <span class="sync-status-dot"></span>
             <span><?php echo $internet_online ? 'Online' : 'Offline'; ?></span>
         </div>
-        
+
         <!-- Header Stats Summary -->
         <div class="sync-header-stats">
             <div class="sync-header-stat">
@@ -803,14 +646,14 @@ $metrics = $sync_status['metrics'] ?? [];
 
     <!-- Alerts Section - Task 3.8: Error Display + Task 3.9: Status Indicators -->
     <div class="sync-alerts-section">
-        <?php 
+        <?php
         // Task 3.8: Check for sync errors
         $error_states = ['failed_connection', 'failed', 'failed_disk_space', 'failed_no_internet', 'failed_system'];
         $has_error = in_array($last_sync_status, $error_states);
         $error_data = $sync_status['last_sync_error'] ?? null;
-        
+
         // Display error alert if present
-        if ($has_error && $error_data): 
+        if ($has_error && $error_data):
             $error_message = $error_data['error_message'] ?? 'Sync operation failed';
             $error_timestamp = $error_data['timestamp'] ?? date('Y-m-d H:i:s');
             $error_type = $error_data['error_type'] ?? 'unknown';
@@ -836,14 +679,14 @@ $metrics = $sync_status['metrics'] ?? [];
                                     <strong>Error Type:</strong> <span style="text-transform: capitalize;"><?php echo str_replace('_', ' ', $error_type); ?></span>
                                 </div>
                             </div>
-                            
+
                             <?php if ($corrective_action): ?>
                             <div style="background: rgba(255, 255, 255, 0.1); padding: var(--spacing-md); border-radius: var(--radius-md); margin-top: var(--spacing-sm);">
                                 <strong style="color: var(--color-error);"><i class="fa fa-lightbulb"></i> Corrective Action:</strong><br>
                                 <?php echo htmlspecialchars($corrective_action); ?>
                             </div>
                             <?php endif; ?>
-                            
+
                             <div style="margin-top: var(--spacing-lg); display: flex; gap: var(--spacing-md);">
                                 <a href="#" class="sync-btn sync-btn-secondary sync-btn-sm" id="view-error-log-btn">
                                     <i class="fa fa-list"></i> View Full Error Log
@@ -854,14 +697,14 @@ $metrics = $sync_status['metrics'] ?? [];
                             </div>
                         </div>
                     </div>
-                    <button type="button" class="sync-btn sync-btn-text" id="dismiss-error-alert" style="padding: var(--spacing-xs);" aria-label="Dismiss error alert">
+                    <button type="button" class="sync-btn sync-btn-text" id="dismiss-error-alert" style="padding: var(--spacing-xs);">
                         <i class="fa fa-times"></i>
                     </button>
                 </div>
             </div>
         </div>
         <?php endif; ?>
-        
+
         <?php if ($conflicts_count > 0): ?>
         <div class="sync-card sync-card-warning">
             <div class="sync-card-body">
@@ -983,7 +826,7 @@ $metrics = $sync_status['metrics'] ?? [];
             </h2>
             <p class="sync-section-description">Breakdown of pending sync operations by type</p>
         </div>
-        
+
         <div class="sync-status-cards-grid" style="grid-template-columns: repeat(3, 1fr);">
             <!-- INSERT Operations Card -->
             <div class="sync-card sync-card-success">
@@ -1039,14 +882,14 @@ $metrics = $sync_status['metrics'] ?? [];
                 </div>
             </div>
         </div>
-        
+
         <div class="sync-card" style="margin-top: var(--spacing-lg); background: var(--color-gray-50); border: none;">
             <div class="sync-card-body">
                 <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-gray-700);">
                     <i class="fa fa-info-circle" style="color: var(--color-info);"></i>
-                    <strong>Operation Type Guide:</strong> 
-                    <strong class="text-success">INSERT</strong> creates new records on remote, 
-                    <strong class="text-info">UPDATE</strong> modifies previously-synced records, 
+                    <strong>Operation Type Guide:</strong>
+                    <strong class="text-success">INSERT</strong> creates new records on remote,
+                    <strong class="text-info">UPDATE</strong> modifies previously-synced records,
                     <strong class="text-warning">BOTH</strong> indicates records that were created and modified before first sync.
                 </p>
             </div>
@@ -1059,7 +902,7 @@ $metrics = $sync_status['metrics'] ?? [];
         <div class="sync-section-header">
             <h2 class="sync-section-title">Quick Actions</h2>
         </div>
-        
+
         <div class="sync-quick-actions-grid">
             <a href="<?php echo site_url('admin/sync_locations'); ?>" class="sync-quick-action-card">
                 <div class="sync-quick-action-icon">
@@ -1068,7 +911,7 @@ $metrics = $sync_status['metrics'] ?? [];
                 <h3 class="sync-quick-action-title">Manage Locations</h3>
                 <p class="sync-quick-action-description">Add, edit, or remove sync locations</p>
             </a>
-            
+
             <a href="<?php echo site_url('admin/sync_conflicts'); ?>" class="sync-quick-action-card">
                 <div class="sync-quick-action-icon">
                     <i class="fa fa-exclamation-triangle"></i>
@@ -1076,7 +919,7 @@ $metrics = $sync_status['metrics'] ?? [];
                 <h3 class="sync-quick-action-title">Resolve Conflicts</h3>
                 <p class="sync-quick-action-description">Review and resolve sync conflicts</p>
             </a>
-            
+
             <a href="<?php echo site_url('admin/sync_audit'); ?>" class="sync-quick-action-card">
                 <div class="sync-quick-action-icon">
                     <i class="fa fa-history"></i>
@@ -1084,7 +927,7 @@ $metrics = $sync_status['metrics'] ?? [];
                 <h3 class="sync-quick-action-title">View Audit Trail</h3>
                 <p class="sync-quick-action-description">Track all sync operations and changes</p>
             </a>
-            
+
             <a href="<?php echo site_url('admin/sync_settings'); ?>" class="sync-quick-action-card">
                 <div class="sync-quick-action-icon">
                     <i class="fa fa-cog"></i>
@@ -1107,24 +950,24 @@ $metrics = $sync_status['metrics'] ?? [];
                     <i class="fa fa-sync-alt"></i> Refresh Dashboard
                 </button>
             </div>
-            
+
             <div class="sync-manual-controls-grid">
                 <!-- <button class="sync-btn sync-btn-primary disabled sync-manual-btn" id="run-manual-sync-btn-disabled" disabled="disabled">
                     <i class="fa fa-sync-alt"></i>
                     <span>Run Full Sync</span>
                 </button>
-                
+
                 <button class="sync-btn sync-btn-success disabled sync-manual-btn" id="pull-from-remote-btn-disabled" disabled="disabled">
                     <i class="fa fa-download"></i>
                     <span>Pull from Remote</span>
                 </button> -->
-                
+
                 <button class="sync-btn sync-btn-success sync-manual-btn" id="push-to-remote-btn">
                     <i class="fa fa-upload"></i>
                     <span>Push to Remote</span>
                 </button>
             </div>
-            
+
             <!-- Progress Indicator (hidden by default) -->
             <div id="sync-progress-container" style="display: none; margin-top: var(--spacing-xl);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
@@ -1137,7 +980,7 @@ $metrics = $sync_status['metrics'] ?? [];
             </div>
         </div>
     </div>
-    
+
     <!-- Task 3.10: Error Log Section (Collapsible) -->
     <div class="sync-error-log-section" id="error-log-section" style="display: none; margin-bottom: var(--spacing-3xl);">
         <div class="sync-card">
@@ -1153,12 +996,12 @@ $metrics = $sync_status['metrics'] ?? [];
                         <button class="sync-btn sync-btn-secondary sync-btn-sm" id="download-error-log-btn">
                             <i class="fa fa-download"></i> Download Full Log
                         </button>
-                        <button class="sync-btn sync-btn-text sync-btn-sm" id="close-error-log-btn" aria-label="Close error log">
+                        <button class="sync-btn sync-btn-text sync-btn-sm" id="close-error-log-btn">
                             <i class="fa fa-times"></i>
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Error Filter -->
                 <div style="margin-bottom: var(--spacing-lg);">
                     <label style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); margin-bottom: var(--spacing-sm); display: block;">Filter by Error Type:</label>
@@ -1173,7 +1016,7 @@ $metrics = $sync_status['metrics'] ?? [];
                         <option value="no_internet">No Internet Errors</option>
                     </select>
                 </div>
-                
+
                 <!-- Error Log Container -->
                 <div id="error-log-container">
                     <div style="text-align: center; padding: var(--spacing-2xl); color: var(--color-gray-500);">
@@ -1184,7 +1027,7 @@ $metrics = $sync_status['metrics'] ?? [];
             </div>
         </div>
     </div>
-    
+
     <!-- Task 3.10: Failed Records Section (Collapsible) -->
     <div class="sync-failed-records-section" id="failed-records-section" style="display: none; margin-bottom: var(--spacing-3xl);">
         <div class="sync-card">
@@ -1203,12 +1046,12 @@ $metrics = $sync_status['metrics'] ?? [];
                         <button class="sync-btn sync-btn-primary sync-btn-sm" id="retry-all-failed-btn" disabled>
                             <i class="fa fa-redo"></i> Retry Selected
                         </button>
-                        <button class="sync-btn sync-btn-text sync-btn-sm" id="close-failed-records-btn" aria-label="Close failed records">
+                        <button class="sync-btn sync-btn-text sync-btn-sm" id="close-failed-records-btn">
                             <i class="fa fa-times"></i>
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Failed Records Summary -->
                 <div id="failed-records-summary" style="display: flex; gap: var(--spacing-xl); margin-bottom: var(--spacing-xl); padding: var(--spacing-lg); background: var(--color-gray-50); border-radius: var(--radius-md);">
                     <div>
@@ -1228,7 +1071,7 @@ $metrics = $sync_status['metrics'] ?? [];
                         <span style="font-size: var(--font-size-sm); color: var(--color-gray-600); display: block;">Constraints</span>
                     </div>
                 </div>
-                
+
                 <!-- Failed Records Filter -->
                 <div style="margin-bottom: var(--spacing-lg); display: flex; gap: var(--spacing-md);">
                     <div style="flex: 1;">
@@ -1248,7 +1091,7 @@ $metrics = $sync_status['metrics'] ?? [];
                         </select>
                     </div>
                 </div>
-                
+
                 <!-- Failed Records Table -->
                 <div id="failed-records-container">
                     <div class="table-responsive">
@@ -1275,7 +1118,7 @@ $metrics = $sync_status['metrics'] ?? [];
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <!-- Pagination Controls -->
                     <div id="failed-records-pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid var(--color-gray-200);">
                         <div style="font-size: var(--font-size-sm); color: var(--color-gray-600);">
@@ -1306,11 +1149,11 @@ $metrics = $sync_status['metrics'] ?? [];
                 <i class="fa fa-plus"></i> Add Location
             </a>
         </div>
-        
+
         <div class="sync-location-grid" id="location-health-grid">
             <?php if (!empty($locations)): ?>
                 <?php foreach ($locations as $location): ?>
-                    <?php 
+                    <?php
                     $is_online = $location['is_online'] ?? false;
                     $status_class = $is_online ? 'online' : 'offline';
                     $last_sync_time = $location['last_sync'] ?? 'Never';
@@ -1330,7 +1173,7 @@ $metrics = $sync_status['metrics'] ?? [];
                                 <?php echo $is_online ? 'Online' : 'Offline'; ?>
                             </span>
                         </div>
-                        
+
                         <div class="sync-location-info">
                             <div class="sync-location-info-item">
                                 <span class="sync-location-info-label">Last Sync:</span>
@@ -1343,7 +1186,7 @@ $metrics = $sync_status['metrics'] ?? [];
                                 <span class="sync-location-info-value"><?php echo ucfirst($location['status'] ?? 'unknown'); ?></span>
                             </div>
                         </div>
-                        
+
                         <div class="sync-location-actions">
                             <a href="<?php echo site_url('admin/sync_locations/edit/' . $location['id']); ?>" class="sync-btn sync-btn-secondary sync-btn-sm" style="flex: 1;">
                                 <i class="fa fa-edit"></i> Edit
@@ -1372,7 +1215,7 @@ $metrics = $sync_status['metrics'] ?? [];
         <div class="sync-section-header">
             <h2 class="sync-section-title">Performance Metrics</h2>
         </div>
-        
+
         <div class="sync-charts-grid">
             <!-- Line Chart: Sync Performance Over Time -->
             <div class="sync-chart-card">
@@ -1384,7 +1227,7 @@ $metrics = $sync_status['metrics'] ?? [];
                     <canvas id="sync-performance-chart"></canvas>
                 </div>
             </div>
-            
+
             <!-- Doughnut Chart: Sync Status Distribution -->
             <div class="sync-chart-card">
                 <div class="sync-chart-header">
@@ -1403,7 +1246,7 @@ $metrics = $sync_status['metrics'] ?? [];
         <div class="sync-section-header">
             <h2 class="sync-section-title">Pending Records by Table</h2>
         </div>
-        
+
         <div class="sync-pending-list">
             <?php if (!empty($pending_by_table)): ?>
                 <?php foreach ($pending_by_table as $table => $count): ?>

@@ -38,7 +38,7 @@ $students_ids = array();
                 <input type="search" class="form-control" name="student_search" id="student_search" placeholder="Search Student Name..." style="height: 35px">
             </div>
         </div>
-      
+
       <hr>
 <?php
 
@@ -93,7 +93,7 @@ foreach($students as $st):
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-success panel-shadow" data-collapsed="0">
-                    <?php if($invoices_found == 1) { 
+                    <?php if($invoices_found == 1) {
 
                         if($class_name == 'JHSS') {
                             ?>
@@ -110,7 +110,7 @@ foreach($students as $st):
                     <?php
                         }
                         ?>
-                    
+
 
                 <?php } else {
 
@@ -121,13 +121,13 @@ foreach($students as $st):
                     <?php
                 } ?>
                     <div class="panel-body">
-                            
+
                         <table class="table table-bordered table-hover table-striped table-active">
                             <thead>
                                 <tr>
                                     <th><?php echo get_phrase('invoice_code');?></th>
                                     <th><?php echo get_phrase('title_/_item');?></th>
-                                    
+
 
                                     <?php
                                     if($class_name == 'JHSS') {
@@ -151,7 +151,7 @@ foreach($students as $st):
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php 
+                                <?php
                                     $i = 0;
                                     foreach($edit_data as $row):
                                 ?>
@@ -169,7 +169,7 @@ foreach($students as $st):
                                     <td width="120" style="text-align: right;">
                                         <div class="form-group" style="padding-top: 6px;">
                                             <?php
-                                                if($class_name == 'JHSS') { 
+                                                if($class_name == 'JHSS') {
                                                     ?>
                                                     <strong><?php echo explode('-', $row['year'])[1].'|'.$row['sem'];?></strong>
                                                     <?php
@@ -179,7 +179,7 @@ foreach($students as $st):
                                                     <?php
                                                 }
                                             ?>
-                                            
+
                                         </div>
                                     </td>
                                     <td width="120" style="text-align: right;">
@@ -199,7 +199,7 @@ foreach($students as $st):
                                     </td>
                                     <td width="150" style="text-align: right;">
                                         <div class="form-group">
-                                            <input type="number" min="1" step="any" required id="payment_<?= $row['invoice_id']; ?>" class="form-control" name="amount_<?= $row['invoice_id']; ?>"  onkeyup="status_check('<?= $row['invoice_id']; ?>')" 
+                                            <input type="number" min="1" step="any" required id="payment_<?= $row['invoice_id']; ?>" class="form-control" name="amount_<?= $row['invoice_id']; ?>"  onkeyup="status_check('<?= $row['invoice_id']; ?>')"
                                              placeholder="<?php echo get_phrase('payment_received');?>" autofocus="true" />
                                         </div>
                                     </td>
@@ -217,7 +217,7 @@ foreach($students as $st):
                                         <div class="form-group" id="bank_holder_<?= $row['invoice_id']; ?>" style="display: none">
                                             <select name="bank_<?= $row['invoice_id']; ?>" id="bank_<?= $row['invoice_id']; ?>" class="form-control" required>
                                                 <option value="0"><?php echo get_phrase('select_Bank');?></option>
-                                                <?php 
+                                                <?php
                                                     $banks = $this->db->get_where('accounts', array('account_is_bank' => 1))->result_array();
                                                     foreach($banks as $bank):
 
@@ -237,7 +237,7 @@ foreach($students as $st):
                                     <td width="120">
                                         <div class="form-group">
                                             <input type="text" class="datepicker form-control" name="timestamp_<?= $row['invoice_id']; ?>" id="timestamp_<?= $row['invoice_id']; ?>"
-                                         value="<?php 
+                                         value="<?php
                                             if($row['due'] == 0) {
                                                 echo date('d M, Y', $row['payment_timestamp']);
                                             } else {
@@ -273,16 +273,16 @@ foreach($students as $st):
                                     <input type="hidden" name="id" value="<?= $ids; ?>">
                                     <td colspan="6">
                                         <div class="form-group pull-right">
-                                        <label class="control-label col-sm-8 col-xs-12">Print Receipt? </label>  
+                                        <label class="control-label col-sm-8 col-xs-12">Print Receipt? </label>
 
                                         <div class="switch-button  showcase-switch-button">
                                         <input id="print_receipt_<?=$student_id;?>"  type="checkbox"  value="1" checked name="print_receipt_<?=$student_id;?>" onchange="value_change(<?=$student_id;?>)">
-                                        <label for="print_receipt_<?=$student_id;?>" ></label>   <strong style="font-size: 22px;" id="yes_no_<?=$student_id;?>">YES</strong>                               
-                                        </div>           
+                                        <label for="print_receipt_<?=$student_id;?>" ></label>   <strong style="font-size: 22px;" id="yes_no_<?=$student_id;?>">YES</strong>
+                                        </div>
                                     </div>
                                     </td>
-                                </tr>  -->                       
-                            </tbody>  
+                                </tr>  -->
+                            </tbody>
                         </table>
                          <?php //echo form_close();?>
                          <div class="col-lg-4 col-md-4 pull-right">
@@ -297,7 +297,7 @@ foreach($students as $st):
 
     <input type="hidden" name="<?=$student_id;?>_invoice_ids_array" value="<?php echo implode('-', $id_array); ?>">
 
-        <?php 
+        <?php
 
         array_push($students_ids, $student_id);
         endif;
@@ -310,7 +310,7 @@ foreach($students as $st):
 
  <div class="form-group">
             <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
-                
+
             </div>
             <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
                 <button type="submit" class="btn btn-info" id="take_payment"><?php echo get_phrase('take_payment');?></button>
@@ -319,7 +319,7 @@ foreach($students as $st):
     <?php echo form_close();?>
 
 
-<?php 
+<?php
     $receipt_style = $this->db->get_where('settings' , array('type'=>'receipt_style'))->row()->description;
 
 ?>
@@ -357,8 +357,8 @@ foreach($students as $st):
             $('#payment_form_').attr('target', '_blank');
         } //this sets blank target for the form to open the generated receipt in a new tab.
 
-        let counter = 0; 
-        let track_counter = 0; 
+        let counter = 0;
+        let track_counter = 0;
         let i = 0;
 
         for(j = 0; j < students_ids.length; j++) {
@@ -372,7 +372,7 @@ foreach($students as $st):
                  track_counter++;
             }
         }
-       
+
 
 
         if(counter == track_counter) {
@@ -385,7 +385,7 @@ foreach($students as $st):
             showAjaxModal_alert('No Payment Made!', 'Error');
             $('#err').text('No Payment Made!');
         } else {*/
-            
+
             //const url = '<?php //echo site_url('admin/income?id='.$class_id); ?>';
 
             //reload that student's invoices
@@ -404,11 +404,11 @@ foreach($students as $st):
                   contentType: false,
                   processData: false
               })
-              .done(function(data) {   
+              .done(function(data) {
 
                 if(data.message == 1) {
                     //success
-                    
+
                     $('.in').click();
                     showAjaxModal_alert('Payment made successfully.', 'Success');
                     navigation('<?php echo site_url('admin/invoices_show'); ?>');
@@ -417,12 +417,12 @@ foreach($students as $st):
 
                         //add href to the anchor
                         $('#open_receipt_page').attr('href', data.url);
-                        
+
                         showAjaxModal_alert('<center><div style="font-size: 16px; font-weight: bolder; margin-top: 0px; ">Redirecting to receipt page...<br><i class="fa fa-3x fa-spinner fa-pulse"></i></div></center>', 'Loading');
-                        
+
                         setTimeout(() => {
                             $('#open_receipt_page')[0].click();//open receipt page on new tab
-                            
+
                         }, 3000);
 
                         setTimeout(() => {
@@ -430,7 +430,7 @@ foreach($students as $st):
                             class_selected_load(<?=$class_id;?>); //load this class list
 
                             $('.close').click(); //close alert modal
-                            
+
                         }, 5000);
                     } else {
                         $('.in').click();
@@ -439,7 +439,7 @@ foreach($students as $st):
                             class_selected_load(<?=$class_id;?>); //load this class list
 
                             $('.close').click(); //close alert modal
-                            
+
                         }, 5000);
                     }
                 } else {
@@ -448,7 +448,7 @@ foreach($students as $st):
                     $(function(){
                         $.each(data, function(index, val) {
                           $('#list_err_bulk_payment_create').append('<li style="font-size: 16px">' + val + '</li>');
-                        }); 
+                        });
                     });
 
                     //$('.close').click();
@@ -457,10 +457,10 @@ foreach($students as $st):
               })
               .fail(function(err) {
                 showAjaxModal_alert(err.responseText, 'Error');
-                
+
               });
 
-       // }     
+       // }
     });
 
     //option for bank selection if bank option is selected
@@ -473,7 +473,7 @@ foreach($students as $st):
             $('#bank_holder_' + invoice_id).fadeOut('slow');
         }
     }
-    
+
     function modal_view_receipt(receipt_code, student_id, total_amount_received, date_time) {
 
        /** invoice_code = invoice_code.toString();
@@ -496,9 +496,11 @@ foreach($students as $st):
 
         } else if(receipt_style == 'style_3') {
             showAjaxModal_receipt('<?php echo site_url('modal/popup_receipt/modal_receipt_3/');?>' + receipt_code + '/' + student_id + '/' + total_amount_received + '/' + date_time, 'take_payment');
+        } else if(receipt_style == 'style_thermal') {
+            window.open('<?php echo site_url('admin/receipt_print/');?>' + receipt_code + '/' + student_id + '/' + total_amount_received + '/' + date_time, '_blank');
         }
 
-                 
+
     }
 
 
@@ -508,18 +510,18 @@ foreach($students as $st):
     $(document).ready(function() {
         onload_status_checker();
         check_input();
-        
+
     });*/
 
-    
+
 
     function check_input() {
         let invoice_id = <?php echo $row['invoice_id']; ?>;
         let payment_received = Number($('#payment_' + invoice_id).val());
         if(payment_received == '' || payment_received == null || payment_received < 1) {
            // $('#take_payment').attr('disabled', 'disabled');
-            
-            
+
+
         } else {
            // $('#take_payment').removeAttr('disabled');
             $('#err').css('display', 'none');
@@ -595,7 +597,7 @@ foreach($students as $st):
        }
     }
 
-    
+
 
     $(function() {
         $('#exp_table').dataTable();

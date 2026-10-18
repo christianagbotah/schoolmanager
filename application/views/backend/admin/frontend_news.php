@@ -14,7 +14,7 @@
 </ul>
 
 <div class="tab-content">
-	<div class="tab-pane active" id="tab1" style="margin-top: 0;">
+	<div class="tab-pane active" id="tab1" style="margin-top: 20px;">
 		<table class="table table-bordered datatable" id="table_export">
 			<thead>
 				<tr>
@@ -65,7 +65,7 @@
 	</div>
 	<div class="tab-pane" id="tab2">
 
-      <?php echo form_open(site_url('admin/frontend_news/add_news') , array('class' => 'form-horizontal form-groups', 'enctype' => 'multipart/form-data', 'id' => 'jq-submit', 'style' => 'margin-top: 0;'));?>
+      <?php echo form_open(site_url('admin/frontend_news/add_news') , array('class' => 'form-horizontal form-groups', 'enctype' => 'multipart/form-data', 'id' => 'jq-submit', 'style' => 'margin-top: 20px;'));?>
 
       <div class="form-group">
 				<label class="col-sm-3 control-label"><?php echo get_phrase('news_title'); ?></label>
@@ -75,12 +75,12 @@
 			</div>
       <div class="form-group">
         <label class="col-sm-3 control-label"><?php echo get_phrase('description'); ?></label>
-    		<div class="col-sm-7">
-    		  <textarea class="form-control wysihtml5" data-stylesheet-url="assets/css/wysihtml5-color.css"
+            <div class="col-sm-7">
+              <textarea class="form-control wysihtml5" data-stylesheet-url="assets/css/wysihtml5-color.css"
 					 id="sample_wysiwyg"></textarea>
 					<input type="hidden" name="description" id="description">
-    		</div>
-    	</div>
+            </div>
+        </div>
       <div class="form-group">
 				<label class="col-sm-3 control-label"><?php echo get_phrase('date'); ?></label>
 				<div class="col-sm-4">

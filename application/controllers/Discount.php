@@ -8,9 +8,8 @@ class Discount extends CI_Controller {
         $this->load->database();
         $this->load->library('session');
 
-        if($this->session->userdata('admin_login') != 1) {
+        if($this->session->userdata('login_type') == '') {
             redirect(site_url('login'), 'refresh');
-            exit;
         }
     }
 
@@ -40,24 +39,67 @@ class Discount extends CI_Controller {
     }
 
     public function create() {
-        $this->output->set_status_header(410)->set_content_type('application/json')->set_output(json_encode([
-            'status' => 'error',
-            'message' => 'This legacy financial action is retired. Use Finance > Discount Approvals / Apply Discount so invoice changes follow the audited approval workflow.'
-        ]));
+        $student_id = $this->input->post('student_id');
+        $year = $this->input->post('year');
+        $term = $this->input->post('term');
+        $current_user_id = $this->session->userdata('login_user_id');
+
+        $user = $this->db->get_where('admin', ['admin_id' => $current_user_id])->row();
+        $is_super_admin = ($user && $user->level == 1);
+
+        $data = [
+            'student_id' => $student_id,
+            'discount_type' => $this->input->post('discount_type'),
+            'discount_category' => $this->input->post('discount_category'),
+            'discount_method' => $this->input->post('discount_method'),
+            'discount_value' => $this->input->post('discount_value'),
+            'discount_amount' => 0,
+            'reason' => $this->input->post('reason'),
+            'status' => $is_super_admin ? 'approved' : 'pending',
+            'applied_by' => $current_user_id,
+            'created_by' => $current_user_id,
+            'created_at' => time(),
+            'invoice_code' => ''
+        ];
+
+        if($is_super_admin) {
+            $data['approved_by'] = $current_user_id;
+            $data['approved_at'] = time();
+        }
+
+        $this->db->insert('invoice_discounts', $data);
+
+        $message = $is_super_admin ? 'Discount created and approved' : 'Discount created, pending approval';
+        echo json_encode(['status' => 'success', 'message' => $message]);
     }
 
     public function approve() {
-        $this->output->set_status_header(410)->set_content_type('application/json')->set_output(json_encode([
-            'status' => 'error',
-            'message' => 'This legacy financial action is retired. Use Finance > Discount Approvals / Apply Discount so invoice changes follow the audited approval workflow.'
-        ]));
+        $discount_id = $this->input->post('discount_id');
+        $current_user_id = $this->session->userdata('login_user_id');
+
+        $user = $this->db->get_where('admin', ['admin_id' => $current_user_id])->row();
+        if(!$user || $user->level != 1) {
+            echo json_encode(['status' => 'error', 'message' => 'Only super admin can approve']);
+            return;
+        }
+
+        $this->db->where('discount_id', $discount_id)->update('invoice_discounts', ['status' => 'approved', 'approved_by' => $current_user_id, 'approved_at' => time()]);
+        echo json_encode(['status' => 'success', 'message' => 'Discount approved']);
     }
 
     public function reject() {
-        $this->output->set_status_header(410)->set_content_type('application/json')->set_output(json_encode([
-            'status' => 'error',
-            'message' => 'This legacy financial action is retired. Use Finance > Discount Approvals / Apply Discount so invoice changes follow the audited approval workflow.'
-        ]));
+        $discount_id = $this->input->post('discount_id');
+        $rejection_reason = $this->input->post('rejection_reason');
+        $current_user_id = $this->session->userdata('login_user_id');
+
+        $user = $this->db->get_where('admin', ['admin_id' => $current_user_id])->row();
+        if(!$user || $user->level != 1) {
+            echo json_encode(['status' => 'error', 'message' => 'Only super admin can reject']);
+            return;
+        }
+
+        $this->db->where('discount_id', $discount_id)->update('invoice_discounts', ['status' => 'rejected', 'rejection_reason' => $rejection_reason, 'approved_by' => $current_user_id, 'approved_at' => time()]);
+        echo json_encode(['status' => 'success', 'message' => 'Discount rejected']);
     }
 
     public function get_pending_discounts() {
@@ -74,10 +116,19 @@ class Discount extends CI_Controller {
     }
 
     public function unassign() {
-        $this->output->set_status_header(410)->set_content_type('application/json')->set_output(json_encode([
-            'status' => 'error',
-            'message' => 'This legacy financial action is retired. Use Finance > Discount Approvals / Apply Discount so invoice changes follow the audited approval workflow.'
-        ]));
+        $discount_id = $this->input->post('discount_id');
+        $current_user_id = $this->session->userdata('login_user_id');
+
+        $user = $this->db->get_where('admin', ['admin_id' => $current_user_id])->row();
+        $is_super_admin = ($user && $user->level == 1);
+
+        if($is_super_admin) {
+            $this->db->where('discount_id', $discount_id)->delete('invoice_discounts');
+            echo json_encode(['status' => 'success', 'message' => 'Discount removed']);
+        } else {
+            $this->db->where('discount_id', $discount_id)->update('invoice_discounts', ['status' => 'pending_removal', 'created_at' => time()]);
+            echo json_encode(['status' => 'success', 'message' => 'Removal request sent for approval']);
+        }
     }
 
     public function profiles() {
@@ -104,68 +155,66 @@ class Discount extends CI_Controller {
     }
 
     public function do_assign() {
-        if(strtoupper($this->input->method()) !== 'POST') {
-            return $this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
-        }
-        $student_ids = array_values(array_filter(array_map('intval',(array)$this->input->post('student_ids'))));
-        $profile_ids = array_values(array_filter(array_map('intval',(array)$this->input->post('profile_ids'))));
-        $year = trim((string)$this->input->post('year'));
-        $term = (int)$this->input->post('term');
-        $current_user_id = (int)$this->session->userdata('login_user_id');
-        $user = $this->db->get_where('admin', ['admin_id'=>$current_user_id])->row();
-        $is_super_admin = ($user && (int)$user->level === 1);
+        $student_ids = $this->input->post('student_ids');
+        $profile_ids = $this->input->post('profile_ids');
+        $year = $this->input->post('year');
+        $term = $this->input->post('term');
+        $current_user_id = $this->session->userdata('login_user_id');
 
-        if(!$student_ids || !$profile_ids || $year === '' || !$term) {
-            echo json_encode(['status'=>'error','message'=>'Please select students, profiles, academic year and term']);
+        $user = $this->db->get_where('admin', ['admin_id' => $current_user_id])->row();
+        $is_super_admin = ($user && $user->level == 1);
+
+        if(empty($student_ids) || empty($profile_ids)) {
+            echo json_encode(['status' => 'error', 'message' => 'Please select students and profiles']);
             return;
         }
-        $profiles = $this->db->where_in('profile_id',$profile_ids)->where('is_active',1)->get('discount_profiles')->result_array();
-        if(count($profiles)!==count($profile_ids)) {
-            echo json_encode(['status'=>'error','message'=>'One or more selected discount profiles are invalid or inactive']);
+
+        // Validate profile_ids exist
+        $this->db->where_in('profile_id', $profile_ids);
+        $valid_profiles = $this->db->get('discount_profiles')->result_array();
+        if(count($valid_profiles) != count($profile_ids)) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid profile selected']);
             return;
         }
-        $profiles_by_id=[]; foreach($profiles as $profile) $profiles_by_id[(int)$profile['profile_id']]=$profile;
 
-        $assigned=0;
+        $assigned = 0;
         foreach($student_ids as $student_id) {
             foreach($profile_ids as $profile_id) {
-                $profile=$profiles_by_id[$profile_id];
-                $existing=$this->db->where('student_id',$student_id)->where('profile_id',$profile_id)->where('year',$year)->where('term',$term)->where_in('status',['pending','approved','pending_removal'])->order_by('assignment_id','DESC')->get('student_discount_assignments')->row();
-                if($existing) continue;
-                $this->db->insert('student_discount_assignments',[
-                    'student_id'=>$student_id,'profile_id'=>$profile_id,'discount_category'=>$profile['discount_category'],'discount_method'=>$profile['discount_method'],
-                    'discount_value'=>$profile['discount_value'],'discount_type'=>$profile['discount_type'],'bill_item_ids'=>$profile['bill_item_ids'],
-                    'year'=>$year,'term'=>$term,'assigned_by'=>$current_user_id,'created_by'=>$current_user_id,
-                    'status'=>$is_super_admin?'approved':'pending','is_active'=>$is_super_admin?1:0,
-                    'approved_by'=>$is_super_admin?$current_user_id:null,'approved_at'=>$is_super_admin?date('Y-m-d H:i:s'):null
-                ]);
-                $assigned++;
-            }
-        }
-        if(!$is_super_admin && $assigned>0) {
-            foreach($this->db->where('level',1)->get('admin')->result() as $admin) {
-                $this->db->insert('notifications',[
-                    'user_id'=>$admin->admin_id,'user_type'=>'superadmin','title'=>'Discount Approval Required',
-                    'message'=>$assigned.' student discount assignment(s) are awaiting approval','type'=>'discount_approval','created_at'=>date('Y-m-d H:i:s')
-                ]);
-            }
-        }
-        echo json_encode(['status'=>'success','message'=>$is_super_admin?"$assigned discount(s) assigned and approved":"$assigned discount(s) assigned, pending approval"]);
-    }
+                // Check if already assigned
+                $exists = $this->db->where('student_id', $student_id)
+                    ->where('profile_id', $profile_id)
+                    ->where('year', $year)
+                    ->where('term', $term)
+                    ->where('is_active', 1)
+                    ->get('student_discount_assignments')->row();
 
-    public function remove_assignment($student_id = 0) {
-        if(strtoupper($this->input->method()) !== 'POST') {
-            return $this->output->set_status_header(405)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'POST request required']));
+                if(!$exists) {
+                    $assignment_data = [
+                        'student_id' => $student_id,
+                        'profile_id' => $profile_id,
+                        'year' => $year,
+                        'term' => $term,
+                        'assigned_by' => $current_user_id,
+                        'assigned_at' => date('Y-m-d H:i:s'),
+                        'is_active' => 1
+                    ];
+
+                    if($is_super_admin) {
+                        $assignment_data['status'] = 'approved';
+                        $assignment_data['approved_by'] = $current_user_id;
+                        $assignment_data['approved_at'] = date('Y-m-d H:i:s');
+                    } else {
+                        $assignment_data['status'] = 'pending';
+                    }
+
+                    $this->db->insert('student_discount_assignments', $assignment_data);
+                    $assigned++;
+                }
+            }
         }
-        if($this->session->userdata('user_type') != 1) {
-            return $this->output->set_status_header(403)->set_content_type('application/json')->set_output(json_encode(['status'=>'error','message'=>'Only a super administrator can deactivate approved discounts']));
-        }
-        $student_id=(int)$student_id;
-        if(!$student_id) { echo json_encode(['status'=>'error','message'=>'Invalid student']); return; }
-        $this->db->where('student_id',$student_id)->where('is_active',1)->update('student_discount_assignments',[
-            'is_active'=>0,'deactivated_at'=>time(),'deactivated_by'=>(int)$this->session->userdata('admin_id')
-        ]);
-        echo json_encode(['status'=>'success','message'=>'Active discount assignments deactivated; financial discount records were preserved for audit.']);
+
+        $message = $is_super_admin ? "$assigned discount(s) assigned and approved" : "$assigned discount(s) assigned, pending approval";
+        echo json_encode(['status' => 'success', 'message' => $message]);
     }
 
     public function student_list() {

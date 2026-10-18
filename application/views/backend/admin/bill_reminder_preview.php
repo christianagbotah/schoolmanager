@@ -19,7 +19,7 @@
 .btn-send { background: #10b981; color: white; }
 .btn-action:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
 .btn-action:active { transform: translateY(0); }
-@media print { 
+@media print {
     .action-buttons { display: none !important; }
     .navbar, .sidebar-menu, #sidebar, .page-sidebar, header, .header, nav, .nav, .breadcrumb { display: none !important; }
     body { margin: 0; padding: 0; }
@@ -38,15 +38,15 @@
             <?php echo count($messages); ?> parent(s) will receive SMS
         </div>
         <div id="smsInfo" style="margin-top: 15px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-            <div style="background: #2563eb; color: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 <div style="font-size: 12px; opacity: 0.9;">SMS Balance</div>
                 <div id="smsBalance" style="font-size: 20px; font-weight: 700;">Loading...</div>
             </div>
-            <div style="background: #ec4899; color: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 <div style="font-size: 12px; opacity: 0.9;">Estimated Cost</div>
                 <div id="smsCost" style="font-size: 20px; font-weight: 700;">Loading...</div>
             </div>
-            <div style="background: #059669; color: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+            <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 <div style="font-size: 12px; opacity: 0.9;">SMS Pages</div>
                 <div id="smsPages" style="font-size: 20px; font-weight: 700;">Loading...</div>
             </div>
@@ -74,7 +74,7 @@
     <?php foreach ($messages as $index => $preview): ?>
         <div class="preview-item" data-parent="<?php echo strtolower($preview['parent_name']); ?>" data-message="<?php echo strtolower($preview['message']); ?>">
             <div class="preview-phone">
-                <i class="fa fa-user no-print"></i> <?php echo $preview['parent_name']; ?> - 
+                <i class="fa fa-user no-print"></i> <?php echo $preview['parent_name']; ?> -
                 <i class="fa fa-phone no-print"></i> <?php echo $preview['phone']; ?>
             </div>
             <div class="preview-message">
@@ -95,7 +95,7 @@ $(document).ready(function() {
 
 function loadSMSInfo() {
     const messages = <?php echo json_encode(array_column($messages, 'message')); ?>;
-    
+
     $.ajax({
         url: '<?php echo site_url("admin/get_sms_bundle_info"); ?>',
         type: 'POST',
@@ -111,7 +111,7 @@ function loadSMSInfo() {
         } else {
             $('#smsBalance').text('N/A');
         }
-        
+
         if(response.cost) {
             $('#smsCost').text('GHS ' + response.cost.total_cost.toFixed(2));
             $('#smsPages').text(response.cost.total_pages + ' pages');
@@ -126,12 +126,12 @@ function loadSMSInfo() {
 function filterMessages() {
     const filter = document.getElementById('filterInput').value.toLowerCase();
     const items = document.querySelectorAll('.preview-item');
-    
+
     items.forEach(item => {
         const parentText = item.getAttribute('data-parent');
         const messageText = item.getAttribute('data-message');
         const searchText = parentText + ' ' + messageText;
-        
+
         if (searchText.includes(filter)) {
             item.style.display = 'block';
             item.nextElementSibling?.classList.contains('preview-divider') && (item.nextElementSibling.style.display = 'block');
@@ -146,11 +146,11 @@ function printPreview() {
     // Open new window with only the content
     const printWindow = window.open('', '_blank');
     const content = document.querySelector('.preview-container').cloneNode(true);
-    
+
     // Remove action buttons from cloned content
     const actionButtons = content.querySelector('.action-buttons');
     if(actionButtons) actionButtons.remove();
-    
+
     printWindow.document.write(`
         <!DOCTYPE html>
         <html>
@@ -216,8 +216,8 @@ function sendSMSNow() {
 
 function showTestModal() {
     const sampleMessage = <?php echo json_encode($messages[0]['message'] ?? ''); ?>;
-    
-    showModalWithContent('createModal', 
+
+    showModalWithContent('createModal',
         '<i class="fa fa-flask"></i> Test SMS',
         `<style>
             .phone-tags-container {
@@ -241,7 +241,7 @@ function showTestModal() {
                 align-items: center;
                 gap: 6px;
                 padding: 6px 12px;
-                background: #2563eb;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
                 border-radius: 6px;
                 font-size: 14px;
@@ -299,43 +299,43 @@ function showTestModal() {
             </div>
         </div>`
     );
-    
+
     // Initialize tag input after modal is shown
     setTimeout(() => {
         const phones = [];
         const input = document.getElementById('phoneInput');
         const container = document.getElementById('phoneTagsContainer');
         const count = document.getElementById('phoneCount');
-        
+
         function updateCount() {
             count.textContent = phones.length + ' number' + (phones.length !== 1 ? 's' : '') + ' added';
         }
-        
+
         function addPhone(phone) {
             phone = phone.trim();
             if (!phone || phones.includes(phone)) return;
-            
+
             phones.push(phone);
-            
+
             const tag = document.createElement('span');
             tag.className = 'phone-tag';
             tag.innerHTML = `${phone} <span class="phone-tag-remove" onclick="this.parentElement.remove(); window.removePhone('${phone}')">&times;</span>`;
-            
+
             container.insertBefore(tag, input);
             input.value = '';
             updateCount();
         }
-        
+
         window.removePhone = function(phone) {
             const index = phones.indexOf(phone);
             if (index > -1) phones.splice(index, 1);
             updateCount();
         };
-        
+
         window.getTestPhones = function() {
             return phones.join(',');
         };
-        
+
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ',') {
                 e.preventDefault();
@@ -349,7 +349,7 @@ function showTestModal() {
                 }
             }
         });
-        
+
         input.addEventListener('blur', () => {
             if (input.value.trim()) {
                 addPhone(input.value);
@@ -360,15 +360,15 @@ function showTestModal() {
 
 function sendTestSMS() {
     const phones = window.getTestPhones ? window.getTestPhones() : '';
-    
+
     if(!phones) {
         showAjaxModal_alert('Please add at least one phone number', 'error');
         return;
     }
-    
+
     $('#createModal').modal('hide');
     showAjaxModal_alert('Sending test SMS...', 'loading');
-    
+
     $.ajax({
         url: '<?php echo site_url("admin/send_test_bill_reminder"); ?>',
         type: 'POST',
