@@ -61,3 +61,14 @@ test('cashier workspace includes responsive mobile handling', () => {
   assert.match(collection, /@media\s*\(max-width:\s*767px\)/);
   assert.match(collection, /position:\s*sticky|sticky/i);
 });
+
+test('cashier POS supports one-amount smart allocation without silently changing optional subscriptions', () => {
+  const view = read('daily_fee_collection.php');
+  assert.match(view, /id=["']amountReceived["']/);
+  assert.match(view, /id=["']advanceWallet["']/);
+  assert.match(view, /function\s+smartAllocate\s*\(/);
+  assert.match(view, /smartPriority\s*=\s*\[\s*['"]feeding['"]\s*,\s*['"]classes['"]\s*,\s*['"]breakfast['"]\s*,\s*['"]water['"]\s*,\s*['"]transport['"]\s*\]/);
+  assert.match(view, /Arrears first/i);
+  assert.doesNotMatch(view, /id=["']breakfastOpted["']/);
+  assert.doesNotMatch(view, /id=["']waterOpted["']/);
+});
