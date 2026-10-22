@@ -118,3 +118,16 @@ test('successful payment keeps the printable receipt visible while refreshing wa
   const submitBody = view.slice(submitStart);
   assert.match(submitBody, /loadStudent\(selectedStudentId,\s*true\)/);
 });
+
+test('cashier student search and wallet detail use only the running academic enrollment', () => {
+  for (const method of ['search_student_for_daily_fees', 'get_student_wallet_details']) {
+    const start = controller.indexOf(`function ${method}`);
+    assert.ok(start >= 0, `missing ${method}`);
+    const end = controller.indexOf('/**', start + 20);
+    const body = controller.slice(start, end > start ? end : controller.length);
+    assert.match(body, /get_settings\(['"]running_year['"]\)/, `${method} must read running_year`);
+    assert.match(body, /get_settings\(['"]running_term['"]\)/, `${method} must read running_term`);
+    assert.match(body, /where\(['"]e\.year['"],\s*\$running_year\)/, `${method} must filter enrollment year`);
+    assert.match(body, /where\(['"]e\.term['"],\s*\$running_term\)/, `${method} must filter enrollment term`);
+  }
+});
