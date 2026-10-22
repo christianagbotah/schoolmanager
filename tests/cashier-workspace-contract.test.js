@@ -4,6 +4,7 @@ const fs = require('node:fs');
 
 const controllerPath = 'application/controllers/Cashier.php';
 const controller = fs.readFileSync(controllerPath, 'utf8');
+const preferenceControllerPath = 'application/controllers/Cashier_preferences.php';
 const viewDir = 'application/views/backend/cashier';
 
 function read(name) {
@@ -73,15 +74,18 @@ test('cashier POS supports one-amount smart allocation while preserving manual s
   assert.match(view, /Advanced allocation/i);
 });
 
-test('optional breakfast and water preferences come from student preferences, not payment amounts', () => {
-  const bodyStart = controller.indexOf('function get_student_wallet_details');
-  assert.ok(bodyStart >= 0, 'missing get_student_wallet_details');
-  const body = controller.slice(bodyStart, controller.indexOf('/**', bodyStart + 20));
-  assert.match(body, /get_student_preferences/);
-  assert.match(body, /['\"]preferences['\"]\s*=>/);
+test('optional breakfast and water preferences are read safely and never inferred from payment amounts', () => {
+  assert.ok(fs.existsSync(preferenceControllerPath), 'missing cashier preference reader');
+  const preferenceController = fs.readFileSync(preferenceControllerPath, 'utf8');
+  assert.match(preferenceController, /get_student_preferences/);
+  assert.match(preferenceController, /['\"]preferences['\"]\s*=>/);
+  assert.match(preferenceController, /can_collect_daily_fees/);
+  assert.match(preferenceController, /admin_id/);
 
   const view = read('daily_fee_collection.php');
-  assert.match(view, /res\.preferences/);
+  assert.match(view, /cashier_preferences\/student/);
+  assert.match(view, /prefRes\.preferences/);
+  assert.match(view, /preferencesLoaded/);
   const recalcStart = view.indexOf('function recalc()');
   const recalcEnd = view.indexOf('function renderSearch', recalcStart);
   assert.ok(recalcStart >= 0 && recalcEnd > recalcStart, 'missing recalc function');
