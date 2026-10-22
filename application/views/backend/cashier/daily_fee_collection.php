@@ -157,7 +157,7 @@ $csrf_hash = $this->security->get_csrf_hash();
       .fail(function(){ $('#breakfastPreference,#waterPreference').text('Preference status unavailable'); });
   }
 
-  function loadStudent(studentId){
+  function loadStudent(studentId, preserveReceipt){
     selectedStudentId = studentId;
     preferencesLoaded = false;
     $('#collectPayment').prop('disabled', true);
@@ -177,7 +177,9 @@ $csrf_hash = $this->security->get_csrf_hash();
         $('#quickPaymentAmount').val('');
         $('#allocationPreview').text('Enter an amount to preview the allocation. Arrears are settled first; excess is kept as prepaid credit.');
         renderRecent(res.payment_history || []);
-        $('#emptyState').hide(); $('#workspace').show(); $('#searchResults').empty(); $('#receiptSuccess').hide().empty(); recalc();
+        $('#emptyState').hide(); $('#workspace').show(); $('#searchResults').empty();
+        if(!preserveReceipt){ $('#receiptSuccess').hide().empty(); }
+        recalc();
         loadPreferences(studentId);
       })
       .fail(function(){ $('#searchResults').html('<div class="error-note">Wallet details failed to load.</div>'); });
@@ -248,7 +250,7 @@ $csrf_hash = $this->security->get_csrf_hash();
           var receiptUrl = '<?php echo site_url('cashier/print_daily_fee_receipt/'); ?>' + encodeURIComponent(res.transaction_code);
           $('#receiptSuccess').html('<strong>Payment recorded successfully.</strong><br>Receipt: ' + escapeHtml(res.receipt_number || '') + '<br><a target="_blank" href="' + receiptUrl + '"><i class="fa fa-print"></i> Print receipt</a>').show();
           showAjaxModal_alert(res.message || 'Payment processed successfully.', 'success');
-          loadStudent(selectedStudentId);
+          loadStudent(selectedStudentId, true);
         } else { showAjaxModal_alert(res.message || 'Payment could not be processed.', 'error'); }
       })
       .fail(function(){ showAjaxModal_alert('Payment request failed. Please retry.', 'error'); })
