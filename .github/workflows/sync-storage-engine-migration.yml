@@ -1,0 +1,29 @@
+name: Sync Storage Engine Migration
+
+on:
+  push:
+    branches:
+      - db/sync-myisam-to-innodb
+    paths:
+      - 'application/migrations/20261022_convert_enabled_sync_myisam_to_innodb.sql'
+      - 'tests/sync-storage-engine-migration.test.js'
+      - '.github/workflows/sync-storage-engine-migration.yml'
+  pull_request:
+    paths:
+      - 'application/migrations/20261022_convert_enabled_sync_myisam_to_innodb.sql'
+      - 'tests/sync-storage-engine-migration.test.js'
+      - '.github/workflows/sync-storage-engine-migration.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  migration-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify sync storage engine migration contract
+        run: node --test tests/sync-storage-engine-migration.test.js
