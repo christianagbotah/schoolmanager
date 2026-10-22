@@ -1,0 +1,30 @@
+name: Cashier Smart Collection Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/views/backend/admin/daily_fee_collection.php'
+      - 'tests/cashier-smart-collection-contract.test.js'
+      - '.github/workflows/cashier-smart-collection-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/views/backend/admin/daily_fee_collection.php'
+      - 'tests/cashier-smart-collection-contract.test.js'
+      - '.github/workflows/cashier-smart-collection-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  cashier-smart-collection:
+    name: Smart amount and allocation contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run cashier smart collection regression contract
+        run: node --test tests/cashier-smart-collection-contract.test.js
