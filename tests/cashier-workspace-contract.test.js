@@ -102,3 +102,19 @@ test('optional breakfast and water preferences are read safely and never inferre
   assert.doesNotMatch(recalcBody, /breakfastOpted[^\n]*amountInput/);
   assert.doesNotMatch(recalcBody, /waterOpted[^\n]*amountInput/);
 });
+
+test('successful payment keeps the printable receipt visible while refreshing wallet balances', () => {
+  const view = read('daily_fee_collection.php');
+  assert.match(view, /function\s+loadStudent\s*\(studentId,\s*preserveReceipt\)/);
+
+  const loadStart = view.indexOf('function loadStudent');
+  const loadEnd = view.indexOf('function allocateSmartPayment', loadStart);
+  assert.ok(loadStart >= 0 && loadEnd > loadStart, 'missing loadStudent function');
+  const loadBody = view.slice(loadStart, loadEnd);
+  assert.match(loadBody, /if\s*\(\s*!preserveReceipt\s*\)[\s\S]*receiptSuccess/);
+
+  const submitStart = view.indexOf("$('#paymentForm').on('submit'");
+  assert.ok(submitStart >= 0, 'missing payment form submit handler');
+  const submitBody = view.slice(submitStart);
+  assert.match(submitBody, /loadStudent\(selectedStudentId,\s*true\)/);
+});
