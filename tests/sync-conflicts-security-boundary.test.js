@@ -88,12 +88,19 @@ test('resolution methods operate only on still-pending conflicts', () => {
   assert.match(methodBody('bulk_resolve'), /get_pending_conflict\s*\(/, 'bulk resolution must also skip/reject non-pending conflicts');
 });
 
-test('dynamic conflict targets are limited to enabled sync tables', () => {
+test('dynamic conflict targets are limited to enabled transactional sync tables', () => {
   const validator = methodBody('validate_conflict_target');
   assert.match(validator, /preg_match\s*\(/, 'table names must satisfy a strict identifier pattern');
   assert.match(validator, /table_exists\s*\(/, 'target table must exist');
   assert.match(validator, /sync_metadata/, 'target must be registered in sync metadata');
   assert.match(validator, /sync_enabled/, 'target sync metadata entry must be enabled');
+  assert.match(validator, /is_transactional_table\s*\(/, 'conflict writes must reject non-transactional tables');
+
+  const engineGuard = methodBody('is_transactional_table');
+  assert.match(engineGuard, /information_schema\.TABLES/i, 'table engine must be checked from database metadata');
+  assert.match(engineGuard, /ENGINE/);
+  assert.match(engineGuard, /INNODB/i, 'conflict resolution requires an InnoDB target');
+
   assert.match(methodBody('apply_version'), /validate_conflict_target\s*\(/, 'writes must validate the conflict target');
 
   const pk = methodBody('get_primary_key');
