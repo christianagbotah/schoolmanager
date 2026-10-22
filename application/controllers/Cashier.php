@@ -49,12 +49,16 @@ class Cashier extends CI_Controller {
      */
     public function search_student_for_daily_fees() {
         $search_term = $this->input->post('search_term');
+        $running_year = get_settings('running_year');
+        $running_term = get_settings('running_term');
         
         $this->db->select('s.student_id, s.name, s.student_code, s.photo, e.class_id, c.name as class_name');
         $this->db->from('student s');
         $this->db->join('enroll e', 's.student_id = e.student_id');
         $this->db->join('class c', 'e.class_id = c.class_id');
         $this->db->where('e.mute', 0);
+        $this->db->where('e.year', $running_year);
+        $this->db->where('e.term', $running_term);
         $this->db->group_start();
         $this->db->like('s.name', $search_term);
         $this->db->or_like('s.student_code', $search_term);
@@ -84,6 +88,8 @@ class Cashier extends CI_Controller {
      */
     public function get_student_wallet_details() {
         $student_id = $this->input->post('student_id');
+        $running_year = get_settings('running_year');
+        $running_term = get_settings('running_term');
         
         $outstanding = $this->Daily_fee_model->get_student_outstanding($student_id);
         $payment_history = $this->Daily_fee_model->get_payment_history($student_id, 10);
@@ -96,6 +102,8 @@ class Cashier extends CI_Controller {
         $this->db->join('section sec', 'e.section_id = sec.section_id', 'left');
         $this->db->where('s.student_id', $student_id);
         $this->db->where('e.mute', 0);
+        $this->db->where('e.year', $running_year);
+        $this->db->where('e.term', $running_term);
         $student = $this->db->get()->row_array();
         
         echo json_encode([
