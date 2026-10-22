@@ -66,15 +66,16 @@ BEGIN
             LEAVE target_loop;
         END IF;
 
-        SET target_engine = NULL;
+        SET target_engine = 'MISSING';
         SET target_sync_enabled = 0;
 
-        SELECT ENGINE
+        -- Aggregate lookup always returns one row. A missing target is therefore
+        -- represented as MISSING without firing the cursor's NOT FOUND handler.
+        SELECT COALESCE(MAX(ENGINE), 'MISSING')
           INTO target_engine
           FROM INFORMATION_SCHEMA.TABLES
          WHERE TABLE_SCHEMA = @schema_name
-           AND TABLE_NAME = target_table
-         LIMIT 1;
+           AND TABLE_NAME = target_table;
 
         SELECT COALESCE(MAX(sync_enabled), 0)
           INTO target_sync_enabled
