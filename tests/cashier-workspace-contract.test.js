@@ -195,3 +195,31 @@ test('daily fee receipt renders full school identity and a print-safe official r
   assert.match(body, /get_settings\(['"]system_email['"]\)/);
   assert.match(body, /get_settings\(['"]logo['"]\)/);
 });
+
+
+test('daily cashier closeout supports print and CSV export with portable date filtering', () => {
+  const report = read('daily_collection_report.php');
+  assert.match(report, /window\.print\s*\(/);
+  assert.match(report, /cashier\/export_daily_collection_csv/);
+  assert.match(report, /@media\s+print/);
+
+  const reportStart = controller.indexOf('function daily_collection_report');
+  assert.ok(reportStart >= 0, 'missing daily_collection_report');
+  const reportEnd = controller.indexOf('/**', reportStart + 20);
+  const reportBody = controller.slice(reportStart, reportEnd > reportStart ? reportEnd : controller.length);
+  assert.doesNotMatch(reportBody, /FROM_UNIXTIME/i);
+  assert.match(reportBody, /payment_date\s*>=/);
+  assert.match(reportBody, /payment_date\s*</);
+
+  const exportStart = controller.indexOf('function export_daily_collection_csv');
+  assert.ok(exportStart >= 0, 'missing export_daily_collection_csv');
+  const exportEnd = controller.indexOf('/**', exportStart + 20);
+  const exportBody = controller.slice(exportStart, exportEnd > exportStart ? exportEnd : controller.length);
+  assert.match(exportBody, /Content-Disposition/);
+  assert.match(exportBody, /fputcsv/);
+  assert.match(exportBody, /collected_by/);
+  assert.match(exportBody, /payment_date\s*>=/);
+  assert.match(exportBody, /payment_date\s*</);
+  assert.match(exportBody, /Mobile Money/);
+  assert.match(exportBody, /Bank Transfer/);
+});
