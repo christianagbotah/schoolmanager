@@ -1,0 +1,34 @@
+name: Student Profile Command Center Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/views/backend/includes_bottom.php'
+      - 'assets/js/student-profile-command-center.js'
+      - 'tests/student-profile-command-center-contract.test.js'
+      - '.github/workflows/student-profile-command-center-contract.yml'
+  push:
+    branches:
+      - main
+      - 'feat/student-profile-command-center'
+    paths:
+      - 'application/views/backend/includes_bottom.php'
+      - 'assets/js/student-profile-command-center.js'
+      - 'tests/student-profile-command-center-contract.test.js'
+      - '.github/workflows/student-profile-command-center-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  student-profile-command-center:
+    name: Student profile command-center contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run student profile regression contract
+        run: node --test tests/student-profile-command-center-contract.test.js
