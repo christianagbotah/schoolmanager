@@ -74,6 +74,10 @@
 <script src="<?php echo base_url('assets/js/neon-custom.js');?>"></script>
 <script src="<?php echo base_url('assets/js/neon-demo.js');?>"></script>
 
+<?php if (isset($page_name) && $page_name === 'student_profile'): ?>
+<script src="<?php echo base_url('assets/js/student-profile-command-center.js');?>"></script>
+<?php endif; ?>
+
 <script src="<?php echo base_url('assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js');?>"></script>
 <script src="<?php echo base_url('assets/js/wysihtml5/bootstrap-wysihtml5.js');?>"></script>
 
