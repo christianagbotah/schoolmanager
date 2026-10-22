@@ -173,3 +173,25 @@ test('daily collection report exposes tender reconciliation by payment method', 
   }
   assert.match(body, /payment_method/);
 });
+
+
+test('daily fee receipt renders full school identity and a print-safe official receipt', () => {
+  const receipt = read('daily_fee_receipt.php');
+  assert.match(receipt, /school_logo/);
+  assert.match(receipt, /school_address/);
+  assert.match(receipt, /school_phone/);
+  assert.match(receipt, /school_email/);
+  assert.match(receipt, /OFFICIAL DAILY FEE RECEIPT/i);
+  assert.match(receipt, /PAID/);
+  assert.match(receipt, /computer-generated receipt/i);
+  assert.match(receipt, /@media\s+print/);
+
+  const methodStart = controller.indexOf('function print_daily_fee_receipt');
+  assert.ok(methodStart >= 0, 'missing print_daily_fee_receipt');
+  const methodEnd = controller.indexOf('/**', methodStart + 20);
+  const body = controller.slice(methodStart, methodEnd > methodStart ? methodEnd : controller.length);
+  assert.match(body, /get_settings\(['"]address['"]\)/);
+  assert.match(body, /get_settings\(['"]phone['"]\)/);
+  assert.match(body, /get_settings\(['"]system_email['"]\)/);
+  assert.match(body, /get_settings\(['"]logo['"]\)/);
+});

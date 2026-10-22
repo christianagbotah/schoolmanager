@@ -201,13 +201,16 @@ class Cashier extends CI_Controller {
         // Get cashier details
         $cashier = $this->db->get_where('admin', ['admin_id' => $transaction['collected_by']])->row_array();
         
-        // Get school details
-        $school = $this->db->get_where('settings', ['type' => 'system_name'])->row();
+        // Get school identity for the official receipt
+        $page_data['school_name'] = get_settings('system_name') ?: 'School Management System';
+        $page_data['school_address'] = get_settings('address') ?: '';
+        $page_data['school_phone'] = get_settings('phone') ?: '';
+        $page_data['school_email'] = get_settings('system_email') ?: '';
+        $page_data['school_logo'] = get_settings('logo') ?: '';
         
         $page_data['transaction'] = $transaction;
         $page_data['student'] = $student;
         $page_data['cashier'] = $cashier;
-        $page_data['school_name'] = $school->description ?? 'School Management System';
         
         $this->load->view('backend/cashier/daily_fee_receipt', $page_data);
     }
