@@ -1069,21 +1069,36 @@ class Admin extends MY_Controller {
 	}
 
 	function student_information($class_id = '') {
-		//if ($this->session->userdata('admin_login') != 1)
-		//redirect(site_url('login'));
+		// A direct entry (for example the Metro "My Students" tile) should
+		// present a class picker instead of dereferencing a missing class.
+		if (empty($class_id)) {
+			$this->db->order_by('name', 'ASC');
+			$this->db->order_by('name_numeric', 'ASC');
+			$page_data['classes'] = $this->db->get('class')->result_array();
+			$page_data['page_name'] = 'student_information_selector';
+			$page_data['page_title'] = get_phrase('student_information');
+			$page_data['account_type'] = $this->session->userdata('login_type');
+			$this->load->view('backend/main', $page_data);
+			return;
+		}
 
-		//enable database cache
-		//$this->db->cache_on();
-		//set this class_id in session so we can use it for loading all students in this class on the exam results page
-		//This will help us not to have a change in the class list if a different class is selected for a particular student
+		$class = $this->db->get_where('class', array('class_id' => $class_id))->row();
+		if (!$class) {
+			$this->session->set_flashdata('error_message', get_phrase('class_not_found'));
+			redirect(site_url('admin/student_information'), 'refresh');
+			return;
+		}
 
+		$section = $this->db->get_where('section', array('class_id' => $class_id))->row();
+		$section_name = $section ? ' ' . $section->name : '';
+
+		// Keep the selected class stable when opening archived result pages.
 		$this->session->set_userdata('class_id_for_result_archives', $class_id);
 
 		$page_data['page_name'] = 'student_information';
-		$page_data['page_title'] = 'Student Information - ' .
-		$this->crud_model->get_class_name($class_id) . ' ' . $this->crud_model->get_class_name_numeric($class_id) . $this->db->get_where('section', array('class_id' => $class_id))->row()->name;
+		$page_data['page_title'] = 'Student Information - ' . trim($class->name . ' ' . $class->name_numeric . $section_name);
 		$page_data['class_id'] = $class_id;
-		$page_data['class_name'] = $this->crud_model->get_class_name($class_id);
+		$page_data['class_name'] = $class->name;
 		$page_data['account_type'] = $this->session->userdata('login_type');
 		$this->load->view('backend/main', $page_data);
 	}

@@ -35,10 +35,9 @@ if(isset($_GET['msg'])) {
     $active_sms_service = $this->db->get_where('settings' , array('type' => 'active_sms_service'))->row()->description;
     $skin_colour = $this->db->get_where('settings', array('type' => 'skin_colour'))->row()->description;
 
-    $name = $this->db->get_where($this->session->userdata('login_type'), array($this->session->userdata('login_type').'_id' => $this->session->userdata('login_user_id')))->row()->name;
-    $admin_level = $this->db->get_where('admin', array('name' => $name))->row()->level;
-
-    $section_id = $this->db->get_where('section', array('class_id' => $class_id))->row()->section_id;
+    $signed_in_admin = $this->db->get_where('admin', array('admin_id' => $this->session->userdata('login_user_id')))->row();
+    // Default to the most restricted admin view if the session record cannot be resolved.
+    $admin_level = $signed_in_admin ? (int)$signed_in_admin->level : 4;
 ?>
 
 <style type="text/css">

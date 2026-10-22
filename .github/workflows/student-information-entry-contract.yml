@@ -1,0 +1,41 @@
+name: Student Information Entry Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/controllers/Admin.php'
+      - 'application/views/backend/admin/student_information.php'
+      - 'application/views/backend/admin/student_information_selector.php'
+      - 'application/views/backend/admin/metro_menu.php'
+      - 'tests/student-information-entry-contract.test.js'
+      - '.github/workflows/student-information-entry-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Admin.php'
+      - 'application/views/backend/admin/student_information.php'
+      - 'application/views/backend/admin/student_information_selector.php'
+      - 'application/views/backend/admin/metro_menu.php'
+      - 'tests/student-information-entry-contract.test.js'
+      - '.github/workflows/student-information-entry-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  student-information-entry:
+    name: Student information entry contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run student information entry regression tests
+        run: node --test tests/student-information-entry-contract.test.js
+      - name: Lint controller and views
+        run: |
+          php -l application/controllers/Admin.php
+          php -l application/views/backend/admin/student_information.php
+          php -l application/views/backend/admin/student_information_selector.php
