@@ -44,6 +44,16 @@ test('migration is idempotent and converts only enabled MyISAM sync targets', ()
   assert.match(sql, /PREPARE\s+/i, 'dynamic ALTER statements must be built only after guards pass');
 });
 
+test('missing target lookup cannot trip the cursor NOT FOUND handler', () => {
+  const sql = fs.readFileSync(migrationPath, 'utf8');
+
+  assert.match(
+    sql,
+    /SELECT\s+COALESCE\s*\(\s*MAX\s*\(\s*ENGINE\s*\)\s*,\s*['\"]MISSING['\"]\s*\)\s+INTO\s+target_engine[\s\S]*?INFORMATION_SCHEMA\.TABLES/i,
+    'engine lookup must always return one aggregate row so a missing table does not terminate the cursor early'
+  );
+});
+
 test('migration has deterministic ordering and a postflight failure signal', () => {
   const sql = fs.readFileSync(migrationPath, 'utf8');
 
