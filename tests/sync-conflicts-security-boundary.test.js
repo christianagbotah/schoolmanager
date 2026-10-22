@@ -28,15 +28,17 @@ function methodBody(name) {
 
 test('Sync_conflicts is restricted to authenticated level-1 super administrators', () => {
   const ctor = methodBody('__construct');
+  const respondJson = methodBody('respond_json');
   assert.match(ctor, /load->database\s*\(/);
   assert.match(ctor, /load->library\s*\(\s*['\"]session['\"]\s*\)/);
   assert.match(ctor, /admin_login/);
   assert.match(ctor, /is_ajax_request\s*\(\s*\)/);
-  assert.match(ctor, /set_status_header\s*\(\s*401\s*\)/, 'unauthenticated AJAX must return HTTP 401');
+  assert.match(ctor, /respond_json\s*\(\s*false\s*,\s*['\"]Authentication required\.['\"]\s*,\s*401\s*\)/, 'unauthenticated AJAX must return HTTP 401');
   assert.match(ctor, /select\s*\(\s*['\"]level['\"]\s*\)/, 'authorization must use the persisted admin level');
   assert.match(ctor, /admin_id/);
   assert.match(ctor, /\(int\)\s*\$admin->level\s*!==\s*1|\$admin->level\s*!=\s*1/, 'only level-1 admins may resolve sync conflicts');
-  assert.match(ctor, /set_status_header\s*\(\s*403\s*\)/, 'authenticated non-super-admin AJAX must return HTTP 403');
+  assert.match(ctor, /respond_json\s*\(\s*false\s*,\s*['\"]Super administrator permission required\.['\"]\s*,\s*403\s*\)/, 'authenticated non-super-admin AJAX must return HTTP 403');
+  assert.match(respondJson, /set_status_header\s*\(\s*\(int\)\s*\$status\s*\)/, 'JSON responder must apply the supplied HTTP status');
   assert.match(ctor, /redirect\s*\(\s*site_url\('login'\)\s*,\s*'location'\s*,\s*302\s*\)/);
   assert.match(ctor, /exit\s*;/);
 });
@@ -62,7 +64,7 @@ test('read pages pass current CSRF material and mutation UIs use CSRF-bearing PO
 
   for (const [name, code] of [['list', listView], ['detail', detailView], ['merge', mergeView]]) {
     assert.match(code, /csrfTokenName/, `${name} view must expose CSRF token name`);
-    assert.match(code, /csrfTokenHash/, `${name} view must expose CSRF token hash`);
+    assert.match(code, /csrfTokenHash/, `${name} view must expose CSRF hash`);
     assert.match(code, /type:\s*['\"]POST['\"]|method:\s*['\"]POST['\"]/, `${name} view must submit mutations with POST`);
     assert.match(code, /X-Requested-With/, `${name} view must mark mutation requests as AJAX`);
   }
