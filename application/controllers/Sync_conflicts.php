@@ -19,6 +19,7 @@ class Sync_conflicts extends CI_Controller {
         if ($this->session->userdata('admin_login') != 1) {
             if ($this->input->is_ajax_request()) {
                 $this->respond_json(false, 'Authentication required.', 401);
+                $this->output->_display();
                 exit;
             }
 
@@ -37,6 +38,7 @@ class Sync_conflicts extends CI_Controller {
         if (!$admin || (int) $admin->level !== 1) {
             if ($this->input->is_ajax_request()) {
                 $this->respond_json(false, 'Super administrator permission required.', 403);
+                $this->output->_display();
                 exit;
             }
 
