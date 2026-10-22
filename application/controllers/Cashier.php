@@ -220,16 +220,21 @@ class Cashier extends CI_Controller {
      */
     public function daily_collection_report() {
         $date = $this->input->get('date') ?? date('Y-m-d');
-        $timestamp = strtotime($date);
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || strtotime($date) === false) {
+            $date = date('Y-m-d');
+        }
+        $day_start = strtotime($date . ' 00:00:00');
+        $day_end = strtotime('+1 day', $day_start);
         
         $cashier_id = $this->session->userdata('admin_id');
         
-        // Get today's collections by this cashier
+        // Use a timestamp range so this remains index-friendly and database-portable.
         $this->db->select('dft.*, s.name as student_name, s.student_code');
         $this->db->from('daily_fee_transactions dft');
         $this->db->join('student s', 'dft.student_id = s.student_id');
         $this->db->where('dft.collected_by', $cashier_id);
-        $this->db->where('DATE(FROM_UNIXTIME(dft.payment_date))', $date);
+        $this->db->where('dft.payment_date >=', $day_start);
+        $this->db->where('dft.payment_date <', $day_end);
         $this->db->order_by('dft.created_at', 'DESC');
         
         $collections = $this->db->get()->result_array();
@@ -280,6 +285,66 @@ class Cashier extends CI_Controller {
         $page_data['page_title'] = get_phrase('daily_collection_report');
         
         $this->load->view('backend/main', $page_data);
+    }
+
+    /**
+     * Export the signed-in cashier's daily closeout as CSV.
+     */
+    public function export_daily_collection_csv() {
+        $date = $this->input->get('date') ?? date('Y-m-d');
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || strtotime($date) === false) {
+            $date = date('Y-m-d');
+        }
+        $day_start = strtotime($date . ' 00:00:00');
+        $day_end = strtotime('+1 day', $day_start);
+        $cashier_id = $this->session->userdata('admin_id');
+
+        $this->db->select('dft.*, s.name as student_name, s.student_code');
+        $this->db->from('daily_fee_transactions dft');
+        $this->db->join('student s', 'dft.student_id = s.student_id');
+        $this->db->where('dft.collected_by', $cashier_id);
+        $this->db->where('dft.payment_date >=', $day_start);
+        $this->db->where('dft.payment_date <', $day_end);
+        $this->db->order_by('dft.created_at', 'ASC');
+        $collections = $this->db->get()->result_array();
+
+        $method_map = [1 => 'Cash', 2 => 'Cheque', 3 => 'Mobile Money', 4 => 'Bank Transfer'];
+        $filename = 'daily-fee-closeout-' . $date . '.csv';
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+        $output = fopen('php://output', 'w');
+        // UTF-8 BOM keeps the cedi symbol and names readable in Excel.
+        fwrite($output, "\xEF\xBB\xBF");
+        fputcsv($output, ['Date', 'Time', 'Student', 'Student Code', 'Payment Type', 'Payment Method', 'Receipt', 'Feeding', 'Breakfast', 'Classes', 'Water', 'Transport', 'Total', 'Notes']);
+
+        foreach ($collections as $row) {
+            $payment_time = (int)($row['created_at'] ?? $row['payment_date'] ?? $day_start);
+            fputcsv($output, [
+                $date,
+                date('h:i A', $payment_time),
+                $this->csv_safe($row['student_name'] ?? ''),
+                $this->csv_safe($row['student_code'] ?? ''),
+                ucfirst($row['payment_type'] ?? 'mixed'),
+                $method_map[(int)($row['payment_method'] ?? 0)] ?? 'Other',
+                $this->csv_safe($row['receipt_number'] ?? $row['transaction_code'] ?? ''),
+                number_format((float)($row['feeding_amount'] ?? 0), 2, '.', ''),
+                number_format((float)($row['breakfast_amount'] ?? 0), 2, '.', ''),
+                number_format((float)($row['classes_amount'] ?? 0), 2, '.', ''),
+                number_format((float)($row['water_amount'] ?? 0), 2, '.', ''),
+                number_format((float)($row['transport_amount'] ?? 0), 2, '.', ''),
+                number_format((float)($row['total_amount'] ?? 0), 2, '.', ''),
+                $this->csv_safe($row['notes'] ?? '')
+            ]);
+        }
+
+        fclose($output);
+        exit;
+    }
+
+    private function csv_safe($value) {
+        $value = (string)$value;
+        return preg_match('/^[=+\-@]/', $value) ? "'" . $value : $value;
     }
 
     /**
