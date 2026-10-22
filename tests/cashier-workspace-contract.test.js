@@ -131,3 +131,25 @@ test('cashier student search and wallet detail use only the running academic enr
     assert.match(body, /where\(['"]e\.term['"],\s*\$running_term\)/, `${method} must filter enrollment term`);
   }
 });
+
+
+test('cashier endpoints enforce the configured cashier collection point', () => {
+  const cashierCtorStart = controller.indexOf('public function __construct()');
+  const cashierCtorEnd = controller.indexOf('/**', cashierCtorStart + 20);
+  assert.ok(cashierCtorStart >= 0 && cashierCtorEnd > cashierCtorStart, 'missing Cashier constructor');
+  const cashierCtor = controller.slice(cashierCtorStart, cashierCtorEnd);
+  assert.match(cashierCtor, /can_collect_daily_fees\s*\(\s*null\s*,\s*['\"]cashier_portal['\"]\s*\)/);
+
+  const paymentStart = controller.indexOf('function process_daily_fee_payment');
+  const paymentEnd = controller.indexOf('/**', paymentStart + 20);
+  assert.ok(paymentStart >= 0 && paymentEnd > paymentStart, 'missing process_daily_fee_payment');
+  const paymentBody = controller.slice(paymentStart, paymentEnd);
+  assert.match(paymentBody, /can_collect_daily_fees\s*\(\s*null\s*,\s*['\"]cashier_portal['\"]\s*\)/);
+
+  const preferenceController = fs.readFileSync(preferenceControllerPath, 'utf8');
+  const preferenceCtorStart = preferenceController.indexOf('public function __construct()');
+  const preferenceCtorEnd = preferenceController.indexOf('/**', preferenceCtorStart + 20);
+  assert.ok(preferenceCtorStart >= 0 && preferenceCtorEnd > preferenceCtorStart, 'missing Cashier_preferences constructor');
+  const preferenceCtor = preferenceController.slice(preferenceCtorStart, preferenceCtorEnd);
+  assert.match(preferenceCtor, /can_collect_daily_fees\s*\(\s*null\s*,\s*['\"]cashier_portal['\"]\s*\)/);
+});
