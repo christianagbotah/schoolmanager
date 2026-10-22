@@ -118,6 +118,10 @@
             <?php //echo $page_title;?>
         </h3> -->
         <?php 
+        // Cashier controllers authenticate through admin sessions, but their POS
+        // pages are shared under backend/cashier rather than backend/admin.
+        $cashier_pages = ['cashier_dashboard', 'daily_fee_collection', 'daily_collection_report'];
+
         // Check if page is in attendance directory
         if(strpos($page_name, 'attendance/') === 0) {
             $attendance_file = str_replace('attendance/', '', $page_name);
@@ -127,6 +131,8 @@
             include 'examination/'.$attendance_file.'.php';
         } else if($page_name === 'pay_invoice') {
             include 'payment_gateway/pay_invoice.php';
+        } else if(in_array($page_name, $cashier_pages, true)) {
+            include 'cashier/'.$page_name.'.php';
         } else {
             include $account_type.'/'.$page_name.'.php';
         }
