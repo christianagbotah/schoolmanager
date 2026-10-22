@@ -8,7 +8,9 @@ on:
       - 'tests/cashier-smart-collection-contract.test.js'
       - '.github/workflows/cashier-smart-collection-contract.yml'
   push:
-    branches: [main]
+    branches:
+      - main
+      - 'feat/cashier-smart-collection-v2'
     paths:
       - 'application/views/backend/admin/daily_fee_collection.php'
       - 'tests/cashier-smart-collection-contract.test.js'
