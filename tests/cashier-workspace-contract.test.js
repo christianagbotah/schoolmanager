@@ -5,6 +5,8 @@ const fs = require('node:fs');
 const controllerPath = 'application/controllers/Cashier.php';
 const controller = fs.readFileSync(controllerPath, 'utf8');
 const preferenceControllerPath = 'application/controllers/Cashier_preferences.php';
+const rendererPath = 'application/views/backend/include_main.php';
+const renderer = fs.readFileSync(rendererPath, 'utf8');
 const viewDir = 'application/views/backend/cashier';
 
 function read(name) {
@@ -15,6 +17,13 @@ test('cashier workspace has all controller-routed core views', () => {
   for (const name of ['cashier_dashboard.php', 'daily_fee_collection.php', 'daily_fee_receipt.php', 'daily_collection_report.php']) {
     assert.ok(fs.existsSync(`${viewDir}/${name}`), `missing ${name}`);
   }
+});
+
+test('main renderer routes cashier controller pages to the shared cashier workspace', () => {
+  assert.match(renderer, /cashier_dashboard/);
+  assert.match(renderer, /daily_fee_collection/);
+  assert.match(renderer, /daily_collection_report/);
+  assert.match(renderer, /include\s+['"]cashier\/["']\s*\.\s*\$page_name\s*\.\s*['"]\.php['"]/);
 });
 
 test('collection workspace uses cashier-native wallet and payment endpoints', () => {
