@@ -34,10 +34,12 @@ test('Sync_conflicts is restricted to authenticated level-1 super administrators
   assert.match(ctor, /admin_login/);
   assert.match(ctor, /is_ajax_request\s*\(\s*\)/);
   assert.match(ctor, /respond_json\s*\(\s*false\s*,\s*['\"]Authentication required\.['\"]\s*,\s*401\s*\)/, 'unauthenticated AJAX must return HTTP 401');
+  assert.match(ctor, /respond_json\s*\(\s*false\s*,\s*['\"]Authentication required\.['\"]\s*,\s*401\s*\)\s*;[\s\S]{0,120}\$this->output->_display\s*\(\s*\)\s*;[\s\S]{0,80}exit\s*;/, 'unauthenticated AJAX must emit its JSON body before exit');
   assert.match(ctor, /select\s*\(\s*['\"]level['\"]\s*\)/, 'authorization must use the persisted admin level');
   assert.match(ctor, /admin_id/);
   assert.match(ctor, /\(int\)\s*\$admin->level\s*!==\s*1|\$admin->level\s*!=\s*1/, 'only level-1 admins may resolve sync conflicts');
   assert.match(ctor, /respond_json\s*\(\s*false\s*,\s*['\"]Super administrator permission required\.['\"]\s*,\s*403\s*\)/, 'authenticated non-super-admin AJAX must return HTTP 403');
+  assert.match(ctor, /respond_json\s*\(\s*false\s*,\s*['\"]Super administrator permission required\.['\"]\s*,\s*403\s*\)\s*;[\s\S]{0,120}\$this->output->_display\s*\(\s*\)\s*;[\s\S]{0,80}exit\s*;/, 'forbidden AJAX must emit its JSON body before exit');
   assert.match(respondJson, /set_status_header\s*\(\s*\(int\)\s*\$status\s*\)/, 'JSON responder must apply the supplied HTTP status');
   assert.match(ctor, /redirect\s*\(\s*site_url\('login'\)\s*,\s*'location'\s*,\s*302\s*\)/);
   assert.match(ctor, /exit\s*;/);
