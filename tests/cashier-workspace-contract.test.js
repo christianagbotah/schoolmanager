@@ -153,3 +153,23 @@ test('cashier endpoints enforce the configured cashier collection point', () => 
   const preferenceCtor = preferenceController.slice(preferenceCtorStart, preferenceCtorEnd);
   assert.match(preferenceCtor, /can_collect_daily_fees\s*\(\s*null\s*,\s*['\"]cashier_portal['\"]\s*\)/);
 });
+
+
+test('daily collection report exposes tender reconciliation by payment method', () => {
+  const report = read('daily_collection_report.php');
+  assert.match(report, /Tender reconciliation/i);
+  assert.match(report, /\$totals\[['\"]cash['\"]\]/);
+  assert.match(report, /\$totals\[['\"]mobile_money['\"]\]/);
+  assert.match(report, /\$totals\[['\"]bank_transfer['\"]\]/);
+  assert.match(report, /\$totals\[['\"]cheque['\"]\]/);
+  assert.match(report, /\$method_map/);
+
+  const methodStart = controller.indexOf('function daily_collection_report');
+  assert.ok(methodStart >= 0, 'missing daily_collection_report controller method');
+  const methodEnd = controller.indexOf('/**', methodStart + 20);
+  const body = controller.slice(methodStart, methodEnd > methodStart ? methodEnd : controller.length);
+  for (const key of ['cash', 'mobile_money', 'bank_transfer', 'cheque']) {
+    assert.match(body, new RegExp(`['\"]${key}['\"]\\s*=>\\s*0`), `missing ${key} reconciliation total`);
+  }
+  assert.match(body, /payment_method/);
+});

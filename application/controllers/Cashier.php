@@ -238,6 +238,10 @@ class Cashier extends CI_Controller {
             'classes' => 0,
             'water' => 0,
             'transport' => 0,
+            'cash' => 0,
+            'mobile_money' => 0,
+            'bank_transfer' => 0,
+            'cheque' => 0,
             'total' => 0,
             'count' => count($collections)
         ];
@@ -249,6 +253,21 @@ class Cashier extends CI_Controller {
             $totals['water'] += $collection['water_amount'];
             $totals['transport'] += $collection['transport_amount'];
             $totals['total'] += $collection['total_amount'];
+
+            switch ((int)($collection['payment_method'] ?? 0)) {
+                case 1:
+                    $totals['cash'] += $collection['total_amount'];
+                    break;
+                case 2:
+                    $totals['cheque'] += $collection['total_amount'];
+                    break;
+                case 3:
+                    $totals['mobile_money'] += $collection['total_amount'];
+                    break;
+                case 4:
+                    $totals['bank_transfer'] += $collection['total_amount'];
+                    break;
+            }
         }
         
         $page_data['collections'] = $collections;
