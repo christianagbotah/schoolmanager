@@ -4,6 +4,7 @@ const fs = require('node:fs');
 
 const controllerPath = 'application/controllers/Cashier.php';
 const controller = fs.readFileSync(controllerPath, 'utf8');
+const preferenceControllerPath = 'application/controllers/Cashier_preferences.php';
 const viewDir = 'application/views/backend/cashier';
 
 function read(name) {
@@ -60,4 +61,35 @@ test('cashier workspace includes responsive mobile handling', () => {
   const collection = read('daily_fee_collection.php');
   assert.match(collection, /@media\s*\(max-width:\s*767px\)/);
   assert.match(collection, /position:\s*sticky|sticky/i);
+});
+
+test('cashier POS supports one-amount smart allocation while preserving manual splits', () => {
+  const view = read('daily_fee_collection.php');
+  assert.match(view, /id=["']quickPaymentAmount["']/);
+  assert.match(view, /id=["']smartAllocate["']/);
+  assert.match(view, /id=["']excessCreditType["']/);
+  assert.match(view, /function\s+allocateSmartPayment\s*\(/);
+  assert.match(view, /feePriority\s*=\s*\[[^\]]*feeding[^\]]*classes[^\]]*breakfast[^\]]*water[^\]]*transport/s);
+  assert.match(view, /arrears first/i);
+  assert.match(view, /Advanced allocation/i);
+});
+
+test('optional breakfast and water preferences are read safely and never inferred from payment amounts', () => {
+  assert.ok(fs.existsSync(preferenceControllerPath), 'missing cashier preference reader');
+  const preferenceController = fs.readFileSync(preferenceControllerPath, 'utf8');
+  assert.match(preferenceController, /get_student_preferences/);
+  assert.match(preferenceController, /['\"]preferences['\"]\s*=>/);
+  assert.match(preferenceController, /can_collect_daily_fees/);
+  assert.match(preferenceController, /admin_id/);
+
+  const view = read('daily_fee_collection.php');
+  assert.match(view, /cashier_preferences\/student/);
+  assert.match(view, /prefRes\.preferences/);
+  assert.match(view, /preferencesLoaded/);
+  const recalcStart = view.indexOf('function recalc()');
+  const recalcEnd = view.indexOf('function renderSearch', recalcStart);
+  assert.ok(recalcStart >= 0 && recalcEnd > recalcStart, 'missing recalc function');
+  const recalcBody = view.slice(recalcStart, recalcEnd);
+  assert.doesNotMatch(recalcBody, /breakfastOpted[^\n]*amountInput/);
+  assert.doesNotMatch(recalcBody, /waterOpted[^\n]*amountInput/);
 });
