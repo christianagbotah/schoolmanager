@@ -358,6 +358,10 @@ class Sync_conflicts extends CI_Controller {
             return false;
         }
 
+        if (!$this->is_transactional_table($table)) {
+            return false;
+        }
+
         $metadata = $this->db
             ->where('table_name', $table)
             ->where('sync_enabled', 1)
@@ -375,6 +379,20 @@ class Sync_conflicts extends CI_Controller {
         }
 
         return true;
+    }
+
+    private function is_transactional_table($table) {
+        if (!is_string($table) || !preg_match('/^[A-Za-z][A-Za-z0-9_]*$/', $table)) {
+            return false;
+        }
+
+        $physical_table = $this->db->dbprefix($table);
+        $row = $this->db->query(
+            'SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? LIMIT 1',
+            [$physical_table]
+        )->row();
+
+        return $row && strtoupper((string) $row->ENGINE) === 'INNODB';
     }
 
     private function apply_version($table, $record_id, $data) {
