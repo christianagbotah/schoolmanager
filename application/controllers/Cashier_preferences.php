@@ -16,7 +16,7 @@ class Cashier_preferences extends CI_Controller {
             redirect(site_url('login'), 'refresh');
         }
 
-        if (!$this->Daily_fee_model->can_collect_daily_fees()) {
+        if (!$this->Daily_fee_model->can_collect_daily_fees(null, 'cashier_portal')) {
             redirect(site_url('login'), 'refresh');
         }
 

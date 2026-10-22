@@ -16,7 +16,7 @@ class Cashier extends CI_Controller {
         }
         
         // Check database permission (not just role)
-        if (!$this->Daily_fee_model->can_collect_daily_fees()) {
+        if (!$this->Daily_fee_model->can_collect_daily_fees(null, 'cashier_portal')) {
             redirect(site_url('login'), 'refresh');
         }
         
@@ -122,7 +122,7 @@ class Cashier extends CI_Controller {
      */
     public function process_daily_fee_payment() {
         // Verify user can collect all fee types
-        if (!$this->Daily_fee_model->can_collect_daily_fees()) {
+        if (!$this->Daily_fee_model->can_collect_daily_fees(null, 'cashier_portal')) {
             echo json_encode(['status' => 'error', 'message' => get_phrase('permission_denied')]);
             return;
         }
