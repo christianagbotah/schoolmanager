@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'application/controllers/Cashier.php'
+      - 'application/controllers/Cashier_preferences.php'
       - 'application/views/backend/cashier/**'
       - 'tests/cashier-workspace-contract.test.js'
       - '.github/workflows/cashier-workspace-contract.yml'
@@ -11,6 +12,7 @@ on:
     branches: [main]
     paths:
       - 'application/controllers/Cashier.php'
+      - 'application/controllers/Cashier_preferences.php'
       - 'application/views/backend/cashier/**'
       - 'tests/cashier-workspace-contract.test.js'
       - '.github/workflows/cashier-workspace-contract.yml'
@@ -25,8 +27,10 @@ jobs:
           node-version: '20'
       - name: Run cashier workspace contract
         run: node --test tests/cashier-workspace-contract.test.js
-      - name: Lint cashier controller
-        run: php -l application/controllers/Cashier.php
+      - name: Lint cashier controllers
+        run: |
+          php -l application/controllers/Cashier.php
+          php -l application/controllers/Cashier_preferences.php
       - name: Lint cashier views
         run: |
           for file in application/views/backend/cashier/*.php; do
