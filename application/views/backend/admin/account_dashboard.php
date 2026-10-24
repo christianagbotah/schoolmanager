@@ -62,7 +62,7 @@ $this->db->where('term', $term);
 $this->db->where('can_delete !=', 'trash');
 $payments = $this->db->get('payment')->result_array();
 foreach($payments as $row)
-    $total_income += number_format($row['amount']);
+    $total_income += (float) $row['amount'];
 
 $total_expense = 0;
 $this->db->where('year', $year);
@@ -87,7 +87,10 @@ foreach($payments as $row)
     $this->db->where('term', $un_term);
     $this->db->order_by('timestamp', 'desc');
     $this->db->limit(1);
-    $last_timestamp = $this->db->get('feeding_fee')->row()->timestamp;
+    $last_timestamp_result = $this->db->get('feeding_fee');
+    $last_timestamp = $last_timestamp_result->num_rows() > 0
+        ? (int) $last_timestamp_result->row()->timestamp
+        : $timestamp;
 
 
     $this->db->where('timestamp', $last_timestamp);
@@ -168,12 +171,15 @@ foreach($payments as $row)
     $timestamp = strtotime(date('M d, Y'));
 
     //let's select the current date in the tables
-    $feeding_timestamp = $this->db
+    $feeding_timestamp_result = $this->db
                                 ->select('timestamp')
                                 ->distinct()
                                 ->order_by('timestamp', 'desc')
                                 ->limit(1)
-                                ->get('feeding_fee')->row()->timestamp;
+                                ->get('feeding_fee');
+    $feeding_timestamp = $feeding_timestamp_result->num_rows() > 0
+        ? (int) $feeding_timestamp_result->row()->timestamp
+        : strtotime(date('d-m-Y'));
 
     // Note: transport_fare uses payment_date instead of timestamp
     $transport_payment_date = $this->db
@@ -238,7 +244,7 @@ foreach($payments as $row)
     $this->db->where('can_delete !=', 'trash');
     $payments = $this->db->get('payment')->result_array();
     foreach($payments as $row)
-        $total_income += number_format($row['amount']);
+        $total_income += (float) $row['amount'];
 
     $total_expense = 0;
     $this->db->where('payment_type', 'expense');
