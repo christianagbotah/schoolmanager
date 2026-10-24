@@ -36,12 +36,15 @@
             '.student-command-name{display:block;font-size:20px;font-weight:900;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
             '.student-command-meta{margin-top:5px;font-size:13px;color:#dbeafe;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
             '.student-command-status{flex:0 0 auto;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900;letter-spacing:.04em}',
-            '.student-command-actions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;padding:12px}',
+            '.student-command-actions{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;padding:12px}',
             '.student-command-action{appearance:none;border:1px solid #e2e8f0;background:#fff;color:#0f172a;border-radius:12px;min-height:48px;padding:9px 10px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:13px;text-align:center;text-decoration:none;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}',
             '.student-command-action:hover,.student-command-action:focus{color:#1d4ed8;border-color:#93c5fd;box-shadow:0 5px 14px rgba(37,99,235,.10);text-decoration:none;transform:translateY(-1px);outline:none}',
             '.student-command-action i{font-size:16px;color:#2563eb}',
             '.student-command-action[hidden]{display:none!important}',
+            '.student-command-action:disabled{cursor:not-allowed;opacity:.42;transform:none;box-shadow:none;border-color:#e2e8f0;color:#64748b}',
+            '.student-command-action:disabled i{color:#94a3b8}',
             '.student-command-center + .grid .profile-card{scroll-margin-top:145px}',
+            '@media (max-width:1100px){.student-command-actions{grid-template-columns:repeat(4,minmax(0,1fr))}}',
             '@media (max-width:767px){.student-command-center{border-radius:14px;margin-bottom:14px}.student-command-summary{padding:14px 15px;align-items:flex-start}.student-command-name{font-size:17px}.student-command-meta{font-size:12px;white-space:normal}.student-command-status{padding:5px 8px}.student-command-actions{display:flex;overflow-x:auto;gap:7px;padding:9px;scrollbar-width:thin}.student-command-action{flex:0 0 auto;min-width:112px;min-height:44px;padding:8px 10px}.tab-modern{white-space:nowrap}.profile-card{scroll-margin-top:120px}}'
         ].join('');
         document.head.appendChild(styles);
@@ -60,6 +63,8 @@
                 '<span class="student-command-status" hidden></span>' +
             '</div>' +
             '<div class="student-command-actions">' +
+                '<button class="student-command-action" data-command="previous-student" type="button" aria-label="Previous student"><i class="fa fa-chevron-left"></i><span>Previous student</span></button>' +
+                '<button class="student-command-action" data-command="next-student" type="button" aria-label="Next student"><i class="fa fa-chevron-right"></i><span>Next student</span></button>' +
                 '<a class="student-command-action" data-command="class" href="#"><i class="fa fa-arrow-left"></i><span>Class List</span></a>' +
                 '<button class="student-command-action" data-command="edit" type="button"><i class="entypo-pencil"></i><span>Edit Profile</span></button>' +
                 '<button class="student-command-action" data-command-target="parent_info" type="button"><i class="entypo-user"></i><span>Parent</span></button>' +
@@ -75,6 +80,34 @@
             statusBadge.textContent = statusLabel;
             statusBadge.hidden = false;
         }
+
+        var previousAction = commandCenter.querySelector('[data-command="previous-student"]');
+        var nextAction = commandCenter.querySelector('[data-command="next-student"]');
+
+        function updateReviewNavigation() {
+            var currentIndex = studentSelector.selectedIndex;
+            previousAction.disabled = currentIndex <= 0;
+            nextAction.disabled = currentIndex >= studentSelector.options.length - 1;
+        }
+
+        function moveStudent(direction) {
+            var targetIndex = studentSelector.selectedIndex + direction;
+            if (targetIndex < 0 || targetIndex >= studentSelector.options.length) {
+                return;
+            }
+            studentSelector.selectedIndex = targetIndex;
+            updateReviewNavigation();
+            studentSelector.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        previousAction.addEventListener('click', function () {
+            moveStudent(-1);
+        });
+        nextAction.addEventListener('click', function () {
+            moveStudent(1);
+        });
+        studentSelector.addEventListener('change', updateReviewNavigation);
+        updateReviewNavigation();
 
         var classAction = commandCenter.querySelector('[data-command="class"]');
         if (classLink && classLink.href) {
