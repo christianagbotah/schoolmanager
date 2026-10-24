@@ -54,13 +54,13 @@ foreach ($class_sources as $source) {
 
 $subject_filters = [
     'class_id' => $current_class_id,
-    'year' => $online_exam['running_year'] ?? get_settings('running_year'),
+    'year' => $online_exam['running_year'],
 ];
 
 if ($class_name === 'JHSS') {
-    $subject_filters['sem'] = $online_exam['sem'] ?? get_settings('running_sem');
+    $subject_filters['sem'] = $online_exam['sem'];
 } else {
-    $subject_filters['term'] = $online_exam['term'] ?? get_settings('running_term');
+    $subject_filters['term'] = $online_exam['term'];
 }
 
 if ($class_teacher !== $teacher_id) {
