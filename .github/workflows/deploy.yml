@@ -10,12 +10,13 @@ permissions:
 
 concurrency:
   group: schoolmanager-deployment-handoff
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   validate:
     name: Validate release for VPS pull deployer
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
