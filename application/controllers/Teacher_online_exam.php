@@ -104,30 +104,13 @@ class Teacher_online_exam extends Teacher
             'section_id' => $section_id,
             'class_id' => $class_id,
         ])->row_array();
-        if (!$class || !$section) {
-            return false;
-        }
-
-        $subject_filter = [
+        $subject = $this->db->get_where('subject', [
             'subject_id' => $subject_id,
             'class_id' => $class_id,
             'year' => $running_year,
-        ];
+        ])->row_array();
 
-        if ((string) ($class['name'] ?? '') === 'JHSS') {
-            $running_sem = $this->setting_value('running_sem');
-            if ($running_sem !== null && $running_sem !== '') {
-                $subject_filter['sem'] = $running_sem;
-            }
-        } else {
-            $running_term = $this->setting_value('running_term');
-            if ($running_term !== null && $running_term !== '') {
-                $subject_filter['term'] = $running_term;
-            }
-        }
-
-        $subject = $this->db->get_where('subject', $subject_filter)->row_array();
-        if (!$subject) {
+        if (!$class || !$section || !$subject) {
             return false;
         }
 
