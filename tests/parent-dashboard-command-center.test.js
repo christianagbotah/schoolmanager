@@ -31,7 +31,7 @@ test('parent dashboard exposes a family command center with resilient child summ
 
 test('parent command center keeps the core navigation shortcuts', () => {
     const block = section('<!-- Parent Family Command Center -->', '<!-- Parent Events Calendar -->');
-    assert.match(block, /parents\/student_information/);
+    assert.match(block, /allChildren\(\)/);
     assert.match(block, /parents\/attendance_report/);
     assert.match(block, /parents\/marks/);
     assert.match(block, /parents\/invoice/);
