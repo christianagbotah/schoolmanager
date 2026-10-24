@@ -1,0 +1,27 @@
+name: Cashier Cash Variance Closeout
+
+on:
+  pull_request:
+    paths:
+      - 'application/views/backend/cashier/daily_collection_report.php'
+      - 'tests/cashier-cash-variance-closeout.test.js'
+      - '.github/workflows/cashier-cash-variance-closeout.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/views/backend/cashier/daily_collection_report.php'
+      - 'tests/cashier-cash-variance-closeout.test.js'
+      - '.github/workflows/cashier-cash-variance-closeout.yml'
+
+jobs:
+  cashier-cash-variance-closeout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run cashier cash variance closeout contract
+        run: node --test tests/cashier-cash-variance-closeout.test.js
+      - name: Lint cashier closeout view
+        run: php -l application/views/backend/cashier/daily_collection_report.php
