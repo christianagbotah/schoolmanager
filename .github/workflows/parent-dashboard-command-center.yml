@@ -1,0 +1,30 @@
+name: Parent Dashboard Command Center Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/views/backend/parent/dashboard.php'
+      - 'tests/parent-dashboard-command-center.test.js'
+      - '.github/workflows/parent-dashboard-command-center.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/views/backend/parent/dashboard.php'
+      - 'tests/parent-dashboard-command-center.test.js'
+      - '.github/workflows/parent-dashboard-command-center.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  parent-dashboard-contract:
+    name: Parent family command center contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run parent dashboard regression contract
+        run: node --test tests/parent-dashboard-command-center.test.js
