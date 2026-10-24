@@ -139,6 +139,10 @@
         ?>
     </div>
 
+    <?php if($page_name === 'student_add'): ?>
+        <script src="<?php echo base_url('assets/js/admission-readiness.js'); ?>"></script>
+    <?php endif; ?>
+
 
 
 	<script type="text/javascript">
