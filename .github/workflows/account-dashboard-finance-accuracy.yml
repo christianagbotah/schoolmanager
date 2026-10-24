@@ -1,0 +1,30 @@
+name: Account Dashboard Finance Accuracy
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/views/backend/admin/account_dashboard.php'
+      - 'tests/account-dashboard-finance-accuracy.test.js'
+      - '.github/workflows/account-dashboard-finance-accuracy.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/views/backend/admin/account_dashboard.php'
+      - 'tests/account-dashboard-finance-accuracy.test.js'
+      - '.github/workflows/account-dashboard-finance-accuracy.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  finance-accuracy-contract:
+    name: Finance dashboard accuracy contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run account dashboard finance accuracy regression contract
+        run: node --test tests/account-dashboard-finance-accuracy.test.js
