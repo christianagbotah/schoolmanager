@@ -1,0 +1,25 @@
+name: Deployment Handoff Concurrency
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/deploy.yml'
+      - 'tests/deployment-handoff-concurrency.test.js'
+      - '.github/workflows/deployment-handoff-concurrency.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy.yml'
+      - 'tests/deployment-handoff-concurrency.test.js'
+      - '.github/workflows/deployment-handoff-concurrency.yml'
+
+jobs:
+  deployment-handoff-concurrency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run deployment handoff concurrency contract
+        run: node --test tests/deployment-handoff-concurrency.test.js
