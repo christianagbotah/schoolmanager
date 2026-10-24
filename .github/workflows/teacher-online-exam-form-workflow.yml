@@ -1,0 +1,31 @@
+name: Teacher Online Exam Form Workflow
+
+on:
+  pull_request:
+    paths:
+      - 'application/views/backend/teacher/add_online_exam.php'
+      - 'application/views/backend/teacher/edit_online_exam.php'
+      - 'tests/teacher-online-exam-form-workflow.test.js'
+      - '.github/workflows/teacher-online-exam-form-workflow.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/views/backend/teacher/add_online_exam.php'
+      - 'application/views/backend/teacher/edit_online_exam.php'
+      - 'tests/teacher-online-exam-form-workflow.test.js'
+      - '.github/workflows/teacher-online-exam-form-workflow.yml'
+
+jobs:
+  teacher-online-exam-form-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run teacher online exam form workflow contract
+        run: node --test tests/teacher-online-exam-form-workflow.test.js
+      - name: Lint add online exam view
+        run: php -l application/views/backend/teacher/add_online_exam.php
+      - name: Lint edit online exam view
+        run: php -l application/views/backend/teacher/edit_online_exam.php
