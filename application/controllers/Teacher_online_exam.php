@@ -21,28 +21,28 @@ class Teacher_online_exam extends Teacher
 
     private function require_post($json = false)
     {
-        if ($this->input->method(true) === 'POST') {
-            return true;
-        }
-
-        $this->output
-            ->set_status_header(405)
-            ->set_header('Allow: POST');
-
-        if ($json) {
+        if ($this->input->method(true) !== 'POST') {
             $this->output
-                ->set_content_type('application/json')
-                ->set_output(json_encode([
-                    'status' => 'error',
-                    'message' => 'POST required.',
-                ]));
+                ->set_status_header(405)
+                ->set_header('Allow: POST');
+
+            if ($json) {
+                $this->output
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode([
+                        'status' => 'error',
+                        'message' => 'POST required.',
+                    ]));
+                return false;
+            }
+
+            $this->output
+                ->set_content_type('text/plain')
+                ->set_output('POST required.');
             return false;
         }
 
-        $this->output
-            ->set_content_type('text/plain')
-            ->set_output('POST required.');
-        return false;
+        return true;
     }
 
     private function deny_access($json = false)
