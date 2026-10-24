@@ -143,6 +143,16 @@
         <script src="<?php echo base_url('assets/js/admission-readiness.js'); ?>"></script>
     <?php endif; ?>
 
+    <?php if($page_name === 'daily_fee_collection'): ?>
+        <script>
+            window.iEduProCashierSmartAllocation = {
+                processUrl: <?php echo json_encode(site_url('cashier/process_daily_fee_payment')); ?>,
+                smartProcessUrl: <?php echo json_encode(site_url('cashier_smart_allocation/process')); ?>
+            };
+        </script>
+        <script src="<?php echo base_url('assets/js/cashier-server-smart-allocation.js'); ?>"></script>
+    <?php endif; ?>
+
 
 
 	<script type="text/javascript">
