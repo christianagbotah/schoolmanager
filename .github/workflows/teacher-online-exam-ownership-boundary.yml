@@ -1,0 +1,31 @@
+name: Teacher Online Exam Ownership Boundary
+
+on:
+  pull_request:
+    paths:
+      - 'application/controllers/Teacher_online_exam.php'
+      - 'application/config/routes.php'
+      - 'tests/teacher-online-exam-ownership-boundary.test.js'
+      - '.github/workflows/teacher-online-exam-ownership-boundary.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Teacher_online_exam.php'
+      - 'application/config/routes.php'
+      - 'tests/teacher-online-exam-ownership-boundary.test.js'
+      - '.github/workflows/teacher-online-exam-ownership-boundary.yml'
+
+jobs:
+  teacher-online-exam-ownership-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run teacher online exam ownership contract
+        run: node --test tests/teacher-online-exam-ownership-boundary.test.js
+      - name: Lint guarded online exam controller
+        run: php -l application/controllers/Teacher_online_exam.php
+      - name: Lint routes
+        run: php -l application/config/routes.php
