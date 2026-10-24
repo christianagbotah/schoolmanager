@@ -14,7 +14,8 @@ test('quick payment has a dedicated authenticated POST endpoint', () => {
   const controller = read(controllerPath);
   assert.match(controller, /class\s+Cashier_smart_allocation\s+extends\s+CI_Controller/);
   assert.match(controller, /admin_id/);
-  assert.match(controller, /can_collect_daily_fees\s*\(/);
+  assert.match(controller, /can_collect_daily_fees\s*\(\s*\)/);
+  assert.doesNotMatch(controller, /can_collect_daily_fees\s*\([^)]*cashier_portal/);
   assert.match(controller, /function\s+process\s*\(/);
   assert.match(controller, /method\s*\(\s*TRUE\s*\)/i);
   assert.match(controller, /405/);
