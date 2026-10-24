@@ -7,7 +7,7 @@ const view = fs.readFileSync(viewPath, 'utf8');
 
 test('teacher online exam management exposes the existing create-exam workflow', () => {
   assert.match(view, /teacher\/create_online_exam/);
-  assert.match(view, /create\s+(an\s+)?online\s+exam|create\s+exam/i);
+  assert.match(view, /exam-action-create/);
 });
 
 test('teacher online exam management prepares one safe visible-exam collection before rendering rows', () => {
