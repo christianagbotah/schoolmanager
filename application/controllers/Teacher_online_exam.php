@@ -19,6 +19,32 @@ class Teacher_online_exam extends Teacher
         return (int) $this->session->userdata('teacher_id');
     }
 
+    private function require_post($json = false)
+    {
+        if ($this->input->method(true) === 'POST') {
+            return true;
+        }
+
+        $this->output
+            ->set_status_header(405)
+            ->set_header('Allow: POST');
+
+        if ($json) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode([
+                    'status' => 'error',
+                    'message' => 'POST required.',
+                ]));
+            return false;
+        }
+
+        $this->output
+            ->set_content_type('text/plain')
+            ->set_output('POST required.');
+        return false;
+    }
+
     private function deny_access($json = false)
     {
         $this->output->set_status_header(403);
@@ -142,9 +168,15 @@ class Teacher_online_exam extends Teacher
             }
         }
 
-        if ($param1 === 'delete' && !$this->can_manage_exam($param2)) {
-            $this->deny_access();
-            return;
+        if ($param1 === 'delete') {
+            if (!$this->require_post()) {
+                return;
+            }
+
+            if (!$this->can_manage_exam($param2)) {
+                $this->deny_access();
+                return;
+            }
         }
 
         parent::manage_online_exam($param1, $param2);
@@ -162,6 +194,10 @@ class Teacher_online_exam extends Teacher
 
     public function manage_online_exam_status($online_exam_id = '', $status = '')
     {
+        if (!$this->require_post()) {
+            return;
+        }
+
         $allowed_statuses = ['published', 'expired'];
         if (!in_array($status, $allowed_statuses, true)) {
             show_error(get_phrase('invalid_status'), 400);
@@ -209,6 +245,10 @@ class Teacher_online_exam extends Teacher
 
     public function delete_question_from_online_exam($question_id)
     {
+        if (!$this->require_post()) {
+            return;
+        }
+
         $parent_exam_id = $this->question_exam_id($question_id);
         if ($parent_exam_id <= 0 || !$this->can_manage_exam($parent_exam_id)) {
             $this->deny_access();
