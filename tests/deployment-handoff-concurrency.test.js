@@ -5,8 +5,14 @@ const fs = require('node:fs');
 const workflow = fs.readFileSync('.github/workflows/deploy.yml', 'utf8');
 
 test('deployment handoff lets the latest main release replace stale work', () => {
-  assert.match(workflow, /concurrency:\s*[\s\S]*group:\s*schoolmanager-deployment-handoff/);
+  assert.match(workflow, /concurrency:\s*[\s\S]*group:\s*schoolmanager-deployment-handoff-v2/);
   assert.match(workflow, /cancel-in-progress:\s*true/);
+});
+
+test('deployment handoff uses a fresh lane so the historical zombie run cannot block releases', () => {
+  const group = workflow.match(/group:\s*([^\n]+)/);
+  assert.ok(group, 'deployment handoff must define a concurrency group');
+  assert.equal(group[1].trim(), 'schoolmanager-deployment-handoff-v2');
 });
 
 test('deployment validation cannot occupy the handoff lane indefinitely', () => {
