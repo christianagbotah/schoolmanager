@@ -1,0 +1,34 @@
+name: Cashier Server Smart Allocation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/controllers/Cashier_smart_allocation.php'
+      - 'application/views/backend/include_main.php'
+      - 'assets/js/cashier-server-smart-allocation.js'
+      - 'tests/cashier-server-smart-allocation.test.js'
+      - '.github/workflows/cashier-server-smart-allocation.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Cashier_smart_allocation.php'
+      - 'application/views/backend/include_main.php'
+      - 'assets/js/cashier-server-smart-allocation.js'
+      - 'tests/cashier-server-smart-allocation.test.js'
+      - '.github/workflows/cashier-server-smart-allocation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smart-allocation-contract:
+    name: Server smart allocation contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run cashier smart allocation regression contract
+        run: node --test tests/cashier-server-smart-allocation.test.js
