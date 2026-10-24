@@ -30,8 +30,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |	$route['default_controller'] = 'welcome';
 |
 | This route indicates which controller class should be loaded if the
-| URI contains no data. In the above example, the "welcome" class
-| would be loaded.
+| URI contains no data. In the above example, the "welcome" class will be loaded.
 |
 |	$route['404_override'] = 'errors/page_missing';
 |
@@ -159,6 +158,22 @@ $route['daily_transport/get_route_students_with_payment/(:num)/(:any)'] = 'daily
 
 // Conductor Routes
 $route['conductor/mark_boarding'] = 'conductor/mark_boarding';
+
+// Teacher Online Exam ownership boundary. Keep public teacher URLs unchanged while
+// routing record-bearing operations through the guarded controller.
+$route['teacher/manage_online_exam/(:any)/(:num)'] = 'teacher_online_exam/manage_online_exam/$1/$2';
+$route['teacher/manage_online_exam/(:any)'] = 'teacher_online_exam/manage_online_exam/$1';
+$route['teacher/manage_online_exam'] = 'teacher_online_exam/manage_online_exam';
+$route['teacher/update_online_exam/(:num)'] = 'teacher_online_exam/update_online_exam/$1';
+$route['teacher/manage_online_exam_status/(:num)/(:any)'] = 'teacher_online_exam/manage_online_exam_status/$1/$2';
+$route['teacher/load_question_type/(:any)/(:num)'] = 'teacher_online_exam/load_question_type/$1/$2';
+$route['teacher/manage_online_exam_question/(:num)/(:any)/(:any)'] = 'teacher_online_exam/manage_online_exam_question/$1/$2/$3';
+$route['teacher/manage_online_exam_question/(:num)/(:any)'] = 'teacher_online_exam/manage_online_exam_question/$1/$2';
+$route['teacher/manage_online_exam_question/(:num)'] = 'teacher_online_exam/manage_online_exam_question/$1';
+$route['teacher/update_online_exam_question/(:num)/(:any)/(:num)'] = 'teacher_online_exam/update_online_exam_question/$1/$2/$3';
+$route['teacher/update_online_exam_question/(:num)/(:any)'] = 'teacher_online_exam/update_online_exam_question/$1/$2';
+$route['teacher/delete_question_from_online_exam/(:num)'] = 'teacher_online_exam/delete_question_from_online_exam/$1';
+$route['teacher/view_online_exam_result/(:num)'] = 'teacher_online_exam/view_online_exam_result/$1';
 
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
