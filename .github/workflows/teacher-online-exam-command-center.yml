@@ -1,0 +1,27 @@
+name: Teacher Online Exam Command Center
+
+on:
+  pull_request:
+    paths:
+      - 'application/views/backend/teacher/manage_online_exam.php'
+      - 'tests/teacher-online-exam-command-center.test.js'
+      - '.github/workflows/teacher-online-exam-command-center.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/views/backend/teacher/manage_online_exam.php'
+      - 'tests/teacher-online-exam-command-center.test.js'
+      - '.github/workflows/teacher-online-exam-command-center.yml'
+
+jobs:
+  teacher-online-exam-command-center:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run teacher online exam command-center contract
+        run: node --test tests/teacher-online-exam-command-center.test.js
+      - name: Lint teacher online exam view
+        run: php -l application/views/backend/teacher/manage_online_exam.php
