@@ -1,0 +1,40 @@
+name: Daily Fee Wallet Semantics
+
+on:
+  pull_request:
+    branches: ain]
+    paths:
+      - 'application/models/Daily_fee_model.php'
+      - 'application/controllers/Daily_fee*.php'
+      - 'application/controllers/Attendance_daily_fees.php'
+      - 'application/controllers/Cashier.php'
+      - 'application/views/backend/cashier/daily_fee_collection.php'
+      - 'tests/daily-fee-wallet-semantics.test.js'
+      - '.github/workflows/daily-fee-wallet-semantics.yml'
+  push:
+    branches:
+      - main
+      - 'zai/full-platform-reconciliation-20261024'
+    paths:
+      - 'application/models/Daily_fee_model.php'
+      - 'application/controllers/Daily_fee*.php'
+      - 'application/controllers/Attendance_daily_fees.php'
+      - 'application/controllers/Cashier.php'
+      - 'application/views/backend/cashier/daily_fee_collection.php'
+      - 'tests/daily-fee-wallet-semantics.test.js'
+      - '.github/workflows/daily-fee-wallet-semantics.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  daily-fee-wallet-semantics:
+    name: Daily-fee wallet regression contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run daily-fee wallet regression contract
+        run: node --test tests/daily-fee-wallet-semantics.test.js
