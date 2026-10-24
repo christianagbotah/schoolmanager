@@ -19,12 +19,6 @@ class Teacher_online_exam extends Teacher
         return (int) $this->session->userdata('teacher_id');
     }
 
-    private function setting_value($type)
-    {
-        $row = $this->db->get_where('settings', ['type' => $type])->row();
-        return $row ? $row->description : null;
-    }
-
     private function deny_access($json = false)
     {
         $this->output->set_status_header(403);
@@ -94,11 +88,6 @@ class Teacher_online_exam extends Teacher
             return false;
         }
 
-        $running_year = $this->setting_value('running_year');
-        if (!$running_year) {
-            return false;
-        }
-
         $class = $this->db->get_where('class', ['class_id' => $class_id])->row_array();
         $section = $this->db->get_where('section', [
             'section_id' => $section_id,
@@ -107,7 +96,6 @@ class Teacher_online_exam extends Teacher
         $subject = $this->db->get_where('subject', [
             'subject_id' => $subject_id,
             'class_id' => $class_id,
-            'year' => $running_year,
         ])->row_array();
 
         if (!$class || !$section || !$subject) {
