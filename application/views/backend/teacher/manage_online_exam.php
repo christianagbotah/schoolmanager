@@ -51,7 +51,7 @@ foreach ($online_exams as $row) {
 <script src="<?php echo base_url(); ?>assets/cdn/js/tailwindcss.js"></script>
 
 <style>
-.online-exam-command{max-width:1440px;margin:0 auto}.exam-command-hero{background:#0f172a;color:#fff;border-radius:18px;padding:24px;margin-bottom:16px;box-shadow:0 12px 30px rgba(15,23,42,.12)}.exam-command-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap}.exam-command-copy h2{margin:0 0 6px;font-size:28px;font-weight:800;color:#fff}.exam-command-copy p{margin:0;color:#cbd5e1}.exam-command-actions{display:flex;gap:9px;flex-wrap:wrap}.exam-command-actions a{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:0 15px;border-radius:10px;font-weight:800;text-decoration:none;transition:transform .15s ease,box-shadow .15s ease}.exam-command-actions a:hover{transform:translateY(-1px);text-decoration:none}.exam-action-create{background:#2563eb;color:#fff;box-shadow:0 7px 18px rgba(37,99,235,.28)}.exam-action-filter{background:#fff;color:#334155;border:1px solid #cbd5e1}.exam-action-filter.is-active{background:#059669;color:#fff;border-color:#059669}.exam-action-filter.is-expired{background:#dc2626;color:#fff;border-color:#dc2626}.exam-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:16px}.exam-kpi{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;box-shadow:0 3px 12px rgba(15,23,42,.04)}.exam-kpi span{display:block;color:#64748b;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.exam-kpi strong{display:block;margin-top:5px;color:#0f172a;font-size:25px;line-height:1}.exam-table-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 5px 18px rgba(15,23,42,.05)}.exam-table-card .exam-table-wrap{overflow-x:auto}.exam-table-card table{margin:0}.exam-table-card thead{background:#0f172a;color:#fff}.exam-table-card tbody tr{border-bottom:1px solid #e2e8f0}.exam-table-card tbody tr:hover{background:#f8fafc}.exam-name-link{color:#0e7490;font-weight:800;display:flex;align-items:center;text-decoration:none}.exam-name-link:hover{color:#155e75;text-decoration:none}.exam-icon-chip{flex:0 0 40px;height:40px;border-radius:10px;background:#0891b2;color:#fff;display:flex;align-items:center;justify-content:center;margin-right:10px}.exam-action-list{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}.exam-action-list a{display:inline-flex;align-items:center;gap:4px;border-radius:8px;padding:6px 9px;color:#fff;font-size:11px;font-weight:800;text-decoration:none}.exam-action-list a:hover{color:#fff;text-decoration:none;filter:brightness(.94)}.exam-action-questions{background:#2563eb}.exam-action-edit{background:#059669}.exam-action-publish{background:#047857}.exam-action-cancel,.exam-action-delete{background:#dc2626}.exam-action-results{background:#7c3aed}
+.online-exam-command{max-width:1440px;margin:0 auto}.exam-command-hero{background:#0f172a;color:#fff;border-radius:18px;padding:24px;margin-bottom:16px;box-shadow:0 12px 30px rgba(15,23,42,.12)}.exam-command-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap}.exam-command-copy h2{margin:0 0 6px;font-size:28px;font-weight:800;color:#fff}.exam-command-copy p{margin:0;color:#cbd5e1}.exam-command-actions{display:flex;gap:9px;flex-wrap:wrap}.exam-command-actions a{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:0 15px;border-radius:10px;font-weight:800;text-decoration:none;transition:transform .15s ease,box-shadow .15s ease}.exam-command-actions a:hover{transform:translateY(-1px);text-decoration:none}.exam-action-create{background:#2563eb;color:#fff;box-shadow:0 7px 18px rgba(37,99,235,.28)}.exam-action-filter{background:#fff;color:#334155;border:1px solid #cbd5e1}.exam-action-filter.is-active{background:#059669;color:#fff;border-color:#059669}.exam-action-filter.is-expired{background:#dc2626;color:#fff;border-color:#dc2626}.exam-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:16px}.exam-kpi{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;box-shadow:0 3px 12px rgba(15,23,42,.04)}.exam-kpi span{display:block;color:#64748b;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.exam-kpi strong{display:block;margin-top:5px;color:#0f172a;font-size:25px;line-height:1}.exam-table-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 5px 18px rgba(15,23,42,.05)}.exam-table-card .exam-table-wrap{overflow-x:auto}.exam-table-card table{margin:0}.exam-table-card thead{background:#0f172a;color:#fff}.exam-table-card tbody tr{border-bottom:1px solid #e2e8f0}.exam-table-card tbody tr:hover{background:#f8fafc}.exam-name-link{color:#0e7490;font-weight:800;display:flex;align-items:center;text-decoration:none}.exam-name-link:hover{color:#155e75;text-decoration:none}.exam-icon-chip{flex:0 0 40px;height:40px;border-radius:10px;background:#0891b2;color:#fff;display:flex;align-items:center;justify-content:center;margin-right:10px}.exam-action-list{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}.exam-action-form{display:inline-flex;margin:0}.exam-action-list a,.exam-action-list button{display:inline-flex;align-items:center;gap:4px;border:0;border-radius:8px;padding:6px 9px;color:#fff;font-family:inherit;font-size:11px;font-weight:800;line-height:1.4;text-decoration:none;cursor:pointer}.exam-action-list a:hover,.exam-action-list button:hover{color:#fff;text-decoration:none;filter:brightness(.94)}.exam-action-questions{background:#2563eb}.exam-action-edit{background:#059669}.exam-action-publish{background:#047857}.exam-action-cancel,.exam-action-delete{background:#dc2626}.exam-action-results{background:#7c3aed}
 @media(max-width:900px){.exam-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.exam-command-head{align-items:stretch}.exam-command-actions{width:100%}.exam-command-actions a{flex:1 1 180px}}
 @media(max-width:767px){.exam-command-hero{padding:18px;border-radius:14px}.exam-command-copy h2{font-size:22px}.exam-command-actions{display:grid;grid-template-columns:1fr 1fr}.exam-command-actions .exam-action-create{grid-column:1/-1}.exam-kpi-grid{grid-template-columns:1fr 1fr}.exam-kpi{padding:12px}.exam-kpi strong{font-size:21px}.exam-table-card{border-radius:12px}.exam-table-card th,.exam-table-card td{white-space:nowrap;padding-left:12px!important;padding-right:12px!important}.exam-action-list{min-width:250px;justify-content:flex-start}}
 @media(max-width:420px){.exam-command-actions{grid-template-columns:1fr}.exam-command-actions .exam-action-create{grid-column:auto}.exam-kpi-grid{grid-template-columns:1fr 1fr}}
@@ -137,12 +137,18 @@ foreach ($online_exams as $row) {
                                 <a href="<?php echo site_url('teacher/manage_online_exam_question/').$row['online_exam_id']; ?>" class="exam-action-questions"><i class="entypo-cog"></i><?php echo get_phrase('questions');?></a>
                                 <a href="<?php echo site_url('teacher/update_online_exam/').$row['online_exam_id']; ?>" class="exam-action-edit"><i class="entypo-pencil"></i><?php echo get_phrase('edit');?></a>
                                 <?php if ($row['status'] == 'pending'): ?>
-                                    <a href="#" onclick="confirm_modal('<?php echo site_url('teacher/manage_online_exam_status/'.$row['online_exam_id'].'/published'); ?>', 'generic_confirmation');" class="exam-action-publish"><i class="entypo-share"></i><?php echo get_phrase('publish');?></a>
+                                    <?php echo form_open(site_url('teacher/manage_online_exam_status/'.$row['online_exam_id'].'/published'), ['class' => 'exam-action-form', 'onsubmit' => 'return confirmOnlineExamMutation(this);']); ?>
+                                        <button type="submit" class="exam-action-publish"><i class="entypo-share"></i><?php echo get_phrase('publish');?></button>
+                                    </form>
                                 <?php elseif ($row['status'] == 'published'): ?>
-                                    <a href="#" onclick="confirm_modal('<?php echo site_url('teacher/manage_online_exam_status/'.$row['online_exam_id'].'/expired'); ?>', 'generic_confirmation');" class="exam-action-cancel"><i class="entypo-cancel"></i><?php echo get_phrase('cancel');?></a>
+                                    <?php echo form_open(site_url('teacher/manage_online_exam_status/'.$row['online_exam_id'].'/expired'), ['class' => 'exam-action-form', 'onsubmit' => 'return confirmOnlineExamMutation(this);']); ?>
+                                        <button type="submit" class="exam-action-cancel"><i class="entypo-cancel"></i><?php echo get_phrase('cancel');?></button>
+                                    </form>
                                 <?php endif; ?>
                                 <a href="<?php echo site_url('teacher/view_online_exam_result/'.$row['online_exam_id']); ?>" class="exam-action-results"><i class="entypo-eye"></i><?php echo get_phrase('results');?></a>
-                                <a href="#" onclick="confirm_modal('<?php echo site_url('teacher/manage_online_exam/delete/'.$row['online_exam_id']);?>');" class="exam-action-delete"><i class="entypo-trash"></i><?php echo get_phrase('delete');?></a>
+                                <?php echo form_open(site_url('teacher/manage_online_exam/delete/'.$row['online_exam_id']), ['class' => 'exam-action-form', 'onsubmit' => 'return confirmOnlineExamMutation(this);']); ?>
+                                    <button type="submit" class="exam-action-delete"><i class="entypo-trash"></i><?php echo get_phrase('delete');?></button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -154,6 +160,26 @@ foreach ($online_exams as $row) {
 </div>
 
 <script type="text/javascript">
+function confirmOnlineExamMutation(form) {
+    var message = <?php echo json_encode(get_phrase('are_you_sure')); ?>;
+    if (window.Swal && typeof window.Swal.fire === 'function') {
+        window.Swal.fire({
+            title: message,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: <?php echo json_encode(get_phrase('yes')); ?>,
+            cancelButtonText: <?php echo json_encode(get_phrase('cancel')); ?>
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+        return false;
+    }
+
+    return window.confirm(message);
+}
+
 jQuery(document).ready(function($) {
     $('#table_export').dataTable({
         "pageLength": 25,
