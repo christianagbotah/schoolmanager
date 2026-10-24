@@ -2,6 +2,9 @@
     $online_exam_details = $this->db->get_where('online_exam', array('online_exam_id' => $online_exam_id))->row_array();
     $added_question_info = $this->db->get_where('question_bank', array('online_exam_id' => $online_exam_id))->result_array();
 ?>
+<style>
+.question-delete-form{display:inline-block;margin:0}.question-delete-form button{vertical-align:middle}
+</style>
 <hr>
 <div class="row">
     <div class="col-md-6">
@@ -64,7 +67,9 @@
                                     <td style="text-align: center;">
                                         <!-- <a href="<?php echo site_url('teacher/update_online_exam_question/'.$added_question['question_bank_id']); ?>" class = "btn btn-primary btn-xs" data-toggle="tooltip" title="<?php echo get_phrase('edit'); ?>"><i class="fa fa-pencil" aria-hidden="true"></i></a> -->
                                         <a href="#" onclick="showAjaxModal('<?php echo site_url('modal/popup/update_online_exam_question/'.$added_question['question_bank_id']);?>')" class="btn btn-primary btn-xs" data-toggle="tooltip" title="<?php echo get_phrase('edit'); ?>"><i class="fa fa-pencil" aria-hidden="true"></i></a>
-                                        <a href = "#" onclick="confirm_modal('<?php echo site_url('teacher/delete_question_from_online_exam/'.$added_question['question_bank_id']);?>');" class = "btn btn-danger btn-xs"  data-toggle="tooltip" title="<?php echo get_phrase('delete'); ?>"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                                        <?php echo form_open(site_url('teacher/delete_question_from_online_exam/'.$added_question['question_bank_id']), ['class' => 'question-delete-form', 'onsubmit' => 'return confirmOnlineExamQuestionDelete(this);']); ?>
+                                            <button type="submit" class="btn btn-danger btn-xs" data-toggle="tooltip" title="<?php echo get_phrase('delete'); ?>"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                        </form>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -151,6 +156,26 @@
     </div>
 </div>
 <script type="text/javascript">
+
+    function confirmOnlineExamQuestionDelete(form) {
+        var message = <?php echo json_encode(get_phrase('are_you_sure')); ?>;
+        if (window.Swal && typeof window.Swal.fire === 'function') {
+            window.Swal.fire({
+                title: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: <?php echo json_encode(get_phrase('yes')); ?>,
+                cancelButtonText: <?php echo json_encode(get_phrase('cancel')); ?>
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+            return false;
+        }
+
+        return window.confirm(message);
+    }
 
     $(document).ready(function() {
         $('#print_options').hide();
