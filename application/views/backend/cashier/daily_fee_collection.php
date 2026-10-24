@@ -3,9 +3,9 @@ $csrf_name = $this->security->get_csrf_token_name();
 $csrf_hash = $this->security->get_csrf_hash();
 ?>
 <style>
-.cashier-pos{max-width:1280px;margin:0 auto;padding:6px 0 110px}.pos-hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:18px;padding:24px;margin-bottom:18px;box-shadow:0 14px 36px rgba(15,23,42,.14)}.pos-hero h2{margin:0 0 5px;font-size:26px;font-weight:800}.pos-hero p{margin:0;opacity:.84}.pos-search{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px;margin-bottom:16px}.pos-search-row{display:flex;gap:10px}.pos-search input{flex:1;height:44px;border:1px solid #cbd5e1;border-radius:10px;padding:0 13px;font-size:14px}.pos-search button,.pos-btn{border:0;border-radius:10px;padding:0 17px;height:44px;font-weight:800}.pos-search button{background:#2563eb;color:#fff}.search-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.student-result{border:1px solid #e2e8f0;border-radius:11px;padding:12px;background:#f8fafc;cursor:pointer;text-align:left}.student-result:hover{border-color:#93c5fd;background:#eff6ff}.student-result strong{display:block;color:#0f172a}.student-result span{display:block;color:#64748b;font-size:12px;margin-top:3px}.pos-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,.75fr);gap:16px}.pos-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px;box-shadow:0 5px 18px rgba(15,23,42,.04)}.student-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:15px}.student-head h3{margin:0;font-size:20px;font-weight:800;color:#0f172a}.student-head p{margin:4px 0 0;color:#64748b}.student-code{background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:7px 11px;font-size:12px;font-weight:800}.preference-row{display:flex;gap:7px;flex-wrap:wrap;margin:-4px 0 14px}.preference-chip{border-radius:999px;padding:6px 9px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:11px;font-weight:800}.preference-chip.on{background:#ecfdf5;border-color:#a7f3d0;color:#047857}.money-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}.money-box{border-radius:12px;padding:13px;background:#f8fafc;border:1px solid #e2e8f0}.money-box span{display:block;color:#64748b;font-size:11px;font-weight:800;text-transform:uppercase}.money-box strong{display:block;margin-top:5px;font-size:20px;color:#0f172a}.money-box.arrears strong{color:#b91c1c}.money-box.net strong{color:#1d4ed8}.quick-payment{border:1px solid #bfdbfe;background:#eff6ff;border-radius:14px;padding:15px;margin-bottom:16px}.quick-payment h4{margin:0 0 4px;color:#1e3a8a;font-size:15px;font-weight:900}.quick-payment p{margin:0 0 12px;color:#475569;font-size:12px}.quick-payment-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(180px,.9fr) auto;gap:9px;align-items:end}.quick-payment label{display:block;color:#475569;font-size:11px;font-weight:900;margin-bottom:5px}.quick-payment input,.quick-payment select{width:100%;height:42px;border:1px solid #93c5fd;border-radius:9px;padding:0 10px;background:#fff}.quick-payment button{height:42px;border:0;border-radius:9px;padding:0 15px;background:#2563eb;color:#fff;font-weight:900}.allocation-preview{margin-top:10px;padding:9px 10px;border-radius:9px;background:#fff;color:#334155;font-size:12px;border:1px solid #dbeafe}.allocation-preview strong{color:#0f172a}.advanced-allocation{border:1px solid #e2e8f0;border-radius:12px;margin-top:2px}.advanced-allocation summary{cursor:pointer;padding:12px 14px;font-weight:900;color:#334155;list-style:none}.advanced-allocation summary::-webkit-details-marker{display:none}.advanced-allocation summary:after{content:'+';float:right;color:#64748b}.advanced-allocation[open] summary:after{content:'−'}.advanced-body{padding:0 12px 12px}.fee-table{width:100%;border-collapse:collapse}.fee-table th,.fee-table td{padding:10px 8px;border-bottom:1px solid #e2e8f0}.fee-table th{font-size:11px;text-transform:uppercase;color:#64748b;text-align:left}.fee-table th:nth-child(n+2),.fee-table td:nth-child(n+2){text-align:right}.fee-label{font-weight:800;color:#0f172a}.fee-input{width:112px;height:38px;border:1px solid #cbd5e1;border-radius:8px;padding:0 9px;text-align:right}.quick-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.pos-btn{height:38px;padding:0 13px;background:#e2e8f0;color:#0f172a}.pos-btn.primary{background:#2563eb;color:#fff}.pos-form label{display:block;color:#475569;font-size:12px;font-weight:800;margin:0 0 6px}.pos-form select,.pos-form textarea{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:9px 10px}.pos-form select{height:42px}.pos-form textarea{min-height:78px;resize:vertical}.field{margin-bottom:13px}.total-panel{background:#0f172a;color:#fff;border-radius:14px;padding:16px;margin-bottom:14px}.total-panel span{display:block;font-size:12px;opacity:.72;text-transform:uppercase;font-weight:800}.total-panel strong{display:block;font-size:31px;margin-top:3px}.collect-btn{width:100%;height:46px;border:0;border-radius:10px;background:#059669;color:#fff;font-weight:900;font-size:15px}.collect-btn:disabled{opacity:.55;cursor:not-allowed}.receipt-success{display:none;margin-top:13px;border:1px solid #bbf7d0;background:#f0fdf4;border-radius:11px;padding:13px;color:#166534}.receipt-success a{display:inline-block;margin-top:8px;font-weight:900;color:#166534}.empty-state{padding:36px 18px;text-align:center;color:#64748b}.empty-state i{font-size:30px;color:#94a3b8}.empty-state strong{display:block;color:#334155;margin-top:8px}.pos-sticky-total{display:none}.loading-note{padding:10px;color:#64748b;font-size:13px}.error-note{padding:10px;color:#b91c1c;font-size:13px}.recent-title{font-size:13px;font-weight:900;color:#334155;margin:18px 0 8px}.recent-list{display:grid;gap:7px}.recent-item{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #e2e8f0;font-size:12px}.recent-item strong{color:#0f172a}.recent-payment-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}.recent-receipt-link{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:7px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:11px;font-weight:900;text-decoration:none}.recent-receipt-link:hover,.recent-receipt-link:focus{background:#dbeafe;color:#1e40af;text-decoration:none}
+.cashier-pos{max-width:1280px;margin:0 auto;padding:6px 0 110px}.pos-hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:18px;padding:24px;margin-bottom:18px;box-shadow:0 14px 36px rgba(15,23,42,.14)}.pos-hero h2{margin:0 0 5px;font-size:26px;font-weight:800}.pos-hero p{margin:0;opacity:.84}.pos-search{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px;margin-bottom:16px}.pos-search-row{display:flex;gap:10px}.pos-search input{flex:1;height:44px;border:1px solid #cbd5e1;border-radius:10px;padding:0 13px;font-size:14px}.pos-search button,.pos-btn{border:0;border-radius:10px;padding:0 17px;height:44px;font-weight:800}.pos-search button{background:#2563eb;color:#fff}.search-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.student-result{border:1px solid #e2e8f0;border-radius:11px;padding:12px;background:#f8fafc;cursor:pointer;text-align:left}.student-result:hover{border-color:#93c5fd;background:#eff6ff}.student-result strong{display:block;color:#0f172a}.student-result span{display:block;color:#64748b;font-size:12px;margin-top:3px}.pos-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,.75fr);gap:16px}.pos-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px;box-shadow:0 5px 18px rgba(15,23,42,.04)}.student-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:15px}.student-head h3{margin:0;font-size:20px;font-weight:800;color:#0f172a}.student-head p{margin:4px 0 0;color:#64748b}.student-code{background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:7px 11px;font-size:12px;font-weight:800}.preference-row{display:flex;gap:7px;flex-wrap:wrap;margin:-4px 0 14px}.preference-chip{border-radius:999px;padding:6px 9px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:11px;font-weight:800}.preference-chip.on{background:#ecfdf5;border-color:#a7f3d0;color:#047857}.money-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}.money-box{border-radius:12px;padding:13px;background:#f8fafc;border:1px solid #e2e8f0}.money-box span{display:block;color:#64748b;font-size:11px;font-weight:800;text-transform:uppercase}.money-box strong{display:block;margin-top:5px;font-size:20px;color:#0f172a}.money-box.arrears strong{color:#b91c1c}.money-box.net strong{color:#1d4ed8}.quick-payment{border:1px solid #bfdbfe;background:#eff6ff;border-radius:14px;padding:15px;margin-bottom:16px}.quick-payment h4{margin:0 0 4px;color:#1e3a8a;font-size:15px;font-weight:900}.quick-payment p{margin:0 0 12px;color:#475569;font-size:12px}.quick-payment-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(180px,.9fr) auto;gap:9px;align-items:end}.quick-payment label{display:block;color:#475569;font-size:11px;font-weight:900;margin-bottom:5px}.quick-payment input,.quick-payment select{width:100%;height:42px;border:1px solid #93c5fd;border-radius:9px;padding:0 10px;background:#fff}.quick-payment button{height:42px;border:0;border-radius:9px;padding:0 15px;background:#2563eb;color:#fff;font-weight:900}.allocation-preview{margin-top:10px;padding:9px 10px;border-radius:9px;background:#fff;color:#334155;font-size:12px;border:1px solid #dbeafe}.allocation-preview strong{color:#0f172a}.advanced-allocation{border:1px solid #e2e8f0;border-radius:12px;margin-top:2px}.advanced-allocation summary{cursor:pointer;padding:12px 14px;font-weight:900;color:#334155;list-style:none}.advanced-allocation summary::-webkit-details-marker{display:none}.advanced-allocation summary:after{content:'+';float:right;color:#64748b}.advanced-allocation[open] summary:after{content:'−'}.advanced-body{padding:0 12px 12px}.fee-table{width:100%;border-collapse:collapse}.fee-table th,.fee-table td{padding:10px 8px;border-bottom:1px solid #e2e8f0}.fee-table th{font-size:11px;text-transform:uppercase;color:#64748b;text-align:left}.fee-table th:nth-child(n+2),.fee-table td:nth-child(n+2){text-align:right}.fee-label{font-weight:800;color:#0f172a}.fee-input{width:112px;height:38px;border:1px solid #cbd5e1;border-radius:8px;padding:0 9px;text-align:right}.quick-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.pos-btn{height:38px;padding:0 13px;background:#e2e8f0;color:#0f172a}.pos-btn.primary{background:#2563eb;color:#fff}.pos-form label{display:block;color:#475569;font-size:12px;font-weight:800;margin:0 0 6px}.pos-form select,.pos-form textarea{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:9px 10px}.pos-form select{height:42px}.pos-form textarea{min-height:78px;resize:vertical}.field{margin-bottom:13px}.total-panel{background:#0f172a;color:#fff;border-radius:14px;padding:16px;margin-bottom:14px}.total-panel span{display:block;font-size:12px;opacity:.72;text-transform:uppercase;font-weight:800}.total-panel strong{display:block;font-size:31px;margin-top:3px}.cash-tender-panel{display:none;border:1px solid #a7f3d0;background:#ecfdf5;border-radius:12px;padding:12px;margin:-2px 0 13px}.cash-tender-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,.75fr);gap:10px;align-items:end}.cash-tender-panel input{width:100%;height:42px;border:1px solid #6ee7b7;border-radius:9px;padding:0 10px;background:#fff}.cash-change-box{background:#fff;border:1px solid #d1fae5;border-radius:9px;padding:8px 10px;min-height:42px}.cash-change-box span{display:block;color:#64748b;font-size:10px;font-weight:900;text-transform:uppercase}.cash-change-box strong{display:block;color:#047857;font-size:19px;margin-top:2px}.cash-tender-status{margin-top:8px;color:#047857;font-size:11px;font-weight:800}.cash-tender-status.short{color:#b91c1c}.cash-tender-note{margin-top:5px;color:#64748b;font-size:10px;line-height:1.4}.collect-btn{width:100%;height:46px;border:0;border-radius:10px;background:#059669;color:#fff;font-weight:900;font-size:15px}.collect-btn:disabled{opacity:.55;cursor:not-allowed}.receipt-success{display:none;margin-top:13px;border:1px solid #bbf7d0;background:#f0fdf4;border-radius:11px;padding:13px;color:#166534}.receipt-success a{display:inline-block;margin-top:8px;font-weight:900;color:#166534}.empty-state{padding:36px 18px;text-align:center;color:#64748b}.empty-state i{font-size:30px;color:#94a3b8}.empty-state strong{display:block;color:#334155;margin-top:8px}.pos-sticky-total{display:none}.loading-note{padding:10px;color:#64748b;font-size:13px}.error-note{padding:10px;color:#b91c1c;font-size:13px}.recent-title{font-size:13px;font-weight:900;color:#334155;margin:18px 0 8px}.recent-list{display:grid;gap:7px}.recent-item{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #e2e8f0;font-size:12px}.recent-item strong{color:#0f172a}.recent-payment-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}.recent-receipt-link{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:7px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:11px;font-weight:900;text-decoration:none}.recent-receipt-link:hover,.recent-receipt-link:focus{background:#dbeafe;color:#1e40af;text-decoration:none}
 @media(max-width:900px){.pos-layout{grid-template-columns:1fr}.search-results{grid-template-columns:1fr}.pos-side{order:-1}.quick-payment-grid{grid-template-columns:1fr 1fr}.quick-payment button{grid-column:1/-1}}
-@media(max-width:767px){.cashier-pos{padding-bottom:95px}.pos-hero{padding:18px}.pos-hero h2{font-size:22px}.pos-search-row{display:block}.pos-search input,.pos-search button{width:100%}.pos-search button{margin-top:8px}.money-summary{grid-template-columns:1fr 1fr}.money-box.net{grid-column:1/-1}.pos-card{padding:14px}.quick-payment-grid{grid-template-columns:1fr}.quick-payment button{grid-column:auto}.fee-table th:nth-child(2),.fee-table td:nth-child(2){display:none}.fee-input{width:94px}.pos-sticky-total{display:flex;position:sticky;bottom:0;z-index:20;align-items:center;justify-content:space-between;gap:12px;background:#0f172a;color:#fff;padding:12px 14px;border-radius:14px 14px 0 0;box-shadow:0 -8px 26px rgba(15,23,42,.2)}.pos-sticky-total strong{font-size:20px}.pos-sticky-total button{border:0;border-radius:9px;background:#059669;color:#fff;padding:10px 14px;font-weight:900}}
+@media(max-width:767px){.cashier-pos{padding-bottom:95px}.pos-hero{padding:18px}.pos-hero h2{font-size:22px}.pos-search-row{display:block}.pos-search input,.pos-search button{width:100%}.pos-search button{margin-top:8px}.money-summary{grid-template-columns:1fr 1fr}.money-box.net{grid-column:1/-1}.pos-card{padding:14px}.quick-payment-grid,.cash-tender-grid{grid-template-columns:1fr}.quick-payment button{grid-column:auto}.fee-table th:nth-child(2),.fee-table td:nth-child(2){display:none}.fee-input{width:94px}.pos-sticky-total{display:flex;position:sticky;bottom:0;z-index:20;align-items:center;justify-content:space-between;gap:12px;background:#0f172a;color:#fff;padding:12px 14px;border-radius:14px 14px 0 0;box-shadow:0 -8px 26px rgba(15,23,42,.2)}.pos-sticky-total strong{font-size:20px}.pos-sticky-total button{border:0;border-radius:9px;background:#059669;color:#fff;padding:10px 14px;font-weight:900}}
 </style>
 
 <div class="cashier-pos">
@@ -36,9 +36,9 @@ $csrf_hash = $this->security->get_csrf_hash();
 
       <div class="quick-payment">
         <h4><i class="fa fa-bolt"></i> Quick payment</h4>
-        <p>Enter the amount received once. Smart allocation applies it to arrears first in the order Feeding → Classes → Breakfast → Water → Transport. Any excess becomes prepaid credit in the fee wallet you choose.</p>
+        <p>Enter the amount to apply once. Smart allocation settles arrears first in the order Feeding → Classes → Breakfast → Water → Transport. Any amount above current arrears becomes prepaid credit in the fee wallet you choose.</p>
         <div class="quick-payment-grid">
-          <div><label for="quickPaymentAmount">Amount received</label><input id="quickPaymentAmount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></div>
+          <div><label for="quickPaymentAmount">Amount to apply</label><input id="quickPaymentAmount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></div>
           <div><label for="excessCreditType">Excess prepaid credit to</label><select id="excessCreditType"><option value="feeding">Feeding</option><option value="classes">Classes</option><option value="breakfast">Breakfast</option><option value="water">Water</option><option value="transport">Transport</option></select></div>
           <button id="smartAllocate" type="button"><i class="fa fa-magic"></i> Smart allocate</button>
         </div>
@@ -73,6 +73,14 @@ $csrf_hash = $this->security->get_csrf_hash();
         <div class="total-panel"><span>Payment total</span><strong id="paymentTotal">₵0.00</strong></div>
         <div class="field"><label>Payment type</label><select name="payment_type"><option value="mixed">Smart / mixed allocation</option><option value="arrears">Arrears payment</option><option value="current">Current fees</option><option value="advance">Advance / prepaid</option></select></div>
         <div class="field"><label>Payment method</label><select name="payment_method"><option value="1">Cash</option><option value="3">Mobile Money</option><option value="4">Bank transfer</option><option value="2">Cheque</option></select></div>
+        <div id="cashTenderPanel" class="cash-tender-panel">
+          <div class="cash-tender-grid">
+            <div><label for="cashTendered">Cash tendered (optional)</label><input id="cashTendered" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></div>
+            <div class="cash-change-box"><span>Change due</span><strong id="cashChangeDue">₵0.00</strong></div>
+          </div>
+          <div id="cashTenderStatus" class="cash-tender-status">Enter the cash handed over to calculate change.</div>
+          <div class="cash-tender-note">Checkout helper only — this does not change the amount posted to the student's fee wallets.</div>
+        </div>
         <div class="field"><label>Notes (optional)</label><textarea name="notes" placeholder="Reference, payer or collection note"></textarea></div>
         <button id="collectPayment" class="collect-btn" type="submit" disabled><i class="fa fa-check-circle"></i> Collect payment</button>
         <div id="receiptSuccess" class="receipt-success"></div>
@@ -103,7 +111,38 @@ $csrf_hash = $this->security->get_csrf_hash();
     var total = 0;
     $('.payment-amount').each(function(){ total += Math.max(0, parseFloat($(this).val()) || 0); });
     $('#paymentTotal,#mobilePaymentTotal').text(money(total));
+    updateCashChange(total);
     return total;
+  }
+
+  function updateCashChange(total){
+    var isCash = $('select[name="payment_method"]').val() === '1';
+    $('#cashTenderPanel').toggle(isCash);
+    if(!isCash){
+      $('#cashTendered').val('');
+      $('#cashChangeDue').text(money(0));
+      $('#cashTenderStatus').removeClass('short').text('Cash change helper is available for cash payments.');
+      return;
+    }
+
+    var raw = $.trim($('#cashTendered').val());
+    if(raw === ''){
+      $('#cashChangeDue').text(money(0));
+      $('#cashTenderStatus').removeClass('short').text('Enter the cash handed over to calculate change.');
+      return;
+    }
+
+    var tendered = Math.max(0, parseFloat(raw) || 0);
+    if(tendered < total){
+      var shortBy = total - tendered;
+      $('#cashChangeDue').text(money(0));
+      $('#cashTenderStatus').addClass('short').text('Short by ' + money(shortBy));
+      return;
+    }
+
+    var change = tendered - total;
+    $('#cashChangeDue').text(money(change));
+    $('#cashTenderStatus').removeClass('short').text(change > 0 ? 'Return ' + money(change) + ' to the payer.' : 'Exact cash received.');
   }
 
   function renderSearch(students){
@@ -182,6 +221,7 @@ $csrf_hash = $this->security->get_csrf_hash();
         $('#netPosition').text(money(res.net_position));
         feeTypes.forEach(function(type){ $('#' + type + '_balance').text(money(selectedWallet[type + '_balance'])); $('#' + type + '_arrears').text(money(selectedWallet[type + '_arrears'])); amountInput(type).val('0.00'); });
         $('#quickPaymentAmount').val('');
+        $('#cashTendered').val('');
         $('#allocationPreview').text('Enter an amount to preview the allocation. Arrears are settled first; excess is kept as prepaid credit.');
         renderRecent(res.payment_history || []);
         $('#emptyState').hide(); $('#workspace').show(); $('#searchResults').empty();
@@ -235,12 +275,14 @@ $csrf_hash = $this->security->get_csrf_hash();
   $('#smartAllocate').on('click',allocateSmartPayment);
   $('#quickPaymentAmount').on('keydown',function(e){ if(e.key === 'Enter'){ e.preventDefault(); allocateSmartPayment(); } });
   $('#excessCreditType').on('change',function(){ if((parseFloat($('#quickPaymentAmount').val()) || 0) > 0){ allocateSmartPayment(); } });
+  $('select[name="payment_method"]').on('change',function(){ recalc(); });
+  $('#cashTendered').on('input',function(){ recalc(); });
   $(document).on('input','.payment-amount',function(){
     $('#quickPaymentAmount').val('');
     $('#allocationPreview').text('Manual allocation active. Advanced allocation values will be collected exactly as entered.');
     recalc();
   });
-  $('#clearAmounts').on('click',function(){ $('.payment-amount').val('0.00'); $('#quickPaymentAmount').val(''); $('#allocationPreview').text('Enter an amount to preview the allocation. Arrears are settled first; excess is kept as prepaid credit.'); recalc(); });
+  $('#clearAmounts').on('click',function(){ $('.payment-amount').val('0.00'); $('#quickPaymentAmount').val(''); $('#cashTendered').val(''); $('#allocationPreview').text('Enter an amount to preview the allocation. Arrears are settled first; excess is kept as prepaid credit.'); recalc(); });
   $('#settleArrears').on('click',function(){ $('#quickPaymentAmount').val((feePriority.reduce(function(total,type){ return total + Math.max(0,parseFloat(selectedWallet[type + '_arrears']) || 0); },0)).toFixed(2)); allocateSmartPayment(); });
 
   $('#paymentForm').on('submit',function(e){
@@ -250,12 +292,17 @@ $csrf_hash = $this->security->get_csrf_hash();
     if((parseFloat($('#quickPaymentAmount').val()) || 0) > 0){ allocateSmartPayment(); }
     var total = recalc();
     if(total <= 0){ showAjaxModal_alert('Enter a payment amount or use Advanced allocation.', 'error'); return; }
+    var cashTenderRaw = $.trim($('#cashTendered').val());
+    if($('select[name="payment_method"]').val() === '1' && cashTenderRaw !== ''){
+      var tendered = Math.max(0, parseFloat(cashTenderRaw) || 0);
+      if(tendered < total){ showAjaxModal_alert('Cash tendered is less than the payment total. Enter enough cash or leave the tender field blank.', 'error'); return; }
+    }
     var button = $('#collectPayment').prop('disabled',true).html('<i class="fa fa-spinner fa-spin"></i> Processing…');
     $.ajax({url:'<?php echo site_url('cashier/process_daily_fee_payment'); ?>',type:'POST',dataType:'json',data:$(this).serialize()})
       .done(function(res){
         if(res.status === 'success'){
           var receiptUrl = '<?php echo site_url('cashier/print_daily_fee_receipt/'); ?>' + encodeURIComponent(res.transaction_code);
-          $('#receiptSuccess').html('<strong>Payment recorded successfully.</strong><br>Receipt: ' + escapeHtml(res.receipt_number || '') + '<br><a target="_blank" href="' + receiptUrl + '"><i class="fa fa-print"></i> Print receipt</a>').show();
+          $('#receiptSuccess').html('<strong>Payment recorded successfully.</strong><br>Receipt: ' + escapeHtml(res.receipt_number || '') + '<br><a target="_blank" rel="noopener" href="' + receiptUrl + '"><i class="fa fa-print"></i> Print receipt</a>').show();
           showAjaxModal_alert(res.message || 'Payment processed successfully.', 'success');
           loadStudent(selectedStudentId, true);
         } else { showAjaxModal_alert(res.message || 'Payment could not be processed.', 'error'); }
@@ -263,5 +310,7 @@ $csrf_hash = $this->security->get_csrf_hash();
       .fail(function(){ showAjaxModal_alert('Payment request failed. Please retry.', 'error'); })
       .always(function(){ if(preferencesLoaded){ button.prop('disabled',false); } button.html('<i class="fa fa-check-circle"></i> Collect payment'); });
   });
+
+  recalc();
 })(jQuery);
 </script>
