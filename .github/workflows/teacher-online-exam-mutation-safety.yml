@@ -1,0 +1,35 @@
+name: Teacher Online Exam Mutation Safety
+
+on:
+  pull_request:
+    paths:
+      - 'application/controllers/Teacher_online_exam.php'
+      - 'application/views/backend/teacher/manage_online_exam.php'
+      - 'application/views/backend/teacher/manage_online_exam_question.php'
+      - 'tests/teacher-online-exam-mutation-safety.test.js'
+      - '.github/workflows/teacher-online-exam-mutation-safety.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/controllers/Teacher_online_exam.php'
+      - 'application/views/backend/teacher/manage_online_exam.php'
+      - 'application/views/backend/teacher/manage_online_exam_question.php'
+      - 'tests/teacher-online-exam-mutation-safety.test.js'
+      - '.github/workflows/teacher-online-exam-mutation-safety.yml'
+
+jobs:
+  teacher-online-exam-mutation-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run teacher online exam mutation safety contract
+        run: node --test tests/teacher-online-exam-mutation-safety.test.js
+      - name: Lint guarded online exam controller
+        run: php -l application/controllers/Teacher_online_exam.php
+      - name: Lint online exam management view
+        run: php -l application/views/backend/teacher/manage_online_exam.php
+      - name: Lint online exam question view
+        run: php -l application/views/backend/teacher/manage_online_exam_question.php
