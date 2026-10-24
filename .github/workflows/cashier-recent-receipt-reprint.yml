@@ -1,0 +1,34 @@
+name: Cashier Recent Receipt Reprint
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'application/views/backend/cashier/daily_fee_collection.php'
+      - 'tests/cashier-recent-receipt-reprint.test.js'
+      - '.github/workflows/cashier-recent-receipt-reprint.yml'
+  push:
+    branches:
+      - main
+      - 'feat/cashier-recent-receipt-reprint'
+    paths:
+      - 'application/views/backend/cashier/daily_fee_collection.php'
+      - 'tests/cashier-recent-receipt-reprint.test.js'
+      - '.github/workflows/cashier-recent-receipt-reprint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  cashier-recent-receipt-reprint:
+    name: Recent receipt reprint contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run recent receipt reprint regression contract
+        run: node --test tests/cashier-recent-receipt-reprint.test.js
+      - name: Lint cashier collection view
+        run: php -l application/views/backend/cashier/daily_fee_collection.php
