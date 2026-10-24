@@ -12,6 +12,7 @@ on:
     branches:
       - main
       - 'feat/student-profile-command-center'
+      - 'feat/student-profile-review-navigation'
     paths:
       - 'application/views/backend/includes_bottom.php'
       - 'assets/js/student-profile-command-center.js'
