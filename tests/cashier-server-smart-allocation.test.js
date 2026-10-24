@@ -30,8 +30,8 @@ test('server validates and reconstructs the quick-payment allocation from curren
   assert.match(controller, /min\s*\(\s*\$remaining\s*,\s*\$arrears\s*\)/);
   assert.match(controller, /process_payment\s*\(/);
   assert.match(controller, /'payment_type'\s*=>\s*'mixed'/);
-  assert.match(controller, /'allocations'\s*=>/);
-  assert.match(controller, /'applied_total'\s*=>/);
+  assert.match(controller, /\$result\['allocations'\]\s*=\s*\$allocations/);
+  assert.match(controller, /\$result\['applied_total'\]\s*=\s*array_sum\(\$allocations\)/);
 });
 
 test('quick-payment bridge reroutes only active quick payments and preserves manual allocation', () => {
