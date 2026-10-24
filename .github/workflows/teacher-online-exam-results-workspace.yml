@@ -1,0 +1,27 @@
+name: Teacher Online Exam Results Workspace
+
+on:
+  pull_request:
+    paths:
+      - 'application/views/backend/teacher/view_online_exam_results.php'
+      - 'tests/teacher-online-exam-results-workspace.test.js'
+      - '.github/workflows/teacher-online-exam-results-workspace.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/views/backend/teacher/view_online_exam_results.php'
+      - 'tests/teacher-online-exam-results-workspace.test.js'
+      - '.github/workflows/teacher-online-exam-results-workspace.yml'
+
+jobs:
+  teacher-online-exam-results-workspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run teacher online exam results workspace contract
+        run: node --test tests/teacher-online-exam-results-workspace.test.js
+      - name: Lint results view
+        run: php -l application/views/backend/teacher/view_online_exam_results.php
