@@ -1,0 +1,29 @@
+name: Admission Readiness Panel
+
+on:
+  pull_request:
+    paths:
+      - 'application/views/backend/include_main.php'
+      - 'assets/js/admission-readiness.js'
+      - 'tests/admission-readiness-panel.test.js'
+      - '.github/workflows/admission-readiness-panel.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'application/views/backend/include_main.php'
+      - 'assets/js/admission-readiness.js'
+      - 'tests/admission-readiness-panel.test.js'
+      - '.github/workflows/admission-readiness-panel.yml'
+
+jobs:
+  admission-readiness-panel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run admission readiness contract
+        run: node --test tests/admission-readiness-panel.test.js
+      - name: Lint shared renderer
+        run: php -l application/views/backend/include_main.php
