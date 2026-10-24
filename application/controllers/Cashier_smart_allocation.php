@@ -19,7 +19,9 @@ class Cashier_smart_allocation extends CI_Controller {
         $is_conductor = $this->session->userdata('login_type') === 'conductor';
 
         if ($is_logged_in && !$is_conductor) {
-            $this->authorized = $this->Daily_fee_model->can_collect_daily_fees(null, 'cashier_portal');
+            // Mirror the existing Cashier controller authorization boundary so
+            // Quick and Advanced payment modes cannot disagree about access.
+            $this->authorized = $this->Daily_fee_model->can_collect_daily_fees();
         }
     }
 
