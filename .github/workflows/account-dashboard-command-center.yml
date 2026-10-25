@@ -1,0 +1,25 @@
+name: Account Dashboard Command Center
+
+on:
+  pull_request:
+    paths:
+      - 'application/views/backend/admin/account_dashboard.php'
+      - 'tests/account-dashboard-command-center.test.js'
+      - '.github/workflows/account-dashboard-command-center.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'application/views/backend/admin/account_dashboard.php'
+      - 'tests/account-dashboard-command-center.test.js'
+      - '.github/workflows/account-dashboard-command-center.yml'
+
+jobs:
+  account-dashboard-command-center:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify finance command center contract
+        run: node tests/account-dashboard-command-center.test.js
+      - name: Lint account dashboard PHP
+        run: php -l application/views/backend/admin/account_dashboard.php
