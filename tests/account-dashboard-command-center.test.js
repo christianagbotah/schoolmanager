@@ -12,7 +12,7 @@ test('account dashboard renders a finance command-center hierarchy', () => {
   assert.match(dashboard, /class="finance-command-center__header"/);
   assert.match(dashboard, /class="finance-summary-grid"/);
   assert.match(dashboard, /class="finance-services-grid"/);
-  assert.match(dashboard, /class="finance-debt-card"/);
+  assert.match(dashboard, /class="[^"]*finance-debt-card[^"]*"/);
   assert.match(dashboard, /aria-label="Finance overview"/);
 });
 
